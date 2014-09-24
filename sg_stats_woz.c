@@ -68,8 +68,13 @@ static inline int vextract16(const __m128i v, const int offset)
     }
 }
 
+#ifdef ALIGN_EXTRA
+#define FNAME sg_stats_woz_debug
+#else
+#define FNAME sg_stats_woz
+#endif
 
-int sg_stats_woz(
+int FNAME(
         const char * const restrict _s1, const int s1Len,
         const char * const restrict _s2, const int s2Len,
         const int open, const int gap,

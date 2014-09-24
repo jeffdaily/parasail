@@ -33,9 +33,13 @@ static inline void arr_store_si128(
 }
 #endif
 
+#ifdef ALIGN_EXTRA
+#define FNAME sg_stats_striped_debug
+#else
+#define FNAME sg_stats_striped
+#endif
 
-
-int sg_stats_striped(
+int FNAME(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
         const int open, const int gap,

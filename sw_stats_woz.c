@@ -52,9 +52,13 @@ static inline int extract(const __m128i m, const int pos)
     return tmp.v[pos];
 }
 
+#ifdef ALIGN_EXTRA
+#define FNAME sw_stats_woz_debug
+#else
+#define FNAME sw_stats_woz
+#endif
 
-
-int sw_stats_woz(
+int FNAME(
         const char * const restrict _s1, const int s1Len,
         const char * const restrict _s2, const int s2Len,
         const int open, const int gap,

@@ -4,6 +4,10 @@
 #include <limits.h>
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define MAX(a,b) ((a)>(b)?(a):(b))
 
 static const int16_t NEG_INF = SHRT_MIN / 2;
@@ -142,5 +146,9 @@ extern int sw_stats_striped(
         const int open, const int gap,
         const int8_t * const restrict matrix,
         int * const restrict matches, int * const restrict length);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _PGRAPH_ALIGN_H_ */

@@ -9,7 +9,13 @@
 #endif
 #include "blosum/blosum_map.h"
 
-int sg(
+#ifdef ALIGN_EXTRA
+#define FNAME sg_debug
+#else
+#define FNAME sg
+#endif
+
+int FNAME(
         const char * const restrict _s1, const int s1Len,
         const char * const restrict _s2, const int s2Len,
         const int open, const int gap,

@@ -9,7 +9,13 @@
 #endif
 #include "blosum/blosum_map.h"
 
-int nw(
+#ifdef ALIGN_EXTRA
+#define FNAME nw_debug
+#else
+#define FNAME nw
+#endif
+
+int FNAME(
         const char * const restrict _s1, const int s1Len,
         const char * const restrict _s2, const int s2Len,
         const int open, const int gap,

@@ -14,6 +14,22 @@
 
 
 #if ALIGN_EXTRA
+/* on OSX, _mm_extract_epi16 got wrong answer, but taking the union of
+ *  * the vector and extracting that way seemed to work... */
+#define EXTRACT extract
+//#define EXTRACT _mm_extract_epi16
+
+static inline int extract(const __m128i m, const int pos)
+{
+    union {
+        __m128i m;
+        int16_t v[8];
+    } tmp;
+    tmp.m = m;
+    return tmp.v[pos];
+}
+
+
 static inline void arr_store_si128(
         int *array,
         __m128i vH,
@@ -22,14 +38,14 @@ static inline void arr_store_si128(
         int32_t d,
         int32_t dlen)
 {
-    array[(0*seglen+t)*dlen + d] = extract(vH, 0);
-    array[(1*seglen+t)*dlen + d] = extract(vH, 1);
-    array[(2*seglen+t)*dlen + d] = extract(vH, 2);
-    array[(3*seglen+t)*dlen + d] = extract(vH, 3);
-    array[(4*seglen+t)*dlen + d] = extract(vH, 4);
-    array[(5*seglen+t)*dlen + d] = extract(vH, 5);
-    array[(6*seglen+t)*dlen + d] = extract(vH, 6);
-    array[(7*seglen+t)*dlen + d] = extract(vH, 7);
+    array[(0*seglen+t)*dlen + d] = EXTRACT(vH, 0);
+    array[(1*seglen+t)*dlen + d] = EXTRACT(vH, 1);
+    array[(2*seglen+t)*dlen + d] = EXTRACT(vH, 2);
+    array[(3*seglen+t)*dlen + d] = EXTRACT(vH, 3);
+    array[(4*seglen+t)*dlen + d] = EXTRACT(vH, 4);
+    array[(5*seglen+t)*dlen + d] = EXTRACT(vH, 5);
+    array[(6*seglen+t)*dlen + d] = EXTRACT(vH, 6);
+    array[(7*seglen+t)*dlen + d] = EXTRACT(vH, 7);
 }
 #endif
 

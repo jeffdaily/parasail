@@ -1,6 +1,5 @@
 #include "config.h"
 
-#include <stdio.h>
 #include <stdlib.h>
 
 #include <emmintrin.h>
@@ -155,6 +154,8 @@ int FNAME(
         const int * const restrict matrow5 = matrix[s1[i+5]];
         const int * const restrict matrow6 = matrix[s1[i+6]];
         const int * const restrict matrow7 = matrix[s1[i+7]];
+        __m128i vIltLimit = _mm_cmplt_epi16(vI, vILimit);
+        __m128i vIeqLimit1 = _mm_cmpeq_epi16(vI, vILimit1);
         /* iterate over database sequence */
         for (j=0; j<s2Len+PAD2; ++j) {
             __m128i vMat;
@@ -177,8 +178,8 @@ int FNAME(
                     matrow6[s2[j-6]],
                     matrow7[s2[j-7]]
                     );
-            vWscore = _mm_add_epi16(vNWscore, vMat);
-            vWscore = _mm_max_epi16(vWscore, vIns);
+            vNWscore = _mm_add_epi16(vNWscore, vMat);
+            vWscore = _mm_max_epi16(vNWscore, vIns);
             vWscore = _mm_max_epi16(vWscore, vDel);
             /* as minor diagonal vector passes across the j=-1 boundary,
              * assign the appropriate boundary conditions */
@@ -195,31 +196,21 @@ int FNAME(
 #endif
             tbl_pr[j-7] = _mm_extract_epi16(vWscore,0);
             del_pr[j-7] = _mm_extract_epi16(vDel,0);
-            /* as minor diagonal vector passes across the j limit
-             * boundary, extract the last value of the row */
+            /* as minor diagonal vector passes across the i or j limit
+             * boundary, extract the last value of the column or row */
             {
-                __m128i cond_valid_I = _mm_cmplt_epi16(vI, vILimit);
-                __m128i cond_valid_J = _mm_cmpeq_epi16(vJ, vJLimit1);
+                __m128i cond_j = _mm_and_si128(
+                        vIltLimit,
+                        _mm_cmpeq_epi16(vJ, vJLimit1));
+                __m128i cond_i = _mm_and_si128(
+                        vIeqLimit1,
+                        _mm_and_si128(_mm_cmpgt_epi16(vJ, vNegOne),
+                                      _mm_cmplt_epi16(vJ, vJLimit)));
                 __m128i cond_max = _mm_cmpgt_epi16(vWscore, vMax);
                 __m128i cond_all = _mm_and_si128(cond_max,
-                        _mm_and_si128(cond_valid_I, cond_valid_J));
-                vMax = _mm_andnot_si128(cond_all, vMax); /* keep old */
-                vMax = _mm_or_si128(vMax,
-                        _mm_and_si128(cond_all, vWscore));
-            }
-            /* as minor diagonal vector passes across the i limit
-             * boundary, extract the last value of the column */
-            {
-                __m128i cond_valid_I = _mm_cmpeq_epi16(vI, vILimit1);
-                __m128i cond_valid_J = _mm_and_si128(
-                        _mm_cmpgt_epi16(vJ, vNegOne),
-                        _mm_cmplt_epi16(vJ, vJLimit));
-                __m128i cond_max = _mm_cmpgt_epi16(vWscore, vMax);
-                __m128i cond_all = _mm_and_si128(cond_max,
-                        _mm_and_si128(cond_valid_I, cond_valid_J));
-                vMax = _mm_andnot_si128(cond_all, vMax); /* keep old */
-                vMax = _mm_or_si128(vMax,
-                        _mm_and_si128(cond_all, vWscore));
+                        _mm_or_si128(cond_i, cond_j));
+                vMax = _mm_andnot_si128(cond_all, vMax);
+                vMax = _mm_or_si128(vMax, _mm_and_si128(cond_all, vWscore));
             }
             vJ = _mm_add_epi16(vJ, vOne);
         }
@@ -229,27 +220,7 @@ int FNAME(
     /* max in vMax */
     {
         int16_t value;
-        value = (int16_t) _mm_extract_epi16(vMax, 0);
-        if (value > score) {
-            score = value;
-        }
-        value = (int16_t) _mm_extract_epi16(vMax, 1);
-        if (value > score) {
-            score = value;
-        }
-        value = (int16_t) _mm_extract_epi16(vMax, 2);
-        if (value > score) {
-            score = value;
-        }
-        value = (int16_t) _mm_extract_epi16(vMax, 3);
-        if (value > score) {
-            score = value;
-        }
-        value = (int16_t) _mm_extract_epi16(vMax, 4);
-        if (value > score) {
-            score = value;
-        }
-        value = (int16_t) _mm_extract_epi16(vMax, 5);
+        value = (int16_t) _mm_extract_epi16(vMax, 7);
         if (value > score) {
             score = value;
         }
@@ -257,7 +228,27 @@ int FNAME(
         if (value > score) {
             score = value;
         }
-        value = (int16_t) _mm_extract_epi16(vMax, 7);
+        value = (int16_t) _mm_extract_epi16(vMax, 5);
+        if (value > score) {
+            score = value;
+        }
+        value = (int16_t) _mm_extract_epi16(vMax, 4);
+        if (value > score) {
+            score = value;
+        }
+        value = (int16_t) _mm_extract_epi16(vMax, 3);
+        if (value > score) {
+            score = value;
+        }
+        value = (int16_t) _mm_extract_epi16(vMax, 2);
+        if (value > score) {
+            score = value;
+        }
+        value = (int16_t) _mm_extract_epi16(vMax, 1);
+        if (value > score) {
+            score = value;
+        }
+        value = (int16_t) _mm_extract_epi16(vMax, 0);
         if (value > score) {
             score = value;
         }

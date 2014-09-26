@@ -40,12 +40,12 @@ int FNAME(
 
     /* upper left corner */
     tbl_pr[0] = 0;
-    del_pr[0] = NEG_INF;
+    del_pr[0] = NEG_INF_32;
     
     /* first row */
     for (j=1; j<=s2Len; ++j) {
         tbl_pr[j] = -open -(j-1)*gap;
-        del_pr[j] = NEG_INF;
+        del_pr[j] = NEG_INF_32;
     }
 
     /* iter over first sequence */
@@ -54,7 +54,7 @@ int FNAME(
         /* init first column */
         int Nscore = tbl_pr[0];
         int Wscore = -open - (i-1)*gap;
-        int ins_cr = NEG_INF;
+        int ins_cr = NEG_INF_32;
         tbl_pr[0] = Wscore;
         for (j=1; j<=s2Len; ++j) {
             int NWscore = Nscore;

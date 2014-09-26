@@ -5,9 +5,9 @@
 #include <emmintrin.h>
 
 #ifdef ALIGN_EXTRA
-#include "align/align_debug.h"
+#include "align/align_wozniak_128_16_debug.h"
 #else
-#include "align/align.h"
+#include "align/align_wozniak_128_16.h"
 #endif
 #include "blosum/blosum_map.h"
 
@@ -59,9 +59,9 @@ static inline void arr_store_si128(
 
 
 #ifdef ALIGN_EXTRA
-#define FNAME nw_woz_debug
+#define FNAME nw_wozniak_128_16_debug
 #else
-#define FNAME nw_woz
+#define FNAME nw_wozniak_128_16
 #endif
 int FNAME(
         const char * const restrict _s1, const int s1Len,
@@ -82,11 +82,10 @@ int FNAME(
     int * const restrict s2 = s2B+PAD2; /* will allow later for negative indices */
     int i = 0;
     int j = 0;
-    int score = NEG_INF;
+    int score = NEG_INF_16;
     int * const restrict tbl_pr = _tbl_pr+PAD2;
     int * const restrict del_pr = _del_pr+PAD2;
-    __m128i vNegInf = _mm_set1_epi16(NEG_INF);
-    __m128i vNegInf0 = _mm_srli_si128(vNegInf, 2); /* shift in a 0 */
+    __m128i vNegInf = _mm_set1_epi16(NEG_INF_16);
     __m128i vOpen = _mm_set1_epi16(open);
     __m128i vGap  = _mm_set1_epi16(gap);
     __m128i vOne = _mm_set1_epi16(1);
@@ -134,17 +133,17 @@ int FNAME(
     /* set initial values for stored row */
     for (j=0; j<s2Len; ++j) {
         tbl_pr[j] = -open - j*gap;
-        del_pr[j] = NEG_INF;
+        del_pr[j] = NEG_INF_16;
     }
     /* pad front of stored row values */
     for (j=-PAD2; j<0; ++j) {
-        tbl_pr[j] = NEG_INF;
-        del_pr[j] = NEG_INF;
+        tbl_pr[j] = NEG_INF_16;
+        del_pr[j] = NEG_INF_16;
     }
     /* pad back of stored row values */
     for (j=s2Len; j<s2Len+PAD2; ++j) {
-        tbl_pr[j] = NEG_INF;
-        del_pr[j] = NEG_INF;
+        tbl_pr[j] = NEG_INF_16;
+        del_pr[j] = NEG_INF_16;
     }
     tbl_pr[-1] = 0; /* upper left corner */
 

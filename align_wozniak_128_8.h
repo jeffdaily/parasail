@@ -1,5 +1,5 @@
-#ifndef _PGRAPH_ALIGN_H_
-#define _PGRAPH_ALIGN_H_
+#ifndef _PGRAPH_ALIGN_WOZNIAK_128_8_H_
+#define _PGRAPH_ALIGN_WOZNIAK_128_8_H_
 
 #include <limits.h>
 #include <stdint.h>
@@ -10,30 +10,30 @@ extern "C" {
 
 #define MAX(a,b) ((a)>(b)?(a):(b))
 
-#define NEG_INF_32 (INT32_MIN/(int32_t)2)
+#define NEG_INF_8 (INT8_MIN/(int8_t)2)
 
-extern int nw(
+extern int nw_wozniak_128_8(
         const char * const restrict _s1, const int s1Len,
         const char * const restrict _s2, const int s2Len,
         const int open, const int gap,
         const int matrix[24][24],
         int * const restrict tbl_pr, int * const restrict del_pr);
 
-extern int sg(
+extern int sg_wozniak_128_8(
         const char * const restrict _s1, const int s1Len,
         const char * const restrict _s2, const int s2Len,
         const int open, const int gap,
         const int matrix[24][24],
         int * const restrict tbl_pr, int * const restrict del_pr);
 
-extern int sw(
+extern int sw_wozniak_128_8(
         const char * const restrict _s1, const int s1Len,
         const char * const restrict _s2, const int s2Len,
         const int open, const int gap,
         const int matrix[24][24],
         int * const restrict tbl_pr, int * const restrict del_pr);
 
-extern int nw_stats(
+extern int nw_stats_wozniak_128_8(
         const char * const restrict _s1, const int s1Len,
         const char * const restrict _s2, const int s2Len,
         const int open, const int gap,
@@ -42,7 +42,7 @@ extern int nw_stats(
         int * const restrict tbl_pr, int * const restrict del_pr,
         int * const restrict mch_pr, int * const restrict len_pr);
 
-extern int sg_stats(
+extern int sg_stats_wozniak_128_8(
         const char * const restrict _s1, const int s1Len,
         const char * const restrict _s2, const int s2Len,
         const int open, const int gap,
@@ -51,7 +51,7 @@ extern int sg_stats(
         int * const restrict tbl_pr, int * const restrict del_pr,
         int * const restrict mch_pr, int * const restrict len_pr);
 
-extern int sw_stats(
+extern int sw_stats_wozniak_128_8(
         const char * const restrict _s1, const int s1Len,
         const char * const restrict _s2, const int s2Len,
         const int open, const int gap,
@@ -64,4 +64,4 @@ extern int sw_stats(
 }
 #endif
 
-#endif /* _PGRAPH_ALIGN_H_ */
+#endif /* _PGRAPH_ALIGN_WOZNIAK_128_8_H_ */

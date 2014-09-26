@@ -3,11 +3,12 @@
 #include <stdlib.h>
 
 #include <emmintrin.h>
+#include <immintrin.h>
 
 #ifdef ALIGN_EXTRA
-#include "align/align_wozniak_128_16_debug.h"
+#include "align/align_debug.h"
 #else
-#include "align/align_wozniak_128_16.h"
+#include "align/align.h"
 #endif
 #include "blosum/blosum_map.h"
 
@@ -59,11 +60,10 @@ static inline void arr_store_si128(
 
 
 #ifdef ALIGN_EXTRA
-#define FNAME sw_wozniak_128_16_debug
+#define FNAME nw_wozniak_debug
 #else
-#define FNAME sw_wozniak_128_16
+#define FNAME nw_wozniak
 #endif
-
 int FNAME(
         const char * const restrict _s1, const int s1Len,
         const char * const restrict _s2, const int s2Len,
@@ -83,22 +83,32 @@ int FNAME(
     int * const restrict s2 = s2B+PAD2; /* will allow later for negative indices */
     int i = 0;
     int j = 0;
-    int score = NEG_INF_16;
+    int score = NEG_INF;
     int * const restrict tbl_pr = _tbl_pr+PAD2;
     int * const restrict del_pr = _del_pr+PAD2;
-    __m128i vNegInf = _mm_set1_epi16(NEG_INF_16);
+    __m128i vNegInf = _mm_set1_epi16(NEG_INF);
     __m128i vNegInf0 = _mm_srli_si128(vNegInf, 2); /* shift in a 0 */
     __m128i vOpen = _mm_set1_epi16(open);
     __m128i vGap  = _mm_set1_epi16(gap);
     __m128i vOne = _mm_set1_epi16(1);
-    __m128i vZero = _mm_set1_epi16(0);
     __m128i vN = _mm_set1_epi16(N);
     __m128i vNegOne = _mm_set1_epi16(-1);
     __m128i vI = _mm_set_epi16(0,1,2,3,4,5,6,7);
     __m128i vJreset = _mm_set_epi16(0,-1,-2,-3,-4,-5,-6,-7);
     __m128i vMax = vNegInf;
     __m128i vILimit = _mm_set1_epi16(s1Len);
+    __m128i vILimit1 = _mm_sub_epi16(vILimit, vOne);
     __m128i vJLimit = _mm_set1_epi16(s2Len);
+    __m128i vJLimit1 = _mm_sub_epi16(vJLimit, vOne);
+    __m128i vIBoundary = _mm_set_epi16(
+            -open-0*gap,
+            -open-1*gap,
+            -open-2*gap,
+            -open-3*gap,
+            -open-4*gap,
+            -open-5*gap,
+            -open-6*gap,
+            -open-7*gap);
 
     /* convert _s1 from char to int in range 0-23 */
     for (i=0; i<s1Len; ++i) {
@@ -124,24 +134,25 @@ int FNAME(
 
     /* set initial values for stored row */
     for (j=0; j<s2Len; ++j) {
-        tbl_pr[j] = 0;
-        del_pr[j] = NEG_INF_16;
+        tbl_pr[j] = -open - j*gap;
+        del_pr[j] = NEG_INF;
     }
     /* pad front of stored row values */
     for (j=-PAD2; j<0; ++j) {
-        tbl_pr[j] = NEG_INF_16;
-        del_pr[j] = NEG_INF_16;
+        tbl_pr[j] = NEG_INF;
+        del_pr[j] = NEG_INF;
     }
     /* pad back of stored row values */
     for (j=s2Len; j<s2Len+PAD2; ++j) {
-        tbl_pr[j] = NEG_INF_16;
-        del_pr[j] = NEG_INF_16;
+        tbl_pr[j] = NEG_INF;
+        del_pr[j] = NEG_INF;
     }
+    tbl_pr[-1] = 0; /* upper left corner */
 
     /* iterate over query sequence */
     for (i=0; i<s1Len; i+=N) {
-        __m128i vNscore = vNegInf0;
-        __m128i vWscore = vNegInf0;
+        __m128i vNscore = vNegInf;
+        __m128i vWscore = vNegInf;
         __m128i vIns = vNegInf;
         __m128i vDel = vNegInf;
         __m128i vJ = vJreset;
@@ -153,7 +164,9 @@ int FNAME(
         const int * const restrict matrow5 = matrix[s1[i+5]];
         const int * const restrict matrow6 = matrix[s1[i+6]];
         const int * const restrict matrow7 = matrix[s1[i+7]];
-        __m128i vIltLimit = _mm_cmplt_epi16(vI, vILimit);
+        vNscore = vshift16(vNscore, tbl_pr[-1]);
+        vWscore = vshift16(vWscore, -open - i*gap);
+        tbl_pr[-1] = -open - (i+N)*gap;
         /* iterate over database sequence */
         for (j=0; j<s2Len+PAD2; ++j) {
             __m128i vMat;
@@ -179,12 +192,13 @@ int FNAME(
             vNWscore = _mm_add_epi16(vNWscore, vMat);
             vWscore = _mm_max_epi16(vNWscore, vIns);
             vWscore = _mm_max_epi16(vWscore, vDel);
-            vWscore = _mm_max_epi16(vWscore, vZero);
             /* as minor diagonal vector passes across the j=-1 boundary,
              * assign the appropriate boundary conditions */
             {
                 __m128i cond = _mm_cmpeq_epi16(vJ,vNegOne);
-                vWscore = _mm_andnot_si128(cond, vWscore);
+                vWscore = _mm_andnot_si128(cond, vWscore); /* all but j=-1 */
+                vWscore = _mm_or_si128(vWscore,
+                        _mm_and_si128(cond, vIBoundary));
                 vDel = _mm_andnot_si128(cond, vDel);
                 vDel = _mm_or_si128(vDel, _mm_and_si128(cond, vNegInf));
                 vIns = _mm_andnot_si128(cond, vIns);
@@ -196,20 +210,21 @@ int FNAME(
             tbl_pr[j-7] = _mm_extract_epi16(vWscore,0);
             del_pr[j-7] = _mm_extract_epi16(vDel,0);
             /* as minor diagonal vector passes across table, extract
-             * max values within the i,j bounds */
+               last table value at the i,j bound */
             {
-                __m128i cond_valid_J = _mm_and_si128(
-                        _mm_cmpgt_epi16(vJ, vNegOne),
-                        _mm_cmplt_epi16(vJ, vJLimit));
+                __m128i cond_valid_I = _mm_cmpeq_epi16(vI, vILimit1);
+                __m128i cond_valid_J = _mm_cmpeq_epi16(vJ, vJLimit1);
                 __m128i cond_max = _mm_cmpgt_epi16(vWscore, vMax);
                 __m128i cond_all = _mm_and_si128(cond_max,
-                        _mm_and_si128(vIltLimit, cond_valid_J));
-                vMax = _mm_andnot_si128(cond_all, vMax);
-                vMax = _mm_or_si128(vMax, _mm_and_si128(cond_all, vWscore));
+                        _mm_and_si128(cond_valid_I, cond_valid_J));
+                vMax = _mm_andnot_si128(cond_all, vMax); /* keep old */
+                vMax = _mm_or_si128(vMax,
+                        _mm_and_si128(cond_all, vWscore));
             }
             vJ = _mm_add_epi16(vJ, vOne);
         }
         vI = _mm_add_epi16(vI, vN);
+        vIBoundary = _mm_sub_epi16(vIBoundary, _mm_mullo_epi16(vN, vGap));
     }
 
     /* max in vMax */

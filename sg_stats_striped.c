@@ -6,30 +6,14 @@
 #include <emmintrin.h>
 
 #ifdef ALIGN_EXTRA
-#include "align/align_debug.h"
+#include "align/align_striped_128_16_debug.h"
 #else
-#include "align/align.h"
+#include "align/align_striped_128_16.h"
 #endif
 #include "blosum/blosum_map.h"
 
 
 #if ALIGN_EXTRA
-/* on OSX, _mm_extract_epi16 got wrong answer, but taking the union of
- *  * the vector and extracting that way seemed to work... */
-#define EXTRACT extract
-//#define EXTRACT _mm_extract_epi16
-
-static inline int extract(const __m128i m, const int pos)
-{
-    union {
-        __m128i m;
-        int16_t v[8];
-    } tmp;
-    tmp.m = m;
-    return tmp.v[pos];
-}
-
-
 static inline void arr_store_si128(
         int *array,
         __m128i vH,
@@ -38,21 +22,21 @@ static inline void arr_store_si128(
         int32_t d,
         int32_t dlen)
 {
-    array[(0*seglen+t)*dlen + d] = EXTRACT(vH, 0);
-    array[(1*seglen+t)*dlen + d] = EXTRACT(vH, 1);
-    array[(2*seglen+t)*dlen + d] = EXTRACT(vH, 2);
-    array[(3*seglen+t)*dlen + d] = EXTRACT(vH, 3);
-    array[(4*seglen+t)*dlen + d] = EXTRACT(vH, 4);
-    array[(5*seglen+t)*dlen + d] = EXTRACT(vH, 5);
-    array[(6*seglen+t)*dlen + d] = EXTRACT(vH, 6);
-    array[(7*seglen+t)*dlen + d] = EXTRACT(vH, 7);
+    array[(0*seglen+t)*dlen + d] = _mm_extract_epi16(vH, 0);
+    array[(1*seglen+t)*dlen + d] = _mm_extract_epi16(vH, 1);
+    array[(2*seglen+t)*dlen + d] = _mm_extract_epi16(vH, 2);
+    array[(3*seglen+t)*dlen + d] = _mm_extract_epi16(vH, 3);
+    array[(4*seglen+t)*dlen + d] = _mm_extract_epi16(vH, 4);
+    array[(5*seglen+t)*dlen + d] = _mm_extract_epi16(vH, 5);
+    array[(6*seglen+t)*dlen + d] = _mm_extract_epi16(vH, 6);
+    array[(7*seglen+t)*dlen + d] = _mm_extract_epi16(vH, 7);
 }
 #endif
 
 #ifdef ALIGN_EXTRA
-#define FNAME sg_stats_striped_debug
+#define FNAME sg_stats_striped_128_16_debug
 #else
-#define FNAME sg_stats_striped
+#define FNAME sg_stats_striped_128_16
 #endif
 
 int FNAME(
@@ -82,7 +66,7 @@ int FNAME(
     int32_t position = 7 - (s1Len - 1) / segLen;
 
     /* the max alignment score */
-    int max = NEG_INF;
+    int max = NEG_INF_16;
 
     /* Define 16 byte 0 vector. */
     __m128i vZero = _mm_setzero_si128();
@@ -298,7 +282,7 @@ end:
                 vHL = _mm_slli_si128 (vHL, 2);
             }
             /* max of last value in each column */
-            int16_t tmp = (signed short) _mm_extract_epi16 (vH, 7);
+            int16_t tmp = (int16_t) _mm_extract_epi16 (vH, 7);
             if (tmp > max) {
                 max = tmp;
                 *matches = _mm_extract_epi16(vHM, 7);
@@ -308,7 +292,7 @@ end:
     }
 
     /* max of last column */
-    __m128i vNegInf = _mm_set1_epi16(NEG_INF);
+    __m128i vNegInf = _mm_set1_epi16(NEG_INF_16);
     __m128i vMaxLastColH = vNegInf;
     __m128i vMaxLastColHM = vNegInf;
     __m128i vMaxLastColHL = vNegInf;
@@ -348,12 +332,15 @@ end:
 
     /* max in vec */
     for (j=0; j<8; ++j) {
-        int16_t value = (signed short) _mm_extract_epi16(vMaxLastColH, j);
+        int16_t value = (int16_t) _mm_extract_epi16(vMaxLastColH, 7);
         if (value > max) {
             max = value;
-            *matches = _mm_extract_epi16(vMaxLastColHM, j);
-            *length = _mm_extract_epi16(vMaxLastColHL, j);
+            *matches = _mm_extract_epi16(vMaxLastColHM, 7);
+            *length = _mm_extract_epi16(vMaxLastColHL, 7);
         }
+        vMaxLastColH = _mm_slli_si128(vMaxLastColH, 2);
+        vMaxLastColHM = _mm_slli_si128(vMaxLastColHM, 2);
+        vMaxLastColHL = _mm_slli_si128(vMaxLastColHL, 2);
     }
 
     free(vProfile);

@@ -6,9 +6,9 @@
 #include <emmintrin.h>
 
 #ifdef ALIGN_EXTRA
-#include "align/align_debug.h"
+#include "align/align_striped_128_16_debug.h"
 #else
-#include "align/align.h"
+#include "align/align_striped_128_16.h"
 #endif
 #include "blosum/blosum_map.h"
 
@@ -35,9 +35,9 @@ static inline void arr_store_si128(
 
 
 #ifdef ALIGN_EXTRA
-#define FNAME sw_stats_striped_debug
+#define FNAME sw_stats_striped_128_16_debug
 #else
-#define FNAME sw_stats_striped
+#define FNAME sw_stats_striped_128_16
 #endif
 
 int FNAME(
@@ -64,7 +64,7 @@ int FNAME(
     __m128i* vProfileS = (__m128i*)malloc(n * segLen * sizeof(__m128i));
 
     /* the max alignment score */
-    int max = NEG_INF;
+    int max = NEG_INF_16;
 
     /* Define 16 byte 0 vector. */
     __m128i vZero = _mm_setzero_si128();
@@ -316,15 +316,15 @@ end:
 
     /* max in vec */
     for (j=0; j<8; ++j) {
-        int16_t value = (signed short) _mm_extract_epi16(vMaxH, 0);
+        int16_t value = (int16_t) _mm_extract_epi16(vMaxH, 7);
         if (value > max) {
             max = value;
-            *matches = (signed short) _mm_extract_epi16(vMaxM, 0);
-            *length = (signed short) _mm_extract_epi16(vMaxL, 0);
+            *matches = (int16_t) _mm_extract_epi16(vMaxM, 7);
+            *length = (int16_t) _mm_extract_epi16(vMaxL, 7);
         }
-        vMaxH = _mm_srli_si128(vMaxH, 2);
-        vMaxM = _mm_srli_si128(vMaxM, 2);
-        vMaxL = _mm_srli_si128(vMaxL, 2);
+        vMaxH = _mm_slli_si128(vMaxH, 2);
+        vMaxM = _mm_slli_si128(vMaxM, 2);
+        vMaxL = _mm_slli_si128(vMaxL, 2);
     }
 
     free(vProfile);

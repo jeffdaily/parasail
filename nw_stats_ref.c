@@ -44,14 +44,14 @@ int FNAME(
 
     /* upper left corner */
     tbl_pr[0] = 0;
-    del_pr[0] = NEG_INF;
+    del_pr[0] = NEG_INF_32;
     mch_pr[0] = 0;
     len_pr[0] = 0;
     
     /* first row */
     for (j=1; j<=s2Len; ++j) {
         tbl_pr[j] = -open -(j-1)*gap;
-        del_pr[j] = NEG_INF;
+        del_pr[j] = NEG_INF_32;
         mch_pr[j] = 0;
         len_pr[j] = 0;
     }
@@ -66,7 +66,7 @@ int FNAME(
         int Wscore = -open - (i-1)*gap;
         int Wmatches = 0;
         int Wlength = 0;
-        int ins_cr = NEG_INF;
+        int ins_cr = NEG_INF_32;
         tbl_pr[0] = Wscore;
         mch_pr[0] = Wmatches;
         len_pr[0] = Wlength;

@@ -34,9 +34,9 @@ int FNAME(
     int * const restrict s2 = (int * const restrict)malloc(sizeof(int)*s2Len);
     int i = 0;
     int j = 0;
-    int score = NEG_INF;
-    int match = NEG_INF;
-    int length = NEG_INF;
+    int score = NEG_INF_32;
+    int match = NEG_INF_32;
+    int length = NEG_INF_32;
 
     for (i=0; i<s1Len; ++i) {
         s1[i] = MAP_BLOSUM_[(unsigned char)_s1[i]];
@@ -47,14 +47,14 @@ int FNAME(
 
     /* upper left corner */
     tbl_pr[0] = 0;
-    del_pr[0] = NEG_INF;
+    del_pr[0] = NEG_INF_32;
     mch_pr[0] = 0;
     len_pr[0] = 0;
     
     /* first row */
     for (j=1; j<=s2Len; ++j) {
         tbl_pr[j] = 0;
-        del_pr[j] = NEG_INF;
+        del_pr[j] = NEG_INF_32;
         mch_pr[j] = 0;
         len_pr[j] = 0;
     }
@@ -69,7 +69,7 @@ int FNAME(
         int Wscore = 0;
         int Wmatches = 0;
         int Wlength = 0;
-        int ins_cr = NEG_INF;
+        int ins_cr = NEG_INF_32;
         tbl_pr[0] = Wscore;
         mch_pr[0] = Wmatches;
         len_pr[0] = Wlength;

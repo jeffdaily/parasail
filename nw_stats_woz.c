@@ -308,7 +308,7 @@ int FNAME(
     }
 
     /* max in vMaxScore */
-    {
+    for (i=0; i<N; ++i) {
         int16_t value;
         value = (int16_t) _mm_extract_epi16(vMaxScore, 7);
         if (value > score) {
@@ -316,48 +316,9 @@ int FNAME(
             match = (int16_t) _mm_extract_epi16(vMaxMatch, 7);
             length= (int16_t) _mm_extract_epi16(vMaxLength,7);
         }
-        value = (int16_t) _mm_extract_epi16(vMaxScore, 6);
-        if (value > score) {
-            score = value;
-            match = (int16_t) _mm_extract_epi16(vMaxMatch, 6);
-            length= (int16_t) _mm_extract_epi16(vMaxLength,6);
-        }
-        value = (int16_t) _mm_extract_epi16(vMaxScore, 5);
-        if (value > score) {
-            score = value;
-            match = (int16_t) _mm_extract_epi16(vMaxMatch, 5);
-            length= (int16_t) _mm_extract_epi16(vMaxLength,5);
-        }
-        value = (int16_t) _mm_extract_epi16(vMaxScore, 4);
-        if (value > score) {
-            score = value;
-            match = (int16_t) _mm_extract_epi16(vMaxMatch, 4);
-            length= (int16_t) _mm_extract_epi16(vMaxLength,4);
-        }
-        value = (int16_t) _mm_extract_epi16(vMaxScore, 3);
-        if (value > score) {
-            score = value;
-            match = (int16_t) _mm_extract_epi16(vMaxMatch, 3);
-            length= (int16_t) _mm_extract_epi16(vMaxLength,3);
-        }
-        value = (int16_t) _mm_extract_epi16(vMaxScore, 2);
-        if (value > score) {
-            score = value;
-            match = (int16_t) _mm_extract_epi16(vMaxMatch, 2);
-            length= (int16_t) _mm_extract_epi16(vMaxLength,2);
-        }
-        value = (int16_t) _mm_extract_epi16(vMaxScore, 1);
-        if (value > score) {
-            score = value;
-            match = (int16_t) _mm_extract_epi16(vMaxMatch, 1);
-            length= (int16_t) _mm_extract_epi16(vMaxLength,1);
-        }
-        value = (int16_t) _mm_extract_epi16(vMaxScore, 0);
-        if (value > score) {
-            score = value;
-            match = (int16_t) _mm_extract_epi16(vMaxMatch, 0);
-            length= (int16_t) _mm_extract_epi16(vMaxLength,0);
-        }
+        vMaxScore = _mm_slli_si128(vMaxScore, 2);
+        vMaxMatch = _mm_slli_si128(vMaxMatch, 2);
+        vMaxLength = _mm_slli_si128(vMaxLength, 2);
     }
 
     free(s1);

@@ -218,40 +218,13 @@ int FNAME(
     }
 
     /* max in vMax */
-    {
+    for (i=0; i<N; ++i) {
         int16_t value;
         value = (int16_t) _mm_extract_epi16(vMax, 7);
         if (value > score) {
             score = value;
         }
-        value = (int16_t) _mm_extract_epi16(vMax, 6);
-        if (value > score) {
-            score = value;
-        }
-        value = (int16_t) _mm_extract_epi16(vMax, 5);
-        if (value > score) {
-            score = value;
-        }
-        value = (int16_t) _mm_extract_epi16(vMax, 4);
-        if (value > score) {
-            score = value;
-        }
-        value = (int16_t) _mm_extract_epi16(vMax, 3);
-        if (value > score) {
-            score = value;
-        }
-        value = (int16_t) _mm_extract_epi16(vMax, 2);
-        if (value > score) {
-            score = value;
-        }
-        value = (int16_t) _mm_extract_epi16(vMax, 1);
-        if (value > score) {
-            score = value;
-        }
-        value = (int16_t) _mm_extract_epi16(vMax, 0);
-        if (value > score) {
-            score = value;
-        }
+        vMax = _mm_slli_si128(vMax, 2);
     }
 
     free(s1);

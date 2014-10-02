@@ -31,28 +31,28 @@ static inline void arr_store_si128(
         int s2Len)
 {
     if (0 <= i+0 && i+0 < s1Len && 0 <= j-0 && j-0 < s2Len) {
-        array[(i+0)*s2Len + (j-0)] = _mm_extract_epi16(vWscore, 7);
+        array[(i+0)*s2Len + (j-0)] = (int16_t)_mm_extract_epi16(vWscore, 7);
     }
     if (0 <= i+1 && i+1 < s1Len && 0 <= j-1 && j-1 < s2Len) {
-        array[(i+1)*s2Len + (j-1)] = _mm_extract_epi16(vWscore, 6);
+        array[(i+1)*s2Len + (j-1)] = (int16_t)_mm_extract_epi16(vWscore, 6);
     }
     if (0 <= i+2 && i+2 < s1Len && 0 <= j-2 && j-2 < s2Len) {
-        array[(i+2)*s2Len + (j-2)] = _mm_extract_epi16(vWscore, 5);
+        array[(i+2)*s2Len + (j-2)] = (int16_t)_mm_extract_epi16(vWscore, 5);
     }
     if (0 <= i+3 && i+3 < s1Len && 0 <= j-3 && j-3 < s2Len) {
-        array[(i+3)*s2Len + (j-3)] = _mm_extract_epi16(vWscore, 4);
+        array[(i+3)*s2Len + (j-3)] = (int16_t)_mm_extract_epi16(vWscore, 4);
     }
     if (0 <= i+4 && i+4 < s1Len && 0 <= j-4 && j-4 < s2Len) {
-        array[(i+4)*s2Len + (j-4)] = _mm_extract_epi16(vWscore, 3);
+        array[(i+4)*s2Len + (j-4)] = (int16_t)_mm_extract_epi16(vWscore, 3);
     }
     if (0 <= i+5 && i+5 < s1Len && 0 <= j-5 && j-5 < s2Len) {
-        array[(i+5)*s2Len + (j-5)] = _mm_extract_epi16(vWscore, 2);
+        array[(i+5)*s2Len + (j-5)] = (int16_t)_mm_extract_epi16(vWscore, 2);
     }
     if (0 <= i+6 && i+6 < s1Len && 0 <= j-6 && j-6 < s2Len) {
-        array[(i+6)*s2Len + (j-6)] = _mm_extract_epi16(vWscore, 1);
+        array[(i+6)*s2Len + (j-6)] = (int16_t)_mm_extract_epi16(vWscore, 1);
     }
     if (0 <= i+7 && i+7 < s1Len && 0 <= j-7 && j-7 < s2Len) {
-        array[(i+7)*s2Len + (j-7)] = _mm_extract_epi16(vWscore, 0);
+        array[(i+7)*s2Len + (j-7)] = (int16_t)_mm_extract_epi16(vWscore, 0);
     }
 }
 #endif
@@ -193,8 +193,8 @@ int FNAME(
 #ifdef ALIGN_EXTRA
             arr_store_si128(score_table, vWscore, i, s1Len, j, s2Len);
 #endif
-            tbl_pr[j-7] = _mm_extract_epi16(vWscore,0);
-            del_pr[j-7] = _mm_extract_epi16(vDel,0);
+            tbl_pr[j-7] = (int16_t)_mm_extract_epi16(vWscore,0);
+            del_pr[j-7] = (int16_t)_mm_extract_epi16(vDel,0);
             /* as minor diagonal vector passes across table, extract
              * max values within the i,j bounds */
             {

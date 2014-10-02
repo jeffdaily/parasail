@@ -22,14 +22,14 @@ static inline void arr_store_si128(
         int32_t d,
         int32_t dlen)
 {
-    array[(0*seglen+t)*dlen + d] = _mm_extract_epi16(vH, 0);
-    array[(1*seglen+t)*dlen + d] = _mm_extract_epi16(vH, 1);
-    array[(2*seglen+t)*dlen + d] = _mm_extract_epi16(vH, 2);
-    array[(3*seglen+t)*dlen + d] = _mm_extract_epi16(vH, 3);
-    array[(4*seglen+t)*dlen + d] = _mm_extract_epi16(vH, 4);
-    array[(5*seglen+t)*dlen + d] = _mm_extract_epi16(vH, 5);
-    array[(6*seglen+t)*dlen + d] = _mm_extract_epi16(vH, 6);
-    array[(7*seglen+t)*dlen + d] = _mm_extract_epi16(vH, 7);
+    array[(0*seglen+t)*dlen + d] = (int16_t)_mm_extract_epi16(vH, 0);
+    array[(1*seglen+t)*dlen + d] = (int16_t)_mm_extract_epi16(vH, 1);
+    array[(2*seglen+t)*dlen + d] = (int16_t)_mm_extract_epi16(vH, 2);
+    array[(3*seglen+t)*dlen + d] = (int16_t)_mm_extract_epi16(vH, 3);
+    array[(4*seglen+t)*dlen + d] = (int16_t)_mm_extract_epi16(vH, 4);
+    array[(5*seglen+t)*dlen + d] = (int16_t)_mm_extract_epi16(vH, 5);
+    array[(6*seglen+t)*dlen + d] = (int16_t)_mm_extract_epi16(vH, 6);
+    array[(7*seglen+t)*dlen + d] = (int16_t)_mm_extract_epi16(vH, 7);
 }
 #endif
 
@@ -285,8 +285,8 @@ end:
             int16_t tmp = (int16_t) _mm_extract_epi16 (vH, 7);
             if (tmp > max) {
                 max = tmp;
-                *matches = _mm_extract_epi16(vHM, 7);
-                *length = _mm_extract_epi16(vHL, 7);
+                *matches = (int16_t)_mm_extract_epi16(vHM, 7);
+                *length = (int16_t)_mm_extract_epi16(vHL, 7);
             }
         }
     }
@@ -335,8 +335,8 @@ end:
         int16_t value = (int16_t) _mm_extract_epi16(vMaxLastColH, 7);
         if (value > max) {
             max = value;
-            *matches = _mm_extract_epi16(vMaxLastColHM, 7);
-            *length = _mm_extract_epi16(vMaxLastColHL, 7);
+            *matches = (int16_t)_mm_extract_epi16(vMaxLastColHM, 7);
+            *length = (int16_t)_mm_extract_epi16(vMaxLastColHL, 7);
         }
         vMaxLastColH = _mm_slli_si128(vMaxLastColH, 2);
         vMaxLastColHM = _mm_slli_si128(vMaxLastColHM, 2);

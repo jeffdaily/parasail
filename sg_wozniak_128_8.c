@@ -34,52 +34,52 @@ static inline void arr_store_si128(
         int s2Len)
 {
     if (0 <= i+0 && i+0 < s1Len && 0 <= j-0 && j-0 < s2Len) {
-        array[(i+0)*s2Len + (j-0)] = _mm_extract_epi8(vWscore, 15);
+        array[(i+0)*s2Len + (j-0)] = (int8_t)_mm_extract_epi8(vWscore, 15);
     }
     if (0 <= i+1 && i+1 < s1Len && 0 <= j-1 && j-1 < s2Len) {
-        array[(i+1)*s2Len + (j-1)] = _mm_extract_epi8(vWscore, 14);
+        array[(i+1)*s2Len + (j-1)] = (int8_t)_mm_extract_epi8(vWscore, 14);
     }
     if (0 <= i+2 && i+2 < s1Len && 0 <= j-2 && j-2 < s2Len) {
-        array[(i+2)*s2Len + (j-2)] = _mm_extract_epi8(vWscore, 13);
+        array[(i+2)*s2Len + (j-2)] = (int8_t)_mm_extract_epi8(vWscore, 13);
     }
     if (0 <= i+3 && i+3 < s1Len && 0 <= j-3 && j-3 < s2Len) {
-        array[(i+3)*s2Len + (j-3)] = _mm_extract_epi8(vWscore, 12);
+        array[(i+3)*s2Len + (j-3)] = (int8_t)_mm_extract_epi8(vWscore, 12);
     }
     if (0 <= i+4 && i+4 < s1Len && 0 <= j-4 && j-4 < s2Len) {
-        array[(i+4)*s2Len + (j-4)] = _mm_extract_epi8(vWscore, 11);
+        array[(i+4)*s2Len + (j-4)] = (int8_t)_mm_extract_epi8(vWscore, 11);
     }
     if (0 <= i+5 && i+5 < s1Len && 0 <= j-5 && j-5 < s2Len) {
-        array[(i+5)*s2Len + (j-5)] = _mm_extract_epi8(vWscore, 10);
+        array[(i+5)*s2Len + (j-5)] = (int8_t)_mm_extract_epi8(vWscore, 10);
     }
     if (0 <= i+6 && i+6 < s1Len && 0 <= j-6 && j-6 < s2Len) {
-        array[(i+6)*s2Len + (j-6)] = _mm_extract_epi8(vWscore, 9);
+        array[(i+6)*s2Len + (j-6)] = (int8_t)_mm_extract_epi8(vWscore, 9);
     }
     if (0 <= i+7 && i+7 < s1Len && 0 <= j-7 && j-7 < s2Len) {
-        array[(i+7)*s2Len + (j-7)] = _mm_extract_epi8(vWscore, 8);
+        array[(i+7)*s2Len + (j-7)] = (int8_t)_mm_extract_epi8(vWscore, 8);
     }
     if (0 <= i+8 && i+8 < s1Len && 0 <= j-8 && j-8 < s2Len) {
-        array[(i+8)*s2Len + (j-8)] = _mm_extract_epi8(vWscore, 7);
+        array[(i+8)*s2Len + (j-8)] = (int8_t)_mm_extract_epi8(vWscore, 7);
     }
     if (0 <= i+9 && i+9 < s1Len && 0 <= j-9 && j-9 < s2Len) {
-        array[(i+9)*s2Len + (j-9)] = _mm_extract_epi8(vWscore, 6);
+        array[(i+9)*s2Len + (j-9)] = (int8_t)_mm_extract_epi8(vWscore, 6);
     }
     if (0 <= i+10 && i+10 < s1Len && 0 <= j-10 && j-10 < s2Len) {
-        array[(i+10)*s2Len + (j-10)] = _mm_extract_epi8(vWscore, 5);
+        array[(i+10)*s2Len + (j-10)] = (int8_t)_mm_extract_epi8(vWscore, 5);
     }
     if (0 <= i+11 && i+11 < s1Len && 0 <= j-11 && j-11 < s2Len) {
-        array[(i+11)*s2Len + (j-11)] = _mm_extract_epi8(vWscore, 4);
+        array[(i+11)*s2Len + (j-11)] = (int8_t)_mm_extract_epi8(vWscore, 4);
     }
     if (0 <= i+12 && i+12 < s1Len && 0 <= j-12 && j-12 < s2Len) {
-        array[(i+12)*s2Len + (j-12)] = _mm_extract_epi8(vWscore, 3);
+        array[(i+12)*s2Len + (j-12)] = (int8_t)_mm_extract_epi8(vWscore, 3);
     }
     if (0 <= i+13 && i+13 < s1Len && 0 <= j-13 && j-13 < s2Len) {
-        array[(i+13)*s2Len + (j-13)] = _mm_extract_epi8(vWscore, 2);
+        array[(i+13)*s2Len + (j-13)] = (int8_t)_mm_extract_epi8(vWscore, 2);
     }
     if (0 <= i+14 && i+14 < s1Len && 0 <= j-14 && j-14 < s2Len) {
-        array[(i+14)*s2Len + (j-14)] = _mm_extract_epi8(vWscore, 1);
+        array[(i+14)*s2Len + (j-14)] = (int8_t)_mm_extract_epi8(vWscore, 1);
     }
     if (0 <= i+15 && i+15 < s1Len && 0 <= j-15 && j-15 < s2Len) {
-        array[(i+15)*s2Len + (j-15)] = _mm_extract_epi8(vWscore, 0);
+        array[(i+15)*s2Len + (j-15)] = (int8_t)_mm_extract_epi8(vWscore, 0);
     }
 }
 #endif
@@ -257,8 +257,8 @@ int FNAME(
 #ifdef ALIGN_EXTRA
             arr_store_si128(score_table, vWscore, i, s1Len, j, s2Len);
 #endif
-            tbl_pr[j-15] = _mm_extract_epi8(vWscore,0);
-            del_pr[j-15] = _mm_extract_epi8(vDel,0);
+            tbl_pr[j-15] = (int8_t)_mm_extract_epi8(vWscore,0);
+            del_pr[j-15] = (int8_t)_mm_extract_epi8(vDel,0);
             /* as minor diagonal vector passes across the i or j limit
              * boundary, extract the last value of the column or row */
             {

@@ -331,8 +331,7 @@ int FNAME(
             {
                 __m128i cond_i = _mm_and_si128(
                         vIeqLimit1,
-                        _mm_and_si128(_mm_cmpgt_epi16(vJ, vNegOne),
-                                      _mm_cmplt_epi16(vJ, vJLimit)));
+                        _mm_cmpgt_epi16(vJ, vNegOne));
                 __m128i cond_max = _mm_cmpgt_epi16(vWscore, vMax);
                 __m128i cond_all = _mm_and_si128(cond_max, cond_i);
                 vMax = _mm_andnot_si128(cond_all, vMax);
@@ -372,10 +371,7 @@ int FNAME(
             /* as minor diagonal vector passes across the i limit
              * boundary, extract the last value of the column */
             {
-                __m128i cond_i = _mm_and_si128(
-                        vIeqLimit1,
-                        _mm_and_si128(_mm_cmpgt_epi16(vJ, vNegOne),
-                                      _mm_cmplt_epi16(vJ, vJLimit)));
+                __m128i cond_i = vIeqLimit1;
                 __m128i cond_max = _mm_cmpgt_epi16(vWscore, vMax);
                 __m128i cond_all = _mm_and_si128(cond_max, cond_i);
                 vMax = _mm_andnot_si128(cond_all, vMax);
@@ -420,8 +416,7 @@ int FNAME(
                         _mm_cmpeq_epi16(vJ, vJLimit1));
                 __m128i cond_i = _mm_and_si128(
                         vIeqLimit1,
-                        _mm_and_si128(_mm_cmpgt_epi16(vJ, vNegOne),
-                                      _mm_cmplt_epi16(vJ, vJLimit)));
+                        _mm_cmplt_epi16(vJ, vJLimit));
                 __m128i cond_max = _mm_cmpgt_epi16(vWscore, vMax);
                 __m128i cond_all = _mm_and_si128(cond_max,
                         _mm_or_si128(cond_i, cond_j));

@@ -82,6 +82,65 @@ static inline void arr_store_si128(
         array[(i+15)*s2Len + (j-15)] = (int8_t)_mm_extract_epi8(vWscore, 0);
     }
 }
+
+
+static inline void stt_store_si128(
+        int *array,
+        __m128i vWscore,
+        int i,
+        int s1Len,
+        int j,
+        int s2Len)
+{
+    if (0 <= i+0 && i+0 < s1Len && 0 <= j-0 && j-0 < s2Len) {
+        array[(i+0)*s2Len + (j-0)] = INT8_MAX+1+(int8_t)_mm_extract_epi8(vWscore, 15);
+    }
+    if (0 <= i+1 && i+1 < s1Len && 0 <= j-1 && j-1 < s2Len) {
+        array[(i+1)*s2Len + (j-1)] = INT8_MAX+1+(int8_t)_mm_extract_epi8(vWscore, 14);
+    }
+    if (0 <= i+2 && i+2 < s1Len && 0 <= j-2 && j-2 < s2Len) {
+        array[(i+2)*s2Len + (j-2)] = INT8_MAX+1+(int8_t)_mm_extract_epi8(vWscore, 13);
+    }
+    if (0 <= i+3 && i+3 < s1Len && 0 <= j-3 && j-3 < s2Len) {
+        array[(i+3)*s2Len + (j-3)] = INT8_MAX+1+(int8_t)_mm_extract_epi8(vWscore, 12);
+    }
+    if (0 <= i+4 && i+4 < s1Len && 0 <= j-4 && j-4 < s2Len) {
+        array[(i+4)*s2Len + (j-4)] = INT8_MAX+1+(int8_t)_mm_extract_epi8(vWscore, 11);
+    }
+    if (0 <= i+5 && i+5 < s1Len && 0 <= j-5 && j-5 < s2Len) {
+        array[(i+5)*s2Len + (j-5)] = INT8_MAX+1+(int8_t)_mm_extract_epi8(vWscore, 10);
+    }
+    if (0 <= i+6 && i+6 < s1Len && 0 <= j-6 && j-6 < s2Len) {
+        array[(i+6)*s2Len + (j-6)] = INT8_MAX+1+(int8_t)_mm_extract_epi8(vWscore, 9);
+    }
+    if (0 <= i+7 && i+7 < s1Len && 0 <= j-7 && j-7 < s2Len) {
+        array[(i+7)*s2Len + (j-7)] = INT8_MAX+1+(int8_t)_mm_extract_epi8(vWscore, 8);
+    }
+    if (0 <= i+8 && i+8 < s1Len && 0 <= j-8 && j-8 < s2Len) {
+        array[(i+8)*s2Len + (j-8)] = INT8_MAX+1+(int8_t)_mm_extract_epi8(vWscore, 7);
+    }
+    if (0 <= i+9 && i+9 < s1Len && 0 <= j-9 && j-9 < s2Len) {
+        array[(i+9)*s2Len + (j-9)] = INT8_MAX+1+(int8_t)_mm_extract_epi8(vWscore, 6);
+    }
+    if (0 <= i+10 && i+10 < s1Len && 0 <= j-10 && j-10 < s2Len) {
+        array[(i+10)*s2Len + (j-10)] = INT8_MAX+1+(int8_t)_mm_extract_epi8(vWscore, 5);
+    }
+    if (0 <= i+11 && i+11 < s1Len && 0 <= j-11 && j-11 < s2Len) {
+        array[(i+11)*s2Len + (j-11)] = INT8_MAX+1+(int8_t)_mm_extract_epi8(vWscore, 4);
+    }
+    if (0 <= i+12 && i+12 < s1Len && 0 <= j-12 && j-12 < s2Len) {
+        array[(i+12)*s2Len + (j-12)] = INT8_MAX+1+(int8_t)_mm_extract_epi8(vWscore, 3);
+    }
+    if (0 <= i+13 && i+13 < s1Len && 0 <= j-13 && j-13 < s2Len) {
+        array[(i+13)*s2Len + (j-13)] = INT8_MAX+1+(int8_t)_mm_extract_epi8(vWscore, 2);
+    }
+    if (0 <= i+14 && i+14 < s1Len && 0 <= j-14 && j-14 < s2Len) {
+        array[(i+14)*s2Len + (j-14)] = INT8_MAX+1+(int8_t)_mm_extract_epi8(vWscore, 1);
+    }
+    if (0 <= i+15 && i+15 < s1Len && 0 <= j-15 && j-15 < s2Len) {
+        array[(i+15)*s2Len + (j-15)] = INT8_MAX+1+(int8_t)_mm_extract_epi8(vWscore, 0);
+    }
+}
 #endif
 
 
@@ -179,32 +238,32 @@ int FNAME(
     for (j=0; j<s2Len; ++j) {
         tbl_pr[j] = 0;
         del_pr[j] = NEG_INF_8;
-        mch_pr[j] = 0;
-        len_pr[j] = 0;
+        mch_pr[j] = INT8_MIN;
+        len_pr[j] = INT8_MIN;
     }
     /* pad front of stored row values */
     for (j=-PAD; j<0; ++j) {
         tbl_pr[j] = NEG_INF_8;
         del_pr[j] = NEG_INF_8;
-        mch_pr[j] = 0;
-        len_pr[j] = 0;
+        mch_pr[j] = INT8_MIN;
+        len_pr[j] = INT8_MIN;
     }
     /* pad back of stored row values */
     for (j=s2Len; j<s2Len+PAD; ++j) {
         tbl_pr[j] = NEG_INF_8;
         del_pr[j] = NEG_INF_8;
-        mch_pr[j] = 0;
-        len_pr[j] = 0;
+        mch_pr[j] = INT8_MIN;
+        len_pr[j] = INT8_MIN;
     }
 
     /* iterate over query sequence */
     for (i=0; i<s1Len-N; i+=N) {
         __m128i vNscore = vNegInf0;
-        __m128i vNmatch = vZero;
-        __m128i vNlength = vZero;
+        __m128i vNmatch = vNegInf;
+        __m128i vNlength = vNegInf;
         __m128i vWscore = vNegInf0;
-        __m128i vWmatch = vZero;
-        __m128i vWlength = vZero;
+        __m128i vWmatch = vNegInf;
+        __m128i vWlength = vNegInf;
         __m128i vIns = vNegInf;
         __m128i vDel = vNegInf;
         __m128i vJ = vJreset;
@@ -300,16 +359,16 @@ int FNAME(
                 case2 = _mm_andnot_si128(case2not,case1not);
                 case3 = _mm_and_si128(case1not,case2not);
                 vCmatch = _mm_andnot_si128(case1not,
-                        _mm_add_epi8(vNWmatch, _mm_and_si128(
+                        _mm_adds_epi8(vNWmatch, _mm_and_si128(
                                 _mm_cmpeq_epi8(vs1,vs2),vOne)));
                 vClength= _mm_andnot_si128(case1not,
-                        _mm_add_epi8(vNWlength, vOne));
+                        _mm_adds_epi8(vNWlength, vOne));
                 vCmatch = _mm_or_si128(vCmatch, _mm_and_si128(case2, vNmatch));
                 vClength= _mm_or_si128(vClength,_mm_and_si128(case2,
-                            _mm_add_epi8(vNlength, vOne)));
+                            _mm_adds_epi8(vNlength, vOne)));
                 vCmatch = _mm_or_si128(vCmatch, _mm_and_si128(case3, vWmatch));
                 vClength= _mm_or_si128(vClength,_mm_and_si128(case3,
-                            _mm_add_epi8(vWlength, vOne)));
+                            _mm_adds_epi8(vWlength, vOne)));
                 vWmatch = vCmatch;
                 vWlength = vClength;
             }
@@ -321,7 +380,9 @@ int FNAME(
                         _mm_cmpeq_epi16(vJHi16,vNegOne));
                 vWscore = _mm_andnot_si128(cond, vWscore);
                 vWmatch = _mm_andnot_si128(cond, vWmatch);
+                vWmatch = _mm_or_si128(vWmatch, _mm_and_si128(cond, vNegInf));
                 vWlength = _mm_andnot_si128(cond, vWlength);
+                vWlength = _mm_or_si128(vWlength, _mm_and_si128(cond, vNegInf));
                 vDel = _mm_andnot_si128(cond, vDel);
                 vDel = _mm_or_si128(vDel, _mm_and_si128(cond, vNegInf));
                 vIns = _mm_andnot_si128(cond, vIns);
@@ -331,13 +392,17 @@ int FNAME(
             {
                 vSaturationCheck = _mm_or_si128(vSaturationCheck,
                         _mm_or_si128(
-                            _mm_cmpeq_epi8(vWscore, vNegLimit),
-                            _mm_cmpeq_epi8(vWscore, vPosLimit)));
+                            _mm_or_si128(
+                                _mm_cmpeq_epi8(vWscore, vNegLimit),
+                                _mm_cmpeq_epi8(vWscore, vPosLimit)),
+                            _mm_or_si128(
+                                _mm_cmpeq_epi8(vWmatch, vPosLimit),
+                                _mm_cmpeq_epi8(vWlength, vPosLimit))));
             }
 #ifdef ALIGN_EXTRA
             arr_store_si128(score_table, vWscore, i, s1Len, j, s2Len);
-            arr_store_si128(match_table, vWmatch, i, s1Len, j, s2Len);
-            arr_store_si128(length_table, vWlength, i, s1Len, j, s2Len);
+            stt_store_si128(match_table, vWmatch, i, s1Len, j, s2Len);
+            stt_store_si128(length_table, vWlength, i, s1Len, j, s2Len);
 #endif
             tbl_pr[j-15] = (int8_t)_mm_extract_epi8(vWscore,0);
             mch_pr[j-15] = (int8_t)_mm_extract_epi8(vWmatch,0);
@@ -398,16 +463,16 @@ int FNAME(
                 case2 = _mm_andnot_si128(case2not,case1not);
                 case3 = _mm_and_si128(case1not,case2not);
                 vCmatch = _mm_andnot_si128(case1not,
-                        _mm_add_epi8(vNWmatch, _mm_and_si128(
+                        _mm_adds_epi8(vNWmatch, _mm_and_si128(
                                 _mm_cmpeq_epi8(vs1,vs2),vOne)));
                 vClength= _mm_andnot_si128(case1not,
-                        _mm_add_epi8(vNWlength, vOne));
+                        _mm_adds_epi8(vNWlength, vOne));
                 vCmatch = _mm_or_si128(vCmatch, _mm_and_si128(case2, vNmatch));
                 vClength= _mm_or_si128(vClength,_mm_and_si128(case2,
-                            _mm_add_epi8(vNlength, vOne)));
+                            _mm_adds_epi8(vNlength, vOne)));
                 vCmatch = _mm_or_si128(vCmatch, _mm_and_si128(case3, vWmatch));
                 vClength= _mm_or_si128(vClength,_mm_and_si128(case3,
-                            _mm_add_epi8(vWlength, vOne)));
+                            _mm_adds_epi8(vWlength, vOne)));
                 vWmatch = vCmatch;
                 vWlength = vClength;
             }
@@ -415,13 +480,17 @@ int FNAME(
             {
                 vSaturationCheck = _mm_or_si128(vSaturationCheck,
                         _mm_or_si128(
-                            _mm_cmpeq_epi8(vWscore, vNegLimit),
-                            _mm_cmpeq_epi8(vWscore, vPosLimit)));
+                            _mm_or_si128(
+                                _mm_cmpeq_epi8(vWscore, vNegLimit),
+                                _mm_cmpeq_epi8(vWscore, vPosLimit)),
+                            _mm_or_si128(
+                                _mm_cmpeq_epi8(vWmatch, vPosLimit),
+                                _mm_cmpeq_epi8(vWlength, vPosLimit))));
             }
 #ifdef ALIGN_EXTRA
             arr_store_si128(score_table, vWscore, i, s1Len, j, s2Len);
-            arr_store_si128(match_table, vWmatch, i, s1Len, j, s2Len);
-            arr_store_si128(length_table, vWlength, i, s1Len, j, s2Len);
+            stt_store_si128(match_table, vWmatch, i, s1Len, j, s2Len);
+            stt_store_si128(length_table, vWlength, i, s1Len, j, s2Len);
 #endif
             tbl_pr[j-15] = (int8_t)_mm_extract_epi8(vWscore,0);
             mch_pr[j-15] = (int8_t)_mm_extract_epi8(vWmatch,0);
@@ -482,16 +551,16 @@ int FNAME(
                 case2 = _mm_andnot_si128(case2not,case1not);
                 case3 = _mm_and_si128(case1not,case2not);
                 vCmatch = _mm_andnot_si128(case1not,
-                        _mm_add_epi8(vNWmatch, _mm_and_si128(
+                        _mm_adds_epi8(vNWmatch, _mm_and_si128(
                                 _mm_cmpeq_epi8(vs1,vs2),vOne)));
                 vClength= _mm_andnot_si128(case1not,
-                        _mm_add_epi8(vNWlength, vOne));
+                        _mm_adds_epi8(vNWlength, vOne));
                 vCmatch = _mm_or_si128(vCmatch, _mm_and_si128(case2, vNmatch));
                 vClength= _mm_or_si128(vClength,_mm_and_si128(case2,
-                            _mm_add_epi8(vNlength, vOne)));
+                            _mm_adds_epi8(vNlength, vOne)));
                 vCmatch = _mm_or_si128(vCmatch, _mm_and_si128(case3, vWmatch));
                 vClength= _mm_or_si128(vClength,_mm_and_si128(case3,
-                            _mm_add_epi8(vWlength, vOne)));
+                            _mm_adds_epi8(vWlength, vOne)));
                 vWmatch = vCmatch;
                 vWlength = vClength;
             }
@@ -499,13 +568,17 @@ int FNAME(
             {
                 vSaturationCheck = _mm_or_si128(vSaturationCheck,
                         _mm_or_si128(
-                            _mm_cmpeq_epi8(vWscore, vNegLimit),
-                            _mm_cmpeq_epi8(vWscore, vPosLimit)));
+                            _mm_or_si128(
+                                _mm_cmpeq_epi8(vWscore, vNegLimit),
+                                _mm_cmpeq_epi8(vWscore, vPosLimit)),
+                            _mm_or_si128(
+                                _mm_cmpeq_epi8(vWmatch, vPosLimit),
+                                _mm_cmpeq_epi8(vWlength, vPosLimit))));
             }
 #ifdef ALIGN_EXTRA
             arr_store_si128(score_table, vWscore, i, s1Len, j, s2Len);
-            arr_store_si128(match_table, vWmatch, i, s1Len, j, s2Len);
-            arr_store_si128(length_table, vWlength, i, s1Len, j, s2Len);
+            stt_store_si128(match_table, vWmatch, i, s1Len, j, s2Len);
+            stt_store_si128(length_table, vWlength, i, s1Len, j, s2Len);
 #endif
             tbl_pr[j-15] = (int8_t)_mm_extract_epi8(vWscore,0);
             mch_pr[j-15] = (int8_t)_mm_extract_epi8(vWmatch,0);
@@ -537,11 +610,11 @@ int FNAME(
     }
     for (/*i=?*/; i<s1Len; i+=N) {
         __m128i vNscore = vNegInf0;
-        __m128i vNmatch = vZero;
-        __m128i vNlength = vZero;
+        __m128i vNmatch = vNegInf;
+        __m128i vNlength = vNegInf;
         __m128i vWscore = vNegInf0;
-        __m128i vWmatch = vZero;
-        __m128i vWlength = vZero;
+        __m128i vWmatch = vNegInf;
+        __m128i vWlength = vNegInf;
         __m128i vIns = vNegInf;
         __m128i vDel = vNegInf;
         __m128i vJ = vJreset;
@@ -640,16 +713,16 @@ int FNAME(
                 case2 = _mm_andnot_si128(case2not,case1not);
                 case3 = _mm_and_si128(case1not,case2not);
                 vCmatch = _mm_andnot_si128(case1not,
-                        _mm_add_epi8(vNWmatch, _mm_and_si128(
+                        _mm_adds_epi8(vNWmatch, _mm_and_si128(
                                 _mm_cmpeq_epi8(vs1,vs2),vOne)));
                 vClength= _mm_andnot_si128(case1not,
-                        _mm_add_epi8(vNWlength, vOne));
+                        _mm_adds_epi8(vNWlength, vOne));
                 vCmatch = _mm_or_si128(vCmatch, _mm_and_si128(case2, vNmatch));
                 vClength= _mm_or_si128(vClength,_mm_and_si128(case2,
-                            _mm_add_epi8(vNlength, vOne)));
+                            _mm_adds_epi8(vNlength, vOne)));
                 vCmatch = _mm_or_si128(vCmatch, _mm_and_si128(case3, vWmatch));
                 vClength= _mm_or_si128(vClength,_mm_and_si128(case3,
-                            _mm_add_epi8(vWlength, vOne)));
+                            _mm_adds_epi8(vWlength, vOne)));
                 vWmatch = vCmatch;
                 vWlength = vClength;
             }
@@ -661,7 +734,9 @@ int FNAME(
                         _mm_cmpeq_epi16(vJHi16,vNegOne16));
                 vWscore = _mm_andnot_si128(cond, vWscore);
                 vWmatch = _mm_andnot_si128(cond, vWmatch);
+                vWmatch = _mm_or_si128(vWmatch, _mm_and_si128(cond, vNegInf));
                 vWlength = _mm_andnot_si128(cond, vWlength);
+                vWlength = _mm_or_si128(vWlength, _mm_and_si128(cond, vNegInf));
                 vDel = _mm_andnot_si128(cond, vDel);
                 vDel = _mm_or_si128(vDel, _mm_and_si128(cond, vNegInf));
                 vIns = _mm_andnot_si128(cond, vIns);
@@ -671,13 +746,17 @@ int FNAME(
             {
                 vSaturationCheck = _mm_or_si128(vSaturationCheck,
                         _mm_or_si128(
-                            _mm_cmpeq_epi8(vWscore, vNegLimit),
-                            _mm_cmpeq_epi8(vWscore, vPosLimit)));
+                            _mm_or_si128(
+                                _mm_cmpeq_epi8(vWscore, vNegLimit),
+                                _mm_cmpeq_epi8(vWscore, vPosLimit)),
+                            _mm_or_si128(
+                                _mm_cmpeq_epi8(vWmatch, vPosLimit),
+                                _mm_cmpeq_epi8(vWlength, vPosLimit))));
             }
 #ifdef ALIGN_EXTRA
             arr_store_si128(score_table, vWscore, i, s1Len, j, s2Len);
-            arr_store_si128(match_table, vWmatch, i, s1Len, j, s2Len);
-            arr_store_si128(length_table, vWlength, i, s1Len, j, s2Len);
+            stt_store_si128(match_table, vWmatch, i, s1Len, j, s2Len);
+            stt_store_si128(length_table, vWlength, i, s1Len, j, s2Len);
 #endif
             tbl_pr[j-15] = (int8_t)_mm_extract_epi8(vWscore,0);
             mch_pr[j-15] = (int8_t)_mm_extract_epi8(vWmatch,0);
@@ -763,16 +842,16 @@ int FNAME(
                 case2 = _mm_andnot_si128(case2not,case1not);
                 case3 = _mm_and_si128(case1not,case2not);
                 vCmatch = _mm_andnot_si128(case1not,
-                        _mm_add_epi8(vNWmatch, _mm_and_si128(
+                        _mm_adds_epi8(vNWmatch, _mm_and_si128(
                                 _mm_cmpeq_epi8(vs1,vs2),vOne)));
                 vClength= _mm_andnot_si128(case1not,
-                        _mm_add_epi8(vNWlength, vOne));
+                        _mm_adds_epi8(vNWlength, vOne));
                 vCmatch = _mm_or_si128(vCmatch, _mm_and_si128(case2, vNmatch));
                 vClength= _mm_or_si128(vClength,_mm_and_si128(case2,
-                            _mm_add_epi8(vNlength, vOne)));
+                            _mm_adds_epi8(vNlength, vOne)));
                 vCmatch = _mm_or_si128(vCmatch, _mm_and_si128(case3, vWmatch));
                 vClength= _mm_or_si128(vClength,_mm_and_si128(case3,
-                            _mm_add_epi8(vWlength, vOne)));
+                            _mm_adds_epi8(vWlength, vOne)));
                 vWmatch = vCmatch;
                 vWlength = vClength;
             }
@@ -780,13 +859,17 @@ int FNAME(
             {
                 vSaturationCheck = _mm_or_si128(vSaturationCheck,
                         _mm_or_si128(
-                            _mm_cmpeq_epi8(vWscore, vNegLimit),
-                            _mm_cmpeq_epi8(vWscore, vPosLimit)));
+                            _mm_or_si128(
+                                _mm_cmpeq_epi8(vWscore, vNegLimit),
+                                _mm_cmpeq_epi8(vWscore, vPosLimit)),
+                            _mm_or_si128(
+                                _mm_cmpeq_epi8(vWmatch, vPosLimit),
+                                _mm_cmpeq_epi8(vWlength, vPosLimit))));
             }
 #ifdef ALIGN_EXTRA
             arr_store_si128(score_table, vWscore, i, s1Len, j, s2Len);
-            arr_store_si128(match_table, vWmatch, i, s1Len, j, s2Len);
-            arr_store_si128(length_table, vWlength, i, s1Len, j, s2Len);
+            stt_store_si128(match_table, vWmatch, i, s1Len, j, s2Len);
+            stt_store_si128(length_table, vWlength, i, s1Len, j, s2Len);
 #endif
             tbl_pr[j-15] = (int8_t)_mm_extract_epi8(vWscore,0);
             mch_pr[j-15] = (int8_t)_mm_extract_epi8(vWmatch,0);
@@ -872,16 +955,16 @@ int FNAME(
                 case2 = _mm_andnot_si128(case2not,case1not);
                 case3 = _mm_and_si128(case1not,case2not);
                 vCmatch = _mm_andnot_si128(case1not,
-                        _mm_add_epi8(vNWmatch, _mm_and_si128(
+                        _mm_adds_epi8(vNWmatch, _mm_and_si128(
                                 _mm_cmpeq_epi8(vs1,vs2),vOne)));
                 vClength= _mm_andnot_si128(case1not,
-                        _mm_add_epi8(vNWlength, vOne));
+                        _mm_adds_epi8(vNWlength, vOne));
                 vCmatch = _mm_or_si128(vCmatch, _mm_and_si128(case2, vNmatch));
                 vClength= _mm_or_si128(vClength,_mm_and_si128(case2,
-                            _mm_add_epi8(vNlength, vOne)));
+                            _mm_adds_epi8(vNlength, vOne)));
                 vCmatch = _mm_or_si128(vCmatch, _mm_and_si128(case3, vWmatch));
                 vClength= _mm_or_si128(vClength,_mm_and_si128(case3,
-                            _mm_add_epi8(vWlength, vOne)));
+                            _mm_adds_epi8(vWlength, vOne)));
                 vWmatch = vCmatch;
                 vWlength = vClength;
             }
@@ -889,13 +972,17 @@ int FNAME(
             {
                 vSaturationCheck = _mm_or_si128(vSaturationCheck,
                         _mm_or_si128(
-                            _mm_cmpeq_epi8(vWscore, vNegLimit),
-                            _mm_cmpeq_epi8(vWscore, vPosLimit)));
+                            _mm_or_si128(
+                                _mm_cmpeq_epi8(vWscore, vNegLimit),
+                                _mm_cmpeq_epi8(vWscore, vPosLimit)),
+                            _mm_or_si128(
+                                _mm_cmpeq_epi8(vWmatch, vPosLimit),
+                                _mm_cmpeq_epi8(vWlength, vPosLimit))));
             }
 #ifdef ALIGN_EXTRA
             arr_store_si128(score_table, vWscore, i, s1Len, j, s2Len);
-            arr_store_si128(match_table, vWmatch, i, s1Len, j, s2Len);
-            arr_store_si128(length_table, vWlength, i, s1Len, j, s2Len);
+            stt_store_si128(match_table, vWmatch, i, s1Len, j, s2Len);
+            stt_store_si128(length_table, vWlength, i, s1Len, j, s2Len);
 #endif
             tbl_pr[j-15] = (int8_t)_mm_extract_epi8(vWscore,0);
             mch_pr[j-15] = (int8_t)_mm_extract_epi8(vWmatch,0);
@@ -953,12 +1040,17 @@ int FNAME(
         vMaxMatch = _mm_slli_si128(vMaxMatch, 1);
         vMaxLength = _mm_slli_si128(vMaxLength, 1);
     }
+    if (_mm_movemask_epi8(vSaturationCheck)) {
+        score = INT8_MAX;
+        match = INT8_MIN;
+        length = INT8_MIN;
+    }
 
     free(s1);
     free(s2B);
 
-    *_matches = match;
-    *_length = length;
+    *_matches = match+INT8_MAX+1;
+    *_length = length+INT8_MAX+1;
     return score;
 }
 

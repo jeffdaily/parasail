@@ -106,7 +106,7 @@ int FNAME(
         for (nt=0; nt<n; ++nt) {
             for (i=0; i<segLen; ++i) {
                 int32_t j = i;
-                for (segNum=0; segNum<8; ++segNum) {
+                for (segNum=0; segNum<16; ++segNum) {
                     *t++ = matrix[nt*n + MAP_BLOSUM_[(unsigned char)s1[j]]];
                     *s++ = (nt == MAP_BLOSUM_[(unsigned char)s1[j]]);
                     j += segLen;
@@ -121,7 +121,7 @@ int FNAME(
         int8_t *e = (int8_t*)pvEStore;
         for (i=0; i<segLen; ++i) {
             int32_t j = i;
-            for (segNum=0; segNum<8; ++segNum) {
+            for (segNum=0; segNum<16; ++segNum) {
                 *h = -open-gap*(segNum*segLen+i);
                 *e = *h-open;
                 j += segLen;
@@ -273,7 +273,7 @@ int FNAME(
 
         /* Lazy_F loop: has been revised to disallow adjecent insertion and
          * then deletion, so don't update E(i, i), learn from SWPS3 */
-        for (k=0; k<8; ++k) {
+        for (k=0; k<16; ++k) {
             __m128i vHp = _mm_slli_si128(pvHLoad[segLen - 1], 1);
             vHp = _mm_insert_epi8(vHp, boundary[j], 0);
             vF = _mm_slli_si128(vF, 1);

@@ -156,7 +156,7 @@ int FNAME(
     }
 
     /* iterate over query sequence */
-    for (i=0; i<s1Len; i+=N) {
+    for (i=0; i<s1Len-N; i+=N) {
         __m128i vNscore = vNegInf0;
         __m128i vNmatch = vZero;
         __m128i vNlength = vZero;
@@ -187,7 +187,7 @@ int FNAME(
         __m128i vIltLimit = _mm_cmplt_epi16(vI, vILimit);
         __m128i vIeqLimit1 = _mm_cmpeq_epi16(vI, vILimit1);
         /* iterate over database sequence */
-        for (j=0; j<s2Len+PAD2; ++j) {
+        for (j=0; j<N; ++j) {
             __m128i vMat;
             __m128i vNWscore = vNscore;
             __m128i vNWmatch = vNmatch;
@@ -244,7 +244,6 @@ int FNAME(
                 vWmatch = vCmatch;
                 vWlength = vClength;
             }
-
             /* as minor diagonal vector passes across the j=-1 boundary,
              * assign the appropriate boundary conditions */
             {
@@ -266,19 +265,452 @@ int FNAME(
             mch_pr[j-7] = (int16_t)_mm_extract_epi16(vWmatch,0);
             len_pr[j-7] = (int16_t)_mm_extract_epi16(vWlength,0);
             del_pr[j-7] = (int16_t)_mm_extract_epi16(vDel,0);
-            /* as minor diagonal vector passes across the i or j limit
-             * boundary, extract the last value of the column or row */
+            vJ = _mm_add_epi16(vJ, vOne);
+        }
+        for (j=N; j<s2Len-1; ++j) {
+            __m128i vMat;
+            __m128i vNWscore = vNscore;
+            __m128i vNWmatch = vNmatch;
+            __m128i vNWlength = vNlength;
+            vNscore = vshift16(vWscore, tbl_pr[j]);
+            vNmatch = vshift16(vWmatch, mch_pr[j]);
+            vNlength = vshift16(vWlength, len_pr[j]);
+            vDel = vshift16(vDel, del_pr[j]);
+            vDel = _mm_max_epi16(
+                    _mm_sub_epi16(vNscore, vOpen),
+                    _mm_sub_epi16(vDel, vGap));
+            vIns = _mm_max_epi16(
+                    _mm_sub_epi16(vWscore, vOpen),
+                    _mm_sub_epi16(vIns, vGap));
+            vs2 = vshift16(vs2, s2[j]);
+            vMat = _mm_set_epi16(
+                    matrow0[s2[j-0]],
+                    matrow1[s2[j-1]],
+                    matrow2[s2[j-2]],
+                    matrow3[s2[j-3]],
+                    matrow4[s2[j-4]],
+                    matrow5[s2[j-5]],
+                    matrow6[s2[j-6]],
+                    matrow7[s2[j-7]]
+                    );
+            vNWscore = _mm_add_epi16(vNWscore, vMat);
+            vWscore = _mm_max_epi16(vNWscore, vIns);
+            vWscore = _mm_max_epi16(vWscore, vDel);
+            /* conditional block */
+            {
+                __m128i case1not;
+                __m128i case2not;
+                __m128i case2;
+                __m128i case3;
+                __m128i vCmatch;
+                __m128i vClength;
+                case1not = _mm_or_si128(
+                        _mm_cmplt_epi16(vNWscore,vDel),
+                        _mm_cmplt_epi16(vNWscore,vIns));
+                case2not = _mm_cmplt_epi16(vDel,vIns);
+                case2 = _mm_andnot_si128(case2not,case1not);
+                case3 = _mm_and_si128(case1not,case2not);
+                vCmatch = _mm_andnot_si128(case1not,
+                        _mm_add_epi16(vNWmatch, _mm_and_si128(
+                                _mm_cmpeq_epi16(vs1,vs2),vOne)));
+                vClength= _mm_andnot_si128(case1not,
+                        _mm_add_epi16(vNWlength, vOne));
+                vCmatch = _mm_or_si128(vCmatch, _mm_and_si128(case2, vNmatch));
+                vClength= _mm_or_si128(vClength,_mm_and_si128(case2,
+                            _mm_add_epi16(vNlength, vOne)));
+                vCmatch = _mm_or_si128(vCmatch, _mm_and_si128(case3, vWmatch));
+                vClength= _mm_or_si128(vClength,_mm_and_si128(case3,
+                            _mm_add_epi16(vWlength, vOne)));
+                vWmatch = vCmatch;
+                vWlength = vClength;
+            }
+#ifdef ALIGN_EXTRA
+            arr_store_si128(score_table, vWscore, i, s1Len, j, s2Len);
+            arr_store_si128(match_table, vWmatch, i, s1Len, j, s2Len);
+            arr_store_si128(length_table, vWlength, i, s1Len, j, s2Len);
+#endif
+            tbl_pr[j-7] = (int16_t)_mm_extract_epi16(vWscore,0);
+            mch_pr[j-7] = (int16_t)_mm_extract_epi16(vWmatch,0);
+            len_pr[j-7] = (int16_t)_mm_extract_epi16(vWlength,0);
+            del_pr[j-7] = (int16_t)_mm_extract_epi16(vDel,0);
+            vJ = _mm_add_epi16(vJ, vOne);
+        }
+        for (j=s2Len-1; j<s2Len+PAD2; ++j) {
+            __m128i vMat;
+            __m128i vNWscore = vNscore;
+            __m128i vNWmatch = vNmatch;
+            __m128i vNWlength = vNlength;
+            vNscore = vshift16(vWscore, tbl_pr[j]);
+            vNmatch = vshift16(vWmatch, mch_pr[j]);
+            vNlength = vshift16(vWlength, len_pr[j]);
+            vDel = vshift16(vDel, del_pr[j]);
+            vDel = _mm_max_epi16(
+                    _mm_sub_epi16(vNscore, vOpen),
+                    _mm_sub_epi16(vDel, vGap));
+            vIns = _mm_max_epi16(
+                    _mm_sub_epi16(vWscore, vOpen),
+                    _mm_sub_epi16(vIns, vGap));
+            vs2 = vshift16(vs2, s2[j]);
+            vMat = _mm_set_epi16(
+                    matrow0[s2[j-0]],
+                    matrow1[s2[j-1]],
+                    matrow2[s2[j-2]],
+                    matrow3[s2[j-3]],
+                    matrow4[s2[j-4]],
+                    matrow5[s2[j-5]],
+                    matrow6[s2[j-6]],
+                    matrow7[s2[j-7]]
+                    );
+            vNWscore = _mm_add_epi16(vNWscore, vMat);
+            vWscore = _mm_max_epi16(vNWscore, vIns);
+            vWscore = _mm_max_epi16(vWscore, vDel);
+            /* conditional block */
+            {
+                __m128i case1not;
+                __m128i case2not;
+                __m128i case2;
+                __m128i case3;
+                __m128i vCmatch;
+                __m128i vClength;
+                case1not = _mm_or_si128(
+                        _mm_cmplt_epi16(vNWscore,vDel),
+                        _mm_cmplt_epi16(vNWscore,vIns));
+                case2not = _mm_cmplt_epi16(vDel,vIns);
+                case2 = _mm_andnot_si128(case2not,case1not);
+                case3 = _mm_and_si128(case1not,case2not);
+                vCmatch = _mm_andnot_si128(case1not,
+                        _mm_add_epi16(vNWmatch, _mm_and_si128(
+                                _mm_cmpeq_epi16(vs1,vs2),vOne)));
+                vClength= _mm_andnot_si128(case1not,
+                        _mm_add_epi16(vNWlength, vOne));
+                vCmatch = _mm_or_si128(vCmatch, _mm_and_si128(case2, vNmatch));
+                vClength= _mm_or_si128(vClength,_mm_and_si128(case2,
+                            _mm_add_epi16(vNlength, vOne)));
+                vCmatch = _mm_or_si128(vCmatch, _mm_and_si128(case3, vWmatch));
+                vClength= _mm_or_si128(vClength,_mm_and_si128(case3,
+                            _mm_add_epi16(vWlength, vOne)));
+                vWmatch = vCmatch;
+                vWlength = vClength;
+            }
+#ifdef ALIGN_EXTRA
+            arr_store_si128(score_table, vWscore, i, s1Len, j, s2Len);
+            arr_store_si128(match_table, vWmatch, i, s1Len, j, s2Len);
+            arr_store_si128(length_table, vWlength, i, s1Len, j, s2Len);
+#endif
+            tbl_pr[j-7] = (int16_t)_mm_extract_epi16(vWscore,0);
+            mch_pr[j-7] = (int16_t)_mm_extract_epi16(vWmatch,0);
+            len_pr[j-7] = (int16_t)_mm_extract_epi16(vWlength,0);
+            del_pr[j-7] = (int16_t)_mm_extract_epi16(vDel,0);
+            /* as minor diagonal vector passes across the j limit
+             * boundary, extract the last value of the row */
+            {
+                __m128i cond_j = _mm_cmpeq_epi16(vJ, vJLimit1);
+                __m128i cond_max = _mm_cmpgt_epi16(vWscore, vMaxScore);
+                __m128i cond_all = _mm_and_si128(cond_max, cond_j);
+                vMaxScore = _mm_andnot_si128(cond_all, vMaxScore);
+                vMaxScore = _mm_or_si128(vMaxScore,
+                        _mm_and_si128(cond_all, vWscore));
+                vMaxMatch = _mm_andnot_si128(cond_all, vMaxMatch);
+                vMaxMatch = _mm_or_si128(vMaxMatch,
+                        _mm_and_si128(cond_all, vWmatch));
+                vMaxLength = _mm_andnot_si128(cond_all, vMaxLength);
+                vMaxLength = _mm_or_si128(vMaxLength,
+                        _mm_and_si128(cond_all, vWlength));
+            }
+            vJ = _mm_add_epi16(vJ, vOne);
+        }
+        vI = _mm_add_epi16(vI, vN);
+    }
+    for (/*i=?*/; i<s1Len; i+=N) {
+        __m128i vNscore = vNegInf0;
+        __m128i vNmatch = vZero;
+        __m128i vNlength = vZero;
+        __m128i vWscore = vNegInf0;
+        __m128i vWmatch = vZero;
+        __m128i vWlength = vZero;
+        __m128i vIns = vNegInf;
+        __m128i vDel = vNegInf;
+        __m128i vJ = vJreset;
+        __m128i vs1 = _mm_set_epi16(
+                s1[i+0],
+                s1[i+1],
+                s1[i+2],
+                s1[i+3],
+                s1[i+4],
+                s1[i+5],
+                s1[i+6],
+                s1[i+7]);
+        __m128i vs2 = vNegInf;
+        const int * const restrict matrow0 = matrix[s1[i+0]];
+        const int * const restrict matrow1 = matrix[s1[i+1]];
+        const int * const restrict matrow2 = matrix[s1[i+2]];
+        const int * const restrict matrow3 = matrix[s1[i+3]];
+        const int * const restrict matrow4 = matrix[s1[i+4]];
+        const int * const restrict matrow5 = matrix[s1[i+5]];
+        const int * const restrict matrow6 = matrix[s1[i+6]];
+        const int * const restrict matrow7 = matrix[s1[i+7]];
+        __m128i vIltLimit = _mm_cmplt_epi16(vI, vILimit);
+        __m128i vIeqLimit1 = _mm_cmpeq_epi16(vI, vILimit1);
+        /* iterate over database sequence */
+        for (j=0; j<N; ++j) {
+            __m128i vMat;
+            __m128i vNWscore = vNscore;
+            __m128i vNWmatch = vNmatch;
+            __m128i vNWlength = vNlength;
+            vNscore = vshift16(vWscore, tbl_pr[j]);
+            vNmatch = vshift16(vWmatch, mch_pr[j]);
+            vNlength = vshift16(vWlength, len_pr[j]);
+            vDel = vshift16(vDel, del_pr[j]);
+            vDel = _mm_max_epi16(
+                    _mm_sub_epi16(vNscore, vOpen),
+                    _mm_sub_epi16(vDel, vGap));
+            vIns = _mm_max_epi16(
+                    _mm_sub_epi16(vWscore, vOpen),
+                    _mm_sub_epi16(vIns, vGap));
+            vs2 = vshift16(vs2, s2[j]);
+            vMat = _mm_set_epi16(
+                    matrow0[s2[j-0]],
+                    matrow1[s2[j-1]],
+                    matrow2[s2[j-2]],
+                    matrow3[s2[j-3]],
+                    matrow4[s2[j-4]],
+                    matrow5[s2[j-5]],
+                    matrow6[s2[j-6]],
+                    matrow7[s2[j-7]]
+                    );
+            vNWscore = _mm_add_epi16(vNWscore, vMat);
+            vWscore = _mm_max_epi16(vNWscore, vIns);
+            vWscore = _mm_max_epi16(vWscore, vDel);
+            /* conditional block */
+            {
+                __m128i case1not;
+                __m128i case2not;
+                __m128i case2;
+                __m128i case3;
+                __m128i vCmatch;
+                __m128i vClength;
+                case1not = _mm_or_si128(
+                        _mm_cmplt_epi16(vNWscore,vDel),
+                        _mm_cmplt_epi16(vNWscore,vIns));
+                case2not = _mm_cmplt_epi16(vDel,vIns);
+                case2 = _mm_andnot_si128(case2not,case1not);
+                case3 = _mm_and_si128(case1not,case2not);
+                vCmatch = _mm_andnot_si128(case1not,
+                        _mm_add_epi16(vNWmatch, _mm_and_si128(
+                                _mm_cmpeq_epi16(vs1,vs2),vOne)));
+                vClength= _mm_andnot_si128(case1not,
+                        _mm_add_epi16(vNWlength, vOne));
+                vCmatch = _mm_or_si128(vCmatch, _mm_and_si128(case2, vNmatch));
+                vClength= _mm_or_si128(vClength,_mm_and_si128(case2,
+                            _mm_add_epi16(vNlength, vOne)));
+                vCmatch = _mm_or_si128(vCmatch, _mm_and_si128(case3, vWmatch));
+                vClength= _mm_or_si128(vClength,_mm_and_si128(case3,
+                            _mm_add_epi16(vWlength, vOne)));
+                vWmatch = vCmatch;
+                vWlength = vClength;
+            }
+            /* as minor diagonal vector passes across the j=-1 boundary,
+             * assign the appropriate boundary conditions */
+            {
+                __m128i cond = _mm_cmpeq_epi16(vJ,vNegOne);
+                vWscore = _mm_andnot_si128(cond, vWscore);
+                vWmatch = _mm_andnot_si128(cond, vWmatch);
+                vWlength = _mm_andnot_si128(cond, vWlength);
+                vDel = _mm_andnot_si128(cond, vDel);
+                vDel = _mm_or_si128(vDel, _mm_and_si128(cond, vNegInf));
+                vIns = _mm_andnot_si128(cond, vIns);
+                vIns = _mm_or_si128(vIns, _mm_and_si128(cond, vNegInf));
+            }
+#ifdef ALIGN_EXTRA
+            arr_store_si128(score_table, vWscore, i, s1Len, j, s2Len);
+            arr_store_si128(match_table, vWmatch, i, s1Len, j, s2Len);
+            arr_store_si128(length_table, vWlength, i, s1Len, j, s2Len);
+#endif
+            tbl_pr[j-7] = (int16_t)_mm_extract_epi16(vWscore,0);
+            mch_pr[j-7] = (int16_t)_mm_extract_epi16(vWmatch,0);
+            len_pr[j-7] = (int16_t)_mm_extract_epi16(vWlength,0);
+            del_pr[j-7] = (int16_t)_mm_extract_epi16(vDel,0);
+            /* as minor diagonal vector passes across the i limit
+             * boundary, extract the last value of the column */
+            {
+                __m128i cond_i = _mm_and_si128(
+                        vIeqLimit1,
+                        _mm_cmpgt_epi16(vJ, vNegOne));
+                __m128i cond_max = _mm_cmpgt_epi16(vWscore, vMaxScore);
+                __m128i cond_all = _mm_and_si128(cond_max, cond_i);
+                vMaxScore = _mm_andnot_si128(cond_all, vMaxScore);
+                vMaxScore = _mm_or_si128(vMaxScore,
+                        _mm_and_si128(cond_all, vWscore));
+                vMaxMatch = _mm_andnot_si128(cond_all, vMaxMatch);
+                vMaxMatch = _mm_or_si128(vMaxMatch,
+                        _mm_and_si128(cond_all, vWmatch));
+                vMaxLength = _mm_andnot_si128(cond_all, vMaxLength);
+                vMaxLength = _mm_or_si128(vMaxLength,
+                        _mm_and_si128(cond_all, vWlength));
+            }
+            vJ = _mm_add_epi16(vJ, vOne);
+        }
+        for (j=N; j<s2Len-1; ++j) {
+            __m128i vMat;
+            __m128i vNWscore = vNscore;
+            __m128i vNWmatch = vNmatch;
+            __m128i vNWlength = vNlength;
+            vNscore = vshift16(vWscore, tbl_pr[j]);
+            vNmatch = vshift16(vWmatch, mch_pr[j]);
+            vNlength = vshift16(vWlength, len_pr[j]);
+            vDel = vshift16(vDel, del_pr[j]);
+            vDel = _mm_max_epi16(
+                    _mm_sub_epi16(vNscore, vOpen),
+                    _mm_sub_epi16(vDel, vGap));
+            vIns = _mm_max_epi16(
+                    _mm_sub_epi16(vWscore, vOpen),
+                    _mm_sub_epi16(vIns, vGap));
+            vs2 = vshift16(vs2, s2[j]);
+            vMat = _mm_set_epi16(
+                    matrow0[s2[j-0]],
+                    matrow1[s2[j-1]],
+                    matrow2[s2[j-2]],
+                    matrow3[s2[j-3]],
+                    matrow4[s2[j-4]],
+                    matrow5[s2[j-5]],
+                    matrow6[s2[j-6]],
+                    matrow7[s2[j-7]]
+                    );
+            vNWscore = _mm_add_epi16(vNWscore, vMat);
+            vWscore = _mm_max_epi16(vNWscore, vIns);
+            vWscore = _mm_max_epi16(vWscore, vDel);
+            /* conditional block */
+            {
+                __m128i case1not;
+                __m128i case2not;
+                __m128i case2;
+                __m128i case3;
+                __m128i vCmatch;
+                __m128i vClength;
+                case1not = _mm_or_si128(
+                        _mm_cmplt_epi16(vNWscore,vDel),
+                        _mm_cmplt_epi16(vNWscore,vIns));
+                case2not = _mm_cmplt_epi16(vDel,vIns);
+                case2 = _mm_andnot_si128(case2not,case1not);
+                case3 = _mm_and_si128(case1not,case2not);
+                vCmatch = _mm_andnot_si128(case1not,
+                        _mm_add_epi16(vNWmatch, _mm_and_si128(
+                                _mm_cmpeq_epi16(vs1,vs2),vOne)));
+                vClength= _mm_andnot_si128(case1not,
+                        _mm_add_epi16(vNWlength, vOne));
+                vCmatch = _mm_or_si128(vCmatch, _mm_and_si128(case2, vNmatch));
+                vClength= _mm_or_si128(vClength,_mm_and_si128(case2,
+                            _mm_add_epi16(vNlength, vOne)));
+                vCmatch = _mm_or_si128(vCmatch, _mm_and_si128(case3, vWmatch));
+                vClength= _mm_or_si128(vClength,_mm_and_si128(case3,
+                            _mm_add_epi16(vWlength, vOne)));
+                vWmatch = vCmatch;
+                vWlength = vClength;
+            }
+#ifdef ALIGN_EXTRA
+            arr_store_si128(score_table, vWscore, i, s1Len, j, s2Len);
+            arr_store_si128(match_table, vWmatch, i, s1Len, j, s2Len);
+            arr_store_si128(length_table, vWlength, i, s1Len, j, s2Len);
+#endif
+            tbl_pr[j-7] = (int16_t)_mm_extract_epi16(vWscore,0);
+            mch_pr[j-7] = (int16_t)_mm_extract_epi16(vWmatch,0);
+            len_pr[j-7] = (int16_t)_mm_extract_epi16(vWlength,0);
+            del_pr[j-7] = (int16_t)_mm_extract_epi16(vDel,0);
+            /* as minor diagonal vector passes across the i limit
+             * boundary, extract the last value of the column */
+            {
+                __m128i cond_i = vIeqLimit1;
+                __m128i cond_max = _mm_cmpgt_epi16(vWscore, vMaxScore);
+                __m128i cond_all = _mm_and_si128(cond_max, cond_i);
+                vMaxScore = _mm_andnot_si128(cond_all, vMaxScore);
+                vMaxScore = _mm_or_si128(vMaxScore,
+                        _mm_and_si128(cond_all, vWscore));
+                vMaxMatch = _mm_andnot_si128(cond_all, vMaxMatch);
+                vMaxMatch = _mm_or_si128(vMaxMatch,
+                        _mm_and_si128(cond_all, vWmatch));
+                vMaxLength = _mm_andnot_si128(cond_all, vMaxLength);
+                vMaxLength = _mm_or_si128(vMaxLength,
+                        _mm_and_si128(cond_all, vWlength));
+            }
+            vJ = _mm_add_epi16(vJ, vOne);
+        }
+        for (j=s2Len-1; j<s2Len+PAD2; ++j) {
+            __m128i vMat;
+            __m128i vNWscore = vNscore;
+            __m128i vNWmatch = vNmatch;
+            __m128i vNWlength = vNlength;
+            vNscore = vshift16(vWscore, tbl_pr[j]);
+            vNmatch = vshift16(vWmatch, mch_pr[j]);
+            vNlength = vshift16(vWlength, len_pr[j]);
+            vDel = vshift16(vDel, del_pr[j]);
+            vDel = _mm_max_epi16(
+                    _mm_sub_epi16(vNscore, vOpen),
+                    _mm_sub_epi16(vDel, vGap));
+            vIns = _mm_max_epi16(
+                    _mm_sub_epi16(vWscore, vOpen),
+                    _mm_sub_epi16(vIns, vGap));
+            vs2 = vshift16(vs2, s2[j]);
+            vMat = _mm_set_epi16(
+                    matrow0[s2[j-0]],
+                    matrow1[s2[j-1]],
+                    matrow2[s2[j-2]],
+                    matrow3[s2[j-3]],
+                    matrow4[s2[j-4]],
+                    matrow5[s2[j-5]],
+                    matrow6[s2[j-6]],
+                    matrow7[s2[j-7]]
+                    );
+            vNWscore = _mm_add_epi16(vNWscore, vMat);
+            vWscore = _mm_max_epi16(vNWscore, vIns);
+            vWscore = _mm_max_epi16(vWscore, vDel);
+            /* conditional block */
+            {
+                __m128i case1not;
+                __m128i case2not;
+                __m128i case2;
+                __m128i case3;
+                __m128i vCmatch;
+                __m128i vClength;
+                case1not = _mm_or_si128(
+                        _mm_cmplt_epi16(vNWscore,vDel),
+                        _mm_cmplt_epi16(vNWscore,vIns));
+                case2not = _mm_cmplt_epi16(vDel,vIns);
+                case2 = _mm_andnot_si128(case2not,case1not);
+                case3 = _mm_and_si128(case1not,case2not);
+                vCmatch = _mm_andnot_si128(case1not,
+                        _mm_add_epi16(vNWmatch, _mm_and_si128(
+                                _mm_cmpeq_epi16(vs1,vs2),vOne)));
+                vClength= _mm_andnot_si128(case1not,
+                        _mm_add_epi16(vNWlength, vOne));
+                vCmatch = _mm_or_si128(vCmatch, _mm_and_si128(case2, vNmatch));
+                vClength= _mm_or_si128(vClength,_mm_and_si128(case2,
+                            _mm_add_epi16(vNlength, vOne)));
+                vCmatch = _mm_or_si128(vCmatch, _mm_and_si128(case3, vWmatch));
+                vClength= _mm_or_si128(vClength,_mm_and_si128(case3,
+                            _mm_add_epi16(vWlength, vOne)));
+                vWmatch = vCmatch;
+                vWlength = vClength;
+            }
+#ifdef ALIGN_EXTRA
+            arr_store_si128(score_table, vWscore, i, s1Len, j, s2Len);
+            arr_store_si128(match_table, vWmatch, i, s1Len, j, s2Len);
+            arr_store_si128(length_table, vWlength, i, s1Len, j, s2Len);
+#endif
+            tbl_pr[j-7] = (int16_t)_mm_extract_epi16(vWscore,0);
+            mch_pr[j-7] = (int16_t)_mm_extract_epi16(vWmatch,0);
+            len_pr[j-7] = (int16_t)_mm_extract_epi16(vWlength,0);
+            del_pr[j-7] = (int16_t)_mm_extract_epi16(vDel,0);
+            /* as minor diagonal vector passes across the j limit
+             * boundary, extract the last value of the row */
             {
                 __m128i cond_j = _mm_and_si128(
                         vIltLimit,
                         _mm_cmpeq_epi16(vJ, vJLimit1));
                 __m128i cond_i = _mm_and_si128(
                         vIeqLimit1,
-                        _mm_and_si128(_mm_cmpgt_epi16(vJ, vNegOne),
-                                      _mm_cmplt_epi16(vJ, vJLimit)));
+                        _mm_cmplt_epi16(vJ, vJLimit));
                 __m128i cond_max = _mm_cmpgt_epi16(vWscore, vMaxScore);
-                __m128i cond_all = _mm_and_si128(cond_max,
-                        _mm_or_si128(cond_i, cond_j));
+                __m128i cond_all = _mm_and_si128(cond_max, cond_j);
                 vMaxScore = _mm_andnot_si128(cond_all, vMaxScore);
                 vMaxScore = _mm_or_si128(vMaxScore,
                         _mm_and_si128(cond_all, vWscore));

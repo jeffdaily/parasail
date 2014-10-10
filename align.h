@@ -19,6 +19,13 @@ extern int nw(
         const int matrix[24][24],
         int * const restrict tbl_pr, int * const restrict del_pr);
 
+extern int nw_scan_col(
+        const char * const restrict _s1, const int s1Len,
+        const char * const restrict _s2, const int s2Len,
+        const int open, const int gap,
+        const int matrix[24][24],
+        int * const restrict tbl_pr, int * const restrict del_pr);
+
 extern int nw_scan_row(
         const char * const restrict _s1, const int s1Len,
         const char * const restrict _s2, const int s2Len,

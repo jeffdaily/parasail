@@ -45,6 +45,7 @@ int FNAME(
 
     /* initialize H */
     H[-1] = 0;
+    Ht[-1] = 0;
     for (i=0; i<s1Len; ++i) {
         H[i] = -open - i*gap;
     }
@@ -54,6 +55,7 @@ int FNAME(
         E[i] = NEG_INF_32;
     }
 
+#if 1
     /* iterate over database */
     for (j=0; j<s2Len; ++j) {
         const int * const restrict matcol = matrix[s2[j]];
@@ -80,6 +82,26 @@ int FNAME(
         }
         H[-1] = -open - j*gap;
     }
+#else
+    /* iterate over database */
+    Ft[-1] = NEG_INF_32;
+    for (j=0; j<s2Len; ++j) {
+        const int * const restrict matcol = matrix[s2[j]];
+        int Hp = H[-1];
+        for (i=0; i<s1Len; ++i) {
+            E[i] = MAX(E[i]-gap, H[i]-open);
+            Ht[i] = MAX(Hp+matcol[s1[i]], E[i]);
+            Ft[i] = MAX(Ft[i-1]-gap, Ht[i-1]);
+            Hp = H[i];
+            H[i] = MAX(Ht[i], Ft[i]-open);
+#ifdef ALIGN_EXTRA
+            score_table[i*s2Len + j] = H[i];
+#endif
+        }
+        H[-1] = -open - j*gap;
+        Ht[-1] = -open -j*gap;
+    }
+#endif
 
     free(s1);
     free(s2);

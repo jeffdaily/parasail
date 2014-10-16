@@ -10,9 +10,9 @@
 #include "blosum/blosum_map.h"
 
 #ifdef ALIGN_EXTRA
-#define FNAME sw_scan_col_debug
+#define FNAME nw_scan_debug
 #else
-#define FNAME sw_scan_col
+#define FNAME nw_scan
 #endif
 
 int FNAME(
@@ -35,7 +35,6 @@ int FNAME(
     int i = 0;
     int j = 0;
     int * const restrict H = _H+1;
-    int score = NEG_INF_32;
 
     for (i=0; i<s1Len; ++i) {
         s1[i] = MAP_BLOSUM_[(unsigned char)_s1[i]];
@@ -48,15 +47,15 @@ int FNAME(
     H[-1] = 0;
     Ht[-1] = 0;
     for (i=0; i<s1Len; ++i) {
-        H[i] = 0;
+        H[i] = -open - i*gap;
     }
-    Ft[-1] = NEG_INF_32;
 
     /* initialize E */
     for (i=0; i<s1Len; ++i) {
         E[i] = NEG_INF_32;
     }
 
+#if 1
     /* iterate over database */
     for (j=0; j<s2Len; ++j) {
         const int * const restrict matcol = matrix[s2[j]];
@@ -68,6 +67,8 @@ int FNAME(
         for (i=0; i<s1Len; ++i) {
             Ht[i] = MAX(H[i-1]+matcol[s1[i]], E[i]);
         }
+        Ht[-1] = -open -j*gap;
+        Ft[-1] = NEG_INF_32;
         /* calculate Ft */
         for (i=0; i<s1Len; ++i) {
             Ft[i] = MAX(Ft[i-1]-gap, Ht[i-1]);
@@ -75,18 +76,37 @@ int FNAME(
         /* calculate H */
         for (i=0; i<s1Len; ++i) {
             H[i] = MAX(Ht[i], Ft[i]-open);
-            H[i] = MAX(H[i], 0);
 #ifdef ALIGN_EXTRA
             score_table[i*s2Len + j] = H[i];
 #endif
-            score = MAX(score, H[i]);
         }
+        H[-1] = -open - j*gap;
     }
+#else
+    /* iterate over database */
+    Ft[-1] = NEG_INF_32;
+    for (j=0; j<s2Len; ++j) {
+        const int * const restrict matcol = matrix[s2[j]];
+        int Hp = H[-1];
+        for (i=0; i<s1Len; ++i) {
+            E[i] = MAX(E[i]-gap, H[i]-open);
+            Ht[i] = MAX(Hp+matcol[s1[i]], E[i]);
+            Ft[i] = MAX(Ft[i-1]-gap, Ht[i-1]);
+            Hp = H[i];
+            H[i] = MAX(Ht[i], Ft[i]-open);
+#ifdef ALIGN_EXTRA
+            score_table[i*s2Len + j] = H[i];
+#endif
+        }
+        H[-1] = -open - j*gap;
+        Ht[-1] = -open -j*gap;
+    }
+#endif
 
     free(s1);
     free(s2);
     free(HtB);
     free(FtB);
 
-    return score;
+    return H[s1Len-1];
 }

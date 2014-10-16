@@ -10,9 +10,9 @@
 #include "blosum/blosum_map.h"
 
 #ifdef ALIGN_EXTRA
-#define FNAME sg_scan_col_debug
+#define FNAME sg_scan_debug
 #else
-#define FNAME sg_scan_col
+#define FNAME sg_scan
 #endif
 
 int FNAME(

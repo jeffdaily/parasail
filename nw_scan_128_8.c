@@ -103,7 +103,7 @@ int FNAME(
     __m128i vSaturationCheck = _mm_setzero_si128();
     __m128i vNegLimit = _mm_set1_epi8(INT8_MIN);
     __m128i vPosLimit = _mm_set1_epi8(INT8_MAX);
-    int8_t score;
+    int8_t score = 0;
 
     /* Generate query profile.
      * Rearrange query sequence & calculate the weight of match/mismatch */
@@ -220,11 +220,13 @@ int FNAME(
     }
 
     /* extract last value from the last column */
-    __m128i vH = _mm_load_si128(pvH + offset);
-    for (k=0; k<position; ++k) {
-        vH = _mm_slli_si128(vH, 1);
+    {
+        __m128i vH = _mm_load_si128(pvH + offset);
+        for (k=0; k<position; ++k) {
+            vH = _mm_slli_si128(vH, 1);
+        }
+        score = (int8_t) _mm_extract_epi8 (vH, 15);
     }
-    score = (int8_t) _mm_extract_epi8 (vH, 15);
 
     if (_mm_movemask_epi8(vSaturationCheck)) {
         score = INT8_MAX;

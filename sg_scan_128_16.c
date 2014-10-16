@@ -238,11 +238,12 @@ int FNAME(
 
         /* extract last value from column */
         {
+            int16_t value;
             vH = _mm_load_si128(pvH + offset);
             for (k=0; k<position; ++k) {
                 vH = _mm_slli_si128(vH, 2);
             }
-            int16_t value = (int16_t) _mm_extract_epi16(vH, 7);
+            value = (int16_t) _mm_extract_epi16(vH, 7);
             if (value > score) {
                 score = value;
             }
@@ -266,17 +267,12 @@ int FNAME(
                 0*segLen);
 
         for (i=0; i<segLen; ++i) {
-            /* load the last stored values */
             __m128i vH = _mm_load_si128(pvH + i);
-            /* mask off the values that were padded */
-            __m128i vMask = _mm_cmplt_epi16(vQIndex, vQLimit);
-            vH = _mm_or_si128(
-                    _mm_and_si128(vMask, vH),
-                    _mm_andnot_si128(vMask, vNegInf));
-            __m128i cond = _mm_cmplt_epi16(vH, vMaxLastColH);
-            vMaxLastColH = _mm_or_si128(
-                    _mm_andnot_si128(cond, vH),
-                    _mm_and_si128(cond, vMaxLastColH));
+            __m128i cond_lmt = _mm_cmplt_epi16(vQIndex, vQLimit);
+            __m128i cond_max = _mm_cmpgt_epi16(vH, vMaxLastColH);
+            __m128i cond_all = _mm_and_si128(cond_max, cond_lmt);
+            vMaxLastColH = _mm_andnot_si128(cond_all, vMaxLastColH);
+            vMaxLastColH = _mm_or_si128(vMaxLastColH, _mm_and_si128(cond_all, vH));
             vQIndex = _mm_add_epi16(vQIndex, vOne);
         }
 

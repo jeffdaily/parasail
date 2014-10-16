@@ -187,28 +187,20 @@ int FNAME(
     __m128i vNegInf0 = _mm_srli_si128(vNegInf, 1); /* shift in a 0 */
     __m128i vOpen = _mm_set1_epi8(open);
     __m128i vGap  = _mm_set1_epi8(gap);
-    __m128i vZero = _mm_set1_epi8(0);
     __m128i vOne = _mm_set1_epi8(1);
     __m128i vOne16 = _mm_set1_epi16(1);
-    __m128i vN = _mm_set1_epi8(N);
     __m128i vN16 = _mm_set1_epi16(N);
     __m128i vNegOne = _mm_set1_epi8(-1);
     __m128i vNegOne16 = _mm_set1_epi16(-1);
-    __m128i vI = _mm_set_epi8(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15);
     __m128i vILo16 = _mm_set_epi16(8,9,10,11,12,13,14,15);
     __m128i vIHi16 = _mm_set_epi16(0,1,2,3,4,5,6,7);
-    __m128i vJreset = _mm_set_epi8(0,-1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11,-12,-13,-14,-15);
     __m128i vJresetLo16 = _mm_set_epi16(-8,-9,-10,-11,-12,-13,-14,-15);
     __m128i vJresetHi16 = _mm_set_epi16(0,-1,-2,-3,-4,-5,-6,-7);
     __m128i vMaxScore = vNegInf;
     __m128i vMaxMatch = vNegInf;
     __m128i vMaxLength = vNegInf;
-    __m128i vILimit = _mm_set1_epi8(s1Len);
-    __m128i vILimit1 = _mm_sub_epi8(vILimit, vOne);
     __m128i vILimit16 = _mm_set1_epi16(s1Len);
     __m128i vILimit116 = _mm_sub_epi16(vILimit16, vOne16);
-    __m128i vJLimit = _mm_set1_epi8(s2Len);
-    __m128i vJLimit1 = _mm_sub_epi8(vJLimit, vOne);
     __m128i vJLimit16 = _mm_set1_epi16(s2Len);
     __m128i vJLimit116 = _mm_sub_epi16(vJLimit16, vOne16);
 
@@ -266,7 +258,6 @@ int FNAME(
         __m128i vWlength = vNegInf;
         __m128i vIns = vNegInf;
         __m128i vDel = vNegInf;
-        __m128i vJ = vJreset;
         __m128i vJLo16 = vJresetLo16;
         __m128i vJHi16 = vJresetHi16;
         __m128i vs1 = _mm_set_epi8(
@@ -303,9 +294,6 @@ int FNAME(
         const int * const restrict matrow13 = matrix[s1[i+13]];
         const int * const restrict matrow14 = matrix[s1[i+14]];
         const int * const restrict matrow15 = matrix[s1[i+15]];
-        __m128i vIeqLimit1 = _mm_packs_epi16(
-                _mm_cmpeq_epi16(vILo16, vILimit116),
-                _mm_cmpeq_epi16(vIHi16, vILimit116));
         /* iterate over database sequence */
         for (j=0; j<N; ++j) {
             __m128i vMat;
@@ -617,7 +605,6 @@ int FNAME(
         __m128i vWlength = vNegInf;
         __m128i vIns = vNegInf;
         __m128i vDel = vNegInf;
-        __m128i vJ = vJreset;
         __m128i vJLo16 = vJresetLo16;
         __m128i vJHi16 = vJresetHi16;
         __m128i vs1 = _mm_set_epi8(

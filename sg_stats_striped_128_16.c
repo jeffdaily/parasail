@@ -83,6 +83,22 @@ int FNAME(
     __m128i* pvEM = (__m128i*) calloc(segLen, sizeof(__m128i));
     __m128i* pvEL = (__m128i*) calloc(segLen, sizeof(__m128i));
 
+    /* 16 byte insertion begin vector */
+    __m128i vGapO = _mm_set1_epi16(open);
+
+    /* 16 byte insertion extension vector */
+    __m128i vGapE = _mm_set1_epi16(gap);
+
+    __m128i initialF = _mm_set_epi16(
+            -open-7*segLen*gap,
+            -open-6*segLen*gap,
+            -open-5*segLen*gap,
+            -open-4*segLen*gap,
+            -open-3*segLen*gap,
+            -open-2*segLen*gap,
+            -open-1*segLen*gap,
+            -open-0*segLen*gap);
+
     /* Generate query profile rearrange query sequence & calculate the weight
      * of match/mismatch */
     {
@@ -109,22 +125,6 @@ int FNAME(
             }
         }
     }
-
-    /* 16 byte insertion begin vector */
-    __m128i vGapO = _mm_set1_epi16(open);
-
-    /* 16 byte insertion extension vector */
-    __m128i vGapE = _mm_set1_epi16(gap);
-
-    __m128i initialF = _mm_set_epi16(
-            -open-7*segLen*gap,
-            -open-6*segLen*gap,
-            -open-5*segLen*gap,
-            -open-4*segLen*gap,
-            -open-3*segLen*gap,
-            -open-2*segLen*gap,
-            -open-1*segLen*gap,
-            -open-0*segLen*gap);
 
     /* outer loop over database sequence */
     for (j=0; j<s2Len; ++j) {
@@ -162,16 +162,21 @@ int FNAME(
 
         /* inner loop to process the query sequence */
         for (i=0; i<segLen; ++i) {
+            __m128i case1not;
+            __m128i case2not;
+            __m128i case2;
+            __m128i case3;
+
             vH = _mm_adds_epi16(vH, _mm_load_si128(vP + i));
             vE = _mm_load_si128(pvELoad + i);
 
             /* determine which direction of length and match to
              * propagate, before vH is finished calculating */
-            __m128i case1not = _mm_or_si128(
+            case1not = _mm_or_si128(
                     _mm_cmplt_epi16(vH,vF),_mm_cmplt_epi16(vH,vE));
-            __m128i case2not = _mm_cmplt_epi16(vF,vE);
-            __m128i case2 = _mm_andnot_si128(case2not,case1not);
-            __m128i case3 = _mm_and_si128(case1not,case2not);
+            case2not = _mm_cmplt_epi16(vF,vE);
+            case2 = _mm_andnot_si128(case2not,case1not);
+            case3 = _mm_and_si128(case1not,case2not);
 
             /* Get max from vH, vE and vF. */
             vH = _mm_max_epi16(vH, vE);
@@ -231,14 +236,18 @@ int FNAME(
             vFM = _mm_slli_si128(vFM, 2);
             vFL = _mm_slli_si128(vFL, 2);
             for (i=0; i<segLen; ++i) {
+                __m128i case1not;
+                __m128i case2not;
+                __m128i case2;
+
                 /* need to know where match and length come from so
                  * recompute the cases as in the main loop */
                 vHp = _mm_adds_epi16(vHp, _mm_load_si128(vP + i));
                 vE = _mm_load_si128(pvELoad + i);
-                __m128i case1not = _mm_or_si128(
+                case1not = _mm_or_si128(
                         _mm_cmplt_epi16(vHp,vF),_mm_cmplt_epi16(vHp,vE));
-                __m128i case2not = _mm_cmplt_epi16(vF,vE);
-                __m128i case2 = _mm_andnot_si128(case2not,case1not);
+                case2not = _mm_cmplt_epi16(vF,vE);
+                case2 = _mm_andnot_si128(case2not,case1not);
 
                 vHM = _mm_load_si128(pvHMStore + i);
                 vHM = _mm_andnot_si128(case2, vHM);
@@ -272,6 +281,7 @@ int FNAME(
         }
 end:
         {
+            int16_t tmp;
             /* extract last value from the column */
             vH = _mm_load_si128(pvHStore + offset);
             vHM = _mm_load_si128(pvHMStore + offset);
@@ -282,7 +292,7 @@ end:
                 vHL = _mm_slli_si128 (vHL, 2);
             }
             /* max of last value in each column */
-            int16_t tmp = (int16_t) _mm_extract_epi16 (vH, 7);
+            tmp = (int16_t) _mm_extract_epi16 (vH, 7);
             if (tmp > max) {
                 max = tmp;
                 *matches = (int16_t)_mm_extract_epi16(vHM, 7);
@@ -292,55 +302,55 @@ end:
     }
 
     /* max of last column */
-    __m128i vNegInf = _mm_set1_epi16(NEG_INF_16);
-    __m128i vMaxLastColH = vNegInf;
-    __m128i vMaxLastColHM = vNegInf;
-    __m128i vMaxLastColHL = vNegInf;
-    __m128i vQIndex = _mm_set_epi16(
-            7*segLen,
-            6*segLen,
-            5*segLen,
-            4*segLen,
-            3*segLen,
-            2*segLen,
-            1*segLen,
-            0*segLen);
-    __m128i vQLimit = _mm_set1_epi16(s1Len);
+    {
+        __m128i vNegInf = _mm_set1_epi16(NEG_INF_16);
+        __m128i vMaxLastColH = vNegInf;
+        __m128i vMaxLastColHM = vNegInf;
+        __m128i vMaxLastColHL = vNegInf;
+        __m128i vQIndex = _mm_set_epi16(
+                7*segLen,
+                6*segLen,
+                5*segLen,
+                4*segLen,
+                3*segLen,
+                2*segLen,
+                1*segLen,
+                0*segLen);
+        __m128i vQLimit = _mm_set1_epi16(s1Len);
 
-    for (i=0; i<segLen; ++i) {
-        /* load the last stored values */
-        __m128i vH = _mm_load_si128(pvHStore + i);
-        __m128i vHM = _mm_load_si128(pvHMStore + i);
-        __m128i vHL = _mm_load_si128(pvHLStore + i);
-        /* mask off the values that were padded */
-        __m128i vMask = _mm_cmplt_epi16(vQIndex, vQLimit);
-        vH = _mm_or_si128(_mm_and_si128(vMask, vH),
-                          _mm_andnot_si128(vMask, vNegInf));
-        vHM = _mm_or_si128(_mm_and_si128(vMask, vHM),
-                           _mm_andnot_si128(vMask, vNegInf));
-        vHL = _mm_or_si128(_mm_and_si128(vMask, vHL),
-                           _mm_andnot_si128(vMask, vNegInf));
-        __m128i cond = _mm_cmplt_epi16(vH, vMaxLastColH);
-        vMaxLastColH = _mm_or_si128(_mm_andnot_si128(cond, vH),
-                                    _mm_and_si128(cond, vMaxLastColH));
-        vMaxLastColHM = _mm_or_si128(_mm_andnot_si128(cond, vHM),
-                                     _mm_and_si128(cond, vMaxLastColHM));
-        vMaxLastColHL = _mm_or_si128(_mm_andnot_si128(cond, vHL),
-                                     _mm_and_si128(cond, vMaxLastColHL));
-        vQIndex = _mm_adds_epi16(vQIndex, vOne);
-    }
-
-    /* max in vec */
-    for (j=0; j<8; ++j) {
-        int16_t value = (int16_t) _mm_extract_epi16(vMaxLastColH, 7);
-        if (value > max) {
-            max = value;
-            *matches = (int16_t)_mm_extract_epi16(vMaxLastColHM, 7);
-            *length = (int16_t)_mm_extract_epi16(vMaxLastColHL, 7);
+        for (i=0; i<segLen; ++i) {
+            /* load the last stored values */
+            __m128i vH = _mm_load_si128(pvHStore + i);
+            __m128i vHM = _mm_load_si128(pvHMStore + i);
+            __m128i vHL = _mm_load_si128(pvHLStore + i);
+            /* mask off the values that were padded */
+            __m128i cond_lmt = _mm_cmplt_epi16(vQIndex, vQLimit);
+            __m128i cond_max = _mm_cmpgt_epi16(vH, vMaxLastColH);
+            __m128i cond_all = _mm_and_si128(cond_max, cond_lmt);
+            vMaxLastColH = _mm_andnot_si128(cond_all, vMaxLastColH);
+            vMaxLastColH = _mm_or_si128(vMaxLastColH,
+                    _mm_and_si128(cond_all, vH));
+            vMaxLastColHM = _mm_andnot_si128(cond_all, vMaxLastColHM);
+            vMaxLastColHM = _mm_or_si128(vMaxLastColHM,
+                    _mm_and_si128(cond_all, vHM));
+            vMaxLastColHL = _mm_andnot_si128(cond_all, vMaxLastColHL);
+            vMaxLastColHL = _mm_or_si128(vMaxLastColHL,
+                    _mm_and_si128(cond_all, vHL));
+            vQIndex = _mm_adds_epi16(vQIndex, vOne);
         }
-        vMaxLastColH = _mm_slli_si128(vMaxLastColH, 2);
-        vMaxLastColHM = _mm_slli_si128(vMaxLastColHM, 2);
-        vMaxLastColHL = _mm_slli_si128(vMaxLastColHL, 2);
+
+        /* max in vec */
+        for (j=0; j<8; ++j) {
+            int16_t value = (int16_t) _mm_extract_epi16(vMaxLastColH, 7);
+            if (value > max) {
+                max = value;
+                *matches = (int16_t)_mm_extract_epi16(vMaxLastColHM, 7);
+                *length = (int16_t)_mm_extract_epi16(vMaxLastColHL, 7);
+            }
+            vMaxLastColH = _mm_slli_si128(vMaxLastColH, 2);
+            vMaxLastColHM = _mm_slli_si128(vMaxLastColHM, 2);
+            vMaxLastColHL = _mm_slli_si128(vMaxLastColHL, 2);
+        }
     }
 
     free(vProfile);

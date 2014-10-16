@@ -75,7 +75,6 @@ int FNAME(
     int max = NEG_INF_8;
 
     /* Define 16 byte 0 vector. */
-    __m128i vOne = _mm_set1_epi8(1);
     __m128i vNegInf = _mm_set1_epi8(NEG_INF_8);
 
     __m128i* pvHStore = (__m128i*) calloc(segLen, sizeof(__m128i));
@@ -85,6 +84,12 @@ int FNAME(
     __m128i vSaturationCheck = _mm_setzero_si128();
     __m128i vNegLimit = _mm_set1_epi8(INT8_MIN);
     __m128i vPosLimit = _mm_set1_epi8(INT8_MAX);
+
+    /* 16 byte insertion begin vector */
+    __m128i vGapO = _mm_set1_epi8(open);
+
+    /* 16 byte insertion extension vector */
+    __m128i vGapE = _mm_set1_epi8(gap);
 
     /* Generate query profile rearrange query sequence & calculate the weight
      * of match/mismatch */
@@ -110,12 +115,6 @@ int FNAME(
             }
         }
     }
-
-    /* 16 byte insertion begin vector */
-    __m128i vGapO = _mm_set1_epi8(open);
-
-    /* 16 byte insertion extension vector */
-    __m128i vGapE = _mm_set1_epi8(gap);
 
     /* outer loop over database sequence */
     for (j=0; j<s2Len; ++j) {
@@ -198,12 +197,13 @@ int FNAME(
 end:
         {
             /* extract last value from the column */
+            int8_t tmp;
             vH = _mm_load_si128(pvHStore + offset);
             for (k=0; k<position; ++k) {
                 vH = _mm_slli_si128 (vH, 1);
             }
             /* max of last value in each column */
-            int8_t tmp = (int8_t) _mm_extract_epi8 (vH, 15);
+            tmp = (int8_t) _mm_extract_epi8 (vH, 15);
             if (tmp > max) {
                 max = tmp;
             }
@@ -211,51 +211,50 @@ end:
     }
 
     /* max of last column */
-    __m128i vMaxLastColH = vNegInf;
-    __m128i vQIndexHi16 = _mm_set_epi16(
-            15*segLen,
-            14*segLen,
-            13*segLen,
-            12*segLen,
-            11*segLen,
-            10*segLen,
-            9*segLen,
-            8*segLen);
-    __m128i vQIndexLo16 = _mm_set_epi16(
-            7*segLen,
-            6*segLen,
-            5*segLen,
-            4*segLen,
-            3*segLen,
-            2*segLen,
-            1*segLen,
-            0*segLen);
-    __m128i vQLimit16 = _mm_set1_epi16(s1Len);
-    __m128i vOne16 = _mm_set1_epi16(1);
+    {
+        __m128i vMaxLastColH = vNegInf;
+        __m128i vQIndexHi16 = _mm_set_epi16(
+                15*segLen,
+                14*segLen,
+                13*segLen,
+                12*segLen,
+                11*segLen,
+                10*segLen,
+                9*segLen,
+                8*segLen);
+        __m128i vQIndexLo16 = _mm_set_epi16(
+                7*segLen,
+                6*segLen,
+                5*segLen,
+                4*segLen,
+                3*segLen,
+                2*segLen,
+                1*segLen,
+                0*segLen);
+        __m128i vQLimit16 = _mm_set1_epi16(s1Len);
+        __m128i vOne16 = _mm_set1_epi16(1);
 
-    for (i=0; i<segLen; ++i) {
-        /* load the last stored values */
-        __m128i vH = _mm_load_si128(pvHStore + i);
-        /* mask off the values that were padded */
-        __m128i vMask = _mm_packs_epi16(
-                _mm_cmplt_epi16(vQIndexLo16, vQLimit16),
-                _mm_cmplt_epi16(vQIndexHi16, vQLimit16));
-        vH = _mm_or_si128(_mm_and_si128(vMask, vH),
-                          _mm_andnot_si128(vMask, vNegInf));
-        __m128i cond = _mm_cmplt_epi8(vH, vMaxLastColH);
-        vMaxLastColH = _mm_or_si128(_mm_andnot_si128(cond, vH),
-                                    _mm_and_si128(cond, vMaxLastColH));
-        vQIndexLo16 = _mm_adds_epi8(vQIndexLo16, vOne16);
-        vQIndexHi16 = _mm_adds_epi8(vQIndexHi16, vOne16);
-    }
-
-    /* max in vec */
-    for (j=0; j<16; ++j) {
-        int8_t value = (int8_t) _mm_extract_epi8(vMaxLastColH, 15);
-        if (value > max) {
-            max = value;
+        for (i=0; i<segLen; ++i) {
+            __m128i vH = _mm_load_si128(pvHStore + i);
+            __m128i cond_lmt = _mm_packs_epi16(
+                    _mm_cmplt_epi16(vQIndexLo16, vQLimit16),
+                    _mm_cmplt_epi16(vQIndexHi16, vQLimit16));
+            __m128i cond_max = _mm_cmpgt_epi8(vH, vMaxLastColH);
+            __m128i cond_all = _mm_and_si128(cond_max, cond_lmt);
+            vMaxLastColH = _mm_andnot_si128(cond_all, vMaxLastColH);
+            vMaxLastColH = _mm_or_si128(vMaxLastColH, _mm_and_si128(cond_all, vH));
+            vQIndexLo16 = _mm_adds_epi8(vQIndexLo16, vOne16);
+            vQIndexHi16 = _mm_adds_epi8(vQIndexHi16, vOne16);
         }
-        vMaxLastColH = _mm_slli_si128(vMaxLastColH, 1);
+
+        /* max in vec */
+        for (j=0; j<16; ++j) {
+            int8_t value = (int8_t) _mm_extract_epi8(vMaxLastColH, 15);
+            if (value > max) {
+                max = value;
+            }
+            vMaxLastColH = _mm_slli_si128(vMaxLastColH, 1);
+        }
     }
 
     if (_mm_movemask_epi8(vSaturationCheck)) {

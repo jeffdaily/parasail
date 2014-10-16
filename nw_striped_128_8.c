@@ -83,6 +83,30 @@ int FNAME(
     __m128i vNegLimit = _mm_set1_epi8(INT8_MIN);
     __m128i vPosLimit = _mm_set1_epi8(INT8_MAX);
 
+    /* 8 byte insertion begin vector */
+    __m128i vGapO = _mm_set1_epi8(open);
+
+    /* 8 byte insertion extension vector */
+    __m128i vGapE = _mm_set1_epi8(gap);
+
+    __m128i initialF = _mm_set_epi8(
+            -open-open-15*segLen*gap,
+            -open-open-14*segLen*gap,
+            -open-open-13*segLen*gap,
+            -open-open-12*segLen*gap,
+            -open-open-11*segLen*gap,
+            -open-open-10*segLen*gap,
+            -open-open-9*segLen*gap,
+            -open-open-8*segLen*gap,
+            -open-open-7*segLen*gap,
+            -open-open-6*segLen*gap,
+            -open-open-5*segLen*gap,
+            -open-open-4*segLen*gap,
+            -open-open-3*segLen*gap,
+            -open-open-2*segLen*gap,
+            -open-open-1*segLen*gap,
+            -open-open-0*segLen*gap);
+
     /* Generate query profile rearrange query sequence & calculate the weight
      * of match/mismatch */
     {
@@ -122,50 +146,32 @@ int FNAME(
         }
     }
 
-    /* 8 byte insertion begin vector */
-    __m128i vGapO = _mm_set1_epi8(open);
-
-    /* 8 byte insertion extension vector */
-    __m128i vGapE = _mm_set1_epi8(gap);
-
-    __m128i initialF = _mm_set_epi8(
-            -open-open-15*segLen*gap,
-            -open-open-14*segLen*gap,
-            -open-open-13*segLen*gap,
-            -open-open-12*segLen*gap,
-            -open-open-11*segLen*gap,
-            -open-open-10*segLen*gap,
-            -open-open-9*segLen*gap,
-            -open-open-8*segLen*gap,
-            -open-open-7*segLen*gap,
-            -open-open-6*segLen*gap,
-            -open-open-5*segLen*gap,
-            -open-open-4*segLen*gap,
-            -open-open-3*segLen*gap,
-            -open-open-2*segLen*gap,
-            -open-open-1*segLen*gap,
-            -open-open-0*segLen*gap);
     initialF = _mm_adds_epi8(initialF, vGapE);
 
     /* outer loop over database sequence */
     for (j=0; j<s2Len; ++j) {
         __m128i vE;
+        __m128i vF;
+        __m128i vH;
+        const __m128i* vP = NULL;
+        __m128i* pv = NULL;
+
         /* Initialize F value to 0.  Any errors to vH values will be corrected
          * in the Lazy_F loop.  */
         initialF = _mm_subs_epi8(initialF, vGapE);
-        __m128i vF = initialF;
+        vF = initialF;
 
         /* load final segment of pvHStore and shift left by 2 bytes */
-        __m128i vH = _mm_slli_si128(pvHStore[segLen - 1], 1);
+        vH = _mm_slli_si128(pvHStore[segLen - 1], 1);
 
         /* insert upper boundary condition */
         vH = _mm_insert_epi8(vH, boundary[j], 0);
 
         /* Correct part of the vProfile */
-        const __m128i* vP = vProfile + MAP_BLOSUM_[(unsigned char)s2[j]] * segLen;
+        vP = vProfile + MAP_BLOSUM_[(unsigned char)s2[j]] * segLen;
 
         /* Swap the 2 H buffers. */
-        __m128i* pv = pvHLoad;
+        pv = pvHLoad;
         pvHLoad = pvHStore;
         pvHStore = pv;
 
@@ -234,11 +240,13 @@ end:
     }
 
     /* extract last value from the last column */
-    __m128i vH = _mm_load_si128(pvHStore + offset);
-    for (k=0; k<position; ++k) {
-        vH = _mm_slli_si128 (vH, 1);
+    {
+        __m128i vH = _mm_load_si128(pvHStore + offset);
+        for (k=0; k<position; ++k) {
+            vH = _mm_slli_si128 (vH, 1);
+        }
+        last_value = (int8_t) _mm_extract_epi8 (vH, 15);
     }
-    last_value = (int8_t) _mm_extract_epi8 (vH, 15);
 
     if (_mm_movemask_epi8(vSaturationCheck)) {
         last_value = INT8_MAX;

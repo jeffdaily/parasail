@@ -184,8 +184,6 @@ int FNAME(
         const int * const restrict matrow5 = matrix[s1[i+5]];
         const int * const restrict matrow6 = matrix[s1[i+6]];
         const int * const restrict matrow7 = matrix[s1[i+7]];
-        __m128i vIltLimit = _mm_cmplt_epi16(vI, vILimit);
-        __m128i vIeqLimit1 = _mm_cmpeq_epi16(vI, vILimit1);
         /* iterate over database sequence */
         for (j=0; j<N; ++j) {
             __m128i vMat;
@@ -706,9 +704,6 @@ int FNAME(
                 __m128i cond_j = _mm_and_si128(
                         vIltLimit,
                         _mm_cmpeq_epi16(vJ, vJLimit1));
-                __m128i cond_i = _mm_and_si128(
-                        vIeqLimit1,
-                        _mm_cmplt_epi16(vJ, vJLimit));
                 __m128i cond_max = _mm_cmpgt_epi16(vWscore, vMaxScore);
                 __m128i cond_all = _mm_and_si128(cond_max, cond_j);
                 vMaxScore = _mm_andnot_si128(cond_all, vMaxScore);

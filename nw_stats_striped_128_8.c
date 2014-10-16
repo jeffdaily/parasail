@@ -98,6 +98,30 @@ int FNAME(
     __m128i vNegLimit = _mm_set1_epi8(INT8_MIN);
     __m128i vPosLimit = _mm_set1_epi8(INT8_MAX);
 
+    /* 8 byte insertion begin vector */
+    __m128i vGapO = _mm_set1_epi8(open);
+
+    /* 8 byte insertion extension vector */
+    __m128i vGapE = _mm_set1_epi8(gap);
+
+    __m128i initialF = _mm_set_epi8(
+            -open-open-15*segLen*gap,
+            -open-open-14*segLen*gap,
+            -open-open-13*segLen*gap,
+            -open-open-12*segLen*gap,
+            -open-open-11*segLen*gap,
+            -open-open-10*segLen*gap,
+            -open-open-9*segLen*gap,
+            -open-open-8*segLen*gap,
+            -open-open-7*segLen*gap,
+            -open-open-6*segLen*gap,
+            -open-open-5*segLen*gap,
+            -open-open-4*segLen*gap,
+            -open-open-3*segLen*gap,
+            -open-open-2*segLen*gap,
+            -open-open-1*segLen*gap,
+            -open-open-0*segLen*gap);
+
     /* Generate query profile rearrange query sequence & calculate the weight
      * of match/mismatch */
     {
@@ -139,29 +163,6 @@ int FNAME(
         }
     }
 
-    /* 8 byte insertion begin vector */
-    __m128i vGapO = _mm_set1_epi8(open);
-
-    /* 8 byte insertion extension vector */
-    __m128i vGapE = _mm_set1_epi8(gap);
-
-    __m128i initialF = _mm_set_epi8(
-            -open-open-15*segLen*gap,
-            -open-open-14*segLen*gap,
-            -open-open-13*segLen*gap,
-            -open-open-12*segLen*gap,
-            -open-open-11*segLen*gap,
-            -open-open-10*segLen*gap,
-            -open-open-9*segLen*gap,
-            -open-open-8*segLen*gap,
-            -open-open-7*segLen*gap,
-            -open-open-6*segLen*gap,
-            -open-open-5*segLen*gap,
-            -open-open-4*segLen*gap,
-            -open-open-3*segLen*gap,
-            -open-open-2*segLen*gap,
-            -open-open-1*segLen*gap,
-            -open-open-0*segLen*gap);
     initialF = _mm_adds_epi8(initialF, vGapE);
 
     /* outer loop over database sequence */
@@ -169,27 +170,37 @@ int FNAME(
         __m128i vE;
         __m128i vEM;
         __m128i vEL;
+        __m128i vF;
+        __m128i vFM;
+        __m128i vFL;
+        __m128i vH;
+        __m128i vHM;
+        __m128i vHL;
+        const __m128i* vP = NULL;
+        const __m128i* vPS = NULL;
+        __m128i* pv = NULL;
+
         /* Initialize F value to 0.  Any errors to vH values will be corrected
          * in the Lazy_F loop.  */
         initialF = _mm_subs_epi8(initialF, vGapE);
-        __m128i vF = initialF;
-        __m128i vFM = vZero;
-        __m128i vFL = vZero;
+        vF = initialF;
+        vFM = vZero;
+        vFL = vZero;
 
         /* load final segment of pvHStore and shift left by 2 bytes */
-        __m128i vH = _mm_slli_si128(pvHStore[segLen - 1], 1);
-        __m128i vHM = _mm_slli_si128(pvHMStore[segLen - 1], 1);
-        __m128i vHL = _mm_slli_si128(pvHLStore[segLen - 1], 1);
+        vH = _mm_slli_si128(pvHStore[segLen - 1], 1);
+        vHM = _mm_slli_si128(pvHMStore[segLen - 1], 1);
+        vHL = _mm_slli_si128(pvHLStore[segLen - 1], 1);
 
         /* insert upper boundary condition */
         vH = _mm_insert_epi8(vH, boundary[j], 0);
 
         /* Correct part of the vProfile */
-        const __m128i* vP = vProfile + MAP_BLOSUM_[(unsigned char)s2[j]] * segLen;
-        const __m128i* vPS = vProfileS + MAP_BLOSUM_[(unsigned char)s2[j]] * segLen;
+        vP = vProfile + MAP_BLOSUM_[(unsigned char)s2[j]] * segLen;
+        vPS = vProfileS + MAP_BLOSUM_[(unsigned char)s2[j]] * segLen;
 
         /* Swap the 2 H buffers. */
-        __m128i* pv = pvHLoad;
+        pv = pvHLoad;
         pvHLoad = pvHStore;
         pvHStore = pv;
         pv = pvHMLoad;
@@ -204,16 +215,21 @@ int FNAME(
 
         /* inner loop to process the query sequence */
         for (i=0; i<segLen; ++i) {
+            __m128i case1not;
+            __m128i case2not;
+            __m128i case2;
+            __m128i case3;
+
             vH = _mm_adds_epi8(vH, _mm_load_si128(vP + i));
             vE = _mm_load_si128(pvELoad + i);
 
             /* determine which direction of length and match to
              * propagate, before vH is finished calculating */
-            __m128i case1not = _mm_or_si128(
+            case1not = _mm_or_si128(
                     _mm_cmplt_epi8(vH,vF),_mm_cmplt_epi8(vH,vE));
-            __m128i case2not = _mm_cmplt_epi8(vF,vE);
-            __m128i case2 = _mm_andnot_si128(case2not,case1not);
-            __m128i case3 = _mm_and_si128(case1not,case2not);
+            case2not = _mm_cmplt_epi8(vF,vE);
+            case2 = _mm_andnot_si128(case2not,case1not);
+            case3 = _mm_and_si128(case1not,case2not);
 
             /* Get max from vH, vE and vF. */
             vH = _mm_max_epi8(vH, vE);
@@ -281,14 +297,18 @@ int FNAME(
             vFM = _mm_slli_si128(vFM, 1);
             vFL = _mm_slli_si128(vFL, 1);
             for (i=0; i<segLen; ++i) {
+                __m128i case1not;
+                __m128i case2not;
+                __m128i case2;
+
                 /* need to know where match and length come from so
                  * recompute the cases as in the main loop */
                 vHp = _mm_adds_epi8(vHp, _mm_load_si128(vP + i));
                 vE = _mm_load_si128(pvELoad + i);
-                __m128i case1not = _mm_or_si128(
+                case1not = _mm_or_si128(
                         _mm_cmplt_epi8(vHp,vF),_mm_cmplt_epi8(vHp,vE));
-                __m128i case2not = _mm_cmplt_epi8(vF,vE);
-                __m128i case2 = _mm_andnot_si128(case2not,case1not);
+                case2not = _mm_cmplt_epi8(vF,vE);
+                case2 = _mm_andnot_si128(case2not,case1not);
 
                 vHM = _mm_load_si128(pvHMStore + i);
                 vHM = _mm_andnot_si128(case2, vHM);
@@ -333,17 +353,19 @@ end:
     }
 
     /* extract last value from the last column */
-    __m128i vH = _mm_load_si128(pvHStore + offset);
-    __m128i vHM = _mm_load_si128(pvHMStore + offset);
-    __m128i vHL = _mm_load_si128(pvHLStore + offset);
-    for (k=0; k<position; ++k) {
-        vH = _mm_slli_si128 (vH, 1);
-        vHM = _mm_slli_si128 (vHM, 1);
-        vHL = _mm_slli_si128 (vHL, 1);
+    {
+        __m128i vH = _mm_load_si128(pvHStore + offset);
+        __m128i vHM = _mm_load_si128(pvHMStore + offset);
+        __m128i vHL = _mm_load_si128(pvHLStore + offset);
+        for (k=0; k<position; ++k) {
+            vH = _mm_slli_si128 (vH, 1);
+            vHM = _mm_slli_si128 (vHM, 1);
+            vHL = _mm_slli_si128 (vHL, 1);
+        }
+        last_value = (int8_t) _mm_extract_epi8 (vH, 15);
+        *matches = (int8_t) _mm_extract_epi8 (vHM, 15);
+        *length = (int8_t) _mm_extract_epi8 (vHL, 15);
     }
-    last_value = (int8_t) _mm_extract_epi8 (vH, 15);
-    *matches = (int8_t) _mm_extract_epi8 (vHM, 15);
-    *length = (int8_t) _mm_extract_epi8 (vHL, 15);
 
     if (_mm_movemask_epi8(vSaturationCheck)) {
         last_value = INT8_MAX;

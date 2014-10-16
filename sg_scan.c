@@ -81,8 +81,8 @@ int FNAME(
         }
         score = MAX(score, H[s1Len-1]);
     }
+    j = s2Len - 1;
     {
-        j = s2Len - 1;
         const int * const restrict matcol = matrix[s2[j]];
         /* calculate E */
         for (i=0; i<s1Len; ++i) {

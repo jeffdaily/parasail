@@ -69,6 +69,27 @@ int FNAME(
     __m128i* pvHLoad = (__m128i*) calloc(segLen, sizeof(__m128i));
     __m128i* pvE = (__m128i*) calloc(segLen, sizeof(__m128i));
 
+    /* 16 byte insertion begin vector */
+    __m128i vGapO = _mm_set1_epi16(open);
+
+    /* 16 byte insertion extension vector */
+    __m128i vGapE = _mm_set1_epi16(gap);
+
+    /* for max calculation we don't want to include padded cells */
+    __m128i vQLimit = _mm_set1_epi16(s1Len);
+    __m128i vQIndex_reset = _mm_set_epi16(
+            7*segLen,
+            6*segLen,
+            5*segLen,
+            4*segLen,
+            3*segLen,
+            2*segLen,
+            1*segLen,
+            0*segLen);
+
+    /* Trace the highest score of the whole SW matrix. */
+    __m128i vMaxH = vZero;
+
     /* Generate query profile rearrange query sequence & calculate the weight
      * of match/mismatch */
     {
@@ -94,29 +115,9 @@ int FNAME(
         }
     }
 
-    /* 16 byte insertion begin vector */
-    __m128i vGapO = _mm_set1_epi16(open);
-
-    /* 16 byte insertion extension vector */
-    __m128i vGapE = _mm_set1_epi16(gap);
-
-    /* for max calculation we don't want to include padded cells */
-    __m128i vQLimit = _mm_set1_epi16(s1Len);
-    __m128i vQIndex_reset = _mm_set_epi16(
-            7*segLen,
-            6*segLen,
-            5*segLen,
-            4*segLen,
-            3*segLen,
-            2*segLen,
-            1*segLen,
-            0*segLen);
-
-    /* Trace the highest score of the whole SW matrix. */
-    __m128i vMaxH = vZero;
-
     /* outer loop over database sequence */
     for (j=0; j<s2Len; ++j) {
+        __m128i vQIndex = vQIndex_reset;
         __m128i vE;
         /* Initialize F value to 0.  Any errors to vH values will be corrected
          * in the Lazy_F loop.  */
@@ -132,8 +133,6 @@ int FNAME(
         __m128i* pv = pvHLoad;
         pvHLoad = pvHStore;
         pvHStore = pv;
-
-        __m128i vQIndex = vQIndex_reset;
 
         /* inner loop to process the query sequence */
         for (i=0; i<segLen; ++i) {
@@ -151,12 +150,14 @@ int FNAME(
 #endif
 
             /* update max vector seen so far */
-            __m128i cond_max = _mm_cmpgt_epi16(vH,vMaxH);
-            __m128i cond_lmt = _mm_cmplt_epi16(vQIndex,vQLimit);
-            __m128i cond_all = _mm_and_si128(cond_max, cond_lmt);
-            vMaxH = _mm_andnot_si128(cond_all, vMaxH);
-            vMaxH = _mm_or_si128(vMaxH, _mm_and_si128(cond_all, vH));
-            vQIndex = _mm_add_epi16(vQIndex, vOne);
+            {
+                __m128i cond_max = _mm_cmpgt_epi16(vH,vMaxH);
+                __m128i cond_lmt = _mm_cmplt_epi16(vQIndex,vQLimit);
+                __m128i cond_all = _mm_and_si128(cond_max, cond_lmt);
+                vMaxH = _mm_andnot_si128(cond_all, vMaxH);
+                vMaxH = _mm_or_si128(vMaxH, _mm_and_si128(cond_all, vH));
+                vQIndex = _mm_add_epi16(vQIndex, vOne);
+            }
 
             /* Update vE value. */
             vH = _mm_subs_epi16(vH, vGapO);

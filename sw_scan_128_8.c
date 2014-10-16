@@ -90,8 +90,6 @@ int FNAME(
     const int32_t segWidth = 16; /* number of values in vector unit */
     int32_t segNum = 0;
     int32_t segLen = (s1Len + segWidth - 1) / segWidth;
-    int32_t offset = (s1Len - 1) % segLen;
-    int32_t position = (segWidth - 1) - (s1Len - 1) / segLen;
     __m128i* pvP = (__m128i*)malloc(n * segLen * sizeof(__m128i));
     __m128i* pvE = (__m128i*)calloc(segLen, sizeof(__m128i));
     __m128i* pvHt = (__m128i*)calloc(segLen, sizeof(__m128i));

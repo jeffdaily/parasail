@@ -83,6 +83,29 @@ int FNAME(
     __m128i* pvELStore = (__m128i*) calloc(segLen, sizeof(__m128i));
     __m128i* pvELLoad = (__m128i*) calloc(segLen, sizeof(__m128i));
 
+    /* 16 byte insertion begin vector */
+    __m128i vGapO = _mm_set1_epi16(open);
+
+    /* 16 byte insertion extension vector */
+    __m128i vGapE = _mm_set1_epi16(gap);
+
+    /* for max calculation we don't want to include padded cells */
+    __m128i vQLimit = _mm_set1_epi16(s1Len);
+    __m128i vQIndex_reset = _mm_set_epi16(
+            7*segLen,
+            6*segLen,
+            5*segLen,
+            4*segLen,
+            3*segLen,
+            2*segLen,
+            1*segLen,
+            0*segLen);
+
+    /* Trace the highest score of the whole SW matrix. */
+    __m128i vMaxH = vZero;
+    __m128i vMaxM = vZero;
+    __m128i vMaxL = vZero;
+
     /* Generate query profile rearrange query sequence & calculate the weight
      * of match/mismatch */
     {
@@ -110,31 +133,9 @@ int FNAME(
         }
     }
 
-    /* 16 byte insertion begin vector */
-    __m128i vGapO = _mm_set1_epi16(open);
-
-    /* 16 byte insertion extension vector */
-    __m128i vGapE = _mm_set1_epi16(gap);
-
-    /* for max calculation we don't want to include padded cells */
-    __m128i vQLimit = _mm_set1_epi16(s1Len);
-    __m128i vQIndex_reset = _mm_set_epi16(
-            7*segLen,
-            6*segLen,
-            5*segLen,
-            4*segLen,
-            3*segLen,
-            2*segLen,
-            1*segLen,
-            0*segLen);
-
-    /* Trace the highest score of the whole SW matrix. */
-    __m128i vMaxH = vZero;
-    __m128i vMaxM = vZero;
-    __m128i vMaxL = vZero;
-
     /* outer loop over database sequence */
     for (j=0; j<s2Len; ++j) {
+        __m128i vQIndex = vQIndex_reset;
         __m128i vE;
         __m128i vEM;
         __m128i vEL;
@@ -173,20 +174,23 @@ int FNAME(
         pvELLoad = pvELStore;
         pvELStore = pv;
 
-        __m128i vQIndex = vQIndex_reset;
-
         /* inner loop to process the query sequence */
         for (i=0; i<segLen; ++i) {
+            __m128i case1not;
+            __m128i case2not;
+            __m128i case2;
+            __m128i case3;
+            __m128i cond_zero;
             vH = _mm_adds_epi16(vH, _mm_load_si128(vP + i));
             vE = _mm_load_si128(pvELoad + i);
 
             /* determine which direction of length and match to
              * propagate, before vH is finished calculating */
-            __m128i case1not = _mm_or_si128(
+            case1not = _mm_or_si128(
                     _mm_cmplt_epi16(vH,vF),_mm_cmplt_epi16(vH,vE));
-            __m128i case2not = _mm_cmplt_epi16(vF,vE);
-            __m128i case2 = _mm_andnot_si128(case2not,case1not);
-            __m128i case3 = _mm_and_si128(case1not,case2not);
+            case2not = _mm_cmplt_epi16(vF,vE);
+            case2 = _mm_andnot_si128(case2not,case1not);
+            case3 = _mm_and_si128(case1not,case2not);
 
             /* Get max from vH, vE and vF. */
             vH = _mm_max_epi16(vH, vE);
@@ -194,7 +198,7 @@ int FNAME(
             vH = _mm_max_epi16(vH, vZero);
             /* Save vH values. */
             _mm_store_si128(pvHStore + i, vH);
-            __m128i cond_zero = _mm_cmpeq_epi16(vH, vZero);
+            cond_zero = _mm_cmpeq_epi16(vH, vZero);
 
             /* calculate vM */
             vEM = _mm_load_si128(pvEMLoad + i);
@@ -221,16 +225,18 @@ int FNAME(
             arr_store_si128(score_table, vH, i, segLen, j, s2Len);
 #endif
             /* update max vector seen so far */
-            __m128i cond_max = _mm_cmpgt_epi16(vH,vMaxH);
-            __m128i cond_lmt = _mm_cmplt_epi16(vQIndex,vQLimit);
-            __m128i cond_all = _mm_and_si128(cond_max, cond_lmt);
-            vMaxH = _mm_andnot_si128(cond_all, vMaxH);
-            vMaxH = _mm_or_si128(vMaxH, _mm_and_si128(cond_all, vH));
-            vMaxM = _mm_andnot_si128(cond_all, vMaxM);
-            vMaxM = _mm_or_si128(vMaxM, _mm_and_si128(cond_all, vHM));
-            vMaxL = _mm_andnot_si128(cond_all, vMaxL);
-            vMaxL = _mm_or_si128(vMaxL, _mm_and_si128(cond_all, vHL));
-            vQIndex = _mm_add_epi16(vQIndex, vOne);
+            {
+                __m128i cond_max = _mm_cmpgt_epi16(vH,vMaxH);
+                __m128i cond_lmt = _mm_cmplt_epi16(vQIndex,vQLimit);
+                __m128i cond_all = _mm_and_si128(cond_max, cond_lmt);
+                vMaxH = _mm_andnot_si128(cond_all, vMaxH);
+                vMaxH = _mm_or_si128(vMaxH, _mm_and_si128(cond_all, vH));
+                vMaxM = _mm_andnot_si128(cond_all, vMaxM);
+                vMaxM = _mm_or_si128(vMaxM, _mm_and_si128(cond_all, vHM));
+                vMaxL = _mm_andnot_si128(cond_all, vMaxL);
+                vMaxL = _mm_or_si128(vMaxL, _mm_and_si128(cond_all, vHL));
+                vQIndex = _mm_add_epi16(vQIndex, vOne);
+            }
 
             /* Update vE value. */
             vH = _mm_subs_epi16(vH, vGapO);
@@ -260,26 +266,30 @@ int FNAME(
             vFM = _mm_slli_si128(vFM, 2);
             vFL = _mm_slli_si128(vFL, 2);
             for (i=0; i<segLen; ++i) {
+                __m128i case1not;
+                __m128i case2not;
+                __m128i case2;
+                __m128i cond_zero;
                 /* need to know where match and length come from so
                  * recompute the cases as in the main loop */
                 vHp = _mm_adds_epi16(vHp, _mm_load_si128(vP + i));
                 vE = _mm_load_si128(pvELoad + i);
-                __m128i case1not = _mm_or_si128(
+                case1not = _mm_or_si128(
                         _mm_cmplt_epi16(vHp,vF),_mm_cmplt_epi16(vHp,vE));
-                __m128i case2not = _mm_cmplt_epi16(vF,vE);
-                __m128i case2 = _mm_andnot_si128(case2not,case1not);
-                //__m128i case3 = _mm_and_si128(case1not,case2not);
+                case2not = _mm_cmplt_epi16(vF,vE);
+                case2 = _mm_andnot_si128(case2not,case1not);
+                /*case3 = _mm_and_si128(case1not,case2not);*/
 
                 vH = _mm_load_si128(pvHStore + i);
                 vH = _mm_max_epi16(vH,vF);
                 _mm_store_si128(pvHStore + i, vH);
-                __m128i cond_zero = _mm_cmpeq_epi16(vH, vZero);
+                cond_zero = _mm_cmpeq_epi16(vH, vZero);
 
                 /* calculate vM */
                 vEM = _mm_load_si128(pvEMLoad + i);
                 vHM = _mm_andnot_si128(case1not, vHM);
                 vHM = _mm_or_si128(vHM, _mm_and_si128(case2, vFM));
-                //vHM = _mm_or_si128(vHM, _mm_and_si128(case3, vEM));
+                /*vHM = _mm_or_si128(vHM, _mm_and_si128(case3, vEM));*/
                 vHM = _mm_andnot_si128(cond_zero, vHM);
                 _mm_store_si128(pvHMStore + i, vHM);
                 _mm_store_si128(pvEMStore + i, vHM);
@@ -289,8 +299,8 @@ int FNAME(
                 vHL = _mm_andnot_si128(case1not, vHL);
                 vHL = _mm_or_si128(vHL, _mm_and_si128(case2,
                             _mm_add_epi16(vFL, vOne)));
-                //vHL = _mm_or_si128(vHL, _mm_and_si128(case3,
-                //            _mm_add_epi16(vEL, vOne)));
+                /*vHL = _mm_or_si128(vHL, _mm_and_si128(case3,
+                              _mm_add_epi16(vEL, vOne)));*/
                 vHL = _mm_andnot_si128(cond_zero, vHL);
                 _mm_store_si128(pvHLStore + i, vHL);
                 _mm_store_si128(pvELStore + i, vHL);

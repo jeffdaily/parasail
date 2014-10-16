@@ -154,7 +154,6 @@ int FNAME(
         const int * const restrict matrow5 = matrix[s1[i+5]];
         const int * const restrict matrow6 = matrix[s1[i+6]];
         const int * const restrict matrow7 = matrix[s1[i+7]];
-        __m128i vIeqLimit1 = _mm_cmpeq_epi16(vI, vILimit1);
         /* iterate over database sequence */
         for (j=0; j<N; ++j) {
             __m128i vMat;

@@ -208,11 +208,12 @@ int FNAME(
 
         /* extract last value from column */
         {
+            int8_t value;
             vH = _mm_load_si128(pvH + offset);
             for (k=0; k<position; ++k) {
                 vH = _mm_slli_si128(vH, 1);
             }
-            int8_t value = (int8_t) _mm_extract_epi8(vH, 15);
+            value = (int8_t) _mm_extract_epi8(vH, 15);
             if (value > score) {
                 score = value;
             }
@@ -222,7 +223,7 @@ int FNAME(
     /* max of last column */
     {
         __m128i vNegInf = _mm_set1_epi8(NEG_INF_8);
-        __m128i vMaxLastColH = vNegInf;
+        __m128i vMaxH = vNegInf;
         __m128i vQIndexHi16 = _mm_set_epi16(
                 15*segLen,
                 14*segLen,
@@ -247,28 +248,24 @@ int FNAME(
         for (i=0; i<segLen; ++i) {
             /* load the last stored values */
             __m128i vH = _mm_load_si128(pvH + i);
-            /* mask off the values that were padded */
-            __m128i vMask = _mm_packs_epi16(
+            __m128i cond_lmt = _mm_packs_epi16(
                     _mm_cmplt_epi16(vQIndexLo16, vQLimit16),
                     _mm_cmplt_epi16(vQIndexHi16, vQLimit16));
-            vH = _mm_or_si128(
-                    _mm_and_si128(vMask, vH),
-                    _mm_andnot_si128(vMask, vNegInf));
-            __m128i cond = _mm_cmplt_epi8(vH, vMaxLastColH);
-            vMaxLastColH = _mm_or_si128(
-                    _mm_andnot_si128(cond, vH),
-                    _mm_and_si128(cond, vMaxLastColH));
+            __m128i cond_max = _mm_cmpgt_epi8(vH, vMaxH);
+            __m128i cond_all = _mm_and_si128(cond_max, cond_lmt);
+            vMaxH = _mm_andnot_si128(cond_all, vMaxH);
+            vMaxH = _mm_or_si128(vMaxH, _mm_and_si128(cond_all, vH));
             vQIndexLo16 = _mm_adds_epi8(vQIndexLo16, vOne16);
             vQIndexHi16 = _mm_adds_epi8(vQIndexHi16, vOne16);
         }
 
         /* max in vec */
         for (j=0; j<segWidth; ++j) {
-            int8_t value = (int8_t) _mm_extract_epi8(vMaxLastColH, 15);
+            int8_t value = (int8_t) _mm_extract_epi8(vMaxH, 15);
             if (value > score) {
                 score = value;
             }
-            vMaxLastColH = _mm_slli_si128(vMaxLastColH, 1);
+            vMaxH = _mm_slli_si128(vMaxH, 1);
         }
     }
 

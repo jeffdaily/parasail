@@ -13,20 +13,6 @@
 #endif
 #include "blosum/blosum_map.h"
 
-static void print_m128i_8(const char *name, const __m128i m) {
-    union {
-        __m128i m;
-        int8_t v[16];
-    } tmp;
-    tmp.m = m;
-    printf("%s={%3d,%3d,%3d,%3d,%3d,%3d,%3d,%3d,"
-               "%3d,%3d,%3d,%3d,%3d,%3d,%3d,%3d}\n", name,
-            (int)(tmp.v[0]), (int)(tmp.v[1]), (int)(tmp.v[2]), (int)(tmp.v[3]),
-            (int)(tmp.v[4]), (int)(tmp.v[5]), (int)(tmp.v[6]), (int)(tmp.v[7]),
-            (int)(tmp.v[8]), (int)(tmp.v[9]), (int)(tmp.v[10]), (int)(tmp.v[11]),
-            (int)(tmp.v[12]), (int)(tmp.v[13]), (int)(tmp.v[14]), (int)(tmp.v[15])
-          );
-}
 
 #if ALIGN_EXTRA
 static inline void arr_store_si128(

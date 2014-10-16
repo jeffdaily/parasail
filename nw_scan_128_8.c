@@ -100,6 +100,10 @@ int FNAME(
     int8_t* boundary = (int8_t*)calloc(s2Len+1, sizeof(int8_t));
     __m128i vGapO = _mm_set1_epi8(open);
     __m128i vGapE = _mm_set1_epi8(gap);
+    __m128i vSaturationCheck = _mm_setzero_si128();
+    __m128i vNegLimit = _mm_set1_epi8(INT8_MIN);
+    __m128i vPosLimit = _mm_set1_epi8(INT8_MAX);
+    int8_t score;
 
     /* Generate query profile.
      * Rearrange query sequence & calculate the weight of match/mismatch */
@@ -202,6 +206,13 @@ int FNAME(
                     vHt,
                     _mm_subs_epi8(vFt, vGapO));
             _mm_store_si128(pvH+i, vH);
+            /* check for saturation */
+            {
+                vSaturationCheck = _mm_or_si128(vSaturationCheck,
+                        _mm_or_si128(
+                            _mm_cmpeq_epi8(vH, vNegLimit),
+                            _mm_cmpeq_epi8(vH, vPosLimit)));
+            }
 #ifdef ALIGN_EXTRA
             arr_store_si128(score_table, vH, i, segLen, j, s2Len);
 #endif
@@ -213,7 +224,11 @@ int FNAME(
     for (k=0; k<position; ++k) {
         vH = _mm_slli_si128(vH, 1);
     }
-    int8_t last_value = (int8_t) _mm_extract_epi8 (vH, 15);
+    score = (int8_t) _mm_extract_epi8 (vH, 15);
+
+    if (_mm_movemask_epi8(vSaturationCheck)) {
+        score = INT8_MAX;
+    }
 
     free(pvP);
     free(pvE);
@@ -222,5 +237,5 @@ int FNAME(
     free(pvH);
     free(boundary);
 
-    return last_value;
+    return score;
 }

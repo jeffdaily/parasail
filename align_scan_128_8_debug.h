@@ -6,7 +6,7 @@
 
 #define MAX(a,b) ((a)>(b)?(a):(b))
 
-#define NEG_INF_8 (INT8_MIN/(int8_t)2)
+#define NEG_INF_8 INT8_MIN
 
 extern int nw_scan_128_8_debug(
         const char * const restrict s1, const int s1Len,

@@ -195,9 +195,6 @@ int FNAME(
                     _mm_sub_epi16(vE, vGapE),
                     _mm_sub_epi16(vH, vGapO));
             _mm_store_si128(pvE+i, vE);
-#ifdef ALIGN_EXTRA
-            arr_store_si128(score_table, vE, i, segLen, j, s2Len);
-#endif
         }
 
         /* calculate Ht */
@@ -246,7 +243,7 @@ int FNAME(
                     _mm_sub_epi16(vFt, vGapO));
             _mm_store_si128(pvH+i, vH);
 #ifdef ALIGN_EXTRA
-            //arr_store_si128(score_table, vH, i, segLen, j, s2Len);
+            arr_store_si128(score_table, vH, i, segLen, j, s2Len);
 #endif
         }
     }

@@ -22,7 +22,7 @@ int FNAME(
         const int matrix[24][24],
         int * matches, int * length,
         int * const restrict _H, int * const restrict E,
-        int * const restrict _M, int * const restrict L
+        int * const restrict _M, int * const restrict _L
 #ifdef ALIGN_EXTRA
         , int * const restrict score_table
         , int * const restrict match_table
@@ -38,8 +38,12 @@ int FNAME(
     int * const restrict Ft = FtB+1;
     int i = 0;
     int j = 0;
-    int * const restrict H = _H+1;
-    int * const restrict M = _M+1;
+    int * const restrict H  = _H+1;
+    int * const restrict M  = _M+1;
+    int * const restrict L  = _L+1;
+    int * const restrict Mt = (int * const restrict)malloc(sizeof(int)*s1Len);
+    int * const restrict Lt = (int * const restrict)malloc(sizeof(int)*s1Len);
+    int * const restrict Ex = (int * const restrict)malloc(sizeof(int)*s1Len);
 
     for (i=0; i<s1Len; ++i) {
         s1[i] = MAP_BLOSUM_[(unsigned char)_s1[i]];
@@ -62,6 +66,7 @@ int FNAME(
     }
 
     /* initialize L */
+    L[-1] = 0;
     for (i=0; i<s1Len; ++i) {
         L[i] = 0;
     }
@@ -73,16 +78,20 @@ int FNAME(
 
     /* iterate over database */
     for (j=0; j<s2Len; ++j) {
-        int Wmatches = M[-1];
-        int Nmatches = 0;
         const int * const restrict matcol = matrix[s2[j]];
+        int FM = 0;
+        int FL = 0;
         /* calculate E */
         for (i=0; i<s1Len; ++i) {
             E[i] = MAX(E[i]-gap, H[i]-open);
         }
         /* calculate Ht */
         for (i=0; i<s1Len; ++i) {
-            Ht[i] = MAX(H[i-1]+matcol[s1[i]], E[i]);
+            int tmp = H[i-1]+matcol[s1[i]];
+            Ht[i] = MAX(tmp, E[i]);
+            Mt[i] = tmp >= E[i] ? M[i-1] + (s1[i]==s2[j]) : M[i];
+            Lt[i] = tmp >= E[i] ? L[i-1] + 1 : L[i] + 1;
+            Ex[i] = (E[i] > tmp);
         }
         Ht[-1] = -open -j*gap;
         Ft[-1] = NEG_INF_32;
@@ -92,38 +101,37 @@ int FNAME(
         }
         /* calculate H,M,L */
         for (i=0; i<s1Len; ++i) {
-            int NWmatches = Wmatches;
-            Wmatches = M[i];
-            H[i] = MAX(Ht[i], Ft[i]-open);
+            int tmp = Ft[i]-open;
+            H[i] = MAX(Ht[i], tmp);
+            if (Ht[i] == tmp && Ex[i]) {
+                /* we favor F/up/del when F and E scores tie */
+                M[i] = FM;
+                L[i] = FL + 1;
+            }
+            else {
+                M[i] = Ht[i] >= tmp ? Mt[i] : FM;
+                L[i] = Ht[i] >= tmp ? Lt[i] : FL + 1;
+            }
 #ifdef ALIGN_EXTRA
             score_table[i*s2Len + j] = H[i];
+            match_table[i*s2Len + j] = M[i];
+            length_table[i*s2Len + j] = L[i];
 #endif
-            //if (H[i] >= Ft[i]-open && H[i] >= E[i]) {
-            //    Nmatches = NWmatches + (s1[i] == s2[j]);
-            //}
-            //else if (Ft[i]-open >= E[i]) {
-            //    Nmatches = Nmatches;
-            //}
-            //else {
-            //    Nmatches = Wmatches;
-            //}
-            M[i] = Nmatches;
-#ifdef ALIGN_EXTRA
-            match_table[i*s2Len + j] = Nmatches;
-#endif
+            FM = M[i];
+            FL = L[i];
         }
         H[-1] = -open - j*gap;
-        /* calculate M, L */
-        for (i=0; i<s1Len; ++i) {
-        }
     }
 
     free(s1);
     free(s2);
     free(HtB);
     free(FtB);
+    free(Mt);
+    free(Lt);
+    free(Ex);
 
-    *matches = M[s2Len];
-    *length = L[s2Len];
+    *matches = M[s1Len-1];
+    *length = L[s1Len-1];
     return H[s1Len-1];
 }

@@ -317,10 +317,16 @@ int FNAME(
     }
 
     free(pvP);
+    free(pvPm);
     free(pvE);
     free(pvHt);
     free(pvFt);
+    free(pvMt);
+    free(pvLt);
+    free(pvEx);
     free(pvH);
+    free(pvM);
+    free(pvL);
     free(boundary);
 
     return score;

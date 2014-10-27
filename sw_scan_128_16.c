@@ -33,60 +33,6 @@ static inline void arr_store_si128(
 }
 #endif
 
-#define WHICH 2
-#if WHICH == 0
-#define PARALLEL_PREFIX_OP(vFt, gap, segLen)            \
-{                                                       \
-    __m128i vGapE = _mm_set1_epi16(gap);                \
-    __m128i vFtt = vFt;                                 \
-    __m128i segLenXgap = _mm_mullo_epi16(               \
-            _mm_set1_epi16(segLen),                     \
-            vGapE);                                     \
-    for (i=0; i<segWidth-1; ++i) {                      \
-        vFtt = _mm_slli_si128(vFtt, 2);                 \
-        vFtt = _mm_insert_epi16(vFtt, INT16_MIN, 0);    \
-        vFtt = _mm_subs_epi16(vFtt, segLenXgap);        \
-        vFt = _mm_max_epi16(vFt, vFtt);                 \
-    }                                                   \
-}
-#elif WHICH == 1
-#define PARALLEL_PREFIX_OP(vFt, gap, segLen)            \
-{                                                       \
-    __m128i vGapE = _mm_set1_epi16(gap);                \
-    __m128i vFtt = vFt;                                 \
-    __m128i segLenXgap = _mm_mullo_epi16(               \
-            _mm_set1_epi16(segLen),                     \
-            vGapE);                                     \
-    vFtt = _mm_slli_si128(vFtt, 2);                     \
-    vFtt = _mm_insert_epi16(vFtt, INT16_MIN, 0);        \
-    vFtt = _mm_subs_epi16(vFtt, segLenXgap);            \
-    vFt = _mm_max_epi16(vFt, vFtt);                     \
-    vFtt = _mm_slli_si128(vFtt, 2);                     \
-    vFtt = _mm_insert_epi16(vFtt, INT16_MIN, 0);        \
-    vFtt = _mm_subs_epi16(vFtt, segLenXgap);            \
-    vFt = _mm_max_epi16(vFt, vFtt);                     \
-    vFtt = _mm_slli_si128(vFtt, 2);                     \
-    vFtt = _mm_insert_epi16(vFtt, INT16_MIN, 0);        \
-    vFtt = _mm_subs_epi16(vFtt, segLenXgap);            \
-    vFt = _mm_max_epi16(vFt, vFtt);                     \
-    vFtt = _mm_slli_si128(vFtt, 2);                     \
-    vFtt = _mm_insert_epi16(vFtt, INT16_MIN, 0);        \
-    vFtt = _mm_subs_epi16(vFtt, segLenXgap);            \
-    vFt = _mm_max_epi16(vFt, vFtt);                     \
-    vFtt = _mm_slli_si128(vFtt, 2);                     \
-    vFtt = _mm_insert_epi16(vFtt, INT16_MIN, 0);        \
-    vFtt = _mm_subs_epi16(vFtt, segLenXgap);            \
-    vFt = _mm_max_epi16(vFt, vFtt);                     \
-    vFtt = _mm_slli_si128(vFtt, 2);                     \
-    vFtt = _mm_insert_epi16(vFtt, INT16_MIN, 0);        \
-    vFtt = _mm_subs_epi16(vFtt, segLenXgap);            \
-    vFt = _mm_max_epi16(vFt, vFtt);                     \
-    vFtt = _mm_slli_si128(vFtt, 2);                     \
-    vFtt = _mm_insert_epi16(vFtt, INT16_MIN, 0);        \
-    vFtt = _mm_subs_epi16(vFtt, segLenXgap);            \
-    vFt = _mm_max_epi16(vFt, vFtt);                     \
-}
-#elif WHICH == 2
 #define PARALLEL_PREFIX_OP(vFt, gap, segLen)            \
 {                                                       \
     union {                                             \
@@ -103,9 +49,6 @@ static inline void arr_store_si128(
     tmp.v[7] = MAX(tmp.v[6]-segLen*gap, tmp.v[7]);      \
     vFt = tmp.m;                                        \
 }
-#else
-#error Invalid PARALLEL_PREFIX_OP selected
-#endif
 
 #ifdef ALIGN_EXTRA
 #define FNAME sw_scan_128_16_debug

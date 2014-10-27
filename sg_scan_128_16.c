@@ -149,9 +149,8 @@ int FNAME(
         vHt = _mm_slli_si128(_mm_load_si128(pvHt+(segLen-1)), 2);
         vFt = _mm_set1_epi16(NEG_INF_16);
         for (i=0; i<segLen; ++i) {
-            vFt = _mm_max_epi16(
-                    _mm_sub_epi16(vFt, vGapE),
-                    vHt);
+            vFt = _mm_sub_epi16(vFt, vGapE);
+            vFt = _mm_max_epi16(vFt, vHt);
             vHt = _mm_load_si128(pvHt+i);
         }
         PARALLEL_PREFIX_OP(vFt, gap, segLen)
@@ -159,9 +158,8 @@ int FNAME(
         vFt = _mm_slli_si128(vFt, 2);
         vFt = _mm_insert_epi16(vFt, NEG_INF_16, 0);
         for (i=0; i<segLen; ++i) {
-            vFt = _mm_max_epi16(
-                    _mm_sub_epi16(vFt, vGapE),
-                    vHt);
+            vFt = _mm_sub_epi16(vFt, vGapE);
+            vFt = _mm_max_epi16(vFt, vHt);
             vHt = _mm_load_si128(pvHt+i);
             _mm_store_si128(pvFt+i, vFt);
         }
@@ -170,9 +168,8 @@ int FNAME(
         for (i=0; i<segLen; ++i) {
             vHt = _mm_load_si128(pvHt+i);
             vFt = _mm_load_si128(pvFt+i);
-            vH = _mm_max_epi16(
-                    vHt,
-                    _mm_sub_epi16(vFt, vGapO));
+            vFt = _mm_sub_epi16(vFt, vGapO);
+            vH = _mm_max_epi16(vHt, vFt);
             _mm_store_si128(pvH+i, vH);
 #ifdef ALIGN_EXTRA
             arr_store_si128(score_table, vH, i, segLen, j, s2Len);
@@ -197,7 +194,7 @@ int FNAME(
     {
         __m128i vNegInf = _mm_set1_epi16(NEG_INF_16);
         __m128i vOne = _mm_set1_epi16(1);
-        __m128i vMaxLastColH = vNegInf;
+        __m128i vMaxH = vNegInf;
         __m128i vQLimit = _mm_set1_epi16(s1Len);
         __m128i vQIndex = _mm_set_epi16(
                 7*segLen,
@@ -212,20 +209,20 @@ int FNAME(
         for (i=0; i<segLen; ++i) {
             __m128i vH = _mm_load_si128(pvH + i);
             __m128i cond_lmt = _mm_cmplt_epi16(vQIndex, vQLimit);
-            __m128i cond_max = _mm_cmpgt_epi16(vH, vMaxLastColH);
+            __m128i cond_max = _mm_cmpgt_epi16(vH, vMaxH);
             __m128i cond_all = _mm_and_si128(cond_max, cond_lmt);
-            vMaxLastColH = _mm_andnot_si128(cond_all, vMaxLastColH);
-            vMaxLastColH = _mm_or_si128(vMaxLastColH, _mm_and_si128(cond_all, vH));
+            vMaxH = _mm_andnot_si128(cond_all, vMaxH);
+            vMaxH = _mm_or_si128(vMaxH, _mm_and_si128(cond_all, vH));
             vQIndex = _mm_add_epi16(vQIndex, vOne);
         }
 
         /* max in vec */
         for (j=0; j<segWidth; ++j) {
-            int16_t value = (int16_t) _mm_extract_epi16(vMaxLastColH, 7);
+            int16_t value = (int16_t) _mm_extract_epi16(vMaxH, 7);
             if (value > score) {
                 score = value;
             }
-            vMaxLastColH = _mm_slli_si128(vMaxLastColH, 2);
+            vMaxH = _mm_slli_si128(vMaxH, 2);
         }
     }
 

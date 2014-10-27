@@ -103,14 +103,14 @@ int FNAME(
         for (i=0; i<s1Len; ++i) {
             int tmp = Ft[i]-open;
             H[i] = MAX(Ht[i], tmp);
-            if (Ht[i] == tmp && Ex[i]) {
+            if ((Ht[i] == tmp && Ex[i]) || (Ht[i] < tmp)) {
                 /* we favor F/up/del when F and E scores tie */
                 M[i] = FM;
                 L[i] = FL + 1;
             }
             else {
-                M[i] = Ht[i] >= tmp ? Mt[i] : FM;
-                L[i] = Ht[i] >= tmp ? Lt[i] : FL + 1;
+                M[i] = Mt[i];
+                L[i] = Lt[i];
             }
 #ifdef ALIGN_EXTRA
             score_table[i*s2Len + j] = H[i];

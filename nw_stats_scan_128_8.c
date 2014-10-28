@@ -292,9 +292,26 @@ int FNAME(
                 union {
                     __m128i m;
                     int8_t v[16];
-                } uLp, uC;
-                uLp.m = vLp;
+                } uMp, uLp, uC;
                 uC.m = vC;
+                uMp.m = vMp;
+                uMp.v[ 1] = uC.v[ 1] ? uMp.v[ 0] : uMp.v[ 1];
+                uMp.v[ 2] = uC.v[ 2] ? uMp.v[ 1] : uMp.v[ 2];
+                uMp.v[ 3] = uC.v[ 3] ? uMp.v[ 2] : uMp.v[ 3];
+                uMp.v[ 4] = uC.v[ 4] ? uMp.v[ 3] : uMp.v[ 4];
+                uMp.v[ 5] = uC.v[ 5] ? uMp.v[ 4] : uMp.v[ 5];
+                uMp.v[ 6] = uC.v[ 6] ? uMp.v[ 5] : uMp.v[ 6];
+                uMp.v[ 7] = uC.v[ 7] ? uMp.v[ 6] : uMp.v[ 7];
+                uMp.v[ 8] = uC.v[ 8] ? uMp.v[ 7] : uMp.v[ 8];
+                uMp.v[ 9] = uC.v[ 9] ? uMp.v[ 8] : uMp.v[ 9];
+                uMp.v[10] = uC.v[10] ? uMp.v[ 9] : uMp.v[10];
+                uMp.v[11] = uC.v[11] ? uMp.v[10] : uMp.v[11];
+                uMp.v[12] = uC.v[12] ? uMp.v[11] : uMp.v[12];
+                uMp.v[13] = uC.v[13] ? uMp.v[12] : uMp.v[13];
+                uMp.v[14] = uC.v[14] ? uMp.v[13] : uMp.v[14];
+                uMp.v[15] = uC.v[15] ? uMp.v[14] : uMp.v[15];
+                vMp = uMp.m;
+                uLp.m = vLp;
                 uLp.v[ 1] = uC.v[ 1] ? uLp.v[ 1] + uLp.v[ 0] : uLp.v[ 1];
                 uLp.v[ 2] = uC.v[ 2] ? uLp.v[ 2] + uLp.v[ 1] : uLp.v[ 2];
                 uLp.v[ 3] = uC.v[ 3] ? uLp.v[ 3] + uLp.v[ 2] : uLp.v[ 3];

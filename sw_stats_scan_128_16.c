@@ -274,9 +274,18 @@ int FNAME(
                 union {
                     __m128i m;
                     int16_t v[8];
-                } uLp, uC;
-                uLp.m = vLp;
+                } uMp, uLp, uC;
                 uC.m = vC;
+                uMp.m = vMp;
+                uMp.v[1] = uC.v[1] ? uMp.v[0] : uMp.v[1];
+                uMp.v[2] = uC.v[2] ? uMp.v[1] : uMp.v[2];
+                uMp.v[3] = uC.v[3] ? uMp.v[2] : uMp.v[3];
+                uMp.v[4] = uC.v[4] ? uMp.v[3] : uMp.v[4];
+                uMp.v[5] = uC.v[5] ? uMp.v[4] : uMp.v[5];
+                uMp.v[6] = uC.v[6] ? uMp.v[5] : uMp.v[6];
+                uMp.v[7] = uC.v[7] ? uMp.v[6] : uMp.v[7];
+                vMp = uMp.m;
+                uLp.m = vLp;
                 uLp.v[1] = uC.v[1] ? uLp.v[1] + uLp.v[0] : uLp.v[1];
                 uLp.v[2] = uC.v[2] ? uLp.v[2] + uLp.v[1] : uLp.v[2];
                 uLp.v[3] = uC.v[3] ? uLp.v[3] + uLp.v[2] : uLp.v[3];

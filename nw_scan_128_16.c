@@ -76,11 +76,11 @@ int FNAME(
     int32_t offset = (s1Len - 1) % segLen;
     int32_t position = (segWidth - 1) - (s1Len - 1) / segLen;
     __m128i* pvP = (__m128i*)malloc(n * segLen * sizeof(__m128i));
-    __m128i* pvE = (__m128i*)calloc(segLen, sizeof(__m128i));
-    __m128i* pvHt = (__m128i*)calloc(segLen, sizeof(__m128i));
-    __m128i* pvFt = (__m128i*)calloc(segLen, sizeof(__m128i));
-    __m128i* pvH = (__m128i*)calloc(segLen, sizeof(__m128i));
-    int16_t* boundary = (int16_t*)calloc(s2Len+1, sizeof(int16_t));
+    __m128i* pvE = (__m128i*)malloc(segLen * sizeof(__m128i));
+    __m128i* pvHt = (__m128i*)malloc(segLen * sizeof(__m128i));
+    __m128i* pvFt = (__m128i*)malloc(segLen * sizeof(__m128i));
+    __m128i* pvH = (__m128i*)malloc(segLen * sizeof(__m128i));
+    int16_t* boundary = (int16_t*)malloc((s2Len+1) * sizeof(int16_t));
     __m128i vGapO = _mm_set1_epi16(open);
     __m128i vGapE = _mm_set1_epi16(gap);
     int16_t score = 0;
@@ -128,9 +128,32 @@ int FNAME(
         __m128i vHt;
         __m128i vFt;
         __m128i vH;
+        __m128i vHp;
         __m128i *pvW;
         __m128i vW;
 
+#define LOOP_FUSION 1
+#if LOOP_FUSION
+        /* calculate E */
+        /* calculate Ht */
+        vHp = _mm_slli_si128(_mm_load_si128(pvH+(segLen-1)), 2);
+        vHp = _mm_insert_epi16(vHp, boundary[j], 0);
+        pvW = pvP + MAP_BLOSUM_[(unsigned char)s2[j]]*segLen;
+        for (i=0; i<segLen; ++i) {
+            vH = _mm_load_si128(pvH+i);
+            vE = _mm_load_si128(pvE+i);
+            vW = _mm_load_si128(pvW+i);
+            vE = _mm_max_epi16(
+                    _mm_sub_epi16(vE, vGapE),
+                    _mm_sub_epi16(vH, vGapO));
+            vHt = _mm_max_epi16(
+                    _mm_add_epi16(vHp, vW),
+                    vE);
+            _mm_store_si128(pvE+i, vE);
+            _mm_store_si128(pvHt+i, vHt);
+            vHp = vH;
+        }
+#else
         /* calculate E */
         for (i=0; i<segLen; ++i) {
             vH = _mm_load_si128(pvH+i);
@@ -154,6 +177,7 @@ int FNAME(
             vH = _mm_load_si128(pvH+i);
             _mm_store_si128(pvHt+i, vHt);
         }
+#endif
 
         /* calculate Ft */
         vHt = _mm_slli_si128(_mm_load_si128(pvHt+(segLen-1)), 2);

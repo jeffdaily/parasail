@@ -255,8 +255,10 @@ int FNAME(
             arr_store_si128(score_table, vH, i, segLen, j, s2Len);
 #endif
         }
+#if PREFIX_SUM_CHECK
         /* check if local prefix sum for L is needed */
-        //if (_mm_movemask_epi8(vC))
+        if (_mm_movemask_epi8(vC))
+#endif
         {
             vLp = _mm_sub_epi16(vLp, vOne);
             {

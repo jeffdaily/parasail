@@ -291,7 +291,7 @@ int FNAME(
             {
                 union {
                     __m128i m;
-                    int8_t v[8];
+                    int8_t v[16];
                 } uLp, uC;
                 uLp.m = vLp;
                 uC.m = vC;

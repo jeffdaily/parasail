@@ -143,7 +143,6 @@ int FNAME(
         __m128i vLp;
         __m128i vLt;
         __m128i vEx;
-        __m128i vEx_first;
 
         /* calculate E */
         for (i=0; i<segLen; ++i) {

@@ -138,7 +138,6 @@ int FNAME(
     __m128i vZero = _mm_setzero_si128();
     __m128i vOne = _mm_set1_epi8(1);
     int8_t bias = 127;
-    __m128i vBias = _mm_set1_epi8(bias);
     __m128i vNegBias = _mm_set1_epi8(-bias);
     __m128i vNegInf = _mm_set1_epi8(NEG_INF_8);
     __m128i vSaturationCheck = _mm_setzero_si128();
@@ -200,7 +199,6 @@ int FNAME(
         __m128i vLp;
         __m128i vLt;
         __m128i vEx;
-        __m128i vEx_first;
 
         /* calculate E */
         for (i=0; i<segLen; ++i) {

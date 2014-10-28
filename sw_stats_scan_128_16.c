@@ -298,9 +298,12 @@ int FNAME(
             vLp = _mm_add_epi16(vLp, vOne);
         }
         /* final pass for M,L */
+        vQIndex = vQIndex_reset;
         vMp = _mm_slli_si128(vMp, 2);
         vLp = _mm_slli_si128(vLp, 2);
         for (i=0; i<segLen; ++i) {
+            /* load values we need */
+            vH = _mm_load_si128(pvH+i);
             /* statistics */
             vEx = _mm_load_si128(pvEx+i);
             vMt = _mm_load_si128(pvMt+i);
@@ -318,23 +321,19 @@ int FNAME(
             arr_store_si128(match_table, vM, i, segLen, j, s2Len);
             arr_store_si128(length_table, vL, i, segLen, j, s2Len);
 #endif
-        }
-        /* max of last column */
-        vQIndex = vQIndex_reset;
-        for (i=0; i<segLen; ++i) {
-            vH = _mm_load_si128(pvH + i);
-            vM = _mm_load_si128(pvM + i);
-            vL = _mm_load_si128(pvL + i);
-            cond_lmt = _mm_cmplt_epi16(vQIndex, vQLimit);
-            cond_max = _mm_cmpgt_epi16(vH, vMaxH);
-            cond_all = _mm_and_si128(cond_max, cond_lmt);
-            vMaxH = _mm_andnot_si128(cond_all, vMaxH);
-            vMaxH = _mm_or_si128(vMaxH, _mm_and_si128(cond_all, vH));
-            vMaxM = _mm_andnot_si128(cond_all, vMaxM);
-            vMaxM = _mm_or_si128(vMaxM, _mm_and_si128(cond_all, vM));
-            vMaxL = _mm_andnot_si128(cond_all, vMaxL);
-            vMaxL = _mm_or_si128(vMaxL, _mm_and_si128(cond_all, vL));
-            vQIndex = _mm_add_epi16(vQIndex, vOne);
+            /* update max vector seen so far */
+            {
+                __m128i cond_lmt = _mm_cmplt_epi16(vQIndex, vQLimit);
+                __m128i cond_max = _mm_cmpgt_epi16(vH, vMaxH);
+                __m128i cond_all = _mm_and_si128(cond_max, cond_lmt);
+                vMaxH = _mm_andnot_si128(cond_all, vMaxH);
+                vMaxH = _mm_or_si128(vMaxH, _mm_and_si128(cond_all, vH));
+                vMaxM = _mm_andnot_si128(cond_all, vMaxM);
+                vMaxM = _mm_or_si128(vMaxM, _mm_and_si128(cond_all, vM));
+                vMaxL = _mm_andnot_si128(cond_all, vMaxL);
+                vMaxL = _mm_or_si128(vMaxL, _mm_and_si128(cond_all, vL));
+                vQIndex = _mm_add_epi16(vQIndex, vOne);
+            }
         }
     }
 

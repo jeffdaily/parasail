@@ -213,10 +213,8 @@ int FNAME(
         /* calculate H,M,L */
         vMp = vZero;
         vLp = vOne;
-#if PREFIX_SUM_CHECK
         vC = _mm_cmpeq_epi16(vZero, vZero); /* check if prefix sum is needed */
         vC = _mm_srli_si128(vC, 2); /* zero out last value */
-#endif
         for (i=0; i<segLen; ++i) {
             /* load values we need */
             vHt = _mm_load_si128(pvHt+i);
@@ -237,9 +235,7 @@ int FNAME(
             vL = _mm_and_si128(vEx, vLp);
             vL = _mm_or_si128(vL, _mm_andnot_si128(vEx, vLt));
             vLp = _mm_add_epi16(vL, vOne);
-#if PREFIX_SUM_CHECK
             vC = _mm_and_si128(vC, vEx);
-#endif
             /* store results */
             _mm_store_si128(pvH+i, vH);
             _mm_store_si128(pvEx+i, vEx);

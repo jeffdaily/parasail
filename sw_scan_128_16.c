@@ -135,7 +135,7 @@ int FNAME(
         __m128i vW;
         __m128i vQIndex = vQIndex_reset;
 
-#define LOOP_FUSION 1
+#define LOOP_FUSION 0
 #if LOOP_FUSION
         /* calculate E */
         /* calculate Ht */
@@ -213,16 +213,15 @@ int FNAME(
 #ifdef ALIGN_EXTRA
             arr_store_si128(score_table, vH, i, segLen, j, s2Len);
 #endif
-        }
-        /* update max vector seen so far */
-        {
-            __m128i cond_max = _mm_cmpgt_epi16(vH,vMaxH);
-            __m128i cond_lmt = _mm_cmplt_epi16(vQIndex,vQLimit);
-            __m128i cond_all = _mm_and_si128(cond_max, cond_lmt);
-            vMaxH = _mm_andnot_si128(cond_all, vMaxH);
-            vMaxH = _mm_or_si128(vMaxH, _mm_and_si128(cond_all, vH));
-            vQIndex = _mm_add_epi16(vQIndex, vOne);
-
+            /* update max vector seen so far */
+            {
+                __m128i cond_max = _mm_cmpgt_epi16(vH,vMaxH);
+                __m128i cond_lmt = _mm_cmplt_epi16(vQIndex,vQLimit);
+                __m128i cond_all = _mm_and_si128(cond_max, cond_lmt);
+                vMaxH = _mm_andnot_si128(cond_all, vMaxH);
+                vMaxH = _mm_or_si128(vMaxH, _mm_and_si128(cond_all, vH));
+                vQIndex = _mm_add_epi16(vQIndex, vOne);
+            }
         }
     }
 

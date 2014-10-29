@@ -79,20 +79,20 @@ int FNAME(
         )
 {
     const int N = 8; /* number of values in vector */
-    const int PAD2 = N-1; /* N 16-byte values in vector, so N - 1 */
-    const int PAD = PAD2*2;
-    int * const restrict s1 = (int * const restrict)malloc(sizeof(int)*(s1Len+PAD2));
-    int * const restrict s2B= (int * const restrict)malloc(sizeof(int)*(s2Len+PAD));
-    int * const restrict s2 = s2B+PAD2; /* will allow later for negative indices */
+    const int PAD = N-1; /* N 16-byte values in vector, so N - 1 */
+    const int PAD2 = PAD*2;
+    int * const restrict s1 = (int * const restrict)malloc(sizeof(int)*(s1Len+PAD));
+    int * const restrict s2B= (int * const restrict)malloc(sizeof(int)*(s2Len+PAD2));
+    int * const restrict s2 = s2B+PAD; /* will allow later for negative indices */
     int i = 0;
     int j = 0;
     int score = NEG_INF_16;
     int match = NEG_INF_16;
     int length = NEG_INF_16;
-    int * const restrict tbl_pr = _tbl_pr+PAD2;
-    int * const restrict del_pr = _del_pr+PAD2;
-    int * const restrict mch_pr = _mch_pr+PAD2;
-    int * const restrict len_pr = _len_pr+PAD2;
+    int * const restrict tbl_pr = _tbl_pr+PAD;
+    int * const restrict del_pr = _del_pr+PAD;
+    int * const restrict mch_pr = _mch_pr+PAD;
+    int * const restrict len_pr = _len_pr+PAD;
     __m128i vNegInf = _mm_set1_epi16(NEG_INF_16);
     __m128i vNegInf0 = _mm_srli_si128(vNegInf, 2); /* shift in a 0 */
     __m128i vOpen = _mm_set1_epi16(open);
@@ -116,7 +116,7 @@ int FNAME(
         s1[i] = MAP_BLOSUM_[(unsigned char)_s1[i]];
     }
     /* pad back of s1 with dummy values */
-    for (i=s1Len; i<s1Len+PAD2; ++i) {
+    for (i=s1Len; i<s1Len+PAD; ++i) {
         s1[i] = 0; /* point to first matrix row because we don't care */
     }
 
@@ -125,11 +125,11 @@ int FNAME(
         s2[j] = MAP_BLOSUM_[(unsigned char)_s2[j]];
     }
     /* pad front of s2 with dummy values */
-    for (j=-PAD2; j<0; ++j) {
+    for (j=-PAD; j<0; ++j) {
         s2[j] = 0; /* point to first matrix row because we don't care */
     }
     /* pad back of s2 with dummy values */
-    for (j=s2Len; j<s2Len+PAD2; ++j) {
+    for (j=s2Len; j<s2Len+PAD; ++j) {
         s2[j] = 0; /* point to first matrix row because we don't care */
     }
 
@@ -141,14 +141,14 @@ int FNAME(
         len_pr[j] = 0;
     }
     /* pad front of stored row values */
-    for (j=-PAD2; j<0; ++j) {
+    for (j=-PAD; j<0; ++j) {
         tbl_pr[j] = NEG_INF_16;
         del_pr[j] = NEG_INF_16;
         mch_pr[j] = 0;
         len_pr[j] = 0;
     }
     /* pad back of stored row values */
-    for (j=s2Len; j<s2Len+PAD2; ++j) {
+    for (j=s2Len; j<s2Len+PAD; ++j) {
         tbl_pr[j] = NEG_INF_16;
         del_pr[j] = NEG_INF_16;
         mch_pr[j] = 0;
@@ -333,7 +333,7 @@ int FNAME(
             del_pr[j-7] = (int16_t)_mm_extract_epi16(vDel,0);
             vJ = _mm_add_epi16(vJ, vOne);
         }
-        for (j=s2Len-1; j<s2Len+PAD2; ++j) {
+        for (j=s2Len-1; j<s2Len+PAD; ++j) {
             __m128i vMat;
             __m128i vNWscore = vNscore;
             __m128i vNWmatch = vNmatch;
@@ -632,7 +632,7 @@ int FNAME(
             }
             vJ = _mm_add_epi16(vJ, vOne);
         }
-        for (j=s2Len-1; j<s2Len+PAD2; ++j) {
+        for (j=s2Len-1; j<s2Len+PAD; ++j) {
             __m128i vMat;
             __m128i vNWscore = vNscore;
             __m128i vNWmatch = vNmatch;
@@ -698,14 +698,18 @@ int FNAME(
             mch_pr[j-7] = (int16_t)_mm_extract_epi16(vWmatch,0);
             len_pr[j-7] = (int16_t)_mm_extract_epi16(vWlength,0);
             del_pr[j-7] = (int16_t)_mm_extract_epi16(vDel,0);
-            /* as minor diagonal vector passes across the j limit
-             * boundary, extract the last value of the row */
+            /* as minor diagonal vector passes across the i or j limit
+             * boundary, extract the last value of the column or row */
             {
                 __m128i cond_j = _mm_and_si128(
                         vIltLimit,
                         _mm_cmpeq_epi16(vJ, vJLimit1));
+                __m128i cond_i = _mm_and_si128(
+                        vIeqLimit1,
+                        _mm_cmplt_epi16(vJ, vJLimit));
                 __m128i cond_max = _mm_cmpgt_epi16(vWscore, vMaxScore);
-                __m128i cond_all = _mm_and_si128(cond_max, cond_j);
+                __m128i cond_all = _mm_and_si128(cond_max,
+                        _mm_or_si128(cond_i, cond_j));
                 vMaxScore = _mm_andnot_si128(cond_all, vMaxScore);
                 vMaxScore = _mm_or_si128(vMaxScore,
                         _mm_and_si128(cond_all, vWscore));

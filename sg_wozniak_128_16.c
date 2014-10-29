@@ -95,7 +95,7 @@ int FNAME(
     __m128i vNegOne = _mm_set1_epi16(-1);
     __m128i vI = _mm_set_epi16(0,1,2,3,4,5,6,7);
     __m128i vJreset = _mm_set_epi16(0,-1,-2,-3,-4,-5,-6,-7);
-    __m128i vMax = vNegInf;
+    __m128i vMaxScore = vNegInf;
     __m128i vILimit = _mm_set1_epi16(s1Len);
     __m128i vILimit1 = _mm_sub_epi16(vILimit, vOne);
     __m128i vJLimit = _mm_set1_epi16(s2Len);
@@ -260,10 +260,11 @@ int FNAME(
              * boundary, extract the last value of the row */
             {
                 __m128i cond_j = _mm_cmpeq_epi16(vJ, vJLimit1);
-                __m128i cond_max = _mm_cmpgt_epi16(vWscore, vMax);
+                __m128i cond_max = _mm_cmpgt_epi16(vWscore, vMaxScore);
                 __m128i cond_all = _mm_and_si128(cond_max, cond_j);
-                vMax = _mm_andnot_si128(cond_all, vMax);
-                vMax = _mm_or_si128(vMax, _mm_and_si128(cond_all, vWscore));
+                vMaxScore = _mm_andnot_si128(cond_all, vMaxScore);
+                vMaxScore = _mm_or_si128(vMaxScore,
+                        _mm_and_si128(cond_all, vWscore));
             }
             vJ = _mm_add_epi16(vJ, vOne);
         }
@@ -331,10 +332,11 @@ int FNAME(
                 __m128i cond_i = _mm_and_si128(
                         vIeqLimit1,
                         _mm_cmpgt_epi16(vJ, vNegOne));
-                __m128i cond_max = _mm_cmpgt_epi16(vWscore, vMax);
+                __m128i cond_max = _mm_cmpgt_epi16(vWscore, vMaxScore);
                 __m128i cond_all = _mm_and_si128(cond_max, cond_i);
-                vMax = _mm_andnot_si128(cond_all, vMax);
-                vMax = _mm_or_si128(vMax, _mm_and_si128(cond_all, vWscore));
+                vMaxScore = _mm_andnot_si128(cond_all, vMaxScore);
+                vMaxScore = _mm_or_si128(vMaxScore,
+                        _mm_and_si128(cond_all, vWscore));
             }
             vJ = _mm_add_epi16(vJ, vOne);
         }
@@ -371,10 +373,11 @@ int FNAME(
              * boundary, extract the last value of the column */
             {
                 __m128i cond_i = vIeqLimit1;
-                __m128i cond_max = _mm_cmpgt_epi16(vWscore, vMax);
+                __m128i cond_max = _mm_cmpgt_epi16(vWscore, vMaxScore);
                 __m128i cond_all = _mm_and_si128(cond_max, cond_i);
-                vMax = _mm_andnot_si128(cond_all, vMax);
-                vMax = _mm_or_si128(vMax, _mm_and_si128(cond_all, vWscore));
+                vMaxScore = _mm_andnot_si128(cond_all, vMaxScore);
+                vMaxScore = _mm_or_si128(vMaxScore,
+                        _mm_and_si128(cond_all, vWscore));
             }
             vJ = _mm_add_epi16(vJ, vOne);
         }
@@ -416,25 +419,26 @@ int FNAME(
                 __m128i cond_i = _mm_and_si128(
                         vIeqLimit1,
                         _mm_cmplt_epi16(vJ, vJLimit));
-                __m128i cond_max = _mm_cmpgt_epi16(vWscore, vMax);
+                __m128i cond_max = _mm_cmpgt_epi16(vWscore, vMaxScore);
                 __m128i cond_all = _mm_and_si128(cond_max,
                         _mm_or_si128(cond_i, cond_j));
-                vMax = _mm_andnot_si128(cond_all, vMax);
-                vMax = _mm_or_si128(vMax, _mm_and_si128(cond_all, vWscore));
+                vMaxScore = _mm_andnot_si128(cond_all, vMaxScore);
+                vMaxScore = _mm_or_si128(vMaxScore,
+                        _mm_and_si128(cond_all, vWscore));
             }
             vJ = _mm_add_epi16(vJ, vOne);
         }
         vI = _mm_add_epi16(vI, vN);
     }
 
-    /* max in vMax */
+    /* max in vMaxScore */
     for (i=0; i<N; ++i) {
         int16_t value;
-        value = (int16_t) _mm_extract_epi16(vMax, 7);
+        value = (int16_t) _mm_extract_epi16(vMaxScore, 7);
         if (value > score) {
             score = value;
         }
-        vMax = _mm_slli_si128(vMax, 2);
+        vMaxScore = _mm_slli_si128(vMaxScore, 2);
     }
 
     free(s1);

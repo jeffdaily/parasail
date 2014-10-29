@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 #include <emmintrin.h>
-#include <immintrin.h>
+#include <smmintrin.h>
 
 #ifdef ALIGN_EXTRA
 #include "align/align_scan_128_8_debug.h"

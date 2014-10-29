@@ -4,7 +4,6 @@
 #include <stdlib.h>
 
 #include <emmintrin.h>
-#include <immintrin.h>
 #include <smmintrin.h>
 
 #ifdef ALIGN_EXTRA

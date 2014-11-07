@@ -156,7 +156,8 @@ int FNAME(
 #if LOOP_FUSION
         /* calculate E */
         /* calculate Ht */
-        vHp = _mm_slli_si128(_mm_load_si128(pvH+(segLen-1)), 1);
+        vHp = _mm_load_si128(pvH+(segLen-1));
+        vHp = _mm_slli_si128(vHp, 1);
         vHp = _mm_insert_epi8(vHp, boundary[j], 0);
         pvW = pvP + MAP_BLOSUM_[(unsigned char)s2[j]]*segLen;
         for (i=0; i<segLen; ++i) {

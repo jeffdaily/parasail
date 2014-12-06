@@ -1,9 +1,12 @@
 /**
- *  * @author jeff.daily@pnnl.gov
- *   *
- *    * Copyright 2012 Pacific Northwest National Laboratory. All rights
- *    reserved.
- *     */
+ * @file
+ *
+ * @author jeff.daily@pnnl.gov
+ *
+ * Copyright (c) 2014 Battelle Memorial Institute.
+ *
+ * All rights reserved. No warranty, explicit or implicit, provided.
+ */
 #ifndef _PARASAIL_BLOSUM_MAP_H_
 #define _PARASAIL_BLOSUM_MAP_H_
 

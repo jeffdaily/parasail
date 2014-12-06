@@ -1,7 +1,11 @@
 /**
+ * @file
+ *
  * @author jeff.daily@pnnl.gov
  *
- * Copyright 2012 Pacific Northwest National Laboratory. All rights reserved.
+ * Copyright (c) 2014 Battelle Memorial Institute.
+ *
+ * All rights reserved. No warranty, explicit or implicit, provided.
  */
 #ifndef _PARASAIL_BLOSUM80_H_
 #define _PARASAIL_BLOSUM80_H_

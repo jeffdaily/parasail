@@ -1,3 +1,12 @@
+/**
+ * @file
+ *
+ * @author jeff.daily@pnnl.gov
+ *
+ * Copyright (c) 2014 Battelle Memorial Institute.
+ *
+ * All rights reserved. No warranty, explicit or implicit, provided.
+ */
 #include "config.h"
 
 #include <stdint.h>

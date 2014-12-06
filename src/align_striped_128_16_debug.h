@@ -1,5 +1,5 @@
-#ifndef _PGRAPH_ALIGN_STRIPED_128_16_DEBUG_H_
-#define _PGRAPH_ALIGN_STRIPED_128_16_DEBUG_H_
+#ifndef _PARASAIL_ALIGN_STRIPED_128_16_DEBUG_H_
+#define _PARASAIL_ALIGN_STRIPED_128_16_DEBUG_H_
 
 #include <limits.h>
 #include <stdint.h>
@@ -59,4 +59,4 @@ extern int sw_stats_striped_128_16_debug(
         int * const restrict match_table,
         int * const restrict length_table);
 
-#endif /* _PGRAPH_ALIGN_STRIPED_128_16_DEBUG_H_ */
+#endif /* _PARASAIL_ALIGN_STRIPED_128_16_DEBUG_H_ */

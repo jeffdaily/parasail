@@ -3,8 +3,8 @@
  *
  * Copyright 2012 Pacific Northwest National Laboratory. All rights reserved.
  */
-#ifndef _PGRAPH_BLOSUM50_H_
-#define _PGRAPH_BLOSUM50_H_
+#ifndef _PARASAIL_BLOSUM50_H_
+#define _PARASAIL_BLOSUM50_H_
 
 static const int8_t blosum50__[] = {
 /*       A   R   N   D   C   Q   E   G   H   I   L   K   M   F   P   S   T   W   Y   V   B   Z   X   * */
@@ -114,4 +114,4 @@ b50_23,
 b50_24
 };
 
-#endif /* _PGRAPH_BLOSUM50_H_ */
+#endif /* _PARASAIL_BLOSUM50_H_ */

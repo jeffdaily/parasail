@@ -1,5 +1,5 @@
-#ifndef _PGRAPH_ALIGN_SCAN_512_32_H_
-#define _PGRAPH_ALIGN_SCAN_512_32_H_
+#ifndef _PARASAIL_ALIGN_SCAN_512_32_H_
+#define _PARASAIL_ALIGN_SCAN_512_32_H_
 
 #include <limits.h>
 #include <stdint.h>
@@ -55,4 +55,4 @@ extern int32_t sw_stats_scan_512_32(
 }
 #endif
 
-#endif /* _PGRAPH_ALIGN_SCAN_512_32_H_ */
+#endif /* _PARASAIL_ALIGN_SCAN_512_32_H_ */

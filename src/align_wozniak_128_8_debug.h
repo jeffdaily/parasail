@@ -1,5 +1,5 @@
-#ifndef _PGRAPH_ALIGN_WOZNIAK_128_8_H_
-#define _PGRAPH_ALIGN_WOZNIAK_128_8_H_
+#ifndef _PARASAIL_ALIGN_WOZNIAK_128_8_H_
+#define _PARASAIL_ALIGN_WOZNIAK_128_8_H_
 
 #include <limits.h>
 #include <stdint.h>
@@ -76,4 +76,4 @@ extern int sw_stats_wozniak_128_8_debug(
 }
 #endif
 
-#endif /* _PGRAPH_ALIGN_WOZNIAK_128_8_H_ */
+#endif /* _PARASAIL_ALIGN_WOZNIAK_128_8_H_ */

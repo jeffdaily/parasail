@@ -4,8 +4,8 @@
  *    * Copyright 2012 Pacific Northwest National Laboratory. All rights
  *    reserved.
  *     */
-#ifndef _PGRAPH_BLOSUM_MAP_H_
-#define _PGRAPH_BLOSUM_MAP_H_
+#ifndef _PARASAIL_BLOSUM_MAP_H_
+#define _PARASAIL_BLOSUM_MAP_H_
 
 /* This table is used to transform amino acid letters into numbers. */
 static const int MAP_BLOSUM_[256] = {
@@ -27,4 +27,4 @@ static const int MAP_BLOSUM_[256] = {
     23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23
 };
 
-#endif /* _PGRAPH_BLOSUM_MAP_H_ */
+#endif /* _PARASAIL_BLOSUM_MAP_H_ */

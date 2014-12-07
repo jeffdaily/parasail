@@ -14,6 +14,7 @@
 
 @SET_MAKE@
 
+
 VPATH = @srcdir@
 am__is_gnu_make = test -n '$(MAKEFILE_LIST)' && test -n '$(MAKELEVEL)'
 am__make_running_with_option = \
@@ -115,9 +116,10 @@ subdir = .
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) \
 	$(srcdir)/config.h.in $(top_srcdir)/build-aux/depcomp \
-	build-aux/compile build-aux/config.guess build-aux/config.sub \
-	build-aux/depcomp build-aux/install-sh build-aux/missing \
-	build-aux/ltmain.sh $(top_srcdir)/build-aux/config.guess \
+	$(include_HEADERS) build-aux/compile build-aux/config.guess \
+	build-aux/config.sub build-aux/depcomp build-aux/install-sh \
+	build-aux/missing build-aux/ltmain.sh \
+	$(top_srcdir)/build-aux/config.guess \
 	$(top_srcdir)/build-aux/config.sub \
 	$(top_srcdir)/build-aux/install-sh \
 	$(top_srcdir)/build-aux/ltmain.sh \
@@ -162,32 +164,33 @@ am__uninstall_files_from_dir = { \
     || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
-am__installdirs = "$(DESTDIR)$(libdir)"
+am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(includedir)"
 LTLIBRARIES = $(lib_LTLIBRARIES)
 libparasail_la_LIBADD =
-am__libparasail_la_SOURCES_DIST = src/align.h src/nw.c src/nw_scan.c \
-	src/nw_scan_row.c src/nw_stats.c src/nw_stats_scan.c src/sg.c \
-	src/sg_scan.c src/sg_stats.c src/sg_stats_scan.c src/sw.c \
-	src/sw_scan.c src/sw_stats.c src/sw_stats_scan.c \
-	src/align_scan_128_16.h src/align_striped_128_16.h \
-	src/align_wozniak_128_16.h src/nw_scan_128_16.c \
-	src/nw_striped_128_16.c src/nw_wozniak_128_16.c \
-	src/nw_stats_scan_128_16.c src/nw_stats_striped_128_16.c \
-	src/nw_stats_wozniak_128_16.c src/sg_scan_128_16.c \
-	src/sg_striped_128_16.c src/sg_wozniak_128_16.c \
-	src/sg_stats_scan_128_16.c src/sg_stats_striped_128_16.c \
-	src/sg_stats_wozniak_128_16.c src/sw_scan_128_16.c \
-	src/sw_striped_128_16.c src/sw_wozniak_128_16.c \
-	src/sw_stats_scan_128_16.c src/sw_stats_striped_128_16.c \
-	src/sw_stats_wozniak_128_16.c src/align_scan_128_8.h \
-	src/align_striped_128_8.h src/align_wozniak_128_8.h \
-	src/nw_scan_128_8.c src/nw_striped_128_8.c \
-	src/nw_wozniak_128_8.c src/nw_stats_scan_128_8.c \
-	src/nw_stats_striped_128_8.c src/nw_stats_wozniak_128_8.c \
-	src/sg_scan_128_8.c src/sg_striped_128_8.c \
-	src/sg_wozniak_128_8.c src/sg_stats_scan_128_8.c \
-	src/sg_stats_wozniak_128_8.c src/sw_scan_128_8.c \
-	src/sw_stats_scan_128_8.c src/nw_scan_512_32.c
+am__libparasail_la_SOURCES_DIST = src/parasail_internal.h src/memory.c \
+	src/align.h src/nw.c src/nw_scan.c src/nw_scan_row.c \
+	src/nw_stats.c src/nw_stats_scan.c src/sg.c src/sg_scan.c \
+	src/sg_stats.c src/sg_stats_scan.c src/sw.c src/sw_scan.c \
+	src/sw_stats.c src/sw_stats_scan.c src/align_scan_128_16.h \
+	src/align_striped_128_16.h src/align_wozniak_128_16.h \
+	src/nw_scan_128_16.c src/nw_striped_128_16.c \
+	src/nw_wozniak_128_16.c src/nw_stats_scan_128_16.c \
+	src/nw_stats_striped_128_16.c src/nw_stats_wozniak_128_16.c \
+	src/sg_scan_128_16.c src/sg_striped_128_16.c \
+	src/sg_wozniak_128_16.c src/sg_stats_scan_128_16.c \
+	src/sg_stats_striped_128_16.c src/sg_stats_wozniak_128_16.c \
+	src/sw_scan_128_16.c src/sw_striped_128_16.c \
+	src/sw_wozniak_128_16.c src/sw_stats_scan_128_16.c \
+	src/sw_stats_striped_128_16.c src/sw_stats_wozniak_128_16.c \
+	src/align_scan_128_8.h src/align_striped_128_8.h \
+	src/align_wozniak_128_8.h src/nw_scan_128_8.c \
+	src/nw_striped_128_8.c src/nw_wozniak_128_8.c \
+	src/nw_stats_scan_128_8.c src/nw_stats_striped_128_8.c \
+	src/nw_stats_wozniak_128_8.c src/sg_scan_128_8.c \
+	src/sg_striped_128_8.c src/sg_wozniak_128_8.c \
+	src/sg_stats_scan_128_8.c src/sg_stats_wozniak_128_8.c \
+	src/sw_scan_128_8.c src/sw_stats_scan_128_8.c \
+	src/nw_scan_512_32.c
 am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_SSE2_TRUE@am__objects_1 = src/nw_scan_128_16.lo \
 @HAVE_SSE2_TRUE@	src/nw_striped_128_16.lo \
@@ -218,7 +221,7 @@ am__dirstamp = $(am__leading_dot)dirstamp
 @HAVE_SSE41_TRUE@	src/sw_scan_128_8.lo \
 @HAVE_SSE41_TRUE@	src/sw_stats_scan_128_8.lo
 @HAVE_KNC_TRUE@am__objects_3 = src/nw_scan_512_32.lo
-am_libparasail_la_OBJECTS = src/nw.lo src/nw_scan.lo \
+am_libparasail_la_OBJECTS = src/memory.lo src/nw.lo src/nw_scan.lo \
 	src/nw_scan_row.lo src/nw_stats.lo src/nw_stats_scan.lo \
 	src/sg.lo src/sg_scan.lo src/sg_stats.lo src/sg_stats_scan.lo \
 	src/sw.lo src/sw_scan.lo src/sw_stats.lo src/sw_stats_scan.lo \
@@ -279,6 +282,7 @@ am__can_run_installinfo = \
     n|no|NO) false;; \
     *) (install-info --version) >/dev/null 2>&1;; \
   esac
+HEADERS = $(include_HEADERS)
 am__tagged_files = $(HEADERS) $(SOURCES) $(TAGS_FILES) \
 	$(LISP)config.h.in
 # Read a list of newline-separated strings from the standard input,
@@ -433,16 +437,18 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I m4
+include_HEADERS = src/parasail.h
 lib_LTLIBRARIES = libparasail.la
 AM_CFLAGS = 
 AM_CPPFLAGS = -I$(top_srcdir)/src
 AM_LDFLAGS = 
 LDADD = libparasail.la
-libparasail_la_SOURCES = src/align.h src/nw.c src/nw_scan.c \
-	src/nw_scan_row.c src/nw_stats.c src/nw_stats_scan.c src/sg.c \
-	src/sg_scan.c src/sg_stats.c src/sg_stats_scan.c src/sw.c \
-	src/sw_scan.c src/sw_stats.c src/sw_stats_scan.c \
-	$(am__append_1) $(am__append_2) $(am__append_3)
+libparasail_la_SOURCES = src/parasail_internal.h src/memory.c \
+	src/align.h src/nw.c src/nw_scan.c src/nw_scan_row.c \
+	src/nw_stats.c src/nw_stats_scan.c src/sg.c src/sg_scan.c \
+	src/sg_stats.c src/sg_stats_scan.c src/sw.c src/sw_scan.c \
+	src/sw_stats.c src/sw_stats_scan.c $(am__append_1) \
+	$(am__append_2) $(am__append_3)
 #check_PROGRAMS += tests/test_align_debug
 tests_test_align_SOURCES = tests/test_align.c
 tests_test_align_stats_SOURCES = tests/test_align_stats.c
@@ -541,6 +547,7 @@ src/$(am__dirstamp):
 src/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) src/$(DEPDIR)
 	@: > src/$(DEPDIR)/$(am__dirstamp)
+src/memory.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/nw.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/nw_scan.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/nw_scan_row.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
@@ -661,6 +668,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/memory.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/nw.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/nw_scan.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/nw_scan_128_16.Plo@am__quote@
@@ -743,6 +751,27 @@ clean-libtool:
 
 distclean-libtool:
 	-rm -f libtool config.lt
+install-includeHEADERS: $(include_HEADERS)
+	@$(NORMAL_INSTALL)
+	@list='$(include_HEADERS)'; test -n "$(includedir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(includedir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(includedir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_HEADER) $$files '$(DESTDIR)$(includedir)'"; \
+	  $(INSTALL_HEADER) $$files "$(DESTDIR)$(includedir)" || exit $$?; \
+	done
+
+uninstall-includeHEADERS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(include_HEADERS)'; test -n "$(includedir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(includedir)'; $(am__uninstall_files_from_dir)
 
 ID: $(am__tagged_files)
 	$(am__define_uniq_tagged_files); mkid -fID $$unique
@@ -962,9 +991,9 @@ distcleancheck: distclean
 check-am: all-am
 	$(MAKE) $(AM_MAKEFLAGS) $(check_PROGRAMS)
 check: check-am
-all-am: Makefile $(LTLIBRARIES) config.h
+all-am: Makefile $(LTLIBRARIES) $(HEADERS) config.h
 installdirs:
-	for dir in "$(DESTDIR)$(libdir)"; do \
+	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(includedir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -1025,7 +1054,7 @@ info: info-am
 
 info-am:
 
-install-data-am:
+install-data-am: install-includeHEADERS
 
 install-dvi: install-dvi-am
 
@@ -1073,7 +1102,7 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-libLTLIBRARIES
+uninstall-am: uninstall-includeHEADERS uninstall-libLTLIBRARIES
 
 .MAKE: all check-am install-am install-strip
 
@@ -1087,13 +1116,14 @@ uninstall-am: uninstall-libLTLIBRARIES
 	distuninstallcheck dvi dvi-am html html-am info info-am \
 	install install-am install-data install-data-am install-dvi \
 	install-dvi-am install-exec install-exec-am install-html \
-	install-html-am install-info install-info-am \
-	install-libLTLIBRARIES install-man install-pdf install-pdf-am \
-	install-ps install-ps-am install-strip installcheck \
-	installcheck-am installdirs maintainer-clean \
+	install-html-am install-includeHEADERS install-info \
+	install-info-am install-libLTLIBRARIES install-man install-pdf \
+	install-pdf-am install-ps install-ps-am install-strip \
+	installcheck installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-compile \
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags tags-am uninstall uninstall-am uninstall-libLTLIBRARIES
+	tags tags-am uninstall uninstall-am uninstall-includeHEADERS \
+	uninstall-libLTLIBRARIES
 
 #tests_test_align_debug_SOURCES = tests/test_align_debug.c
 

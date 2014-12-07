@@ -1,6 +1,7 @@
 ACLOCAL_AMFLAGS = -I m4
 
-lib_LTLIBRARIES =
+include_HEADERS = src/parasail.h
+lib_LTLIBRARIES = libparasail.la
 check_PROGRAMS =
 AM_CFLAGS =
 AM_CPPFLAGS =
@@ -9,8 +10,11 @@ LDADD = libparasail.la
 
 AM_CPPFLAGS += -I$(top_srcdir)/src
 
-lib_LTLIBRARIES += libparasail.la
 libparasail_la_SOURCES =
+
+libparasail_la_SOURCES += src/parasail_internal.h
+libparasail_la_SOURCES += src/memory.c
+
 libparasail_la_SOURCES += src/align.h
 libparasail_la_SOURCES += src/nw.c
 libparasail_la_SOURCES += src/nw_scan.c

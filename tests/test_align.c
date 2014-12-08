@@ -7,25 +7,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "align.h"
+#include "parasail.h"
 #include "blosum/blosum62.h"
 #include "timer.h"
-
-#if HAVE_SSE2
-#include "align_wozniak_128_16.h"
-#include "align_striped_128_16.h"
-#include "align_scan_128_16.h"
-#endif
-
-#if HAVE_SSE41
-#include "align_wozniak_128_8.h"
-#include "align_striped_128_8.h"
-#include "align_scan_128_8.h"
-#endif
-
-#if HAVE_AVX_512
-#include "align_scan_512_32.h"
-#endif
 
 #define USE_PERCENT_IMPROVED 0
 
@@ -49,16 +33,14 @@ int main(int argc, char **argv)
     //const char *seqB = "AALGVAARAGFLAAGFASSS";
     const int lena = strlen(seqA);
     const int lenb = strlen(seqB);
-    const int longest = MAX(lena,lenb) + 32 /* +32 for woz padding */;
+    const int longest = (lena>lenb?lena:lenb) + 32 /* +32 for woz padding */;
     int score;
     unsigned long long timer;
     unsigned long long timer_ref;
     size_t limit = 1000;
     size_t i;
-    int * tbl_pr = malloc(sizeof(int) * longest);
-    int * del_pr = malloc(sizeof(int) * longest);
-    int * mch_pr = malloc(sizeof(int) * longest);
-    int * len_pr = malloc(sizeof(int) * longest);
+    parasail_result_t *result = parasail_result_allocate(longest);
+    parasail_workspace_t *workspace = parasail_workspace_allocate(longest);
 
     timer_init();
     printf("%s timer\n", timer_name());
@@ -70,11 +52,21 @@ int main(int argc, char **argv)
 
     timer_ref = timer_start();
     for (i=0; i<limit; ++i) {
-        score = nw(seqA, lena, seqB, lenb, 10, 1, blosum62, tbl_pr, del_pr);
+        nw(seqA, lena, seqB, lenb, 10, 1, blosum62, result);
+        score = result->score;
     }
     timer_ref = timer_end(timer_ref);
-    printf("nw\tref\t\t\t%llu\t\t%d\n", timer_ref/limit, score);
+    printf("nw\t\t\t\t%llu\t\t%d\n", timer_ref/limit, score);
 
+    timer_ref = timer_start();
+    for (i=0; i<limit; ++i) {
+        nw_ext(seqA, lena, seqB, lenb, 10, 1, blosum62, result, workspace);
+        score = result->score;
+    }
+    timer_ref = timer_end(timer_ref);
+    printf("nw_ext\t\t\t\t%llu\t\t%d\n", timer_ref/limit, score);
+
+#if 0
     timer = timer_start();
     for (i=0; i<limit; ++i) {
         score = nw_scan_row(seqA, lena, seqB, lenb, 10, 1, blosum62, tbl_pr, del_pr);
@@ -269,11 +261,10 @@ int main(int argc, char **argv)
     timer = timer_end(timer);
     printf("sw\tstriped\t128\t16\t%llu\t%4.1f\t%d\n", timer/limit, pct(timer_ref,timer), score);
 #endif
+#endif
 
-    free(tbl_pr);
-    free(del_pr);
-    free(mch_pr);
-    free(len_pr);
+    parasail_result_free(result);
+    parasail_workspace_free(workspace);
 
     return 0;
 }

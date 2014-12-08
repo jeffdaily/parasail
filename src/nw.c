@@ -9,34 +9,32 @@
  */
 #include "config.h"
 
+#include <stdint.h>
 #include <stdlib.h>
 
-#ifdef ALIGN_EXTRA
-#include "align_debug.h"
-#else
-#include "align.h"
-#endif
+#include "parasail.h"
+#include "parasail_internal.h"
 #include "blosum/blosum_map.h"
 
-#ifdef ALIGN_EXTRA
-#define FNAME nw_debug
+#define NEG_INF_32 (INT32_MIN/2)
+#define MAX(a,b) ((a)>(b)?(a):(b))
+
+#ifdef PARASAIL_TABLE
+#define ENAME nw_table_ext
 #else
-#define FNAME nw
+#define ENAME nw_ext
 #endif
 
-int FNAME(
+void ENAME(
         const char * const restrict _s1, const int s1Len,
         const char * const restrict _s2, const int s2Len,
-        const int open, const int gap,
-        const int matrix[24][24],
-        int * const restrict tbl_pr, int * const restrict del_pr
-#ifdef ALIGN_EXTRA
-        , int * const restrict score_table
-#endif
-        )
+        const int open, const int gap, const int matrix[24][24],
+        parasail_result_t *result, parasail_workspace_t *workspace)
 {
-    int * const restrict s1 = (int * const restrict)malloc(sizeof(int)*s1Len);
-    int * const restrict s2 = (int * const restrict)malloc(sizeof(int)*s2Len);
+    int * const restrict s1 = workspace->s1;
+    int * const restrict s2 = workspace->s2;
+    int * const restrict tbl_pr = workspace->a1;
+    int * const restrict del_pr = workspace->a2;
     int i = 0;
     int j = 0;
 
@@ -72,14 +70,30 @@ int FNAME(
             ins_cr    = MAX(Wscore - open, ins_cr    - gap);
             tbl_pr[j] = NWscore + matrow[s2[j-1]];
             Wscore = tbl_pr[j] = MAX(tbl_pr[j],MAX(ins_cr,del_pr[j]));
-#ifdef ALIGN_EXTRA
-            score_table[(i-1)*s2Len + (j-1)] = Wscore;
+#ifdef PARASAIL_TABLE
+            workspace->score_table[(i-1)*s2Len + (j-1)] = Wscore;
 #endif
         }
     }
 
-    free(s1);
-    free(s2);
-    return tbl_pr[s2Len];
+    result->score = tbl_pr[s2Len];
+}
+
+#ifdef PARASAIL_TABLE
+#define NAME nw_table
+#else
+#define NAME nw
+#endif
+
+void NAME(
+        const char * const restrict _s1, const int s1Len,
+        const char * const restrict _s2, const int s2Len,
+        const int open, const int gap, const int matrix[24][24],
+        parasail_result_t *result)
+{
+    const int longest = MAX(s1Len, s2Len);
+    parasail_workspace_t *workspace = parasail_workspace_allocate(longest);
+    ENAME(_s1, s1Len, _s2, s2Len, open, gap, matrix, result, workspace);
+    parasail_workspace_free(workspace);
 }
 

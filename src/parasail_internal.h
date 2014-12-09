@@ -30,15 +30,15 @@
 
 #include "parasail.h"
 
-void parasail_workspace_allocate_s(parasail_workspace_t *workspace, const int length);
-void parasail_workspace_allocate_serial2(parasail_workspace_t *workspace, const int length);
-void parasail_workspace_allocate_serial4(parasail_workspace_t *workspace, const int length);
-void parasail_workspace_allocate_serial9(parasail_workspace_t *workspace, const int length);
+inline void parasail_workspace_allocate_s(parasail_workspace_t *workspace, const int length);
+inline void parasail_workspace_allocate_serial2(parasail_workspace_t *workspace, const int length);
+inline void parasail_workspace_allocate_serial4(parasail_workspace_t *workspace, const int length);
+inline void parasail_workspace_allocate_serial9(parasail_workspace_t *workspace, const int length);
 
-void parasail_workspace_free_s(parasail_workspace_t *workspace, const int length);
-void parasail_workspace_free_serial2(parasail_workspace_t *workspace, const int length);
-void parasail_workspace_free_serial4(parasail_workspace_t *workspace, const int length);
-void parasail_workspace_free_serial9(parasail_workspace_t *workspace, const int length);
+inline void parasail_workspace_free_s(parasail_workspace_t *workspace);
+inline void parasail_workspace_free_serial2(parasail_workspace_t *workspace);
+inline void parasail_workspace_free_serial4(parasail_workspace_t *workspace);
+inline void parasail_workspace_free_serial9(parasail_workspace_t *workspace);
 
 struct parasail_workspace {
     /* Used by some methods to convert character arrays into integer

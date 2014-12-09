@@ -95,7 +95,64 @@ inline void parasail_workspace_allocate_serial9(
 }
 
 inline parasail_workspace_t* parasail_workspace_new() {
-    return (parasail_workspace_t*)malloc(sizeof(parasail_workspace_t));
+    parasail_workspace_t *workspace = NULL;
+    workspace = (parasail_workspace_t*)malloc(sizeof(parasail_workspace_t));
+    assert(workspace);
+    workspace->s1 = NULL;
+    workspace->s2 = NULL;
+    workspace->a1 = NULL;
+    workspace->a2 = NULL;
+    workspace->a3 = NULL;
+    workspace->a4 = NULL;
+    workspace->a5 = NULL;
+    workspace->a6 = NULL;
+    workspace->a7 = NULL;
+    workspace->a8 = NULL;
+    workspace->a9 = NULL;
+    workspace->boundary = NULL;
+#if HAVE_SSE2 || HAVE_SSE41
+    workspace->sse_1 = NULL;
+    workspace->sse_2 = NULL;
+    workspace->sse_3 = NULL;
+    workspace->sse_4 = NULL;
+    workspace->sse_5 = NULL;
+    workspace->sse_6 = NULL;
+    workspace->sse_7 = NULL;
+    workspace->sse_8 = NULL;
+    workspace->sse_9 = NULL;
+    workspace->sse_10 = NULL;
+    workspace->sse_11 = NULL;
+    workspace->sse_12 = NULL;
+#endif
+#if HAVE_AVX2
+    workspace->avx_1 = NULL;
+    workspace->avx_2 = NULL;
+    workspace->avx_3 = NULL;
+    workspace->avx_4 = NULL;
+    workspace->avx_5 = NULL;
+    workspace->avx_6 = NULL;
+    workspace->avx_7 = NULL;
+    workspace->avx_8 = NULL;
+    workspace->avx_9 = NULL;
+    workspace->avx_10 = NULL;
+    workspace->avx_11 = NULL;
+    workspace->avx_12 = NULL;
+#endif
+#if HAVE_KNC
+    workspace->knc_1 = NULL;
+    workspace->knc_2 = NULL;
+    workspace->knc_3 = NULL;
+    workspace->knc_4 = NULL;
+    workspace->knc_5 = NULL;
+    workspace->knc_6 = NULL;
+    workspace->knc_7 = NULL;
+    workspace->knc_8 = NULL;
+    workspace->knc_9 = NULL;
+    workspace->knc_10 = NULL;
+    workspace->knc_11 = NULL;
+    workspace->knc_12 = NULL;
+#endif
+    return workspace;
 }
 
 parasail_workspace_t* parasail_workspace_allocate(const int length)
@@ -172,69 +229,88 @@ parasail_workspace_t* parasail_workspace_allocate(const int length)
     return workspace;
 }
 
+inline void parasail_workspace_free_s(parasail_workspace_t *workspace)
+{
+    if (NULL != workspace->s1) free(workspace->s1);
+    if (NULL != workspace->s2) free(workspace->s2);
+}
+
+inline void parasail_workspace_free_serial2(parasail_workspace_t *workspace)
+{
+    if (NULL != workspace->a1) free(workspace->a1);
+    if (NULL != workspace->a2) free(workspace->a2);
+}
+
+inline void parasail_workspace_free_serial4(parasail_workspace_t *workspace)
+{
+    parasail_workspace_free_serial2(workspace);
+    if (NULL != workspace->a3) free(workspace->a3);
+    if (NULL != workspace->a4) free(workspace->a4);
+}
+
+inline void parasail_workspace_free_serial9(parasail_workspace_t *workspace)
+{
+    parasail_workspace_free_serial4(workspace);
+    if (NULL != workspace->a5) free(workspace->a5);
+    if (NULL != workspace->a6) free(workspace->a6);
+    if (NULL != workspace->a7) free(workspace->a7);
+    if (NULL != workspace->a8) free(workspace->a8);
+    if (NULL != workspace->a9) free(workspace->a9);
+}
+
 void parasail_workspace_free(parasail_workspace_t *workspace)
 {
     /* validate inputs */
     assert(workspace);
     
-    free(workspace->s1);
-    free(workspace->s2);
+    parasail_workspace_free_s(workspace);
+    parasail_workspace_free_serial9(workspace);
 
-    free(workspace->a1);
-    free(workspace->a2);
-    free(workspace->a3);
-    free(workspace->a4);
-    free(workspace->a5);
-    free(workspace->a6);
-    free(workspace->a7);
-    free(workspace->a8);
-    free(workspace->a9);
-
-    free(workspace->boundary);
+    if (NULL != workspace->boundary) free(workspace->boundary);
 
 #if HAVE_SSE2 || HAVE_SSE41
-    free(workspace->sse_1);
-    free(workspace->sse_2);
-    free(workspace->sse_3);
-    free(workspace->sse_4);
-    free(workspace->sse_5);
-    free(workspace->sse_6);
-    free(workspace->sse_7);
-    free(workspace->sse_8);
-    free(workspace->sse_9);
-    free(workspace->sse_10);
-    free(workspace->sse_11);
-    free(workspace->sse_12);
+    if (NULL != workspace->sse_1) free(workspace->sse_1);
+    if (NULL != workspace->sse_2) free(workspace->sse_2);
+    if (NULL != workspace->sse_3) free(workspace->sse_3);
+    if (NULL != workspace->sse_4) free(workspace->sse_4);
+    if (NULL != workspace->sse_5) free(workspace->sse_5);
+    if (NULL != workspace->sse_6) free(workspace->sse_6);
+    if (NULL != workspace->sse_7) free(workspace->sse_7);
+    if (NULL != workspace->sse_8) free(workspace->sse_8);
+    if (NULL != workspace->sse_9) free(workspace->sse_9);
+    if (NULL != workspace->sse_10) free(workspace->sse_10);
+    if (NULL != workspace->sse_11) free(workspace->sse_11);
+    if (NULL != workspace->sse_12) free(workspace->sse_12);
 #endif
 
 #if HAVE_AVX2
-    free(workspace->avx_1);
-    free(workspace->avx_2);
-    free(workspace->avx_3);
-    free(workspace->avx_4);
-    free(workspace->avx_5);
-    free(workspace->avx_6);
-    free(workspace->avx_7);
-    free(workspace->avx_8);
-    free(workspace->avx_9);
-    free(workspace->avx_10);
-    free(workspace->avx_11);
-    free(workspace->avx_12);
+    if (NULL != workspace->avx_1) free(workspace->avx_1);
+    if (NULL != workspace->avx_2) free(workspace->avx_2);
+    if (NULL != workspace->avx_3) free(workspace->avx_3);
+    if (NULL != workspace->avx_4) free(workspace->avx_4);
+    if (NULL != workspace->avx_5) free(workspace->avx_5);
+    if (NULL != workspace->avx_6) free(workspace->avx_6);
+    if (NULL != workspace->avx_7) free(workspace->avx_7);
+    if (NULL != workspace->avx_8) free(workspace->avx_8);
+    if (NULL != workspace->avx_9) free(workspace->avx_9);
+    if (NULL != workspace->avx_10) free(workspace->avx_10);
+    if (NULL != workspace->avx_11) free(workspace->avx_11);
+    if (NULL != workspace->avx_12) free(workspace->avx_12);
 #endif
 
 #if HAVE_KNC
-    free(workspace->knc_1);
-    free(workspace->knc_2);
-    free(workspace->knc_3);
-    free(workspace->knc_4);
-    free(workspace->knc_5);
-    free(workspace->knc_6);
-    free(workspace->knc_7);
-    free(workspace->knc_8);
-    free(workspace->knc_9);
-    free(workspace->knc_10);
-    free(workspace->knc_11);
-    free(workspace->knc_12);
+    if (NULL != workspace->knc_1) free(workspace->knc_1);
+    if (NULL != workspace->knc_2) free(workspace->knc_2);
+    if (NULL != workspace->knc_3) free(workspace->knc_3);
+    if (NULL != workspace->knc_4) free(workspace->knc_4);
+    if (NULL != workspace->knc_5) free(workspace->knc_5);
+    if (NULL != workspace->knc_6) free(workspace->knc_6);
+    if (NULL != workspace->knc_7) free(workspace->knc_7);
+    if (NULL != workspace->knc_8) free(workspace->knc_8);
+    if (NULL != workspace->knc_9) free(workspace->knc_9);
+    if (NULL != workspace->knc_10) free(workspace->knc_10);
+    if (NULL != workspace->knc_11) free(workspace->knc_11);
+    if (NULL != workspace->knc_12) free(workspace->knc_12);
 #endif
 
     free(workspace);

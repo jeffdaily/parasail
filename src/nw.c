@@ -92,7 +92,9 @@ void NAME(
         parasail_result_t *result)
 {
     const int longest = MAX(s1Len, s2Len);
-    parasail_workspace_t *workspace = parasail_workspace_allocate(longest);
+    parasail_workspace_t *workspace = parasail_workspace_new();
+    parasail_workspace_allocate_s(workspace, longest+10);
+    parasail_workspace_allocate_serial2(workspace, longest+10);
     ENAME(_s1, s1Len, _s2, s2Len, open, gap, matrix, result, workspace);
     parasail_workspace_free(workspace);
 }

@@ -80,7 +80,7 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 check_PROGRAMS = tests/test_align$(EXEEXT) \
-	tests/test_align_stats$(EXEEXT)
+	tests/test_align_stats$(EXEEXT) tests/test_openmp$(EXEEXT)
 @HAVE_SSE2_TRUE@am__append_1 = src/align_scan_128_16.h \
 @HAVE_SSE2_TRUE@	src/align_striped_128_16.h \
 @HAVE_SSE2_TRUE@	src/align_wozniak_128_16.h \
@@ -125,10 +125,10 @@ DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/build-aux/ltmain.sh \
 	$(top_srcdir)/build-aux/missing
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/m4/libtool.m4 \
-	$(top_srcdir)/m4/ltoptions.m4 $(top_srcdir)/m4/ltsugar.m4 \
-	$(top_srcdir)/m4/ltversion.m4 $(top_srcdir)/m4/lt~obsolete.m4 \
-	$(top_srcdir)/configure.ac
+am__aclocal_m4_deps = $(top_srcdir)/m4/ax_openmp.m4 \
+	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/ltoptions.m4 \
+	$(top_srcdir)/m4/ltsugar.m4 $(top_srcdir)/m4/ltversion.m4 \
+	$(top_srcdir)/m4/lt~obsolete.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
@@ -239,6 +239,15 @@ am_tests_test_align_stats_OBJECTS = tests/test_align_stats.$(OBJEXT)
 tests_test_align_stats_OBJECTS = $(am_tests_test_align_stats_OBJECTS)
 tests_test_align_stats_LDADD = $(LDADD)
 tests_test_align_stats_DEPENDENCIES = libparasail.la
+am_tests_test_openmp_OBJECTS =  \
+	tests/tests_test_openmp-test_openmp.$(OBJEXT)
+tests_test_openmp_OBJECTS = $(am_tests_test_openmp_OBJECTS)
+tests_test_openmp_LDADD = $(LDADD)
+tests_test_openmp_DEPENDENCIES = libparasail.la
+tests_test_openmp_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(tests_test_openmp_CFLAGS) $(CFLAGS) \
+	$(tests_test_openmp_LDFLAGS) $(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -274,9 +283,10 @@ am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
 SOURCES = $(libparasail_la_SOURCES) $(tests_test_align_SOURCES) \
-	$(tests_test_align_stats_SOURCES)
+	$(tests_test_align_stats_SOURCES) $(tests_test_openmp_SOURCES)
 DIST_SOURCES = $(am__libparasail_la_SOURCES_DIST) \
-	$(tests_test_align_SOURCES) $(tests_test_align_stats_SOURCES)
+	$(tests_test_align_SOURCES) $(tests_test_align_stats_SOURCES) \
+	$(tests_test_openmp_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -368,6 +378,7 @@ NM = @NM@
 NMEDIT = @NMEDIT@
 OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
+OPENMP_CFLAGS = @OPENMP_CFLAGS@
 OTOOL = @OTOOL@
 OTOOL64 = @OTOOL64@
 PACKAGE = @PACKAGE@
@@ -449,9 +460,11 @@ libparasail_la_SOURCES = src/parasail_internal.h src/memory.c \
 	src/sg_stats.c src/sg_stats_scan.c src/sw.c src/sw_scan.c \
 	src/sw_stats.c src/sw_stats_scan.c $(am__append_1) \
 	$(am__append_2) $(am__append_3)
-#check_PROGRAMS += tests/test_align_debug
 tests_test_align_SOURCES = tests/test_align.c
 tests_test_align_stats_SOURCES = tests/test_align_stats.c
+tests_test_openmp_SOURCES = tests/test_openmp.c
+tests_test_openmp_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)
+tests_test_openmp_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -658,6 +671,12 @@ tests/test_align_stats.$(OBJEXT): tests/$(am__dirstamp) \
 tests/test_align_stats$(EXEEXT): $(tests_test_align_stats_OBJECTS) $(tests_test_align_stats_DEPENDENCIES) $(EXTRA_tests_test_align_stats_DEPENDENCIES) tests/$(am__dirstamp)
 	@rm -f tests/test_align_stats$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(tests_test_align_stats_OBJECTS) $(tests_test_align_stats_LDADD) $(LIBS)
+tests/tests_test_openmp-test_openmp.$(OBJEXT): tests/$(am__dirstamp) \
+	tests/$(DEPDIR)/$(am__dirstamp)
+
+tests/test_openmp$(EXEEXT): $(tests_test_openmp_OBJECTS) $(tests_test_openmp_DEPENDENCIES) $(EXTRA_tests_test_openmp_DEPENDENCIES) tests/$(am__dirstamp)
+	@rm -f tests/test_openmp$(EXEEXT)
+	$(AM_V_CCLD)$(tests_test_openmp_LINK) $(tests_test_openmp_OBJECTS) $(tests_test_openmp_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -716,6 +735,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sw_wozniak_128_16.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_align.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_align_stats.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/tests_test_openmp-test_openmp.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -740,6 +760,20 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
+
+tests/tests_test_openmp-test_openmp.o: tests/test_openmp.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_test_openmp_CFLAGS) $(CFLAGS) -MT tests/tests_test_openmp-test_openmp.o -MD -MP -MF tests/$(DEPDIR)/tests_test_openmp-test_openmp.Tpo -c -o tests/tests_test_openmp-test_openmp.o `test -f 'tests/test_openmp.c' || echo '$(srcdir)/'`tests/test_openmp.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) tests/$(DEPDIR)/tests_test_openmp-test_openmp.Tpo tests/$(DEPDIR)/tests_test_openmp-test_openmp.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/test_openmp.c' object='tests/tests_test_openmp-test_openmp.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_test_openmp_CFLAGS) $(CFLAGS) -c -o tests/tests_test_openmp-test_openmp.o `test -f 'tests/test_openmp.c' || echo '$(srcdir)/'`tests/test_openmp.c
+
+tests/tests_test_openmp-test_openmp.obj: tests/test_openmp.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_test_openmp_CFLAGS) $(CFLAGS) -MT tests/tests_test_openmp-test_openmp.obj -MD -MP -MF tests/$(DEPDIR)/tests_test_openmp-test_openmp.Tpo -c -o tests/tests_test_openmp-test_openmp.obj `if test -f 'tests/test_openmp.c'; then $(CYGPATH_W) 'tests/test_openmp.c'; else $(CYGPATH_W) '$(srcdir)/tests/test_openmp.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) tests/$(DEPDIR)/tests_test_openmp-test_openmp.Tpo tests/$(DEPDIR)/tests_test_openmp-test_openmp.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/test_openmp.c' object='tests/tests_test_openmp-test_openmp.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_test_openmp_CFLAGS) $(CFLAGS) -c -o tests/tests_test_openmp-test_openmp.obj `if test -f 'tests/test_openmp.c'; then $(CYGPATH_W) 'tests/test_openmp.c'; else $(CYGPATH_W) '$(srcdir)/tests/test_openmp.c'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -1125,7 +1159,6 @@ uninstall-am: uninstall-includeHEADERS uninstall-libLTLIBRARIES
 	tags tags-am uninstall uninstall-am uninstall-includeHEADERS \
 	uninstall-libLTLIBRARIES
 
-#tests_test_align_debug_SOURCES = tests/test_align_debug.c
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

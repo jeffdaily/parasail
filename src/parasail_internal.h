@@ -30,23 +30,35 @@
 
 #include "parasail.h"
 
+void parasail_workspace_allocate_s(parasail_workspace_t *workspace, const int length);
+void parasail_workspace_allocate_serial2(parasail_workspace_t *workspace, const int length);
+void parasail_workspace_allocate_serial4(parasail_workspace_t *workspace, const int length);
+void parasail_workspace_allocate_serial9(parasail_workspace_t *workspace, const int length);
+
+void parasail_workspace_free_s(parasail_workspace_t *workspace, const int length);
+void parasail_workspace_free_serial2(parasail_workspace_t *workspace, const int length);
+void parasail_workspace_free_serial4(parasail_workspace_t *workspace, const int length);
+void parasail_workspace_free_serial9(parasail_workspace_t *workspace, const int length);
+
 struct parasail_workspace {
     /* Used by some methods to convert character arrays into integer
      * arrays to speed up later processing. */
     int * restrict s1;
     int * restrict s2;
 
-    /* Used by some nw methods to set table boundary conditions. */
-    int * restrict boundary;
-
-    /* Serial methods use at most five arrays of integers. The reference
-     * implementations use them for previous rows (4 max); the scan
-     * implementations use them for previous columns (5 max). */
+    /* Serial methods use at most nine arrays of integers. */
     int * restrict a1;
     int * restrict a2;
     int * restrict a3;
     int * restrict a4;
     int * restrict a5;
+    int * restrict a6;
+    int * restrict a7;
+    int * restrict a8;
+    int * restrict a9;
+
+    /* Used by some nw methods to set table boundary conditions. */
+    int * restrict boundary;
 
     /* Vector methods use at most 12 arrays of integer vectors. */
 #if HAVE_SSE2 || HAVE_SSE41

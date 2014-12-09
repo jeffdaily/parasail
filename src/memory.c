@@ -32,97 +32,142 @@ static inline void* my_memalign(size_t alignment, size_t size)
     return ptr;
 }
 
-parasail_workspace_t* parasail_workspace_allocate(const int length)
+inline void parasail_workspace_allocate_s(
+        parasail_workspace_t *workspace,
+        const int length)
 {
     /* declare all variables */
-    parasail_workspace_t *retval = NULL;
-    int32_t vector_count = 0;
     int32_t padding = 0;
 
     /* validate inputs */
     assert(length > 0);
     
-    /* allocate struct to hold memory */
-    retval = (parasail_workspace_t*)malloc(sizeof(parasail_workspace_t));
-    assert(retval);
-
-    /* The smallest number of elements in any of our vector
-     * implementations will be 4 (128-bit vector unit with 32-bit
-     * elements). This may be too much memory so we may revisit this later
-     * to assume a minimum number of vector elements at 8 instead. */
-    vector_count = (length + 3) / 4;
-
     /* The wozniak anti-diagonal algorithm needs to pad the input
      * sequences with the number of elements in the vector. We choose
      * the largest possible value here. 512-bit vector unit with 32-bit
      * elements is 16. We need twice that (pad both ends of sequence). */
     padding = 16*2;
 
-    retval->s1 = (int * restrict)malloc(sizeof(int)*(length+padding));
-    assert(retval->s1);
-    retval->s2 = (int * restrict)malloc(sizeof(int)*(length+padding));
-    assert(retval->s2);
+    workspace->s1 = (int * restrict)malloc(sizeof(int)*(length+padding));
+    assert(workspace->s1);
+    workspace->s2 = (int * restrict)malloc(sizeof(int)*(length+padding));
+    assert(workspace->s2);
+}
 
-    retval->boundary = (int * restrict)malloc(sizeof(int)*(length+1));
-    assert(retval->boundary);
+inline void parasail_workspace_allocate_serial2(
+        parasail_workspace_t *workspace,
+        const int length)
+{
+    workspace->a1 = (int * restrict)malloc(sizeof(int)*length);
+    assert(workspace->a1);
+    workspace->a2 = (int * restrict)malloc(sizeof(int)*length);
+    assert(workspace->a2);
+}
 
-    retval->a1 = (int * restrict)malloc(sizeof(int)*length);
-    assert(retval->a1);
-    retval->a2 = (int * restrict)malloc(sizeof(int)*length);
-    assert(retval->a2);
-    retval->a3 = (int * restrict)malloc(sizeof(int)*length);
-    assert(retval->a3);
-    retval->a4 = (int * restrict)malloc(sizeof(int)*length);
-    assert(retval->a4);
-    retval->a5 = (int * restrict)malloc(sizeof(int)*length);
-    assert(retval->a5);
+inline void parasail_workspace_allocate_serial4(
+        parasail_workspace_t *workspace,
+        const int length)
+{
+    parasail_workspace_allocate_serial2(workspace, length);
+    workspace->a3 = (int * restrict)malloc(sizeof(int)*length);
+    assert(workspace->a1);
+    workspace->a4 = (int * restrict)malloc(sizeof(int)*length);
+    assert(workspace->a2);
+}
+
+inline void parasail_workspace_allocate_serial9(
+        parasail_workspace_t *workspace,
+        const int length)
+{
+    parasail_workspace_allocate_serial4(workspace, length);
+    workspace->a5 = (int * restrict)malloc(sizeof(int)*length);
+    assert(workspace->a5);
+    workspace->a6 = (int * restrict)malloc(sizeof(int)*length);
+    assert(workspace->a6);
+    workspace->a7 = (int * restrict)malloc(sizeof(int)*length);
+    assert(workspace->a7);
+    workspace->a8 = (int * restrict)malloc(sizeof(int)*length);
+    assert(workspace->a8);
+    workspace->a9 = (int * restrict)malloc(sizeof(int)*length);
+    assert(workspace->a9);
+}
+
+inline parasail_workspace_t* parasail_workspace_new() {
+    return (parasail_workspace_t*)malloc(sizeof(parasail_workspace_t));
+}
+
+parasail_workspace_t* parasail_workspace_allocate(const int length)
+{
+    /* declare all variables */
+    parasail_workspace_t *workspace = NULL;
+    int32_t vector_count = 0;
+    int32_t vector_size = 0;
+
+    /* validate inputs */
+    assert(length > 0);
+    
+    /* allocate struct to hold memory */
+    workspace = parasail_workspace_new();
+    assert(workspace);
+
+    parasail_workspace_allocate_s(workspace, length);
+    parasail_workspace_allocate_serial9(workspace, length);
+
+    workspace->boundary = (int * restrict)malloc(sizeof(int)*length);
+    assert(workspace->boundary);
 
 #if HAVE_SSE2 || HAVE_SSE41
-    retval->sse_1 = (__m128i*)my_memalign(16, vector_count);
-    retval->sse_2 = (__m128i*)my_memalign(16, vector_count);
-    retval->sse_3 = (__m128i*)my_memalign(16, vector_count);
-    retval->sse_4 = (__m128i*)my_memalign(16, vector_count);
-    retval->sse_5 = (__m128i*)my_memalign(16, vector_count);
-    retval->sse_6 = (__m128i*)my_memalign(16, vector_count);
-    retval->sse_7 = (__m128i*)my_memalign(16, vector_count);
-    retval->sse_8 = (__m128i*)my_memalign(16, vector_count);
-    retval->sse_9 = (__m128i*)my_memalign(16, vector_count);
-    retval->sse_10 = (__m128i*)my_memalign(16, vector_count);
-    retval->sse_11 = (__m128i*)my_memalign(16, vector_count);
-    retval->sse_12 = (__m128i*)my_memalign(16, vector_count);
+    vector_count = (length + 7) / 8;
+    vector_size = vector_count * sizeof(__m128i);
+    workspace->sse_1 = (__m128i*)my_memalign(16, vector_size);
+    workspace->sse_2 = (__m128i*)my_memalign(16, vector_size);
+    workspace->sse_3 = (__m128i*)my_memalign(16, vector_size);
+    workspace->sse_4 = (__m128i*)my_memalign(16, vector_size);
+    workspace->sse_5 = (__m128i*)my_memalign(16, vector_size);
+    workspace->sse_6 = (__m128i*)my_memalign(16, vector_size);
+    workspace->sse_7 = (__m128i*)my_memalign(16, vector_size);
+    workspace->sse_8 = (__m128i*)my_memalign(16, vector_size);
+    workspace->sse_9 = (__m128i*)my_memalign(16, vector_size);
+    workspace->sse_10 = (__m128i*)my_memalign(16, vector_size);
+    workspace->sse_11 = (__m128i*)my_memalign(16, vector_size);
+    workspace->sse_12 = (__m128i*)my_memalign(16, vector_size);
 #endif
 
 #if HAVE_AVX2
-    retval->avx_1 = (__m256i*)my_memalign(32, vector_count);
-    retval->avx_2 = (__m256i*)my_memalign(32, vector_count);
-    retval->avx_3 = (__m256i*)my_memalign(32, vector_count);
-    retval->avx_4 = (__m256i*)my_memalign(32, vector_count);
-    retval->avx_5 = (__m256i*)my_memalign(32, vector_count);
-    retval->avx_6 = (__m256i*)my_memalign(32, vector_count);
-    retval->avx_7 = (__m256i*)my_memalign(32, vector_count);
-    retval->avx_8 = (__m256i*)my_memalign(32, vector_count);
-    retval->avx_9 = (__m256i*)my_memalign(32, vector_count);
-    retval->avx_10 = (__m256i*)my_memalign(32, vector_count);
-    retval->avx_11 = (__m256i*)my_memalign(32, vector_count);
-    retval->avx_12 = (__m256i*)my_memalign(32, vector_count);
+    vector_count = (length + 7) / 8;
+    vector_size = vector_count * sizeof(__m256i);
+    workspace->avx_1 = (__m256i*)my_memalign(32, vector_size);
+    workspace->avx_2 = (__m256i*)my_memalign(32, vector_size);
+    workspace->avx_3 = (__m256i*)my_memalign(32, vector_size);
+    workspace->avx_4 = (__m256i*)my_memalign(32, vector_size);
+    workspace->avx_5 = (__m256i*)my_memalign(32, vector_size);
+    workspace->avx_6 = (__m256i*)my_memalign(32, vector_size);
+    workspace->avx_7 = (__m256i*)my_memalign(32, vector_size);
+    workspace->avx_8 = (__m256i*)my_memalign(32, vector_size);
+    workspace->avx_9 = (__m256i*)my_memalign(32, vector_size);
+    workspace->avx_10 = (__m256i*)my_memalign(32, vector_size);
+    workspace->avx_11 = (__m256i*)my_memalign(32, vector_size);
+    workspace->avx_12 = (__m256i*)my_memalign(32, vector_size);
 #endif
 
 #if HAVE_KNC
-    retval->knc_1 = (__m512i*)my_memalign(64, vector_count);
-    retval->knc_2 = (__m512i*)my_memalign(64, vector_count);
-    retval->knc_3 = (__m512i*)my_memalign(64, vector_count);
-    retval->knc_4 = (__m512i*)my_memalign(64, vector_count);
-    retval->knc_5 = (__m512i*)my_memalign(64, vector_count);
-    retval->knc_6 = (__m512i*)my_memalign(64, vector_count);
-    retval->knc_7 = (__m512i*)my_memalign(64, vector_count);
-    retval->knc_8 = (__m512i*)my_memalign(64, vector_count);
-    retval->knc_9 = (__m512i*)my_memalign(64, vector_count);
-    retval->knc_10 = (__m512i*)my_memalign(64, vector_count);
-    retval->knc_11 = (__m512i*)my_memalign(64, vector_count);
-    retval->knc_12 = (__m512i*)my_memalign(64, vector_count);
+    vector_count = (length + 15) / 16;
+    vector_size = vector_count * sizeof(__m512i);
+    workspace->knc_1 = (__m512i*)my_memalign(64, vector_size);
+    workspace->knc_2 = (__m512i*)my_memalign(64, vector_size);
+    workspace->knc_3 = (__m512i*)my_memalign(64, vector_size);
+    workspace->knc_4 = (__m512i*)my_memalign(64, vector_size);
+    workspace->knc_5 = (__m512i*)my_memalign(64, vector_size);
+    workspace->knc_6 = (__m512i*)my_memalign(64, vector_size);
+    workspace->knc_7 = (__m512i*)my_memalign(64, vector_size);
+    workspace->knc_8 = (__m512i*)my_memalign(64, vector_size);
+    workspace->knc_9 = (__m512i*)my_memalign(64, vector_size);
+    workspace->knc_10 = (__m512i*)my_memalign(64, vector_size);
+    workspace->knc_11 = (__m512i*)my_memalign(64, vector_size);
+    workspace->knc_12 = (__m512i*)my_memalign(64, vector_size);
 #endif
 
-    return retval;
+    return workspace;
 }
 
 void parasail_workspace_free(parasail_workspace_t *workspace)
@@ -132,12 +177,18 @@ void parasail_workspace_free(parasail_workspace_t *workspace)
     
     free(workspace->s1);
     free(workspace->s2);
-    free(workspace->boundary);
+
     free(workspace->a1);
     free(workspace->a2);
     free(workspace->a3);
     free(workspace->a4);
     free(workspace->a5);
+    free(workspace->a6);
+    free(workspace->a7);
+    free(workspace->a8);
+    free(workspace->a9);
+
+    free(workspace->boundary);
 
 #if HAVE_SSE2 || HAVE_SSE41
     free(workspace->sse_1);

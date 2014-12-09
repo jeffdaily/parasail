@@ -76,9 +76,11 @@ endif
 
 check_PROGRAMS += tests/test_align
 check_PROGRAMS += tests/test_align_stats
-#check_PROGRAMS += tests/test_align_debug
+check_PROGRAMS += tests/test_openmp
 
 tests_test_align_SOURCES       = tests/test_align.c
 tests_test_align_stats_SOURCES = tests/test_align_stats.c
-#tests_test_align_debug_SOURCES = tests/test_align_debug.c
+tests_test_openmp_SOURCES      = tests/test_openmp.c
+tests_test_openmp_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)
+tests_test_openmp_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
 

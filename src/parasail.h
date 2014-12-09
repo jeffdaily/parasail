@@ -17,6 +17,8 @@ extern "C" {
 /** Opaque structure containing memory for alignment methods. */
 typedef struct parasail_workspace parasail_workspace_t;
 
+inline parasail_workspace_t* parasail_workspace_new();
+
 /**
  * Allocate workspace for sequences of the given maximum length.
  *

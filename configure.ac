@@ -104,6 +104,15 @@ AM_CONDITIONAL([HAVE_KNC], [test x$pt_cv_knc = xyes])
 # Checks for library functions.
 AC_CHECK_FUNCS([memset])
 
+parasail_save_LIBS="$LIBS"
+AC_SEARCH_LIBS([clock_gettime], [rt])
+LIBS="$parasail_save_LIBS"
+AS_CASE(["$ac_cv_search_clock_gettime"],
+        [*none*], [],
+        [*no*], [],
+        [CLOCK_LIBS="$ac_cv_search_clock_gettime"])
+AC_SUBST([CLOCK_LIBS])
+
 ###############################################################################
 # Libtool setup -- no compiler/linker tests after this
 ###############################################################################

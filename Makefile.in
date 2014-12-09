@@ -242,8 +242,8 @@ tests_test_align_stats_DEPENDENCIES = libparasail.la
 am_tests_test_openmp_OBJECTS =  \
 	tests/tests_test_openmp-test_openmp.$(OBJEXT)
 tests_test_openmp_OBJECTS = $(am_tests_test_openmp_OBJECTS)
-tests_test_openmp_LDADD = $(LDADD)
-tests_test_openmp_DEPENDENCIES = libparasail.la
+am__DEPENDENCIES_1 =
+tests_test_openmp_DEPENDENCIES = $(LDADD) $(am__DEPENDENCIES_1)
 tests_test_openmp_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(tests_test_openmp_CFLAGS) $(CFLAGS) \
@@ -343,6 +343,7 @@ AWK = @AWK@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
+CLOCK_LIBS = @CLOCK_LIBS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CYGPATH_W = @CYGPATH_W@
@@ -465,6 +466,7 @@ tests_test_align_stats_SOURCES = tests/test_align_stats.c
 tests_test_openmp_SOURCES = tests/test_openmp.c
 tests_test_openmp_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_test_openmp_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
+tests_test_openmp_LDADD = $(LDADD) $(CLOCK_LIBS)
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 

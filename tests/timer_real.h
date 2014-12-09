@@ -17,9 +17,11 @@
 #include <time.h>
 #endif
 
+#include <assert.h>
+
 inline static double timer_real()
 {
-    timespec ts;
+    struct timespec ts;
 #ifdef __MACH__ // OS X does not have clock_gettime, use clock_get_time
     clock_serv_t cclock;
     mach_timespec_t mts;
@@ -35,5 +37,5 @@ inline static double timer_real()
     long retval = clock_gettime(CLOCK_REALTIME, &ts); // Works on Linux
     assert(0 == retval);
 #endif
-    return double(ts.tv_sec) + double(ts.tv_nsec)/1000000000.0;
+    return (double)(ts.tv_sec) + (double)(ts.tv_nsec)/1000000000.0;
 }

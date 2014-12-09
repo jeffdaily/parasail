@@ -10,6 +10,7 @@
 #include "config.h"
 
 #include <assert.h>
+#include <malloc.h>
 #include <stddef.h>
 #include <stdint.h>
 

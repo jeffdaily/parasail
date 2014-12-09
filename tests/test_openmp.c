@@ -10,6 +10,24 @@
 #include "parasail.h"
 #include "blosum/blosum62.h"
 #include "timer.h"
+#include "timer_real.h"
+
+static inline char* rand_string(size_t size)
+{
+    char *str = NULL;
+    const char charset[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    if (size) {
+        size_t n;
+        --size;
+        str = malloc(size + 1);
+        for (n = 0; n < size; n++) {
+            int key = rand() % (int) (sizeof charset - 1);
+            str[n] = charset[key];
+        }
+        str[size] = '\0';
+    }
+    return str;
+}
 
 int main(int argc, char **argv)
 {
@@ -17,12 +35,14 @@ int main(int argc, char **argv)
     const char *seqB = "AALGVAARAGFLAAGFASSSELSSELSSEDSAAFLAAAAGVAAFAGVFTIAAFGVAATADLLAAGLHSSSELSSELSSEDSAAFFAATAGVAALAGVLAAAAAFGVAATADFFAAGLESSSELSSELSSDDSAVFFAAAAGVATFAGVLAAAATFGVAACAGFFAAGLDSSSELSSELSSEDSAAFFAAAAGVATFTGVLAAAAACAAAACVGFFAAGLDSSSELSSELSSEDSAAFFAAAAGVAALAGVLAAAAACAGFFAAGLESSSELSSE";
     //const char *seqA = "MEFYDVAVTV";
     //const char *seqB = "AALGVAARAGFLAAGFASSS";
+    //const char *seqA = rand_string(32000);
+    //const char *seqB = rand_string(16000);
     const int lena = strlen(seqA);
     const int lenb = strlen(seqB);
     const int longest = (lena>lenb?lena:lenb);
     int score;
-    unsigned long long timer;
-    unsigned long long timer_ref;
+    double timer_clock;
+    unsigned long long timer_rtdsc;
     int i = 0;
     int limit = 100;
     parasail_result_t **result = NULL;
@@ -46,7 +66,8 @@ int main(int argc, char **argv)
         }
     }
 
-    timer_ref = timer_start();
+    timer_clock = timer_real();
+    timer_rtdsc = timer_start();
 #pragma omp parallel
     {
         int thread_num = omp_get_thread_num();
@@ -56,10 +77,12 @@ int main(int argc, char **argv)
                     result[thread_num]);
         }
     }
-    timer_ref = timer_end(timer_ref);
-    printf("nw\t%llu\n", timer_ref);
+    timer_rtdsc = timer_end(timer_rtdsc);
+    timer_clock = timer_real() - timer_clock;
+    printf("nw\t%llu\t%f\n", timer_rtdsc, timer_clock);
 
-    timer_ref = timer_start();
+    timer_clock = timer_real();
+    timer_rtdsc = timer_start();
 #pragma omp parallel
     {
         int thread_num = omp_get_thread_num();
@@ -69,8 +92,9 @@ int main(int argc, char **argv)
                     result[thread_num], workspace[thread_num]);
         }
     }
-    timer_ref = timer_end(timer_ref);
-    printf("nw_ext\t%llu\n", timer_ref);
+    timer_rtdsc = timer_end(timer_rtdsc);
+    timer_clock = timer_real() - timer_clock;
+    printf("nw_ext\t%llu\t%f\n", timer_rtdsc, timer_clock);
 
 #pragma omp parallel
     {

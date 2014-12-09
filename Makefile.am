@@ -93,5 +93,5 @@ tests_test_align_stats_SOURCES = tests/test_align_stats.c
 tests_test_openmp_SOURCES      = tests/test_openmp.c
 tests_test_openmp_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_test_openmp_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
-tests_test_openmp_LDADD = $(LDADD) $(CLOCK_LIBS)
+tests_test_openmp_LDADD = $(LDADD) $(CLOCK_LIBS) $(MATH_LIBS)
 

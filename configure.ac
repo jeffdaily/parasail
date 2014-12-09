@@ -103,7 +103,10 @@ AC_DEFINE_UNQUOTED([HAVE_KNC], [$pt_cv_knc_val],
 AM_CONDITIONAL([HAVE_KNC], [test x$pt_cv_knc = xyes])
 
 # Checks for library functions.
+AC_CHECK_FUNCS([aligned_alloc])
+AC_CHECK_FUNCS([memalign])
 AC_CHECK_FUNCS([memset])
+AC_CHECK_FUNCS([posix_memalign])
 
 parasail_save_LIBS="$LIBS"
 AC_SEARCH_LIBS([clock_gettime], [rt])
@@ -113,6 +116,15 @@ AS_CASE(["$ac_cv_search_clock_gettime"],
         [*no*], [],
         [CLOCK_LIBS="$ac_cv_search_clock_gettime"])
 AC_SUBST([CLOCK_LIBS])
+
+parasail_save_LIBS="$LIBS"
+AC_SEARCH_LIBS([sqrt], [m])
+LIBS="$parasail_save_LIBS"
+AS_CASE(["$ac_cv_search_sqrt"],
+        [*none*], [],
+        [*no*], [],
+        [MATH_LIBS="$ac_cv_search_sqrt"])
+AC_SUBST([MATH_LIBS])
 
 ###############################################################################
 # Libtool setup -- no compiler/linker tests after this

@@ -11,6 +11,7 @@
 
 #include <assert.h>
 #include <stddef.h>
+#include <stdint.h>
 
 #include "parasail.h"
 #include "parasail_internal.h"
@@ -220,7 +221,7 @@ void parasail_workspace_free(parasail_workspace_t *workspace)
     free(workspace->avx_12);
 #endif
 
-#if HAVE_AVX2
+#if HAVE_KNC
     free(workspace->knc_1);
     free(workspace->knc_2);
     free(workspace->knc_3);

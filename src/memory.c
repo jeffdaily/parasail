@@ -10,7 +10,9 @@
 #include "config.h"
 
 #include <assert.h>
+#ifdef HAVE_MALLOC_H
 #include <malloc.h>
+#endif
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -18,15 +20,15 @@
 #include "parasail.h"
 #include "parasail_internal.h"
 
-inline void* parasail_memalign(size_t alignment, size_t size)
+void* parasail_memalign(size_t alignment, size_t size)
 {
     void *ptr = NULL;
-#if HAVE_POSIX_MEMALIGN
+#ifdef HAVE_POSIX_MEMALIGN
     int retcode = posix_memalign(&ptr, alignment, size);
     assert(0 == retcode);
-#elif HAVE_ALIGNED_ALLOC
+#elif defined(HAVE_ALIGNED_ALLOC)
     ptr = aligned_alloc(alignment, size);
-#elif HAVE_MEMALIGN
+#elif defined(HAVE_MEMALIGN)
     ptr = memalign(alignment, size);
 #else
     ptr = malloc(size);
@@ -35,7 +37,7 @@ inline void* parasail_memalign(size_t alignment, size_t size)
     return ptr;
 }
 
-inline int * restrict parasail_memalign_int(size_t alignment, size_t size)
+int * restrict parasail_memalign_int(size_t alignment, size_t size)
 {
     return (int * restrict) parasail_memalign(alignment, size*sizeof(int));
 }

@@ -26,6 +26,7 @@ AC_MSG_NOTICE
 
 # Checks for header files.
 AC_CHECK_HEADERS([limits.h])
+AC_CHECK_HEADERS([malloc.h])
 AC_CHECK_HEADERS([sched.h])
 AC_CHECK_HEADERS([stddef.h])
 AC_CHECK_HEADERS([stdlib.h])

@@ -69,8 +69,6 @@ int main(int argc, char **argv)
     unsigned long i = 0;
     unsigned long seq_count = 10;
     unsigned long limit = binomial_coefficient(seq_count, 2);
-    parasail_result_t **result = NULL;
-    parasail_workspace_t **workspace = NULL;
     const char **sequences = NULL;
     int *sizes = NULL;
 
@@ -94,12 +92,6 @@ int main(int argc, char **argv)
 #pragma omp single
         {
             int N = omp_get_max_threads();
-            result = (parasail_result_t**)malloc(sizeof(parasail_result_t*)*N);
-            workspace = (parasail_workspace_t**)malloc(sizeof(parasail_workspace_t*)*N);
-            for (i=0; i<N; ++i) {
-                result[i] = parasail_result_allocate(longest);
-                workspace[i] = parasail_workspace_allocate(longest);
-            }
             printf("omp_get_max_threads()=%d\n", N);
         }
     }
@@ -109,50 +101,20 @@ int main(int argc, char **argv)
 #pragma omp parallel
     {
         int thread_num = omp_get_thread_num();
-        unsigned long a=0, b=1;
-#pragma omp for schedule(dynamic) private(a,b)
+        unsigned long a=0;
+        unsigned long b=1;
+        parasail_result_t *result = NULL;
+#pragma omp for schedule(dynamic)
         for (i=0; i<limit; ++i) {
             k_combination2(i, &a, &b);
-            //printf("%lu=(%lu,%lu) sizes %d %d\n", i, a, b, sizes[a], sizes[b]);
-            nw(sequences[a], sizes[a], sequences[b], sizes[b],
-                    10, 1, blosum62, result[thread_num]);
+            result = nw(sequences[a], sizes[a], sequences[b], sizes[b],
+                    10, 1, blosum62);
+            parasail_result_free(result);
         }
     }
     timer_rtdsc = timer_end(timer_rtdsc);
     timer_clock = timer_real() - timer_clock;
     printf("nw\t%llu\t%f\n", timer_rtdsc, timer_clock);
-
-    timer_clock = timer_real();
-    timer_rtdsc = timer_start();
-#pragma omp parallel
-    {
-        int thread_num = omp_get_thread_num();
-        unsigned long a=0, b=1;
-#pragma omp for schedule(dynamic)
-        for (i=0; i<limit; ++i) {
-            k_combination2(i, &a, &b);
-            nw_ext(sequences[a], sizes[a], sequences[b], sizes[b],
-                    10, 1, blosum62,
-                    result[thread_num], workspace[thread_num]);
-        }
-    }
-    timer_rtdsc = timer_end(timer_rtdsc);
-    timer_clock = timer_real() - timer_clock;
-    printf("nw_ext\t%llu\t%f\n", timer_rtdsc, timer_clock);
-
-#pragma omp parallel
-    {
-#pragma omp single
-        {
-            int N = omp_get_max_threads();
-            for (i=0; i<N; ++i) {
-                parasail_result_free(result[i]);
-                parasail_workspace_free(workspace[i]);
-            }
-            free(result);
-            free(workspace);
-        }
-    }
 
     return 0;
 }

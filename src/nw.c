@@ -20,21 +20,25 @@
 #define MAX(a,b) ((a)>(b)?(a):(b))
 
 #ifdef PARASAIL_TABLE
-#define ENAME nw_table_ext
+#define ENAME nw_table
 #else
-#define ENAME nw_ext
+#define ENAME nw
 #endif
 
-void ENAME(
+parasail_result_t* ENAME(
         const char * const restrict _s1, const int s1Len,
         const char * const restrict _s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result, parasail_workspace_t *workspace)
+        const int open, const int gap, const int matrix[24][24])
 {
-    int * const restrict s1 = workspace->s1;
-    int * const restrict s2 = workspace->s2;
-    int * const restrict tbl_pr = workspace->a1;
-    int * const restrict del_pr = workspace->a2;
+#if PARASAIL_TABLE
+    parasail_result_t *result = parasail_result_new_table1(s1Len, s2Len);
+#else
+    parasail_result_t *result = parasail_result_new();
+#endif
+    int * const restrict s1 = parasail_memalign_int(16, s1Len);
+    int * const restrict s2 = parasail_memalign_int(16, s2Len);
+    int * const restrict tbl_pr = parasail_memalign_int(16, s1Len+1);
+    int * const restrict del_pr = parasail_memalign_int(16, s2Len+1);
     int i = 0;
     int j = 0;
 
@@ -71,31 +75,12 @@ void ENAME(
             tbl_pr[j] = NWscore + matrow[s2[j-1]];
             Wscore = tbl_pr[j] = MAX(tbl_pr[j],MAX(ins_cr,del_pr[j]));
 #ifdef PARASAIL_TABLE
-            workspace->score_table[(i-1)*s2Len + (j-1)] = Wscore;
+            result->score_table[(i-1)*s2Len + (j-1)] = Wscore;
 #endif
         }
     }
 
     result->score = tbl_pr[s2Len];
-}
-
-#ifdef PARASAIL_TABLE
-#define NAME nw_table
-#else
-#define NAME nw
-#endif
-
-void NAME(
-        const char * const restrict _s1, const int s1Len,
-        const char * const restrict _s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result)
-{
-    const int longest = MAX(s1Len, s2Len);
-    parasail_workspace_t *workspace = parasail_workspace_new();
-    parasail_workspace_allocate_s(workspace, longest+10);
-    parasail_workspace_allocate_serial2(workspace, longest+10);
-    ENAME(_s1, s1Len, _s2, s2Len, open, gap, matrix, result, workspace);
-    parasail_workspace_free(workspace);
+    return result;
 }
 

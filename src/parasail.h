@@ -14,24 +14,7 @@
 extern "C" {
 #endif
 
-/** Opaque structure containing memory for alignment methods. */
-typedef struct parasail_workspace parasail_workspace_t;
-
-inline parasail_workspace_t* parasail_workspace_new();
-
-/**
- * Allocate workspace for sequences of the given maximum length.
- *
- * For a set of sequences, if the length of the longest sequence is used
- * during workspace allocation then the returned workspace can be reused
- * for all subsequent operations on the same set of sequences.
- */
-parasail_workspace_t* parasail_workspace_allocate(const int length);
-
-/** Deallocate workspace. */
-void parasail_workspace_free(parasail_workspace_t *workspace);
-
-struct parasail_result {
+typedef struct parasail_result {
     int score;
     int matches;
     int similarities;
@@ -40,14 +23,7 @@ struct parasail_result {
     int * matches_table;
     int * similarities_table;
     int * length_table;
-};
-
-typedef struct parasail_result parasail_result_t;
-
-/**
- * Allocate tables structure for sequences of the given maximum length.
- */
-parasail_result_t* parasail_result_allocate(const int length);
+} parasail_result_t;
 
 /** Deallocate result. */
 void parasail_result_free(parasail_result_t *result);
@@ -57,3593 +33,1385 @@ void parasail_result_free(parasail_result_t *result);
 
 /* BEGIN GENERATED NAMES */
 
-void nw(
+parasail_result_t* nw(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_ext(
+parasail_result_t* nw_table(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_table(
+parasail_result_t* nw_stats(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_table_ext(
+parasail_result_t* nw_stats_table(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats(
+parasail_result_t* sg(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_ext(
+parasail_result_t* sg_table(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_table(
+parasail_result_t* sg_stats(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_table_ext(
+parasail_result_t* sg_stats_table(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg(
+parasail_result_t* sw(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_ext(
+parasail_result_t* sw_table(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_table(
+parasail_result_t* sw_stats(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_table_ext(
+parasail_result_t* sw_stats_table(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_stats(
+parasail_result_t* nw_scan(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_stats_ext(
+parasail_result_t* nw_scan_table(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_stats_table(
+parasail_result_t* nw_scan_stats(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_stats_table_ext(
+parasail_result_t* nw_scan_stats_table(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sw(
+parasail_result_t* sg_scan(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sw_ext(
+parasail_result_t* sg_scan_table(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sw_table(
+parasail_result_t* sg_scan_stats(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sw_table_ext(
+parasail_result_t* sg_scan_stats_table(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sw_stats(
+parasail_result_t* sw_scan(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sw_stats_ext(
+parasail_result_t* sw_scan_table(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sw_stats_table(
+parasail_result_t* sw_scan_stats(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sw_stats_table_ext(
+parasail_result_t* sw_scan_stats_table(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_scan(
+parasail_result_t* nw_scan_sse2_128_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_scan_ext(
+parasail_result_t* nw_scan_sse41_128_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_scan_table(
+parasail_result_t* nw_scan_sse41_128_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_scan_table_ext(
+parasail_result_t* nw_scan_avx2_256_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_scan_stats(
+parasail_result_t* nw_scan_avx2_256_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_scan_stats_ext(
+parasail_result_t* nw_scan_avx2_256_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_scan_stats_table(
+parasail_result_t* nw_scan_knc_512_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_scan_stats_table_ext(
+parasail_result_t* nw_striped_sse2_128_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_scan(
+parasail_result_t* nw_striped_sse41_128_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_scan_ext(
+parasail_result_t* nw_striped_sse41_128_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_scan_table(
+parasail_result_t* nw_striped_avx2_256_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_scan_table_ext(
+parasail_result_t* nw_striped_avx2_256_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_scan_stats(
+parasail_result_t* nw_striped_avx2_256_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_scan_stats_ext(
+parasail_result_t* nw_striped_knc_512_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_scan_stats_table(
+parasail_result_t* nw_diag_sse2_128_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_scan_stats_table_ext(
+parasail_result_t* nw_diag_sse41_128_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sw_scan(
+parasail_result_t* nw_diag_sse41_128_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sw_scan_ext(
+parasail_result_t* nw_diag_avx2_256_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sw_scan_table(
+parasail_result_t* nw_diag_avx2_256_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sw_scan_table_ext(
+parasail_result_t* nw_diag_avx2_256_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sw_scan_stats(
+parasail_result_t* nw_diag_knc_512_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sw_scan_stats_ext(
+parasail_result_t* nw_table_scan_sse2_128_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sw_scan_stats_table(
+parasail_result_t* nw_table_scan_sse41_128_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sw_scan_stats_table_ext(
+parasail_result_t* nw_table_scan_sse41_128_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_scan_sse2_128_16(
+parasail_result_t* nw_table_scan_avx2_256_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_scan_sse41_128_32(
+parasail_result_t* nw_table_scan_avx2_256_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_scan_sse41_128_8(
+parasail_result_t* nw_table_scan_avx2_256_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_scan_avx2_256_32(
+parasail_result_t* nw_table_scan_knc_512_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_scan_avx2_256_16(
+parasail_result_t* nw_table_striped_sse2_128_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_scan_avx2_256_8(
+parasail_result_t* nw_table_striped_sse41_128_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_scan_knc_512_32(
+parasail_result_t* nw_table_striped_sse41_128_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_striped_sse2_128_16(
+parasail_result_t* nw_table_striped_avx2_256_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_striped_sse41_128_32(
+parasail_result_t* nw_table_striped_avx2_256_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_striped_sse41_128_8(
+parasail_result_t* nw_table_striped_avx2_256_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_striped_avx2_256_32(
+parasail_result_t* nw_table_striped_knc_512_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_striped_avx2_256_16(
+parasail_result_t* nw_table_diag_sse2_128_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_striped_avx2_256_8(
+parasail_result_t* nw_table_diag_sse41_128_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_striped_knc_512_32(
+parasail_result_t* nw_table_diag_sse41_128_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_diag_sse2_128_16(
+parasail_result_t* nw_table_diag_avx2_256_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_diag_sse41_128_32(
+parasail_result_t* nw_table_diag_avx2_256_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_diag_sse41_128_8(
+parasail_result_t* nw_table_diag_avx2_256_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_diag_avx2_256_32(
+parasail_result_t* nw_table_diag_knc_512_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_diag_avx2_256_16(
+parasail_result_t* nw_stats_scan_sse2_128_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_diag_avx2_256_8(
+parasail_result_t* nw_stats_scan_sse41_128_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_diag_knc_512_32(
+parasail_result_t* nw_stats_scan_sse41_128_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_ext_scan_sse2_128_16(
+parasail_result_t* nw_stats_scan_avx2_256_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_ext_scan_sse41_128_32(
+parasail_result_t* nw_stats_scan_avx2_256_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_ext_scan_sse41_128_8(
+parasail_result_t* nw_stats_scan_avx2_256_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_ext_scan_avx2_256_32(
+parasail_result_t* nw_stats_scan_knc_512_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_ext_scan_avx2_256_16(
+parasail_result_t* nw_stats_striped_sse2_128_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_ext_scan_avx2_256_8(
+parasail_result_t* nw_stats_striped_sse41_128_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_ext_scan_knc_512_32(
+parasail_result_t* nw_stats_striped_sse41_128_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_ext_striped_sse2_128_16(
+parasail_result_t* nw_stats_striped_avx2_256_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_ext_striped_sse41_128_32(
+parasail_result_t* nw_stats_striped_avx2_256_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_ext_striped_sse41_128_8(
+parasail_result_t* nw_stats_striped_avx2_256_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_ext_striped_avx2_256_32(
+parasail_result_t* nw_stats_striped_knc_512_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_ext_striped_avx2_256_16(
+parasail_result_t* nw_stats_diag_sse2_128_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_ext_striped_avx2_256_8(
+parasail_result_t* nw_stats_diag_sse41_128_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_ext_striped_knc_512_32(
+parasail_result_t* nw_stats_diag_sse41_128_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_ext_diag_sse2_128_16(
+parasail_result_t* nw_stats_diag_avx2_256_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_ext_diag_sse41_128_32(
+parasail_result_t* nw_stats_diag_avx2_256_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_ext_diag_sse41_128_8(
+parasail_result_t* nw_stats_diag_avx2_256_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_ext_diag_avx2_256_32(
+parasail_result_t* nw_stats_diag_knc_512_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_ext_diag_avx2_256_16(
+parasail_result_t* nw_stats_table_scan_sse2_128_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_ext_diag_avx2_256_8(
+parasail_result_t* nw_stats_table_scan_sse41_128_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_ext_diag_knc_512_32(
+parasail_result_t* nw_stats_table_scan_sse41_128_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_table_scan_sse2_128_16(
+parasail_result_t* nw_stats_table_scan_avx2_256_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_table_scan_sse41_128_32(
+parasail_result_t* nw_stats_table_scan_avx2_256_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_table_scan_sse41_128_8(
+parasail_result_t* nw_stats_table_scan_avx2_256_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_table_scan_avx2_256_32(
+parasail_result_t* nw_stats_table_scan_knc_512_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_table_scan_avx2_256_16(
+parasail_result_t* nw_stats_table_striped_sse2_128_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_table_scan_avx2_256_8(
+parasail_result_t* nw_stats_table_striped_sse41_128_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_table_scan_knc_512_32(
+parasail_result_t* nw_stats_table_striped_sse41_128_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_table_striped_sse2_128_16(
+parasail_result_t* nw_stats_table_striped_avx2_256_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_table_striped_sse41_128_32(
+parasail_result_t* nw_stats_table_striped_avx2_256_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_table_striped_sse41_128_8(
+parasail_result_t* nw_stats_table_striped_avx2_256_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_table_striped_avx2_256_32(
+parasail_result_t* nw_stats_table_striped_knc_512_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_table_striped_avx2_256_16(
+parasail_result_t* nw_stats_table_diag_sse2_128_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_table_striped_avx2_256_8(
+parasail_result_t* nw_stats_table_diag_sse41_128_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_table_striped_knc_512_32(
+parasail_result_t* nw_stats_table_diag_sse41_128_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_table_diag_sse2_128_16(
+parasail_result_t* nw_stats_table_diag_avx2_256_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_table_diag_sse41_128_32(
+parasail_result_t* nw_stats_table_diag_avx2_256_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_table_diag_sse41_128_8(
+parasail_result_t* nw_stats_table_diag_avx2_256_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_table_diag_avx2_256_32(
+parasail_result_t* nw_stats_table_diag_knc_512_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_table_diag_avx2_256_16(
+parasail_result_t* sg_scan_sse2_128_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_table_diag_avx2_256_8(
+parasail_result_t* sg_scan_sse41_128_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_table_diag_knc_512_32(
+parasail_result_t* sg_scan_sse41_128_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_table_ext_scan_sse2_128_16(
+parasail_result_t* sg_scan_avx2_256_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_table_ext_scan_sse41_128_32(
+parasail_result_t* sg_scan_avx2_256_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_table_ext_scan_sse41_128_8(
+parasail_result_t* sg_scan_avx2_256_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_table_ext_scan_avx2_256_32(
+parasail_result_t* sg_scan_knc_512_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_table_ext_scan_avx2_256_16(
+parasail_result_t* sg_striped_sse2_128_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_table_ext_scan_avx2_256_8(
+parasail_result_t* sg_striped_sse41_128_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_table_ext_scan_knc_512_32(
+parasail_result_t* sg_striped_sse41_128_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_table_ext_striped_sse2_128_16(
+parasail_result_t* sg_striped_avx2_256_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_table_ext_striped_sse41_128_32(
+parasail_result_t* sg_striped_avx2_256_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_table_ext_striped_sse41_128_8(
+parasail_result_t* sg_striped_avx2_256_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_table_ext_striped_avx2_256_32(
+parasail_result_t* sg_striped_knc_512_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_table_ext_striped_avx2_256_16(
+parasail_result_t* sg_diag_sse2_128_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_table_ext_striped_avx2_256_8(
+parasail_result_t* sg_diag_sse41_128_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_table_ext_striped_knc_512_32(
+parasail_result_t* sg_diag_sse41_128_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_table_ext_diag_sse2_128_16(
+parasail_result_t* sg_diag_avx2_256_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_table_ext_diag_sse41_128_32(
+parasail_result_t* sg_diag_avx2_256_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_table_ext_diag_sse41_128_8(
+parasail_result_t* sg_diag_avx2_256_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_table_ext_diag_avx2_256_32(
+parasail_result_t* sg_diag_knc_512_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_table_ext_diag_avx2_256_16(
+parasail_result_t* sg_table_scan_sse2_128_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_table_ext_diag_avx2_256_8(
+parasail_result_t* sg_table_scan_sse41_128_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_table_ext_diag_knc_512_32(
+parasail_result_t* sg_table_scan_sse41_128_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_scan_sse2_128_16(
+parasail_result_t* sg_table_scan_avx2_256_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_scan_sse41_128_32(
+parasail_result_t* sg_table_scan_avx2_256_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_scan_sse41_128_8(
+parasail_result_t* sg_table_scan_avx2_256_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_scan_avx2_256_32(
+parasail_result_t* sg_table_scan_knc_512_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_scan_avx2_256_16(
+parasail_result_t* sg_table_striped_sse2_128_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_scan_avx2_256_8(
+parasail_result_t* sg_table_striped_sse41_128_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_scan_knc_512_32(
+parasail_result_t* sg_table_striped_sse41_128_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_striped_sse2_128_16(
+parasail_result_t* sg_table_striped_avx2_256_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_striped_sse41_128_32(
+parasail_result_t* sg_table_striped_avx2_256_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_striped_sse41_128_8(
+parasail_result_t* sg_table_striped_avx2_256_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_striped_avx2_256_32(
+parasail_result_t* sg_table_striped_knc_512_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_striped_avx2_256_16(
+parasail_result_t* sg_table_diag_sse2_128_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_striped_avx2_256_8(
+parasail_result_t* sg_table_diag_sse41_128_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_striped_knc_512_32(
+parasail_result_t* sg_table_diag_sse41_128_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_diag_sse2_128_16(
+parasail_result_t* sg_table_diag_avx2_256_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_diag_sse41_128_32(
+parasail_result_t* sg_table_diag_avx2_256_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_diag_sse41_128_8(
+parasail_result_t* sg_table_diag_avx2_256_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_diag_avx2_256_32(
+parasail_result_t* sg_table_diag_knc_512_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_diag_avx2_256_16(
+parasail_result_t* sg_stats_scan_sse2_128_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_diag_avx2_256_8(
+parasail_result_t* sg_stats_scan_sse41_128_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_diag_knc_512_32(
+parasail_result_t* sg_stats_scan_sse41_128_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_ext_scan_sse2_128_16(
+parasail_result_t* sg_stats_scan_avx2_256_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_ext_scan_sse41_128_32(
+parasail_result_t* sg_stats_scan_avx2_256_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_ext_scan_sse41_128_8(
+parasail_result_t* sg_stats_scan_avx2_256_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_ext_scan_avx2_256_32(
+parasail_result_t* sg_stats_scan_knc_512_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_ext_scan_avx2_256_16(
+parasail_result_t* sg_stats_striped_sse2_128_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_ext_scan_avx2_256_8(
+parasail_result_t* sg_stats_striped_sse41_128_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_ext_scan_knc_512_32(
+parasail_result_t* sg_stats_striped_sse41_128_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_ext_striped_sse2_128_16(
+parasail_result_t* sg_stats_striped_avx2_256_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_ext_striped_sse41_128_32(
+parasail_result_t* sg_stats_striped_avx2_256_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_ext_striped_sse41_128_8(
+parasail_result_t* sg_stats_striped_avx2_256_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_ext_striped_avx2_256_32(
+parasail_result_t* sg_stats_striped_knc_512_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_ext_striped_avx2_256_16(
+parasail_result_t* sg_stats_diag_sse2_128_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_ext_striped_avx2_256_8(
+parasail_result_t* sg_stats_diag_sse41_128_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_ext_striped_knc_512_32(
+parasail_result_t* sg_stats_diag_sse41_128_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_ext_diag_sse2_128_16(
+parasail_result_t* sg_stats_diag_avx2_256_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_ext_diag_sse41_128_32(
+parasail_result_t* sg_stats_diag_avx2_256_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_ext_diag_sse41_128_8(
+parasail_result_t* sg_stats_diag_avx2_256_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_ext_diag_avx2_256_32(
+parasail_result_t* sg_stats_diag_knc_512_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_ext_diag_avx2_256_16(
+parasail_result_t* sg_stats_table_scan_sse2_128_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_ext_diag_avx2_256_8(
+parasail_result_t* sg_stats_table_scan_sse41_128_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_ext_diag_knc_512_32(
+parasail_result_t* sg_stats_table_scan_sse41_128_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_table_scan_sse2_128_16(
+parasail_result_t* sg_stats_table_scan_avx2_256_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_table_scan_sse41_128_32(
+parasail_result_t* sg_stats_table_scan_avx2_256_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_table_scan_sse41_128_8(
+parasail_result_t* sg_stats_table_scan_avx2_256_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_table_scan_avx2_256_32(
+parasail_result_t* sg_stats_table_scan_knc_512_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_table_scan_avx2_256_16(
+parasail_result_t* sg_stats_table_striped_sse2_128_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_table_scan_avx2_256_8(
+parasail_result_t* sg_stats_table_striped_sse41_128_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_table_scan_knc_512_32(
+parasail_result_t* sg_stats_table_striped_sse41_128_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_table_striped_sse2_128_16(
+parasail_result_t* sg_stats_table_striped_avx2_256_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_table_striped_sse41_128_32(
+parasail_result_t* sg_stats_table_striped_avx2_256_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_table_striped_sse41_128_8(
+parasail_result_t* sg_stats_table_striped_avx2_256_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_table_striped_avx2_256_32(
+parasail_result_t* sg_stats_table_striped_knc_512_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_table_striped_avx2_256_16(
+parasail_result_t* sg_stats_table_diag_sse2_128_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_table_striped_avx2_256_8(
+parasail_result_t* sg_stats_table_diag_sse41_128_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_table_striped_knc_512_32(
+parasail_result_t* sg_stats_table_diag_sse41_128_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_table_diag_sse2_128_16(
+parasail_result_t* sg_stats_table_diag_avx2_256_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_table_diag_sse41_128_32(
+parasail_result_t* sg_stats_table_diag_avx2_256_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_table_diag_sse41_128_8(
+parasail_result_t* sg_stats_table_diag_avx2_256_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_table_diag_avx2_256_32(
+parasail_result_t* sg_stats_table_diag_knc_512_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_table_diag_avx2_256_16(
+parasail_result_t* sw_scan_sse2_128_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_table_diag_avx2_256_8(
+parasail_result_t* sw_scan_sse41_128_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_table_diag_knc_512_32(
+parasail_result_t* sw_scan_sse41_128_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_table_ext_scan_sse2_128_16(
+parasail_result_t* sw_scan_avx2_256_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_table_ext_scan_sse41_128_32(
+parasail_result_t* sw_scan_avx2_256_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_table_ext_scan_sse41_128_8(
+parasail_result_t* sw_scan_avx2_256_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_table_ext_scan_avx2_256_32(
+parasail_result_t* sw_scan_knc_512_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_table_ext_scan_avx2_256_16(
+parasail_result_t* sw_striped_sse2_128_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_table_ext_scan_avx2_256_8(
+parasail_result_t* sw_striped_sse41_128_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_table_ext_scan_knc_512_32(
+parasail_result_t* sw_striped_sse41_128_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_table_ext_striped_sse2_128_16(
+parasail_result_t* sw_striped_avx2_256_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_table_ext_striped_sse41_128_32(
+parasail_result_t* sw_striped_avx2_256_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_table_ext_striped_sse41_128_8(
+parasail_result_t* sw_striped_avx2_256_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_table_ext_striped_avx2_256_32(
+parasail_result_t* sw_striped_knc_512_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_table_ext_striped_avx2_256_16(
+parasail_result_t* sw_diag_sse2_128_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_table_ext_striped_avx2_256_8(
+parasail_result_t* sw_diag_sse41_128_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_table_ext_striped_knc_512_32(
+parasail_result_t* sw_diag_sse41_128_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_table_ext_diag_sse2_128_16(
+parasail_result_t* sw_diag_avx2_256_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_table_ext_diag_sse41_128_32(
+parasail_result_t* sw_diag_avx2_256_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_table_ext_diag_sse41_128_8(
+parasail_result_t* sw_diag_avx2_256_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_table_ext_diag_avx2_256_32(
+parasail_result_t* sw_diag_knc_512_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_table_ext_diag_avx2_256_16(
+parasail_result_t* sw_table_scan_sse2_128_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_table_ext_diag_avx2_256_8(
+parasail_result_t* sw_table_scan_sse41_128_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void nw_stats_table_ext_diag_knc_512_32(
+parasail_result_t* sw_table_scan_sse41_128_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_scan_sse2_128_16(
+parasail_result_t* sw_table_scan_avx2_256_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_scan_sse41_128_32(
+parasail_result_t* sw_table_scan_avx2_256_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_scan_sse41_128_8(
+parasail_result_t* sw_table_scan_avx2_256_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_scan_avx2_256_32(
+parasail_result_t* sw_table_scan_knc_512_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_scan_avx2_256_16(
+parasail_result_t* sw_table_striped_sse2_128_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_scan_avx2_256_8(
+parasail_result_t* sw_table_striped_sse41_128_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_scan_knc_512_32(
+parasail_result_t* sw_table_striped_sse41_128_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_striped_sse2_128_16(
+parasail_result_t* sw_table_striped_avx2_256_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_striped_sse41_128_32(
+parasail_result_t* sw_table_striped_avx2_256_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_striped_sse41_128_8(
+parasail_result_t* sw_table_striped_avx2_256_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_striped_avx2_256_32(
+parasail_result_t* sw_table_striped_knc_512_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_striped_avx2_256_16(
+parasail_result_t* sw_table_diag_sse2_128_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_striped_avx2_256_8(
+parasail_result_t* sw_table_diag_sse41_128_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_striped_knc_512_32(
+parasail_result_t* sw_table_diag_sse41_128_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_diag_sse2_128_16(
+parasail_result_t* sw_table_diag_avx2_256_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_diag_sse41_128_32(
+parasail_result_t* sw_table_diag_avx2_256_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_diag_sse41_128_8(
+parasail_result_t* sw_table_diag_avx2_256_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_diag_avx2_256_32(
+parasail_result_t* sw_table_diag_knc_512_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_diag_avx2_256_16(
+parasail_result_t* sw_stats_scan_sse2_128_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_diag_avx2_256_8(
+parasail_result_t* sw_stats_scan_sse41_128_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_diag_knc_512_32(
+parasail_result_t* sw_stats_scan_sse41_128_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_ext_scan_sse2_128_16(
+parasail_result_t* sw_stats_scan_avx2_256_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_ext_scan_sse41_128_32(
+parasail_result_t* sw_stats_scan_avx2_256_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_ext_scan_sse41_128_8(
+parasail_result_t* sw_stats_scan_avx2_256_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_ext_scan_avx2_256_32(
+parasail_result_t* sw_stats_scan_knc_512_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_ext_scan_avx2_256_16(
+parasail_result_t* sw_stats_striped_sse2_128_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_ext_scan_avx2_256_8(
+parasail_result_t* sw_stats_striped_sse41_128_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_ext_scan_knc_512_32(
+parasail_result_t* sw_stats_striped_sse41_128_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_ext_striped_sse2_128_16(
+parasail_result_t* sw_stats_striped_avx2_256_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_ext_striped_sse41_128_32(
+parasail_result_t* sw_stats_striped_avx2_256_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_ext_striped_sse41_128_8(
+parasail_result_t* sw_stats_striped_avx2_256_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_ext_striped_avx2_256_32(
+parasail_result_t* sw_stats_striped_knc_512_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_ext_striped_avx2_256_16(
+parasail_result_t* sw_stats_diag_sse2_128_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_ext_striped_avx2_256_8(
+parasail_result_t* sw_stats_diag_sse41_128_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_ext_striped_knc_512_32(
+parasail_result_t* sw_stats_diag_sse41_128_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_ext_diag_sse2_128_16(
+parasail_result_t* sw_stats_diag_avx2_256_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_ext_diag_sse41_128_32(
+parasail_result_t* sw_stats_diag_avx2_256_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_ext_diag_sse41_128_8(
+parasail_result_t* sw_stats_diag_avx2_256_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_ext_diag_avx2_256_32(
+parasail_result_t* sw_stats_diag_knc_512_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_ext_diag_avx2_256_16(
+parasail_result_t* sw_stats_table_scan_sse2_128_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_ext_diag_avx2_256_8(
+parasail_result_t* sw_stats_table_scan_sse41_128_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_ext_diag_knc_512_32(
+parasail_result_t* sw_stats_table_scan_sse41_128_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_table_scan_sse2_128_16(
+parasail_result_t* sw_stats_table_scan_avx2_256_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_table_scan_sse41_128_32(
+parasail_result_t* sw_stats_table_scan_avx2_256_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_table_scan_sse41_128_8(
+parasail_result_t* sw_stats_table_scan_avx2_256_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_table_scan_avx2_256_32(
+parasail_result_t* sw_stats_table_scan_knc_512_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_table_scan_avx2_256_16(
+parasail_result_t* sw_stats_table_striped_sse2_128_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_table_scan_avx2_256_8(
+parasail_result_t* sw_stats_table_striped_sse41_128_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_table_scan_knc_512_32(
+parasail_result_t* sw_stats_table_striped_sse41_128_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_table_striped_sse2_128_16(
+parasail_result_t* sw_stats_table_striped_avx2_256_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_table_striped_sse41_128_32(
+parasail_result_t* sw_stats_table_striped_avx2_256_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_table_striped_sse41_128_8(
+parasail_result_t* sw_stats_table_striped_avx2_256_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_table_striped_avx2_256_32(
+parasail_result_t* sw_stats_table_striped_knc_512_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_table_striped_avx2_256_16(
+parasail_result_t* sw_stats_table_diag_sse2_128_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_table_striped_avx2_256_8(
+parasail_result_t* sw_stats_table_diag_sse41_128_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_table_striped_knc_512_32(
+parasail_result_t* sw_stats_table_diag_sse41_128_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_table_diag_sse2_128_16(
+parasail_result_t* sw_stats_table_diag_avx2_256_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_table_diag_sse41_128_32(
+parasail_result_t* sw_stats_table_diag_avx2_256_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_table_diag_sse41_128_8(
+parasail_result_t* sw_stats_table_diag_avx2_256_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
+        const int open, const int gap, const int matrix[24][24]);
 
-void sg_table_diag_avx2_256_32(
+parasail_result_t* sw_stats_table_diag_knc_512_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sg_table_diag_avx2_256_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sg_table_diag_avx2_256_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sg_table_diag_knc_512_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sg_table_ext_scan_sse2_128_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_table_ext_scan_sse41_128_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_table_ext_scan_sse41_128_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_table_ext_scan_avx2_256_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_table_ext_scan_avx2_256_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_table_ext_scan_avx2_256_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_table_ext_scan_knc_512_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_table_ext_striped_sse2_128_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_table_ext_striped_sse41_128_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_table_ext_striped_sse41_128_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_table_ext_striped_avx2_256_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_table_ext_striped_avx2_256_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_table_ext_striped_avx2_256_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_table_ext_striped_knc_512_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_table_ext_diag_sse2_128_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_table_ext_diag_sse41_128_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_table_ext_diag_sse41_128_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_table_ext_diag_avx2_256_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_table_ext_diag_avx2_256_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_table_ext_diag_avx2_256_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_table_ext_diag_knc_512_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_stats_scan_sse2_128_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sg_stats_scan_sse41_128_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sg_stats_scan_sse41_128_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sg_stats_scan_avx2_256_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sg_stats_scan_avx2_256_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sg_stats_scan_avx2_256_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sg_stats_scan_knc_512_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sg_stats_striped_sse2_128_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sg_stats_striped_sse41_128_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sg_stats_striped_sse41_128_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sg_stats_striped_avx2_256_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sg_stats_striped_avx2_256_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sg_stats_striped_avx2_256_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sg_stats_striped_knc_512_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sg_stats_diag_sse2_128_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sg_stats_diag_sse41_128_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sg_stats_diag_sse41_128_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sg_stats_diag_avx2_256_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sg_stats_diag_avx2_256_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sg_stats_diag_avx2_256_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sg_stats_diag_knc_512_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sg_stats_ext_scan_sse2_128_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_stats_ext_scan_sse41_128_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_stats_ext_scan_sse41_128_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_stats_ext_scan_avx2_256_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_stats_ext_scan_avx2_256_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_stats_ext_scan_avx2_256_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_stats_ext_scan_knc_512_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_stats_ext_striped_sse2_128_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_stats_ext_striped_sse41_128_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_stats_ext_striped_sse41_128_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_stats_ext_striped_avx2_256_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_stats_ext_striped_avx2_256_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_stats_ext_striped_avx2_256_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_stats_ext_striped_knc_512_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_stats_ext_diag_sse2_128_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_stats_ext_diag_sse41_128_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_stats_ext_diag_sse41_128_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_stats_ext_diag_avx2_256_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_stats_ext_diag_avx2_256_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_stats_ext_diag_avx2_256_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_stats_ext_diag_knc_512_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_stats_table_scan_sse2_128_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sg_stats_table_scan_sse41_128_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sg_stats_table_scan_sse41_128_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sg_stats_table_scan_avx2_256_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sg_stats_table_scan_avx2_256_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sg_stats_table_scan_avx2_256_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sg_stats_table_scan_knc_512_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sg_stats_table_striped_sse2_128_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sg_stats_table_striped_sse41_128_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sg_stats_table_striped_sse41_128_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sg_stats_table_striped_avx2_256_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sg_stats_table_striped_avx2_256_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sg_stats_table_striped_avx2_256_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sg_stats_table_striped_knc_512_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sg_stats_table_diag_sse2_128_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sg_stats_table_diag_sse41_128_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sg_stats_table_diag_sse41_128_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sg_stats_table_diag_avx2_256_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sg_stats_table_diag_avx2_256_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sg_stats_table_diag_avx2_256_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sg_stats_table_diag_knc_512_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sg_stats_table_ext_scan_sse2_128_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_stats_table_ext_scan_sse41_128_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_stats_table_ext_scan_sse41_128_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_stats_table_ext_scan_avx2_256_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_stats_table_ext_scan_avx2_256_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_stats_table_ext_scan_avx2_256_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_stats_table_ext_scan_knc_512_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_stats_table_ext_striped_sse2_128_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_stats_table_ext_striped_sse41_128_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_stats_table_ext_striped_sse41_128_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_stats_table_ext_striped_avx2_256_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_stats_table_ext_striped_avx2_256_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_stats_table_ext_striped_avx2_256_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_stats_table_ext_striped_knc_512_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_stats_table_ext_diag_sse2_128_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_stats_table_ext_diag_sse41_128_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_stats_table_ext_diag_sse41_128_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_stats_table_ext_diag_avx2_256_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_stats_table_ext_diag_avx2_256_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_stats_table_ext_diag_avx2_256_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sg_stats_table_ext_diag_knc_512_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_scan_sse2_128_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_scan_sse41_128_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_scan_sse41_128_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_scan_avx2_256_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_scan_avx2_256_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_scan_avx2_256_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_scan_knc_512_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_striped_sse2_128_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_striped_sse41_128_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_striped_sse41_128_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_striped_avx2_256_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_striped_avx2_256_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_striped_avx2_256_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_striped_knc_512_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_diag_sse2_128_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_diag_sse41_128_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_diag_sse41_128_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_diag_avx2_256_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_diag_avx2_256_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_diag_avx2_256_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_diag_knc_512_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_ext_scan_sse2_128_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_ext_scan_sse41_128_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_ext_scan_sse41_128_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_ext_scan_avx2_256_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_ext_scan_avx2_256_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_ext_scan_avx2_256_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_ext_scan_knc_512_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_ext_striped_sse2_128_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_ext_striped_sse41_128_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_ext_striped_sse41_128_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_ext_striped_avx2_256_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_ext_striped_avx2_256_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_ext_striped_avx2_256_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_ext_striped_knc_512_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_ext_diag_sse2_128_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_ext_diag_sse41_128_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_ext_diag_sse41_128_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_ext_diag_avx2_256_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_ext_diag_avx2_256_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_ext_diag_avx2_256_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_ext_diag_knc_512_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_table_scan_sse2_128_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_table_scan_sse41_128_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_table_scan_sse41_128_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_table_scan_avx2_256_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_table_scan_avx2_256_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_table_scan_avx2_256_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_table_scan_knc_512_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_table_striped_sse2_128_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_table_striped_sse41_128_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_table_striped_sse41_128_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_table_striped_avx2_256_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_table_striped_avx2_256_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_table_striped_avx2_256_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_table_striped_knc_512_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_table_diag_sse2_128_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_table_diag_sse41_128_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_table_diag_sse41_128_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_table_diag_avx2_256_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_table_diag_avx2_256_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_table_diag_avx2_256_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_table_diag_knc_512_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_table_ext_scan_sse2_128_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_table_ext_scan_sse41_128_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_table_ext_scan_sse41_128_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_table_ext_scan_avx2_256_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_table_ext_scan_avx2_256_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_table_ext_scan_avx2_256_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_table_ext_scan_knc_512_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_table_ext_striped_sse2_128_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_table_ext_striped_sse41_128_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_table_ext_striped_sse41_128_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_table_ext_striped_avx2_256_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_table_ext_striped_avx2_256_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_table_ext_striped_avx2_256_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_table_ext_striped_knc_512_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_table_ext_diag_sse2_128_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_table_ext_diag_sse41_128_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_table_ext_diag_sse41_128_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_table_ext_diag_avx2_256_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_table_ext_diag_avx2_256_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_table_ext_diag_avx2_256_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_table_ext_diag_knc_512_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_stats_scan_sse2_128_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_stats_scan_sse41_128_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_stats_scan_sse41_128_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_stats_scan_avx2_256_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_stats_scan_avx2_256_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_stats_scan_avx2_256_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_stats_scan_knc_512_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_stats_striped_sse2_128_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_stats_striped_sse41_128_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_stats_striped_sse41_128_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_stats_striped_avx2_256_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_stats_striped_avx2_256_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_stats_striped_avx2_256_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_stats_striped_knc_512_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_stats_diag_sse2_128_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_stats_diag_sse41_128_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_stats_diag_sse41_128_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_stats_diag_avx2_256_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_stats_diag_avx2_256_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_stats_diag_avx2_256_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_stats_diag_knc_512_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_stats_ext_scan_sse2_128_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_stats_ext_scan_sse41_128_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_stats_ext_scan_sse41_128_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_stats_ext_scan_avx2_256_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_stats_ext_scan_avx2_256_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_stats_ext_scan_avx2_256_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_stats_ext_scan_knc_512_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_stats_ext_striped_sse2_128_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_stats_ext_striped_sse41_128_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_stats_ext_striped_sse41_128_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_stats_ext_striped_avx2_256_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_stats_ext_striped_avx2_256_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_stats_ext_striped_avx2_256_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_stats_ext_striped_knc_512_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_stats_ext_diag_sse2_128_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_stats_ext_diag_sse41_128_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_stats_ext_diag_sse41_128_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_stats_ext_diag_avx2_256_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_stats_ext_diag_avx2_256_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_stats_ext_diag_avx2_256_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_stats_ext_diag_knc_512_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_stats_table_scan_sse2_128_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_stats_table_scan_sse41_128_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_stats_table_scan_sse41_128_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_stats_table_scan_avx2_256_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_stats_table_scan_avx2_256_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_stats_table_scan_avx2_256_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_stats_table_scan_knc_512_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_stats_table_striped_sse2_128_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_stats_table_striped_sse41_128_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_stats_table_striped_sse41_128_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_stats_table_striped_avx2_256_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_stats_table_striped_avx2_256_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_stats_table_striped_avx2_256_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_stats_table_striped_knc_512_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_stats_table_diag_sse2_128_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_stats_table_diag_sse41_128_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_stats_table_diag_sse41_128_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_stats_table_diag_avx2_256_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_stats_table_diag_avx2_256_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_stats_table_diag_avx2_256_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_stats_table_diag_knc_512_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result);
-
-void sw_stats_table_ext_scan_sse2_128_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_stats_table_ext_scan_sse41_128_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_stats_table_ext_scan_sse41_128_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_stats_table_ext_scan_avx2_256_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_stats_table_ext_scan_avx2_256_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_stats_table_ext_scan_avx2_256_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_stats_table_ext_scan_knc_512_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_stats_table_ext_striped_sse2_128_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_stats_table_ext_striped_sse41_128_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_stats_table_ext_striped_sse41_128_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_stats_table_ext_striped_avx2_256_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_stats_table_ext_striped_avx2_256_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_stats_table_ext_striped_avx2_256_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_stats_table_ext_striped_knc_512_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_stats_table_ext_diag_sse2_128_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_stats_table_ext_diag_sse41_128_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_stats_table_ext_diag_sse41_128_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_stats_table_ext_diag_avx2_256_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_stats_table_ext_diag_avx2_256_16(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_stats_table_ext_diag_avx2_256_8(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
-
-void sw_stats_table_ext_diag_knc_512_32(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24],
-        parasail_result_t *result,
-        parasail_workspace_t *workspace);
+        const int open, const int gap, const int matrix[24][24]);
 
 /* END GENERATED NAMES */
 

@@ -39,8 +39,7 @@ int main(int argc, char **argv)
     unsigned long long timer_ref;
     size_t limit = 1000;
     size_t i;
-    parasail_result_t *result = parasail_result_allocate(longest);
-    parasail_workspace_t *workspace = parasail_workspace_allocate(longest);
+    parasail_result_t *result = NULL;
 
     timer_init();
     printf("%s timer\n", timer_name());
@@ -52,19 +51,12 @@ int main(int argc, char **argv)
 
     timer_ref = timer_start();
     for (i=0; i<limit; ++i) {
-        nw(seqA, lena, seqB, lenb, 10, 1, blosum62, result);
+        result = nw(seqA, lena, seqB, lenb, 10, 1, blosum62);
         score = result->score;
+        parasail_result_free(result);
     }
     timer_ref = timer_end(timer_ref);
     printf("nw\t\t\t\t%llu\t\t%d\n", timer_ref/limit, score);
-
-    timer_ref = timer_start();
-    for (i=0; i<limit; ++i) {
-        nw_ext(seqA, lena, seqB, lenb, 10, 1, blosum62, result, workspace);
-        score = result->score;
-    }
-    timer_ref = timer_end(timer_ref);
-    printf("nw_ext\t\t\t\t%llu\t\t%d\n", timer_ref/limit, score);
 
 #if 0
     timer = timer_start();
@@ -262,9 +254,6 @@ int main(int argc, char **argv)
     printf("sw\tstriped\t128\t16\t%llu\t%4.1f\t%d\n", timer/limit, pct(timer_ref,timer), score);
 #endif
 #endif
-
-    parasail_result_free(result);
-    parasail_workspace_free(workspace);
 
     return 0;
 }

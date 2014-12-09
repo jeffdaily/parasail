@@ -81,37 +81,6 @@ build_triplet = @build@
 host_triplet = @host@
 check_PROGRAMS = tests/test_align$(EXEEXT) \
 	tests/test_align_stats$(EXEEXT) tests/test_openmp$(EXEEXT)
-@HAVE_SSE2_TRUE@am__append_1 = src/align_scan_128_16.h \
-@HAVE_SSE2_TRUE@	src/align_striped_128_16.h \
-@HAVE_SSE2_TRUE@	src/align_wozniak_128_16.h \
-@HAVE_SSE2_TRUE@	src/nw_scan_128_16.c src/nw_striped_128_16.c \
-@HAVE_SSE2_TRUE@	src/nw_wozniak_128_16.c \
-@HAVE_SSE2_TRUE@	src/nw_stats_scan_128_16.c \
-@HAVE_SSE2_TRUE@	src/nw_stats_striped_128_16.c \
-@HAVE_SSE2_TRUE@	src/nw_stats_wozniak_128_16.c \
-@HAVE_SSE2_TRUE@	src/sg_scan_128_16.c src/sg_striped_128_16.c \
-@HAVE_SSE2_TRUE@	src/sg_wozniak_128_16.c \
-@HAVE_SSE2_TRUE@	src/sg_stats_scan_128_16.c \
-@HAVE_SSE2_TRUE@	src/sg_stats_striped_128_16.c \
-@HAVE_SSE2_TRUE@	src/sg_stats_wozniak_128_16.c \
-@HAVE_SSE2_TRUE@	src/sw_scan_128_16.c src/sw_striped_128_16.c \
-@HAVE_SSE2_TRUE@	src/sw_wozniak_128_16.c \
-@HAVE_SSE2_TRUE@	src/sw_stats_scan_128_16.c \
-@HAVE_SSE2_TRUE@	src/sw_stats_striped_128_16.c \
-@HAVE_SSE2_TRUE@	src/sw_stats_wozniak_128_16.c
-@HAVE_SSE41_TRUE@am__append_2 = src/align_scan_128_8.h \
-@HAVE_SSE41_TRUE@	src/align_striped_128_8.h \
-@HAVE_SSE41_TRUE@	src/align_wozniak_128_8.h src/nw_scan_128_8.c \
-@HAVE_SSE41_TRUE@	src/nw_striped_128_8.c src/nw_wozniak_128_8.c \
-@HAVE_SSE41_TRUE@	src/nw_stats_scan_128_8.c \
-@HAVE_SSE41_TRUE@	src/nw_stats_striped_128_8.c \
-@HAVE_SSE41_TRUE@	src/nw_stats_wozniak_128_8.c \
-@HAVE_SSE41_TRUE@	src/sg_scan_128_8.c src/sg_striped_128_8.c \
-@HAVE_SSE41_TRUE@	src/sg_wozniak_128_8.c \
-@HAVE_SSE41_TRUE@	src/sg_stats_scan_128_8.c \
-@HAVE_SSE41_TRUE@	src/sg_stats_wozniak_128_8.c \
-@HAVE_SSE41_TRUE@	src/sw_scan_128_8.c src/sw_stats_scan_128_8.c
-@HAVE_KNC_TRUE@am__append_3 = src/nw_scan_512_32.c
 subdir = .
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) \
@@ -165,72 +134,20 @@ am__uninstall_files_from_dir = { \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
 am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(includedir)"
-LTLIBRARIES = $(lib_LTLIBRARIES)
-libparasail_la_LIBADD =
-am__libparasail_la_SOURCES_DIST = src/parasail_internal.h src/memory.c \
-	src/align.h src/nw.c src/nw_scan.c src/nw_scan_row.c \
-	src/nw_stats.c src/nw_stats_scan.c src/sg.c src/sg_scan.c \
-	src/sg_stats.c src/sg_stats_scan.c src/sw.c src/sw_scan.c \
-	src/sw_stats.c src/sw_stats_scan.c src/align_scan_128_16.h \
-	src/align_striped_128_16.h src/align_wozniak_128_16.h \
-	src/nw_scan_128_16.c src/nw_striped_128_16.c \
-	src/nw_wozniak_128_16.c src/nw_stats_scan_128_16.c \
-	src/nw_stats_striped_128_16.c src/nw_stats_wozniak_128_16.c \
-	src/sg_scan_128_16.c src/sg_striped_128_16.c \
-	src/sg_wozniak_128_16.c src/sg_stats_scan_128_16.c \
-	src/sg_stats_striped_128_16.c src/sg_stats_wozniak_128_16.c \
-	src/sw_scan_128_16.c src/sw_striped_128_16.c \
-	src/sw_wozniak_128_16.c src/sw_stats_scan_128_16.c \
-	src/sw_stats_striped_128_16.c src/sw_stats_wozniak_128_16.c \
-	src/align_scan_128_8.h src/align_striped_128_8.h \
-	src/align_wozniak_128_8.h src/nw_scan_128_8.c \
-	src/nw_striped_128_8.c src/nw_wozniak_128_8.c \
-	src/nw_stats_scan_128_8.c src/nw_stats_striped_128_8.c \
-	src/nw_stats_wozniak_128_8.c src/sg_scan_128_8.c \
-	src/sg_striped_128_8.c src/sg_wozniak_128_8.c \
-	src/sg_stats_scan_128_8.c src/sg_stats_wozniak_128_8.c \
-	src/sw_scan_128_8.c src/sw_stats_scan_128_8.c \
-	src/nw_scan_512_32.c
+LTLIBRARIES = $(lib_LTLIBRARIES) $(noinst_LTLIBRARIES)
+libparasail_la_DEPENDENCIES = libparasail_table.la
 am__dirstamp = $(am__leading_dot)dirstamp
-@HAVE_SSE2_TRUE@am__objects_1 = src/nw_scan_128_16.lo \
-@HAVE_SSE2_TRUE@	src/nw_striped_128_16.lo \
-@HAVE_SSE2_TRUE@	src/nw_wozniak_128_16.lo \
-@HAVE_SSE2_TRUE@	src/nw_stats_scan_128_16.lo \
-@HAVE_SSE2_TRUE@	src/nw_stats_striped_128_16.lo \
-@HAVE_SSE2_TRUE@	src/nw_stats_wozniak_128_16.lo \
-@HAVE_SSE2_TRUE@	src/sg_scan_128_16.lo src/sg_striped_128_16.lo \
-@HAVE_SSE2_TRUE@	src/sg_wozniak_128_16.lo \
-@HAVE_SSE2_TRUE@	src/sg_stats_scan_128_16.lo \
-@HAVE_SSE2_TRUE@	src/sg_stats_striped_128_16.lo \
-@HAVE_SSE2_TRUE@	src/sg_stats_wozniak_128_16.lo \
-@HAVE_SSE2_TRUE@	src/sw_scan_128_16.lo src/sw_striped_128_16.lo \
-@HAVE_SSE2_TRUE@	src/sw_wozniak_128_16.lo \
-@HAVE_SSE2_TRUE@	src/sw_stats_scan_128_16.lo \
-@HAVE_SSE2_TRUE@	src/sw_stats_striped_128_16.lo \
-@HAVE_SSE2_TRUE@	src/sw_stats_wozniak_128_16.lo
-@HAVE_SSE41_TRUE@am__objects_2 = src/nw_scan_128_8.lo \
-@HAVE_SSE41_TRUE@	src/nw_striped_128_8.lo \
-@HAVE_SSE41_TRUE@	src/nw_wozniak_128_8.lo \
-@HAVE_SSE41_TRUE@	src/nw_stats_scan_128_8.lo \
-@HAVE_SSE41_TRUE@	src/nw_stats_striped_128_8.lo \
-@HAVE_SSE41_TRUE@	src/nw_stats_wozniak_128_8.lo \
-@HAVE_SSE41_TRUE@	src/sg_scan_128_8.lo src/sg_striped_128_8.lo \
-@HAVE_SSE41_TRUE@	src/sg_wozniak_128_8.lo \
-@HAVE_SSE41_TRUE@	src/sg_stats_scan_128_8.lo \
-@HAVE_SSE41_TRUE@	src/sg_stats_wozniak_128_8.lo \
-@HAVE_SSE41_TRUE@	src/sw_scan_128_8.lo \
-@HAVE_SSE41_TRUE@	src/sw_stats_scan_128_8.lo
-@HAVE_KNC_TRUE@am__objects_3 = src/nw_scan_512_32.lo
-am_libparasail_la_OBJECTS = src/memory.lo src/nw.lo src/nw_scan.lo \
-	src/nw_scan_row.lo src/nw_stats.lo src/nw_stats_scan.lo \
-	src/sg.lo src/sg_scan.lo src/sg_stats.lo src/sg_stats_scan.lo \
-	src/sw.lo src/sw_scan.lo src/sw_stats.lo src/sw_stats_scan.lo \
-	$(am__objects_1) $(am__objects_2) $(am__objects_3)
+am__objects_1 = src/nw.lo
+am_libparasail_la_OBJECTS = src/memory.lo $(am__objects_1)
 libparasail_la_OBJECTS = $(am_libparasail_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
+libparasail_table_la_LIBADD =
+am__objects_2 = src/libparasail_table_la-nw.lo
+am_libparasail_table_la_OBJECTS = $(am__objects_2)
+libparasail_table_la_OBJECTS = $(am_libparasail_table_la_OBJECTS)
 am_tests_test_align_OBJECTS = tests/test_align.$(OBJEXT)
 tests_test_align_OBJECTS = $(am_tests_test_align_OBJECTS)
 tests_test_align_LDADD = $(LDADD)
@@ -282,11 +199,12 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(libparasail_la_SOURCES) $(tests_test_align_SOURCES) \
-	$(tests_test_align_stats_SOURCES) $(tests_test_openmp_SOURCES)
-DIST_SOURCES = $(am__libparasail_la_SOURCES_DIST) \
+SOURCES = $(libparasail_la_SOURCES) $(libparasail_table_la_SOURCES) \
 	$(tests_test_align_SOURCES) $(tests_test_align_stats_SOURCES) \
 	$(tests_test_openmp_SOURCES)
+DIST_SOURCES = $(libparasail_la_SOURCES) \
+	$(libparasail_table_la_SOURCES) $(tests_test_align_SOURCES) \
+	$(tests_test_align_stats_SOURCES) $(tests_test_openmp_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -451,16 +369,17 @@ top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I m4
 include_HEADERS = src/parasail.h
 lib_LTLIBRARIES = libparasail.la
+noinst_LTLIBRARIES = libparasail_table.la
 AM_CFLAGS = 
 AM_CPPFLAGS = -I$(top_srcdir)/src
 AM_LDFLAGS = 
 LDADD = libparasail.la
 libparasail_la_SOURCES = src/parasail_internal.h src/memory.c \
-	src/align.h src/nw.c src/nw_scan.c src/nw_scan_row.c \
-	src/nw_stats.c src/nw_stats_scan.c src/sg.c src/sg_scan.c \
-	src/sg_stats.c src/sg_stats_scan.c src/sw.c src/sw_scan.c \
-	src/sw_stats.c src/sw_stats_scan.c $(am__append_1) \
-	$(am__append_2) $(am__append_3)
+	$(ALIGNMENT_SRC)
+ALIGNMENT_SRC = src/nw.c
+libparasail_table_la_SOURCES = $(ALIGNMENT_SRC)
+libparasail_table_la_CPPFLAGS = $(AM_CPPFLAGS) -DPARASAIL_TABLE
+libparasail_la_LIBADD = libparasail_table.la
 tests_test_align_SOURCES = tests/test_align.c
 tests_test_align_stats_SOURCES = tests/test_align_stats.c
 tests_test_openmp_SOURCES = tests/test_openmp.c
@@ -556,6 +475,17 @@ clean-libLTLIBRARIES:
 	  echo rm -f $${locs}; \
 	  rm -f $${locs}; \
 	}
+
+clean-noinstLTLIBRARIES:
+	-test -z "$(noinst_LTLIBRARIES)" || rm -f $(noinst_LTLIBRARIES)
+	@list='$(noinst_LTLIBRARIES)'; \
+	locs=`for p in $$list; do echo $$p; done | \
+	      sed 's|^[^/]*$$|.|; s|/[^/]*$$||; s|$$|/so_locations|' | \
+	      sort -u`; \
+	test -z "$$locs" || { \
+	  echo rm -f $${locs}; \
+	  rm -f $${locs}; \
+	}
 src/$(am__dirstamp):
 	@$(MKDIR_P) src
 	@: > src/$(am__dirstamp)
@@ -564,88 +494,14 @@ src/$(DEPDIR)/$(am__dirstamp):
 	@: > src/$(DEPDIR)/$(am__dirstamp)
 src/memory.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/nw.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
-src/nw_scan.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
-src/nw_scan_row.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
-src/nw_stats.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
-src/nw_stats_scan.lo: src/$(am__dirstamp) \
-	src/$(DEPDIR)/$(am__dirstamp)
-src/sg.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
-src/sg_scan.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
-src/sg_stats.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
-src/sg_stats_scan.lo: src/$(am__dirstamp) \
-	src/$(DEPDIR)/$(am__dirstamp)
-src/sw.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
-src/sw_scan.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
-src/sw_stats.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
-src/sw_stats_scan.lo: src/$(am__dirstamp) \
-	src/$(DEPDIR)/$(am__dirstamp)
-src/nw_scan_128_16.lo: src/$(am__dirstamp) \
-	src/$(DEPDIR)/$(am__dirstamp)
-src/nw_striped_128_16.lo: src/$(am__dirstamp) \
-	src/$(DEPDIR)/$(am__dirstamp)
-src/nw_wozniak_128_16.lo: src/$(am__dirstamp) \
-	src/$(DEPDIR)/$(am__dirstamp)
-src/nw_stats_scan_128_16.lo: src/$(am__dirstamp) \
-	src/$(DEPDIR)/$(am__dirstamp)
-src/nw_stats_striped_128_16.lo: src/$(am__dirstamp) \
-	src/$(DEPDIR)/$(am__dirstamp)
-src/nw_stats_wozniak_128_16.lo: src/$(am__dirstamp) \
-	src/$(DEPDIR)/$(am__dirstamp)
-src/sg_scan_128_16.lo: src/$(am__dirstamp) \
-	src/$(DEPDIR)/$(am__dirstamp)
-src/sg_striped_128_16.lo: src/$(am__dirstamp) \
-	src/$(DEPDIR)/$(am__dirstamp)
-src/sg_wozniak_128_16.lo: src/$(am__dirstamp) \
-	src/$(DEPDIR)/$(am__dirstamp)
-src/sg_stats_scan_128_16.lo: src/$(am__dirstamp) \
-	src/$(DEPDIR)/$(am__dirstamp)
-src/sg_stats_striped_128_16.lo: src/$(am__dirstamp) \
-	src/$(DEPDIR)/$(am__dirstamp)
-src/sg_stats_wozniak_128_16.lo: src/$(am__dirstamp) \
-	src/$(DEPDIR)/$(am__dirstamp)
-src/sw_scan_128_16.lo: src/$(am__dirstamp) \
-	src/$(DEPDIR)/$(am__dirstamp)
-src/sw_striped_128_16.lo: src/$(am__dirstamp) \
-	src/$(DEPDIR)/$(am__dirstamp)
-src/sw_wozniak_128_16.lo: src/$(am__dirstamp) \
-	src/$(DEPDIR)/$(am__dirstamp)
-src/sw_stats_scan_128_16.lo: src/$(am__dirstamp) \
-	src/$(DEPDIR)/$(am__dirstamp)
-src/sw_stats_striped_128_16.lo: src/$(am__dirstamp) \
-	src/$(DEPDIR)/$(am__dirstamp)
-src/sw_stats_wozniak_128_16.lo: src/$(am__dirstamp) \
-	src/$(DEPDIR)/$(am__dirstamp)
-src/nw_scan_128_8.lo: src/$(am__dirstamp) \
-	src/$(DEPDIR)/$(am__dirstamp)
-src/nw_striped_128_8.lo: src/$(am__dirstamp) \
-	src/$(DEPDIR)/$(am__dirstamp)
-src/nw_wozniak_128_8.lo: src/$(am__dirstamp) \
-	src/$(DEPDIR)/$(am__dirstamp)
-src/nw_stats_scan_128_8.lo: src/$(am__dirstamp) \
-	src/$(DEPDIR)/$(am__dirstamp)
-src/nw_stats_striped_128_8.lo: src/$(am__dirstamp) \
-	src/$(DEPDIR)/$(am__dirstamp)
-src/nw_stats_wozniak_128_8.lo: src/$(am__dirstamp) \
-	src/$(DEPDIR)/$(am__dirstamp)
-src/sg_scan_128_8.lo: src/$(am__dirstamp) \
-	src/$(DEPDIR)/$(am__dirstamp)
-src/sg_striped_128_8.lo: src/$(am__dirstamp) \
-	src/$(DEPDIR)/$(am__dirstamp)
-src/sg_wozniak_128_8.lo: src/$(am__dirstamp) \
-	src/$(DEPDIR)/$(am__dirstamp)
-src/sg_stats_scan_128_8.lo: src/$(am__dirstamp) \
-	src/$(DEPDIR)/$(am__dirstamp)
-src/sg_stats_wozniak_128_8.lo: src/$(am__dirstamp) \
-	src/$(DEPDIR)/$(am__dirstamp)
-src/sw_scan_128_8.lo: src/$(am__dirstamp) \
-	src/$(DEPDIR)/$(am__dirstamp)
-src/sw_stats_scan_128_8.lo: src/$(am__dirstamp) \
-	src/$(DEPDIR)/$(am__dirstamp)
-src/nw_scan_512_32.lo: src/$(am__dirstamp) \
-	src/$(DEPDIR)/$(am__dirstamp)
 
 libparasail.la: $(libparasail_la_OBJECTS) $(libparasail_la_DEPENDENCIES) $(EXTRA_libparasail_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(LINK) -rpath $(libdir) $(libparasail_la_OBJECTS) $(libparasail_la_LIBADD) $(LIBS)
+src/libparasail_table_la-nw.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+
+libparasail_table.la: $(libparasail_table_la_OBJECTS) $(libparasail_table_la_DEPENDENCIES) $(EXTRA_libparasail_table_la_DEPENDENCIES) 
+	$(AM_V_CCLD)$(LINK)  $(libparasail_table_la_OBJECTS) $(libparasail_table_la_LIBADD) $(LIBS)
 
 clean-checkPROGRAMS:
 	@list='$(check_PROGRAMS)'; test -n "$$list" || exit 0; \
@@ -689,52 +545,9 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_table_la-nw.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/memory.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/nw.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/nw_scan.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/nw_scan_128_16.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/nw_scan_128_8.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/nw_scan_512_32.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/nw_scan_row.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/nw_stats.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/nw_stats_scan.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/nw_stats_scan_128_16.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/nw_stats_scan_128_8.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/nw_stats_striped_128_16.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/nw_stats_striped_128_8.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/nw_stats_wozniak_128_16.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/nw_stats_wozniak_128_8.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/nw_striped_128_16.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/nw_striped_128_8.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/nw_wozniak_128_16.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/nw_wozniak_128_8.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sg.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sg_scan.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sg_scan_128_16.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sg_scan_128_8.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sg_stats.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sg_stats_scan.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sg_stats_scan_128_16.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sg_stats_scan_128_8.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sg_stats_striped_128_16.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sg_stats_wozniak_128_16.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sg_stats_wozniak_128_8.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sg_striped_128_16.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sg_striped_128_8.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sg_wozniak_128_16.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sg_wozniak_128_8.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sw.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sw_scan.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sw_scan_128_16.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sw_scan_128_8.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sw_stats.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sw_stats_scan.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sw_stats_scan_128_16.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sw_stats_scan_128_8.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sw_stats_striped_128_16.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sw_stats_wozniak_128_16.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sw_striped_128_16.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sw_wozniak_128_16.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_align.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_align_stats.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/tests_test_openmp-test_openmp.Po@am__quote@
@@ -762,6 +575,13 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
+
+src/libparasail_table_la-nw.lo: src/nw.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libparasail_table_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT src/libparasail_table_la-nw.lo -MD -MP -MF src/$(DEPDIR)/libparasail_table_la-nw.Tpo -c -o src/libparasail_table_la-nw.lo `test -f 'src/nw.c' || echo '$(srcdir)/'`src/nw.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/libparasail_table_la-nw.Tpo src/$(DEPDIR)/libparasail_table_la-nw.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/nw.c' object='src/libparasail_table_la-nw.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libparasail_table_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o src/libparasail_table_la-nw.lo `test -f 'src/nw.c' || echo '$(srcdir)/'`src/nw.c
 
 tests/tests_test_openmp-test_openmp.o: tests/test_openmp.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_test_openmp_CFLAGS) $(CFLAGS) -MT tests/tests_test_openmp-test_openmp.o -MD -MP -MF tests/$(DEPDIR)/tests_test_openmp-test_openmp.Tpo -c -o tests/tests_test_openmp-test_openmp.o `test -f 'tests/test_openmp.c' || echo '$(srcdir)/'`tests/test_openmp.c
@@ -1069,7 +889,7 @@ maintainer-clean-generic:
 clean: clean-am
 
 clean-am: clean-checkPROGRAMS clean-generic clean-libLTLIBRARIES \
-	clean-libtool mostlyclean-am
+	clean-libtool clean-noinstLTLIBRARIES mostlyclean-am
 
 distclean: distclean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
@@ -1144,22 +964,22 @@ uninstall-am: uninstall-includeHEADERS uninstall-libLTLIBRARIES
 
 .PHONY: CTAGS GTAGS TAGS all all-am am--refresh check check-am clean \
 	clean-checkPROGRAMS clean-cscope clean-generic \
-	clean-libLTLIBRARIES clean-libtool cscope cscopelist-am ctags \
-	ctags-am dist dist-all dist-bzip2 dist-gzip dist-lzip \
-	dist-shar dist-tarZ dist-xz dist-zip distcheck distclean \
-	distclean-compile distclean-generic distclean-hdr \
-	distclean-libtool distclean-tags distcleancheck distdir \
-	distuninstallcheck dvi dvi-am html html-am info info-am \
-	install install-am install-data install-data-am install-dvi \
-	install-dvi-am install-exec install-exec-am install-html \
-	install-html-am install-includeHEADERS install-info \
-	install-info-am install-libLTLIBRARIES install-man install-pdf \
-	install-pdf-am install-ps install-ps-am install-strip \
-	installcheck installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags tags-am uninstall uninstall-am uninstall-includeHEADERS \
-	uninstall-libLTLIBRARIES
+	clean-libLTLIBRARIES clean-libtool clean-noinstLTLIBRARIES \
+	cscope cscopelist-am ctags ctags-am dist dist-all dist-bzip2 \
+	dist-gzip dist-lzip dist-shar dist-tarZ dist-xz dist-zip \
+	distcheck distclean distclean-compile distclean-generic \
+	distclean-hdr distclean-libtool distclean-tags distcleancheck \
+	distdir distuninstallcheck dvi dvi-am html html-am info \
+	info-am install install-am install-data install-data-am \
+	install-dvi install-dvi-am install-exec install-exec-am \
+	install-html install-html-am install-includeHEADERS \
+	install-info install-info-am install-libLTLIBRARIES \
+	install-man install-pdf install-pdf-am install-ps \
+	install-ps-am install-strip installcheck installcheck-am \
+	installdirs maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-compile mostlyclean-generic \
+	mostlyclean-libtool pdf pdf-am ps ps-am tags tags-am uninstall \
+	uninstall-am uninstall-includeHEADERS uninstall-libLTLIBRARIES
 
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

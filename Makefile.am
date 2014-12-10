@@ -14,12 +14,18 @@ libparasail_la_SOURCES += src/parasail_internal.h
 libparasail_la_SOURCES += src/memory.c
 
 ALIGNMENT_SRC = 
+
 ALIGNMENT_SRC += src/nw.c
-ALIGNMENT_SRC += src/nw_stats.c
 ALIGNMENT_SRC += src/sg.c
-ALIGNMENT_SRC += src/sg_stats.c
 ALIGNMENT_SRC += src/sw.c
+
+ALIGNMENT_SRC += src/nw_stats.c
+ALIGNMENT_SRC += src/sg_stats.c
 ALIGNMENT_SRC += src/sw_stats.c
+
+ALIGNMENT_SRC += src/nw_scan.c
+ALIGNMENT_SRC += src/sg_scan.c
+ALIGNMENT_SRC += src/sw_scan.c
 
 libparasail_la_SOURCES += $(ALIGNMENT_SRC)
 
@@ -28,12 +34,9 @@ libparasail_table_la_CPPFLAGS = $(AM_CPPFLAGS) -DPARASAIL_TABLE
 
 libparasail_la_LIBADD = libparasail_table.la
 
-#libparasail_la_SOURCES += src/nw_scan.c
 #libparasail_la_SOURCES += src/nw_scan_row.c
 #libparasail_la_SOURCES += src/nw_stats_scan.c
-#libparasail_la_SOURCES += src/sg_scan.c
 #libparasail_la_SOURCES += src/sg_stats_scan.c
-#libparasail_la_SOURCES += src/sw_scan.c
 #libparasail_la_SOURCES += src/sw_stats_scan.c
 #if HAVE_SSE2
 #libparasail_la_SOURCES += src/nw_scan_128_16.c

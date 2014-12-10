@@ -33,9 +33,9 @@ int FNAME(
         int * const restrict _H, int * const restrict E,
         int * const restrict _M, int * const restrict _L
 #ifdef PARASAIL_TABLE
-        , int * const restrict score_table
-        , int * const restrict match_table
-        , int * const restrict length_table
+        , int * const restrict result->score_table
+        , int * const restrict result->matches_table
+        , int * const restrict result->length_table
 #endif
         )
 {
@@ -123,9 +123,9 @@ int FNAME(
                 L[i] = Lt[i];
             }
 #ifdef PARASAIL_TABLE
-            score_table[i*s2Len + j] = H[i];
-            match_table[i*s2Len + j] = M[i];
-            length_table[i*s2Len + j] = L[i];
+            result->score_table[i*s2Len + j] = H[i];
+            result->matches_table[i*s2Len + j] = M[i];
+            result->length_table[i*s2Len + j] = L[i];
 #endif
             FM = M[i];
             FL = L[i];

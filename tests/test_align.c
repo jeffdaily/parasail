@@ -58,14 +58,16 @@ int main(int argc, char **argv)
     timer_ref = timer_end(timer_ref);
     printf("nw\t\t\t\t%llu\t\t%d\n", timer_ref/limit, score);
 
-#if 0
     timer = timer_start();
     for (i=0; i<limit; ++i) {
-        score = nw_scan(seqA, lena, seqB, lenb, 10, 1, blosum62);
+        result = nw_scan(seqA, lena, seqB, lenb, 10, 1, blosum62);
+        score = result->score;
+        parasail_result_free(result);
     }
     timer = timer_end(timer);
     printf("nw\tscan\t\t\t%llu\t%4.1f\t%d\n", timer/limit, pct(timer_ref,timer), score);
 
+#if 0
 #if HAVE_SSE2
     timer = timer_start();
     for (i=0; i<limit; ++i) {
@@ -139,14 +141,16 @@ int main(int argc, char **argv)
     timer_ref = timer_end(timer_ref);
     printf("sg\t\t\t\t%llu\t\t%d\n", timer_ref/limit, score);
 
-#if 0
     timer = timer_start();
     for (i=0; i<limit; ++i) {
-        score = sg_scan(seqA, lena, seqB, lenb, 10, 1, blosum62);
+        result = sg_scan(seqA, lena, seqB, lenb, 10, 1, blosum62);
+        score = result->score;
+        parasail_result_free(result);
     }
     timer = timer_end(timer);
     printf("sg\tscan\t\t\t%llu\t%4.1f\t%d\n", timer/limit, pct(timer_ref,timer), score);
 
+#if 0
 #if HAVE_SSE2
     timer = timer_start();
     for (i=0; i<limit; ++i) {
@@ -211,14 +215,16 @@ int main(int argc, char **argv)
     timer_ref = timer_end(timer_ref);
     printf("sw\t\t\t\t%llu\t\t%d\n", timer_ref/limit, score);
 
-#if 0
     timer = timer_start();
     for (i=0; i<limit; ++i) {
-        score = sw_scan(seqA, lena, seqB, lenb, 10, 1, blosum62);
+        result = sw_scan(seqA, lena, seqB, lenb, 10, 1, blosum62);
+        score = result->score;
+        parasail_result_free(result);
     }
     timer = timer_end(timer);
     printf("sw\tscan\t\t\t%llu\t%4.1f\t%d\n", timer/limit, pct(timer_ref,timer), score);
 
+#if 0
 #if HAVE_SSE2
     timer = timer_start();
     for (i=0; i<limit; ++i) {

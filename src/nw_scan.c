@@ -9,41 +9,43 @@
  */
 #include "config.h"
 
+#include <stdint.h>
 #include <stdlib.h>
 
-#ifdef PARASAIL_TABLE
-#include "align_table.h"
-#else
-#include "align.h"
-#endif
+#include "parasail.h"
+#include "parasail_internal.h"
 #include "blosum/blosum_map.h"
 
+#define NEG_INF_32 (INT32_MIN/2)
+#define MAX(a,b) ((a)>(b)?(a):(b))
+
 #ifdef PARASAIL_TABLE
-#define FNAME nw_scan_table
+#define ENAME nw_scan_table
 #else
-#define FNAME nw_scan
+#define ENAME nw_scan
 #endif
 
-int FNAME(
+parasail_result_t* ENAME(
         const char * const restrict _s1, const int s1Len,
         const char * const restrict _s2, const int s2Len,
-        const int open, const int gap,
-        const int matrix[24][24],
-        int * const restrict _H, int * const restrict E
-#ifdef PARASAIL_TABLE
-        , int * const restrict score_table
-#endif
-        )
+        const int open, const int gap, const int matrix[24][24])
 {
-    int * const restrict s1 = (int * const restrict)malloc(sizeof(int)*s1Len);
-    int * const restrict s2 = (int * const restrict)malloc(sizeof(int)*s2Len);
-    int * const restrict HtB= (int * const restrict)malloc(sizeof(int)*(s1Len+1));
+#if PARASAIL_TABLE
+    parasail_result_t *result = parasail_result_new_table1(s1Len, s2Len);
+#else
+    parasail_result_t *result = parasail_result_new();
+#endif
+    int * const restrict s1 = parasail_memalign_int(16, s1Len);
+    int * const restrict s2 = parasail_memalign_int(16, s2Len);
+    int * const restrict HB = parasail_memalign_int(16, s1Len+1);
+    int * const restrict H  = HB+1;
+    int * const restrict E  = parasail_memalign_int(16, s1Len);
+    int * const restrict HtB= parasail_memalign_int(16, s1Len+1);
     int * const restrict Ht = HtB+1;
-    int * const restrict FtB= (int * const restrict)malloc(sizeof(int)*(s1Len+1));
+    int * const restrict FtB= parasail_memalign_int(16, s1Len+1);
     int * const restrict Ft = FtB+1;
     int i = 0;
     int j = 0;
-    int * const restrict H = _H+1;
 
     for (i=0; i<s1Len; ++i) {
         s1[i] = MAP_BLOSUM_[(unsigned char)_s1[i]];
@@ -86,7 +88,7 @@ int FNAME(
         for (i=0; i<s1Len; ++i) {
             H[i] = MAX(Ht[i], Ft[i]-open);
 #ifdef PARASAIL_TABLE
-            score_table[i*s2Len + j] = H[i];
+            result->score_table[i*s2Len + j] = H[i];
 #endif
         }
         H[-1] = -open - j*gap;
@@ -104,7 +106,7 @@ int FNAME(
             Hp = H[i];
             H[i] = MAX(Ht[i], Ft[i]-open);
 #ifdef PARASAIL_TABLE
-            score_table[i*s2Len + j] = H[i];
+            result->score_table[i*s2Len + j] = H[i];
 #endif
         }
         H[-1] = -open - j*gap;
@@ -112,10 +114,15 @@ int FNAME(
     }
 #endif
 
-    free(s1);
-    free(s2);
-    free(HtB);
-    free(FtB);
+    result->score = H[s1Len-1];
 
-    return H[s1Len-1];
+    free(FtB);
+    free(HtB);
+    free(E);
+    free(HB);
+    free(s2);
+    free(s1);
+
+    return result;
 }
+

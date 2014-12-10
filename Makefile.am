@@ -5,14 +5,11 @@ lib_LTLIBRARIES = libparasail.la
 noinst_LTLIBRARIES = libparasail_table.la
 check_PROGRAMS =
 AM_CFLAGS =
-AM_CPPFLAGS =
+AM_CPPFLAGS = -I$(top_srcdir)/src
 AM_LDFLAGS =
 LDADD = libparasail.la
 
-AM_CPPFLAGS += -I$(top_srcdir)/src
-
 libparasail_la_SOURCES =
-
 libparasail_la_SOURCES += src/parasail_internal.h
 libparasail_la_SOURCES += src/memory.c
 
@@ -21,6 +18,8 @@ ALIGNMENT_SRC += src/nw.c
 ALIGNMENT_SRC += src/nw_stats.c
 ALIGNMENT_SRC += src/sg.c
 ALIGNMENT_SRC += src/sg_stats.c
+ALIGNMENT_SRC += src/sw.c
+ALIGNMENT_SRC += src/sw_stats.c
 
 libparasail_la_SOURCES += $(ALIGNMENT_SRC)
 
@@ -29,20 +28,14 @@ libparasail_table_la_CPPFLAGS = $(AM_CPPFLAGS) -DPARASAIL_TABLE
 
 libparasail_la_LIBADD = libparasail_table.la
 
-#libparasail_la_SOURCES += src/align.h
 #libparasail_la_SOURCES += src/nw_scan.c
 #libparasail_la_SOURCES += src/nw_scan_row.c
 #libparasail_la_SOURCES += src/nw_stats_scan.c
 #libparasail_la_SOURCES += src/sg_scan.c
 #libparasail_la_SOURCES += src/sg_stats_scan.c
-#libparasail_la_SOURCES += src/sw.c
 #libparasail_la_SOURCES += src/sw_scan.c
-#libparasail_la_SOURCES += src/sw_stats.c
 #libparasail_la_SOURCES += src/sw_stats_scan.c
 #if HAVE_SSE2
-#libparasail_la_SOURCES += src/align_scan_128_16.h
-#libparasail_la_SOURCES += src/align_striped_128_16.h
-#libparasail_la_SOURCES += src/align_wozniak_128_16.h
 #libparasail_la_SOURCES += src/nw_scan_128_16.c
 #libparasail_la_SOURCES += src/nw_striped_128_16.c
 #libparasail_la_SOURCES += src/nw_wozniak_128_16.c
@@ -63,9 +56,6 @@ libparasail_la_LIBADD = libparasail_table.la
 #libparasail_la_SOURCES += src/sw_stats_wozniak_128_16.c
 #endif
 #if HAVE_SSE41
-#libparasail_la_SOURCES += src/align_scan_128_8.h
-#libparasail_la_SOURCES += src/align_striped_128_8.h
-#libparasail_la_SOURCES += src/align_wozniak_128_8.h
 #libparasail_la_SOURCES += src/nw_scan_128_8.c
 #libparasail_la_SOURCES += src/nw_striped_128_8.c
 #libparasail_la_SOURCES += src/nw_wozniak_128_8.c

@@ -61,7 +61,7 @@ int main(int argc, char **argv)
 #if 0
     timer = timer_start();
     for (i=0; i<limit; ++i) {
-        score = nw_scan(seqA, lena, seqB, lenb, 10, 1, blosum62, tbl_pr, del_pr);
+        score = nw_scan(seqA, lena, seqB, lenb, 10, 1, blosum62);
     }
     timer = timer_end(timer);
     printf("nw\tscan\t\t\t%llu\t%4.1f\t%d\n", timer/limit, pct(timer_ref,timer), score);
@@ -96,7 +96,7 @@ int main(int argc, char **argv)
 #if HAVE_SSE2
     timer = timer_start();
     for (i=0; i<limit; ++i) {
-        score = nw_wozniak_128_16(seqA, lena, seqB, lenb, 10, 1, blosum62, tbl_pr, del_pr);
+        score = nw_wozniak_128_16(seqA, lena, seqB, lenb, 10, 1, blosum62);
     }
     timer = timer_end(timer);
     printf("nw\twozniak\t128\t16\t%llu\t%4.1f\t%d\n", timer/limit, pct(timer_ref,timer), score);
@@ -105,7 +105,7 @@ int main(int argc, char **argv)
 #if HAVE_SSE41
     timer = timer_start();
     for (i=0; i<limit; ++i) {
-        score = nw_wozniak_128_8(seqA, lena, seqB, lenb, 10, 1, blosum62, tbl_pr, del_pr);
+        score = nw_wozniak_128_8(seqA, lena, seqB, lenb, 10, 1, blosum62);
     }
     timer = timer_end(timer);
     printf("nw\twozniak\t128\t8\t%llu\t%4.1f\t%d\n", timer/limit, pct(timer_ref,timer), score);
@@ -142,7 +142,7 @@ int main(int argc, char **argv)
 #if 0
     timer = timer_start();
     for (i=0; i<limit; ++i) {
-        score = sg_scan(seqA, lena, seqB, lenb, 10, 1, blosum62, tbl_pr, del_pr);
+        score = sg_scan(seqA, lena, seqB, lenb, 10, 1, blosum62);
     }
     timer = timer_end(timer);
     printf("sg\tscan\t\t\t%llu\t%4.1f\t%d\n", timer/limit, pct(timer_ref,timer), score);
@@ -168,7 +168,7 @@ int main(int argc, char **argv)
 #if HAVE_SSE2
     timer = timer_start();
     for (i=0; i<limit; ++i) {
-        score = sg_wozniak_128_16(seqA, lena, seqB, lenb, 10, 1, blosum62, tbl_pr, del_pr);
+        score = sg_wozniak_128_16(seqA, lena, seqB, lenb, 10, 1, blosum62);
     }
     timer = timer_end(timer);
     printf("sg\twozniak\t128\t16\t%llu\t%4.1f\t%d\n", timer/limit, pct(timer_ref,timer), score);
@@ -177,7 +177,7 @@ int main(int argc, char **argv)
 #if HAVE_SSE41
     timer = timer_start();
     for (i=0; i<limit; ++i) {
-        score = sg_wozniak_128_8(seqA, lena, seqB, lenb, 10, 1, blosum62, tbl_pr, del_pr);
+        score = sg_wozniak_128_8(seqA, lena, seqB, lenb, 10, 1, blosum62);
     }
     timer = timer_end(timer);
     printf("sg\twozniak\t128\t8\t%llu\t%4.1f\t%d\n", timer/limit, pct(timer_ref,timer), score);
@@ -200,17 +200,21 @@ int main(int argc, char **argv)
     timer = timer_end(timer);
     printf("sg\tstriped\t128\t8\t%llu\t%4.1f\t%d\n", timer/limit, pct(timer_ref,timer), score);
 #endif
+#endif
 
     timer_ref = timer_start();
     for (i=0; i<limit; ++i) {
-        score = sw(seqA, lena, seqB, lenb, 10, 1, blosum62, tbl_pr, del_pr);
+        result = sw(seqA, lena, seqB, lenb, 10, 1, blosum62);
+        score = result->score;
+        parasail_result_free(result);
     }
     timer_ref = timer_end(timer_ref);
-    printf("sw\tref\t\t\t%llu\t\t%d\n", timer_ref/limit, score);
+    printf("sw\t\t\t\t%llu\t\t%d\n", timer_ref/limit, score);
 
+#if 0
     timer = timer_start();
     for (i=0; i<limit; ++i) {
-        score = sw_scan(seqA, lena, seqB, lenb, 10, 1, blosum62, tbl_pr, del_pr);
+        score = sw_scan(seqA, lena, seqB, lenb, 10, 1, blosum62);
     }
     timer = timer_end(timer);
     printf("sw\tscan\t\t\t%llu\t%4.1f\t%d\n", timer/limit, pct(timer_ref,timer), score);
@@ -236,7 +240,7 @@ int main(int argc, char **argv)
 #if HAVE_SSE2
     timer = timer_start();
     for (i=0; i<limit; ++i) {
-        score = sw_wozniak_128_16(seqA, lena, seqB, lenb, 10, 1, blosum62, tbl_pr, del_pr);
+        score = sw_wozniak_128_16(seqA, lena, seqB, lenb, 10, 1, blosum62);
     }
     timer = timer_end(timer);
     printf("sw\twozniak\t128\t16\t%llu\t%4.1f\t%d\n", timer/limit, pct(timer_ref,timer), score);

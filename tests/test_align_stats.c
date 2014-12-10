@@ -70,9 +70,6 @@ int main(int argc, char **argv)
     }
     timer = timer_end(timer);
     printf("nw\tscan\t\t\t%llu\t%4.1f\t%d\t%d\t%d\n", timer/limit, pct(timer_ref,timer), score, matches, length);
-    score = 0;
-    matches = 0;
-    length = 0;
 
 #if HAVE_SSE2
     timer = timer_start();
@@ -81,9 +78,6 @@ int main(int argc, char **argv)
     }
     timer = timer_end(timer);
     printf("nw\tscan\t128\t16\t%llu\t%4.1f\t%d\t%d\t%d\n", timer/limit, pct(timer_ref,timer), score, matches, length);
-    score = 0;
-    matches = 0;
-    length = 0;
 #endif
 
 #if HAVE_SSE41
@@ -93,9 +87,6 @@ int main(int argc, char **argv)
     }
     timer = timer_end(timer);
     printf("nw\tscan\t128\t8\t%llu\t%4.1f\t%d\t%d\t%d\n", timer/limit, pct(timer_ref,timer), score, matches, length);
-    score = 0;
-    matches = 0;
-    length = 0;
 #endif
 
 #if HAVE_SSE2
@@ -106,9 +97,6 @@ int main(int argc, char **argv)
     }
     timer = timer_end(timer);
     printf("nw\twozniak\t128\t16\t%llu\t%4.1f\t%d\t%d\t%d\n", timer/limit, pct(timer_ref,timer), score, matches, length);
-    score = 0;
-    matches = 0;
-    length = 0;
 #endif
 
 #if HAVE_SSE41
@@ -119,9 +107,6 @@ int main(int argc, char **argv)
     }
     timer = timer_end(timer);
     printf("nw\twozniak\t128\t8\t%llu\t%4.1f\t%d\t%d\t%d\n", timer/limit, pct(timer_ref,timer), score, matches, length);
-    score = 0;
-    matches = 0;
-    length = 0;
 #endif
 
 #if HAVE_SSE2
@@ -131,9 +116,6 @@ int main(int argc, char **argv)
     }
     timer = timer_end(timer);
     printf("nw\tstriped\t128\t16\t%llu\t%4.1f\t%d\t%d\t%d\n", timer/limit, pct(timer_ref,timer), score, matches, length);
-    score = 0;
-    matches = 0;
-    length = 0;
 #endif
 
 #if HAVE_SSE41
@@ -143,22 +125,21 @@ int main(int argc, char **argv)
     }
     timer = timer_end(timer);
     printf("nw\tstriped\t128\t8\t%llu\t%4.1f\t%d\t%d\t%d\n", timer/limit, pct(timer_ref,timer), score, matches, length);
-    score = 0;
-    matches = 0;
-    length = 0;
+#endif
 #endif
 
     timer_ref = timer_start();
     for (i=0; i<limit; ++i) {
-        score = sg_stats(seqA, lena, seqB, lenb, 10, 1, blosum62,
-                &matches, &length, tbl_pr, del_pr, mch_pr, len_pr);
+        result = sg_stats(seqA, lena, seqB, lenb, 10, 1, blosum62);
+        score = result->score;
+        matches = result->matches;
+        length = result->length;
+        parasail_result_free(result);
     }
     timer_ref = timer_end(timer_ref);
     printf("sg\tref\t\t\t%llu\t\t%d\t%d\t%d\n", timer_ref/limit, score, matches, length);
-    score = 0;
-    matches = 0;
-    length = 0;
 
+#if 0
     timer = timer_start();
     for (i=0; i<limit; ++i) {
         score = sg_stats_scan(seqA, lena, seqB, lenb, 10, 1, blosum62,
@@ -166,9 +147,6 @@ int main(int argc, char **argv)
     }
     timer = timer_end(timer);
     printf("sg\tscan\t\t\t%llu\t%4.1f\t%d\t%d\t%d\n", timer/limit, pct(timer_ref,timer), score, matches, length);
-    score = 0;
-    matches = 0;
-    length = 0;
 
 #if HAVE_SSE2
     timer = timer_start();
@@ -178,9 +156,6 @@ int main(int argc, char **argv)
     }
     timer = timer_end(timer);
     printf("sg\tscan\t128\t16\t%llu\t%4.1f\t%d\t%d\t%d\n", timer/limit, pct(timer_ref,timer), score, matches, length);
-    score = 0;
-    matches = 0;
-    length = 0;
 #endif
 
 #if HAVE_SSE41
@@ -191,9 +166,6 @@ int main(int argc, char **argv)
     }
     timer = timer_end(timer);
     printf("sg\tscan\t128\t8\t%llu\t%4.1f\t%d\t%d\t%d\n", timer/limit, pct(timer_ref,timer), score, matches, length);
-    score = 0;
-    matches = 0;
-    length = 0;
 #endif
 
 #if HAVE_SSE2
@@ -204,9 +176,6 @@ int main(int argc, char **argv)
     }
     timer = timer_end(timer);
     printf("sg\twozniak\t128\t16\t%llu\t%4.1f\t%d\t%d\t%d\n", timer/limit, pct(timer_ref,timer), score, matches, length);
-    score = 0;
-    matches = 0;
-    length = 0;
 #endif
 
 #if HAVE_SSE41
@@ -217,9 +186,6 @@ int main(int argc, char **argv)
     }
     timer = timer_end(timer);
     printf("sg\twozniak\t128\t8\t%llu\t%4.1f\t%d\t%d\t%d\n", timer/limit, pct(timer_ref,timer), score, matches, length);
-    score = 0;
-    matches = 0;
-    length = 0;
 #endif
 
 #if HAVE_SSE2
@@ -230,22 +196,22 @@ int main(int argc, char **argv)
     }
     timer = timer_end(timer);
     printf("sg\tstriped\t128\t16\t%llu\t%4.1f\t%d\t%d\t%d\n", timer/limit, pct(timer_ref,timer), score, matches, length);
-    score = 0;
-    matches = 0;
-    length = 0;
+#endif
 #endif
 
     timer_ref = timer_start();
     for (i=0; i<limit; ++i) {
-        score = sw_stats(seqA, lena, seqB, lenb, 10, 1, blosum62,
-                &matches, &length, tbl_pr, del_pr, mch_pr, len_pr);
+        result = sw_stats(seqA, lena, seqB, lenb, 10, 1, blosum62);
+        score = result->score;
+        matches = result->matches;
+        length = result->length;
+        parasail_result_free(result);
     }
     timer_ref = timer_end(timer_ref);
     printf("sw\tref\t\t\t%llu\t\t%d\t%d\t%d\n", timer_ref/limit, score, matches, length);
-    score = 0;
-    matches = 0;
-    length = 0;
 
+
+#if 0
     timer = timer_start();
     for (i=0; i<limit; ++i) {
         score = sw_stats_scan(seqA, lena, seqB, lenb, 10, 1, blosum62,
@@ -253,9 +219,6 @@ int main(int argc, char **argv)
     }
     timer = timer_end(timer);
     printf("sw\tscan\t\t\t%llu\t%4.1f\t%d\t%d\t%d\n", timer/limit, pct(timer_ref,timer), score, matches, length);
-    score = 0;
-    matches = 0;
-    length = 0;
 
 #if HAVE_SSE2
     timer = timer_start();
@@ -265,9 +228,6 @@ int main(int argc, char **argv)
     }
     timer = timer_end(timer);
     printf("sw\tscan\t128\t16\t%llu\t%4.1f\t%d\t%d\t%d\n", timer/limit, pct(timer_ref,timer), score, matches, length);
-    score = 0;
-    matches = 0;
-    length = 0;
 #endif
 
 #if HAVE_SSE41
@@ -278,9 +238,6 @@ int main(int argc, char **argv)
     }
     timer = timer_end(timer);
     printf("sw\tscan\t128\t8\t%llu\t%4.1f\t%d\t%d\t%d\n", timer/limit, pct(timer_ref,timer), score, matches, length);
-    score = 0;
-    matches = 0;
-    length = 0;
 #endif
 
 #if HAVE_SSE2
@@ -291,9 +248,6 @@ int main(int argc, char **argv)
     }
     timer = timer_end(timer);
     printf("sw\twozniak\t128\t16\t%llu\t%4.1f\t%d\t%d\t%d\n", timer/limit, pct(timer_ref,timer), score, matches, length);
-    score = 0;
-    matches = 0;
-    length = 0;
 #endif
 
 #if HAVE_SSE2
@@ -304,9 +258,6 @@ int main(int argc, char **argv)
     }
     timer = timer_end(timer);
     printf("sw\tstriped\t128\t16\t%llu\t%4.1f\t%d\t%d\t%d\n", timer/limit, pct(timer_ref,timer), score, matches, length);
-    score = 0;
-    matches = 0;
-    length = 0;
 #endif
 #endif
 

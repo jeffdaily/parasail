@@ -80,6 +80,7 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 check_PROGRAMS = tests/test_align$(EXEEXT) \
+	tests/test_align_stats$(EXEEXT) \
 	tests/test_align_table$(EXEEXT) tests/test_openmp$(EXEEXT)
 subdir = .
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
@@ -155,6 +156,10 @@ am_tests_test_align_OBJECTS = tests/test_align.$(OBJEXT)
 tests_test_align_OBJECTS = $(am_tests_test_align_OBJECTS)
 tests_test_align_LDADD = $(LDADD)
 tests_test_align_DEPENDENCIES = libparasail.la
+am_tests_test_align_stats_OBJECTS = tests/test_align_stats.$(OBJEXT)
+tests_test_align_stats_OBJECTS = $(am_tests_test_align_stats_OBJECTS)
+tests_test_align_stats_LDADD = $(LDADD)
+tests_test_align_stats_DEPENDENCIES = libparasail.la
 am_tests_test_align_table_OBJECTS = tests/test_align_table.$(OBJEXT)
 tests_test_align_table_OBJECTS = $(am_tests_test_align_table_OBJECTS)
 tests_test_align_table_LDADD = $(LDADD)
@@ -204,10 +209,11 @@ am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
 SOURCES = $(libparasail_la_SOURCES) $(libparasail_table_la_SOURCES) \
-	$(tests_test_align_SOURCES) $(tests_test_align_table_SOURCES) \
-	$(tests_test_openmp_SOURCES)
+	$(tests_test_align_SOURCES) $(tests_test_align_stats_SOURCES) \
+	$(tests_test_align_table_SOURCES) $(tests_test_openmp_SOURCES)
 DIST_SOURCES = $(libparasail_la_SOURCES) \
 	$(libparasail_table_la_SOURCES) $(tests_test_align_SOURCES) \
+	$(tests_test_align_stats_SOURCES) \
 	$(tests_test_align_table_SOURCES) $(tests_test_openmp_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
@@ -386,7 +392,7 @@ libparasail_table_la_SOURCES = $(ALIGNMENT_SRC)
 libparasail_table_la_CPPFLAGS = $(AM_CPPFLAGS) -DPARASAIL_TABLE
 libparasail_la_LIBADD = libparasail_table.la
 tests_test_align_SOURCES = tests/test_align.c
-#tests_test_align_stats_SOURCES = tests/test_align_stats.c
+tests_test_align_stats_SOURCES = tests/test_align_stats.c
 tests_test_align_table_SOURCES = tests/test_align_table.c
 tests_test_openmp_SOURCES = tests/test_openmp.c
 tests_test_openmp_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)
@@ -538,6 +544,12 @@ tests/test_align.$(OBJEXT): tests/$(am__dirstamp) \
 tests/test_align$(EXEEXT): $(tests_test_align_OBJECTS) $(tests_test_align_DEPENDENCIES) $(EXTRA_tests_test_align_DEPENDENCIES) tests/$(am__dirstamp)
 	@rm -f tests/test_align$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(tests_test_align_OBJECTS) $(tests_test_align_LDADD) $(LIBS)
+tests/test_align_stats.$(OBJEXT): tests/$(am__dirstamp) \
+	tests/$(DEPDIR)/$(am__dirstamp)
+
+tests/test_align_stats$(EXEEXT): $(tests_test_align_stats_OBJECTS) $(tests_test_align_stats_DEPENDENCIES) $(EXTRA_tests_test_align_stats_DEPENDENCIES) tests/$(am__dirstamp)
+	@rm -f tests/test_align_stats$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(tests_test_align_stats_OBJECTS) $(tests_test_align_stats_LDADD) $(LIBS)
 tests/test_align_table.$(OBJEXT): tests/$(am__dirstamp) \
 	tests/$(DEPDIR)/$(am__dirstamp)
 
@@ -570,6 +582,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sg.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sg_stats.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_align.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_align_stats.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_align_table.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/tests_test_openmp-test_openmp.Po@am__quote@
 

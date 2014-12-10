@@ -7,21 +7,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "align.h"
+#include "parasail.h"
 #include "blosum/blosum62.h"
 #include "timer.h"
-
-#if HAVE_SSE2
-#include "align_wozniak_128_16.h"
-#include "align_striped_128_16.h"
-#include "align_scan_128_16.h"
-#endif
-
-#if HAVE_SSE41
-#include "align_wozniak_128_8.h"
-#include "align_striped_128_8.h"
-#include "align_scan_128_8.h"
-#endif
 
 #define USE_PERCENT_IMPROVED 0
 
@@ -41,13 +29,11 @@ int main(int argc, char **argv)
 {
     const char *seqA = "MEFYDVAVTVGMLCIIIYLLLVRQFRYWTERNVPQLNPHLLFGDVRDVNKTHHIGEKFRQLYNELKGKHPFGGIYMFTKPVALVTDLELVKNVFVKDFQYFHDRGTYYDEKHDPLSAHLFNLEGYKWKSLRNKITPTFTSGKMKMMFPTVAAAGKQFKDYLEDAIGEQEEFELKELLARYTTDVIGTCAFGIECNSMRNPNAEFRVMGKKIFGRSRSNLQLLLMNAFPSVAKLVGIKLILPEVSDFFMNAVRDTIKYRVENNVQRNDFMDILIRMRSDKETKSDDGTLTFHEIAAQAFVFFVAGFETSSSLMAFTLYELALDQDMQDKARKCVTDVLERHNGELTYEAAMEMDYLDCVLKGWVR";
     const char *seqB = "AALGVAARAGFLAAGFASSSELSSELSSEDSAAFLAAAAGVAAFAGVFTIAAFGVAATADLLAAGLHSSSELSSELSSEDSAAFFAATAGVAALAGVLAAAAAFGVAATADFFAAGLESSSELSSELSSDDSAVFFAAAAGVATFAGVLAAAATFGVAACAGFFAAGLDSSSELSSELSSEDSAAFFAAAAGVATFTGVLAAAAACAAAACVGFFAAGLDSSSELSSELSSEDSAAFFAAAAGVAALAGVLAAAAACAGFFAAGLESSSELSSE";
-    //const char *seqA = "MEFYDVAVTV"
-    //                   "MEFYDVAVTV";
-    //const char *seqB = "AALGVAARAGFLAAGFASSS"
-    //                   "AALGVAARAGFLAAGFASSS";
+    //const char *seqA = "MEFYDVAVTV";
+    //const char *seqB = "AALGVAARAGFLAAGFASSS";
     const int lena = strlen(seqA);
     const int lenb = strlen(seqB);
-    const int longest = MAX(lena,lenb) + 32 /* +32 for woz padding */;
+    const int longest = (lena>lenb?lena:lenb) + 32 /* +32 for woz padding */;
     int score;
     int matches;
     int length;
@@ -55,10 +41,7 @@ int main(int argc, char **argv)
     unsigned long long timer_ref;
     size_t limit = 1000;
     size_t i;
-    int * tbl_pr = malloc(sizeof(int) * longest);
-    int * del_pr = malloc(sizeof(int) * longest);
-    int * mch_pr = malloc(sizeof(int) * longest);
-    int * len_pr = malloc(sizeof(int) * longest);
+    parasail_result_t *result = NULL;
 
     timer_init();
     printf("%s timer\n", timer_name());
@@ -70,15 +53,16 @@ int main(int argc, char **argv)
 
     timer_ref = timer_start();
     for (i=0; i<limit; ++i) {
-        score = nw_stats(seqA, lena, seqB, lenb, 10, 1, blosum62,
-                &matches, &length, tbl_pr, del_pr, mch_pr, len_pr);
+        result = nw_stats(seqA, lena, seqB, lenb, 10, 1, blosum62);
+        score = result->score;
+        matches = result->matches;
+        length = result->length;
+        parasail_result_free(result);
     }
     timer_ref = timer_end(timer_ref);
     printf("nw\tref\t\t\t%llu\t\t%d\t%d\t%d\n", timer_ref/limit, score, matches, length);
-    score = 0;
-    matches = 0;
-    length = 0;
 
+#if 0
     timer = timer_start();
     for (i=0; i<limit; ++i) {
         score = nw_stats_scan(seqA, lena, seqB, lenb, 10, 1, blosum62,
@@ -324,11 +308,7 @@ int main(int argc, char **argv)
     matches = 0;
     length = 0;
 #endif
-
-    free(tbl_pr);
-    free(del_pr);
-    free(mch_pr);
-    free(len_pr);
+#endif
 
     return 0;
 }

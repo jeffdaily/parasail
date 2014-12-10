@@ -105,9 +105,9 @@ parasail_result_t* ENAME(
             tbl_pr[j] = Wscore;
             mch_pr[j] = Wmatches;
             len_pr[j] = Wlength;
-#ifdef ALIGN_EXTRA
+#ifdef PARASAIL_TABLE
             result->score_table[(i-1)*s2Len + (j-1)] = Wscore;
-            result->match_table[(i-1)*s2Len + (j-1)] = Wmatches;
+            result->matches_table[(i-1)*s2Len + (j-1)] = Wmatches;
             result->length_table[(i-1)*s2Len + (j-1)] = Wlength;
 #endif
         }

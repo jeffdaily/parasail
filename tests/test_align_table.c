@@ -48,8 +48,11 @@ int main(int argc, char **argv)
     const int lenb = strlen(seqB);
     parasail_result_t *result = NULL;
 
+    printf("alg\t\ttype\tvec_w\tval_w\tscore\tmatches\tlength\n");
+
     result = nw_table(seqA, lena, seqB, lenb, 10, 1, blosum62);
-    print_array("nw_ref_scr.txt", result->score_table, seqA, lena, seqB, lenb);
+    print_array("nw_scr.txt", result->score_table, seqA, lena, seqB, lenb);
+    printf("nw\t\t\t\t\t%d\t%d\t%d\n", result->score, result->matches, result->length);
     parasail_result_free(result);
 
 #if 0
@@ -105,9 +108,10 @@ int main(int argc, char **argv)
 #endif
 
     result = nw_stats_table(seqA, lena, seqB, lenb, 10, 1, blosum62);
-    print_array("nw_stats_ref_scr.txt", result->score_table, seqA, lena, seqB, lenb);
-    print_array("nw_stats_ref_mch.txt", result->matches_table, seqA, lena, seqB, lenb);
-    print_array("nw_stats_ref_len.txt", result->length_table, seqA, lena, seqB, lenb);
+    print_array("nw_stats_scr.txt", result->score_table, seqA, lena, seqB, lenb);
+    print_array("nw_stats_mch.txt", result->matches_table, seqA, lena, seqB, lenb);
+    print_array("nw_stats_len.txt", result->length_table, seqA, lena, seqB, lenb);
+    printf("nw_stats\t\t\t\t%d\t%d\t%d\n", result->score, result->matches, result->length);
     parasail_result_free(result);
 
 #if 0

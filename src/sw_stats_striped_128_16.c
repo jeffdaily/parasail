@@ -14,15 +14,15 @@
 
 #include <emmintrin.h>
 
-#ifdef ALIGN_EXTRA
-#include "align_striped_128_16_debug.h"
+#ifdef PARASAIL_TABLE
+#include "align_striped_128_16_table.h"
 #else
 #include "align_striped_128_16.h"
 #endif
 #include "blosum/blosum_map.h"
 
 
-#ifdef ALIGN_EXTRA
+#ifdef PARASAIL_TABLE
 static inline void arr_store_si128(
         int *array,
         __m128i vH,
@@ -43,8 +43,8 @@ static inline void arr_store_si128(
 #endif
 
 
-#ifdef ALIGN_EXTRA
-#define FNAME sw_stats_striped_128_16_debug
+#ifdef PARASAIL_TABLE
+#define FNAME sw_stats_striped_128_16_table
 #else
 #define FNAME sw_stats_striped_128_16
 #endif
@@ -55,7 +55,7 @@ int FNAME(
         const int open, const int gap,
         const int8_t * const restrict matrix,
         int * const restrict matches, int * const restrict length
-#ifdef ALIGN_EXTRA
+#ifdef PARASAIL_TABLE
         , int * const restrict score_table
         , int * const restrict match_table
         , int * const restrict length_table
@@ -228,7 +228,7 @@ int FNAME(
             vHL = _mm_andnot_si128(cond_zero, vHL);
             _mm_store_si128(pvHLStore + i, vHL);
 
-#ifdef ALIGN_EXTRA
+#ifdef PARASAIL_TABLE
             arr_store_si128(match_table, vHM, i, segLen, j, s2Len);
             arr_store_si128(length_table, vHL, i, segLen, j, s2Len);
             arr_store_si128(score_table, vH, i, segLen, j, s2Len);
@@ -314,7 +314,7 @@ int FNAME(
                 _mm_store_si128(pvHLStore + i, vHL);
                 _mm_store_si128(pvELStore + i, vHL);
 
-#ifdef ALIGN_EXTRA
+#ifdef PARASAIL_TABLE
                 arr_store_si128(match_table, vHM, i, segLen, j, s2Len);
                 arr_store_si128(length_table, vHL, i, segLen, j, s2Len);
                 arr_store_si128(score_table, vH, i, segLen, j, s2Len);

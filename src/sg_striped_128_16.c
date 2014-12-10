@@ -14,15 +14,15 @@
 
 #include <emmintrin.h>
 
-#ifdef ALIGN_EXTRA
-#include "align_striped_128_16_debug.h"
+#ifdef PARASAIL_TABLE
+#include "align_striped_128_16_table.h"
 #else
 #include "align_striped_128_16.h"
 #endif
 #include "blosum/blosum_map.h"
 
 
-#if ALIGN_EXTRA
+#if PARASAIL_TABLE
 static inline void arr_store_si128(
         int *array,
         __m128i vH,
@@ -42,8 +42,8 @@ static inline void arr_store_si128(
 }
 #endif
 
-#ifdef ALIGN_EXTRA
-#define FNAME sg_striped_128_16_debug
+#ifdef PARASAIL_TABLE
+#define FNAME sg_striped_128_16_table
 #else
 #define FNAME sg_striped_128_16
 #endif
@@ -53,7 +53,7 @@ int FNAME(
         const char * const restrict s2, const int s2Len,
         const int open, const int gap,
         const int8_t * const restrict matrix
-#ifdef ALIGN_EXTRA
+#ifdef PARASAIL_TABLE
         , int * const restrict score_table
 #endif
         )
@@ -149,7 +149,7 @@ int FNAME(
             vH = _mm_max_epi16(vH, vF);
             /* Save vH values. */
             _mm_store_si128(pvHStore + i, vH);
-#ifdef ALIGN_EXTRA
+#ifdef PARASAIL_TABLE
             arr_store_si128(score_table, vH, i, segLen, j, s2Len);
 #endif
 
@@ -176,7 +176,7 @@ int FNAME(
                 vH = _mm_load_si128(pvHStore + i);
                 vH = _mm_max_epi16(vH,vF);
                 _mm_store_si128(pvHStore + i, vH);
-#ifdef ALIGN_EXTRA
+#ifdef PARASAIL_TABLE
                 arr_store_si128(score_table, vH, i, segLen, j, s2Len);
 #endif
                 vH = _mm_subs_epi16(vH, vGapO);

@@ -13,8 +13,8 @@
 
 #include <emmintrin.h>
 
-#ifdef ALIGN_EXTRA
-#include "align_wozniak_128_16_debug.h"
+#ifdef PARASAIL_TABLE
+#include "align_wozniak_128_16_table.h"
 #else
 #include "align_wozniak_128_16.h"
 #endif
@@ -30,7 +30,7 @@ static inline __m128i vshift16(const __m128i v, const int val)
 }
 
 
-#ifdef ALIGN_EXTRA
+#ifdef PARASAIL_TABLE
 static inline void arr_store_si128(
         int *array,
         __m128i vWscore,
@@ -67,8 +67,8 @@ static inline void arr_store_si128(
 #endif
 
 
-#ifdef ALIGN_EXTRA
-#define FNAME sg_stats_wozniak_128_16_debug
+#ifdef PARASAIL_TABLE
+#define FNAME sg_stats_wozniak_128_16_table
 #else
 #define FNAME sg_stats_wozniak_128_16
 #endif
@@ -80,7 +80,7 @@ int FNAME(
         int * const restrict _matches, int * const restrict _length,
         int * const restrict _tbl_pr, int * const restrict _del_pr,
         int * const restrict _mch_pr, int * const restrict _len_pr
-#ifdef ALIGN_EXTRA
+#ifdef PARASAIL_TABLE
         , int * const restrict score_table
         , int * const restrict match_table
         , int * const restrict length_table
@@ -263,7 +263,7 @@ int FNAME(
                 vIns = _mm_andnot_si128(cond, vIns);
                 vIns = _mm_or_si128(vIns, _mm_and_si128(cond, vNegInf));
             }
-#ifdef ALIGN_EXTRA
+#ifdef PARASAIL_TABLE
             arr_store_si128(score_table, vWscore, i, s1Len, j, s2Len);
             arr_store_si128(match_table, vWmatch, i, s1Len, j, s2Len);
             arr_store_si128(length_table, vWlength, i, s1Len, j, s2Len);
@@ -331,7 +331,7 @@ int FNAME(
                 vWmatch = vCmatch;
                 vWlength = vClength;
             }
-#ifdef ALIGN_EXTRA
+#ifdef PARASAIL_TABLE
             arr_store_si128(score_table, vWscore, i, s1Len, j, s2Len);
             arr_store_si128(match_table, vWmatch, i, s1Len, j, s2Len);
             arr_store_si128(length_table, vWlength, i, s1Len, j, s2Len);
@@ -399,7 +399,7 @@ int FNAME(
                 vWmatch = vCmatch;
                 vWlength = vClength;
             }
-#ifdef ALIGN_EXTRA
+#ifdef PARASAIL_TABLE
             arr_store_si128(score_table, vWscore, i, s1Len, j, s2Len);
             arr_store_si128(match_table, vWmatch, i, s1Len, j, s2Len);
             arr_store_si128(length_table, vWlength, i, s1Len, j, s2Len);
@@ -528,7 +528,7 @@ int FNAME(
                 vIns = _mm_andnot_si128(cond, vIns);
                 vIns = _mm_or_si128(vIns, _mm_and_si128(cond, vNegInf));
             }
-#ifdef ALIGN_EXTRA
+#ifdef PARASAIL_TABLE
             arr_store_si128(score_table, vWscore, i, s1Len, j, s2Len);
             arr_store_si128(match_table, vWmatch, i, s1Len, j, s2Len);
             arr_store_si128(length_table, vWlength, i, s1Len, j, s2Len);
@@ -614,7 +614,7 @@ int FNAME(
                 vWmatch = vCmatch;
                 vWlength = vClength;
             }
-#ifdef ALIGN_EXTRA
+#ifdef PARASAIL_TABLE
             arr_store_si128(score_table, vWscore, i, s1Len, j, s2Len);
             arr_store_si128(match_table, vWmatch, i, s1Len, j, s2Len);
             arr_store_si128(length_table, vWlength, i, s1Len, j, s2Len);
@@ -698,7 +698,7 @@ int FNAME(
                 vWmatch = vCmatch;
                 vWlength = vClength;
             }
-#ifdef ALIGN_EXTRA
+#ifdef PARASAIL_TABLE
             arr_store_si128(score_table, vWscore, i, s1Len, j, s2Len);
             arr_store_si128(match_table, vWmatch, i, s1Len, j, s2Len);
             arr_store_si128(length_table, vWlength, i, s1Len, j, s2Len);

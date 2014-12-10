@@ -15,15 +15,15 @@
 #include <emmintrin.h>
 #include <smmintrin.h>
 
-#ifdef ALIGN_EXTRA
-#include "align_scan_128_8_debug.h"
+#ifdef PARASAIL_TABLE
+#include "align_scan_128_8_table.h"
 #else
 #include "align_scan_128_8.h"
 #endif
 #include "blosum/blosum_map.h"
 
 
-#if ALIGN_EXTRA
+#if PARASAIL_TABLE
 static inline void arr_store_si128(
         int *array,
         __m128i vH,
@@ -76,8 +76,8 @@ static inline void arr_store_si128(
     vFt = tmp.m;                                        \
 }
 
-#ifdef ALIGN_EXTRA
-#define FNAME sw_scan_128_8_debug
+#ifdef PARASAIL_TABLE
+#define FNAME sw_scan_128_8_table
 #else
 #define FNAME sw_scan_128_8
 #endif
@@ -87,7 +87,7 @@ int FNAME(
         const char * const restrict s2, const int s2Len,
         const int open, const int gap,
         const int8_t * const restrict matrix
-#ifdef ALIGN_EXTRA
+#ifdef PARASAIL_TABLE
         , int * const restrict score_table
 #endif
         )
@@ -256,7 +256,7 @@ int FNAME(
                             _mm_cmpeq_epi8(vH, vNegLimit),
                             _mm_cmpeq_epi8(vH, vPosLimit)));
             }
-#ifdef ALIGN_EXTRA
+#ifdef PARASAIL_TABLE
             arr_store_si128(score_table, vH, i, segLen, j, s2Len);
 #endif
             /* update max vector seen so far */

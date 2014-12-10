@@ -13,8 +13,8 @@
 
 #include <emmintrin.h>
 
-#ifdef ALIGN_EXTRA
-#include "align_wozniak_128_16_debug.h"
+#ifdef PARASAIL_TABLE
+#include "align_wozniak_128_16_table.h"
 #else
 #include "align_wozniak_128_16.h"
 #endif
@@ -30,7 +30,7 @@ static inline __m128i vshift16(const __m128i v, const int val)
 }
 
 
-#ifdef ALIGN_EXTRA
+#ifdef PARASAIL_TABLE
 static inline void arr_store_si128(
         int *array,
         __m128i vWscore,
@@ -67,8 +67,8 @@ static inline void arr_store_si128(
 #endif
 
 
-#ifdef ALIGN_EXTRA
-#define FNAME sg_wozniak_128_16_debug
+#ifdef PARASAIL_TABLE
+#define FNAME sg_wozniak_128_16_table
 #else
 #define FNAME sg_wozniak_128_16
 #endif
@@ -79,7 +79,7 @@ int FNAME(
         const int open, const int gap,
         const int matrix[24][24],
         int * const restrict _tbl_pr, int * const restrict _del_pr
-#ifdef ALIGN_EXTRA
+#ifdef PARASAIL_TABLE
         , int * const restrict score_table
 #endif
         )
@@ -198,7 +198,7 @@ int FNAME(
                 vIns = _mm_andnot_si128(cond, vIns);
                 vIns = _mm_or_si128(vIns, _mm_and_si128(cond, vNegInf));
             }
-#ifdef ALIGN_EXTRA
+#ifdef PARASAIL_TABLE
             arr_store_si128(score_table, vWscore, i, s1Len, j, s2Len);
 #endif
             tbl_pr[j-7] = (int16_t)_mm_extract_epi16(vWscore,0);
@@ -229,7 +229,7 @@ int FNAME(
             vNWscore = _mm_add_epi16(vNWscore, vMat);
             vWscore = _mm_max_epi16(vNWscore, vIns);
             vWscore = _mm_max_epi16(vWscore, vDel);
-#ifdef ALIGN_EXTRA
+#ifdef PARASAIL_TABLE
             arr_store_si128(score_table, vWscore, i, s1Len, j, s2Len);
 #endif
             tbl_pr[j-7] = (int16_t)_mm_extract_epi16(vWscore,0);
@@ -260,7 +260,7 @@ int FNAME(
             vNWscore = _mm_add_epi16(vNWscore, vMat);
             vWscore = _mm_max_epi16(vNWscore, vIns);
             vWscore = _mm_max_epi16(vWscore, vDel);
-#ifdef ALIGN_EXTRA
+#ifdef PARASAIL_TABLE
             arr_store_si128(score_table, vWscore, i, s1Len, j, s2Len);
 #endif
             tbl_pr[j-7] = (int16_t)_mm_extract_epi16(vWscore,0);
@@ -330,7 +330,7 @@ int FNAME(
                 vIns = _mm_andnot_si128(cond, vIns);
                 vIns = _mm_or_si128(vIns, _mm_and_si128(cond, vNegInf));
             }
-#ifdef ALIGN_EXTRA
+#ifdef PARASAIL_TABLE
             arr_store_si128(score_table, vWscore, i, s1Len, j, s2Len);
 #endif
             tbl_pr[j-7] = (int16_t)_mm_extract_epi16(vWscore,0);
@@ -373,7 +373,7 @@ int FNAME(
             vNWscore = _mm_add_epi16(vNWscore, vMat);
             vWscore = _mm_max_epi16(vNWscore, vIns);
             vWscore = _mm_max_epi16(vWscore, vDel);
-#ifdef ALIGN_EXTRA
+#ifdef PARASAIL_TABLE
             arr_store_si128(score_table, vWscore, i, s1Len, j, s2Len);
 #endif
             tbl_pr[j-7] = (int16_t)_mm_extract_epi16(vWscore,0);
@@ -414,7 +414,7 @@ int FNAME(
             vNWscore = _mm_add_epi16(vNWscore, vMat);
             vWscore = _mm_max_epi16(vNWscore, vIns);
             vWscore = _mm_max_epi16(vWscore, vDel);
-#ifdef ALIGN_EXTRA
+#ifdef PARASAIL_TABLE
             arr_store_si128(score_table, vWscore, i, s1Len, j, s2Len);
 #endif
             tbl_pr[j-7] = (int16_t)_mm_extract_epi16(vWscore,0);

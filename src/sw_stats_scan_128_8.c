@@ -15,15 +15,15 @@
 #include <emmintrin.h>
 #include <smmintrin.h>
 
-#ifdef ALIGN_EXTRA
-#include "align_scan_128_8_debug.h"
+#ifdef PARASAIL_TABLE
+#include "align_scan_128_8_table.h"
 #else
 #include "align_scan_128_8.h"
 #endif
 #include "blosum/blosum_map.h"
 
 
-#ifdef ALIGN_EXTRA
+#ifdef PARASAIL_TABLE
 static inline void arr_store_si128(
         int *array,
         __m128i vH,
@@ -77,8 +77,8 @@ static inline void arr_store_si128(
     vFt = tmp.m;                                        \
 }
 
-#ifdef ALIGN_EXTRA
-#define FNAME sw_stats_scan_128_8_debug
+#ifdef PARASAIL_TABLE
+#define FNAME sw_stats_scan_128_8_table
 #else
 #define FNAME sw_stats_scan_128_8
 #endif
@@ -89,7 +89,7 @@ int FNAME(
         const int open, const int gap,
         const int8_t * const restrict matrix,
         int * const restrict matches, int * const restrict length
-#ifdef ALIGN_EXTRA
+#ifdef PARASAIL_TABLE
         , int * const restrict score_table
         , int * const restrict match_table
         , int * const restrict length_table
@@ -294,7 +294,7 @@ int FNAME(
             /* store results */
             _mm_store_si128(pvH+i, vH);
             _mm_store_si128(pvEx+i, vEx);
-#ifdef ALIGN_EXTRA
+#ifdef PARASAIL_TABLE
             arr_store_si128(score_table, vH, i, segLen, j, s2Len);
 #endif
         }
@@ -368,7 +368,7 @@ int FNAME(
             /* store results */
             _mm_store_si128(pvM+i, vM);
             _mm_store_si128(pvL+i, vL);
-#ifdef ALIGN_EXTRA
+#ifdef PARASAIL_TABLE
             arr_store_si128(match_table, vM, i, segLen, j, s2Len);
             arr_store_si128(length_table, vL, i, segLen, j, s2Len);
 #endif

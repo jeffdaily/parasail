@@ -11,15 +11,15 @@
 
 #include <stdlib.h>
 
-#ifdef ALIGN_EXTRA
-#include "align_debug.h"
+#ifdef PARASAIL_TABLE
+#include "align_table.h"
 #else
 #include "align.h"
 #endif
 #include "blosum/blosum_map.h"
 
-#ifdef ALIGN_EXTRA
-#define FNAME sg_stats_scan_debug
+#ifdef PARASAIL_TABLE
+#define FNAME sg_stats_scan_table
 #else
 #define FNAME sg_stats_scan
 #endif
@@ -32,7 +32,7 @@ int FNAME(
         int * matches, int * length,
         int * const restrict _H, int * const restrict E,
         int * const restrict _M, int * const restrict _L
-#ifdef ALIGN_EXTRA
+#ifdef PARASAIL_TABLE
         , int * const restrict score_table
         , int * const restrict match_table
         , int * const restrict length_table
@@ -122,7 +122,7 @@ int FNAME(
                 M[i] = Mt[i];
                 L[i] = Lt[i];
             }
-#ifdef ALIGN_EXTRA
+#ifdef PARASAIL_TABLE
             score_table[i*s2Len + j] = H[i];
             match_table[i*s2Len + j] = M[i];
             length_table[i*s2Len + j] = L[i];

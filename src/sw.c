@@ -11,15 +11,15 @@
 
 #include <stdlib.h>
 
-#ifdef ALIGN_EXTRA
-#include "align_debug.h"
+#ifdef PARASAIL_TABLE
+#include "align_table.h"
 #else
 #include "align.h"
 #endif
 #include "blosum/blosum_map.h"
 
-#ifdef ALIGN_EXTRA
-#define FNAME sw_debug
+#ifdef PARASAIL_TABLE
+#define FNAME sw_table
 #else
 #define FNAME sw
 #endif
@@ -30,7 +30,7 @@ int FNAME(
         const int open, const int gap,
         const int matrix[24][24],
         int * const restrict tbl_pr, int * const restrict del_pr
-#ifdef ALIGN_EXTRA
+#ifdef PARASAIL_TABLE
         , int * const restrict score_table
 #endif
       )
@@ -74,7 +74,7 @@ int FNAME(
             tbl_pr[j] = MAX(NWscore + matrow[s2[j-1]], 0);
             Wscore = tbl_pr[j] = MAX(tbl_pr[j],MAX(ins_cr,del_pr[j]));
             score = MAX(score,Wscore);
-#ifdef ALIGN_EXTRA
+#ifdef PARASAIL_TABLE
             score_table[(i-1)*s2Len + (j-1)] = Wscore;
 #endif
         }

@@ -15,8 +15,8 @@
 #include <immintrin.h>
 #include <zmmintrin.h>
 
-#ifdef ALIGN_EXTRA
-#include "align_scan_512_32_debug.h"
+#ifdef PARASAIL_TABLE
+#include "align_scan_512_32_table.h"
 #else
 #include "align_scan_512_32.h"
 #endif
@@ -48,7 +48,7 @@ static inline int32_t extract(__m512i v, int32_t position) {
     return u.i[position];
 }
 
-#ifdef ALIGN_EXTRA
+#ifdef PARASAIL_TABLE
 static inline void arr_store_si512(
         int32_t *array,
         __m512i vH,
@@ -101,8 +101,8 @@ static inline void arr_store_si512(
     vFt = u.v;                                  \
 }
 
-#ifdef ALIGN_EXTRA
-#define FNAME nw_scan_512_32_debug
+#ifdef PARASAIL_TABLE
+#define FNAME nw_scan_512_32_table
 #else
 #define FNAME nw_scan_512_32
 #endif
@@ -112,7 +112,7 @@ int32_t FNAME(
         const char * const restrict s2, const int32_t s2Len,
         const int32_t open, const int32_t gap,
         const int8_t * const restrict matrix
-#ifdef ALIGN_EXTRA
+#ifdef PARASAIL_TABLE
         , int32_t * const restrict score_table
 #endif
         )
@@ -269,7 +269,7 @@ int32_t FNAME(
                     vHt,
                     _mm512_sub_epi32(vFt, vGapO));
             _mm512_store_epi32(pvH+i, vH);
-#ifdef ALIGN_EXTRA
+#ifdef PARASAIL_TABLE
             arr_store_si512(score_table, vH, i, segLen, j, s2Len);
 #endif
         }

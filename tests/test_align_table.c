@@ -104,12 +104,14 @@ int main(int argc, char **argv)
     printf("nw_stats\t\t\t\t%d\t%d\t%d\n", result->score, result->matches, result->length);
     parasail_result_free(result);
 
-#if 0
-    score = nw_stats_scan_table(seqA, lena, seqB, lenb, 10, 1, blosum62);
-    print_array("nw_stats_scan_scr.txt", result->score_table, seqA, lena, seqB, lenb);
-    print_array("nw_stats_scan_mch.txt", result->matches_table, seqA, lena, seqB, lenb);
-    print_array("nw_stats_scan_len.txt", result->length_table, seqA, lena, seqB, lenb);
+    result = nw_scan_stats_table(seqA, lena, seqB, lenb, 10, 1, blosum62);
+    print_array("nw_scan_stats_scr.txt", result->score_table, seqA, lena, seqB, lenb);
+    print_array("nw_scan_stats_mch.txt", result->matches_table, seqA, lena, seqB, lenb);
+    print_array("nw_scan_stats_len.txt", result->length_table, seqA, lena, seqB, lenb);
+    printf("nw_scan_stats\t\t\t\t%d\t%d\t%d\n", result->score, result->matches, result->length);
+    parasail_result_free(result);
 
+#if 0
 #if HAVE_SSE2
     score = nw_stats_scan_128_16_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, &matches, &length, result->score_table, result->matches_table, result->length_table);
     print_array("nw_stats_scan_128_16_scr.txt", result->score_table, seqA, lena, seqB, lenb);
@@ -203,12 +205,14 @@ int main(int argc, char **argv)
     printf("sg_stats\t\t\t\t%d\t%d\t%d\n", result->score, result->matches, result->length);
     parasail_result_free(result);
 
-#if 0
-    score = sg_stats_scan_table(seqA, lena, seqB, lenb, 10, 1, blosum62);
-    print_array("sg_stats_scan_scr.txt", result->score_table, seqA, lena, seqB, lenb);
-    print_array("sg_stats_scan_mch.txt", result->matches_table, seqA, lena, seqB, lenb);
-    print_array("sg_stats_scan_len.txt", result->length_table, seqA, lena, seqB, lenb);
+    result = sg_scan_stats_table(seqA, lena, seqB, lenb, 10, 1, blosum62);
+    print_array("sg_scan_stats_scr.txt", result->score_table, seqA, lena, seqB, lenb);
+    print_array("sg_scan_stats_mch.txt", result->matches_table, seqA, lena, seqB, lenb);
+    print_array("sg_scan_stats_len.txt", result->length_table, seqA, lena, seqB, lenb);
+    printf("sg_scan_stats\t\t\t\t%d\t%d\t%d\n", result->score, result->matches, result->length);
+    parasail_result_free(result);
 
+#if 0
 #if HAVE_SSE2
     score = sg_stats_scan_128_16_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, &matches, &length, result->score_table, result->matches_table, result->length_table);
     print_array("sg_stats_scan_128_16_scr.txt", result->score_table, seqA, lena, seqB, lenb);
@@ -284,12 +288,14 @@ int main(int argc, char **argv)
     printf("sw_stats\t\t\t\t%d\t%d\t%d\n", result->score, result->matches, result->length);
     parasail_result_free(result);
 
-#if 0
-    score = sw_stats_scan_table(seqA, lena, seqB, lenb, 10, 1, blosum62);
-    print_array("sw_stats_scan_scr.txt", result->score_table, seqA, lena, seqB, lenb);
-    print_array("sw_stats_scan_mch.txt", result->matches_table, seqA, lena, seqB, lenb);
-    print_array("sw_stats_scan_len.txt", result->length_table, seqA, lena, seqB, lenb);
+    result = sw_scan_stats_table(seqA, lena, seqB, lenb, 10, 1, blosum62);
+    print_array("sw_scan_stats_scr.txt", result->score_table, seqA, lena, seqB, lenb);
+    print_array("sw_scan_stats_mch.txt", result->matches_table, seqA, lena, seqB, lenb);
+    print_array("sw_scan_stats_len.txt", result->length_table, seqA, lena, seqB, lenb);
+    printf("sw_scan_stats\t\t\t\t%d\t%d\t%d\n", result->score, result->matches, result->length);
+    parasail_result_free(result);
 
+#if 0
 #if HAVE_SSE2
     score = sw_stats_scan_128_16_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, &matches, &length, result->score_table, result->matches_table, result->length_table);
     print_array("sw_stats_scan_128_16_scr.txt", result->score_table, seqA, lena, seqB, lenb);

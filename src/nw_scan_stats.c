@@ -9,50 +9,50 @@
  */
 #include "config.h"
 
+#include <stdint.h>
 #include <stdlib.h>
 
-#ifdef PARASAIL_TABLE
-#include "align_table.h"
-#else
-#include "align.h"
-#endif
+#include "parasail.h"
+#include "parasail_internal.h"
 #include "blosum/blosum_map.h"
 
+#define NEG_INF_32 (INT32_MIN/2)
+#define MAX(a,b) ((a)>(b)?(a):(b))
+
 #ifdef PARASAIL_TABLE
-#define FNAME nw_stats_scan_table
+#define ENAME nw_scan_stats_table
 #else
-#define FNAME nw_stats_scan
+#define ENAME nw_scan_stats
 #endif
 
-int FNAME(
+parasail_result_t* ENAME(
         const char * const restrict _s1, const int s1Len,
         const char * const restrict _s2, const int s2Len,
-        const int open, const int gap,
-        const int matrix[24][24],
-        int * matches, int * length,
-        int * const restrict _H, int * const restrict E,
-        int * const restrict _M, int * const restrict _L
-#ifdef PARASAIL_TABLE
-        , int * const restrict result->score_table
-        , int * const restrict result->matches_table
-        , int * const restrict result->length_table
-#endif
-        )
+        const int open, const int gap, const int matrix[24][24])
 {
-    int * const restrict s1 = (int * const restrict)malloc(sizeof(int)*s1Len);
-    int * const restrict s2 = (int * const restrict)malloc(sizeof(int)*s2Len);
-    int * const restrict HtB= (int * const restrict)malloc(sizeof(int)*(s1Len+1));
+#if PARASAIL_TABLE
+    parasail_result_t *result = parasail_result_new_table4(s1Len, s2Len);
+#else
+    parasail_result_t *result = parasail_result_new();
+#endif
+    int * const restrict s1 = parasail_memalign_int(16, s1Len);
+    int * const restrict s2 = parasail_memalign_int(16, s2Len);
+    int * const restrict HB = parasail_memalign_int(16, s1Len+1);
+    int * const restrict H  = HB+1;
+    int * const restrict E  = parasail_memalign_int(16, s1Len);
+    int * const restrict HtB= parasail_memalign_int(16, s1Len+1);
     int * const restrict Ht = HtB+1;
-    int * const restrict FtB= (int * const restrict)malloc(sizeof(int)*(s1Len+1));
+    int * const restrict FtB= parasail_memalign_int(16, s1Len+1);
     int * const restrict Ft = FtB+1;
+    int * const restrict MB = parasail_memalign_int(16, s1Len+1);
+    int * const restrict M  = MB+1;
+    int * const restrict LB = parasail_memalign_int(16, s1Len+1);
+    int * const restrict L  = LB+1;
+    int * const restrict Mt = parasail_memalign_int(16, s1Len);
+    int * const restrict Lt = parasail_memalign_int(16, s1Len);
+    int * const restrict Ex = parasail_memalign_int(16, s1Len);
     int i = 0;
     int j = 0;
-    int * const restrict H  = _H+1;
-    int * const restrict M  = _M+1;
-    int * const restrict L  = _L+1;
-    int * const restrict Mt = (int * const restrict)malloc(sizeof(int)*s1Len);
-    int * const restrict Lt = (int * const restrict)malloc(sizeof(int)*s1Len);
-    int * const restrict Ex = (int * const restrict)malloc(sizeof(int)*s1Len);
 
     for (i=0; i<s1Len; ++i) {
         s1[i] = MAP_BLOSUM_[(unsigned char)_s1[i]];
@@ -132,15 +132,22 @@ int FNAME(
         H[-1] = -open - j*gap;
     }
 
-    free(s1);
-    free(s2);
-    free(HtB);
-    free(FtB);
-    free(Mt);
-    free(Lt);
-    free(Ex);
+    result->score = H[s1Len-1];
+    result->matches = M[s1Len-1];
+    result->length = L[s1Len-1];
 
-    *matches = M[s1Len-1];
-    *length = L[s1Len-1];
-    return H[s1Len-1];
+    free(Ex);
+    free(Lt);
+    free(Mt);
+    free(LB);
+    free(MB);
+    free(FtB);
+    free(HtB);
+    free(E);
+    free(HB);
+    free(s2);
+    free(s1);
+
+    return result;
 }
+

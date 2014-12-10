@@ -7,24 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "align_debug.h"
+#include "parasail.h"
 #include "blosum/blosum62.h"
-
-#if HAVE_SSE2
-#include "align_wozniak_128_16_debug.h"
-#include "align_striped_128_16_debug.h"
-#include "align_scan_128_16_debug.h"
-#endif
-
-#if HAVE_SSE41
-#include "align_wozniak_128_8_debug.h"
-#include "align_striped_128_8_debug.h"
-#include "align_scan_128_8_debug.h"
-#endif
-
-#if HAVE_AVX_512
-#include "align_scan_512_32_debug.h"
-#endif
 
 static void print_array(
         const char * filename,
@@ -62,82 +46,72 @@ int main(int argc, char **argv)
     //                   "AALGVAARAGFLAAGFASSS";
     const int lena = strlen(seqA);
     const int lenb = strlen(seqB);
-    const int longest = MAX(lena,lenb) + 32 /* +32 for woz padding */;
-    const int tbl_size = (32+lena)*(32+lenb);
-    int score;
-    int matches;
-    int length;
-    int * tbl_pr = malloc(sizeof(int) * longest);
-    int * del_pr = malloc(sizeof(int) * longest);
-    int * mch_pr = malloc(sizeof(int) * longest);
-    int * len_pr = malloc(sizeof(int) * longest);
-    int * scr_tbl = malloc(sizeof(int) * tbl_size);
-    int * mch_tbl = malloc(sizeof(int) * tbl_size);
-    int * len_tbl = malloc(sizeof(int) * tbl_size);
+    parasail_result_t *result = NULL;
 
-    score = nw_debug(seqA, lena, seqB, lenb, 10, 1, blosum62, tbl_pr, del_pr, scr_tbl);
-    print_array("nw_ref_scr.txt", scr_tbl, seqA, lena, seqB, lenb);
-    memset(scr_tbl, 0, sizeof(int)*tbl_size);
+    result = nw_table(seqA, lena, seqB, lenb, 10, 1, blosum62);
+    print_array("nw_ref_scr.txt", result->score_table, seqA, lena, seqB, lenb);
+    parasail_result_free(result);
 
-    score = nw_scan_row_debug(seqA, lena, seqB, lenb, 10, 1, blosum62, tbl_pr, del_pr, scr_tbl);
+#if 0
+    score = nw_scan_row_table(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("nw_scan_row_scr.txt", scr_tbl, seqA, lena, seqB, lenb);
     memset(scr_tbl, 0, sizeof(int)*tbl_size);
 
-    score = nw_scan_debug(seqA, lena, seqB, lenb, 10, 1, blosum62, tbl_pr, del_pr, scr_tbl);
+    score = nw_scan_table(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("nw_scan_scr.txt", scr_tbl, seqA, lena, seqB, lenb);
     memset(scr_tbl, 0, sizeof(int)*tbl_size);
 
 #if HAVE_SSE2
-    score = nw_scan_128_16_debug(seqA, lena, seqB, lenb, 10, 1, blosum62__, scr_tbl);
+    score = nw_scan_128_16_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, scr_tbl);
     print_array("nw_scan_128_16_scr.txt", scr_tbl, seqA, lena, seqB, lenb);
     memset(scr_tbl, 0, sizeof(int)*tbl_size);
 #endif
 
 #if HAVE_SSE41
-    score = nw_scan_128_8_debug(seqA, lena, seqB, lenb, 10, 1, blosum62__, scr_tbl);
+    score = nw_scan_128_8_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, scr_tbl);
     print_array("nw_scan_128_8_scr.txt", scr_tbl, seqA, lena, seqB, lenb);
     memset(scr_tbl, 0, sizeof(int)*tbl_size);
 #endif
 
 #if HAVE_AVX_512
-    score = nw_scan_512_32_debug(seqA, lena, seqB, lenb, 10, 1, blosum62__, scr_tbl);
+    score = nw_scan_512_32_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, scr_tbl);
     print_array("nw_scan_512_32_scr.txt", scr_tbl, seqA, lena, seqB, lenb);
     memset(scr_tbl, 0, sizeof(int)*tbl_size);
 #endif
 
 #if HAVE_SSE2
-    score = nw_wozniak_128_16_debug(seqA, lena, seqB, lenb, 10, 1, blosum62, tbl_pr, del_pr, scr_tbl);
+    score = nw_wozniak_128_16_table(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("nw_wozniak_128_16_scr.txt", scr_tbl, seqA, lena, seqB, lenb);
     memset(scr_tbl, 0, sizeof(int)*tbl_size);
 #endif
 
 #if HAVE_SSE41
-    score = nw_wozniak_128_8_debug(seqA, lena, seqB, lenb, 10, 1, blosum62, tbl_pr, del_pr, scr_tbl);
+    score = nw_wozniak_128_8_table(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("nw_wozniak_128_8_scr.txt", scr_tbl, seqA, lena, seqB, lenb);
     memset(scr_tbl, 0, sizeof(int)*tbl_size);
 #endif
 
 #if HAVE_SSE2
-    score = nw_striped_128_16_debug(seqA, lena, seqB, lenb, 10, 1, blosum62__, scr_tbl);
+    score = nw_striped_128_16_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, scr_tbl);
     print_array("nw_striped_128_16_scr.txt", scr_tbl, seqA, lena, seqB, lenb);
     memset(scr_tbl, 0, sizeof(int)*tbl_size);
 #endif
 
 #if HAVE_SSE41
-    score = nw_striped_128_8_debug(seqA, lena, seqB, lenb, 10, 1, blosum62__, scr_tbl);
+    score = nw_striped_128_8_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, scr_tbl);
     print_array("nw_striped_128_8_scr.txt", scr_tbl, seqA, lena, seqB, lenb);
     memset(scr_tbl, 0, sizeof(int)*tbl_size);
 #endif
+#endif
 
-    score = nw_stats_debug(seqA, lena, seqB, lenb, 10, 1, blosum62, &matches, &length, tbl_pr, del_pr, mch_pr, len_pr, scr_tbl, mch_tbl, len_tbl);
-    print_array("nw_stats_ref_scr.txt", scr_tbl, seqA, lena, seqB, lenb);
-    print_array("nw_stats_ref_mch.txt", mch_tbl, seqA, lena, seqB, lenb);
-    print_array("nw_stats_ref_len.txt", len_tbl, seqA, lena, seqB, lenb);
-    memset(scr_tbl, 0, sizeof(int)*tbl_size);
-    memset(mch_tbl, 0, sizeof(int)*tbl_size);
-    memset(len_tbl, 0, sizeof(int)*tbl_size);
+    result = nw_stats_table(seqA, lena, seqB, lenb, 10, 1, blosum62);
+    print_array("nw_stats_ref_scr.txt", result->score_table, seqA, lena, seqB, lenb);
+    print_array("nw_stats_ref_mch.txt", result->matches_table, seqA, lena, seqB, lenb);
+    print_array("nw_stats_ref_len.txt", result->length_table, seqA, lena, seqB, lenb);
+    parasail_result_free(result);
 
-    score = nw_stats_scan_debug(seqA, lena, seqB, lenb, 10, 1, blosum62, &matches, &length, tbl_pr, del_pr, mch_pr, len_pr, scr_tbl, mch_tbl, len_tbl);
+#if 0
+    score = nw_stats_scan_table(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("nw_stats_scan_scr.txt", scr_tbl, seqA, lena, seqB, lenb);
     print_array("nw_stats_scan_mch.txt", mch_tbl, seqA, lena, seqB, lenb);
     print_array("nw_stats_scan_len.txt", len_tbl, seqA, lena, seqB, lenb);
@@ -146,7 +120,7 @@ int main(int argc, char **argv)
     memset(len_tbl, 0, sizeof(int)*tbl_size);
 
 #if HAVE_SSE2
-    score = nw_stats_scan_128_16_debug(seqA, lena, seqB, lenb, 10, 1, blosum62__, &matches, &length, scr_tbl, mch_tbl, len_tbl);
+    score = nw_stats_scan_128_16_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, &matches, &length, scr_tbl, mch_tbl, len_tbl);
     print_array("nw_stats_scan_128_16_scr.txt", scr_tbl, seqA, lena, seqB, lenb);
     print_array("nw_stats_scan_128_16_mch.txt", mch_tbl, seqA, lena, seqB, lenb);
     print_array("nw_stats_scan_128_16_len.txt", len_tbl, seqA, lena, seqB, lenb);
@@ -156,7 +130,7 @@ int main(int argc, char **argv)
 #endif
 
 #if HAVE_SSE41
-    score = nw_stats_scan_128_8_debug(seqA, lena, seqB, lenb, 10, 1, blosum62__, &matches, &length, scr_tbl, mch_tbl, len_tbl);
+    score = nw_stats_scan_128_8_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, &matches, &length, scr_tbl, mch_tbl, len_tbl);
     print_array("nw_stats_scan_128_8_scr.txt", scr_tbl, seqA, lena, seqB, lenb);
     print_array("nw_stats_scan_128_8_mch.txt", mch_tbl, seqA, lena, seqB, lenb);
     print_array("nw_stats_scan_128_8_len.txt", len_tbl, seqA, lena, seqB, lenb);
@@ -166,7 +140,7 @@ int main(int argc, char **argv)
 #endif
 
 #if HAVE_SSE2
-    score = nw_stats_wozniak_128_16_debug(seqA, lena, seqB, lenb, 10, 1, blosum62, &matches, &length, tbl_pr, del_pr, mch_pr, len_pr, scr_tbl, mch_tbl, len_tbl);
+    score = nw_stats_wozniak_128_16_table(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("nw_stats_wozniak_128_16_scr.txt", scr_tbl, seqA, lena, seqB, lenb);
     print_array("nw_stats_wozniak_128_16_mch.txt", mch_tbl, seqA, lena, seqB, lenb);
     print_array("nw_stats_wozniak_128_16_len.txt", len_tbl, seqA, lena, seqB, lenb);
@@ -176,7 +150,7 @@ int main(int argc, char **argv)
 #endif
 
 #if HAVE_SSE41
-    score = nw_stats_wozniak_128_8_debug(seqA, lena, seqB, lenb, 10, 1, blosum62, &matches, &length, tbl_pr, del_pr, mch_pr, len_pr, scr_tbl, mch_tbl, len_tbl);
+    score = nw_stats_wozniak_128_8_table(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("nw_stats_wozniak_128_8_scr.txt", scr_tbl, seqA, lena, seqB, lenb);
     print_array("nw_stats_wozniak_128_8_mch.txt", mch_tbl, seqA, lena, seqB, lenb);
     print_array("nw_stats_wozniak_128_8_len.txt", len_tbl, seqA, lena, seqB, lenb);
@@ -186,7 +160,7 @@ int main(int argc, char **argv)
 #endif
 
 #if HAVE_SSE2
-    score = nw_stats_striped_128_16_debug(seqA, lena, seqB, lenb, 10, 1, blosum62__, &matches, &length, scr_tbl, mch_tbl, len_tbl);
+    score = nw_stats_striped_128_16_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, &matches, &length, scr_tbl, mch_tbl, len_tbl);
     print_array("nw_stats_striped_128_16_scr.txt", scr_tbl, seqA, lena, seqB, lenb);
     print_array("nw_stats_striped_128_16_mch.txt", mch_tbl, seqA, lena, seqB, lenb);
     print_array("nw_stats_striped_128_16_len.txt", len_tbl, seqA, lena, seqB, lenb);
@@ -196,7 +170,7 @@ int main(int argc, char **argv)
 #endif
 
 #if HAVE_SSE41
-    score = nw_stats_striped_128_8_debug(seqA, lena, seqB, lenb, 10, 1, blosum62__, &matches, &length, scr_tbl, mch_tbl, len_tbl);
+    score = nw_stats_striped_128_8_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, &matches, &length, scr_tbl, mch_tbl, len_tbl);
     print_array("nw_stats_striped_128_8_scr.txt", scr_tbl, seqA, lena, seqB, lenb);
     print_array("nw_stats_striped_128_8_mch.txt", mch_tbl, seqA, lena, seqB, lenb);
     print_array("nw_stats_striped_128_8_len.txt", len_tbl, seqA, lena, seqB, lenb);
@@ -205,51 +179,51 @@ int main(int argc, char **argv)
     memset(len_tbl, 0, sizeof(int)*tbl_size);
 #endif
 
-    score = sg_debug(seqA, lena, seqB, lenb, 10, 1, blosum62, tbl_pr, del_pr, scr_tbl);
+    score = sg_table(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("sg_ref_scr.txt", scr_tbl, seqA, lena, seqB, lenb);
     memset(scr_tbl, 0, sizeof(int)*tbl_size);
 
-    score = sg_scan_debug(seqA, lena, seqB, lenb, 10, 1, blosum62, tbl_pr, del_pr, scr_tbl);
+    score = sg_scan_table(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("sg_scan_scr.txt", scr_tbl, seqA, lena, seqB, lenb);
     memset(scr_tbl, 0, sizeof(int)*tbl_size);
 
 #if HAVE_SSE2
-    score = sg_scan_128_16_debug(seqA, lena, seqB, lenb, 10, 1, blosum62__, scr_tbl);
+    score = sg_scan_128_16_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, scr_tbl);
     print_array("sg_scan_128_16_scr.txt", scr_tbl, seqA, lena, seqB, lenb);
     memset(scr_tbl, 0, sizeof(int)*tbl_size);
 #endif
 
 #if HAVE_SSE41
-    score = sg_scan_128_8_debug(seqA, lena, seqB, lenb, 10, 1, blosum62__, scr_tbl);
+    score = sg_scan_128_8_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, scr_tbl);
     print_array("sg_scan_128_8_scr.txt", scr_tbl, seqA, lena, seqB, lenb);
     memset(scr_tbl, 0, sizeof(int)*tbl_size);
 #endif
 
 #if HAVE_SSE2
-    score = sg_wozniak_128_16_debug(seqA, lena, seqB, lenb, 10, 1, blosum62, tbl_pr, del_pr, scr_tbl);
+    score = sg_wozniak_128_16_table(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("sg_wozniak_128_16_scr.txt", scr_tbl, seqA, lena, seqB, lenb);
     memset(scr_tbl, 0, sizeof(int)*tbl_size);
 #endif
 
 #if HAVE_SSE41
-    score = sg_wozniak_128_8_debug(seqA, lena, seqB, lenb, 10, 1, blosum62, tbl_pr, del_pr, scr_tbl);
+    score = sg_wozniak_128_8_table(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("sg_wozniak_128_8_scr.txt", scr_tbl, seqA, lena, seqB, lenb);
     memset(scr_tbl, 0, sizeof(int)*tbl_size);
 #endif
 
 #if HAVE_SSE2
-    score = sg_striped_128_16_debug(seqA, lena, seqB, lenb, 10, 1, blosum62__, scr_tbl);
+    score = sg_striped_128_16_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, scr_tbl);
     print_array("sg_striped_128_16_scr.txt", scr_tbl, seqA, lena, seqB, lenb);
     memset(scr_tbl, 0, sizeof(int)*tbl_size);
 #endif
 
 #if HAVE_SSE41
-    score = sg_striped_128_8_debug(seqA, lena, seqB, lenb, 10, 1, blosum62__, scr_tbl);
+    score = sg_striped_128_8_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, scr_tbl);
     print_array("sg_striped_128_8_scr.txt", scr_tbl, seqA, lena, seqB, lenb);
     memset(scr_tbl, 0, sizeof(int)*tbl_size);
 #endif
 
-    score = sg_stats_debug(seqA, lena, seqB, lenb, 10, 1, blosum62, &matches, &length, tbl_pr, del_pr, mch_pr, len_pr, scr_tbl, mch_tbl, len_tbl);
+    score = sg_stats_table(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("sg_stats_ref_scr.txt", scr_tbl, seqA, lena, seqB, lenb);
     print_array("sg_stats_ref_mch.txt", mch_tbl, seqA, lena, seqB, lenb);
     print_array("sg_stats_ref_len.txt", len_tbl, seqA, lena, seqB, lenb);
@@ -257,7 +231,7 @@ int main(int argc, char **argv)
     memset(mch_tbl, 0, sizeof(int)*tbl_size);
     memset(len_tbl, 0, sizeof(int)*tbl_size);
 
-    score = sg_stats_scan_debug(seqA, lena, seqB, lenb, 10, 1, blosum62, &matches, &length, tbl_pr, del_pr, mch_pr, len_pr, scr_tbl, mch_tbl, len_tbl);
+    score = sg_stats_scan_table(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("sg_stats_scan_scr.txt", scr_tbl, seqA, lena, seqB, lenb);
     print_array("sg_stats_scan_mch.txt", mch_tbl, seqA, lena, seqB, lenb);
     print_array("sg_stats_scan_len.txt", len_tbl, seqA, lena, seqB, lenb);
@@ -266,7 +240,7 @@ int main(int argc, char **argv)
     memset(len_tbl, 0, sizeof(int)*tbl_size);
 
 #if HAVE_SSE2
-    score = sg_stats_scan_128_16_debug(seqA, lena, seqB, lenb, 10, 1, blosum62__, &matches, &length, scr_tbl, mch_tbl, len_tbl);
+    score = sg_stats_scan_128_16_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, &matches, &length, scr_tbl, mch_tbl, len_tbl);
     print_array("sg_stats_scan_128_16_scr.txt", scr_tbl, seqA, lena, seqB, lenb);
     print_array("sg_stats_scan_128_16_mch.txt", mch_tbl, seqA, lena, seqB, lenb);
     print_array("sg_stats_scan_128_16_len.txt", len_tbl, seqA, lena, seqB, lenb);
@@ -276,7 +250,7 @@ int main(int argc, char **argv)
 #endif
 
 #if HAVE_SSE41
-    score = sg_stats_scan_128_8_debug(seqA, lena, seqB, lenb, 10, 1, blosum62__, &matches, &length, scr_tbl, mch_tbl, len_tbl);
+    score = sg_stats_scan_128_8_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, &matches, &length, scr_tbl, mch_tbl, len_tbl);
     print_array("sg_stats_scan_128_8_scr.txt", scr_tbl, seqA, lena, seqB, lenb);
     print_array("sg_stats_scan_128_8_mch.txt", mch_tbl, seqA, lena, seqB, lenb);
     print_array("sg_stats_scan_128_8_len.txt", len_tbl, seqA, lena, seqB, lenb);
@@ -286,7 +260,7 @@ int main(int argc, char **argv)
 #endif
 
 #if HAVE_SSE2
-    score = sg_stats_wozniak_128_16_debug(seqA, lena, seqB, lenb, 10, 1, blosum62, &matches, &length, tbl_pr, del_pr, mch_pr, len_pr, scr_tbl, mch_tbl, len_tbl);
+    score = sg_stats_wozniak_128_16_table(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("sg_stats_wozniak_128_16_scr.txt", scr_tbl, seqA, lena, seqB, lenb);
     print_array("sg_stats_wozniak_128_16_mch.txt", mch_tbl, seqA, lena, seqB, lenb);
     print_array("sg_stats_wozniak_128_16_len.txt", len_tbl, seqA, lena, seqB, lenb);
@@ -296,7 +270,7 @@ int main(int argc, char **argv)
 #endif
 
 #if HAVE_SSE41
-    score = sg_stats_wozniak_128_8_debug(seqA, lena, seqB, lenb, 10, 1, blosum62, &matches, &length, tbl_pr, del_pr, mch_pr, len_pr, scr_tbl, mch_tbl, len_tbl);
+    score = sg_stats_wozniak_128_8_table(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("sg_stats_wozniak_128_8_scr.txt", scr_tbl, seqA, lena, seqB, lenb);
     print_array("sg_stats_wozniak_128_8_mch.txt", mch_tbl, seqA, lena, seqB, lenb);
     print_array("sg_stats_wozniak_128_8_len.txt", len_tbl, seqA, lena, seqB, lenb);
@@ -306,7 +280,7 @@ int main(int argc, char **argv)
 #endif
 
 #if HAVE_SSE2
-    score = sg_stats_striped_128_16_debug(seqA, lena, seqB, lenb, 10, 1, blosum62__, &matches, &length, scr_tbl, mch_tbl, len_tbl);
+    score = sg_stats_striped_128_16_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, &matches, &length, scr_tbl, mch_tbl, len_tbl);
     print_array("sg_stats_striped_128_16_scr.txt", scr_tbl, seqA, lena, seqB, lenb);
     print_array("sg_stats_striped_128_16_mch.txt", mch_tbl, seqA, lena, seqB, lenb);
     print_array("sg_stats_striped_128_16_len.txt", len_tbl, seqA, lena, seqB, lenb);
@@ -315,39 +289,39 @@ int main(int argc, char **argv)
     memset(len_tbl, 0, sizeof(int)*tbl_size);
 #endif
 
-    score = sw_debug(seqA, lena, seqB, lenb, 10, 1, blosum62, tbl_pr, del_pr, scr_tbl);
+    score = sw_table(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("sw_ref_scr.txt", scr_tbl, seqA, lena, seqB, lenb);
     memset(scr_tbl, 0, sizeof(int)*tbl_size);
 
-    score = sw_scan_debug(seqA, lena, seqB, lenb, 10, 1, blosum62, tbl_pr, del_pr, scr_tbl);
+    score = sw_scan_table(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("sw_scan_scr.txt", scr_tbl, seqA, lena, seqB, lenb);
     memset(scr_tbl, 0, sizeof(int)*tbl_size);
 
 #if HAVE_SSE2
-    score = sw_scan_128_16_debug(seqA, lena, seqB, lenb, 10, 1, blosum62__, scr_tbl);
+    score = sw_scan_128_16_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, scr_tbl);
     print_array("sw_scan_128_16_scr.txt", scr_tbl, seqA, lena, seqB, lenb);
     memset(scr_tbl, 0, sizeof(int)*tbl_size);
 #endif
 
 #if HAVE_SSE41
-    score = sw_scan_128_8_debug(seqA, lena, seqB, lenb, 10, 1, blosum62__, scr_tbl);
+    score = sw_scan_128_8_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, scr_tbl);
     print_array("sw_scan_128_8_scr.txt", scr_tbl, seqA, lena, seqB, lenb);
     memset(scr_tbl, 0, sizeof(int)*tbl_size);
 #endif
 
 #if HAVE_SSE2
-    score = sw_wozniak_128_16_debug(seqA, lena, seqB, lenb, 10, 1, blosum62, tbl_pr, del_pr, scr_tbl);
+    score = sw_wozniak_128_16_table(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("sw_wozniak_128_16_scr.txt", scr_tbl, seqA, lena, seqB, lenb);
     memset(scr_tbl, 0, sizeof(int)*tbl_size);
 #endif
 
 #if HAVE_SSE2
-    score = sw_striped_128_16_debug(seqA, lena, seqB, lenb, 10, 1, blosum62__, scr_tbl);
+    score = sw_striped_128_16_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, scr_tbl);
     print_array("sw_striped_128_16_scr.txt", scr_tbl, seqA, lena, seqB, lenb);
     memset(scr_tbl, 0, sizeof(int)*tbl_size);
 #endif
 
-    score = sw_stats_debug(seqA, lena, seqB, lenb, 10, 1, blosum62, &matches, &length, tbl_pr, del_pr, mch_pr, len_pr, scr_tbl, mch_tbl, len_tbl);
+    score = sw_stats_table(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("sw_stats_ref_scr.txt", scr_tbl, seqA, lena, seqB, lenb);
     print_array("sw_stats_ref_mch.txt", mch_tbl, seqA, lena, seqB, lenb);
     print_array("sw_stats_ref_len.txt", len_tbl, seqA, lena, seqB, lenb);
@@ -355,7 +329,7 @@ int main(int argc, char **argv)
     memset(mch_tbl, 0, sizeof(int)*tbl_size);
     memset(len_tbl, 0, sizeof(int)*tbl_size);
 
-    score = sw_stats_scan_debug(seqA, lena, seqB, lenb, 10, 1, blosum62, &matches, &length, tbl_pr, del_pr, mch_pr, len_pr, scr_tbl, mch_tbl, len_tbl);
+    score = sw_stats_scan_table(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("sw_stats_scan_scr.txt", scr_tbl, seqA, lena, seqB, lenb);
     print_array("sw_stats_scan_mch.txt", mch_tbl, seqA, lena, seqB, lenb);
     print_array("sw_stats_scan_len.txt", len_tbl, seqA, lena, seqB, lenb);
@@ -364,7 +338,7 @@ int main(int argc, char **argv)
     memset(len_tbl, 0, sizeof(int)*tbl_size);
 
 #if HAVE_SSE2
-    score = sw_stats_scan_128_16_debug(seqA, lena, seqB, lenb, 10, 1, blosum62__, &matches, &length, scr_tbl, mch_tbl, len_tbl);
+    score = sw_stats_scan_128_16_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, &matches, &length, scr_tbl, mch_tbl, len_tbl);
     print_array("sw_stats_scan_128_16_scr.txt", scr_tbl, seqA, lena, seqB, lenb);
     print_array("sw_stats_scan_128_16_mch.txt", mch_tbl, seqA, lena, seqB, lenb);
     print_array("sw_stats_scan_128_16_len.txt", len_tbl, seqA, lena, seqB, lenb);
@@ -374,7 +348,7 @@ int main(int argc, char **argv)
 #endif
 
 #if HAVE_SSE41
-    score = sw_stats_scan_128_8_debug(seqA, lena, seqB, lenb, 10, 1, blosum62__, &matches, &length, scr_tbl, mch_tbl, len_tbl);
+    score = sw_stats_scan_128_8_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, &matches, &length, scr_tbl, mch_tbl, len_tbl);
     print_array("sw_stats_scan_128_8_scr.txt", scr_tbl, seqA, lena, seqB, lenb);
     print_array("sw_stats_scan_128_8_mch.txt", mch_tbl, seqA, lena, seqB, lenb);
     print_array("sw_stats_scan_128_8_len.txt", len_tbl, seqA, lena, seqB, lenb);
@@ -384,7 +358,7 @@ int main(int argc, char **argv)
 #endif
 
 #if HAVE_SSE2
-    score = sw_stats_wozniak_128_16_debug(seqA, lena, seqB, lenb, 10, 1, blosum62, &matches, &length, tbl_pr, del_pr, mch_pr, len_pr, scr_tbl, mch_tbl, len_tbl);
+    score = sw_stats_wozniak_128_16_table(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("sw_stats_wozniak_128_16_scr.txt", scr_tbl, seqA, lena, seqB, lenb);
     print_array("sw_stats_wozniak_128_16_mch.txt", mch_tbl, seqA, lena, seqB, lenb);
     print_array("sw_stats_wozniak_128_16_len.txt", len_tbl, seqA, lena, seqB, lenb);
@@ -394,7 +368,7 @@ int main(int argc, char **argv)
 #endif
 
 #if HAVE_SSE2
-    score = sw_stats_striped_128_16_debug(seqA, lena, seqB, lenb, 10, 1, blosum62__, &matches, &length, scr_tbl, mch_tbl, len_tbl);
+    score = sw_stats_striped_128_16_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, &matches, &length, scr_tbl, mch_tbl, len_tbl);
     print_array("sw_stats_striped_128_16_scr.txt", scr_tbl, seqA, lena, seqB, lenb);
     print_array("sw_stats_striped_128_16_mch.txt", mch_tbl, seqA, lena, seqB, lenb);
     print_array("sw_stats_striped_128_16_len.txt", len_tbl, seqA, lena, seqB, lenb);
@@ -402,14 +376,7 @@ int main(int argc, char **argv)
     memset(mch_tbl, 0, sizeof(int)*tbl_size);
     memset(len_tbl, 0, sizeof(int)*tbl_size);
 #endif
-
-    free(tbl_pr);
-    free(del_pr);
-    free(mch_pr);
-    free(len_pr);
-    free(scr_tbl);
-    free(mch_tbl);
-    free(len_tbl);
+#endif
 
     return 0;
 }

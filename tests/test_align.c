@@ -61,13 +61,6 @@ int main(int argc, char **argv)
 #if 0
     timer = timer_start();
     for (i=0; i<limit; ++i) {
-        score = nw_scan_row(seqA, lena, seqB, lenb, 10, 1, blosum62, tbl_pr, del_pr);
-    }
-    timer = timer_end(timer);
-    printf("nw\tscan row\t\t%llu\t%4.1f\t%d\n", timer/limit, pct(timer_ref,timer), score);
-
-    timer = timer_start();
-    for (i=0; i<limit; ++i) {
         score = nw_scan(seqA, lena, seqB, lenb, 10, 1, blosum62, tbl_pr, del_pr);
     }
     timer = timer_end(timer);
@@ -135,14 +128,18 @@ int main(int argc, char **argv)
     timer = timer_end(timer);
     printf("nw\tstriped\t128\t8\t%llu\t%4.1f\t%d\n", timer/limit, pct(timer_ref,timer), score);
 #endif
+#endif
 
     timer_ref = timer_start();
     for (i=0; i<limit; ++i) {
-        score = sg(seqA, lena, seqB, lenb, 10, 1, blosum62, tbl_pr, del_pr);
+        result = sg(seqA, lena, seqB, lenb, 10, 1, blosum62);
+        score = result->score;
+        parasail_result_free(result);
     }
     timer_ref = timer_end(timer_ref);
-    printf("sg\tref\t\t\t%llu\t\t%d\n", timer_ref/limit, score);
+    printf("sg\t\t\t\t%llu\t\t%d\n", timer_ref/limit, score);
 
+#if 0
     timer = timer_start();
     for (i=0; i<limit; ++i) {
         score = sg_scan(seqA, lena, seqB, lenb, 10, 1, blosum62, tbl_pr, del_pr);

@@ -80,7 +80,7 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 check_PROGRAMS = tests/test_align$(EXEEXT) \
-	tests/test_align_stats$(EXEEXT) tests/test_openmp$(EXEEXT)
+	tests/test_align_table$(EXEEXT) tests/test_openmp$(EXEEXT)
 subdir = .
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) \
@@ -137,7 +137,7 @@ am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(includedir)"
 LTLIBRARIES = $(lib_LTLIBRARIES) $(noinst_LTLIBRARIES)
 libparasail_la_DEPENDENCIES = libparasail_table.la
 am__dirstamp = $(am__leading_dot)dirstamp
-am__objects_1 = src/nw.lo
+am__objects_1 = src/nw.lo src/nw_stats.lo src/sg.lo src/sg_stats.lo
 am_libparasail_la_OBJECTS = src/memory.lo $(am__objects_1)
 libparasail_la_OBJECTS = $(am_libparasail_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -145,17 +145,20 @@ am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
 libparasail_table_la_LIBADD =
-am__objects_2 = src/libparasail_table_la-nw.lo
+am__objects_2 = src/libparasail_table_la-nw.lo \
+	src/libparasail_table_la-nw_stats.lo \
+	src/libparasail_table_la-sg.lo \
+	src/libparasail_table_la-sg_stats.lo
 am_libparasail_table_la_OBJECTS = $(am__objects_2)
 libparasail_table_la_OBJECTS = $(am_libparasail_table_la_OBJECTS)
 am_tests_test_align_OBJECTS = tests/test_align.$(OBJEXT)
 tests_test_align_OBJECTS = $(am_tests_test_align_OBJECTS)
 tests_test_align_LDADD = $(LDADD)
 tests_test_align_DEPENDENCIES = libparasail.la
-am_tests_test_align_stats_OBJECTS = tests/test_align_stats.$(OBJEXT)
-tests_test_align_stats_OBJECTS = $(am_tests_test_align_stats_OBJECTS)
-tests_test_align_stats_LDADD = $(LDADD)
-tests_test_align_stats_DEPENDENCIES = libparasail.la
+am_tests_test_align_table_OBJECTS = tests/test_align_table.$(OBJEXT)
+tests_test_align_table_OBJECTS = $(am_tests_test_align_table_OBJECTS)
+tests_test_align_table_LDADD = $(LDADD)
+tests_test_align_table_DEPENDENCIES = libparasail.la
 am_tests_test_openmp_OBJECTS =  \
 	tests/tests_test_openmp-test_openmp.$(OBJEXT)
 tests_test_openmp_OBJECTS = $(am_tests_test_openmp_OBJECTS)
@@ -201,11 +204,11 @@ am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
 SOURCES = $(libparasail_la_SOURCES) $(libparasail_table_la_SOURCES) \
-	$(tests_test_align_SOURCES) $(tests_test_align_stats_SOURCES) \
+	$(tests_test_align_SOURCES) $(tests_test_align_table_SOURCES) \
 	$(tests_test_openmp_SOURCES)
 DIST_SOURCES = $(libparasail_la_SOURCES) \
 	$(libparasail_table_la_SOURCES) $(tests_test_align_SOURCES) \
-	$(tests_test_align_stats_SOURCES) $(tests_test_openmp_SOURCES)
+	$(tests_test_align_table_SOURCES) $(tests_test_openmp_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -378,12 +381,13 @@ AM_LDFLAGS =
 LDADD = libparasail.la
 libparasail_la_SOURCES = src/parasail_internal.h src/memory.c \
 	$(ALIGNMENT_SRC)
-ALIGNMENT_SRC = src/nw.c
+ALIGNMENT_SRC = src/nw.c src/nw_stats.c src/sg.c src/sg_stats.c
 libparasail_table_la_SOURCES = $(ALIGNMENT_SRC)
 libparasail_table_la_CPPFLAGS = $(AM_CPPFLAGS) -DPARASAIL_TABLE
 libparasail_la_LIBADD = libparasail_table.la
 tests_test_align_SOURCES = tests/test_align.c
-tests_test_align_stats_SOURCES = tests/test_align_stats.c
+#tests_test_align_stats_SOURCES = tests/test_align_stats.c
+tests_test_align_table_SOURCES = tests/test_align_table.c
 tests_test_openmp_SOURCES = tests/test_openmp.c
 tests_test_openmp_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_test_openmp_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
@@ -496,10 +500,19 @@ src/$(DEPDIR)/$(am__dirstamp):
 	@: > src/$(DEPDIR)/$(am__dirstamp)
 src/memory.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/nw.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/nw_stats.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/sg.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/sg_stats.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 
 libparasail.la: $(libparasail_la_OBJECTS) $(libparasail_la_DEPENDENCIES) $(EXTRA_libparasail_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(LINK) -rpath $(libdir) $(libparasail_la_OBJECTS) $(libparasail_la_LIBADD) $(LIBS)
 src/libparasail_table_la-nw.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/libparasail_table_la-nw_stats.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/libparasail_table_la-sg.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/libparasail_table_la-sg_stats.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 
 libparasail_table.la: $(libparasail_table_la_OBJECTS) $(libparasail_table_la_DEPENDENCIES) $(EXTRA_libparasail_table_la_DEPENDENCIES) 
@@ -525,12 +538,12 @@ tests/test_align.$(OBJEXT): tests/$(am__dirstamp) \
 tests/test_align$(EXEEXT): $(tests_test_align_OBJECTS) $(tests_test_align_DEPENDENCIES) $(EXTRA_tests_test_align_DEPENDENCIES) tests/$(am__dirstamp)
 	@rm -f tests/test_align$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(tests_test_align_OBJECTS) $(tests_test_align_LDADD) $(LIBS)
-tests/test_align_stats.$(OBJEXT): tests/$(am__dirstamp) \
+tests/test_align_table.$(OBJEXT): tests/$(am__dirstamp) \
 	tests/$(DEPDIR)/$(am__dirstamp)
 
-tests/test_align_stats$(EXEEXT): $(tests_test_align_stats_OBJECTS) $(tests_test_align_stats_DEPENDENCIES) $(EXTRA_tests_test_align_stats_DEPENDENCIES) tests/$(am__dirstamp)
-	@rm -f tests/test_align_stats$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(tests_test_align_stats_OBJECTS) $(tests_test_align_stats_LDADD) $(LIBS)
+tests/test_align_table$(EXEEXT): $(tests_test_align_table_OBJECTS) $(tests_test_align_table_DEPENDENCIES) $(EXTRA_tests_test_align_table_DEPENDENCIES) tests/$(am__dirstamp)
+	@rm -f tests/test_align_table$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(tests_test_align_table_OBJECTS) $(tests_test_align_table_LDADD) $(LIBS)
 tests/tests_test_openmp-test_openmp.$(OBJEXT): tests/$(am__dirstamp) \
 	tests/$(DEPDIR)/$(am__dirstamp)
 
@@ -548,10 +561,16 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_table_la-nw.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_table_la-nw_stats.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_table_la-sg.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_table_la-sg_stats.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/memory.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/nw.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/nw_stats.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sg.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sg_stats.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_align.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_align_stats.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_align_table.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/tests_test_openmp-test_openmp.Po@am__quote@
 
 .c.o:
@@ -584,6 +603,27 @@ src/libparasail_table_la-nw.lo: src/nw.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/nw.c' object='src/libparasail_table_la-nw.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libparasail_table_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o src/libparasail_table_la-nw.lo `test -f 'src/nw.c' || echo '$(srcdir)/'`src/nw.c
+
+src/libparasail_table_la-nw_stats.lo: src/nw_stats.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libparasail_table_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT src/libparasail_table_la-nw_stats.lo -MD -MP -MF src/$(DEPDIR)/libparasail_table_la-nw_stats.Tpo -c -o src/libparasail_table_la-nw_stats.lo `test -f 'src/nw_stats.c' || echo '$(srcdir)/'`src/nw_stats.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/libparasail_table_la-nw_stats.Tpo src/$(DEPDIR)/libparasail_table_la-nw_stats.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/nw_stats.c' object='src/libparasail_table_la-nw_stats.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libparasail_table_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o src/libparasail_table_la-nw_stats.lo `test -f 'src/nw_stats.c' || echo '$(srcdir)/'`src/nw_stats.c
+
+src/libparasail_table_la-sg.lo: src/sg.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libparasail_table_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT src/libparasail_table_la-sg.lo -MD -MP -MF src/$(DEPDIR)/libparasail_table_la-sg.Tpo -c -o src/libparasail_table_la-sg.lo `test -f 'src/sg.c' || echo '$(srcdir)/'`src/sg.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/libparasail_table_la-sg.Tpo src/$(DEPDIR)/libparasail_table_la-sg.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/sg.c' object='src/libparasail_table_la-sg.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libparasail_table_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o src/libparasail_table_la-sg.lo `test -f 'src/sg.c' || echo '$(srcdir)/'`src/sg.c
+
+src/libparasail_table_la-sg_stats.lo: src/sg_stats.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libparasail_table_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT src/libparasail_table_la-sg_stats.lo -MD -MP -MF src/$(DEPDIR)/libparasail_table_la-sg_stats.Tpo -c -o src/libparasail_table_la-sg_stats.lo `test -f 'src/sg_stats.c' || echo '$(srcdir)/'`src/sg_stats.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/libparasail_table_la-sg_stats.Tpo src/$(DEPDIR)/libparasail_table_la-sg_stats.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/sg_stats.c' object='src/libparasail_table_la-sg_stats.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libparasail_table_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o src/libparasail_table_la-sg_stats.lo `test -f 'src/sg_stats.c' || echo '$(srcdir)/'`src/sg_stats.c
 
 tests/tests_test_openmp-test_openmp.o: tests/test_openmp.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_test_openmp_CFLAGS) $(CFLAGS) -MT tests/tests_test_openmp-test_openmp.o -MD -MP -MF tests/$(DEPDIR)/tests_test_openmp-test_openmp.Tpo -c -o tests/tests_test_openmp-test_openmp.o `test -f 'tests/test_openmp.c' || echo '$(srcdir)/'`tests/test_openmp.c

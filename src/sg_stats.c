@@ -9,38 +9,38 @@
  */
 #include "config.h"
 
+#include <stdint.h>
 #include <stdlib.h>
 
-#ifdef ALIGN_EXTRA
-#include "align_debug.h"
-#else
-#include "align.h"
-#endif
+#include "parasail.h"
+#include "parasail_internal.h"
 #include "blosum/blosum_map.h"
 
-#ifdef ALIGN_EXTRA
-#define FNAME sg_stats_debug
+#define NEG_INF_32 (INT32_MIN/2)
+#define MAX(a,b) ((a)>(b)?(a):(b))
+
+#ifdef PARASAIL_TABLE
+#define ENAME sg_stats_table
 #else
-#define FNAME sg_stats
+#define ENAME sg_stats
 #endif
 
-int FNAME(
+parasail_result_t* ENAME(
         const char * const restrict _s1, const int s1Len,
         const char * const restrict _s2, const int s2Len,
-        const int open, const int gap,
-        const int matrix[24][24],
-        int * _matches, int * _length,
-        int * const restrict tbl_pr, int * const restrict del_pr,
-        int * const restrict mch_pr, int * const restrict len_pr
-#ifdef ALIGN_EXTRA
-        , int * const restrict score_table
-        , int * const restrict match_table
-        , int * const restrict length_table
-#endif
-        )
+        const int open, const int gap, const int matrix[24][24])
 {
-    int * const restrict s1 = (int * const restrict)malloc(sizeof(int)*s1Len);
-    int * const restrict s2 = (int * const restrict)malloc(sizeof(int)*s2Len);
+#if PARASAIL_TABLE
+    parasail_result_t *result = parasail_result_new_table4(s1Len, s2Len);
+#else
+    parasail_result_t *result = parasail_result_new();
+#endif
+    int * const restrict s1 = parasail_memalign_int(16, s1Len);
+    int * const restrict s2 = parasail_memalign_int(16, s2Len);
+    int * const restrict tbl_pr = parasail_memalign_int(16, s1Len+1);
+    int * const restrict del_pr = parasail_memalign_int(16, s2Len+1);
+    int * const restrict mch_pr = parasail_memalign_int(16, s2Len+1);
+    int * const restrict len_pr = parasail_memalign_int(16, s2Len+1);
     int i = 0;
     int j = 0;
     int score = NEG_INF_32;
@@ -108,10 +108,10 @@ int FNAME(
             tbl_pr[j] = Wscore;
             mch_pr[j] = Wmatches;
             len_pr[j] = Wlength;
-#ifdef ALIGN_EXTRA
-            score_table[(i-1)*s2Len + (j-1)] = Wscore;
-            match_table[(i-1)*s2Len + (j-1)] = Wmatches;
-            length_table[(i-1)*s2Len + (j-1)] = Wlength;
+#ifdef PARASAIL_TABLE
+            result->score_table[(i-1)*s2Len + (j-1)] = Wscore;
+            result->matches_table[(i-1)*s2Len + (j-1)] = Wmatches;
+            result->length_table[(i-1)*s2Len + (j-1)] = Wlength;
 #endif
         }
         if (Wscore > score) {
@@ -160,10 +160,10 @@ int FNAME(
             tbl_pr[j] = Wscore;
             mch_pr[j] = Wmatches;
             len_pr[j] = Wlength;
-#ifdef ALIGN_EXTRA
-            score_table[(i-1)*s2Len + (j-1)] = Wscore;
-            match_table[(i-1)*s2Len + (j-1)] = Wmatches;
-            length_table[(i-1)*s2Len + (j-1)] = Wlength;
+#ifdef PARASAIL_TABLE
+            result->score_table[(i-1)*s2Len + (j-1)] = Wscore;
+            result->matches_table[(i-1)*s2Len + (j-1)] = Wmatches;
+            result->length_table[(i-1)*s2Len + (j-1)] = Wlength;
 #endif
             if (Wscore > score) {
                 score = Wscore;
@@ -173,10 +173,17 @@ int FNAME(
         }
     }
 
-    free(s1);
+    result->score = score;
+    result->matches = matches;
+    result->length = length;
+
+    free(len_pr);
+    free(mch_pr);
+    free(del_pr);
+    free(tbl_pr);
     free(s2);
-    *_matches = matches;
-    *_length = length;
-    return score;
+    free(s1);
+
+    return result;
 }
 

@@ -18,6 +18,9 @@ libparasail_la_SOURCES += src/memory.c
 
 ALIGNMENT_SRC = 
 ALIGNMENT_SRC += src/nw.c
+ALIGNMENT_SRC += src/nw_stats.c
+ALIGNMENT_SRC += src/sg.c
+ALIGNMENT_SRC += src/sg_stats.c
 
 libparasail_la_SOURCES += $(ALIGNMENT_SRC)
 
@@ -29,11 +32,8 @@ libparasail_la_LIBADD = libparasail_table.la
 #libparasail_la_SOURCES += src/align.h
 #libparasail_la_SOURCES += src/nw_scan.c
 #libparasail_la_SOURCES += src/nw_scan_row.c
-#libparasail_la_SOURCES += src/nw_stats.c
 #libparasail_la_SOURCES += src/nw_stats_scan.c
-#libparasail_la_SOURCES += src/sg.c
 #libparasail_la_SOURCES += src/sg_scan.c
-#libparasail_la_SOURCES += src/sg_stats.c
 #libparasail_la_SOURCES += src/sg_stats_scan.c
 #libparasail_la_SOURCES += src/sw.c
 #libparasail_la_SOURCES += src/sw_scan.c
@@ -85,11 +85,13 @@ libparasail_la_LIBADD = libparasail_table.la
 #endif
 
 check_PROGRAMS += tests/test_align
-check_PROGRAMS += tests/test_align_stats
+#check_PROGRAMS += tests/test_align_stats
+check_PROGRAMS += tests/test_align_table
 check_PROGRAMS += tests/test_openmp
 
 tests_test_align_SOURCES       = tests/test_align.c
-tests_test_align_stats_SOURCES = tests/test_align_stats.c
+#tests_test_align_stats_SOURCES = tests/test_align_stats.c
+tests_test_align_table_SOURCES = tests/test_align_table.c
 tests_test_openmp_SOURCES      = tests/test_openmp.c
 tests_test_openmp_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_test_openmp_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)

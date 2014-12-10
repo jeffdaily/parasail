@@ -81,6 +81,12 @@ parasail_result_t* ENAME(
     }
 
     result->score = tbl_pr[s2Len];
+
+    free(del_pr);
+    free(tbl_pr);
+    free(s2);
+    free(s1);
+    
     return result;
 }
 

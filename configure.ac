@@ -10,7 +10,7 @@ AC_INIT([Pairwise Sequence Alignment Library],
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_HEADER([config.h])
 AC_CONFIG_MACRO_DIR([m4])
-AC_CONFIG_SRCDIR([src/align.h])
+AC_CONFIG_SRCDIR([src/parasail.h])
 
 ###############################################################################
 # Init automake
@@ -41,6 +41,8 @@ AC_TYPE_INT64_T
 AC_TYPE_SIZE_T
 AX_OPENMP
 AC_SUBST([OPENMP_CFLAGS])
+AM_CONDITIONAL([HAVE_OPENMP],
+               [test "x$ax_cv_[]_AC_LANG_ABBREV[]_openmp" != "xunknown"])
 
 AC_CACHE_CHECK([for SSE2],
     [pt_cv_sse2],

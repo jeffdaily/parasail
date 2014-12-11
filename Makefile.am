@@ -40,7 +40,7 @@ ALIGNMENT_SRC += src/sw_stats_scan.c
 ###################
 
 ALIGNMENT_SRC += src/nw_scan_sse2_128_16.c
-#ALIGNMENT_SRC += src/sg_scan_sse2_128_16.c
+ALIGNMENT_SRC += src/sg_scan_sse2_128_16.c
 #ALIGNMENT_SRC += src/sw_scan_sse2_128_16.c
 #
 #ALIGNMENT_SRC += src/nw_stats_scan_sse2_128_16.c
@@ -113,9 +113,8 @@ libparasail_la_LIBADD = libparasail_table.la
 check_PROGRAMS += tests/test_align
 check_PROGRAMS += tests/test_align_stats
 check_PROGRAMS += tests/test_align_table
+if HAVE_OPENMP
 check_PROGRAMS += tests/test_openmp
-if HAVE_SSE2
-check_PROGRAMS += tests/test_sse2_extract
 endif
 
 tests_test_align_SOURCES        = tests/test_align.c
@@ -125,5 +124,4 @@ tests_test_openmp_SOURCES       = tests/test_openmp.c
 tests_test_openmp_CFLAGS        = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_test_openmp_LDFLAGS       = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
 tests_test_openmp_LDADD         = $(LDADD) $(CLOCK_LIBS) $(MATH_LIBS)
-tests_test_sse2_extract_SOURCES = tests/test_sse2_extract.c
 

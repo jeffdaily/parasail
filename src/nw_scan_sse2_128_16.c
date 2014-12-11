@@ -12,9 +12,6 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-/*deleteme*/
-#include <stdio.h>
-
 #include <emmintrin.h>
 
 #include "parasail.h"
@@ -87,12 +84,12 @@ parasail_result_t* FNAME(
         for (k=0; k<n; ++k) {
             for (i=0; i<segLen; ++i) {
                 int32_t j = i;
-                __m128i_16_t tmp;
+                __m128i_16_t t;
                 for (segNum=0; segNum<segWidth; ++segNum) {
-                    tmp.v[segNum] = matrix[k][MAP_BLOSUM_[(unsigned char)s1[j]]];
+                    t.v[segNum] = matrix[k][MAP_BLOSUM_[(unsigned char)s1[j]]];
                     j += segLen;
                 }
-                _mm_store_si128(&pvP[index], tmp.m);
+                _mm_store_si128(&pvP[index], t.m);
                 ++index;
             }
         }

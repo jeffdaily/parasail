@@ -595,7 +595,7 @@ PACKAGE_STRING='Pairwise Sequence Alignment Library 0.1'
 PACKAGE_BUGREPORT='jeff.daily@pnnl.gov'
 PACKAGE_URL=''
 
-ac_unique_file="src/align.h"
+ac_unique_file="src/parasail.h"
 # Factoring default headers for most tests.
 ac_includes_default="\
 #include <stdio.h>
@@ -673,6 +673,8 @@ HAVE_SSE41_FALSE
 HAVE_SSE41_TRUE
 HAVE_SSE2_FALSE
 HAVE_SSE2_TRUE
+HAVE_OPENMP_FALSE
+HAVE_OPENMP_TRUE
 OPENMP_CFLAGS
 EGREP
 GREP
@@ -4581,6 +4583,14 @@ $as_echo "#define HAVE_OPENMP 1" >>confdefs.h
 
 fi
 
+
+ if test "x$ax_cv_c_openmp" != "xunknown"; then
+  HAVE_OPENMP_TRUE=
+  HAVE_OPENMP_FALSE='#'
+else
+  HAVE_OPENMP_TRUE='#'
+  HAVE_OPENMP_FALSE=
+fi
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for SSE2" >&5
@@ -12247,6 +12257,10 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${am__fastdepCC_TRUE}" && test -z "${am__fastdepCC_FALSE}"; then
   as_fn_error $? "conditional \"am__fastdepCC\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${HAVE_OPENMP_TRUE}" && test -z "${HAVE_OPENMP_FALSE}"; then
+  as_fn_error $? "conditional \"HAVE_OPENMP\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${HAVE_SSE2_TRUE}" && test -z "${HAVE_SSE2_FALSE}"; then

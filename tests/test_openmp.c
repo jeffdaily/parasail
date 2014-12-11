@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <omp.h>
+
 #include "parasail.h"
 #include "blosum/blosum62.h"
 #include "timer.h"

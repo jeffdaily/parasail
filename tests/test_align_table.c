@@ -69,32 +69,32 @@ int main(int argc, char **argv)
 
 #if 0
 #if HAVE_SSE41
-    score = nw_scan_128_8_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, result->score_table);
+    score = nw_table_scan_128_8(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("nw_scan_128_8_scr.txt", result->score_table, seqA, lena, seqB, lenb);
 #endif
 
 #if HAVE_AVX_512
-    score = nw_scan_512_32_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, result->score_table);
+    score = nw_scan_512_32(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("nw_scan_512_32_scr.txt", result->score_table, seqA, lena, seqB, lenb);
 #endif
 
 #if HAVE_SSE2
-    score = nw_wozniak_128_16_table(seqA, lena, seqB, lenb, 10, 1, blosum62);
+    score = nw_wozniak_128_16(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("nw_wozniak_128_16_scr.txt", result->score_table, seqA, lena, seqB, lenb);
 #endif
 
 #if HAVE_SSE41
-    score = nw_wozniak_128_8_table(seqA, lena, seqB, lenb, 10, 1, blosum62);
+    score = nw_wozniak_128_8(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("nw_wozniak_128_8_scr.txt", result->score_table, seqA, lena, seqB, lenb);
 #endif
 
 #if HAVE_SSE2
-    score = nw_striped_128_16_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, result->score_table);
+    score = nw_striped_128_16(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("nw_striped_128_16_scr.txt", result->score_table, seqA, lena, seqB, lenb);
 #endif
 
 #if HAVE_SSE41
-    score = nw_striped_128_8_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, result->score_table);
+    score = nw_striped_128_8(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("nw_striped_128_8_scr.txt", result->score_table, seqA, lena, seqB, lenb);
 #endif
 #endif
@@ -115,42 +115,42 @@ int main(int argc, char **argv)
 
 #if 0
 #if HAVE_SSE2
-    score = nw_stats_scan_128_16_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, &matches, &length, result->score_table, result->matches_table, result->length_table);
+    score = nw_stats_scan_128_16(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("nw_stats_scan_128_16_scr.txt", result->score_table, seqA, lena, seqB, lenb);
     print_array("nw_stats_scan_128_16_mch.txt", result->matches_table, seqA, lena, seqB, lenb);
     print_array("nw_stats_scan_128_16_len.txt", result->length_table, seqA, lena, seqB, lenb);
 #endif
 
 #if HAVE_SSE41
-    score = nw_stats_scan_128_8_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, &matches, &length, result->score_table, result->matches_table, result->length_table);
+    score = nw_stats_scan_128_8(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("nw_stats_scan_128_8_scr.txt", result->score_table, seqA, lena, seqB, lenb);
     print_array("nw_stats_scan_128_8_mch.txt", result->matches_table, seqA, lena, seqB, lenb);
     print_array("nw_stats_scan_128_8_len.txt", result->length_table, seqA, lena, seqB, lenb);
 #endif
 
 #if HAVE_SSE2
-    score = nw_stats_wozniak_128_16_table(seqA, lena, seqB, lenb, 10, 1, blosum62);
+    score = nw_stats_wozniak_128_16(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("nw_stats_wozniak_128_16_scr.txt", result->score_table, seqA, lena, seqB, lenb);
     print_array("nw_stats_wozniak_128_16_mch.txt", result->matches_table, seqA, lena, seqB, lenb);
     print_array("nw_stats_wozniak_128_16_len.txt", result->length_table, seqA, lena, seqB, lenb);
 #endif
 
 #if HAVE_SSE41
-    score = nw_stats_wozniak_128_8_table(seqA, lena, seqB, lenb, 10, 1, blosum62);
+    score = nw_stats_wozniak_128_8(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("nw_stats_wozniak_128_8_scr.txt", result->score_table, seqA, lena, seqB, lenb);
     print_array("nw_stats_wozniak_128_8_mch.txt", result->matches_table, seqA, lena, seqB, lenb);
     print_array("nw_stats_wozniak_128_8_len.txt", result->length_table, seqA, lena, seqB, lenb);
 #endif
 
 #if HAVE_SSE2
-    score = nw_stats_striped_128_16_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, &matches, &length, result->score_table, result->matches_table, result->length_table);
+    score = nw_stats_striped_128_16(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("nw_stats_striped_128_16_scr.txt", result->score_table, seqA, lena, seqB, lenb);
     print_array("nw_stats_striped_128_16_mch.txt", result->matches_table, seqA, lena, seqB, lenb);
     print_array("nw_stats_striped_128_16_len.txt", result->length_table, seqA, lena, seqB, lenb);
 #endif
 
 #if HAVE_SSE41
-    score = nw_stats_striped_128_8_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, &matches, &length, result->score_table, result->matches_table, result->length_table);
+    score = nw_stats_striped_128_8(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("nw_stats_striped_128_8_scr.txt", result->score_table, seqA, lena, seqB, lenb);
     print_array("nw_stats_striped_128_8_mch.txt", result->matches_table, seqA, lena, seqB, lenb);
     print_array("nw_stats_striped_128_8_len.txt", result->length_table, seqA, lena, seqB, lenb);
@@ -168,34 +168,36 @@ int main(int argc, char **argv)
     parasail_result_free(result);
 
 
-#if 0
 #if HAVE_SSE2
-    score = sg_scan_128_16_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, result->score_table);
-    print_array("sg_scan_128_16_scr.txt", result->score_table, seqA, lena, seqB, lenb);
+    result = sg_table_scan_sse2_128_16(seqA, lena, seqB, lenb, 10, 1, blosum62);
+    print_array("sg_scr_scan_sse2_128_16.txt", result->score_table, seqA, lena, seqB, lenb);
+    printf("sg\t\tscan\t128\t16\t%d\t%d\t%d\n", result->score, result->matches, result->length);
+    parasail_result_free(result);
 #endif
 
+#if 0
 #if HAVE_SSE41
-    score = sg_scan_128_8_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, result->score_table);
+    score = sg_scan_128_8(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("sg_scan_128_8_scr.txt", result->score_table, seqA, lena, seqB, lenb);
 #endif
 
 #if HAVE_SSE2
-    score = sg_wozniak_128_16_table(seqA, lena, seqB, lenb, 10, 1, blosum62);
+    score = sg_wozniak_128_16(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("sg_wozniak_128_16_scr.txt", result->score_table, seqA, lena, seqB, lenb);
 #endif
 
 #if HAVE_SSE41
-    score = sg_wozniak_128_8_table(seqA, lena, seqB, lenb, 10, 1, blosum62);
+    score = sg_wozniak_128_8(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("sg_wozniak_128_8_scr.txt", result->score_table, seqA, lena, seqB, lenb);
 #endif
 
 #if HAVE_SSE2
-    score = sg_striped_128_16_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, result->score_table);
+    score = sg_striped_128_16(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("sg_striped_128_16_scr.txt", result->score_table, seqA, lena, seqB, lenb);
 #endif
 
 #if HAVE_SSE41
-    score = sg_striped_128_8_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, result->score_table);
+    score = sg_striped_128_8(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("sg_striped_128_8_scr.txt", result->score_table, seqA, lena, seqB, lenb);
 #endif
 #endif
@@ -216,35 +218,35 @@ int main(int argc, char **argv)
 
 #if 0
 #if HAVE_SSE2
-    score = sg_stats_scan_128_16_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, &matches, &length, result->score_table, result->matches_table, result->length_table);
+    score = sg_stats_scan_128_16(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("sg_stats_scan_128_16_scr.txt", result->score_table, seqA, lena, seqB, lenb);
     print_array("sg_stats_scan_128_16_mch.txt", result->matches_table, seqA, lena, seqB, lenb);
     print_array("sg_stats_scan_128_16_len.txt", result->length_table, seqA, lena, seqB, lenb);
 #endif
 
 #if HAVE_SSE41
-    score = sg_stats_scan_128_8_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, &matches, &length, result->score_table, result->matches_table, result->length_table);
+    score = sg_stats_scan_128_8(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("sg_stats_scan_128_8_scr.txt", result->score_table, seqA, lena, seqB, lenb);
     print_array("sg_stats_scan_128_8_mch.txt", result->matches_table, seqA, lena, seqB, lenb);
     print_array("sg_stats_scan_128_8_len.txt", result->length_table, seqA, lena, seqB, lenb);
 #endif
 
 #if HAVE_SSE2
-    score = sg_stats_wozniak_128_16_table(seqA, lena, seqB, lenb, 10, 1, blosum62);
+    score = sg_stats_wozniak_128_16(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("sg_stats_wozniak_128_16_scr.txt", result->score_table, seqA, lena, seqB, lenb);
     print_array("sg_stats_wozniak_128_16_mch.txt", result->matches_table, seqA, lena, seqB, lenb);
     print_array("sg_stats_wozniak_128_16_len.txt", result->length_table, seqA, lena, seqB, lenb);
 #endif
 
 #if HAVE_SSE41
-    score = sg_stats_wozniak_128_8_table(seqA, lena, seqB, lenb, 10, 1, blosum62);
+    score = sg_stats_wozniak_128_8(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("sg_stats_wozniak_128_8_scr.txt", result->score_table, seqA, lena, seqB, lenb);
     print_array("sg_stats_wozniak_128_8_mch.txt", result->matches_table, seqA, lena, seqB, lenb);
     print_array("sg_stats_wozniak_128_8_len.txt", result->length_table, seqA, lena, seqB, lenb);
 #endif
 
 #if HAVE_SSE2
-    score = sg_stats_striped_128_16_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, &matches, &length, result->score_table, result->matches_table, result->length_table);
+    score = sg_stats_striped_128_16(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("sg_stats_striped_128_16_scr.txt", result->score_table, seqA, lena, seqB, lenb);
     print_array("sg_stats_striped_128_16_mch.txt", result->matches_table, seqA, lena, seqB, lenb);
     print_array("sg_stats_striped_128_16_len.txt", result->length_table, seqA, lena, seqB, lenb);
@@ -263,22 +265,22 @@ int main(int argc, char **argv)
 
 #if 0
 #if HAVE_SSE2
-    score = sw_scan_128_16_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, result->score_table);
+    score = sw_scan_128_16(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("sw_scan_128_16_scr.txt", result->score_table, seqA, lena, seqB, lenb);
 #endif
 
 #if HAVE_SSE41
-    score = sw_scan_128_8_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, result->score_table);
+    score = sw_scan_128_8(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("sw_scan_128_8_scr.txt", result->score_table, seqA, lena, seqB, lenb);
 #endif
 
 #if HAVE_SSE2
-    score = sw_wozniak_128_16_table(seqA, lena, seqB, lenb, 10, 1, blosum62);
+    score = sw_wozniak_128_16(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("sw_wozniak_128_16_scr.txt", result->score_table, seqA, lena, seqB, lenb);
 #endif
 
 #if HAVE_SSE2
-    score = sw_striped_128_16_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, result->score_table);
+    score = sw_striped_128_16(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("sw_striped_128_16_scr.txt", result->score_table, seqA, lena, seqB, lenb);
 #endif
 #endif
@@ -299,28 +301,28 @@ int main(int argc, char **argv)
 
 #if 0
 #if HAVE_SSE2
-    score = sw_stats_scan_128_16_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, &matches, &length, result->score_table, result->matches_table, result->length_table);
+    score = sw_stats_scan_128_16(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("sw_stats_scan_128_16_scr.txt", result->score_table, seqA, lena, seqB, lenb);
     print_array("sw_stats_scan_128_16_mch.txt", result->matches_table, seqA, lena, seqB, lenb);
     print_array("sw_stats_scan_128_16_len.txt", result->length_table, seqA, lena, seqB, lenb);
 #endif
 
 #if HAVE_SSE41
-    score = sw_stats_scan_128_8_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, &matches, &length, result->score_table, result->matches_table, result->length_table);
+    score = sw_stats_scan_128_8(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("sw_stats_scan_128_8_scr.txt", result->score_table, seqA, lena, seqB, lenb);
     print_array("sw_stats_scan_128_8_mch.txt", result->matches_table, seqA, lena, seqB, lenb);
     print_array("sw_stats_scan_128_8_len.txt", result->length_table, seqA, lena, seqB, lenb);
 #endif
 
 #if HAVE_SSE2
-    score = sw_stats_wozniak_128_16_table(seqA, lena, seqB, lenb, 10, 1, blosum62);
+    score = sw_stats_wozniak_128_16(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("sw_stats_wozniak_128_16_scr.txt", result->score_table, seqA, lena, seqB, lenb);
     print_array("sw_stats_wozniak_128_16_mch.txt", result->matches_table, seqA, lena, seqB, lenb);
     print_array("sw_stats_wozniak_128_16_len.txt", result->length_table, seqA, lena, seqB, lenb);
 #endif
 
 #if HAVE_SSE2
-    score = sw_stats_striped_128_16_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, &matches, &length, result->score_table, result->matches_table, result->length_table);
+    score = sw_stats_striped_128_16(seqA, lena, seqB, lenb, 10, 1, blosum62);
     print_array("sw_stats_striped_128_16_scr.txt", result->score_table, seqA, lena, seqB, lenb);
     print_array("sw_stats_striped_128_16_mch.txt", result->matches_table, seqA, lena, seqB, lenb);
     print_array("sw_stats_striped_128_16_len.txt", result->length_table, seqA, lena, seqB, lenb);

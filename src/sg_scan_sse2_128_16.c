@@ -66,7 +66,6 @@ parasail_result_t* FNAME(
     __m128i* restrict pvHt= parasail_memalign_m128i(16, segLen);
     __m128i* restrict pvFt= parasail_memalign_m128i(16, segLen);
     __m128i* restrict pvH = parasail_memalign_m128i(16, segLen);
-    int16_t* restrict boundary = parasail_memalign_int16_t(16, s2Len+1);
     __m128i vGapO = _mm_set1_epi16(open);
     __m128i vGapE = _mm_set1_epi16(gap);
     int16_t score = 0;

@@ -11,18 +11,50 @@
 #include "blosum/blosum62.h"
 #include "timer.h"
 
-#define USE_PERCENT_IMPROVED 0
-
 static float pct(unsigned long long orig_, unsigned long long new_)
 {
     float orig = (float)orig_;
     float new = (float)new_;
-#if USE_PERCENT_IMPROVED
-    return 100.0*(orig - new)/orig;
-#else
     return orig / new;
-#endif
 }
+
+static void print_array(
+        const char * filename,
+        const int * const restrict array,
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len)
+{
+    int i;
+    int j;
+    FILE *f = fopen(filename, "w");
+    fprintf(f, " ");
+    for (j=0; j<s2Len; ++j) {
+        fprintf(f, "%4c", s2[j]);
+    }
+    fprintf(f, "\n");
+    for (i=0; i<s1Len; ++i) {
+        fprintf(f, "%c", s1[i]);
+        for (j=0; j<s2Len; ++j) {
+            fprintf(f, "%4d", array[i*s2Len + j]);
+        }
+        fprintf(f, "\n");
+    }
+    fclose(f);
+}
+
+typedef struct func {
+    parasail_result_t* (*f)(const char * const restrict s1, const int s1Len,
+                            const char * const restrict s2, const int s2Len,
+                            const int open, const int gap,
+                            const int matrix[24][24]);
+    const char * alg;
+    const char * type;
+    const char * isa;
+    const char * bits;
+    const char * width;
+    char is_table;
+    char is_ref;
+} func_t;
 
 
 int main(int argc, char **argv)
@@ -33,238 +65,148 @@ int main(int argc, char **argv)
     //const char *seqB = "AALGVAARAGFLAAGFASSS";
     const int lena = strlen(seqA);
     const int lenb = strlen(seqB);
-    const int longest = (lena>lenb?lena:lenb) + 32 /* +32 for woz padding */;
     int score;
+    int matches;
+    int length;
     unsigned long long timer;
     unsigned long long timer_ref;
-    size_t limit = 1000;
+    //size_t limit = 1000;
+    size_t limit = 100;
     size_t i;
+    size_t index;
+    func_t f;
     parasail_result_t *result = NULL;
+
+    func_t functions[] = {
+        {nw,                        "nw",       "",     "",     "",    "",   0, 1},
+        {nw_scan,                   "nw",       "scan", "",     "",    "",   0, 0},
+#if HAVE_SSE2                      
+        {nw_scan_sse2_128_16,       "nw",       "scan", "sse2", "128", "16", 0, 0},
+#endif                             
+
+        {sg,                        "sg",       "",     "",     "",    "",   0, 1},
+        {sg_scan,                   "sg",       "scan", "",     "",    "",   0, 0},
+#if HAVE_SSE2                      
+        {sg_scan_sse2_128_16,       "sg",       "scan", "sse2", "128", "16", 0, 0},
+#endif                             
+
+        {sw,                        "sw",       "",     "",     "",    "",   0, 1},
+        {sw_scan,                   "sw",       "scan", "",     "",    "",   0, 0},
+#if HAVE_SSE2                      
+        {sw_scan_sse2_128_16,       "sw",       "scan", "sse2", "128", "16", 0, 0},
+#endif                             
+                                   
+        {nw_table,                  "nw", "",     "",     "",    "",   1, 1},
+        {nw_table_scan,             "nw", "scan", "",     "",    "",   1, 0},
+#if HAVE_SSE2
+        {nw_table_scan_sse2_128_16, "nw", "scan", "sse2", "128", "16", 1, 0},
+#endif
+
+        {sg_table,                  "sg", "",     "",     "",    "",   1, 1},
+        {sg_table_scan,             "sg", "scan", "",     "",    "",   1, 0},
+#if HAVE_SSE2
+        {sg_table_scan_sse2_128_16, "sg", "scan", "sse2", "128", "16", 1, 0},
+#endif
+
+        {sw_table,                  "sw", "",     "",     "",    "",   1, 1},
+        {sw_table_scan,             "sw", "scan", "",     "",    "",   1, 0},
+#if HAVE_SSE2
+        {sw_table_scan_sse2_128_16, "sw", "scan", "sse2", "128", "16", 1, 0},
+#endif
+
+        {nw_stats,                  "nw_stats", "",     "",     "",    "",   0, 1},
+        {nw_stats_scan,             "nw_stats", "scan", "",     "",    "",   0, 0},
+                                   
+        {sg_stats,                  "sg_stats", "",     "",     "",    "",   0, 1},
+        {sg_stats_scan,             "sg_stats", "scan", "",     "",    "",   0, 0},
+                                   
+        {sw_stats,                  "sw_stats", "",     "",     "",    "",   0, 1},
+        {sw_stats_scan,             "sw_stats", "scan", "",     "",    "",   0, 0},
+                                   
+        {nw_stats_table,            "nw_stats", "",     "",     "",    "",   1, 1},
+        {nw_stats_table_scan,       "nw_stats", "scan", "",     "",    "",   1, 0},
+
+        {sg_stats_table,            "sg_stats", "",     "",     "",    "",   1, 1},
+        {sg_stats_table_scan,       "sg_stats", "scan", "",     "",    "",   1, 0},
+
+        {sw_stats_table,            "sw_stats", "",     "",     "",    "",   1, 1},
+        {sw_stats_table_scan,       "sw_stats", "scan", "",     "",    "",   1, 0},
+
+        {NULL, "", "", "", "", "", 0}
+    };
 
     timer_init();
     printf("%s timer\n", timer_name());
-#if USE_PERCENT_IMPROVED
-    printf("alg\ttype\tvec_w\tval_w\ttime\t%%imp\tscore\n");
-#else
-    printf("alg\ttype\tvec_w\tval_w\ttime\tx_imp\tscore\n");
-#endif
 
-    timer_ref = timer_start();
-    for (i=0; i<limit; ++i) {
-        result = nw(seqA, lena, seqB, lenb, 10, 1, blosum62);
-        score = result->score;
-        parasail_result_free(result);
-    }
-    timer_ref = timer_end(timer_ref);
-    printf("nw\t\t\t\t%llu\t\t%d\n", timer_ref/limit, score);
+    printf("%-15s %6s %6s %4s %5s %5s  %4s %8s %8s %8s\n",
+            "name", "type", "isa", "bits", "width", "time", "imp", "score", "matches", "length");
 
-    timer = timer_start();
-    for (i=0; i<limit; ++i) {
-        result = nw_scan(seqA, lena, seqB, lenb, 10, 1, blosum62);
-        score = result->score;
-        parasail_result_free(result);
+    index = 0;
+    f = functions[index++];
+    while (f.f) {
+        char name[16];
+        timer = timer_start();
+        for (i=0; i<limit; ++i) {
+            result = f.f(seqA, lena, seqB, lenb, 10, 1, blosum62);
+            score = result->score;
+            matches = result->matches;
+            length = result->length;
+            parasail_result_free(result);
+        }
+        timer = timer_end(timer);
+        if (f.is_ref) timer_ref = timer;
+        strcpy(name, f.alg);
+        if (f.is_table) {
+            char *und = strrchr(f.alg, '_');
+            int is_stats = (und && !strcmp(und, "_stats"));
+            char suffix[256] = {0};
+            if (strlen(f.type)) {
+                strcat(suffix, "_");
+                strcat(suffix, f.type);
+            }
+            if (strlen(f.isa)) {
+                strcat(suffix, "_");
+                strcat(suffix, f.isa);
+            }
+            if (strlen(f.bits)) {
+                strcat(suffix, "_");
+                strcat(suffix, f.bits);
+            }
+            if (strlen(f.width)) {
+                strcat(suffix, "_");
+                strcat(suffix, f.width);
+            }
+            strcat(suffix, ".txt");
+            result = f.f(seqA, lena, seqB, lenb, 10, 1, blosum62);
+            {
+                char filename[256];
+                strcpy(filename, f.alg);
+                strcat(filename, "_scr");
+                strcat(filename, suffix);
+                print_array(filename, result->score_table, seqA, lena, seqB, lenb);
+            }
+            if (is_stats) {
+                char filename[256];
+                strcpy(filename, f.alg);
+                strcat(filename, "_mch");
+                strcat(filename, suffix);
+                print_array(filename, result->matches_table, seqA, lena, seqB, lenb);
+            }
+            if (is_stats) {
+                char filename[256];
+                strcpy(filename, f.alg);
+                strcat(filename, "_len");
+                strcat(filename, suffix);
+                print_array(filename, result->length_table, seqA, lena, seqB, lenb);
+            }
+            parasail_result_free(result);
+            strcat(name, "_table");
+        }
+        printf("%-15s %6s %6s %4s %5s %5llu  %2.2f %8d %8d %8d\n",
+                name, f.type, f.isa, f.bits, f.width,
+                timer/limit, pct(timer_ref,timer), score, matches, length);
+        f = functions[index++];
     }
-    timer = timer_end(timer);
-    printf("nw\tscan\t\t\t%llu\t%4.1f\t%d\n", timer/limit, pct(timer_ref,timer), score);
-
-#if HAVE_SSE2
-    timer = timer_start();
-    for (i=0; i<limit; ++i) {
-        result = nw_scan_sse2_128_16(seqA, lena, seqB, lenb, 10, 1, blosum62);
-        score = result->score;
-        parasail_result_free(result);
-    }
-    timer = timer_end(timer);
-    printf("nw\tscan\t128\t16\t%llu\t%4.1f\t%d\n", timer/limit, pct(timer_ref,timer), score);
-#endif
-
-#if 0
-#if HAVE_SSE41
-    timer = timer_start();
-    for (i=0; i<limit; ++i) {
-        score = nw_scan_128_8(seqA, lena, seqB, lenb, 10, 1, blosum62__);
-    }
-    timer = timer_end(timer);
-    printf("nw\tscan\t128\t8\t%llu\t%4.1f\t%d\n", timer/limit, pct(timer_ref,timer), score);
-#endif
-
-#if HAVE_AVX_512
-    timer = timer_start();
-    for (i=0; i<limit; ++i) {
-        score = nw_scan_512_32(seqA, lena, seqB, lenb, 10, 1, blosum62__);
-    }
-    timer = timer_end(timer);
-    printf("nw\tscan\t512\t32\t%llu\t%4.1f\t%d\n", timer/limit, pct(timer_ref,timer), score);
-#endif
-
-#if HAVE_SSE2
-    timer = timer_start();
-    for (i=0; i<limit; ++i) {
-        score = nw_wozniak_128_16(seqA, lena, seqB, lenb, 10, 1, blosum62);
-    }
-    timer = timer_end(timer);
-    printf("nw\twozniak\t128\t16\t%llu\t%4.1f\t%d\n", timer/limit, pct(timer_ref,timer), score);
-#endif
-
-#if HAVE_SSE41
-    timer = timer_start();
-    for (i=0; i<limit; ++i) {
-        score = nw_wozniak_128_8(seqA, lena, seqB, lenb, 10, 1, blosum62);
-    }
-    timer = timer_end(timer);
-    printf("nw\twozniak\t128\t8\t%llu\t%4.1f\t%d\n", timer/limit, pct(timer_ref,timer), score);
-#endif
-
-#if HAVE_SSE2
-    timer = timer_start();
-    for (i=0; i<limit; ++i) {
-        score = nw_striped_128_16(seqA, lena, seqB, lenb, 10, 1, blosum62__);
-    }
-    timer = timer_end(timer);
-    printf("nw\tstriped\t128\t16\t%llu\t%4.1f\t%d\n", timer/limit, pct(timer_ref,timer), score);
-#endif
-
-#if HAVE_SSE41
-    timer = timer_start();
-    for (i=0; i<limit; ++i) {
-        score = nw_striped_128_8(seqA, lena, seqB, lenb, 10, 1, blosum62__);
-    }
-    timer = timer_end(timer);
-    printf("nw\tstriped\t128\t8\t%llu\t%4.1f\t%d\n", timer/limit, pct(timer_ref,timer), score);
-#endif
-#endif
-
-    timer_ref = timer_start();
-    for (i=0; i<limit; ++i) {
-        result = sg(seqA, lena, seqB, lenb, 10, 1, blosum62);
-        score = result->score;
-        parasail_result_free(result);
-    }
-    timer_ref = timer_end(timer_ref);
-    printf("sg\t\t\t\t%llu\t\t%d\n", timer_ref/limit, score);
-
-    timer = timer_start();
-    for (i=0; i<limit; ++i) {
-        result = sg_scan(seqA, lena, seqB, lenb, 10, 1, blosum62);
-        score = result->score;
-        parasail_result_free(result);
-    }
-    timer = timer_end(timer);
-    printf("sg\tscan\t\t\t%llu\t%4.1f\t%d\n", timer/limit, pct(timer_ref,timer), score);
-
-#if HAVE_SSE2
-    timer = timer_start();
-    for (i=0; i<limit; ++i) {
-        result = sg_scan_sse2_128_16(seqA, lena, seqB, lenb, 10, 1, blosum62);
-        score = result->score;
-        parasail_result_free(result);
-    }
-    timer = timer_end(timer);
-    printf("sg\tscan\t128\t16\t%llu\t%4.1f\t%d\n", timer/limit, pct(timer_ref,timer), score);
-#endif
-
-#if 0
-#if HAVE_SSE41
-    timer = timer_start();
-    for (i=0; i<limit; ++i) {
-        score = sg_scan_128_8(seqA, lena, seqB, lenb, 10, 1, blosum62__);
-    }
-    timer = timer_end(timer);
-    printf("sg\tscan\t128\t8\t%llu\t%4.1f\t%d\n", timer/limit, pct(timer_ref,timer), score);
-#endif
-
-#if HAVE_SSE2
-    timer = timer_start();
-    for (i=0; i<limit; ++i) {
-        score = sg_wozniak_128_16(seqA, lena, seqB, lenb, 10, 1, blosum62);
-    }
-    timer = timer_end(timer);
-    printf("sg\twozniak\t128\t16\t%llu\t%4.1f\t%d\n", timer/limit, pct(timer_ref,timer), score);
-#endif
-
-#if HAVE_SSE41
-    timer = timer_start();
-    for (i=0; i<limit; ++i) {
-        score = sg_wozniak_128_8(seqA, lena, seqB, lenb, 10, 1, blosum62);
-    }
-    timer = timer_end(timer);
-    printf("sg\twozniak\t128\t8\t%llu\t%4.1f\t%d\n", timer/limit, pct(timer_ref,timer), score);
-#endif
-
-#if HAVE_SSE2
-    timer = timer_start();
-    for (i=0; i<limit; ++i) {
-        score = sg_striped_128_16(seqA, lena, seqB, lenb, 10, 1, blosum62__);
-    }
-    timer = timer_end(timer);
-    printf("sg\tstriped\t128\t16\t%llu\t%4.1f\t%d\n", timer/limit, pct(timer_ref,timer), score);
-#endif
-
-#if HAVE_SSE41
-    timer = timer_start();
-    for (i=0; i<limit; ++i) {
-        score = sg_striped_128_8(seqA, lena, seqB, lenb, 10, 1, blosum62__);
-    }
-    timer = timer_end(timer);
-    printf("sg\tstriped\t128\t8\t%llu\t%4.1f\t%d\n", timer/limit, pct(timer_ref,timer), score);
-#endif
-#endif
-
-    timer_ref = timer_start();
-    for (i=0; i<limit; ++i) {
-        result = sw(seqA, lena, seqB, lenb, 10, 1, blosum62);
-        score = result->score;
-        parasail_result_free(result);
-    }
-    timer_ref = timer_end(timer_ref);
-    printf("sw\t\t\t\t%llu\t\t%d\n", timer_ref/limit, score);
-
-    timer = timer_start();
-    for (i=0; i<limit; ++i) {
-        result = sw_scan(seqA, lena, seqB, lenb, 10, 1, blosum62);
-        score = result->score;
-        parasail_result_free(result);
-    }
-    timer = timer_end(timer);
-    printf("sw\tscan\t\t\t%llu\t%4.1f\t%d\n", timer/limit, pct(timer_ref,timer), score);
-
-#if 0
-#if HAVE_SSE2
-    timer = timer_start();
-    for (i=0; i<limit; ++i) {
-        score = sw_scan_128_16(seqA, lena, seqB, lenb, 10, 1, blosum62__);
-    }
-    timer = timer_end(timer);
-    printf("sw\tscan\t128\t16\t%llu\t%4.1f\t%d\n", timer/limit, pct(timer_ref,timer), score);
-#endif
-
-#if HAVE_SSE41
-    timer = timer_start();
-    for (i=0; i<limit; ++i) {
-        score = sw_scan_128_8(seqA, lena, seqB, lenb, 10, 1, blosum62__);
-    }
-    timer = timer_end(timer);
-    printf("sw\tscan\t128\t8\t%llu\t%4.1f\t%d\n", timer/limit, pct(timer_ref,timer), score);
-#endif
-
-#if HAVE_SSE2
-    timer = timer_start();
-    for (i=0; i<limit; ++i) {
-        score = sw_wozniak_128_16(seqA, lena, seqB, lenb, 10, 1, blosum62);
-    }
-    timer = timer_end(timer);
-    printf("sw\twozniak\t128\t16\t%llu\t%4.1f\t%d\n", timer/limit, pct(timer_ref,timer), score);
-#endif
-
-#if HAVE_SSE2
-    timer = timer_start();
-    for (i=0; i<limit; ++i) {
-        score = sw_striped_128_16(seqA, lena, seqB, lenb, 10, 1, blosum62__);
-    }
-    timer = timer_end(timer);
-    printf("sw\tstriped\t128\t16\t%llu\t%4.1f\t%d\n", timer/limit, pct(timer_ref,timer), score);
-#endif
-#endif
 
     return 0;
 }

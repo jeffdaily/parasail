@@ -15,6 +15,10 @@ libparasail_la_SOURCES += src/memory.c
 
 ALIGNMENT_SRC = 
 
+#################
+# serial methods
+#################
+
 ALIGNMENT_SRC += src/nw.c
 ALIGNMENT_SRC += src/sg.c
 ALIGNMENT_SRC += src/sw.c
@@ -30,6 +34,34 @@ ALIGNMENT_SRC += src/sw_scan.c
 ALIGNMENT_SRC += src/nw_scan_stats.c
 ALIGNMENT_SRC += src/sg_scan_stats.c
 ALIGNMENT_SRC += src/sw_scan_stats.c
+
+###################
+# parallel methods
+###################
+
+ALIGNMENT_SRC += src/nw_scan_sse2_128_16.c
+#ALIGNMENT_SRC += src/sg_scan_sse2_128_16.c
+#ALIGNMENT_SRC += src/sw_scan_sse2_128_16.c
+#
+#ALIGNMENT_SRC += src/nw_stats_scan_sse2_128_16.c
+#ALIGNMENT_SRC += src/sg_stats_scan_sse2_128_16.c
+#ALIGNMENT_SRC += src/sw_stats_scan_sse2_128_16.c
+#
+#ALIGNMENT_SRC += src/nw_scan_sse41_128_32.c
+#ALIGNMENT_SRC += src/sg_scan_sse41_128_32.c
+#ALIGNMENT_SRC += src/sw_scan_sse41_128_32.c
+#
+#ALIGNMENT_SRC += src/nw_stats_scan_sse41_128_32.c
+#ALIGNMENT_SRC += src/sg_stats_scan_sse41_128_32.c
+#ALIGNMENT_SRC += src/sw_stats_scan_sse41_128_32.c
+#
+#ALIGNMENT_SRC += src/nw_scan_sse41_128_8.c
+#ALIGNMENT_SRC += src/sg_scan_sse41_128_8.c
+#ALIGNMENT_SRC += src/sw_scan_sse41_128_8.c
+#
+#ALIGNMENT_SRC += src/nw_stats_scan_sse41_128_8.c
+#ALIGNMENT_SRC += src/sg_stats_scan_sse41_128_8.c
+#ALIGNMENT_SRC += src/sw_stats_scan_sse41_128_8.c
 
 libparasail_la_SOURCES += $(ALIGNMENT_SRC)
 
@@ -82,12 +114,16 @@ check_PROGRAMS += tests/test_align
 check_PROGRAMS += tests/test_align_stats
 check_PROGRAMS += tests/test_align_table
 check_PROGRAMS += tests/test_openmp
+if HAVE_SSE2
+check_PROGRAMS += tests/test_sse2_extract
+endif
 
-tests_test_align_SOURCES       = tests/test_align.c
-tests_test_align_stats_SOURCES = tests/test_align_stats.c
-tests_test_align_table_SOURCES = tests/test_align_table.c
-tests_test_openmp_SOURCES      = tests/test_openmp.c
-tests_test_openmp_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)
-tests_test_openmp_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
-tests_test_openmp_LDADD = $(LDADD) $(CLOCK_LIBS) $(MATH_LIBS)
+tests_test_align_SOURCES        = tests/test_align.c
+tests_test_align_stats_SOURCES  = tests/test_align_stats.c
+tests_test_align_table_SOURCES  = tests/test_align_table.c
+tests_test_openmp_SOURCES       = tests/test_openmp.c
+tests_test_openmp_CFLAGS        = $(AM_CFLAGS) $(OPENMP_CFLAGS)
+tests_test_openmp_LDFLAGS       = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
+tests_test_openmp_LDADD         = $(LDADD) $(CLOCK_LIBS) $(MATH_LIBS)
+tests_test_sse2_extract_SOURCES = tests/test_sse2_extract.c
 

@@ -60,12 +60,14 @@ int main(int argc, char **argv)
     printf("nw_scan\t\t\t\t\t%d\t%d\t%d\n", result->score, result->matches, result->length);
     parasail_result_free(result);
 
-#if 0
 #if HAVE_SSE2
-    score = nw_scan_128_16_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, result->score_table);
-    print_array("nw_scan_128_16_scr.txt", result->score_table, seqA, lena, seqB, lenb);
+    result = nw_table_scan_sse2_128_16(seqA, lena, seqB, lenb, 10, 1, blosum62);
+    print_array("nw_scr_scan_128_16.txt", result->score_table, seqA, lena, seqB, lenb);
+    printf("nw\t\tscan\t128\t16\t%d\t%d\t%d\n", result->score, result->matches, result->length);
+    parasail_result_free(result);
 #endif
 
+#if 0
 #if HAVE_SSE41
     score = nw_scan_128_8_table(seqA, lena, seqB, lenb, 10, 1, blosum62__, result->score_table);
     print_array("nw_scan_128_8_scr.txt", result->score_table, seqA, lena, seqB, lenb);

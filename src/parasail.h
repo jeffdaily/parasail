@@ -98,17 +98,17 @@ parasail_result_t* nw_scan(
         const char * const restrict s2, const int s2Len,
         const int open, const int gap, const int matrix[24][24]);
 
-parasail_result_t* nw_scan_table(
+parasail_result_t* nw_table_scan(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
         const int open, const int gap, const int matrix[24][24]);
 
-parasail_result_t* nw_scan_stats(
+parasail_result_t* nw_stats_scan(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
         const int open, const int gap, const int matrix[24][24]);
 
-parasail_result_t* nw_scan_stats_table(
+parasail_result_t* nw_stats_table_scan(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
         const int open, const int gap, const int matrix[24][24]);
@@ -118,17 +118,17 @@ parasail_result_t* sg_scan(
         const char * const restrict s2, const int s2Len,
         const int open, const int gap, const int matrix[24][24]);
 
-parasail_result_t* sg_scan_table(
+parasail_result_t* sg_table_scan(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
         const int open, const int gap, const int matrix[24][24]);
 
-parasail_result_t* sg_scan_stats(
+parasail_result_t* sg_stats_scan(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
         const int open, const int gap, const int matrix[24][24]);
 
-parasail_result_t* sg_scan_stats_table(
+parasail_result_t* sg_stats_table_scan(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
         const int open, const int gap, const int matrix[24][24]);
@@ -138,17 +138,17 @@ parasail_result_t* sw_scan(
         const char * const restrict s2, const int s2Len,
         const int open, const int gap, const int matrix[24][24]);
 
-parasail_result_t* sw_scan_table(
+parasail_result_t* sw_table_scan(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
         const int open, const int gap, const int matrix[24][24]);
 
-parasail_result_t* sw_scan_stats(
+parasail_result_t* sw_stats_scan(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
         const int open, const int gap, const int matrix[24][24]);
 
-parasail_result_t* sw_scan_stats_table(
+parasail_result_t* sw_stats_table_scan(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
         const int open, const int gap, const int matrix[24][24]);

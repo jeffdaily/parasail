@@ -31,9 +31,9 @@ ALIGNMENT_SRC += src/nw_scan.c
 ALIGNMENT_SRC += src/sg_scan.c
 ALIGNMENT_SRC += src/sw_scan.c
 
-ALIGNMENT_SRC += src/nw_scan_stats.c
-ALIGNMENT_SRC += src/sg_scan_stats.c
-ALIGNMENT_SRC += src/sw_scan_stats.c
+ALIGNMENT_SRC += src/nw_stats_scan.c
+ALIGNMENT_SRC += src/sg_stats_scan.c
+ALIGNMENT_SRC += src/sw_stats_scan.c
 
 ###################
 # parallel methods

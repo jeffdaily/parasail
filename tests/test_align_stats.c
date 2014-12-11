@@ -64,7 +64,7 @@ int main(int argc, char **argv)
 
     timer = timer_start();
     for (i=0; i<limit; ++i) {
-        result = nw_scan_stats(seqA, lena, seqB, lenb, 10, 1, blosum62);
+        result = nw_stats_scan(seqA, lena, seqB, lenb, 10, 1, blosum62);
         score = result->score;
         matches = result->matches;
         length = result->length;
@@ -144,7 +144,7 @@ int main(int argc, char **argv)
 
     timer = timer_start();
     for (i=0; i<limit; ++i) {
-        result = sg_scan_stats(seqA, lena, seqB, lenb, 10, 1, blosum62);
+        result = sg_stats_scan(seqA, lena, seqB, lenb, 10, 1, blosum62);
         score = result->score;
         matches = result->matches;
         length = result->length;
@@ -219,7 +219,7 @@ int main(int argc, char **argv)
 
     timer = timer_start();
     for (i=0; i<limit; ++i) {
-        result = sw_scan_stats(seqA, lena, seqB, lenb, 10, 1, blosum62);
+        result = sw_stats_scan(seqA, lena, seqB, lenb, 10, 1, blosum62);
         score = result->score;
         matches = result->matches;
         length = result->length;

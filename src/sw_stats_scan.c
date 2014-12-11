@@ -20,9 +20,9 @@
 #define MAX(a,b) ((a)>(b)?(a):(b))
 
 #ifdef PARASAIL_TABLE
-#define ENAME sg_scan_stats_table
+#define ENAME sw_stats_table_scan
 #else
-#define ENAME sg_scan_stats
+#define ENAME sw_stats_scan
 #endif
 
 parasail_result_t* ENAME(
@@ -101,9 +101,17 @@ parasail_result_t* ENAME(
         for (i=0; i<s1Len; ++i) {
             int tmp = H[i-1]+matcol[s1[i]];
             Ht[i] = MAX(tmp, E[i]);
-            Mt[i] = tmp >= E[i] ? M[i-1] + (s1[i]==s2[j]) : M[i];
-            Lt[i] = tmp >= E[i] ? L[i-1] + 1 : L[i] + 1;
-            Ex[i] = (E[i] > tmp);
+            if (0 >= Ht[i]) {
+                Ht[i] = 0;
+                Mt[i] = 0;
+                Lt[i] = 0;
+                Ex[i] = 0;
+            }
+            else {
+                Mt[i] = tmp >= E[i] ? M[i-1] + (s1[i]==s2[j]) : M[i];
+                Lt[i] = tmp >= E[i] ? L[i-1] + 1 : L[i] + 1;
+                Ex[i] = (E[i] > tmp);
+            }
         }
         Ht[-1] = 0;
         Ft[-1] = NEG_INF_32;
@@ -131,22 +139,14 @@ parasail_result_t* ENAME(
 #endif
             FM = M[i];
             FL = L[i];
+            /* max value */
+            if (H[i] > score) {
+                score = H[i];
+                matches = M[i];
+                length = L[i];
+            }
         }
         H[-1] = 0;
-        /* last value from column */
-        if (H[s1Len-1] > score) {
-            score = H[s1Len-1];
-            matches = M[s1Len-1];
-            length = L[s1Len-1];
-        }
-    }
-    /* max of last column */
-    for (i=0; i<s1Len; ++i) {
-        if (H[i] > score) {
-            score = H[i];
-            matches = M[i];
-            length = L[i];
-        }
     }
 
     result->score = score;

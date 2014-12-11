@@ -20,7 +20,7 @@
 #define MAX(a,b) ((a)>(b)?(a):(b))
 
 #ifdef PARASAIL_TABLE
-#define ENAME sg_scan_table
+#define ENAME sg_table_scan
 #else
 #define ENAME sg_scan
 #endif

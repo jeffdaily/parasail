@@ -37,7 +37,7 @@ parasail_result_t* ENAME(
 #endif
     int * const restrict s1 = parasail_memalign_int(16, s1Len);
     int * const restrict s2 = parasail_memalign_int(16, s2Len);
-    int * const restrict tbl_pr = parasail_memalign_int(16, s1Len+1);
+    int * const restrict tbl_pr = parasail_memalign_int(16, s2Len+1);
     int * const restrict del_pr = parasail_memalign_int(16, s2Len+1);
     int * const restrict mch_pr = parasail_memalign_int(16, s2Len+1);
     int * const restrict len_pr = parasail_memalign_int(16, s2Len+1);

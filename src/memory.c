@@ -42,9 +42,19 @@ int * restrict parasail_memalign_int(size_t alignment, size_t size)
     return (int * restrict) parasail_memalign(alignment, size*sizeof(int));
 }
 
+int8_t * restrict parasail_memalign_int8_t(size_t alignment, size_t size)
+{
+    return (int8_t * restrict) parasail_memalign(alignment, size*sizeof(int8_t));
+}
+
 int16_t * restrict parasail_memalign_int16_t(size_t alignment, size_t size)
 {
     return (int16_t * restrict) parasail_memalign(alignment, size*sizeof(int16_t));
+}
+
+int32_t * restrict parasail_memalign_int32_t(size_t alignment, size_t size)
+{
+    return (int32_t * restrict) parasail_memalign(alignment, size*sizeof(int32_t));
 }
 
 #if HAVE_SSE2 || HAVE_SSE41

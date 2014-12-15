@@ -84,6 +84,7 @@ int main(int argc, char **argv)
 #if HAVE_SSE2                      
         {nw_scan_sse2_128_32,       "nw", "scan", "sse2",  "128", "32", 0, 0},
         {nw_scan_sse2_128_16,       "nw", "scan", "sse2",  "128", "16", 0, 0},
+        {nw_scan_sse2_128_8,        "nw", "scan", "sse2",  "128", "8",  0, 0},
 #endif                             
 #if HAVE_SSE41
         {nw_scan_sse41_128_32,      "nw", "scan", "sse41", "128", "32", 0, 0},

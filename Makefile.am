@@ -47,6 +47,10 @@ ALIGNMENT_SRC += src/nw_scan_sse2_128_16.c
 ALIGNMENT_SRC += src/sg_scan_sse2_128_16.c
 ALIGNMENT_SRC += src/sw_scan_sse2_128_16.c
 
+ALIGNMENT_SRC += src/nw_scan_sse2_128_8.c
+#ALIGNMENT_SRC += src/sg_scan_sse2_128_8.c
+#ALIGNMENT_SRC += src/sw_scan_sse2_128_8.c
+
 #ALIGNMENT_SRC += src/nw_stats_scan_sse2_128_16.c
 #ALIGNMENT_SRC += src/sg_stats_scan_sse2_128_16.c
 #ALIGNMENT_SRC += src/sw_stats_scan_sse2_128_16.c

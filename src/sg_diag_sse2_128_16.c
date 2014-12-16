@@ -13,13 +13,12 @@
 
 #include <emmintrin.h>
 
-#ifdef PARASAIL_TABLE
-#include "align_wozniak_128_16_table.h"
-#else
-#include "align_wozniak_128_16.h"
-#endif
+#include "parasail.h"
+#include "parasail_internal.h"
 #include "blosum/blosum_map.h"
 
+#define NEG_INF_16 (INT16_MIN/(int16_t)(2))
+#define MAX(a,b) ((a)>(b)?(a):(b))
 
 /* shift given vector v, insert val, return shifted val */
 static inline __m128i vshift16(const __m128i v, const int val)
@@ -28,7 +27,6 @@ static inline __m128i vshift16(const __m128i v, const int val)
     ret = _mm_insert_epi16(ret, val, 7);
     return ret;
 }
-
 
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si128(
@@ -68,33 +66,34 @@ static inline void arr_store_si128(
 
 
 #ifdef PARASAIL_TABLE
-#define FNAME sg_wozniak_128_16_table
+#define FNAME sg_table_diag_sse2_128_16
 #else
-#define FNAME sg_wozniak_128_16
+#define FNAME sg_diag_sse2_128_16
 #endif
 
-int FNAME(
+parasail_result_t* FNAME(
         const char * const restrict _s1, const int s1Len,
         const char * const restrict _s2, const int s2Len,
-        const int open, const int gap,
-        const int matrix[24][24],
-        int * const restrict _tbl_pr, int * const restrict _del_pr
-#ifdef PARASAIL_TABLE
-        , int * const restrict score_table
-#endif
-        )
+        const int open, const int gap, const int matrix[24][24])
 {
     const int N = 8; /* number of values in vector */
     const int PAD = N-1; /* N 16-byte values in vector, so N - 1 */
     const int PAD2 = PAD*2;
-    int * const restrict s1 = (int * const restrict)malloc(sizeof(int)*(s1Len+PAD));
-    int * const restrict s2B= (int * const restrict)malloc(sizeof(int)*(s2Len+PAD2));
-    int * const restrict s2 = s2B+PAD; /* will allow later for negative indices */
+    int * const restrict s1 = parasail_memalign_int(16, s1Len+PAD2);
+    int * const restrict s2B= parasail_memalign_int(16, s2Len+PAD);
+    int * const restrict _tbl_pr = parasail_memalign_int(16, s2Len+PAD);
+    int * const restrict _del_pr = parasail_memalign_int(16, s2Len+PAD);
+    int * const restrict s2 = s2B+PAD2; /* will allow later for negative indices */
+    int * const restrict tbl_pr = _tbl_pr+PAD2;
+    int * const restrict del_pr = _del_pr+PAD2;
+#if PARASAIL_TABLE
+    parasail_result_t *result = parasail_result_new_table1(s1Len, s2Len);
+#else
+    parasail_result_t *result = parasail_result_new();
+#endif
     int i = 0;
     int j = 0;
     int score = NEG_INF_16;
-    int * const restrict tbl_pr = _tbl_pr+PAD;
-    int * const restrict del_pr = _del_pr+PAD;
     __m128i vNegInf = _mm_set1_epi16(NEG_INF_16);
     __m128i vNegInf0 = _mm_srli_si128(vNegInf, 2); /* shift in a 0 */
     __m128i vOpen = _mm_set1_epi16(open);
@@ -199,7 +198,7 @@ int FNAME(
                 vIns = _mm_or_si128(vIns, _mm_and_si128(cond, vNegInf));
             }
 #ifdef PARASAIL_TABLE
-            arr_store_si128(score_table, vWscore, i, s1Len, j, s2Len);
+            arr_store_si128(result->score_table, vWscore, i, s1Len, j, s2Len);
 #endif
             tbl_pr[j-7] = (int16_t)_mm_extract_epi16(vWscore,0);
             del_pr[j-7] = (int16_t)_mm_extract_epi16(vDel,0);
@@ -230,7 +229,7 @@ int FNAME(
             vWscore = _mm_max_epi16(vNWscore, vIns);
             vWscore = _mm_max_epi16(vWscore, vDel);
 #ifdef PARASAIL_TABLE
-            arr_store_si128(score_table, vWscore, i, s1Len, j, s2Len);
+            arr_store_si128(result->score_table, vWscore, i, s1Len, j, s2Len);
 #endif
             tbl_pr[j-7] = (int16_t)_mm_extract_epi16(vWscore,0);
             del_pr[j-7] = (int16_t)_mm_extract_epi16(vDel,0);
@@ -261,7 +260,7 @@ int FNAME(
             vWscore = _mm_max_epi16(vNWscore, vIns);
             vWscore = _mm_max_epi16(vWscore, vDel);
 #ifdef PARASAIL_TABLE
-            arr_store_si128(score_table, vWscore, i, s1Len, j, s2Len);
+            arr_store_si128(result->score_table, vWscore, i, s1Len, j, s2Len);
 #endif
             tbl_pr[j-7] = (int16_t)_mm_extract_epi16(vWscore,0);
             del_pr[j-7] = (int16_t)_mm_extract_epi16(vDel,0);
@@ -331,7 +330,7 @@ int FNAME(
                 vIns = _mm_or_si128(vIns, _mm_and_si128(cond, vNegInf));
             }
 #ifdef PARASAIL_TABLE
-            arr_store_si128(score_table, vWscore, i, s1Len, j, s2Len);
+            arr_store_si128(result->score_table, vWscore, i, s1Len, j, s2Len);
 #endif
             tbl_pr[j-7] = (int16_t)_mm_extract_epi16(vWscore,0);
             del_pr[j-7] = (int16_t)_mm_extract_epi16(vDel,0);
@@ -374,7 +373,7 @@ int FNAME(
             vWscore = _mm_max_epi16(vNWscore, vIns);
             vWscore = _mm_max_epi16(vWscore, vDel);
 #ifdef PARASAIL_TABLE
-            arr_store_si128(score_table, vWscore, i, s1Len, j, s2Len);
+            arr_store_si128(result->score_table, vWscore, i, s1Len, j, s2Len);
 #endif
             tbl_pr[j-7] = (int16_t)_mm_extract_epi16(vWscore,0);
             del_pr[j-7] = (int16_t)_mm_extract_epi16(vDel,0);
@@ -415,7 +414,7 @@ int FNAME(
             vWscore = _mm_max_epi16(vNWscore, vIns);
             vWscore = _mm_max_epi16(vWscore, vDel);
 #ifdef PARASAIL_TABLE
-            arr_store_si128(score_table, vWscore, i, s1Len, j, s2Len);
+            arr_store_si128(result->score_table, vWscore, i, s1Len, j, s2Len);
 #endif
             tbl_pr[j-7] = (int16_t)_mm_extract_epi16(vWscore,0);
             del_pr[j-7] = (int16_t)_mm_extract_epi16(vDel,0);
@@ -450,9 +449,13 @@ int FNAME(
         vMaxScore = _mm_slli_si128(vMaxScore, 2);
     }
 
-    free(s1);
-    free(s2B);
+    result->score = score;
 
-    return score;
+    free(_del_pr);
+    free(_tbl_pr);
+    free(s2B);
+    free(s1);
+
+    return result;
 }
 

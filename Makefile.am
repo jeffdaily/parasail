@@ -66,12 +66,28 @@ ALIGNMENT_SRC += src/sw_scan_sse41_128_8.c
 
 # parallel diag methods
 ALIGNMENT_SRC += src/nw_diag_sse2_128_32.c
+ALIGNMENT_SRC += src/sg_diag_sse2_128_32.c
+#ALIGNMENT_SRC += src/sw_diag_sse2_128_32.c
+
 ALIGNMENT_SRC += src/nw_diag_sse2_128_16.c
+ALIGNMENT_SRC += src/sg_diag_sse2_128_16.c
+#ALIGNMENT_SRC += src/sw_diag_sse2_128_16.c
+
 ALIGNMENT_SRC += src/nw_diag_sse2_128_8.c
+ALIGNMENT_SRC += src/sg_diag_sse2_128_8.c
+#ALIGNMENT_SRC += src/sw_diag_sse2_128_8.c
 
 ALIGNMENT_SRC += src/nw_diag_sse41_128_32.c
+ALIGNMENT_SRC += src/sg_diag_sse41_128_32.c
+#ALIGNMENT_SRC += src/sw_diag_sse41_128_32.c
+
 ALIGNMENT_SRC += src/nw_diag_sse41_128_16.c
+ALIGNMENT_SRC += src/sg_diag_sse41_128_16.c
+#ALIGNMENT_SRC += src/sw_diag_sse41_128_16.c
+
 ALIGNMENT_SRC += src/nw_diag_sse41_128_8.c
+ALIGNMENT_SRC += src/sg_diag_sse41_128_8.c
+#ALIGNMENT_SRC += src/sw_diag_sse41_128_8.c
 
 libparasail_la_SOURCES += $(ALIGNMENT_SRC)
 

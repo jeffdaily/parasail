@@ -79,7 +79,8 @@ int main(int argc, char **argv)
     unsigned long long timer_rdtsc_single;
     float timer_rdtsc_ref_mean;
     //size_t limit = 1000;
-    size_t limit = 500;
+    //size_t limit = 500;
+    size_t limit = 100;
     //size_t limit = 1;
     size_t i;
     size_t index;
@@ -113,11 +114,17 @@ int main(int argc, char **argv)
         {sg_scan_sse2_128_32,       "sg", "scan", "sse2",  "128", "32", 0, 0},
         {sg_scan_sse2_128_16,       "sg", "scan", "sse2",  "128", "16", 0, 0},
         {sg_scan_sse2_128_8,        "sg", "scan", "sse2",  "128", "8",  0, 0},
+        {sg_diag_sse2_128_32,       "sg", "diag", "sse2",  "128", "32", 0, 0},
+        {sg_diag_sse2_128_16,       "sg", "diag", "sse2",  "128", "16", 0, 0},
+        {sg_diag_sse2_128_8,        "sg", "diag", "sse2",  "128", "8",  0, 0},
 #endif                             
 #if HAVE_SSE41
         {sg_scan_sse41_128_32,      "sg", "scan", "sse41", "128", "32", 0, 0},
         {sg_scan_sse41_128_16,      "sg", "scan", "sse41", "128", "16", 0, 0},
         {sg_scan_sse41_128_8,       "sg", "scan", "sse41", "128", "8",  0, 0},
+        {sg_diag_sse41_128_32,      "sg", "diag", "sse41", "128", "32", 0, 0},
+        {sg_diag_sse41_128_16,      "sg", "diag", "sse41", "128", "16", 0, 0},
+        {sg_diag_sse41_128_8,       "sg", "diag", "sse41", "128", "8",  0, 0},
 #endif
 
         {sw,                        "sw", "",     "",      "",    "",   0, 1},
@@ -158,11 +165,17 @@ int main(int argc, char **argv)
         {sg_table_scan_sse2_128_32, "sg", "scan", "sse2", "128", "32", 1, 0},
         {sg_table_scan_sse2_128_16, "sg", "scan", "sse2", "128", "16", 1, 0},
         {sg_table_scan_sse2_128_8,  "sg", "scan", "sse2", "128", "8",  1, 0},
+        {sg_table_diag_sse2_128_32, "sg", "diag", "sse2", "128", "32", 1, 0},
+        {sg_table_diag_sse2_128_16, "sg", "diag", "sse2", "128", "16", 1, 0},
+        {sg_table_diag_sse2_128_8,  "sg", "diag", "sse2", "128", "8",  1, 0},
 #endif
 #if HAVE_SSE41
         {sg_table_scan_sse41_128_32,"sg", "scan", "sse41", "128", "32", 1, 0},
         {sg_table_scan_sse41_128_16,"sg", "scan", "sse41", "128", "16", 1, 0},
         {sg_table_scan_sse41_128_8, "sg", "scan", "sse41", "128", "8",  1, 0},
+        {sg_table_diag_sse41_128_32,"sg", "diag", "sse41", "128", "32", 1, 0},
+        {sg_table_diag_sse41_128_16,"sg", "diag", "sse41", "128", "16", 1, 0},
+        {sg_table_diag_sse41_128_8, "sg", "diag", "sse41", "128", "8",  1, 0},
 #endif
 
         {sw_table,                  "sw", "",     "",     "",    "",   1, 1},

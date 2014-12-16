@@ -39,6 +39,7 @@ ALIGNMENT_SRC += src/sw_stats_scan.c
 # parallel methods
 ###################
 
+# parallel scan methods
 ALIGNMENT_SRC += src/nw_scan_sse2_128_32.c
 ALIGNMENT_SRC += src/sg_scan_sse2_128_32.c
 ALIGNMENT_SRC += src/sw_scan_sse2_128_32.c
@@ -63,52 +64,21 @@ ALIGNMENT_SRC += src/nw_scan_sse41_128_8.c
 ALIGNMENT_SRC += src/sg_scan_sse41_128_8.c
 ALIGNMENT_SRC += src/sw_scan_sse41_128_8.c
 
+# parallel diag methods
+ALIGNMENT_SRC += src/nw_diag_sse2_128_32.c
+ALIGNMENT_SRC += src/nw_diag_sse2_128_16.c
+ALIGNMENT_SRC += src/nw_diag_sse2_128_8.c
+
+ALIGNMENT_SRC += src/nw_diag_sse41_128_32.c
+ALIGNMENT_SRC += src/nw_diag_sse41_128_16.c
+ALIGNMENT_SRC += src/nw_diag_sse41_128_8.c
+
 libparasail_la_SOURCES += $(ALIGNMENT_SRC)
 
 libparasail_table_la_SOURCES = $(ALIGNMENT_SRC)
 libparasail_table_la_CPPFLAGS = $(AM_CPPFLAGS) -DPARASAIL_TABLE
 
 libparasail_la_LIBADD = libparasail_table.la
-
-#libparasail_la_SOURCES += src/nw_scan_row.c
-#if HAVE_SSE2
-#libparasail_la_SOURCES += src/nw_scan_128_16.c
-#libparasail_la_SOURCES += src/nw_striped_128_16.c
-#libparasail_la_SOURCES += src/nw_wozniak_128_16.c
-#libparasail_la_SOURCES += src/nw_stats_scan_128_16.c
-#libparasail_la_SOURCES += src/nw_stats_striped_128_16.c
-#libparasail_la_SOURCES += src/nw_stats_wozniak_128_16.c
-#libparasail_la_SOURCES += src/sg_scan_128_16.c
-#libparasail_la_SOURCES += src/sg_striped_128_16.c
-#libparasail_la_SOURCES += src/sg_wozniak_128_16.c
-#libparasail_la_SOURCES += src/sg_stats_scan_128_16.c
-#libparasail_la_SOURCES += src/sg_stats_striped_128_16.c
-#libparasail_la_SOURCES += src/sg_stats_wozniak_128_16.c
-#libparasail_la_SOURCES += src/sw_scan_128_16.c
-#libparasail_la_SOURCES += src/sw_striped_128_16.c
-#libparasail_la_SOURCES += src/sw_wozniak_128_16.c
-#libparasail_la_SOURCES += src/sw_stats_scan_128_16.c
-#libparasail_la_SOURCES += src/sw_stats_striped_128_16.c
-#libparasail_la_SOURCES += src/sw_stats_wozniak_128_16.c
-#endif
-#if HAVE_SSE41
-#libparasail_la_SOURCES += src/nw_scan_128_8.c
-#libparasail_la_SOURCES += src/nw_striped_128_8.c
-#libparasail_la_SOURCES += src/nw_wozniak_128_8.c
-#libparasail_la_SOURCES += src/nw_stats_scan_128_8.c
-#libparasail_la_SOURCES += src/nw_stats_striped_128_8.c
-#libparasail_la_SOURCES += src/nw_stats_wozniak_128_8.c
-#libparasail_la_SOURCES += src/sg_scan_128_8.c
-#libparasail_la_SOURCES += src/sg_striped_128_8.c
-#libparasail_la_SOURCES += src/sg_wozniak_128_8.c
-#libparasail_la_SOURCES += src/sg_stats_scan_128_8.c
-#libparasail_la_SOURCES += src/sg_stats_wozniak_128_8.c
-#libparasail_la_SOURCES += src/sw_scan_128_8.c
-#libparasail_la_SOURCES += src/sw_stats_scan_128_8.c
-#endif
-#if HAVE_KNC
-#libparasail_la_SOURCES += src/nw_scan_512_32.c
-#endif
 
 check_PROGRAMS += tests/test_align
 check_PROGRAMS += tests/test_align_stats

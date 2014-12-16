@@ -94,11 +94,17 @@ int main(int argc, char **argv)
         {nw_scan_sse2_128_32,       "nw", "scan", "sse2",  "128", "32", 0, 0},
         {nw_scan_sse2_128_16,       "nw", "scan", "sse2",  "128", "16", 0, 0},
         {nw_scan_sse2_128_8,        "nw", "scan", "sse2",  "128", "8",  0, 0},
+        {nw_diag_sse2_128_32,       "nw", "diag", "sse2",  "128", "32", 0, 0},
+        {nw_diag_sse2_128_16,       "nw", "diag", "sse2",  "128", "16", 0, 0},
+        {nw_diag_sse2_128_8,        "nw", "diag", "sse2",  "128", "8",  0, 0},
 #endif                             
 #if HAVE_SSE41
         {nw_scan_sse41_128_32,      "nw", "scan", "sse41", "128", "32", 0, 0},
         {nw_scan_sse41_128_16,      "nw", "scan", "sse41", "128", "16", 0, 0},
         {nw_scan_sse41_128_8,       "nw", "scan", "sse41", "128", "8",  0, 0},
+        {nw_diag_sse41_128_32,      "nw", "diag", "sse41", "128", "32", 0, 0},
+        {nw_diag_sse41_128_16,      "nw", "diag", "sse41", "128", "16", 0, 0},
+        {nw_diag_sse41_128_8,       "nw", "diag", "sse41", "128", "8",  0, 0},
 #endif
 
         {sg,                        "sg", "",     "",      "",    "",   0, 1},
@@ -133,11 +139,17 @@ int main(int argc, char **argv)
         {nw_table_scan_sse2_128_32, "nw", "scan", "sse2",  "128", "32", 1, 0},
         {nw_table_scan_sse2_128_16, "nw", "scan", "sse2",  "128", "16", 1, 0},
         {nw_table_scan_sse2_128_8,  "nw", "scan", "sse2",  "128", "8",  1, 0},
+        {nw_table_diag_sse2_128_32, "nw", "diag", "sse2",  "128", "32", 1, 0},
+        {nw_table_diag_sse2_128_16, "nw", "diag", "sse2",  "128", "16", 1, 0},
+        {nw_table_diag_sse2_128_8,  "nw", "diag", "sse2",  "128", "8",  1, 0},
 #endif
 #if HAVE_SSE41
         {nw_table_scan_sse41_128_32,"nw", "scan", "sse41", "128", "32", 1, 0},
         {nw_table_scan_sse41_128_16,"nw", "scan", "sse41", "128", "16", 1, 0},
         {nw_table_scan_sse41_128_8, "nw", "scan", "sse41", "128", "8",  1, 0},
+        {nw_table_diag_sse41_128_32,"nw", "diag", "sse41", "128", "32", 1, 0},
+        {nw_table_diag_sse41_128_16,"nw", "diag", "sse41", "128", "16", 1, 0},
+        {nw_table_diag_sse41_128_8, "nw", "diag", "sse41", "128", "8",  1, 0},
 #endif
 
         {sg_table,                  "sg", "",     "",     "",    "",   1, 1},

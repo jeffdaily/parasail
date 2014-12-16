@@ -13,7 +13,6 @@
 #include <stdlib.h>
 
 #include <emmintrin.h>
-#include <smmintrin.h>
 
 #include "parasail.h"
 #include "parasail_internal.h"
@@ -21,6 +20,29 @@
 
 #define NEG_INF_8 (INT8_MIN)
 #define MAX(a,b) ((a)>(b)?(a):(b))
+
+/* sse2 does not have _mm_insert_epi8, emulate it */
+static inline __m128i _mm_insert_epi8(__m128i a, int8_t i, int imm) {
+    __m128i_8_t tmp;
+    tmp.m = a;
+    tmp.v[imm] = i;
+    return tmp.m;
+}
+
+/* sse2 does not have _mm_extract_epi8, emulate it */
+static inline int8_t _mm_extract_epi8(__m128i a, int imm) {
+    __m128i_8_t tmp;
+    tmp.m = a;
+    return tmp.v[imm];
+}
+
+/* sse2 does not have _mm_max_epi8, emulate it */
+static inline __m128i _mm_max_epi8(__m128i a, __m128i b) {
+    __m128i mask = _mm_cmpgt_epi8(a,b);
+    a = _mm_and_si128(a,mask);
+    b = _mm_andnot_si128(mask,b);
+    return _mm_or_si128(a,b);
+}
 
 #if PARASAIL_TABLE
 static inline void arr_store_si128(
@@ -51,9 +73,9 @@ static inline void arr_store_si128(
 #endif
 
 #ifdef PARASAIL_TABLE
-#define FNAME sw_table_scan_sse41_128_8
+#define FNAME sw_table_scan_sse2_128_8
 #else
-#define FNAME sw_scan_sse41_128_8
+#define FNAME sw_scan_sse2_128_8
 #endif
 
 parasail_result_t* FNAME(

@@ -23,13 +23,13 @@ ALIGNMENT_SRC += src/nw.c
 ALIGNMENT_SRC += src/sg.c
 ALIGNMENT_SRC += src/sw.c
 
-ALIGNMENT_SRC += src/nw_stats.c
-ALIGNMENT_SRC += src/sg_stats.c
-ALIGNMENT_SRC += src/sw_stats.c
-
 ALIGNMENT_SRC += src/nw_scan.c
 ALIGNMENT_SRC += src/sg_scan.c
 ALIGNMENT_SRC += src/sw_scan.c
+
+ALIGNMENT_SRC += src/nw_stats.c
+ALIGNMENT_SRC += src/sg_stats.c
+ALIGNMENT_SRC += src/sw_stats.c
 
 ALIGNMENT_SRC += src/nw_stats_scan.c
 ALIGNMENT_SRC += src/sg_stats_scan.c
@@ -41,43 +41,27 @@ ALIGNMENT_SRC += src/sw_stats_scan.c
 
 ALIGNMENT_SRC += src/nw_scan_sse2_128_32.c
 ALIGNMENT_SRC += src/sg_scan_sse2_128_32.c
-#ALIGNMENT_SRC += src/sw_scan_sse2_128_32.c
+ALIGNMENT_SRC += src/sw_scan_sse2_128_32.c
 
 ALIGNMENT_SRC += src/nw_scan_sse2_128_16.c
 ALIGNMENT_SRC += src/sg_scan_sse2_128_16.c
 ALIGNMENT_SRC += src/sw_scan_sse2_128_16.c
 
 ALIGNMENT_SRC += src/nw_scan_sse2_128_8.c
-#ALIGNMENT_SRC += src/sg_scan_sse2_128_8.c
-#ALIGNMENT_SRC += src/sw_scan_sse2_128_8.c
-
-#ALIGNMENT_SRC += src/nw_stats_scan_sse2_128_16.c
-#ALIGNMENT_SRC += src/sg_stats_scan_sse2_128_16.c
-#ALIGNMENT_SRC += src/sw_stats_scan_sse2_128_16.c
+ALIGNMENT_SRC += src/sg_scan_sse2_128_8.c
+ALIGNMENT_SRC += src/sw_scan_sse2_128_8.c
 
 ALIGNMENT_SRC += src/nw_scan_sse41_128_32.c
-#ALIGNMENT_SRC += src/sg_scan_sse41_128_32.c
-#ALIGNMENT_SRC += src/sw_scan_sse41_128_32.c
-
-#ALIGNMENT_SRC += src/nw_stats_scan_sse41_128_32.c
-#ALIGNMENT_SRC += src/sg_stats_scan_sse41_128_32.c
-#ALIGNMENT_SRC += src/sw_stats_scan_sse41_128_32.c
+ALIGNMENT_SRC += src/sg_scan_sse41_128_32.c
+ALIGNMENT_SRC += src/sw_scan_sse41_128_32.c
 
 ALIGNMENT_SRC += src/nw_scan_sse41_128_16.c
-#ALIGNMENT_SRC += src/sg_scan_sse41_128_16.c
-#ALIGNMENT_SRC += src/sw_scan_sse41_128_16.c
-
-#ALIGNMENT_SRC += src/nw_stats_scan_sse41_128_16.c
-#ALIGNMENT_SRC += src/sg_stats_scan_sse41_128_16.c
-#ALIGNMENT_SRC += src/sw_stats_scan_sse41_128_16.c
+ALIGNMENT_SRC += src/sg_scan_sse41_128_16.c
+ALIGNMENT_SRC += src/sw_scan_sse41_128_16.c
 
 ALIGNMENT_SRC += src/nw_scan_sse41_128_8.c
-#ALIGNMENT_SRC += src/sg_scan_sse41_128_8.c
-#ALIGNMENT_SRC += src/sw_scan_sse41_128_8.c
-
-#ALIGNMENT_SRC += src/nw_stats_scan_sse41_128_8.c
-#ALIGNMENT_SRC += src/sg_stats_scan_sse41_128_8.c
-#ALIGNMENT_SRC += src/sw_stats_scan_sse41_128_8.c
+ALIGNMENT_SRC += src/sg_scan_sse41_128_8.c
+ALIGNMENT_SRC += src/sw_scan_sse41_128_8.c
 
 libparasail_la_SOURCES += $(ALIGNMENT_SRC)
 

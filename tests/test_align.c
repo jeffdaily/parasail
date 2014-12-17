@@ -80,8 +80,8 @@ int main(int argc, char **argv)
     float timer_rdtsc_ref_mean;
     //size_t limit = 1000;
     //size_t limit = 500;
-    //size_t limit = 100;
-    size_t limit = 2;
+    size_t limit = 100;
+    //size_t limit = 2;
     size_t i;
     size_t index;
     func_t f;

@@ -198,7 +198,6 @@ int FNAME(
     __m128i vOne = _mm_set1_epi8(1);
     __m128i vOne16 = _mm_set1_epi16(1);
     __m128i vN16 = _mm_set1_epi16(N);
-    __m128i vNegOne = _mm_set1_epi8(-1);
     __m128i vNegOne16 = _mm_set1_epi16(-1);
     __m128i vILo16 = _mm_set_epi16(8,9,10,11,12,13,14,15);
     __m128i vIHi16 = _mm_set_epi16(0,1,2,3,4,5,6,7);
@@ -372,8 +371,8 @@ int FNAME(
              * assign the appropriate boundary conditions */
             {
                 __m128i cond = _mm_packs_epi16(
-                        _mm_cmpeq_epi16(vJLo16,vNegOne),
-                        _mm_cmpeq_epi16(vJHi16,vNegOne));
+                        _mm_cmpeq_epi16(vJLo16,vNegOne16),
+                        _mm_cmpeq_epi16(vJHi16,vNegOne16));
                 vWscore = _mm_andnot_si128(cond, vWscore);
                 vWmatch = _mm_andnot_si128(cond, vWmatch);
                 vWmatch = _mm_or_si128(vWmatch, _mm_and_si128(cond, vNegInf));

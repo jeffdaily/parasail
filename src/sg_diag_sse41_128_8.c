@@ -128,7 +128,6 @@ parasail_result_t* FNAME(
     __m128i vZero = _mm_set1_epi8(0);
     __m128i vOne16 = _mm_set1_epi16(1);
     __m128i vN16 = _mm_set1_epi16(N);
-    __m128i vNegOne = _mm_set1_epi8(-1);
     __m128i vNegOne16 = _mm_set1_epi16(-1);
     __m128i vILo16 = _mm_set_epi16(8,9,10,11,12,13,14,15);
     __m128i vIHi16 = _mm_set_epi16(0,1,2,3,4,5,6,7);
@@ -239,13 +238,11 @@ parasail_result_t* FNAME(
              * assign the appropriate boundary conditions */
             {
                 __m128i cond = _mm_packs_epi16(
-                        _mm_cmpeq_epi16(vJLo16,vNegOne),
-                        _mm_cmpeq_epi16(vJHi16,vNegOne));
+                        _mm_cmpeq_epi16(vJLo16,vNegOne16),
+                        _mm_cmpeq_epi16(vJHi16,vNegOne16));
                 vWscore = _mm_andnot_si128(cond, vWscore);
-                vDel = _mm_andnot_si128(cond, vDel);
-                vDel = _mm_or_si128(vDel, _mm_and_si128(cond, vNegInf));
-                vIns = _mm_andnot_si128(cond, vIns);
-                vIns = _mm_or_si128(vIns, _mm_and_si128(cond, vNegInf));
+                vDel = _mm_blendv_epi8(vDel, vNegInf, cond);
+                vIns = _mm_blendv_epi8(vIns, vNegInf, cond);
             }
             /* check for saturation */
             {
@@ -361,8 +358,7 @@ parasail_result_t* FNAME(
                         _mm_cmpeq_epi16(vJHi16, vJLimit116));
                 __m128i cond_max = _mm_cmpgt_epi8(vWscore, vMax);
                 __m128i cond_all = _mm_and_si128(cond_max, cond_j);
-                vMax = _mm_andnot_si128(cond_all, vMax);
-                vMax = _mm_or_si128(vMax, _mm_and_si128(cond_all, vWscore));
+                vMax = _mm_blendv_epi8(vMax, vWscore, cond_all);
             }
             vJLo16 = _mm_adds_epi16(vJLo16, vOne16);
             vJHi16 = _mm_adds_epi16(vJHi16, vOne16);
@@ -439,10 +435,8 @@ parasail_result_t* FNAME(
                         _mm_cmpeq_epi16(vJLo16,vNegOne16),
                         _mm_cmpeq_epi16(vJHi16,vNegOne16));
                 vWscore = _mm_andnot_si128(cond, vWscore);
-                vDel = _mm_andnot_si128(cond, vDel);
-                vDel = _mm_or_si128(vDel, _mm_and_si128(cond, vNegInf));
-                vIns = _mm_andnot_si128(cond, vIns);
-                vIns = _mm_or_si128(vIns, _mm_and_si128(cond, vNegInf));
+                vDel = _mm_blendv_epi8(vDel, vNegInf, cond);
+                vIns = _mm_blendv_epi8(vIns, vNegInf, cond);
             }
             /* check for saturation */
             {
@@ -471,8 +465,7 @@ parasail_result_t* FNAME(
                         );
                 __m128i cond_max = _mm_cmpgt_epi8(vWscore, vMax);
                 __m128i cond_all = _mm_and_si128(cond_max, cond_i);
-                vMax = _mm_andnot_si128(cond_all, vMax);
-                vMax = _mm_or_si128(vMax, _mm_and_si128(cond_all, vWscore));
+                vMax = _mm_blendv_epi8(vMax, vWscore, cond_all);
             }
             vJLo16 = _mm_adds_epi16(vJLo16, vOne16);
             vJHi16 = _mm_adds_epi16(vJHi16, vOne16);
@@ -536,8 +529,7 @@ parasail_result_t* FNAME(
                         );
                 __m128i cond_max = _mm_cmpgt_epi8(vWscore, vMax);
                 __m128i cond_all = _mm_and_si128(cond_max, cond_i);
-                vMax = _mm_andnot_si128(cond_all, vMax);
-                vMax = _mm_or_si128(vMax, _mm_and_si128(cond_all, vWscore));
+                vMax = _mm_blendv_epi8(vMax, vWscore, cond_all);
             }
             vJLo16 = _mm_adds_epi16(vJLo16, vOne16);
             vJHi16 = _mm_adds_epi16(vJHi16, vOne16);
@@ -608,8 +600,7 @@ parasail_result_t* FNAME(
                 __m128i cond_max = _mm_cmpgt_epi8(vWscore, vMax);
                 __m128i cond_all = _mm_and_si128(cond_max,
                         _mm_or_si128(cond_i, cond_j));
-                vMax = _mm_andnot_si128(cond_all, vMax);
-                vMax = _mm_or_si128(vMax, _mm_and_si128(cond_all, vWscore));
+                vMax = _mm_blendv_epi8(vMax, vWscore, cond_all);
             }
             vJLo16 = _mm_adds_epi16(vJLo16, vOne16);
             vJHi16 = _mm_adds_epi16(vJHi16, vOne16);

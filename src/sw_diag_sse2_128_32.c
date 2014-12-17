@@ -18,7 +18,6 @@
 #include "blosum/blosum_map.h"
 
 #define NEG_INF_32 (INT32_MIN/(int32_t)(2))
-#define MAX(a,b) ((a)>(b)?(a):(b))
 
 /* sse2 does not have _mm_insert_epi32, emulate it */
 static inline __m128i _mm_insert_epi32(__m128i a, int32_t i, int imm) {

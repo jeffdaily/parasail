@@ -15,13 +15,11 @@
 #include <emmintrin.h>
 #include <smmintrin.h>
 
-#ifdef PARASAIL_TABLE
-#include "align_striped_128_8_table.h"
-#else
-#include "align_striped_128_8.h"
-#endif
+#include "parasail.h"
+#include "parasail_internal.h"
 #include "blosum/blosum_map.h"
 
+#define NEG_INF_8 (INT8_MIN)
 
 #if PARASAIL_TABLE
 static inline void arr_store_si128(
@@ -52,20 +50,15 @@ static inline void arr_store_si128(
 #endif
 
 #ifdef PARASAIL_TABLE
-#define FNAME nw_striped_128_8_table
+#define FNAME nw_table_striped_sse41_128_8
 #else
-#define FNAME nw_striped_128_8
+#define FNAME nw_striped_sse41_128_8
 #endif
 
-int FNAME(
+parasail_result_t* FNAME(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap,
-        const int8_t * const restrict matrix
-#ifdef PARASAIL_TABLE
-        , int * const restrict score_table
-#endif
-        )
+        const int open, const int gap, const int matrix[24][24])
 {
     int32_t i = 0;
     int32_t j = 0;
@@ -73,30 +66,18 @@ int FNAME(
     int32_t nt = 0;
     int32_t segNum = 0;
     const int32_t n = 24; /* number of amino acids in table */
-    int32_t segLen = (s1Len + 15) / 16;
-    __m128i* vProfile = (__m128i*)malloc(n * segLen * sizeof(__m128i));
-
+    const int32_t segWidth = 16; /* number of values in vector unit */
+    int32_t segLen = (s1Len + segWidth - 1) / segWidth;
     int32_t offset = (s1Len - 1) % segLen;
-    int32_t position = 15 - (s1Len - 1) / segLen;
-
-    /* the max alignment score */
-    int last_value;
-
-    __m128i* pvHStore = (__m128i*) calloc(segLen, sizeof(__m128i));
-    __m128i* pvHLoad = (__m128i*) calloc(segLen, sizeof(__m128i));
-    __m128i* pvE = (__m128i*) calloc(segLen, sizeof(__m128i));
-    int8_t* boundary = (int8_t*) calloc(s2Len+1, sizeof(int8_t));
-
-    __m128i vSaturationCheck = _mm_setzero_si128();
-    __m128i vNegLimit = _mm_set1_epi8(INT8_MIN);
-    __m128i vPosLimit = _mm_set1_epi8(INT8_MAX);
-
-    /* 8 byte insertion begin vector */
+    int32_t position = (segWidth - 1) - (s1Len - 1) / segLen;
+    __m128i* restrict vProfile = parasail_memalign_m128i(16, n * segLen);
+    __m128i* restrict pvHStore = parasail_memalign_m128i(16, segLen);
+    __m128i* restrict pvHLoad =  parasail_memalign_m128i(16, segLen);
+    __m128i* restrict pvE = parasail_memalign_m128i(16, segLen);
+    int16_t* restrict boundary = parasail_memalign_int16_t(16, s2Len+1);
+    int score;
     __m128i vGapO = _mm_set1_epi8(open);
-
-    /* 8 byte insertion extension vector */
     __m128i vGapE = _mm_set1_epi8(gap);
-
     __m128i initialF = _mm_set_epi8(
             -open-open-15*segLen*gap,
             -open-open-14*segLen*gap,
@@ -114,35 +95,47 @@ int FNAME(
             -open-open-2*segLen*gap,
             -open-open-1*segLen*gap,
             -open-open-0*segLen*gap);
+    __m128i vSaturationCheck = _mm_setzero_si128();
+    __m128i vNegLimit = _mm_set1_epi8(INT8_MIN);
+    __m128i vPosLimit = _mm_set1_epi8(INT8_MAX);
+#if PARASAIL_TABLE
+    parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
+#else
+    parasail_result_t *result = parasail_result_new();
+#endif
 
-    /* Generate query profile rearrange query sequence & calculate the weight
-     * of match/mismatch */
+    /* Generate query profile.
+     * Rearrange query sequence & calculate the weight of match/mismatch.
+     * Don't alias. */
     {
-        int8_t *t = (int8_t*)vProfile;
-        for (nt=0; nt<n; ++nt) {
+        int32_t index = 0;
+        for (k=0; k<n; ++k) {
             for (i=0; i<segLen; ++i) {
                 int32_t j = i;
-                for (segNum=0; segNum<16; ++segNum) {
-                    *t++ = matrix[nt*n + MAP_BLOSUM_[(unsigned char)s1[j]]];
+                __m128i_8_t t;
+                for (segNum=0; segNum<segWidth; ++segNum) {
+                    t.v[segNum] = matrix[k][MAP_BLOSUM_[(unsigned char)s1[j]]];
                     j += segLen;
                 }
+                _mm_store_si128(&vProfile[index], t.m);
+                ++index;
             }
         }
     }
 
     /* initialize H and E */
     {
-        int8_t *h = (int8_t*)pvHStore;
-        int8_t *e = (int8_t*)pvE;
+        int32_t index = 0;
         for (i=0; i<segLen; ++i) {
-            int32_t j = i;
-            for (segNum=0; segNum<16; ++segNum) {
-                *h = -open-gap*(segNum*segLen+i);
-                *e = *h-open;
-                j += segLen;
-                ++h;
-                ++e;
+            __m128i_8_t h;
+            __m128i_8_t e;
+            for (segNum=0; segNum<segWidth; ++segNum) {
+                h.v[segNum] = -open-gap*(segNum*segLen+i);
+                e.v[segNum] = NEG_INF_8;
             }
+            _mm_store_si128(&pvHStore[index], h.m);
+            _mm_store_si128(&pvE[index], e.m);
+            ++index;
         }
     }
 
@@ -201,7 +194,7 @@ int FNAME(
                             _mm_cmpeq_epi8(vH, vPosLimit)));
             }
 #ifdef PARASAIL_TABLE
-            arr_store_si128(score_table, vH, i, segLen, j, s2Len);
+            arr_store_si128(result->score_table, vH, i, segLen, j, s2Len);
 #endif
             /* Update vE value. */
             vH = _mm_subs_epi8(vH, vGapO);
@@ -234,7 +227,7 @@ int FNAME(
                                 _mm_cmpeq_epi8(vH, vPosLimit)));
                 }
 #ifdef PARASAIL_TABLE
-                arr_store_si128(score_table, vH, i, segLen, j, s2Len);
+                arr_store_si128(result->score_table, vH, i, segLen, j, s2Len);
 #endif
                 vH = _mm_subs_epi8(vH, vGapO);
                 vF = _mm_subs_epi8(vF, vGapE);
@@ -253,19 +246,21 @@ end:
         for (k=0; k<position; ++k) {
             vH = _mm_slli_si128 (vH, 1);
         }
-        last_value = (int8_t) _mm_extract_epi8 (vH, 15);
+        score = (int8_t) _mm_extract_epi8 (vH, 15);
     }
 
     if (_mm_movemask_epi8(vSaturationCheck)) {
-        last_value = INT8_MAX;
+        score = INT8_MAX;
     }
 
-    free(vProfile);
-    free(pvHStore);
-    free(pvHLoad);
-    free(pvE);
-    free(boundary);
+    result->score = score;
 
-    return last_value;
+    free(boundary);
+    free(pvE);
+    free(pvHLoad);
+    free(pvHStore);
+    free(vProfile);
+
+    return result;
 }
 

@@ -20,7 +20,6 @@
 #include "blosum/blosum_map.h"
 
 #define NEG_INF_8 (INT8_MIN)
-#define MAX(a,b) ((a)>(b)?(a):(b))
 
 /* shift given vector v, insert val, return shifted val */
 static inline __m128i vshift8(const __m128i v, const int val)

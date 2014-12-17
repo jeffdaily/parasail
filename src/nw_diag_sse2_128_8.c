@@ -19,7 +19,6 @@
 #include "blosum/blosum_map.h"
 
 #define NEG_INF_8 (INT8_MIN)
-#define MAX(a,b) ((a)>(b)?(a):(b))
 
 /* sse2 does not have _mm_insert_epi8, emulate it */
 static inline __m128i _mm_insert_epi8(__m128i a, int8_t i, int imm) {

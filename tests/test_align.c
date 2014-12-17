@@ -80,8 +80,8 @@ int main(int argc, char **argv)
     float timer_rdtsc_ref_mean;
     //size_t limit = 1000;
     //size_t limit = 500;
-    size_t limit = 100;
-    //size_t limit = 1;
+    //size_t limit = 100;
+    size_t limit = 1;
     size_t i;
     size_t index;
     func_t f;
@@ -92,20 +92,22 @@ int main(int argc, char **argv)
         {nw,                        "nw", "",     "",      "",    "",   0, 1},
         {nw_scan,                   "nw", "scan", "",      "",    "",   0, 0},
 #if HAVE_SSE2                      
-        {nw_scan_sse2_128_32,       "nw", "scan", "sse2",  "128", "32", 0, 0},
-        {nw_scan_sse2_128_16,       "nw", "scan", "sse2",  "128", "16", 0, 0},
-        {nw_scan_sse2_128_8,        "nw", "scan", "sse2",  "128", "8",  0, 0},
-        {nw_diag_sse2_128_32,       "nw", "diag", "sse2",  "128", "32", 0, 0},
-        {nw_diag_sse2_128_16,       "nw", "diag", "sse2",  "128", "16", 0, 0},
-        {nw_diag_sse2_128_8,        "nw", "diag", "sse2",  "128", "8",  0, 0},
+        {nw_scan_sse2_128_32,       "nw", "scan",    "sse2",  "128", "32", 0, 0},
+        {nw_scan_sse2_128_16,       "nw", "scan",    "sse2",  "128", "16", 0, 0},
+        {nw_scan_sse2_128_8,        "nw", "scan",    "sse2",  "128", "8",  0, 0},
+        {nw_diag_sse2_128_32,       "nw", "diag",    "sse2",  "128", "32", 0, 0},
+        {nw_diag_sse2_128_16,       "nw", "diag",    "sse2",  "128", "16", 0, 0},
+        {nw_diag_sse2_128_8,        "nw", "diag",    "sse2",  "128", "8",  0, 0},
+        {nw_striped_sse2_128_16,    "nw", "striped", "sse2",  "128", "16", 0, 0},
 #endif                             
 #if HAVE_SSE41
-        {nw_scan_sse41_128_32,      "nw", "scan", "sse41", "128", "32", 0, 0},
-        {nw_scan_sse41_128_16,      "nw", "scan", "sse41", "128", "16", 0, 0},
-        {nw_scan_sse41_128_8,       "nw", "scan", "sse41", "128", "8",  0, 0},
-        {nw_diag_sse41_128_32,      "nw", "diag", "sse41", "128", "32", 0, 0},
-        {nw_diag_sse41_128_16,      "nw", "diag", "sse41", "128", "16", 0, 0},
-        {nw_diag_sse41_128_8,       "nw", "diag", "sse41", "128", "8",  0, 0},
+        {nw_scan_sse41_128_32,      "nw", "scan",    "sse41", "128", "32", 0, 0},
+        {nw_scan_sse41_128_16,      "nw", "scan",    "sse41", "128", "16", 0, 0},
+        {nw_scan_sse41_128_8,       "nw", "scan",    "sse41", "128", "8",  0, 0},
+        {nw_diag_sse41_128_32,      "nw", "diag",    "sse41", "128", "32", 0, 0},
+        {nw_diag_sse41_128_16,      "nw", "diag",    "sse41", "128", "16", 0, 0},
+        {nw_diag_sse41_128_8,       "nw", "diag",    "sse41", "128", "8",  0, 0},
+        {nw_striped_sse41_128_8,    "nw", "striped", "sse41", "128", "8",  0, 0},
 #endif
 
         {sg,                        "sg", "",     "",      "",    "",   0, 1},
@@ -149,20 +151,22 @@ int main(int argc, char **argv)
         {nw_table,                  "nw", "",     "",      "",    "",   1, 1},
         {nw_table_scan,             "nw", "scan", "",      "",    "",   1, 0},
 #if HAVE_SSE2
-        {nw_table_scan_sse2_128_32, "nw", "scan", "sse2",  "128", "32", 1, 0},
-        {nw_table_scan_sse2_128_16, "nw", "scan", "sse2",  "128", "16", 1, 0},
-        {nw_table_scan_sse2_128_8,  "nw", "scan", "sse2",  "128", "8",  1, 0},
-        {nw_table_diag_sse2_128_32, "nw", "diag", "sse2",  "128", "32", 1, 0},
-        {nw_table_diag_sse2_128_16, "nw", "diag", "sse2",  "128", "16", 1, 0},
-        {nw_table_diag_sse2_128_8,  "nw", "diag", "sse2",  "128", "8",  1, 0},
+        {nw_table_scan_sse2_128_32,    "nw", "scan",    "sse2",  "128", "32", 1, 0},
+        {nw_table_scan_sse2_128_16,    "nw", "scan",    "sse2",  "128", "16", 1, 0},
+        {nw_table_scan_sse2_128_8,     "nw", "scan",    "sse2",  "128", "8",  1, 0},
+        {nw_table_diag_sse2_128_32,    "nw", "diag",    "sse2",  "128", "32", 1, 0},
+        {nw_table_diag_sse2_128_16,    "nw", "diag",    "sse2",  "128", "16", 1, 0},
+        {nw_table_diag_sse2_128_8,     "nw", "diag",    "sse2",  "128", "8",  1, 0},
+        {nw_table_striped_sse2_128_16, "nw", "striped", "sse2",  "128", "16", 1, 0},
 #endif
 #if HAVE_SSE41
-        {nw_table_scan_sse41_128_32,"nw", "scan", "sse41", "128", "32", 1, 0},
-        {nw_table_scan_sse41_128_16,"nw", "scan", "sse41", "128", "16", 1, 0},
-        {nw_table_scan_sse41_128_8, "nw", "scan", "sse41", "128", "8",  1, 0},
-        {nw_table_diag_sse41_128_32,"nw", "diag", "sse41", "128", "32", 1, 0},
-        {nw_table_diag_sse41_128_16,"nw", "diag", "sse41", "128", "16", 1, 0},
-        {nw_table_diag_sse41_128_8, "nw", "diag", "sse41", "128", "8",  1, 0},
+        {nw_table_scan_sse41_128_32,   "nw", "scan",    "sse41", "128", "32", 1, 0},
+        {nw_table_scan_sse41_128_16,   "nw", "scan",    "sse41", "128", "16", 1, 0},
+        {nw_table_scan_sse41_128_8,    "nw", "scan",    "sse41", "128", "8",  1, 0},
+        {nw_table_diag_sse41_128_32,   "nw", "diag",    "sse41", "128", "32", 1, 0},
+        {nw_table_diag_sse41_128_16,   "nw", "diag",    "sse41", "128", "16", 1, 0},
+        {nw_table_diag_sse41_128_8,    "nw", "diag",    "sse41", "128", "8",  1, 0},
+        {nw_table_striped_sse41_128_8, "nw", "striped", "sse41", "128", "8",  1, 0},
 #endif
 
         {sg_table,                  "sg", "",     "",     "",    "",   1, 1},
@@ -226,7 +230,7 @@ int main(int argc, char **argv)
 
     timer_init();
 
-    printf("%-15s %6s %6s %4s %5s %8s %8s %8s %8s %5s %8s %8s %8s\n",
+    printf("%-15s %8s %6s %4s %5s %8s %8s %8s %8s %5s %8s %8s %8s\n",
             "name", "type", "isa", "bits", "width",
             "score", "matches", "length",
             "avg", "imp", "stddev", "min", "max");
@@ -299,7 +303,7 @@ int main(int argc, char **argv)
             parasail_result_free(result);
             strcat(name, "_table");
         }
-        printf("%-15s %6s %6s %4s %5s %8d %8d %8d %8.1f %5.1f %8.1f %8.1f %8.1f\n",
+        printf("%-15s %8s %6s %4s %5s %8d %8d %8d %8.1f %5.1f %8.1f %8.1f %8.1f\n",
                 name, f.type, f.isa, f.bits, f.width,
                 score, matches, length,
                 stats._mean, pctf(timer_rdtsc_ref_mean, stats._mean),

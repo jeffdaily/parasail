@@ -19,7 +19,6 @@
 #include "blosum/blosum_map.h"
 
 #define NEG_INF_16 (INT16_MIN/(int16_t)(2))
-#define MAX(a,b) ((a)>(b)?(a):(b))
 
 /* shift given vector v, insert val, return shifted val */
 static inline __m128i vshift16(const __m128i v, const int val)

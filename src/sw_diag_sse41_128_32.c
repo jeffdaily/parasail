@@ -172,10 +172,8 @@ parasail_result_t* FNAME(
             {
                 __m128i cond = _mm_cmpeq_epi32(vJ,vNegOne);
                 vWscore = _mm_andnot_si128(cond, vWscore);
-                vDel = _mm_andnot_si128(cond, vDel);
-                vDel = _mm_or_si128(vDel, _mm_and_si128(cond, vNegInf));
-                vIns = _mm_andnot_si128(cond, vIns);
-                vIns = _mm_or_si128(vIns, _mm_and_si128(cond, vNegInf));
+                vDel = _mm_blendv_epi8(vDel, vNegInf, cond);
+                vIns = _mm_blendv_epi8(vIns, vNegInf, cond);
             }
 #ifdef PARASAIL_TABLE
             arr_store_si128(result->score_table, vWscore, i, s1Len, j, s2Len);
@@ -191,8 +189,7 @@ parasail_result_t* FNAME(
                 __m128i cond_max = _mm_cmpgt_epi32(vWscore, vMax);
                 __m128i cond_all = _mm_and_si128(cond_max,
                         _mm_and_si128(vIltLimit, cond_valid_J));
-                vMax = _mm_andnot_si128(cond_all, vMax);
-                vMax = _mm_or_si128(vMax, _mm_and_si128(cond_all, vWscore));
+                vMax = _mm_blendv_epi8(vMax, vWscore, cond_all);
             }
             vJ = _mm_add_epi32(vJ, vOne);
         }

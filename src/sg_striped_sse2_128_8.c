@@ -13,15 +13,35 @@
 #include <stdlib.h>
 
 #include <emmintrin.h>
-#include <smmintrin.h>
 
-#ifdef PARASAIL_TABLE
-#include "align_striped_128_8_table.h"
-#else
-#include "align_striped_128_8.h"
-#endif
+#include "parasail.h"
+#include "parasail_internal.h"
 #include "blosum/blosum_map.h"
 
+#define NEG_INF_8 (INT8_MIN)
+
+/* sse2 does not have _mm_insert_epi8, emulate it */
+static inline __m128i _mm_insert_epi8(__m128i a, int8_t i, int imm) {
+    __m128i_8_t tmp;
+    tmp.m = a;
+    tmp.v[imm] = i;
+    return tmp.m;
+}
+
+/* sse2 does not have _mm_extract_epi8, emulate it */
+static inline int8_t _mm_extract_epi8(__m128i a, int imm) {
+    __m128i_8_t tmp;
+    tmp.m = a;
+    return tmp.v[imm];
+}
+
+/* sse2 does not have _mm_max_epi8, emulate it */
+static inline __m128i _mm_max_epi8(__m128i a, __m128i b) {
+    __m128i mask = _mm_cmpgt_epi8(a,b);
+    a = _mm_and_si128(a,mask);
+    b = _mm_andnot_si128(mask,b);
+    return _mm_or_si128(a,b);
+}
 
 #if PARASAIL_TABLE
 static inline void arr_store_si128(
@@ -52,20 +72,15 @@ static inline void arr_store_si128(
 #endif
 
 #ifdef PARASAIL_TABLE
-#define FNAME sg_striped_128_8_table
+#define FNAME sg_table_striped_sse2_128_8
 #else
-#define FNAME sg_striped_128_8
+#define FNAME sg_striped_sse2_128_8
 #endif
 
-int FNAME(
+parasail_result_t* FNAME(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap,
-        const int8_t * const restrict matrix
-#ifdef PARASAIL_TABLE
-        , int * const restrict score_table
-#endif
-        )
+        const int open, const int gap, const int matrix[24][24])
 {
     int32_t i = 0;
     int32_t j = 0;
@@ -73,57 +88,61 @@ int FNAME(
     int32_t nt = 0;
     int32_t segNum = 0;
     const int32_t n = 24; /* number of amino acids in table */
-    int32_t segLen = (s1Len + 15) / 16;
-    __m128i* vProfile = (__m128i*)malloc(n * segLen * sizeof(__m128i));
-
+    const int32_t segWidth = 16; /* number of values in vector unit */
+    int32_t segLen = (s1Len + segWidth - 1) / segWidth;
     int32_t offset = (s1Len - 1) % segLen;
-    int32_t position = 15 - (s1Len - 1) / segLen;
-
-    /* the max alignment score */
-    int max = NEG_INF_8;
-
-    /* Define 16 byte 0 vector. */
+    int32_t position = (segWidth - 1) - (s1Len - 1) / segLen;
+    __m128i* restrict vProfile = parasail_memalign_m128i(16, n * segLen);
+    __m128i* restrict pvHStore = parasail_memalign_m128i(16, segLen);
+    __m128i* restrict pvHLoad =  parasail_memalign_m128i(16, segLen);
+    __m128i* restrict pvE = parasail_memalign_m128i(16, segLen);
+    int score = NEG_INF_8;
+    __m128i vGapO = _mm_set1_epi8(open);
+    __m128i vGapE = _mm_set1_epi8(gap);
     __m128i vNegInf = _mm_set1_epi8(NEG_INF_8);
-
-    __m128i* pvHStore = (__m128i*) calloc(segLen, sizeof(__m128i));
-    __m128i* pvHLoad = (__m128i*) calloc(segLen, sizeof(__m128i));
-    __m128i* pvE = (__m128i*) calloc(segLen, sizeof(__m128i));
-
     __m128i vSaturationCheck = _mm_setzero_si128();
     __m128i vNegLimit = _mm_set1_epi8(INT8_MIN);
     __m128i vPosLimit = _mm_set1_epi8(INT8_MAX);
+#if PARASAIL_TABLE
+    parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
+#else
+    parasail_result_t *result = parasail_result_new();
+#endif
 
-    /* 16 byte insertion begin vector */
-    __m128i vGapO = _mm_set1_epi8(open);
-
-    /* 16 byte insertion extension vector */
-    __m128i vGapE = _mm_set1_epi8(gap);
-
-    /* Generate query profile rearrange query sequence & calculate the weight
-     * of match/mismatch */
+    /* Generate query profile.
+     * Rearrange query sequence & calculate the weight of match/mismatch.
+     * Don't alias. */
     {
-        int8_t *t = (int8_t*)vProfile;
-        for (nt=0; nt<n; ++nt) {
+        int32_t index = 0;
+        for (k=0; k<n; ++k) {
             for (i=0; i<segLen; ++i) {
                 int32_t j = i;
-                for (segNum=0; segNum<16; ++segNum) {
-                    *t++ = matrix[nt*n + MAP_BLOSUM_[(unsigned char)s1[j]]];
+                __m128i_8_t t;
+                for (segNum=0; segNum<segWidth; ++segNum) {
+                    t.v[segNum] = matrix[k][MAP_BLOSUM_[(unsigned char)s1[j]]];
                     j += segLen;
                 }
+                _mm_store_si128(&vProfile[index], t.m);
+                ++index;
             }
         }
     }
 
-    /* initialize E */
+    /* initialize H and E */
     {
-        int8_t *e = (int8_t*)pvE;
+        int32_t index = 0;
         for (i=0; i<segLen; ++i) {
-            for (segNum=0; segNum<16; ++segNum) {
-                *e++ = -open;
+            __m128i_8_t h;
+            __m128i_8_t e;
+            for (segNum=0; segNum<segWidth; ++segNum) {
+                h.v[segNum] = 0;
+                e.v[segNum] = NEG_INF_8;
             }
+            _mm_store_si128(&pvHStore[index], h.m);
+            _mm_store_si128(&pvE[index], e.m);
+            ++index;
         }
     }
-
     /* outer loop over database sequence */
     for (j=0; j<s2Len; ++j) {
         __m128i vE;
@@ -160,7 +179,7 @@ int FNAME(
                             _mm_cmpeq_epi8(vH, vPosLimit)));
             }
 #ifdef PARASAIL_TABLE
-            arr_store_si128(score_table, vH, i, segLen, j, s2Len);
+            arr_store_si128(result->score_table, vH, i, segLen, j, s2Len);
 #endif
 
             /* Update vE value. */
@@ -194,7 +213,7 @@ int FNAME(
                                 _mm_cmpeq_epi8(vH, vPosLimit)));
                 }
 #ifdef PARASAIL_TABLE
-                arr_store_si128(score_table, vH, i, segLen, j, s2Len);
+                arr_store_si128(result->score_table, vH, i, segLen, j, s2Len);
 #endif
                 vH = _mm_subs_epi8(vH, vGapO);
                 vF = _mm_subs_epi8(vF, vGapE);
@@ -212,8 +231,8 @@ end:
             }
             /* max of last value in each column */
             tmp = (int8_t) _mm_extract_epi8 (vH, 15);
-            if (tmp > max) {
-                max = tmp;
+            if (tmp > score) {
+                score = tmp;
             }
         }
     }
@@ -258,22 +277,24 @@ end:
         /* max in vec */
         for (j=0; j<16; ++j) {
             int8_t value = (int8_t) _mm_extract_epi8(vMaxLastColH, 15);
-            if (value > max) {
-                max = value;
+            if (value > score) {
+                score = value;
             }
             vMaxLastColH = _mm_slli_si128(vMaxLastColH, 1);
         }
     }
 
     if (_mm_movemask_epi8(vSaturationCheck)) {
-        max = INT8_MAX;
+        score = INT8_MAX;
     }
 
-    free(vProfile);
-    free(pvHStore);
-    free(pvHLoad);
-    free(pvE);
+    result->score = score;
 
-    return max;
+    free(pvE);
+    free(pvHLoad);
+    free(pvHStore);
+    free(vProfile);
+
+    return result;
 }
 

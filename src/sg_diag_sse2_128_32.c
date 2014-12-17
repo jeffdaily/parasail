@@ -90,13 +90,13 @@ parasail_result_t* FNAME(
     const int N = 4; /* number of values in vector */
     const int PAD = N-1; /* N 32-byte values in vector, so N - 1 */
     const int PAD2 = PAD*2;
-    int * const restrict s1 = parasail_memalign_int(16, s1Len+PAD2);
-    int * const restrict s2B= parasail_memalign_int(16, s2Len+PAD);
-    int * const restrict _tbl_pr = parasail_memalign_int(16, s2Len+PAD);
-    int * const restrict _del_pr = parasail_memalign_int(16, s2Len+PAD);
-    int * const restrict s2 = s2B+PAD2; /* will allow later for negative indices */
-    int * const restrict tbl_pr = _tbl_pr+PAD2;
-    int * const restrict del_pr = _del_pr+PAD2;
+    int * const restrict s1 = parasail_memalign_int(16, s1Len+PAD);
+    int * const restrict s2B= parasail_memalign_int(16, s2Len+PAD2);
+    int * const restrict _tbl_pr = parasail_memalign_int(16, s2Len+PAD2);
+    int * const restrict _del_pr = parasail_memalign_int(16, s2Len+PAD2);
+    int * const restrict s2 = s2B+PAD; /* will allow later for negative indices */
+    int * const restrict tbl_pr = _tbl_pr+PAD;
+    int * const restrict del_pr = _del_pr+PAD;
 #if PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(s1Len, s2Len);
 #else
@@ -170,10 +170,6 @@ parasail_result_t* FNAME(
         const int * const restrict matrow1 = matrix[s1[i+1]];
         const int * const restrict matrow2 = matrix[s1[i+2]];
         const int * const restrict matrow3 = matrix[s1[i+3]];
-        const int * const restrict matrow4 = matrix[s1[i+4]];
-        const int * const restrict matrow5 = matrix[s1[i+5]];
-        const int * const restrict matrow6 = matrix[s1[i+6]];
-        const int * const restrict matrow7 = matrix[s1[i+7]];
         /* iterate over database sequence */
         for (j=0; j<N; ++j) {
             __m128i vMat;
@@ -288,10 +284,6 @@ parasail_result_t* FNAME(
         const int * const restrict matrow1 = matrix[s1[i+1]];
         const int * const restrict matrow2 = matrix[s1[i+2]];
         const int * const restrict matrow3 = matrix[s1[i+3]];
-        const int * const restrict matrow4 = matrix[s1[i+4]];
-        const int * const restrict matrow5 = matrix[s1[i+5]];
-        const int * const restrict matrow6 = matrix[s1[i+6]];
-        const int * const restrict matrow7 = matrix[s1[i+7]];
         __m128i vIltLimit = _mm_cmplt_epi32(vI, vILimit);
         __m128i vIeqLimit1 = _mm_cmpeq_epi32(vI, vILimit1);
         /* iterate over database sequence */

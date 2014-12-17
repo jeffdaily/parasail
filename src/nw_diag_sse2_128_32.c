@@ -102,15 +102,15 @@ parasail_result_t* FNAME(
         const int open, const int gap, const int matrix[24][24])
 {
     const int N = 4; /* number of values in vector */
-    const int PAD2 = N-1; /* N 32-byte values in vector, so N - 1 */
-    const int PAD = PAD2*2;
-    int * const restrict s1 = parasail_memalign_int(16, s1Len+PAD2);
-    int * const restrict s2B= parasail_memalign_int(16, s2Len+PAD);
-    int * const restrict _tbl_pr = parasail_memalign_int(16, s2Len+PAD);
-    int * const restrict _del_pr = parasail_memalign_int(16, s2Len+PAD);
-    int * const restrict s2 = s2B+PAD2; /* will allow later for negative indices */
-    int * const restrict tbl_pr = _tbl_pr+PAD2;
-    int * const restrict del_pr = _del_pr+PAD2;
+    const int PAD = N-1; /* N 32-byte values in vector, so N - 1 */
+    const int PAD2 = PAD*2;
+    int * const restrict s1 = parasail_memalign_int(16, s1Len+PAD);
+    int * const restrict s2B= parasail_memalign_int(16, s2Len+PAD2);
+    int * const restrict _tbl_pr = parasail_memalign_int(16, s2Len+PAD2);
+    int * const restrict _del_pr = parasail_memalign_int(16, s2Len+PAD2);
+    int * const restrict s2 = s2B+PAD; /* will allow later for negative indices */
+    int * const restrict tbl_pr = _tbl_pr+PAD;
+    int * const restrict del_pr = _del_pr+PAD;
 #if PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(s1Len, s2Len);
 #else
@@ -146,7 +146,7 @@ parasail_result_t* FNAME(
         s1[i] = MAP_BLOSUM_[(unsigned char)_s1[i]];
     }
     /* pad back of s1 with dummy values */
-    for (i=s1Len; i<s1Len+PAD2; ++i) {
+    for (i=s1Len; i<s1Len+PAD; ++i) {
         s1[i] = 0; /* point to first matrix row because we don't care */
     }
 
@@ -155,11 +155,11 @@ parasail_result_t* FNAME(
         s2[j] = MAP_BLOSUM_[(unsigned char)_s2[j]];
     }
     /* pad front of s2 with dummy values */
-    for (j=-PAD2; j<0; ++j) {
+    for (j=-PAD; j<0; ++j) {
         s2[j] = 0; /* point to first matrix row because we don't care */
     }
     /* pad back of s2 with dummy values */
-    for (j=s2Len; j<s2Len+PAD2; ++j) {
+    for (j=s2Len; j<s2Len+PAD; ++j) {
         s2[j] = 0; /* point to first matrix row because we don't care */
     }
 
@@ -169,12 +169,12 @@ parasail_result_t* FNAME(
         del_pr[j] = NEG_INF_32;
     }
     /* pad front of stored row values */
-    for (j=-PAD2; j<0; ++j) {
+    for (j=-PAD; j<0; ++j) {
         tbl_pr[j] = NEG_INF_32;
         del_pr[j] = NEG_INF_32;
     }
     /* pad back of stored row values */
-    for (j=s2Len; j<s2Len+PAD2; ++j) {
+    for (j=s2Len; j<s2Len+PAD; ++j) {
         tbl_pr[j] = NEG_INF_32;
         del_pr[j] = NEG_INF_32;
     }
@@ -234,7 +234,7 @@ parasail_result_t* FNAME(
             del_pr[j-3] = (int32_t)_mm_extract_epi32(vDel,0);
             vJ = _mm_add_epi32(vJ, vOne);
         }
-        for (j=N; j<s2Len+PAD2; ++j) {
+        for (j=N; j<s2Len+PAD; ++j) {
             __m128i vMat;
             __m128i vNWscore = vNscore;
             vNscore = vshift32(vWscore, tbl_pr[j]);
@@ -344,7 +344,7 @@ parasail_result_t* FNAME(
             del_pr[j-3] = (int32_t)_mm_extract_epi32(vDel,0);
             vJ = _mm_add_epi32(vJ, vOne);
         }
-        for (j=s2Len-1; j<s2Len+PAD2; ++j) {
+        for (j=s2Len-1; j<s2Len+PAD; ++j) {
             __m128i vMat;
             __m128i vNWscore = vNscore;
             vNscore = vshift32(vWscore, tbl_pr[j]);

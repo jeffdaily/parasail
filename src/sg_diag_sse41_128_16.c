@@ -80,13 +80,13 @@ parasail_result_t* FNAME(
     const int N = 8; /* number of values in vector */
     const int PAD = N-1; /* N 16-byte values in vector, so N - 1 */
     const int PAD2 = PAD*2;
-    int * const restrict s1 = parasail_memalign_int(16, s1Len+PAD2);
-    int * const restrict s2B= parasail_memalign_int(16, s2Len+PAD);
-    int * const restrict _tbl_pr = parasail_memalign_int(16, s2Len+PAD);
-    int * const restrict _del_pr = parasail_memalign_int(16, s2Len+PAD);
-    int * const restrict s2 = s2B+PAD2; /* will allow later for negative indices */
-    int * const restrict tbl_pr = _tbl_pr+PAD2;
-    int * const restrict del_pr = _del_pr+PAD2;
+    int * const restrict s1 = parasail_memalign_int(16, s1Len+PAD);
+    int * const restrict s2B= parasail_memalign_int(16, s2Len+PAD2);
+    int * const restrict _tbl_pr = parasail_memalign_int(16, s2Len+PAD2);
+    int * const restrict _del_pr = parasail_memalign_int(16, s2Len+PAD2);
+    int * const restrict s2 = s2B+PAD; /* will allow later for negative indices */
+    int * const restrict tbl_pr = _tbl_pr+PAD;
+    int * const restrict del_pr = _del_pr+PAD;
 #if PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(s1Len, s2Len);
 #else

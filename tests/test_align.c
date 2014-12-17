@@ -133,11 +133,17 @@ int main(int argc, char **argv)
         {sw_scan_sse2_128_32,       "sw", "scan", "sse2",  "128", "32", 0, 0},
         {sw_scan_sse2_128_16,       "sw", "scan", "sse2",  "128", "16", 0, 0},
         {sw_scan_sse2_128_8,        "sw", "scan", "sse2",  "128", "8",  0, 0},
+        {sw_diag_sse2_128_32,       "sw", "diag", "sse2",  "128", "32", 0, 0},
+        {sw_diag_sse2_128_16,       "sw", "diag", "sse2",  "128", "16", 0, 0},
+        {sw_diag_sse2_128_8,        "sw", "diag", "sse2",  "128", "8",  0, 0},
 #endif                             
 #if HAVE_SSE41
         {sw_scan_sse41_128_32,      "sw", "scan", "sse41", "128", "32", 0, 0},
         {sw_scan_sse41_128_16,      "sw", "scan", "sse41", "128", "16", 0, 0},
         {sw_scan_sse41_128_8,       "sw", "scan", "sse41", "128", "8",  0, 0},
+        {sw_diag_sse41_128_32,      "sw", "diag", "sse41", "128", "32", 0, 0},
+        {sw_diag_sse41_128_16,      "sw", "diag", "sse41", "128", "16", 0, 0},
+        {sw_diag_sse41_128_8,       "sw", "diag", "sse41", "128", "8",  0, 0},
 #endif
                                    
         {nw_table,                  "nw", "",     "",      "",    "",   1, 1},
@@ -184,11 +190,17 @@ int main(int argc, char **argv)
         {sw_table_scan_sse2_128_32, "sw", "scan", "sse2", "128", "32", 1, 0},
         {sw_table_scan_sse2_128_16, "sw", "scan", "sse2", "128", "16", 1, 0},
         {sw_table_scan_sse2_128_8,  "sw", "scan", "sse2", "128", "8",  1, 0},
+        {sw_table_diag_sse2_128_32, "sw", "diag", "sse2", "128", "32", 1, 0},
+        {sw_table_diag_sse2_128_16, "sw", "diag", "sse2", "128", "16", 1, 0},
+        {sw_table_diag_sse2_128_8,  "sw", "diag", "sse2", "128", "8",  1, 0},
 #endif
 #if HAVE_SSE41
         {sw_table_scan_sse41_128_32,"sw", "scan", "sse41", "128", "32", 1, 0},
         {sw_table_scan_sse41_128_16,"sw", "scan", "sse41", "128", "16", 1, 0},
         {sw_table_scan_sse41_128_8, "sw", "scan", "sse41", "128", "8",  1, 0},
+        {sw_table_diag_sse41_128_32,"sw", "diag", "sse41", "128", "32", 1, 0},
+        {sw_table_diag_sse41_128_16,"sw", "diag", "sse41", "128", "16", 1, 0},
+        {sw_table_diag_sse41_128_8, "sw", "diag", "sse41", "128", "8",  1, 0},
 #endif
 
         {nw_stats,                  "nw_stats", "",     "",     "",    "",   0, 1},

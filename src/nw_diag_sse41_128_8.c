@@ -272,13 +272,9 @@ parasail_result_t* FNAME(
              * assign the appropriate boundary conditions */
             {
                 __m128i cond = _mm_cmpeq_epi8(vJ,vNegOne);
-                vWscore = _mm_andnot_si128(cond, vWscore); /* all but j=-1 */
-                vWscore = _mm_or_si128(vWscore,
-                        _mm_and_si128(cond, vIBoundary));
-                vDel = _mm_andnot_si128(cond, vDel);
-                vDel = _mm_or_si128(vDel, _mm_and_si128(cond, vNegInf));
-                vIns = _mm_andnot_si128(cond, vIns);
-                vIns = _mm_or_si128(vIns, _mm_and_si128(cond, vNegInf));
+                vWscore = _mm_blendv_epi8(vWscore, vIBoundary, cond);
+                vDel = _mm_blendv_epi8(vDel, vNegInf, cond);
+                vIns = _mm_blendv_epi8(vIns, vNegInf, cond);
             }
             /* check for saturation */
             {
@@ -405,13 +401,9 @@ parasail_result_t* FNAME(
              * assign the appropriate boundary conditions */
             {
                 __m128i cond = _mm_cmpeq_epi8(vJ,vNegOne);
-                vWscore = _mm_andnot_si128(cond, vWscore); /* all but j=-1 */
-                vWscore = _mm_or_si128(vWscore,
-                        _mm_and_si128(cond, vIBoundary));
-                vDel = _mm_andnot_si128(cond, vDel);
-                vDel = _mm_or_si128(vDel, _mm_and_si128(cond, vNegInf));
-                vIns = _mm_andnot_si128(cond, vIns);
-                vIns = _mm_or_si128(vIns, _mm_and_si128(cond, vNegInf));
+                vWscore = _mm_blendv_epi8(vWscore, vIBoundary, cond);
+                vDel = _mm_blendv_epi8(vDel, vNegInf, cond);
+                vIns = _mm_blendv_epi8(vIns, vNegInf, cond);
             }
             /* check for saturation */
             {
@@ -525,9 +517,7 @@ parasail_result_t* FNAME(
                 __m128i cond_max = _mm_cmpgt_epi8(vWscore, vMax);
                 __m128i cond_all = _mm_and_si128(cond_max,
                         _mm_and_si128(cond_valid_I, cond_valid_J));
-                vMax = _mm_andnot_si128(cond_all, vMax); /* keep old */
-                vMax = _mm_or_si128(vMax,
-                        _mm_and_si128(cond_all, vWscore));
+                vMax = _mm_blendv_epi8(vMax, vWscore, cond_all);
             }
             vJ = _mm_adds_epi8(vJ, vOne);
         }

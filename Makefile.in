@@ -160,7 +160,9 @@ am__objects_1 = src/nw.lo src/sg.lo src/sw.lo src/nw_scan.lo \
 	src/sw_diag_sse41_128_32.lo src/nw_diag_sse41_128_16.lo \
 	src/sg_diag_sse41_128_16.lo src/sw_diag_sse41_128_16.lo \
 	src/nw_diag_sse41_128_8.lo src/sg_diag_sse41_128_8.lo \
-	src/sw_diag_sse41_128_8.lo src/nw_striped_sse2_128_16.lo \
+	src/sw_diag_sse41_128_8.lo src/nw_striped_sse2_128_32.lo \
+	src/nw_striped_sse2_128_16.lo src/nw_striped_sse2_128_8.lo \
+	src/nw_striped_sse41_128_32.lo src/nw_striped_sse41_128_16.lo \
 	src/nw_striped_sse41_128_8.lo
 am_libparasail_la_OBJECTS = src/memory.lo $(am__objects_1)
 libparasail_la_OBJECTS = $(am_libparasail_la_OBJECTS)
@@ -216,7 +218,11 @@ am__objects_2 = src/libparasail_table_la-nw.lo \
 	src/libparasail_table_la-nw_diag_sse41_128_8.lo \
 	src/libparasail_table_la-sg_diag_sse41_128_8.lo \
 	src/libparasail_table_la-sw_diag_sse41_128_8.lo \
+	src/libparasail_table_la-nw_striped_sse2_128_32.lo \
 	src/libparasail_table_la-nw_striped_sse2_128_16.lo \
+	src/libparasail_table_la-nw_striped_sse2_128_8.lo \
+	src/libparasail_table_la-nw_striped_sse41_128_32.lo \
+	src/libparasail_table_la-nw_striped_sse41_128_16.lo \
 	src/libparasail_table_la-nw_striped_sse41_128_8.lo
 am_libparasail_table_la_OBJECTS = $(am__objects_2)
 libparasail_table_la_OBJECTS = $(am_libparasail_table_la_OBJECTS)
@@ -472,21 +478,14 @@ libparasail_la_SOURCES = src/parasail_internal.h src/memory.c \
 # parallel diag methods
 
 # parallel striped methods
-#ALIGNMENT_SRC += src/nw_striped_sse2_128_32.c
 #ALIGNMENT_SRC += src/sg_striped_sse2_128_32.c
 #ALIGNMENT_SRC += src/sw_striped_sse2_128_32.c
 #ALIGNMENT_SRC += src/sg_striped_sse2_128_16.c
 #ALIGNMENT_SRC += src/sw_striped_sse2_128_16.c
-
-#ALIGNMENT_SRC += src/nw_striped_sse2_128_8.c
 #ALIGNMENT_SRC += src/sg_striped_sse2_128_8.c
 #ALIGNMENT_SRC += src/sw_striped_sse2_128_8.c
-
-#ALIGNMENT_SRC += src/nw_striped_sse41_128_32.c
 #ALIGNMENT_SRC += src/sg_striped_sse41_128_32.c
 #ALIGNMENT_SRC += src/sw_striped_sse41_128_32.c
-
-#ALIGNMENT_SRC += src/nw_striped_sse41_128_16.c
 #ALIGNMENT_SRC += src/sg_striped_sse41_128_16.c
 #ALIGNMENT_SRC += src/sw_striped_sse41_128_16.c
 ALIGNMENT_SRC = src/nw.c src/sg.c src/sw.c src/nw_scan.c src/sg_scan.c \
@@ -510,7 +509,9 @@ ALIGNMENT_SRC = src/nw.c src/sg.c src/sw.c src/nw_scan.c src/sg_scan.c \
 	src/nw_diag_sse41_128_16.c src/sg_diag_sse41_128_16.c \
 	src/sw_diag_sse41_128_16.c src/nw_diag_sse41_128_8.c \
 	src/sg_diag_sse41_128_8.c src/sw_diag_sse41_128_8.c \
-	src/nw_striped_sse2_128_16.c src/nw_striped_sse41_128_8.c
+	src/nw_striped_sse2_128_32.c src/nw_striped_sse2_128_16.c \
+	src/nw_striped_sse2_128_8.c src/nw_striped_sse41_128_32.c \
+	src/nw_striped_sse41_128_16.c src/nw_striped_sse41_128_8.c
 libparasail_table_la_SOURCES = $(ALIGNMENT_SRC)
 libparasail_table_la_CPPFLAGS = $(AM_CPPFLAGS) -DPARASAIL_TABLE
 libparasail_la_LIBADD = libparasail_table.la
@@ -715,7 +716,15 @@ src/sg_diag_sse41_128_8.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/sw_diag_sse41_128_8.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
+src/nw_striped_sse2_128_32.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
 src/nw_striped_sse2_128_16.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/nw_striped_sse2_128_8.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/nw_striped_sse41_128_32.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/nw_striped_sse41_128_16.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/nw_striped_sse41_128_8.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
@@ -818,7 +827,15 @@ src/libparasail_table_la-sg_diag_sse41_128_8.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/libparasail_table_la-sw_diag_sse41_128_8.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
+src/libparasail_table_la-nw_striped_sse2_128_32.lo:  \
+	src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/libparasail_table_la-nw_striped_sse2_128_16.lo:  \
+	src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/libparasail_table_la-nw_striped_sse2_128_8.lo:  \
+	src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/libparasail_table_la-nw_striped_sse41_128_32.lo:  \
+	src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/libparasail_table_la-nw_striped_sse41_128_16.lo:  \
 	src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/libparasail_table_la-nw_striped_sse41_128_8.lo:  \
 	src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
@@ -891,6 +908,10 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_table_la-nw_stats.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_table_la-nw_stats_scan.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_table_la-nw_striped_sse2_128_16.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_table_la-nw_striped_sse2_128_32.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_table_la-nw_striped_sse2_128_8.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_table_la-nw_striped_sse41_128_16.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_table_la-nw_striped_sse41_128_32.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_table_la-nw_striped_sse41_128_8.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_table_la-sg.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_table_la-sg_diag_sse2_128_16.Plo@am__quote@
@@ -942,6 +963,10 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/nw_stats.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/nw_stats_scan.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/nw_striped_sse2_128_16.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/nw_striped_sse2_128_32.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/nw_striped_sse2_128_8.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/nw_striped_sse41_128_16.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/nw_striped_sse41_128_32.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/nw_striped_sse41_128_8.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sg.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sg_diag_sse2_128_16.Plo@am__quote@
@@ -1340,12 +1365,40 @@ src/libparasail_table_la-sw_diag_sse41_128_8.lo: src/sw_diag_sse41_128_8.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libparasail_table_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o src/libparasail_table_la-sw_diag_sse41_128_8.lo `test -f 'src/sw_diag_sse41_128_8.c' || echo '$(srcdir)/'`src/sw_diag_sse41_128_8.c
 
+src/libparasail_table_la-nw_striped_sse2_128_32.lo: src/nw_striped_sse2_128_32.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libparasail_table_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT src/libparasail_table_la-nw_striped_sse2_128_32.lo -MD -MP -MF src/$(DEPDIR)/libparasail_table_la-nw_striped_sse2_128_32.Tpo -c -o src/libparasail_table_la-nw_striped_sse2_128_32.lo `test -f 'src/nw_striped_sse2_128_32.c' || echo '$(srcdir)/'`src/nw_striped_sse2_128_32.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/libparasail_table_la-nw_striped_sse2_128_32.Tpo src/$(DEPDIR)/libparasail_table_la-nw_striped_sse2_128_32.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/nw_striped_sse2_128_32.c' object='src/libparasail_table_la-nw_striped_sse2_128_32.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libparasail_table_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o src/libparasail_table_la-nw_striped_sse2_128_32.lo `test -f 'src/nw_striped_sse2_128_32.c' || echo '$(srcdir)/'`src/nw_striped_sse2_128_32.c
+
 src/libparasail_table_la-nw_striped_sse2_128_16.lo: src/nw_striped_sse2_128_16.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libparasail_table_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT src/libparasail_table_la-nw_striped_sse2_128_16.lo -MD -MP -MF src/$(DEPDIR)/libparasail_table_la-nw_striped_sse2_128_16.Tpo -c -o src/libparasail_table_la-nw_striped_sse2_128_16.lo `test -f 'src/nw_striped_sse2_128_16.c' || echo '$(srcdir)/'`src/nw_striped_sse2_128_16.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/libparasail_table_la-nw_striped_sse2_128_16.Tpo src/$(DEPDIR)/libparasail_table_la-nw_striped_sse2_128_16.Plo
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/nw_striped_sse2_128_16.c' object='src/libparasail_table_la-nw_striped_sse2_128_16.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libparasail_table_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o src/libparasail_table_la-nw_striped_sse2_128_16.lo `test -f 'src/nw_striped_sse2_128_16.c' || echo '$(srcdir)/'`src/nw_striped_sse2_128_16.c
+
+src/libparasail_table_la-nw_striped_sse2_128_8.lo: src/nw_striped_sse2_128_8.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libparasail_table_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT src/libparasail_table_la-nw_striped_sse2_128_8.lo -MD -MP -MF src/$(DEPDIR)/libparasail_table_la-nw_striped_sse2_128_8.Tpo -c -o src/libparasail_table_la-nw_striped_sse2_128_8.lo `test -f 'src/nw_striped_sse2_128_8.c' || echo '$(srcdir)/'`src/nw_striped_sse2_128_8.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/libparasail_table_la-nw_striped_sse2_128_8.Tpo src/$(DEPDIR)/libparasail_table_la-nw_striped_sse2_128_8.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/nw_striped_sse2_128_8.c' object='src/libparasail_table_la-nw_striped_sse2_128_8.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libparasail_table_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o src/libparasail_table_la-nw_striped_sse2_128_8.lo `test -f 'src/nw_striped_sse2_128_8.c' || echo '$(srcdir)/'`src/nw_striped_sse2_128_8.c
+
+src/libparasail_table_la-nw_striped_sse41_128_32.lo: src/nw_striped_sse41_128_32.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libparasail_table_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT src/libparasail_table_la-nw_striped_sse41_128_32.lo -MD -MP -MF src/$(DEPDIR)/libparasail_table_la-nw_striped_sse41_128_32.Tpo -c -o src/libparasail_table_la-nw_striped_sse41_128_32.lo `test -f 'src/nw_striped_sse41_128_32.c' || echo '$(srcdir)/'`src/nw_striped_sse41_128_32.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/libparasail_table_la-nw_striped_sse41_128_32.Tpo src/$(DEPDIR)/libparasail_table_la-nw_striped_sse41_128_32.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/nw_striped_sse41_128_32.c' object='src/libparasail_table_la-nw_striped_sse41_128_32.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libparasail_table_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o src/libparasail_table_la-nw_striped_sse41_128_32.lo `test -f 'src/nw_striped_sse41_128_32.c' || echo '$(srcdir)/'`src/nw_striped_sse41_128_32.c
+
+src/libparasail_table_la-nw_striped_sse41_128_16.lo: src/nw_striped_sse41_128_16.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libparasail_table_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT src/libparasail_table_la-nw_striped_sse41_128_16.lo -MD -MP -MF src/$(DEPDIR)/libparasail_table_la-nw_striped_sse41_128_16.Tpo -c -o src/libparasail_table_la-nw_striped_sse41_128_16.lo `test -f 'src/nw_striped_sse41_128_16.c' || echo '$(srcdir)/'`src/nw_striped_sse41_128_16.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/libparasail_table_la-nw_striped_sse41_128_16.Tpo src/$(DEPDIR)/libparasail_table_la-nw_striped_sse41_128_16.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/nw_striped_sse41_128_16.c' object='src/libparasail_table_la-nw_striped_sse41_128_16.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libparasail_table_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o src/libparasail_table_la-nw_striped_sse41_128_16.lo `test -f 'src/nw_striped_sse41_128_16.c' || echo '$(srcdir)/'`src/nw_striped_sse41_128_16.c
 
 src/libparasail_table_la-nw_striped_sse41_128_8.lo: src/nw_striped_sse41_128_8.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libparasail_table_la_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT src/libparasail_table_la-nw_striped_sse41_128_8.lo -MD -MP -MF src/$(DEPDIR)/libparasail_table_la-nw_striped_sse41_128_8.Tpo -c -o src/libparasail_table_la-nw_striped_sse41_128_8.lo `test -f 'src/nw_striped_sse41_128_8.c' || echo '$(srcdir)/'`src/nw_striped_sse41_128_8.c

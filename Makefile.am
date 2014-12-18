@@ -40,6 +40,8 @@ ALIGNMENT_SRC += src/sw_stats_scan.c
 ###################
 
 # parallel scan methods
+#
+if HAVE_SSE2
 ALIGNMENT_SRC += src/nw_scan_sse2_128_32.c
 ALIGNMENT_SRC += src/sg_scan_sse2_128_32.c
 ALIGNMENT_SRC += src/sw_scan_sse2_128_32.c
@@ -51,7 +53,9 @@ ALIGNMENT_SRC += src/sw_scan_sse2_128_16.c
 ALIGNMENT_SRC += src/nw_scan_sse2_128_8.c
 ALIGNMENT_SRC += src/sg_scan_sse2_128_8.c
 ALIGNMENT_SRC += src/sw_scan_sse2_128_8.c
+endif
 
+if HAVE_SSE41
 ALIGNMENT_SRC += src/nw_scan_sse41_128_32.c
 ALIGNMENT_SRC += src/sg_scan_sse41_128_32.c
 ALIGNMENT_SRC += src/sw_scan_sse41_128_32.c
@@ -63,7 +67,9 @@ ALIGNMENT_SRC += src/sw_scan_sse41_128_16.c
 ALIGNMENT_SRC += src/nw_scan_sse41_128_8.c
 ALIGNMENT_SRC += src/sg_scan_sse41_128_8.c
 ALIGNMENT_SRC += src/sw_scan_sse41_128_8.c
+endif
 
+if HAVE_AVX2
 ALIGNMENT_SRC += src/nw_scan_avx2_256_32.c
 #ALIGNMENT_SRC += src/sg_scan_avx2_256_32.c
 #ALIGNMENT_SRC += src/sw_scan_avx2_256_32.c
@@ -75,8 +81,11 @@ ALIGNMENT_SRC += src/nw_scan_avx2_256_32.c
 #ALIGNMENT_SRC += src/nw_scan_avx2_256_8.c
 #ALIGNMENT_SRC += src/sg_scan_avx2_256_8.c
 #ALIGNMENT_SRC += src/sw_scan_avx2_256_8.c
+endif
 
 # parallel diag methods
+
+if HAVE_SSE2
 ALIGNMENT_SRC += src/nw_diag_sse2_128_32.c
 ALIGNMENT_SRC += src/sg_diag_sse2_128_32.c
 ALIGNMENT_SRC += src/sw_diag_sse2_128_32.c
@@ -88,7 +97,9 @@ ALIGNMENT_SRC += src/sw_diag_sse2_128_16.c
 ALIGNMENT_SRC += src/nw_diag_sse2_128_8.c
 ALIGNMENT_SRC += src/sg_diag_sse2_128_8.c
 ALIGNMENT_SRC += src/sw_diag_sse2_128_8.c
+endif
 
+if HAVE_SSE41
 ALIGNMENT_SRC += src/nw_diag_sse41_128_32.c
 ALIGNMENT_SRC += src/sg_diag_sse41_128_32.c
 ALIGNMENT_SRC += src/sw_diag_sse41_128_32.c
@@ -100,8 +111,11 @@ ALIGNMENT_SRC += src/sw_diag_sse41_128_16.c
 ALIGNMENT_SRC += src/nw_diag_sse41_128_8.c
 ALIGNMENT_SRC += src/sg_diag_sse41_128_8.c
 ALIGNMENT_SRC += src/sw_diag_sse41_128_8.c
+endif
 
 # parallel striped methods
+
+if HAVE_SSE2
 ALIGNMENT_SRC += src/nw_striped_sse2_128_32.c
 ALIGNMENT_SRC += src/sg_striped_sse2_128_32.c
 ALIGNMENT_SRC += src/sw_striped_sse2_128_32.c
@@ -113,7 +127,9 @@ ALIGNMENT_SRC += src/sw_striped_sse2_128_16.c
 ALIGNMENT_SRC += src/nw_striped_sse2_128_8.c
 ALIGNMENT_SRC += src/sg_striped_sse2_128_8.c
 ALIGNMENT_SRC += src/sw_striped_sse2_128_8.c
+endif
 
+if HAVE_SSE41
 ALIGNMENT_SRC += src/nw_striped_sse41_128_32.c
 ALIGNMENT_SRC += src/sg_striped_sse41_128_32.c
 ALIGNMENT_SRC += src/sw_striped_sse41_128_32.c
@@ -125,85 +141,7 @@ ALIGNMENT_SRC += src/sw_striped_sse41_128_16.c
 ALIGNMENT_SRC += src/nw_striped_sse41_128_8.c
 ALIGNMENT_SRC += src/sg_striped_sse41_128_8.c
 ALIGNMENT_SRC += src/sw_striped_sse41_128_8.c
-
-#########################
-# parallel stats methods
-#########################
-
-# parallel stats scan methods
-#ALIGNMENT_SRC += src/nw_stats_scan_sse2_128_32.c
-#ALIGNMENT_SRC += src/sg_stats_scan_sse2_128_32.c
-#ALIGNMENT_SRC += src/sw_stats_scan_sse2_128_32.c
-
-#ALIGNMENT_SRC += src/nw_stats_scan_sse2_128_16.c
-#ALIGNMENT_SRC += src/sg_stats_scan_sse2_128_16.c
-#ALIGNMENT_SRC += src/sw_stats_scan_sse2_128_16.c
-
-#ALIGNMENT_SRC += src/nw_stats_scan_sse2_128_8.c
-#ALIGNMENT_SRC += src/sg_stats_scan_sse2_128_8.c
-#ALIGNMENT_SRC += src/sw_stats_scan_sse2_128_8.c
-
-#ALIGNMENT_SRC += src/nw_stats_scan_sse41_128_32.c
-#ALIGNMENT_SRC += src/sg_stats_scan_sse41_128_32.c
-#ALIGNMENT_SRC += src/sw_stats_scan_sse41_128_32.c
-
-#ALIGNMENT_SRC += src/nw_stats_scan_sse41_128_16.c
-#ALIGNMENT_SRC += src/sg_stats_scan_sse41_128_16.c
-#ALIGNMENT_SRC += src/sw_stats_scan_sse41_128_16.c
-
-#ALIGNMENT_SRC += src/nw_stats_scan_sse41_128_8.c
-#ALIGNMENT_SRC += src/sg_stats_scan_sse41_128_8.c
-#ALIGNMENT_SRC += src/sw_stats_scan_sse41_128_8.c
-
-# parallel stats diag methods
-#ALIGNMENT_SRC += src/nw_stats_diag_sse2_128_32.c
-#ALIGNMENT_SRC += src/sg_stats_diag_sse2_128_32.c
-#ALIGNMENT_SRC += src/sw_stats_diag_sse2_128_32.c
-
-#ALIGNMENT_SRC += src/nw_stats_diag_sse2_128_16.c
-#ALIGNMENT_SRC += src/sg_stats_diag_sse2_128_16.c
-#ALIGNMENT_SRC += src/sw_stats_diag_sse2_128_16.c
-
-#ALIGNMENT_SRC += src/nw_stats_diag_sse2_128_8.c
-#ALIGNMENT_SRC += src/sg_stats_diag_sse2_128_8.c
-#ALIGNMENT_SRC += src/sw_stats_diag_sse2_128_8.c
-
-#ALIGNMENT_SRC += src/nw_stats_diag_sse41_128_32.c
-#ALIGNMENT_SRC += src/sg_stats_diag_sse41_128_32.c
-#ALIGNMENT_SRC += src/sw_stats_diag_sse41_128_32.c
-
-#ALIGNMENT_SRC += src/nw_stats_diag_sse41_128_16.c
-#ALIGNMENT_SRC += src/sg_stats_diag_sse41_128_16.c
-#ALIGNMENT_SRC += src/sw_stats_diag_sse41_128_16.c
-
-#ALIGNMENT_SRC += src/nw_stats_diag_sse41_128_8.c
-#ALIGNMENT_SRC += src/sg_stats_diag_sse41_128_8.c
-#ALIGNMENT_SRC += src/sw_stats_diag_sse41_128_8.c
-
-# parallel stats striped methods
-#ALIGNMENT_SRC += src/nw_stats_striped_sse2_128_32.c
-#ALIGNMENT_SRC += src/sg_stats_striped_sse2_128_32.c
-#ALIGNMENT_SRC += src/sw_stats_striped_sse2_128_32.c
-
-#ALIGNMENT_SRC += src/nw_stats_striped_sse2_128_16.c
-#ALIGNMENT_SRC += src/sg_stats_striped_sse2_128_16.c
-#ALIGNMENT_SRC += src/sw_stats_striped_sse2_128_16.c
-
-#ALIGNMENT_SRC += src/nw_stats_striped_sse2_128_8.c
-#ALIGNMENT_SRC += src/sg_stats_striped_sse2_128_8.c
-#ALIGNMENT_SRC += src/sw_stats_striped_sse2_128_8.c
-
-#ALIGNMENT_SRC += src/nw_stats_striped_sse41_128_32.c
-#ALIGNMENT_SRC += src/sg_stats_striped_sse41_128_32.c
-#ALIGNMENT_SRC += src/sw_stats_striped_sse41_128_32.c
-
-#ALIGNMENT_SRC += src/nw_stats_striped_sse41_128_16.c
-#ALIGNMENT_SRC += src/sg_stats_striped_sse41_128_16.c
-#ALIGNMENT_SRC += src/sw_stats_striped_sse41_128_16.c
-
-#ALIGNMENT_SRC += src/nw_stats_striped_sse41_128_8.c
-#ALIGNMENT_SRC += src/sg_stats_striped_sse41_128_8.c
-#ALIGNMENT_SRC += src/sw_stats_striped_sse41_128_8.c
+endif
 
 libparasail_la_SOURCES += $(ALIGNMENT_SRC)
 

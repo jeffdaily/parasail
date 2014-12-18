@@ -80,11 +80,11 @@ parasail_result_t* FNAME(
     int32_t segLen = (s1Len + segWidth - 1) / segWidth;
     int32_t offset = (s1Len - 1) % segLen;
     int32_t position = (segWidth - 1) - (s1Len - 1) / segLen;
-    __m128i* restrict pvP = parasail_memalign_m128i(16, n * segLen);
-    __m128i* restrict pvE = parasail_memalign_m128i(16, segLen);
-    __m128i* restrict pvHt= parasail_memalign_m128i(16, segLen);
-    __m128i* restrict pvFt= parasail_memalign_m128i(16, segLen);
-    __m128i* restrict pvH = parasail_memalign_m128i(16, segLen);
+    __m128i* const restrict pvP = parasail_memalign_m128i(16, n * segLen);
+    __m128i* const restrict pvE = parasail_memalign_m128i(16, segLen);
+    __m128i* const restrict pvHt= parasail_memalign_m128i(16, segLen);
+    __m128i* const restrict pvFt= parasail_memalign_m128i(16, segLen);
+    __m128i* const restrict pvH = parasail_memalign_m128i(16, segLen);
     __m128i vGapO = _mm_set1_epi32(open);
     __m128i vGapE = _mm_set1_epi32(gap);
     int32_t score = 0;

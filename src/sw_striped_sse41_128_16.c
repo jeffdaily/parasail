@@ -59,10 +59,10 @@ parasail_result_t* FNAME(
     const int32_t n = 24; /* number of amino acids in table */
     const int32_t segWidth = 8; /* number of values in vector unit */
     int32_t segLen = (s1Len + segWidth - 1) / segWidth;
-    __m128i* vProfile = parasail_memalign_m128i(16, n * segLen);
-    __m128i* pvHStore = parasail_memalign_m128i(16, segLen);
-    __m128i* pvHLoad =  parasail_memalign_m128i(16, segLen);
-    __m128i* pvE = parasail_memalign_m128i(16, segLen);
+    __m128i* const restrict vProfile = parasail_memalign_m128i(16, n * segLen);
+    __m128i* restrict pvHStore = parasail_memalign_m128i(16, segLen);
+    __m128i* restrict pvHLoad =  parasail_memalign_m128i(16, segLen);
+    __m128i* const restrict pvE = parasail_memalign_m128i(16, segLen);
     int score = NEG_INF_16;
     __m128i vGapO = _mm_set1_epi16(open);
     __m128i vGapE = _mm_set1_epi16(gap);

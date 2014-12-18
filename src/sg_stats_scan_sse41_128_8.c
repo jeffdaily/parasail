@@ -463,8 +463,8 @@ int FNAME(
             vMaxM = _mm_or_si128(vMaxM, _mm_and_si128(cond_all, vM));
             vMaxL = _mm_andnot_si128(cond_all, vMaxL);
             vMaxL = _mm_or_si128(vMaxL, _mm_and_si128(cond_all, vL));
-            vQIndexLo16 = _mm_adds_epi8(vQIndexLo16, vOne16);
-            vQIndexHi16 = _mm_adds_epi8(vQIndexHi16, vOne16);
+            vQIndexLo16 = _mm_adds_epi16(vQIndexLo16, vOne16);
+            vQIndexHi16 = _mm_adds_epi16(vQIndexHi16, vOne16);
         }
 
         /* max in vec */

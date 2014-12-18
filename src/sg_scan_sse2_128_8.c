@@ -308,8 +308,8 @@ parasail_result_t* FNAME(
             __m128i cond_all = _mm_and_si128(cond_max, cond_lmt);
             vMaxH = _mm_andnot_si128(cond_all, vMaxH);
             vMaxH = _mm_or_si128(vMaxH, _mm_and_si128(cond_all, vH));
-            vQIndexLo16 = _mm_adds_epi8(vQIndexLo16, vOne16);
-            vQIndexHi16 = _mm_adds_epi8(vQIndexHi16, vOne16);
+            vQIndexLo16 = _mm_adds_epi16(vQIndexLo16, vOne16);
+            vQIndexHi16 = _mm_adds_epi16(vQIndexHi16, vOne16);
         }
 
         /* max in vec */

@@ -270,8 +270,8 @@ end:
             __m128i cond_all = _mm_and_si128(cond_max, cond_lmt);
             vMaxLastColH = _mm_andnot_si128(cond_all, vMaxLastColH);
             vMaxLastColH = _mm_or_si128(vMaxLastColH, _mm_and_si128(cond_all, vH));
-            vQIndexLo16 = _mm_adds_epi8(vQIndexLo16, vOne16);
-            vQIndexHi16 = _mm_adds_epi8(vQIndexHi16, vOne16);
+            vQIndexLo16 = _mm_adds_epi16(vQIndexLo16, vOne16);
+            vQIndexHi16 = _mm_adds_epi16(vQIndexHi16, vOne16);
         }
 
         /* max in vec */

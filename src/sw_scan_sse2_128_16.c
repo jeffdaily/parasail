@@ -59,8 +59,6 @@ parasail_result_t* FNAME(
     const int32_t segWidth = 8; /* number of values in vector unit */
     int32_t segNum = 0;
     int32_t segLen = (s1Len + segWidth - 1) / segWidth;
-    int32_t offset = (s1Len - 1) % segLen;
-    int32_t position = (segWidth - 1) - (s1Len - 1) / segLen;
     __m128i* restrict pvP = parasail_memalign_m128i(16, n * segLen);
     __m128i* restrict pvE = parasail_memalign_m128i(16, segLen);
     __m128i* restrict pvHt= parasail_memalign_m128i(16, segLen);

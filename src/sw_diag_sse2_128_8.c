@@ -149,7 +149,6 @@ parasail_result_t* FNAME(
     __m128i vGap  = _mm_set1_epi8(gap);
     __m128i vZero = _mm_set1_epi8(0);
     __m128i vOne16 = _mm_set1_epi16(1);
-    __m128i vN16 = _mm_set1_epi16(N);
     __m128i vNegOne16 = _mm_set1_epi16(-1);
     __m128i vILo16 = _mm_set_epi16(8,9,10,11,12,13,14,15);
     __m128i vIHi16 = _mm_set_epi16(0,1,2,3,4,5,6,7);
@@ -157,9 +156,7 @@ parasail_result_t* FNAME(
     __m128i vJresetHi16 = _mm_set_epi16(0,-1,-2,-3,-4,-5,-6,-7);
     __m128i vMax = vNegInf;
     __m128i vILimit16 = _mm_set1_epi16(s1Len);
-    __m128i vILimit116 = _mm_sub_epi16(vILimit16, vOne16);
     __m128i vJLimit16 = _mm_set1_epi16(s2Len);
-    __m128i vJLimit116 = _mm_sub_epi16(vJLimit16, vOne16);
 
     /* convert _s1 from char to int in range 0-23 */
     for (i=0; i<s1Len; ++i) {

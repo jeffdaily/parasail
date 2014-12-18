@@ -15,13 +15,12 @@
 #include <emmintrin.h>
 #include <smmintrin.h>
 
-#ifdef PARASAIL_TABLE
-#include "align_scan_128_8_table.h"
-#else
-#include "align_scan_128_8.h"
-#endif
+#include "parasail.h"
+#include "parasail_internal.h"
 #include "blosum/blosum_map.h"
 
+#define NEG_INF_8 (INT8_MIN)
+#define MAX(a,b) ((a)>(b)?(a):(b))
 
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si128(
@@ -77,23 +76,15 @@ static inline void arr_store_si128(
 }
 
 #ifdef PARASAIL_TABLE
-#define FNAME nw_stats_scan_128_8_table
+#define FNAME nw_stats_table_scan_sse41_128_8
 #else
-#define FNAME nw_stats_scan_128_8
+#define FNAME nw_stats_scan_sse41_128_8
 #endif
 
-int FNAME(
+parasail_result_t* FNAME(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap,
-        const int8_t * const restrict matrix,
-        int * const restrict matches, int * const restrict length
-#ifdef PARASAIL_TABLE
-        , int * const restrict score_table
-        , int * const restrict match_table
-        , int * const restrict length_table
-#endif
-        )
+        const int open, const int gap, const int matrix[24][24])
 {
     int32_t i = 0;
     int32_t j = 0;
@@ -214,10 +205,15 @@ int FNAME(
             vM = _mm_load_si128(pvM+i);
             vL = _mm_load_si128(pvL+i);
             vL = _mm_adds_epi8(vL, vOne);
+#if BLEND
+            vMt = _mm_blendv_epi8(vMp, vM, vEx);
+            vLt = _mm_blendv_epi8(vLp, vL, vEx);
+#else
             vMt = _mm_and_si128(vEx, vM);
             vMt = _mm_or_si128(vMt, _mm_andnot_si128(vEx, vMp));
             vLt = _mm_and_si128(vEx, vL);
             vLt = _mm_or_si128(vLt, _mm_andnot_si128(vEx, vLp));
+#endif
             /* store results */
             _mm_store_si128(pvHt+i, vHt);
             _mm_store_si128(pvEx+i, vEx);
@@ -238,7 +234,26 @@ int FNAME(
             vFt = _mm_max_epi8(vFt, vHt);
             vHt = _mm_load_si128(pvHt+i);
         }
-        PARALLEL_PREFIX_OP(vFt, gap, segLen)
+        {
+            __m128i_8_t tmp;
+            tmp.m = vFt;
+            tmp.v[1] = MAX(tmp.v[0]-segLen*gap, tmp.v[1]);
+            tmp.v[2] = MAX(tmp.v[1]-segLen*gap, tmp.v[2]);
+            tmp.v[3] = MAX(tmp.v[2]-segLen*gap, tmp.v[3]);
+            tmp.v[4] = MAX(tmp.v[3]-segLen*gap, tmp.v[4]);
+            tmp.v[5] = MAX(tmp.v[4]-segLen*gap, tmp.v[5]);
+            tmp.v[6] = MAX(tmp.v[5]-segLen*gap, tmp.v[6]);
+            tmp.v[7] = MAX(tmp.v[6]-segLen*gap, tmp.v[7]);
+            tmp.v[8]  = MAX(tmp.v[7] -segLen*gap, tmp.v[8]);
+            tmp.v[9]  = MAX(tmp.v[8] -segLen*gap, tmp.v[9]);
+            tmp.v[10] = MAX(tmp.v[9] -segLen*gap, tmp.v[10]);
+            tmp.v[11] = MAX(tmp.v[10]-segLen*gap, tmp.v[11]);
+            tmp.v[12] = MAX(tmp.v[11]-segLen*gap, tmp.v[12]);
+            tmp.v[13] = MAX(tmp.v[12]-segLen*gap, tmp.v[13]);
+            tmp.v[14] = MAX(tmp.v[13]-segLen*gap, tmp.v[14]);
+            tmp.v[15] = MAX(tmp.v[14]-segLen*gap, tmp.v[15]);
+            vFt = tmp.m;
+        }
         vHt = _mm_slli_si128(_mm_load_si128(pvHt+(segLen-1)), 1);
         vHt = _mm_insert_epi8(vHt, boundary[j+1], 0);
         vFt = _mm_slli_si128(vFt, 1);
@@ -269,11 +284,16 @@ int FNAME(
             vEx = _mm_or_si128(
                     _mm_and_si128(vEx, _mm_cmpeq_epi8(vHt, vFt)),
                     _mm_cmplt_epi8(vHt, vFt));
+#if BLEND
+            vM = _mm_blendv_epi8(vMt, vMp, vEx);
+            vL = _mm_blendv_epi8(vLt, vLp, vEx);
+#else
             vM = _mm_and_si128(vEx, vMp);
             vM = _mm_or_si128(vM, _mm_andnot_si128(vEx, vMt));
-            vMp = vM;
             vL = _mm_and_si128(vEx, vLp);
             vL = _mm_or_si128(vL, _mm_andnot_si128(vEx, vLt));
+#endif
+            vMp = vM;
             vLp = _mm_adds_epi8(vL, vOne);
             vC = _mm_and_si128(vC, vEx);
             /* store results */
@@ -347,11 +367,16 @@ int FNAME(
             vEx = _mm_load_si128(pvEx+i);
             vMt = _mm_load_si128(pvMt+i);
             vLt = _mm_load_si128(pvLt+i);
+#if BLEND
+            vM = _mm_blendv_epi8(vMt, vMp, vEx);
+            vL = _mm_blendv_epi8(vLt, vLp, vEx);
+#else
             vM = _mm_and_si128(vEx, vMp);
             vM = _mm_or_si128(vM, _mm_andnot_si128(vEx, vMt));
-            vMp = vM;
             vL = _mm_and_si128(vEx, vLp);
             vL = _mm_or_si128(vL, _mm_andnot_si128(vEx, vLt));
+#endif
+            vMp = vM;
             vLp = _mm_adds_epi8(vL, vOne);
             /* store results */
             _mm_store_si128(pvM+i, vM);

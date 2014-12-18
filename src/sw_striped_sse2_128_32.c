@@ -20,14 +20,6 @@
 
 #define NEG_INF_32 (INT32_MIN/(int32_t)(2))
 
-/* sse2 does not have _mm_insert_epi32, emulate it */
-static inline __m128i _mm_insert_epi32(__m128i a, int32_t i, int imm) {
-    __m128i_32_t tmp;
-    tmp.m = a;
-    tmp.v[imm] = i;
-    return tmp.m;
-}
-
 /* sse2 does not have _mm_extract_epi32, emulate it */
 static inline int32_t _mm_extract_epi32(__m128i a, int imm) {
     __m128i_32_t tmp;
@@ -73,13 +65,10 @@ parasail_result_t* FNAME(
     int32_t i = 0;
     int32_t j = 0;
     int32_t k = 0;
-    int32_t nt = 0;
     int32_t segNum = 0;
     const int32_t n = 24; /* number of amino acids in table */
     const int32_t segWidth = 4; /* number of values in vector unit */
     int32_t segLen = (s1Len + segWidth - 1) / segWidth;
-    int32_t offset = (s1Len - 1) % segLen;
-    int32_t position = (segWidth - 1) - (s1Len - 1) / segLen;
     __m128i* vProfile = parasail_memalign_m128i(16, n * segLen);
     __m128i* pvHStore = parasail_memalign_m128i(16, segLen);
     __m128i* pvHLoad =  parasail_memalign_m128i(16, segLen);

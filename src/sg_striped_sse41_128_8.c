@@ -63,7 +63,6 @@ parasail_result_t* FNAME(
     int32_t i = 0;
     int32_t j = 0;
     int32_t k = 0;
-    int32_t nt = 0;
     int32_t segNum = 0;
     const int32_t n = 24; /* number of amino acids in table */
     const int32_t segWidth = 16; /* number of values in vector unit */

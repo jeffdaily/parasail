@@ -37,31 +37,31 @@ void* parasail_memalign(size_t alignment, size_t size)
     return ptr;
 }
 
-int * restrict parasail_memalign_int(size_t alignment, size_t size)
+int * parasail_memalign_int(size_t alignment, size_t size)
 {
-    return (int * restrict) parasail_memalign(alignment, size*sizeof(int));
+    return (int *) parasail_memalign(alignment, size*sizeof(int));
 }
 
-int8_t * restrict parasail_memalign_int8_t(size_t alignment, size_t size)
+int8_t * parasail_memalign_int8_t(size_t alignment, size_t size)
 {
-    return (int8_t * restrict) parasail_memalign(alignment, size*sizeof(int8_t));
+    return (int8_t *) parasail_memalign(alignment, size*sizeof(int8_t));
 }
 
-int16_t * restrict parasail_memalign_int16_t(size_t alignment, size_t size)
+int16_t * parasail_memalign_int16_t(size_t alignment, size_t size)
 {
-    return (int16_t * restrict) parasail_memalign(alignment, size*sizeof(int16_t));
+    return (int16_t *) parasail_memalign(alignment, size*sizeof(int16_t));
 }
 
-int32_t * restrict parasail_memalign_int32_t(size_t alignment, size_t size)
+int32_t * parasail_memalign_int32_t(size_t alignment, size_t size)
 {
-    return (int32_t * restrict) parasail_memalign(alignment, size*sizeof(int32_t));
+    return (int32_t *) parasail_memalign(alignment, size*sizeof(int32_t));
 }
 
 #if HAVE_SSE2 || HAVE_SSE41
 #include <emmintrin.h>
-__m128i * restrict parasail_memalign_m128i(size_t alignment, size_t size)
+__m128i * parasail_memalign_m128i(size_t alignment, size_t size)
 {
-    return (__m128i * restrict) parasail_memalign(alignment, size*sizeof(__m128i));
+    return (__m128i *) parasail_memalign(alignment, size*sizeof(__m128i));
 }
 #endif
 
@@ -98,7 +98,7 @@ parasail_result_t* parasail_result_new_table1(const int a, const int b)
     result = parasail_result_new();
 
     /* allocate only score table */
-    result->score_table = (int * restrict)malloc(sizeof(int)*a*b);
+    result->score_table = (int *)malloc(sizeof(int)*a*b);
     assert(result->score_table);
 
     return result;
@@ -116,11 +116,11 @@ parasail_result_t* parasail_result_new_table4(const int a, const int b)
     /* allocate struct to hold memory */
     result = parasail_result_new_table1(a, b);
     
-    result->matches_table = (int * restrict)malloc(sizeof(int)*a*b);
+    result->matches_table = (int *)malloc(sizeof(int)*a*b);
     assert(result->matches_table);
-    result->similarities_table = (int * restrict)malloc(sizeof(int)*a*b);
+    result->similarities_table = (int *)malloc(sizeof(int)*a*b);
     assert(result->similarities_table);
-    result->length_table = (int * restrict)malloc(sizeof(int)*a*b);
+    result->length_table = (int *)malloc(sizeof(int)*a*b);
     assert(result->length_table);
 
     return result;

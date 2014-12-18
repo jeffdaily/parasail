@@ -99,7 +99,7 @@ parasail_result_t* ENAME(
                 Wlength  = Nlength + 1;
             } else {
                 Wscore = ins_cr;
-                Wmatches  = Wmatches;
+                /*Wmatches  = Wmatches;*/
                 Wlength  = Wlength + 1;
             }
             tbl_pr[j] = Wscore;

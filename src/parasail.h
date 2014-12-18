@@ -19,10 +19,10 @@ typedef struct parasail_result {
     int matches;
     int similarities;
     int length;
-    int * score_table;
-    int * matches_table;
-    int * similarities_table;
-    int * length_table;
+    int * restrict score_table;
+    int * restrict matches_table;
+    int * restrict similarities_table;
+    int * restrict length_table;
 } parasail_result_t;
 
 /** Deallocate result. */

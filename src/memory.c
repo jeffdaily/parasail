@@ -65,6 +65,14 @@ __m128i * parasail_memalign_m128i(size_t alignment, size_t size)
 }
 #endif
 
+#if HAVE_AVX2
+#include <immintrin.h>
+__m256i * parasail_memalign_m256i(size_t alignment, size_t size)
+{
+    return (__m256i *) parasail_memalign(alignment, size*sizeof(__m256i));
+}
+#endif
+
 parasail_result_t* parasail_result_new()
 {
     /* declare all variables */

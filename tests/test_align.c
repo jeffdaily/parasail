@@ -117,6 +117,17 @@ int main(int argc, char **argv)
         {nw_striped_sse41_128_16,   "nw", "striped", "sse41", "128", "16", 0, 0},
         {nw_striped_sse41_128_8,    "nw", "striped", "sse41", "128", "8",  0, 0},
 #endif
+#if HAVE_AVX2                      
+        {nw_scan_avx2_256_32,       "nw", "scan",    "avx2",  "256", "32", 0, 0},
+        //{nw_scan_avx2_256_16,       "nw", "scan",    "avx2",  "256", "16", 0, 0},
+        //{nw_scan_avx2_256_8,        "nw", "scan",    "avx2",  "256", "8",  0, 0},
+        //{nw_diag_avx2_256_32,       "nw", "diag",    "avx2",  "256", "32", 0, 0},
+        //{nw_diag_avx2_256_16,       "nw", "diag",    "avx2",  "256", "16", 0, 0},
+        //{nw_diag_avx2_256_8,        "nw", "diag",    "avx2",  "256", "8",  0, 0},
+        //{nw_striped_avx2_256_32,    "nw", "striped", "avx2",  "256", "32", 0, 0},
+        //{nw_striped_avx2_256_16,    "nw", "striped", "avx2",  "256", "16", 0, 0},
+        //{nw_striped_avx2_256_8,     "nw", "striped", "avx2",  "256", "8",  0, 0},
+#endif                             
 
         {sg,                        "sg", "",     "",      "",    "",   0, 1},
         {sg_scan,                   "sg", "scan", "",      "",    "",   0, 0},

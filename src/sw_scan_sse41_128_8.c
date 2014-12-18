@@ -17,6 +17,7 @@
 
 #include "parasail.h"
 #include "parasail_internal.h"
+#include "parasail_internal_sse.h"
 #include "blosum/blosum_map.h"
 
 #define NEG_INF_8 (INT8_MIN)

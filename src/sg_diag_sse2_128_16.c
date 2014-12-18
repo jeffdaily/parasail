@@ -15,6 +15,7 @@
 
 #include "parasail.h"
 #include "parasail_internal.h"
+#include "parasail_internal_sse.h"
 #include "blosum/blosum_map.h"
 
 #define NEG_INF_16 (INT16_MIN/(int16_t)(2))

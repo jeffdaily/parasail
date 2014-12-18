@@ -30,17 +30,27 @@ static inline __m128i vshift8(const __m128i v, const int val)
 }
 
 static inline __m128i _mm_mullo_epi8(__m128i a, __m128i b) {
-    __m128i zero = _mm_setzero_si128();
-    __m128i Alo = _mm_cvtepu8_epi16(a);
-    __m128i Ahi = _mm_unpackhi_epi8(a, zero);
-    __m128i Blo = _mm_cvtepu8_epi16(b);
-    __m128i Bhi = _mm_unpackhi_epi8(b, zero);
-    __m128i Clo = _mm_mullo_epi16(Alo, Blo);
-    __m128i Chi = _mm_mullo_epi16(Ahi, Bhi);
-    __m128i maskLo = _mm_set_epi8(0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 14, 12, 10, 8, 6, 4, 2, 0);
-    __m128i maskHi = _mm_set_epi8(14, 12, 10, 8, 6, 4, 2, 0, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80);
-    __m128i C = _mm_or_si128(_mm_shuffle_epi8(Clo, maskLo), _mm_shuffle_epi8(Chi, maskHi));
-    return C;
+    __m128i_8_t x;
+    __m128i_8_t y;
+    x.m = a;
+    y.m = b;
+    x.v[ 0] = x.v[ 0] * y.v[ 0];
+    x.v[ 1] = x.v[ 1] * y.v[ 1];
+    x.v[ 2] = x.v[ 2] * y.v[ 2];
+    x.v[ 3] = x.v[ 3] * y.v[ 3];
+    x.v[ 4] = x.v[ 4] * y.v[ 4];
+    x.v[ 5] = x.v[ 5] * y.v[ 5];
+    x.v[ 6] = x.v[ 6] * y.v[ 6];
+    x.v[ 7] = x.v[ 7] * y.v[ 7];
+    x.v[ 8] = x.v[ 8] * y.v[ 8];
+    x.v[ 9] = x.v[ 9] * y.v[ 9];
+    x.v[10] = x.v[10] * y.v[10];
+    x.v[11] = x.v[11] * y.v[11];
+    x.v[12] = x.v[12] * y.v[12];
+    x.v[13] = x.v[13] * y.v[13];
+    x.v[14] = x.v[14] * y.v[14];
+    x.v[15] = x.v[15] * y.v[15];
+    return x.m;
 }
 
 #ifdef PARASAIL_TABLE

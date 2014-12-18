@@ -80,8 +80,8 @@ int main(int argc, char **argv)
     float timer_rdtsc_ref_mean;
     //size_t limit = 1000;
     //size_t limit = 500;
-    size_t limit = 100;
-    //size_t limit = 2;
+    //size_t limit = 100;
+    size_t limit = 1;
     size_t i;
     size_t index;
     func_t f;
@@ -142,20 +142,26 @@ int main(int argc, char **argv)
         {sw,                        "sw", "",     "",      "",    "",   0, 1},
         {sw_scan,                   "sw", "scan", "",      "",    "",   0, 0},
 #if HAVE_SSE2
-        {sw_scan_sse2_128_32,       "sw", "scan", "sse2",  "128", "32", 0, 0},
-        {sw_scan_sse2_128_16,       "sw", "scan", "sse2",  "128", "16", 0, 0},
-        {sw_scan_sse2_128_8,        "sw", "scan", "sse2",  "128", "8",  0, 0},
-        {sw_diag_sse2_128_32,       "sw", "diag", "sse2",  "128", "32", 0, 0},
-        {sw_diag_sse2_128_16,       "sw", "diag", "sse2",  "128", "16", 0, 0},
-        {sw_diag_sse2_128_8,        "sw", "diag", "sse2",  "128", "8",  0, 0},
+        {sw_scan_sse2_128_32,       "sw", "scan",    "sse2",  "128", "32", 0, 0},
+        {sw_scan_sse2_128_16,       "sw", "scan",    "sse2",  "128", "16", 0, 0},
+        {sw_scan_sse2_128_8,        "sw", "scan",    "sse2",  "128", "8",  0, 0},
+        {sw_diag_sse2_128_32,       "sw", "diag",    "sse2",  "128", "32", 0, 0},
+        {sw_diag_sse2_128_16,       "sw", "diag",    "sse2",  "128", "16", 0, 0},
+        {sw_diag_sse2_128_8,        "sw", "diag",    "sse2",  "128", "8",  0, 0},
+        {sw_striped_sse2_128_32,    "sw", "striped", "sse2",  "128", "32", 0, 0},
+        {sw_striped_sse2_128_16,    "sw", "striped", "sse2",  "128", "16", 0, 0},
+        {sw_striped_sse2_128_8,     "sw", "striped", "sse2",  "128", "8",  0, 0},
 #endif                             
 #if HAVE_SSE41
-        {sw_scan_sse41_128_32,      "sw", "scan", "sse41", "128", "32", 0, 0},
-        {sw_scan_sse41_128_16,      "sw", "scan", "sse41", "128", "16", 0, 0},
-        {sw_scan_sse41_128_8,       "sw", "scan", "sse41", "128", "8",  0, 0},
-        {sw_diag_sse41_128_32,      "sw", "diag", "sse41", "128", "32", 0, 0},
-        {sw_diag_sse41_128_16,      "sw", "diag", "sse41", "128", "16", 0, 0},
-        {sw_diag_sse41_128_8,       "sw", "diag", "sse41", "128", "8",  0, 0},
+        {sw_scan_sse41_128_32,      "sw", "scan",    "sse41", "128", "32", 0, 0},
+        {sw_scan_sse41_128_16,      "sw", "scan",    "sse41", "128", "16", 0, 0},
+        {sw_scan_sse41_128_8,       "sw", "scan",    "sse41", "128", "8",  0, 0},
+        {sw_diag_sse41_128_32,      "sw", "diag",    "sse41", "128", "32", 0, 0},
+        {sw_diag_sse41_128_16,      "sw", "diag",    "sse41", "128", "16", 0, 0},
+        {sw_diag_sse41_128_8,       "sw", "diag",    "sse41", "128", "8",  0, 0},
+        {sw_striped_sse41_128_32,   "sw", "striped", "sse41", "128", "32", 0, 0},
+        {sw_striped_sse41_128_16,   "sw", "striped", "sse41", "128", "16", 0, 0},
+        {sw_striped_sse41_128_8,    "sw", "striped", "sse41", "128", "8",  0, 0},
 #endif
                                    
         {nw_table,                  "nw", "",     "",      "",    "",   1, 1},
@@ -211,20 +217,26 @@ int main(int argc, char **argv)
         {sw_table,                  "sw", "",     "",     "",    "",   1, 1},
         {sw_table_scan,             "sw", "scan", "",     "",    "",   1, 0},
 #if HAVE_SSE2
-        {sw_table_scan_sse2_128_32, "sw", "scan", "sse2", "128", "32", 1, 0},
-        {sw_table_scan_sse2_128_16, "sw", "scan", "sse2", "128", "16", 1, 0},
-        {sw_table_scan_sse2_128_8,  "sw", "scan", "sse2", "128", "8",  1, 0},
-        {sw_table_diag_sse2_128_32, "sw", "diag", "sse2", "128", "32", 1, 0},
-        {sw_table_diag_sse2_128_16, "sw", "diag", "sse2", "128", "16", 1, 0},
-        {sw_table_diag_sse2_128_8,  "sw", "diag", "sse2", "128", "8",  1, 0},
+        {sw_table_scan_sse2_128_32,    "sw", "scan",    "sse2", "128", "32", 1, 0},
+        {sw_table_scan_sse2_128_16,    "sw", "scan",    "sse2", "128", "16", 1, 0},
+        {sw_table_scan_sse2_128_8,     "sw", "scan",    "sse2", "128", "8",  1, 0},
+        {sw_table_diag_sse2_128_32,    "sw", "diag",    "sse2", "128", "32", 1, 0},
+        {sw_table_diag_sse2_128_16,    "sw", "diag",    "sse2", "128", "16", 1, 0},
+        {sw_table_diag_sse2_128_8,     "sw", "diag",    "sse2", "128", "8",  1, 0},
+        {sw_table_striped_sse2_128_32, "sw", "striped", "sse2", "128", "32", 1, 0},
+        {sw_table_striped_sse2_128_16, "sw", "striped", "sse2", "128", "16", 1, 0},
+        {sw_table_striped_sse2_128_8,  "sw", "striped", "sse2", "128", "8",  1, 0},
 #endif
 #if HAVE_SSE41
-        {sw_table_scan_sse41_128_32,"sw", "scan", "sse41", "128", "32", 1, 0},
-        {sw_table_scan_sse41_128_16,"sw", "scan", "sse41", "128", "16", 1, 0},
-        {sw_table_scan_sse41_128_8, "sw", "scan", "sse41", "128", "8",  1, 0},
-        {sw_table_diag_sse41_128_32,"sw", "diag", "sse41", "128", "32", 1, 0},
-        {sw_table_diag_sse41_128_16,"sw", "diag", "sse41", "128", "16", 1, 0},
-        {sw_table_diag_sse41_128_8, "sw", "diag", "sse41", "128", "8",  1, 0},
+        {sw_table_scan_sse41_128_32,    "sw", "scan",    "sse41", "128", "32", 1, 0},
+        {sw_table_scan_sse41_128_16,    "sw", "scan",    "sse41", "128", "16", 1, 0},
+        {sw_table_scan_sse41_128_8,     "sw", "scan",    "sse41", "128", "8",  1, 0},
+        {sw_table_diag_sse41_128_32,    "sw", "diag",    "sse41", "128", "32", 1, 0},
+        {sw_table_diag_sse41_128_16,    "sw", "diag",    "sse41", "128", "16", 1, 0},
+        {sw_table_diag_sse41_128_8,     "sw", "diag",    "sse41", "128", "8",  1, 0},
+        {sw_table_striped_sse41_128_32, "sw", "striped", "sse41", "128", "32", 1, 0},
+        {sw_table_striped_sse41_128_16, "sw", "striped", "sse41", "128", "16", 1, 0},
+        {sw_table_striped_sse41_128_8,  "sw", "striped", "sse41", "128", "8",  1, 0},
 #endif
 
         {nw_stats,                  "nw_stats", "",     "",     "",    "",   0, 1},
@@ -245,7 +257,7 @@ int main(int argc, char **argv)
         {sw_stats_table,            "sw_stats", "",     "",     "",    "",   1, 1},
         {sw_stats_table_scan,       "sw_stats", "scan", "",     "",    "",   1, 0},
 
-        {NULL, "", "", "", "", "", 0}
+        {NULL, "", "", "", "", "", 0, 0}
     };
 
     timer_init();

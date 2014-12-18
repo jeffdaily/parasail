@@ -246,8 +246,7 @@ end:
                     _mm_cmplt_epi16(vQIndexHi16, vQLimit16));
             __m128i cond_max = _mm_cmpgt_epi8(vH, vMaxLastColH);
             __m128i cond_all = _mm_and_si128(cond_max, cond_lmt);
-            vMaxLastColH = _mm_andnot_si128(cond_all, vMaxLastColH);
-            vMaxLastColH = _mm_or_si128(vMaxLastColH, _mm_and_si128(cond_all, vH));
+            vMaxLastColH = _mm_blendv_epi8(vMaxLastColH, vH, cond_all);
             vQIndexLo16 = _mm_adds_epi8(vQIndexLo16, vOne16);
             vQIndexHi16 = _mm_adds_epi8(vQIndexHi16, vOne16);
         }

@@ -11,15 +11,16 @@
 #include "blosum/blosum62.h"
 #include "stats.h"
 #include "timer.h"
+#include "timer_real.h"
 
-static float pctull(unsigned long long orig_, unsigned long long new_)
+static double pctull(unsigned long long orig_, unsigned long long new_)
 {
-    float orig = (float)orig_;
-    float new = (float)new_;
+    double orig = (double)orig_;
+    double new = (double)new_;
     return orig / new;
 }
 
-static float pctf(float orig, float new)
+static double pctf(double orig, double new)
 {
     return orig / new;
 }
@@ -75,18 +76,21 @@ int main(int argc, char **argv)
     int matches;
     int length;
     unsigned long long timer_rdtsc;
-    unsigned long long timer_rdtsc_ref;
     unsigned long long timer_rdtsc_single;
-    float timer_rdtsc_ref_mean;
+    double timer_rdtsc_ref_mean;
+    double timer_nsecs;
+    double timer_nsecs_single;
+    double timer_nsecs_ref_mean;
     //size_t limit = 1000;
-    //size_t limit = 500;
+    size_t limit = 500;
     //size_t limit = 100;
-    size_t limit = 1;
+    //size_t limit = 1;
     size_t i;
     size_t index;
     func_t f;
     parasail_result_t *result = NULL;
-    stats_t stats;
+    stats_t stats_rdtsc;
+    stats_t stats_nsecs;
 
     func_t functions[] = {
         {nw,                        "nw", "",     "",      "",    "",   0, 1},
@@ -271,22 +275,27 @@ int main(int argc, char **argv)
     f = functions[index++];
     while (f.f) {
         char name[16];
-        stats_clear(&stats);
+        stats_clear(&stats_rdtsc);
         timer_rdtsc = timer_start();
+        timer_nsecs = timer_real();
         for (i=0; i<limit; ++i) {
             timer_rdtsc_single = timer_start();
+            timer_nsecs_single = timer_real();
             result = f.f(seqA, lena, seqB, lenb, 10, 1, blosum62);
             timer_rdtsc_single = timer_end(timer_rdtsc_single);
-            stats_sample_value(&stats, timer_rdtsc_single);
+            timer_nsecs_single = timer_real() - timer_nsecs_single;
+            stats_sample_value(&stats_rdtsc, timer_rdtsc_single);
+            stats_sample_value(&stats_nsecs, timer_nsecs_single);
             score = result->score;
             matches = result->matches;
             length = result->length;
             parasail_result_free(result);
         }
         timer_rdtsc = timer_end(timer_rdtsc);
+        timer_nsecs = timer_real() - timer_nsecs;
         if (f.is_ref) {
-            timer_rdtsc_ref = timer_rdtsc;
-            timer_rdtsc_ref_mean = stats._mean;
+            timer_rdtsc_ref_mean = stats_rdtsc._mean;
+            timer_nsecs_ref_mean = stats_nsecs._mean;
         }
         strcpy(name, f.alg);
         if (f.is_table) {
@@ -335,11 +344,21 @@ int main(int argc, char **argv)
             parasail_result_free(result);
             strcat(name, "_table");
         }
-        printf("%-15s %8s %6s %4s %5s %8d %8d %8d %8.1f %5.1f %8.1f %8.1f %8.1f\n",
+#if USE_TIMER_REAL
+        printf("%-15s %8s %6s %4s %5s %8d %8d %8d %8.2f %5.2f %8.2f %8.2f %8.2f %8.7f %5.7f %8.7f %8.7f %8.7f\n",
                 name, f.type, f.isa, f.bits, f.width,
                 score, matches, length,
-                stats._mean, pctf(timer_rdtsc_ref_mean, stats._mean),
-                stats_stddev(&stats), stats._min, stats._max);
+                stats_rdtsc._mean, pctf(timer_rdtsc_ref_mean, stats_rdtsc._mean),
+                stats_stddev(&stats_rdtsc), stats_rdtsc._min, stats_rdtsc._max,
+                stats_nsecs._mean, pctf(timer_nsecs_ref_mean, stats_nsecs._mean),
+                stats_stddev(&stats_nsecs), stats_nsecs._min, stats_nsecs._max);
+#else
+        printf("%-15s %8s %6s %4s %5s %8d %8d %8d %8.2f %5.2f %8.2f %8.2f %8.2f\n",
+                name, f.type, f.isa, f.bits, f.width,
+                score, matches, length,
+                stats_rdtsc._mean, pctf(timer_rdtsc_ref_mean, stats_rdtsc._mean),
+                stats_stddev(&stats_rdtsc), stats_rdtsc._min, stats_rdtsc._max);
+#endif
         f = functions[index++];
     }
 

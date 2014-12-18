@@ -217,8 +217,7 @@ parasail_result_t* FNAME(
             __m128i cond_lmt = _mm_cmplt_epi16(vQIndex, vQLimit);
             __m128i cond_max = _mm_cmpgt_epi16(vH, vMaxH);
             __m128i cond_all = _mm_and_si128(cond_max, cond_lmt);
-            vMaxH = _mm_andnot_si128(cond_all, vMaxH);
-            vMaxH = _mm_or_si128(vMaxH, _mm_and_si128(cond_all, vH));
+            vMaxH = _mm_blendv_epi8(vMaxH, vH, cond_all);
             vQIndex = _mm_add_epi16(vQIndex, vOne);
         }
 

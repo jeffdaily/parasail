@@ -30,5 +30,6 @@ typedef union __m128i_32 {
 } __m128i_32_t;
 
 __m128i * parasail_memalign_m128i(size_t alignment, size_t size);
+void parasail_memset_m128i(__m128i *b, __m128i c, size_t len);
 
 #endif /* _PARASAIL_INTERNAL_SSE_H_ */

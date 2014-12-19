@@ -60,6 +60,7 @@ typedef struct func {
     const char * bits;
     const char * width;
     char is_table;
+    char is_stats;
     char is_ref;
 } func_t;
 
@@ -82,9 +83,9 @@ int main(int argc, char **argv)
     double timer_nsecs_single;
     double timer_nsecs_ref_mean;
     //size_t limit = 1000;
-    size_t limit = 500;
+    //size_t limit = 500;
     //size_t limit = 100;
-    //size_t limit = 1;
+    size_t limit = 1;
     size_t i;
     size_t index;
     func_t f;
@@ -93,186 +94,230 @@ int main(int argc, char **argv)
     stats_t stats_nsecs;
 
     func_t functions[] = {
-        {nw,                        "nw", "",     "",      "",    "",   0, 1},
-        {nw_scan,                   "nw", "scan", "",      "",    "",   0, 0},
+        {nw,                        "nw", "",     "",      "",    "",   0, 0, 1},
+        {nw_scan,                   "nw", "scan", "",      "",    "",   0, 0, 0},
 #if HAVE_SSE2                      
-        {nw_scan_sse2_128_32,       "nw", "scan",    "sse2",  "128", "32", 0, 0},
-        {nw_scan_sse2_128_16,       "nw", "scan",    "sse2",  "128", "16", 0, 0},
-        {nw_scan_sse2_128_8,        "nw", "scan",    "sse2",  "128", "8",  0, 0},
-        {nw_diag_sse2_128_32,       "nw", "diag",    "sse2",  "128", "32", 0, 0},
-        {nw_diag_sse2_128_16,       "nw", "diag",    "sse2",  "128", "16", 0, 0},
-        {nw_diag_sse2_128_8,        "nw", "diag",    "sse2",  "128", "8",  0, 0},
-        {nw_striped_sse2_128_32,    "nw", "striped", "sse2",  "128", "32", 0, 0},
-        {nw_striped_sse2_128_16,    "nw", "striped", "sse2",  "128", "16", 0, 0},
-        {nw_striped_sse2_128_8,     "nw", "striped", "sse2",  "128", "8",  0, 0},
+        {nw_scan_sse2_128_32,       "nw", "scan",    "sse2",  "128", "32", 0, 0, 0},
+        {nw_scan_sse2_128_16,       "nw", "scan",    "sse2",  "128", "16", 0, 0, 0},
+        {nw_scan_sse2_128_8,        "nw", "scan",    "sse2",  "128", "8",  0, 0, 0},
+        {nw_diag_sse2_128_32,       "nw", "diag",    "sse2",  "128", "32", 0, 0, 0},
+        {nw_diag_sse2_128_16,       "nw", "diag",    "sse2",  "128", "16", 0, 0, 0},
+        {nw_diag_sse2_128_8,        "nw", "diag",    "sse2",  "128", "8",  0, 0, 0},
+        {nw_striped_sse2_128_32,    "nw", "striped", "sse2",  "128", "32", 0, 0, 0},
+        {nw_striped_sse2_128_16,    "nw", "striped", "sse2",  "128", "16", 0, 0, 0},
+        {nw_striped_sse2_128_8,     "nw", "striped", "sse2",  "128", "8",  0, 0, 0},
 #endif                             
 #if HAVE_SSE41
-        {nw_scan_sse41_128_32,      "nw", "scan",    "sse41", "128", "32", 0, 0},
-        {nw_scan_sse41_128_16,      "nw", "scan",    "sse41", "128", "16", 0, 0},
-        {nw_scan_sse41_128_8,       "nw", "scan",    "sse41", "128", "8",  0, 0},
-        {nw_diag_sse41_128_32,      "nw", "diag",    "sse41", "128", "32", 0, 0},
-        {nw_diag_sse41_128_16,      "nw", "diag",    "sse41", "128", "16", 0, 0},
-        {nw_diag_sse41_128_8,       "nw", "diag",    "sse41", "128", "8",  0, 0},
-        {nw_striped_sse41_128_32,   "nw", "striped", "sse41", "128", "32", 0, 0},
-        {nw_striped_sse41_128_16,   "nw", "striped", "sse41", "128", "16", 0, 0},
-        {nw_striped_sse41_128_8,    "nw", "striped", "sse41", "128", "8",  0, 0},
+        {nw_scan_sse41_128_32,      "nw", "scan",    "sse41", "128", "32", 0, 0, 0},
+        {nw_scan_sse41_128_16,      "nw", "scan",    "sse41", "128", "16", 0, 0, 0},
+        {nw_scan_sse41_128_8,       "nw", "scan",    "sse41", "128", "8",  0, 0, 0},
+        {nw_diag_sse41_128_32,      "nw", "diag",    "sse41", "128", "32", 0, 0, 0},
+        {nw_diag_sse41_128_16,      "nw", "diag",    "sse41", "128", "16", 0, 0, 0},
+        {nw_diag_sse41_128_8,       "nw", "diag",    "sse41", "128", "8",  0, 0, 0},
+        {nw_striped_sse41_128_32,   "nw", "striped", "sse41", "128", "32", 0, 0, 0},
+        {nw_striped_sse41_128_16,   "nw", "striped", "sse41", "128", "16", 0, 0, 0},
+        {nw_striped_sse41_128_8,    "nw", "striped", "sse41", "128", "8",  0, 0, 0},
 #endif
 #if HAVE_AVX2                      
-        {nw_scan_avx2_256_32,       "nw", "scan",    "avx2",  "256", "32", 0, 0},
-        //{nw_scan_avx2_256_16,       "nw", "scan",    "avx2",  "256", "16", 0, 0},
-        //{nw_scan_avx2_256_8,        "nw", "scan",    "avx2",  "256", "8",  0, 0},
-        //{nw_diag_avx2_256_32,       "nw", "diag",    "avx2",  "256", "32", 0, 0},
-        //{nw_diag_avx2_256_16,       "nw", "diag",    "avx2",  "256", "16", 0, 0},
-        //{nw_diag_avx2_256_8,        "nw", "diag",    "avx2",  "256", "8",  0, 0},
-        //{nw_striped_avx2_256_32,    "nw", "striped", "avx2",  "256", "32", 0, 0},
-        //{nw_striped_avx2_256_16,    "nw", "striped", "avx2",  "256", "16", 0, 0},
-        //{nw_striped_avx2_256_8,     "nw", "striped", "avx2",  "256", "8",  0, 0},
+        {nw_scan_avx2_256_32,       "nw", "scan",    "avx2",  "256", "32", 0, 0, 0},
+        //{nw_scan_avx2_256_16,       "nw", "scan",    "avx2",  "256", "16", 0, 0, 0},
+        //{nw_scan_avx2_256_8,        "nw", "scan",    "avx2",  "256", "8",  0, 0, 0},
+        //{nw_diag_avx2_256_32,       "nw", "diag",    "avx2",  "256", "32", 0, 0, 0},
+        //{nw_diag_avx2_256_16,       "nw", "diag",    "avx2",  "256", "16", 0, 0, 0},
+        //{nw_diag_avx2_256_8,        "nw", "diag",    "avx2",  "256", "8",  0, 0, 0},
+        //{nw_striped_avx2_256_32,    "nw", "striped", "avx2",  "256", "32", 0, 0, 0},
+        //{nw_striped_avx2_256_16,    "nw", "striped", "avx2",  "256", "16", 0, 0, 0},
+        //{nw_striped_avx2_256_8,     "nw", "striped", "avx2",  "256", "8",  0, 0, 0},
 #endif                             
 
-        {sg,                        "sg", "",     "",      "",    "",   0, 1},
-        {sg_scan,                   "sg", "scan", "",      "",    "",   0, 0},
+        {sg,                        "sg", "",     "",      "",    "",   0, 0, 1},
+        {sg_scan,                   "sg", "scan", "",      "",    "",   0, 0, 0},
 #if HAVE_SSE2                      
-        {sg_scan_sse2_128_32,       "sg", "scan",    "sse2",  "128", "32", 0, 0},
-        {sg_scan_sse2_128_16,       "sg", "scan",    "sse2",  "128", "16", 0, 0},
-        {sg_scan_sse2_128_8,        "sg", "scan",    "sse2",  "128", "8",  0, 0},
-        {sg_diag_sse2_128_32,       "sg", "diag",    "sse2",  "128", "32", 0, 0},
-        {sg_diag_sse2_128_16,       "sg", "diag",    "sse2",  "128", "16", 0, 0},
-        {sg_diag_sse2_128_8,        "sg", "diag",    "sse2",  "128", "8",  0, 0},
-        {sg_striped_sse2_128_32,    "sg", "striped", "sse2",  "128", "32", 0, 0},
-        {sg_striped_sse2_128_16,    "sg", "striped", "sse2",  "128", "16", 0, 0},
-        {sg_striped_sse2_128_8,     "sg", "striped", "sse2",  "128", "8",  0, 0},
+        {sg_scan_sse2_128_32,       "sg", "scan",    "sse2",  "128", "32", 0, 0, 0},
+        {sg_scan_sse2_128_16,       "sg", "scan",    "sse2",  "128", "16", 0, 0, 0},
+        {sg_scan_sse2_128_8,        "sg", "scan",    "sse2",  "128", "8",  0, 0, 0},
+        {sg_diag_sse2_128_32,       "sg", "diag",    "sse2",  "128", "32", 0, 0, 0},
+        {sg_diag_sse2_128_16,       "sg", "diag",    "sse2",  "128", "16", 0, 0, 0},
+        {sg_diag_sse2_128_8,        "sg", "diag",    "sse2",  "128", "8",  0, 0, 0},
+        {sg_striped_sse2_128_32,    "sg", "striped", "sse2",  "128", "32", 0, 0, 0},
+        {sg_striped_sse2_128_16,    "sg", "striped", "sse2",  "128", "16", 0, 0, 0},
+        {sg_striped_sse2_128_8,     "sg", "striped", "sse2",  "128", "8",  0, 0, 0},
 #endif                             
 #if HAVE_SSE41
-        {sg_scan_sse41_128_32,      "sg", "scan",    "sse41", "128", "32", 0, 0},
-        {sg_scan_sse41_128_16,      "sg", "scan",    "sse41", "128", "16", 0, 0},
-        {sg_scan_sse41_128_8,       "sg", "scan",    "sse41", "128", "8",  0, 0},
-        {sg_diag_sse41_128_32,      "sg", "diag",    "sse41", "128", "32", 0, 0},
-        {sg_diag_sse41_128_16,      "sg", "diag",    "sse41", "128", "16", 0, 0},
-        {sg_diag_sse41_128_8,       "sg", "diag",    "sse41", "128", "8",  0, 0},
-        {sg_striped_sse41_128_32,   "sg", "striped", "sse41", "128", "32", 0, 0},
-        {sg_striped_sse41_128_16,   "sg", "striped", "sse41", "128", "16", 0, 0},
-        {sg_striped_sse41_128_8,    "sg", "striped", "sse41", "128", "8",  0, 0},
+        {sg_scan_sse41_128_32,      "sg", "scan",    "sse41", "128", "32", 0, 0, 0},
+        {sg_scan_sse41_128_16,      "sg", "scan",    "sse41", "128", "16", 0, 0, 0},
+        {sg_scan_sse41_128_8,       "sg", "scan",    "sse41", "128", "8",  0, 0, 0},
+        {sg_diag_sse41_128_32,      "sg", "diag",    "sse41", "128", "32", 0, 0, 0},
+        {sg_diag_sse41_128_16,      "sg", "diag",    "sse41", "128", "16", 0, 0, 0},
+        {sg_diag_sse41_128_8,       "sg", "diag",    "sse41", "128", "8",  0, 0, 0},
+        {sg_striped_sse41_128_32,   "sg", "striped", "sse41", "128", "32", 0, 0, 0},
+        {sg_striped_sse41_128_16,   "sg", "striped", "sse41", "128", "16", 0, 0, 0},
+        {sg_striped_sse41_128_8,    "sg", "striped", "sse41", "128", "8",  0, 0, 0},
 #endif
 
-        {sw,                        "sw", "",     "",      "",    "",   0, 1},
-        {sw_scan,                   "sw", "scan", "",      "",    "",   0, 0},
+        {sw,                        "sw", "",     "",      "",    "",   0, 0, 1},
+        {sw_scan,                   "sw", "scan", "",      "",    "",   0, 0, 0},
 #if HAVE_SSE2
-        {sw_scan_sse2_128_32,       "sw", "scan",    "sse2",  "128", "32", 0, 0},
-        {sw_scan_sse2_128_16,       "sw", "scan",    "sse2",  "128", "16", 0, 0},
-        {sw_scan_sse2_128_8,        "sw", "scan",    "sse2",  "128", "8",  0, 0},
-        {sw_diag_sse2_128_32,       "sw", "diag",    "sse2",  "128", "32", 0, 0},
-        {sw_diag_sse2_128_16,       "sw", "diag",    "sse2",  "128", "16", 0, 0},
-        {sw_diag_sse2_128_8,        "sw", "diag",    "sse2",  "128", "8",  0, 0},
-        {sw_striped_sse2_128_32,    "sw", "striped", "sse2",  "128", "32", 0, 0},
-        {sw_striped_sse2_128_16,    "sw", "striped", "sse2",  "128", "16", 0, 0},
-        {sw_striped_sse2_128_8,     "sw", "striped", "sse2",  "128", "8",  0, 0},
+        {sw_scan_sse2_128_32,       "sw", "scan",    "sse2",  "128", "32", 0, 0, 0},
+        {sw_scan_sse2_128_16,       "sw", "scan",    "sse2",  "128", "16", 0, 0, 0},
+        {sw_scan_sse2_128_8,        "sw", "scan",    "sse2",  "128", "8",  0, 0, 0},
+        {sw_diag_sse2_128_32,       "sw", "diag",    "sse2",  "128", "32", 0, 0, 0},
+        {sw_diag_sse2_128_16,       "sw", "diag",    "sse2",  "128", "16", 0, 0, 0},
+        {sw_diag_sse2_128_8,        "sw", "diag",    "sse2",  "128", "8",  0, 0, 0},
+        {sw_striped_sse2_128_32,    "sw", "striped", "sse2",  "128", "32", 0, 0, 0},
+        {sw_striped_sse2_128_16,    "sw", "striped", "sse2",  "128", "16", 0, 0, 0},
+        {sw_striped_sse2_128_8,     "sw", "striped", "sse2",  "128", "8",  0, 0, 0},
 #endif                             
 #if HAVE_SSE41
-        {sw_scan_sse41_128_32,      "sw", "scan",    "sse41", "128", "32", 0, 0},
-        {sw_scan_sse41_128_16,      "sw", "scan",    "sse41", "128", "16", 0, 0},
-        {sw_scan_sse41_128_8,       "sw", "scan",    "sse41", "128", "8",  0, 0},
-        {sw_diag_sse41_128_32,      "sw", "diag",    "sse41", "128", "32", 0, 0},
-        {sw_diag_sse41_128_16,      "sw", "diag",    "sse41", "128", "16", 0, 0},
-        {sw_diag_sse41_128_8,       "sw", "diag",    "sse41", "128", "8",  0, 0},
-        {sw_striped_sse41_128_32,   "sw", "striped", "sse41", "128", "32", 0, 0},
-        {sw_striped_sse41_128_16,   "sw", "striped", "sse41", "128", "16", 0, 0},
-        {sw_striped_sse41_128_8,    "sw", "striped", "sse41", "128", "8",  0, 0},
+        {sw_scan_sse41_128_32,      "sw", "scan",    "sse41", "128", "32", 0, 0, 0},
+        {sw_scan_sse41_128_16,      "sw", "scan",    "sse41", "128", "16", 0, 0, 0},
+        {sw_scan_sse41_128_8,       "sw", "scan",    "sse41", "128", "8",  0, 0, 0},
+        {sw_diag_sse41_128_32,      "sw", "diag",    "sse41", "128", "32", 0, 0, 0},
+        {sw_diag_sse41_128_16,      "sw", "diag",    "sse41", "128", "16", 0, 0, 0},
+        {sw_diag_sse41_128_8,       "sw", "diag",    "sse41", "128", "8",  0, 0, 0},
+        {sw_striped_sse41_128_32,   "sw", "striped", "sse41", "128", "32", 0, 0, 0},
+        {sw_striped_sse41_128_16,   "sw", "striped", "sse41", "128", "16", 0, 0, 0},
+        {sw_striped_sse41_128_8,    "sw", "striped", "sse41", "128", "8",  0, 0, 0},
 #endif
                                    
-        {nw_table,                  "nw", "",     "",      "",    "",   1, 1},
-        {nw_table_scan,             "nw", "scan", "",      "",    "",   1, 0},
+        {nw_table,                  "nw", "",     "",      "",    "",   1, 0, 1},
+        {nw_table_scan,             "nw", "scan", "",      "",    "",   1, 0, 0},
 #if HAVE_SSE2
-        {nw_table_scan_sse2_128_32,    "nw", "scan",    "sse2",  "128", "32", 1, 0},
-        {nw_table_scan_sse2_128_16,    "nw", "scan",    "sse2",  "128", "16", 1, 0},
-        {nw_table_scan_sse2_128_8,     "nw", "scan",    "sse2",  "128", "8",  1, 0},
-        {nw_table_diag_sse2_128_32,    "nw", "diag",    "sse2",  "128", "32", 1, 0},
-        {nw_table_diag_sse2_128_16,    "nw", "diag",    "sse2",  "128", "16", 1, 0},
-        {nw_table_diag_sse2_128_8,     "nw", "diag",    "sse2",  "128", "8",  1, 0},
-        {nw_table_striped_sse2_128_32, "nw", "striped", "sse2",  "128", "32", 1, 0},
-        {nw_table_striped_sse2_128_16, "nw", "striped", "sse2",  "128", "16", 1, 0},
-        {nw_table_striped_sse2_128_8,  "nw", "striped", "sse2",  "128", "8",  1, 0},
+        {nw_table_scan_sse2_128_32,    "nw", "scan",    "sse2",  "128", "32", 1, 0, 0},
+        {nw_table_scan_sse2_128_16,    "nw", "scan",    "sse2",  "128", "16", 1, 0, 0},
+        {nw_table_scan_sse2_128_8,     "nw", "scan",    "sse2",  "128", "8",  1, 0, 0},
+        {nw_table_diag_sse2_128_32,    "nw", "diag",    "sse2",  "128", "32", 1, 0, 0},
+        {nw_table_diag_sse2_128_16,    "nw", "diag",    "sse2",  "128", "16", 1, 0, 0},
+        {nw_table_diag_sse2_128_8,     "nw", "diag",    "sse2",  "128", "8",  1, 0, 0},
+        {nw_table_striped_sse2_128_32, "nw", "striped", "sse2",  "128", "32", 1, 0, 0},
+        {nw_table_striped_sse2_128_16, "nw", "striped", "sse2",  "128", "16", 1, 0, 0},
+        {nw_table_striped_sse2_128_8,  "nw", "striped", "sse2",  "128", "8",  1, 0, 0},
 #endif
 #if HAVE_SSE41
-        {nw_table_scan_sse41_128_32,    "nw", "scan",    "sse41", "128", "32", 1, 0},
-        {nw_table_scan_sse41_128_16,    "nw", "scan",    "sse41", "128", "16", 1, 0},
-        {nw_table_scan_sse41_128_8,     "nw", "scan",    "sse41", "128", "8",  1, 0},
-        {nw_table_diag_sse41_128_32,    "nw", "diag",    "sse41", "128", "32", 1, 0},
-        {nw_table_diag_sse41_128_16,    "nw", "diag",    "sse41", "128", "16", 1, 0},
-        {nw_table_diag_sse41_128_8,     "nw", "diag",    "sse41", "128", "8",  1, 0},
-        {nw_table_striped_sse41_128_32, "nw", "striped", "sse41", "128", "32", 1, 0},
-        {nw_table_striped_sse41_128_16, "nw", "striped", "sse41", "128", "16", 1, 0},
-        {nw_table_striped_sse41_128_8,  "nw", "striped", "sse41", "128", "8",  1, 0},
+        {nw_table_scan_sse41_128_32,    "nw", "scan",    "sse41", "128", "32", 1, 0, 0},
+        {nw_table_scan_sse41_128_16,    "nw", "scan",    "sse41", "128", "16", 1, 0, 0},
+        {nw_table_scan_sse41_128_8,     "nw", "scan",    "sse41", "128", "8",  1, 0, 0},
+        {nw_table_diag_sse41_128_32,    "nw", "diag",    "sse41", "128", "32", 1, 0, 0},
+        {nw_table_diag_sse41_128_16,    "nw", "diag",    "sse41", "128", "16", 1, 0, 0},
+        {nw_table_diag_sse41_128_8,     "nw", "diag",    "sse41", "128", "8",  1, 0, 0},
+        {nw_table_striped_sse41_128_32, "nw", "striped", "sse41", "128", "32", 1, 0, 0},
+        {nw_table_striped_sse41_128_16, "nw", "striped", "sse41", "128", "16", 1, 0, 0},
+        {nw_table_striped_sse41_128_8,  "nw", "striped", "sse41", "128", "8",  1, 0, 0},
 #endif
 
-        {sg_table,                  "sg", "",     "",     "",    "",   1, 1},
-        {sg_table_scan,             "sg", "scan", "",     "",    "",   1, 0},
+        {sg_table,                  "sg", "",     "",     "",    "",   1, 0, 1},
+        {sg_table_scan,             "sg", "scan", "",     "",    "",   1, 0, 0},
 #if HAVE_SSE2
-        {sg_table_scan_sse2_128_32,    "sg", "scan",    "sse2", "128", "32", 1, 0},
-        {sg_table_scan_sse2_128_16,    "sg", "scan",    "sse2", "128", "16", 1, 0},
-        {sg_table_scan_sse2_128_8,     "sg", "scan",    "sse2", "128", "8",  1, 0},
-        {sg_table_diag_sse2_128_32,    "sg", "diag",    "sse2", "128", "32", 1, 0},
-        {sg_table_diag_sse2_128_16,    "sg", "diag",    "sse2", "128", "16", 1, 0},
-        {sg_table_diag_sse2_128_8,     "sg", "diag",    "sse2", "128", "8",  1, 0},
-        {sg_table_striped_sse2_128_32, "sg", "striped", "sse2", "128", "32", 1, 0},
-        {sg_table_striped_sse2_128_16, "sg", "striped", "sse2", "128", "16", 1, 0},
-        {sg_table_striped_sse2_128_8,  "sg", "striped", "sse2", "128", "8",  1, 0},
+        {sg_table_scan_sse2_128_32,    "sg", "scan",    "sse2", "128", "32", 1, 0, 0},
+        {sg_table_scan_sse2_128_16,    "sg", "scan",    "sse2", "128", "16", 1, 0, 0},
+        {sg_table_scan_sse2_128_8,     "sg", "scan",    "sse2", "128", "8",  1, 0, 0},
+        {sg_table_diag_sse2_128_32,    "sg", "diag",    "sse2", "128", "32", 1, 0, 0},
+        {sg_table_diag_sse2_128_16,    "sg", "diag",    "sse2", "128", "16", 1, 0, 0},
+        {sg_table_diag_sse2_128_8,     "sg", "diag",    "sse2", "128", "8",  1, 0, 0},
+        {sg_table_striped_sse2_128_32, "sg", "striped", "sse2", "128", "32", 1, 0, 0},
+        {sg_table_striped_sse2_128_16, "sg", "striped", "sse2", "128", "16", 1, 0, 0},
+        {sg_table_striped_sse2_128_8,  "sg", "striped", "sse2", "128", "8",  1, 0, 0},
 #endif
 #if HAVE_SSE41
-        {sg_table_scan_sse41_128_32,   "sg", "scan",    "sse41", "128", "32", 1, 0},
-        {sg_table_scan_sse41_128_16,   "sg", "scan",    "sse41", "128", "16", 1, 0},
-        {sg_table_scan_sse41_128_8,    "sg", "scan",    "sse41", "128", "8",  1, 0},
-        {sg_table_diag_sse41_128_32,   "sg", "diag",    "sse41", "128", "32", 1, 0},
-        {sg_table_diag_sse41_128_16,   "sg", "diag",    "sse41", "128", "16", 1, 0},
-        {sg_table_diag_sse41_128_8,    "sg", "diag",    "sse41", "128", "8",  1, 0},
-        {sg_table_striped_sse41_128_32,"sg", "striped", "sse41", "128", "32", 1, 0},
-        {sg_table_striped_sse41_128_16,"sg", "striped", "sse41", "128", "16", 1, 0},
-        {sg_table_striped_sse41_128_8, "sg", "striped", "sse41", "128", "8",  1, 0},
+        {sg_table_scan_sse41_128_32,   "sg", "scan",    "sse41", "128", "32", 1, 0, 0},
+        {sg_table_scan_sse41_128_16,   "sg", "scan",    "sse41", "128", "16", 1, 0, 0},
+        {sg_table_scan_sse41_128_8,    "sg", "scan",    "sse41", "128", "8",  1, 0, 0},
+        {sg_table_diag_sse41_128_32,   "sg", "diag",    "sse41", "128", "32", 1, 0, 0},
+        {sg_table_diag_sse41_128_16,   "sg", "diag",    "sse41", "128", "16", 1, 0, 0},
+        {sg_table_diag_sse41_128_8,    "sg", "diag",    "sse41", "128", "8",  1, 0, 0},
+        {sg_table_striped_sse41_128_32,"sg", "striped", "sse41", "128", "32", 1, 0, 0},
+        {sg_table_striped_sse41_128_16,"sg", "striped", "sse41", "128", "16", 1, 0, 0},
+        {sg_table_striped_sse41_128_8, "sg", "striped", "sse41", "128", "8",  1, 0, 0},
 #endif
 
-        {sw_table,                  "sw", "",     "",     "",    "",   1, 1},
-        {sw_table_scan,             "sw", "scan", "",     "",    "",   1, 0},
+        {sw_table,                  "sw", "",     "",     "",    "",   1, 0, 1},
+        {sw_table_scan,             "sw", "scan", "",     "",    "",   1, 0, 0},
 #if HAVE_SSE2
-        {sw_table_scan_sse2_128_32,    "sw", "scan",    "sse2", "128", "32", 1, 0},
-        {sw_table_scan_sse2_128_16,    "sw", "scan",    "sse2", "128", "16", 1, 0},
-        {sw_table_scan_sse2_128_8,     "sw", "scan",    "sse2", "128", "8",  1, 0},
-        {sw_table_diag_sse2_128_32,    "sw", "diag",    "sse2", "128", "32", 1, 0},
-        {sw_table_diag_sse2_128_16,    "sw", "diag",    "sse2", "128", "16", 1, 0},
-        {sw_table_diag_sse2_128_8,     "sw", "diag",    "sse2", "128", "8",  1, 0},
-        {sw_table_striped_sse2_128_32, "sw", "striped", "sse2", "128", "32", 1, 0},
-        {sw_table_striped_sse2_128_16, "sw", "striped", "sse2", "128", "16", 1, 0},
-        {sw_table_striped_sse2_128_8,  "sw", "striped", "sse2", "128", "8",  1, 0},
+        {sw_table_scan_sse2_128_32,    "sw", "scan",    "sse2", "128", "32", 1, 0, 0},
+        {sw_table_scan_sse2_128_16,    "sw", "scan",    "sse2", "128", "16", 1, 0, 0},
+        {sw_table_scan_sse2_128_8,     "sw", "scan",    "sse2", "128", "8",  1, 0, 0},
+        {sw_table_diag_sse2_128_32,    "sw", "diag",    "sse2", "128", "32", 1, 0, 0},
+        {sw_table_diag_sse2_128_16,    "sw", "diag",    "sse2", "128", "16", 1, 0, 0},
+        {sw_table_diag_sse2_128_8,     "sw", "diag",    "sse2", "128", "8",  1, 0, 0},
+        {sw_table_striped_sse2_128_32, "sw", "striped", "sse2", "128", "32", 1, 0, 0},
+        {sw_table_striped_sse2_128_16, "sw", "striped", "sse2", "128", "16", 1, 0, 0},
+        {sw_table_striped_sse2_128_8,  "sw", "striped", "sse2", "128", "8",  1, 0, 0},
 #endif
 #if HAVE_SSE41
-        {sw_table_scan_sse41_128_32,    "sw", "scan",    "sse41", "128", "32", 1, 0},
-        {sw_table_scan_sse41_128_16,    "sw", "scan",    "sse41", "128", "16", 1, 0},
-        {sw_table_scan_sse41_128_8,     "sw", "scan",    "sse41", "128", "8",  1, 0},
-        {sw_table_diag_sse41_128_32,    "sw", "diag",    "sse41", "128", "32", 1, 0},
-        {sw_table_diag_sse41_128_16,    "sw", "diag",    "sse41", "128", "16", 1, 0},
-        {sw_table_diag_sse41_128_8,     "sw", "diag",    "sse41", "128", "8",  1, 0},
-        {sw_table_striped_sse41_128_32, "sw", "striped", "sse41", "128", "32", 1, 0},
-        {sw_table_striped_sse41_128_16, "sw", "striped", "sse41", "128", "16", 1, 0},
-        {sw_table_striped_sse41_128_8,  "sw", "striped", "sse41", "128", "8",  1, 0},
+        {sw_table_scan_sse41_128_32,    "sw", "scan",    "sse41", "128", "32", 1, 0, 0},
+        {sw_table_scan_sse41_128_16,    "sw", "scan",    "sse41", "128", "16", 1, 0, 0},
+        {sw_table_scan_sse41_128_8,     "sw", "scan",    "sse41", "128", "8",  1, 0, 0},
+        {sw_table_diag_sse41_128_32,    "sw", "diag",    "sse41", "128", "32", 1, 0, 0},
+        {sw_table_diag_sse41_128_16,    "sw", "diag",    "sse41", "128", "16", 1, 0, 0},
+        {sw_table_diag_sse41_128_8,     "sw", "diag",    "sse41", "128", "8",  1, 0, 0},
+        {sw_table_striped_sse41_128_32, "sw", "striped", "sse41", "128", "32", 1, 0, 0},
+        {sw_table_striped_sse41_128_16, "sw", "striped", "sse41", "128", "16", 1, 0, 0},
+        {sw_table_striped_sse41_128_8,  "sw", "striped", "sse41", "128", "8",  1, 0, 0},
 #endif
 
-        {nw_stats,                  "nw_stats", "",     "",     "",    "",   0, 1},
-        {nw_stats_scan,             "nw_stats", "scan", "",     "",    "",   0, 0},
+        {nw_stats,                        "nw_stats", "",     "",     "",    "",   0, 1, 1},
+        {nw_stats_scan,                   "nw_stats", "scan", "",     "",    "",   0, 1, 0},
+#if HAVE_SSE2                      
+        //{nw_stats_scan_sse2_128_32,       "nw_stats", "scan",    "sse2",  "128", "32", 0, 1, 0},
+        {nw_stats_scan_sse2_128_16,       "nw_stats", "scan",    "sse2",  "128", "16", 0, 1, 0},
+        //{nw_stats_scan_sse2_128_8,        "nw_stats", "scan",    "sse2",  "128", "8",  0, 1, 0},
+        //{nw_stats_diag_sse2_128_32,       "nw_stats", "diag",    "sse2",  "128", "32", 0, 1, 0},
+        //{nw_stats_diag_sse2_128_16,       "nw_stats", "diag",    "sse2",  "128", "16", 0, 1, 0},
+        //{nw_stats_diag_sse2_128_8,        "nw_stats", "diag",    "sse2",  "128", "8",  0, 1, 0},
+        //{nw_stats_striped_sse2_128_32,    "nw_stats", "striped", "sse2",  "128", "32", 0, 1, 0},
+        //{nw_stats_striped_sse2_128_16,    "nw_stats", "striped", "sse2",  "128", "16", 0, 1, 0},
+        //{nw_stats_striped_sse2_128_8,     "nw_stats", "striped", "sse2",  "128", "8",  0, 1, 0},
+#endif                             
+#if HAVE_SSE41
+        //{nw_stats_scan_sse41_128_32,      "nw_stats", "scan",    "sse41", "128", "32", 0, 1, 0},
+        //{nw_stats_scan_sse41_128_16,      "nw_stats", "scan",    "sse41", "128", "16", 0, 1, 0},
+        //{nw_stats_scan_sse41_128_8,       "nw_stats", "scan",    "sse41", "128", "8",  0, 1, 0},
+        //{nw_stats_diag_sse41_128_32,      "nw_stats", "diag",    "sse41", "128", "32", 0, 1, 0},
+        //{nw_stats_diag_sse41_128_16,      "nw_stats", "diag",    "sse41", "128", "16", 0, 1, 0},
+        //{nw_stats_diag_sse41_128_8,       "nw_stats", "diag",    "sse41", "128", "8",  0, 1, 0},
+        //{nw_stats_striped_sse41_128_32,   "nw_stats", "striped", "sse41", "128", "32", 0, 1, 0},
+        //{nw_stats_striped_sse41_128_16,   "nw_stats", "striped", "sse41", "128", "16", 0, 1, 0},
+        //{nw_stats_striped_sse41_128_8,    "nw_stats", "striped", "sse41", "128", "8",  0, 1, 0},
+#endif
                                    
-        {sg_stats,                  "sg_stats", "",     "",     "",    "",   0, 1},
-        {sg_stats_scan,             "sg_stats", "scan", "",     "",    "",   0, 0},
+        {sg_stats,                  "sg_stats", "",     "",     "",    "",   0, 1, 1},
+        {sg_stats_scan,             "sg_stats", "scan", "",     "",    "",   0, 1, 0},
                                    
-        {sw_stats,                  "sw_stats", "",     "",     "",    "",   0, 1},
-        {sw_stats_scan,             "sw_stats", "scan", "",     "",    "",   0, 0},
+        {sw_stats,                  "sw_stats", "",     "",     "",    "",   0, 1, 1},
+        {sw_stats_scan,             "sw_stats", "scan", "",     "",    "",   0, 1, 0},
                                    
-        {nw_stats_table,            "nw_stats", "",     "",     "",    "",   1, 1},
-        {nw_stats_table_scan,       "nw_stats", "scan", "",     "",    "",   1, 0},
+        {nw_stats_table,            "nw_stats", "",     "",     "",    "",   1, 1, 1},
+        {nw_stats_table_scan,       "nw_stats", "scan", "",     "",    "",   1, 1, 0},
+#if HAVE_SSE2                      
+        //{nw_stats_table_scan_sse2_128_32,       "nw_stats", "scan",    "sse2",  "128", "32", 1, 1, 0},
+        {nw_stats_table_scan_sse2_128_16,       "nw_stats", "scan",    "sse2",  "128", "16", 1, 1, 0},
+        //{nw_stats_table_scan_sse2_128_8,        "nw_stats", "scan",    "sse2",  "128", "8",  1, 1, 0},
+        //{nw_stats_table_diag_sse2_128_32,       "nw_stats", "diag",    "sse2",  "128", "32", 1, 1, 0},
+        //{nw_stats_table_diag_sse2_128_16,       "nw_stats", "diag",    "sse2",  "128", "16", 1, 1, 0},
+        //{nw_stats_table_diag_sse2_128_8,        "nw_stats", "diag",    "sse2",  "128", "8",  1, 1, 0},
+        //{nw_stats_table_striped_sse2_128_32,    "nw_stats", "striped", "sse2",  "128", "32", 1, 1, 0},
+        //{nw_stats_table_striped_sse2_128_16,    "nw_stats", "striped", "sse2",  "128", "16", 1, 1, 0},
+        //{nw_stats_table_striped_sse2_128_8,     "nw_stats", "striped", "sse2",  "128", "8",  1, 1, 0},
+#endif                             
+#if HAVE_SSE41
+        //{nw_stats_table_scan_sse41_128_32,      "nw_stats", "scan",    "sse41", "128", "32", 1, 1, 0},
+        //{nw_stats_table_scan_sse41_128_16,      "nw_stats", "scan",    "sse41", "128", "16", 1, 1, 0},
+        //{nw_stats_table_scan_sse41_128_8,       "nw_stats", "scan",    "sse41", "128", "8",  1, 1, 0},
+        //{nw_stats_table_diag_sse41_128_32,      "nw_stats", "diag",    "sse41", "128", "32", 1, 1, 0},
+        //{nw_stats_table_diag_sse41_128_16,      "nw_stats", "diag",    "sse41", "128", "16", 1, 1, 0},
+        //{nw_stats_table_diag_sse41_128_8,       "nw_stats", "diag",    "sse41", "128", "8",  1, 1, 0},
+        //{nw_stats_table_striped_sse41_128_32,   "nw_stats", "striped", "sse41", "128", "32", 1, 1, 0},
+        //{nw_stats_table_striped_sse41_128_16,   "nw_stats", "striped", "sse41", "128", "16", 1, 1, 0},
+        //{nw_stats_table_striped_sse41_128_8,    "nw_stats", "striped", "sse41", "128", "8",  1, 1, 0},
+#endif
 
-        {sg_stats_table,            "sg_stats", "",     "",     "",    "",   1, 1},
-        {sg_stats_table_scan,       "sg_stats", "scan", "",     "",    "",   1, 0},
+        {sg_stats_table,            "sg_stats", "",     "",     "",    "",   1, 1, 1},
+        {sg_stats_table_scan,       "sg_stats", "scan", "",     "",    "",   1, 1, 0},
 
-        {sw_stats_table,            "sw_stats", "",     "",     "",    "",   1, 1},
-        {sw_stats_table_scan,       "sw_stats", "scan", "",     "",    "",   1, 0},
+        {sw_stats_table,            "sw_stats", "",     "",     "",    "",   1, 1, 1},
+        {sw_stats_table_scan,       "sw_stats", "scan", "",     "",    "",   1, 1, 0},
 
-        {NULL, "", "", "", "", "", 0, 0}
+        {NULL, "", "", "", "", "", 0, 0, 0}
     };
 
     timer_init();
@@ -282,6 +327,8 @@ int main(int argc, char **argv)
             "score", "matches", "length",
             "avg", "imp", "stddev", "min", "max");
 
+    stats_clear(&stats_rdtsc);
+    stats_clear(&stats_nsecs);
     index = 0;
     f = functions[index++];
     while (f.f) {
@@ -310,8 +357,6 @@ int main(int argc, char **argv)
         }
         strcpy(name, f.alg);
         if (f.is_table) {
-            char *und = strrchr(f.alg, '_');
-            int is_stats = (und && !strcmp(und, "_stats"));
             char suffix[256] = {0};
             if (strlen(f.type)) {
                 strcat(suffix, "_");
@@ -338,14 +383,14 @@ int main(int argc, char **argv)
                 strcat(filename, suffix);
                 print_array(filename, result->score_table, seqA, lena, seqB, lenb);
             }
-            if (is_stats) {
+            if (f.is_stats) {
                 char filename[256];
                 strcpy(filename, f.alg);
                 strcat(filename, "_mch");
                 strcat(filename, suffix);
                 print_array(filename, result->matches_table, seqA, lena, seqB, lenb);
             }
-            if (is_stats) {
+            if (f.is_stats) {
                 char filename[256];
                 strcpy(filename, f.alg);
                 strcat(filename, "_len");

@@ -30,5 +30,6 @@ typedef union __m256i_32 {
 } __m256i_32_t;
 
 __m256i * parasail_memalign_m256i(size_t alignment, size_t size);
+void parasail_memset_m256i(__m256i *b, __m256i c, size_t len);
 
 #endif /* _PARASAIL_INTERNAL_AVX_H_ */

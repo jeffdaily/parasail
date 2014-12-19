@@ -23,17 +23,6 @@ typedef struct stats {
     double _max;
 } stats_t;
 
-static inline stats_t* stats_new() {
-    stats_t *stats = (stats_t*)malloc(sizeof(stats_t));
-    stats->_n = 0UL;
-    stats->_mean = 0.0;
-    stats->_M2 = 0.0;
-    stats->_sum = 0.0;
-    stats->_min = 0.0;
-    stats->_max = 0.0;
-    return stats;
-}
-
 static inline void stats_clear(stats_t *stats) {
     stats->_n = 0UL;
     stats->_mean = 0.0;
@@ -41,6 +30,12 @@ static inline void stats_clear(stats_t *stats) {
     stats->_sum = 0.0;
     stats->_min = 0.0;
     stats->_max = 0.0;
+}
+
+static inline stats_t* stats_new() {
+    stats_t *stats = (stats_t*)malloc(sizeof(stats_t));
+    stats_clear(stats);
+    return stats;
 }
 
 static inline void stats_sample_value(stats_t *stats, const double x) {

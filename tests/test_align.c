@@ -296,7 +296,7 @@ int main(int argc, char **argv)
 #if HAVE_SSE41
         //{sg_stats_scan_sse41_128_32,      "sg_stats", "scan",    "sse41", "128", "32", 0, 1, 0},
         //{sg_stats_scan_sse41_128_16,      "sg_stats", "scan",    "sse41", "128", "16", 0, 1, 0},
-        //{sg_stats_scan_sse41_128_8,       "sg_stats", "scan",    "sse41", "128", "8",  0, 1, 0},
+        {sg_stats_scan_sse41_128_8,       "sg_stats", "scan",    "sse41", "128", "8",  0, 1, 0},
         //{sg_stats_diag_sse41_128_32,      "sg_stats", "diag",    "sse41", "128", "32", 0, 1, 0},
         //{sg_stats_diag_sse41_128_16,      "sg_stats", "diag",    "sse41", "128", "16", 0, 1, 0},
         //{sg_stats_diag_sse41_128_8,       "sg_stats", "diag",    "sse41", "128", "8",  0, 1, 0},
@@ -349,7 +349,7 @@ int main(int argc, char **argv)
 #if HAVE_SSE41
         //{sg_stats_table_scan_sse41_128_32,      "sg_stats", "scan",    "sse41", "128", "32", 1, 1, 0},
         //{sg_stats_table_scan_sse41_128_16,      "sg_stats", "scan",    "sse41", "128", "16", 1, 1, 0},
-        //{sg_stats_table_scan_sse41_128_8,       "sg_stats", "scan",    "sse41", "128", "8",  1, 1, 0},
+        {sg_stats_table_scan_sse41_128_8,       "sg_stats", "scan",    "sse41", "128", "8",  1, 1, 0},
         //{sg_stats_table_diag_sse41_128_32,      "sg_stats", "diag",    "sse41", "128", "32", 1, 1, 0},
         //{sg_stats_table_diag_sse41_128_16,      "sg_stats", "diag",    "sse41", "128", "16", 1, 1, 0},
         //{sg_stats_table_diag_sse41_128_8,       "sg_stats", "diag",    "sse41", "128", "8",  1, 1, 0},

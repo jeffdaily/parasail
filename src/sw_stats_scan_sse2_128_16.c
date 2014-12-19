@@ -14,13 +14,10 @@
 
 #include <emmintrin.h>
 
-#ifdef PARASAIL_TABLE
-#include "align_scan_128_16_table.h"
-#else
-#include "align_scan_128_16.h"
-#endif
+#include "parasail.h"
+#include "parasail_internal.h"
+#include "parasail_internal_sse.h"
 #include "blosum/blosum_map.h"
-
 
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si128(
@@ -42,22 +39,6 @@ static inline void arr_store_si128(
 }
 #endif
 
-#define PARALLEL_PREFIX_OP(vFt, gap, segLen)            \
-{                                                       \
-    union {                                             \
-        __m128i m;                                      \
-        int16_t v[8];                                   \
-    } tmp;                                              \
-    tmp.m = vFt;                                        \
-    tmp.v[1] = MAX(tmp.v[0]-segLen*gap, tmp.v[1]);      \
-    tmp.v[2] = MAX(tmp.v[1]-segLen*gap, tmp.v[2]);      \
-    tmp.v[3] = MAX(tmp.v[2]-segLen*gap, tmp.v[3]);      \
-    tmp.v[4] = MAX(tmp.v[3]-segLen*gap, tmp.v[4]);      \
-    tmp.v[5] = MAX(tmp.v[4]-segLen*gap, tmp.v[5]);      \
-    tmp.v[6] = MAX(tmp.v[5]-segLen*gap, tmp.v[6]);      \
-    tmp.v[7] = MAX(tmp.v[6]-segLen*gap, tmp.v[7]);      \
-    vFt = tmp.m;                                        \
-}
 
 #ifdef PARASAIL_TABLE
 #define FNAME sw_stats_scan_128_16_table
@@ -225,7 +206,18 @@ int FNAME(
             vFt = _mm_max_epi16(vFt, vHt);
             vHt = _mm_load_si128(pvHt+i);
         }
-        PARALLEL_PREFIX_OP(vFt, gap, segLen)
+        {
+            __m128i_32_t tmp;
+            tmp.m = vFt;
+            tmp.v[1] = MAX(tmp.v[0]-segLen*gap, tmp.v[1]);
+            tmp.v[2] = MAX(tmp.v[1]-segLen*gap, tmp.v[2]);
+            tmp.v[3] = MAX(tmp.v[2]-segLen*gap, tmp.v[3]);
+            tmp.v[4] = MAX(tmp.v[3]-segLen*gap, tmp.v[4]);
+            tmp.v[5] = MAX(tmp.v[4]-segLen*gap, tmp.v[5]);
+            tmp.v[6] = MAX(tmp.v[5]-segLen*gap, tmp.v[6]);
+            tmp.v[7] = MAX(tmp.v[6]-segLen*gap, tmp.v[7]);
+            vFt = tmp.m;
+        }
             vHt = _mm_slli_si128(_mm_load_si128(pvHt+(segLen-1)), 2);
         vFt = _mm_slli_si128(vFt, 2);
         vFt = _mm_insert_epi16(vFt, NEG_INF_16, 0);

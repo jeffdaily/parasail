@@ -273,10 +273,7 @@ parasail_result_t* FNAME(
         {
             vLp = _mm_sub_epi16(vLp, vOne);
             {
-                union {
-                    __m128i m;
-                    int16_t v[8];
-                } uMp, uLp, uC;
+                __m128i_16_t uMp, uLp, uC;
                 uC.m = vC;
                 uMp.m = vMp;
                 uMp.v[1] = uC.v[1] ? uMp.v[0] : uMp.v[1];

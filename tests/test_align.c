@@ -258,9 +258,9 @@ int main(int argc, char **argv)
         {nw_stats,                        "nw_stats", "",     "",     "",    "",   0, 1, 1},
         {nw_stats_scan,                   "nw_stats", "scan", "",     "",    "",   0, 1, 0},
 #if HAVE_SSE2                      
-        //{nw_stats_scan_sse2_128_32,       "nw_stats", "scan",    "sse2",  "128", "32", 0, 1, 0},
+        {nw_stats_scan_sse2_128_32,       "nw_stats", "scan",    "sse2",  "128", "32", 0, 1, 0},
         {nw_stats_scan_sse2_128_16,       "nw_stats", "scan",    "sse2",  "128", "16", 0, 1, 0},
-        //{nw_stats_scan_sse2_128_8,        "nw_stats", "scan",    "sse2",  "128", "8",  0, 1, 0},
+        {nw_stats_scan_sse2_128_8,        "nw_stats", "scan",    "sse2",  "128", "8",  0, 1, 0},
         //{nw_stats_diag_sse2_128_32,       "nw_stats", "diag",    "sse2",  "128", "32", 0, 1, 0},
         //{nw_stats_diag_sse2_128_16,       "nw_stats", "diag",    "sse2",  "128", "16", 0, 1, 0},
         //{nw_stats_diag_sse2_128_8,        "nw_stats", "diag",    "sse2",  "128", "8",  0, 1, 0},
@@ -269,8 +269,8 @@ int main(int argc, char **argv)
         //{nw_stats_striped_sse2_128_8,     "nw_stats", "striped", "sse2",  "128", "8",  0, 1, 0},
 #endif                             
 #if HAVE_SSE41
-        //{nw_stats_scan_sse41_128_32,      "nw_stats", "scan",    "sse41", "128", "32", 0, 1, 0},
-        //{nw_stats_scan_sse41_128_16,      "nw_stats", "scan",    "sse41", "128", "16", 0, 1, 0},
+        {nw_stats_scan_sse41_128_32,      "nw_stats", "scan",    "sse41", "128", "32", 0, 1, 0},
+        {nw_stats_scan_sse41_128_16,      "nw_stats", "scan",    "sse41", "128", "16", 0, 1, 0},
         {nw_stats_scan_sse41_128_8,       "nw_stats", "scan",    "sse41", "128", "8",  0, 1, 0},
         //{nw_stats_diag_sse41_128_32,      "nw_stats", "diag",    "sse41", "128", "32", 0, 1, 0},
         //{nw_stats_diag_sse41_128_16,      "nw_stats", "diag",    "sse41", "128", "16", 0, 1, 0},
@@ -289,9 +289,9 @@ int main(int argc, char **argv)
         {nw_stats_table,            "nw_stats", "",     "",     "",    "",   1, 1, 1},
         {nw_stats_table_scan,       "nw_stats", "scan", "",     "",    "",   1, 1, 0},
 #if HAVE_SSE2                      
-        //{nw_stats_table_scan_sse2_128_32,       "nw_stats", "scan",    "sse2",  "128", "32", 1, 1, 0},
+        {nw_stats_table_scan_sse2_128_32,       "nw_stats", "scan",    "sse2",  "128", "32", 1, 1, 0},
         {nw_stats_table_scan_sse2_128_16,       "nw_stats", "scan",    "sse2",  "128", "16", 1, 1, 0},
-        //{nw_stats_table_scan_sse2_128_8,        "nw_stats", "scan",    "sse2",  "128", "8",  1, 1, 0},
+        {nw_stats_table_scan_sse2_128_8,        "nw_stats", "scan",    "sse2",  "128", "8",  1, 1, 0},
         //{nw_stats_table_diag_sse2_128_32,       "nw_stats", "diag",    "sse2",  "128", "32", 1, 1, 0},
         //{nw_stats_table_diag_sse2_128_16,       "nw_stats", "diag",    "sse2",  "128", "16", 1, 1, 0},
         //{nw_stats_table_diag_sse2_128_8,        "nw_stats", "diag",    "sse2",  "128", "8",  1, 1, 0},
@@ -300,8 +300,8 @@ int main(int argc, char **argv)
         //{nw_stats_table_striped_sse2_128_8,     "nw_stats", "striped", "sse2",  "128", "8",  1, 1, 0},
 #endif                             
 #if HAVE_SSE41
-        //{nw_stats_table_scan_sse41_128_32,      "nw_stats", "scan",    "sse41", "128", "32", 1, 1, 0},
-        //{nw_stats_table_scan_sse41_128_16,      "nw_stats", "scan",    "sse41", "128", "16", 1, 1, 0},
+        {nw_stats_table_scan_sse41_128_32,      "nw_stats", "scan",    "sse41", "128", "32", 1, 1, 0},
+        {nw_stats_table_scan_sse41_128_16,      "nw_stats", "scan",    "sse41", "128", "16", 1, 1, 0},
         {nw_stats_table_scan_sse41_128_8,       "nw_stats", "scan",    "sse41", "128", "8",  1, 1, 0},
         //{nw_stats_table_diag_sse41_128_32,      "nw_stats", "diag",    "sse41", "128", "32", 1, 1, 0},
         //{nw_stats_table_diag_sse41_128_16,      "nw_stats", "diag",    "sse41", "128", "16", 1, 1, 0},

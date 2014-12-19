@@ -13,7 +13,6 @@
 #include <stdlib.h>
 
 #include <emmintrin.h>
-#include <smmintrin.h>
 
 #include "parasail.h"
 #include "parasail_internal.h"
@@ -23,6 +22,28 @@
 #define NEG_INF_8 (INT8_MIN)
 #define MAX(a,b) ((a)>(b)?(a):(b))
 
+/* sse2 does not have _mm_insert_epi8, emulate it */
+static inline __m128i _mm_insert_epi8(__m128i a, int8_t i, int imm) {
+    __m128i_8_t tmp;
+    tmp.m = a;
+    tmp.v[imm] = i;
+    return tmp.m;
+}
+
+/* sse2 does not have _mm_extract_epi8, emulate it */
+static inline int8_t _mm_extract_epi8(__m128i a, int imm) {
+    __m128i_8_t tmp;
+    tmp.m = a;
+    return tmp.v[imm];
+}
+
+/* sse2 does not have _mm_max_epi8, emulate it */
+static inline __m128i _mm_max_epi8(__m128i a, __m128i b) {
+    __m128i mask = _mm_cmpgt_epi8(a,b);
+    a = _mm_and_si128(a,mask);
+    b = _mm_andnot_si128(mask,b);
+    return _mm_or_si128(a,b);
+}
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si128(
         int *array,
@@ -80,9 +101,9 @@ static inline void arr_store_si128_bias(
 #endif
 
 #ifdef PARASAIL_TABLE
-#define FNAME sw_stats_table_scan_sse41_128_8
+#define FNAME sw_stats_table_scan_sse2_128_8
 #else
-#define FNAME sw_stats_scan_sse41_128_8
+#define FNAME sw_stats_scan_sse2_128_8
 #endif
 
 parasail_result_t* FNAME(
@@ -249,12 +270,16 @@ parasail_result_t* FNAME(
             vM = _mm_load_si128(pvM+i);
             vL = _mm_load_si128(pvL+i);
             vL = _mm_adds_epi8(vL, vOne);
-            vMt = _mm_blendv_epi8(vMp, vM, vEx);
-            vLt = _mm_blendv_epi8(vLp, vL, vEx);
+            vMt = _mm_and_si128(vEx, vM);
+            vMt = _mm_or_si128(vMt, _mm_andnot_si128(vEx, vMp));
+            vLt = _mm_and_si128(vEx, vL);
+            vLt = _mm_or_si128(vLt, _mm_andnot_si128(vEx, vLp));
             cond_max = _mm_cmpeq_epi8(vHt, vZero);
             vEx = _mm_andnot_si128(cond_max, vEx);
-            vMt = _mm_blendv_epi8(vMt, vNegBias, cond_max);
-            vLt = _mm_blendv_epi8(vLt, vNegBias, cond_max);
+            vMt = _mm_andnot_si128(cond_max, vMt);
+            vMt = _mm_or_si128(vMt, _mm_and_si128(cond_max, vNegBias));
+            vLt = _mm_andnot_si128(cond_max, vLt);
+            vLt = _mm_or_si128(vLt, _mm_and_si128(cond_max, vNegBias));
             /* store results */
             _mm_store_si128(pvHt+i, vHt);
             _mm_store_si128(pvEx+i, vEx);
@@ -323,9 +348,11 @@ parasail_result_t* FNAME(
             vEx = _mm_or_si128(
                     _mm_and_si128(vEx, _mm_cmpeq_epi8(vHt, vFt)),
                     _mm_cmplt_epi8(vHt, vFt));
-            vM = _mm_blendv_epi8(vMt, vMp, vEx);
-            vL = _mm_blendv_epi8(vLt, vLp, vEx);
+            vM = _mm_and_si128(vEx, vMp);
+            vM = _mm_or_si128(vM, _mm_andnot_si128(vEx, vMt));
             vMp = vM;
+            vL = _mm_and_si128(vEx, vLp);
+            vL = _mm_or_si128(vL, _mm_andnot_si128(vEx, vLt));
             vLp = _mm_adds_epi8(vL, vOne);
             vC = _mm_and_si128(vC, vEx);
             /* store results */
@@ -402,9 +429,11 @@ parasail_result_t* FNAME(
             vEx = _mm_load_si128(pvEx+i);
             vMt = _mm_load_si128(pvMt+i);
             vLt = _mm_load_si128(pvLt+i);
-            vM = _mm_blendv_epi8(vMt, vMp, vEx);
-            vL = _mm_blendv_epi8(vLt, vLp, vEx);
+            vM = _mm_and_si128(vEx, vMp);
+            vM = _mm_or_si128(vM, _mm_andnot_si128(vEx, vMt));
             vMp = vM;
+            vL = _mm_and_si128(vEx, vLp);
+            vL = _mm_or_si128(vL, _mm_andnot_si128(vEx, vLt));
             vLp = _mm_adds_epi8(vL, vOne);
             /* store results */
             _mm_store_si128(pvM+i, vM);
@@ -431,9 +460,12 @@ parasail_result_t* FNAME(
                         _mm_cmplt_epi16(vQIndexHi16, vQLimit16));
                 __m128i cond_max = _mm_cmpgt_epi8(vH, vMaxH);
                 __m128i cond_all = _mm_and_si128(cond_max, cond_lmt);
-                vMaxH = _mm_blendv_epi8(vMaxH, vH, cond_all);
-                vMaxM = _mm_blendv_epi8(vMaxM, vM, cond_all);
-                vMaxL = _mm_blendv_epi8(vMaxL, vL, cond_all);
+                vMaxH = _mm_andnot_si128(cond_all, vMaxH);
+                vMaxH = _mm_or_si128(vMaxH, _mm_and_si128(cond_all, vH));
+                vMaxM = _mm_andnot_si128(cond_all, vMaxM);
+                vMaxM = _mm_or_si128(vMaxM, _mm_and_si128(cond_all, vM));
+                vMaxL = _mm_andnot_si128(cond_all, vMaxL);
+                vMaxL = _mm_or_si128(vMaxL, _mm_and_si128(cond_all, vL));
                 vQIndexLo16 = _mm_adds_epi16(vQIndexLo16, vOne16);
                 vQIndexHi16 = _mm_adds_epi16(vQIndexHi16, vOne16);
             }

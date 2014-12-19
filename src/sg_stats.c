@@ -31,7 +31,7 @@ parasail_result_t* ENAME(
         const int open, const int gap, const int matrix[24][24])
 {
 #if PARASAIL_TABLE
-    parasail_result_t *result = parasail_result_new_table4(s1Len, s2Len);
+    parasail_result_t *result = parasail_result_new_table3(s1Len, s2Len);
 #else
     parasail_result_t *result = parasail_result_new();
 #endif

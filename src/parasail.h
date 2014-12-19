@@ -17,11 +17,9 @@ extern "C" {
 typedef struct parasail_result {
     int score;
     int matches;
-    int similarities;
     int length;
     int * restrict score_table;
     int * restrict matches_table;
-    int * restrict similarities_table;
     int * restrict length_table;
 } parasail_result_t;
 

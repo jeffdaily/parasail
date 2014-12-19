@@ -30,6 +30,6 @@ void parasail_memset_int32_t(int32_t *b, int32_t c, size_t len);
 
 parasail_result_t* parasail_result_new();
 parasail_result_t* parasail_result_new_table1(const int a, const int b);
-parasail_result_t* parasail_result_new_table4(const int a, const int b);
+parasail_result_t* parasail_result_new_table3(const int a, const int b);
 
 #endif /* _PARASAIL_INTERNAL_H_ */

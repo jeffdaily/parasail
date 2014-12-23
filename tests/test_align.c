@@ -69,8 +69,14 @@ int main(int argc, char **argv)
 {
     const char *seqA = "MEFYDVAVTVGMLCIIIYLLLVRQFRYWTERNVPQLNPHLLFGDVRDVNKTHHIGEKFRQLYNELKGKHPFGGIYMFTKPVALVTDLELVKNVFVKDFQYFHDRGTYYDEKHDPLSAHLFNLEGYKWKSLRNKITPTFTSGKMKMMFPTVAAAGKQFKDYLEDAIGEQEEFELKELLARYTTDVIGTCAFGIECNSMRNPNAEFRVMGKKIFGRSRSNLQLLLMNAFPSVAKLVGIKLILPEVSDFFMNAVRDTIKYRVENNVQRNDFMDILIRMRSDKETKSDDGTLTFHEIAAQAFVFFVAGFETSSSLMAFTLYELALDQDMQDKARKCVTDVLERHNGELTYEAAMEMDYLDCVLKGWVR";
     const char *seqB = "AALGVAARAGFLAAGFASSSELSSELSSEDSAAFLAAAAGVAAFAGVFTIAAFGVAATADLLAAGLHSSSELSSELSSEDSAAFFAATAGVAALAGVLAAAAAFGVAATADFFAAGLESSSELSSELSSDDSAVFFAAAAGVATFAGVLAAAATFGVAACAGFFAAGLDSSSELSSELSSEDSAAFFAAAAGVATFTGVLAAAAACAAAACVGFFAAGLDSSSELSSELSSEDSAAFFAAAAGVAALAGVLAAAAACAGFFAAGLESSSELSSE";
-    //const char *seqA = "MEFYDVAVTV";
-    //const char *seqB = "AALGVAARAGFLAAGFASSS";
+    //const char *seqA = "MEFYDVAVTV"
+    //                   "MEFYDVAVTV"
+    //                   "MEFYDVAVTV"
+    //                   "MEFYDVAVTV";
+    //const char *seqB = "AALGVAARAGFLAAGFASSS"
+    //                   "AALGVAARAGFLAAGFASSS"
+    //                   "AALGVAARAGFLAAGFASSS"
+    //                   "AALGVAARAGFLAAGFASSS";
     const int lena = strlen(seqA);
     const int lenb = strlen(seqB);
     int score;
@@ -84,7 +90,8 @@ int main(int argc, char **argv)
     double timer_nsecs_ref_mean;
     //size_t limit = 1000;
     //size_t limit = 500;
-    size_t limit = 100;
+    //size_t limit = 100;
+    size_t limit = 2;
     //size_t limit = 1;
     size_t i;
     size_t index;
@@ -120,8 +127,8 @@ int main(int argc, char **argv)
 #endif
 #if HAVE_AVX2
         {nw_scan_avx2_256_32,       "nw", "scan",    "avx2",  "256", "32", 0, 0, 0},
-        //{nw_scan_avx2_256_16,       "nw", "scan",    "avx2",  "256", "16", 0, 0, 0},
-        //{nw_scan_avx2_256_8,        "nw", "scan",    "avx2",  "256", "8",  0, 0, 0},
+        {nw_scan_avx2_256_16,       "nw", "scan",    "avx2",  "256", "16", 0, 0, 0},
+        {nw_scan_avx2_256_8,        "nw", "scan",    "avx2",  "256", "8",  0, 0, 0},
         //{nw_diag_avx2_256_32,       "nw", "diag",    "avx2",  "256", "32", 0, 0, 0},
         //{nw_diag_avx2_256_16,       "nw", "diag",    "avx2",  "256", "16", 0, 0, 0},
         //{nw_diag_avx2_256_8,        "nw", "diag",    "avx2",  "256", "8",  0, 0, 0},
@@ -206,8 +213,8 @@ int main(int argc, char **argv)
 #endif
 #if HAVE_AVX2
         {nw_table_scan_avx2_256_32,       "nw", "scan",    "avx2",  "256", "32", 1, 0, 0},
-        //{nw_table_scan_avx2_256_16,       "nw", "scan",    "avx2",  "256", "16", 1, 0, 0},
-        //{nw_table_scan_avx2_256_8,        "nw", "scan",    "avx2",  "256", "8",  1, 0, 0},
+        {nw_table_scan_avx2_256_16,       "nw", "scan",    "avx2",  "256", "16", 1, 0, 0},
+        {nw_table_scan_avx2_256_8,        "nw", "scan",    "avx2",  "256", "8",  1, 0, 0},
         //{nw_table_diag_avx2_256_32,       "nw", "diag",    "avx2",  "256", "32", 1, 0, 0},
         //{nw_table_diag_avx2_256_16,       "nw", "diag",    "avx2",  "256", "16", 1, 0, 0},
         //{nw_table_diag_avx2_256_8,        "nw", "diag",    "avx2",  "256", "8",  1, 0, 0},

@@ -194,8 +194,12 @@ check_PROGRAMS += tests/test_openmp
 endif
 
 tests_test_align_SOURCES        = tests/test_align.c
+tests_test_align_LDADD         = $(LDADD) $(CLOCK_LIBS)
+
 tests_test_align_stats_SOURCES  = tests/test_align_stats.c
+
 tests_test_align_table_SOURCES  = tests/test_align_table.c
+
 tests_test_openmp_SOURCES       = tests/test_openmp.c
 tests_test_openmp_CFLAGS        = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_test_openmp_LDFLAGS       = $(AM_LDFLAGS) $(OPENMP_CFLAGS)

@@ -84,8 +84,8 @@ int main(int argc, char **argv)
     double timer_nsecs_ref_mean;
     //size_t limit = 1000;
     //size_t limit = 500;
-    //size_t limit = 100;
-    size_t limit = 1;
+    size_t limit = 100;
+    //size_t limit = 1;
     size_t i;
     size_t index;
     func_t f;
@@ -203,6 +203,17 @@ int main(int argc, char **argv)
         {nw_table_striped_sse41_128_32, "nw", "striped", "sse41", "128", "32", 1, 0, 0},
         {nw_table_striped_sse41_128_16, "nw", "striped", "sse41", "128", "16", 1, 0, 0},
         {nw_table_striped_sse41_128_8,  "nw", "striped", "sse41", "128", "8",  1, 0, 0},
+#endif
+#if HAVE_AVX2
+        {nw_table_scan_avx2_256_32,       "nw", "scan",    "avx2",  "256", "32", 1, 0, 0},
+        //{nw_table_scan_avx2_256_16,       "nw", "scan",    "avx2",  "256", "16", 1, 0, 0},
+        //{nw_table_scan_avx2_256_8,        "nw", "scan",    "avx2",  "256", "8",  1, 0, 0},
+        //{nw_table_diag_avx2_256_32,       "nw", "diag",    "avx2",  "256", "32", 1, 0, 0},
+        //{nw_table_diag_avx2_256_16,       "nw", "diag",    "avx2",  "256", "16", 1, 0, 0},
+        //{nw_table_diag_avx2_256_8,        "nw", "diag",    "avx2",  "256", "8",  1, 0, 0},
+        //{nw_table_striped_avx2_256_32,    "nw", "striped", "avx2",  "256", "32", 1, 0, 0},
+        //{nw_table_striped_avx2_256_16,    "nw", "striped", "avx2",  "256", "16", 1, 0, 0},
+        //{nw_table_striped_avx2_256_8,     "nw", "striped", "avx2",  "256", "8",  1, 0, 0},
 #endif
 
         {sg_table,                  "sg", "",     "",     "",    "",   1, 0, 1},

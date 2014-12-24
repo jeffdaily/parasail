@@ -90,8 +90,8 @@ int main(int argc, char **argv)
     double timer_nsecs_ref_mean;
     //size_t limit = 1000;
     //size_t limit = 500;
-    //size_t limit = 100;
-    size_t limit = 2;
+    size_t limit = 100;
+    //size_t limit = 2;
     //size_t limit = 1;
     size_t i;
     size_t index;
@@ -160,6 +160,17 @@ int main(int argc, char **argv)
         {sg_striped_sse41_128_32,   "sg", "striped", "sse41", "128", "32", 0, 0, 0},
         {sg_striped_sse41_128_16,   "sg", "striped", "sse41", "128", "16", 0, 0, 0},
         {sg_striped_sse41_128_8,    "sg", "striped", "sse41", "128", "8",  0, 0, 0},
+#endif
+#if HAVE_AVX2
+        {sg_scan_avx2_256_32,       "sg", "scan",    "avx2",  "256", "32", 0, 0, 0},
+        //{sg_scan_avx2_256_16,       "sg", "scan",    "avx2",  "256", "16", 0, 0, 0},
+        //{sg_scan_avx2_256_8,        "sg", "scan",    "avx2",  "256", "8",  0, 0, 0},
+        //{sg_diag_avx2_256_32,       "sg", "diag",    "avx2",  "256", "32", 0, 0, 0},
+        //{sg_diag_avx2_256_16,       "sg", "diag",    "avx2",  "256", "16", 0, 0, 0},
+        //{sg_diag_avx2_256_8,        "sg", "diag",    "avx2",  "256", "8",  0, 0, 0},
+        //{sg_striped_avx2_256_32,    "sg", "striped", "avx2",  "256", "32", 0, 0, 0},
+        //{sg_striped_avx2_256_16,    "sg", "striped", "avx2",  "256", "16", 0, 0, 0},
+        //{sg_striped_avx2_256_8,     "sg", "striped", "avx2",  "256", "8",  0, 0, 0},
 #endif
 
         {sw,                        "sw", "",     "",      "",    "",   0, 0, 1},
@@ -246,6 +257,17 @@ int main(int argc, char **argv)
         {sg_table_striped_sse41_128_32,"sg", "striped", "sse41", "128", "32", 1, 0, 0},
         {sg_table_striped_sse41_128_16,"sg", "striped", "sse41", "128", "16", 1, 0, 0},
         {sg_table_striped_sse41_128_8, "sg", "striped", "sse41", "128", "8",  1, 0, 0},
+#endif
+#if HAVE_AVX2
+        {sg_table_scan_avx2_256_32,       "sg", "scan",    "avx2",  "256", "32", 1, 0, 0},
+        //{sg_table_scan_avx2_256_16,       "sg", "scan",    "avx2",  "256", "16", 1, 0, 0},
+        //{sg_table_scan_avx2_256_8,        "sg", "scan",    "avx2",  "256", "8",  1, 0, 0},
+        //{sg_table_diag_avx2_256_32,       "sg", "diag",    "avx2",  "256", "32", 1, 0, 0},
+        //{sg_table_diag_avx2_256_16,       "sg", "diag",    "avx2",  "256", "16", 1, 0, 0},
+        //{sg_table_diag_avx2_256_8,        "sg", "diag",    "avx2",  "256", "8",  1, 0, 0},
+        //{sg_table_striped_avx2_256_32,    "sg", "striped", "avx2",  "256", "32", 1, 0, 0},
+        //{sg_table_striped_avx2_256_16,    "sg", "striped", "avx2",  "256", "16", 1, 0, 0},
+        //{sg_table_striped_avx2_256_8,     "sg", "striped", "avx2",  "256", "8",  1, 0, 0},
 #endif
 
         {sw_table,                  "sw", "",     "",     "",    "",   1, 0, 1},

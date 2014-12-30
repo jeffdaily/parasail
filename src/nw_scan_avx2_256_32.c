@@ -53,22 +53,10 @@ static inline int32_t _mm256_extract_epi32(__m256i a, int imm) {
 }
 
 /* avx2 _mm256_slli_si256 does not shift across 128-bit lanes, emulate it */
-static inline __m256i shift(__m256i a, __m256i idx) {
-#if 0 && USE_UNION
-    __m256i_32_t tmp;
-    tmp.m = a;
-    tmp.v[7] = tmp.v[6];
-    tmp.v[6] = tmp.v[5];
-    tmp.v[5] = tmp.v[4];
-    tmp.v[4] = tmp.v[3];
-    tmp.v[3] = tmp.v[2];
-    tmp.v[2] = tmp.v[1];
-    tmp.v[1] = tmp.v[0];
-    tmp.v[0] = 0;
-    return tmp.m;
-#else
-    return  _mm256_permutevar8x32_epi32(a, idx);
-#endif
+static inline __m256i shift(__m256i a) {
+    return _mm256_alignr_epi8(a,
+            _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,3,0)),
+            12);
 }
 
 #ifdef PARASAIL_TABLE
@@ -119,7 +107,6 @@ parasail_result_t* FNAME(
     int32_t* const restrict boundary = parasail_memalign_int32_t(32, s2Len+1);
     __m256i vGapO = _mm256_set1_epi32(open);
     __m256i vGapE = _mm256_set1_epi32(gap);
-    __m256i idx = _mm256_set_epi32(6,5,4,3,2,1,0,7);
     int32_t score = 0;
 #if PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
@@ -183,7 +170,7 @@ parasail_result_t* FNAME(
         /* calculate E */
         /* calculate Ht */
         vHp = _mm256_load_si256(pvH+(segLen-1));
-        vHp = shift(vHp, idx);
+        vHp = shift(vHp);
         vHp = _mm256_insert_epi32(vHp, boundary[j], 0);
         pvW = pvP + MAP_BLOSUM_[(unsigned char)s2[j]]*segLen;
         for (i=0; i<segLen; ++i) {
@@ -203,7 +190,7 @@ parasail_result_t* FNAME(
 
         /* calculate Ft */
         vHt = _mm256_load_si256(pvHt+(segLen-1));
-        vHt = shift(vHt, idx);
+        vHt = shift(vHt);
         vHt = _mm256_insert_epi32(vHt, boundary[j+1], 0);
         vFt = _mm256_set1_epi32(NEG_INF_32);
         for (i=0; i<segLen; ++i) {
@@ -225,9 +212,9 @@ parasail_result_t* FNAME(
             vFt = tmp.m;
         }
         vHt = _mm256_load_si256(pvHt+(segLen-1));
-        vHt = shift(vHt, idx);
+        vHt = shift(vHt);
         vHt = _mm256_insert_epi32(vHt, boundary[j+1], 0);
-        vFt = shift(vFt, idx);
+        vFt = shift(vFt);
         vFt = _mm256_insert_epi32(vFt, NEG_INF_32, 0);
         for (i=0; i<segLen; ++i) {
             vFt = _mm256_max_epi32(
@@ -255,7 +242,7 @@ parasail_result_t* FNAME(
     {
         __m256i vH = _mm256_load_si256(pvH + offset);
         for (k=0; k<position; ++k) {
-            vH = shift(vH, idx);
+            vH = shift(vH);
         }
         score = (int32_t) _mm256_extract_epi32 (vH, 7);
     }

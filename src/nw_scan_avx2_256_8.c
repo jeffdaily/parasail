@@ -41,45 +41,9 @@ static inline int8_t _mm256_extract_epi8(__m256i a, int imm) {
 
 /* avx2 _mm256_slli_si256 does not shift across 128-bit lanes, emulate it */
 static inline __m256i shift(__m256i a, __m256i idx) {
-#if 0
-    return  _mm256_permutevar8x8_epi8(a, idx);
-#else
-    __m256i_8_t tmp;
-    tmp.m = a;
-    tmp.v[31] = tmp.v[30];
-    tmp.v[30] = tmp.v[29];
-    tmp.v[29] = tmp.v[28];
-    tmp.v[28] = tmp.v[27];
-    tmp.v[27] = tmp.v[26];
-    tmp.v[26] = tmp.v[25];
-    tmp.v[25] = tmp.v[24];
-    tmp.v[24] = tmp.v[23];
-    tmp.v[23] = tmp.v[22];
-    tmp.v[22] = tmp.v[21];
-    tmp.v[21] = tmp.v[20];
-    tmp.v[20] = tmp.v[19];
-    tmp.v[19] = tmp.v[18];
-    tmp.v[18] = tmp.v[17];
-    tmp.v[17] = tmp.v[16];
-    tmp.v[16] = tmp.v[15];
-    tmp.v[15] = tmp.v[14];
-    tmp.v[14] = tmp.v[13];
-    tmp.v[13] = tmp.v[12];
-    tmp.v[12] = tmp.v[11];
-    tmp.v[11] = tmp.v[10];
-    tmp.v[10] = tmp.v[ 9];
-    tmp.v[ 9] = tmp.v[ 8];
-    tmp.v[ 8] = tmp.v[ 7];
-    tmp.v[ 7] = tmp.v[ 6];
-    tmp.v[ 6] = tmp.v[ 5];
-    tmp.v[ 5] = tmp.v[ 4];
-    tmp.v[ 4] = tmp.v[ 3];
-    tmp.v[ 3] = tmp.v[ 2];
-    tmp.v[ 2] = tmp.v[ 1];
-    tmp.v[ 1] = tmp.v[ 0];
-    tmp.v[ 0] = 0;
-    return tmp.m;
-#endif
+    return _mm256_alignr_epi8(a,
+            _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,3,0)),
+            15);
 }
 
 #ifdef PARASAIL_TABLE

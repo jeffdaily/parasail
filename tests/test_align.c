@@ -65,6 +65,11 @@ typedef struct func {
 } func_t;
 
 
+static inline int elem(func_t f) {
+    return atoi(f.bits) / atoi(f.width);
+}
+
+
 int main(int argc, char **argv)
 {
     const char *seqA = "MEFYDVAVTVGMLCIIIYLLLVRQFRYWTERNVPQLNPHLLFGDVRDVNKTHHIGEKFRQLYNELKGKHPFGGIYMFTKPVALVTDLELVKNVFVKDFQYFHDRGTYYDEKHDPLSAHLFNLEGYKWKSLRNKITPTFTSGKMKMMFPTVAAAGKQFKDYLEDAIGEQEEFELKELLARYTTDVIGTCAFGIECNSMRNPNAEFRVMGKKIFGRSRSNLQLLLMNAFPSVAKLVGIKLILPEVSDFFMNAVRDTIKYRVENNVQRNDFMDILIRMRSDKETKSDDGTLTFHEIAAQAFVFFVAGFETSSSLMAFTLYELALDQDMQDKARKCVTDVLERHNGELTYEAAMEMDYLDCVLKGWVR";
@@ -89,8 +94,9 @@ int main(int argc, char **argv)
     double timer_nsecs_single;
     double timer_nsecs_ref_mean;
     //size_t limit = 1000;
-    //size_t limit = 500;
-    size_t limit = 100;
+    size_t limit = 500;
+    //size_t limit = 200;
+    //size_t limit = 100;
     //size_t limit = 2;
     //size_t limit = 1;
     size_t i;
@@ -101,8 +107,8 @@ int main(int argc, char **argv)
     stats_t stats_nsecs;
 
     func_t functions[] = {
-        {nw,                        "nw", "",     "",      "",    "",   0, 0, 1},
-        {nw_scan,                   "nw", "scan", "",      "",    "",   0, 0, 0},
+        {nw,                        "nw", "",        "",      "32",  "32", 0, 0, 1},
+        {nw_scan,                   "nw", "scan",    "",      "32",  "32", 0, 0, 0},
 #if HAVE_SSE2
         {nw_scan_sse2_128_32,       "nw", "scan",    "sse2",  "128", "32", 0, 0, 0},
         {nw_scan_sse2_128_16,       "nw", "scan",    "sse2",  "128", "16", 0, 0, 0},
@@ -137,8 +143,8 @@ int main(int argc, char **argv)
         //{nw_striped_avx2_256_8,     "nw", "striped", "avx2",  "256", "8",  0, 0, 0},
 #endif
 
-        {sg,                        "sg", "",     "",      "",    "",   0, 0, 1},
-        {sg_scan,                   "sg", "scan", "",      "",    "",   0, 0, 0},
+        {sg,                        "sg", "",        "",      "32",  "32", 0, 0, 1},
+        {sg_scan,                   "sg", "scan",    "",      "32",  "32", 0, 0, 0},
 #if HAVE_SSE2
         {sg_scan_sse2_128_32,       "sg", "scan",    "sse2",  "128", "32", 0, 0, 0},
         {sg_scan_sse2_128_16,       "sg", "scan",    "sse2",  "128", "16", 0, 0, 0},
@@ -173,8 +179,8 @@ int main(int argc, char **argv)
         //{sg_striped_avx2_256_8,     "sg", "striped", "avx2",  "256", "8",  0, 0, 0},
 #endif
 
-        {sw,                        "sw", "",     "",      "",    "",   0, 0, 1},
-        {sw_scan,                   "sw", "scan", "",      "",    "",   0, 0, 0},
+        {sw,                        "sw", "",        "",      "32",  "32", 0, 0, 1},
+        {sw_scan,                   "sw", "scan",    "",      "32",  "32", 0, 0, 0},
 #if HAVE_SSE2
         {sw_scan_sse2_128_32,       "sw", "scan",    "sse2",  "128", "32", 0, 0, 0},
         {sw_scan_sse2_128_16,       "sw", "scan",    "sse2",  "128", "16", 0, 0, 0},
@@ -198,8 +204,8 @@ int main(int argc, char **argv)
         {sw_striped_sse41_128_8,    "sw", "striped", "sse41", "128", "8",  0, 0, 0},
 #endif
                                    
-        {nw_table,                  "nw", "",     "",      "",    "",   1, 0, 1},
-        {nw_table_scan,             "nw", "scan", "",      "",    "",   1, 0, 0},
+        {nw_table,                     "nw", "",        "",      "32",  "32", 1, 0, 1},
+        {nw_table_scan,                "nw", "scan",    "",      "32",  "32", 1, 0, 0},
 #if HAVE_SSE2
         {nw_table_scan_sse2_128_32,    "nw", "scan",    "sse2",  "128", "32", 1, 0, 0},
         {nw_table_scan_sse2_128_16,    "nw", "scan",    "sse2",  "128", "16", 1, 0, 0},
@@ -234,8 +240,8 @@ int main(int argc, char **argv)
         //{nw_table_striped_avx2_256_8,     "nw", "striped", "avx2",  "256", "8",  1, 0, 0},
 #endif
 
-        {sg_table,                  "sg", "",     "",     "",    "",   1, 0, 1},
-        {sg_table_scan,             "sg", "scan", "",     "",    "",   1, 0, 0},
+        {sg_table,                     "sg", "",        "",     "32",  "32", 1, 0, 1},
+        {sg_table_scan,                "sg", "scan",    "",     "32",  "32", 1, 0, 0},
 #if HAVE_SSE2
         {sg_table_scan_sse2_128_32,    "sg", "scan",    "sse2", "128", "32", 1, 0, 0},
         {sg_table_scan_sse2_128_16,    "sg", "scan",    "sse2", "128", "16", 1, 0, 0},
@@ -270,8 +276,8 @@ int main(int argc, char **argv)
         //{sg_table_striped_avx2_256_8,     "sg", "striped", "avx2",  "256", "8",  1, 0, 0},
 #endif
 
-        {sw_table,                  "sw", "",     "",     "",    "",   1, 0, 1},
-        {sw_table_scan,             "sw", "scan", "",     "",    "",   1, 0, 0},
+        {sw_table,                     "sw", "",        "",     "32",  "32", 1, 0, 1},
+        {sw_table_scan,                "sw", "scan",    "",     "32",  "32", 1, 0, 0},
 #if HAVE_SSE2
         {sw_table_scan_sse2_128_32,    "sw", "scan",    "sse2", "128", "32", 1, 0, 0},
         {sw_table_scan_sse2_128_16,    "sw", "scan",    "sse2", "128", "16", 1, 0, 0},
@@ -295,8 +301,8 @@ int main(int argc, char **argv)
         {sw_table_striped_sse41_128_8,  "sw", "striped", "sse41", "128", "8",  1, 0, 0},
 #endif
 
-        {nw_stats,                        "nw_stats", "",     "",     "",    "",   0, 1, 1},
-        {nw_stats_scan,                   "nw_stats", "scan", "",     "",    "",   0, 1, 0},
+        {nw_stats,                        "nw_stats", "",        "",     "32",   "32", 0, 1, 1},
+        {nw_stats_scan,                   "nw_stats", "scan",    "",     "32",   "32", 0, 1, 0},
 #if HAVE_SSE2
         {nw_stats_scan_sse2_128_32,       "nw_stats", "scan",    "sse2",  "128", "32", 0, 1, 0},
         {nw_stats_scan_sse2_128_16,       "nw_stats", "scan",    "sse2",  "128", "16", 0, 1, 0},
@@ -320,8 +326,8 @@ int main(int argc, char **argv)
         //{nw_stats_striped_sse41_128_8,    "nw_stats", "striped", "sse41", "128", "8",  0, 1, 0},
 #endif
                                    
-        {sg_stats,                  "sg_stats", "",     "",     "",    "",   0, 1, 1},
-        {sg_stats_scan,             "sg_stats", "scan", "",     "",    "",   0, 1, 0},
+        {sg_stats,                        "sg_stats", "",        "",      "32",  "32", 0, 1, 1},
+        {sg_stats_scan,                   "sg_stats", "scan",    "",      "32",  "32", 0, 1, 0},
 #if HAVE_SSE2
         {sg_stats_scan_sse2_128_32,       "sg_stats", "scan",    "sse2",  "128", "32", 0, 1, 0},
         {sg_stats_scan_sse2_128_16,       "sg_stats", "scan",    "sse2",  "128", "16", 0, 1, 0},
@@ -345,8 +351,8 @@ int main(int argc, char **argv)
         //{sg_stats_striped_sse41_128_8,    "sg_stats", "striped", "sse41", "128", "8",  0, 1, 0},
 #endif
                                    
-        {sw_stats,                  "sw_stats", "",     "",     "",    "",   0, 1, 1},
-        {sw_stats_scan,             "sw_stats", "scan", "",     "",    "",   0, 1, 0},
+        {sw_stats,                        "sw_stats", "",        "",      "32",  "32", 0, 1, 1},
+        {sw_stats_scan,                   "sw_stats", "scan",    "",      "32",  "32", 0, 1, 0},
 #if HAVE_SSE2
         {sw_stats_scan_sse2_128_32,       "sw_stats", "scan",    "sse2",  "128", "32", 0, 1, 0},
         {sw_stats_scan_sse2_128_16,       "sw_stats", "scan",    "sse2",  "128", "16", 0, 1, 0},
@@ -370,8 +376,8 @@ int main(int argc, char **argv)
         //{sw_stats_striped_sse41_128_8,    "sw_stats", "striped", "sse41", "128", "8",  0, 1, 0},
 #endif
                                    
-        {nw_stats_table,            "nw_stats", "",     "",     "",    "",   1, 1, 1},
-        {nw_stats_table_scan,       "nw_stats", "scan", "",     "",    "",   1, 1, 0},
+        {nw_stats_table,                        "nw_stats", "",        "",      "32",  "32", 1, 1, 1},
+        {nw_stats_table_scan,                   "nw_stats", "scan",    "",      "32",  "32", 1, 1, 0},
 #if HAVE_SSE2
         {nw_stats_table_scan_sse2_128_32,       "nw_stats", "scan",    "sse2",  "128", "32", 1, 1, 0},
         {nw_stats_table_scan_sse2_128_16,       "nw_stats", "scan",    "sse2",  "128", "16", 1, 1, 0},
@@ -395,8 +401,8 @@ int main(int argc, char **argv)
         //{nw_stats_table_striped_sse41_128_8,    "nw_stats", "striped", "sse41", "128", "8",  1, 1, 0},
 #endif
 
-        {sg_stats_table,            "sg_stats", "",     "",     "",    "",   1, 1, 1},
-        {sg_stats_table_scan,       "sg_stats", "scan", "",     "",    "",   1, 1, 0},
+        {sg_stats_table,                        "sg_stats", "",        "",      "32",  "32", 1, 1, 1},
+        {sg_stats_table_scan,                   "sg_stats", "scan",    "",      "32",  "32", 1, 1, 0},
 #if HAVE_SSE2
         {sg_stats_table_scan_sse2_128_32,       "sg_stats", "scan",    "sse2",  "128", "32", 1, 1, 0},
         {sg_stats_table_scan_sse2_128_16,       "sg_stats", "scan",    "sse2",  "128", "16", 1, 1, 0},
@@ -420,8 +426,8 @@ int main(int argc, char **argv)
         //{sg_stats_table_striped_sse41_128_8,    "sg_stats", "striped", "sse41", "128", "8",  1, 1, 0},
 #endif
 
-        {sw_stats_table,            "sw_stats", "",     "",     "",    "",   1, 1, 1},
-        {sw_stats_table_scan,       "sw_stats", "scan", "",     "",    "",   1, 1, 0},
+        {sw_stats_table,                        "sw_stats", "",        "",      "32",  "32", 1, 1, 1},
+        {sw_stats_table_scan,                   "sw_stats", "scan",    "",      "32",  "32", 1, 1, 0},
 #if HAVE_SSE2
         {sw_stats_table_scan_sse2_128_32,       "sw_stats", "scan",    "sse2",  "128", "32", 1, 1, 0},
         {sw_stats_table_scan_sse2_128_16,       "sw_stats", "scan",    "sse2",  "128", "16", 1, 1, 0},
@@ -450,8 +456,8 @@ int main(int argc, char **argv)
 
     timer_init();
 
-    printf("%-15s %8s %6s %4s %5s %8s %8s %8s %8s %5s %8s %8s %8s\n",
-            "name", "type", "isa", "bits", "width",
+    printf("%-15s %8s %6s %4s %5s %5s %8s %8s %8s %8s %5s %8s %8s %8s\n",
+            "name", "type", "isa", "bits", "width", "elem",
             "score", "matches", "length",
             "avg", "imp", "stddev", "min", "max");
 
@@ -529,16 +535,16 @@ int main(int argc, char **argv)
             strcat(name, "_table");
         }
 #if USE_TIMER_REAL
-        printf("%-15s %8s %6s %4s %5s %8d %8d %8d %8.2f %5.2f %8.2f %8.2f %8.2f %8.7f %5.7f %8.7f %8.7f %8.7f\n",
-                name, f.type, f.isa, f.bits, f.width,
+        printf("%-15s %8s %6s %4s %5s %5d %8d %8d %8d %8.2f %5.2f %8.2f %8.2f %8.2f %8.7f %5.7f %8.7f %8.7f %8.7f\n",
+                name, f.type, f.isa, f.bits, f.width, elem(f),
                 score, matches, length,
                 stats_rdtsc._mean, pctf(timer_rdtsc_ref_mean, stats_rdtsc._mean),
                 stats_stddev(&stats_rdtsc), stats_rdtsc._min, stats_rdtsc._max,
                 stats_nsecs._mean, pctf(timer_nsecs_ref_mean, stats_nsecs._mean),
                 stats_stddev(&stats_nsecs), stats_nsecs._min, stats_nsecs._max);
 #else
-        printf("%-15s %8s %6s %4s %5s %8d %8d %8d %8.2f %5.2f %8.2f %8.2f %8.2f\n",
-                name, f.type, f.isa, f.bits, f.width,
+        printf("%-15s %8s %6s %4s %5s %5d %8d %8d %8d %8.2f %5.2f %8.2f %8.2f %8.2f\n",
+                name, f.type, f.isa, f.bits, f.width, elem(f),
                 score, matches, length,
                 stats_rdtsc._mean, pctf(timer_rdtsc_ref_mean, stats_rdtsc._mean),
                 stats_stddev(&stats_rdtsc), stats_rdtsc._min, stats_rdtsc._max);

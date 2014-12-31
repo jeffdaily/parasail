@@ -74,7 +74,7 @@ endif
 if HAVE_AVX2
 ALIGNMENT_SRC += src/nw_scan_avx2_256_32.c
 ALIGNMENT_SRC += src/sg_scan_avx2_256_32.c
-#ALIGNMENT_SRC += src/sw_scan_avx2_256_32.c
+ALIGNMENT_SRC += src/sw_scan_avx2_256_32.c
 
 ALIGNMENT_SRC += src/nw_scan_avx2_256_16.c
 ALIGNMENT_SRC += src/sg_scan_avx2_256_16.c

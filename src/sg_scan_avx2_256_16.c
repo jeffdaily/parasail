@@ -22,13 +22,6 @@
 #define NEG_INF_16 (INT16_MIN/(int16_t)(2))
 #define MAX(a,b) ((a)>(b)?(a):(b))
 
-/* avx2 does not have _mm256_extract_epi16, emulate it */
-static inline int16_t _mm256_extract_epi16(__m256i a, int imm) {
-    __m256i_16_t tmp;
-    tmp.m = a;
-    return tmp.v[imm];
-}
-
 /* avx2 _mm256_slli_si256 does not shift across 128-bit lanes, emulate it */
 static inline __m256i shift(__m256i a) {
     return _mm256_alignr_epi8(a,
@@ -92,7 +85,7 @@ parasail_result_t* FNAME(
     __m256i vGapO = _mm256_set1_epi16(open);
     __m256i vGapE = _mm256_set1_epi16(gap);
     __m256i vNegInf = _mm256_set1_epi16(NEG_INF_16);
-    int16_t score = 0;
+    int16_t score = NEG_INF_16;
     __m256i vMaxH = vNegInf;
     __m256i insert_mask = _mm256_set_epi8(
             0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1);

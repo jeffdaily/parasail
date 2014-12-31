@@ -22,21 +22,6 @@
 #define NEG_INF_16 (INT16_MIN/(int16_t)(2))
 #define MAX(a,b) ((a)>(b)?(a):(b))
 
-/* avx2 does not have _mm256_insert_epi16, emulate it */
-static inline __m256i _mm256_insert_epi16(__m256i a, int16_t i, int imm) {
-    __m256i_16_t tmp;
-    tmp.m = a;
-    tmp.v[imm] = i;
-    return tmp.m;
-}
-
-/* avx2 does not have _mm256_extract_epi16, emulate it */
-static inline int16_t _mm256_extract_epi16(__m256i a, int imm) {
-    __m256i_16_t tmp;
-    tmp.m = a;
-    return tmp.v[imm];
-}
-
 /* avx2 _mm256_slli_si256 does not shift across 128-bit lanes, emulate it */
 static inline __m256i shift(__m256i a) {
     return _mm256_alignr_epi8(a,

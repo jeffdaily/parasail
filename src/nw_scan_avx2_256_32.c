@@ -24,34 +24,6 @@
 #define USE_BLEND 0
 #define USE_UNION 1
 
-/* avx2 does not have _mm256_insert_epi32, emulate it */
-static inline __m256i _mm256_insert_epi32(__m256i a, int32_t i, int imm) {
-#if USE_BLEND
-    __m256i tmp = _mm256_set1_epi32(i);
-    return _mm256_blend_epi32(tmp, a, 0xFE);
-#elif USE_UNION
-    __m256i_32_t tmp;
-    tmp.m = a;
-    tmp.v[imm] = i;
-    return tmp.m;
-#else
-    __m128i tmp = _mm256_extracti128_si256(a, imm/4);
-    tmp = _mm_insert_epi32(tmp, i, imm%4);
-    return _mm256_inserti128_si256(a, tmp, imm/4);
-#endif
-}
-
-/* avx2 does not have _mm256_extract_epi32, emulate it */
-static inline int32_t _mm256_extract_epi32(__m256i a, int imm) {
-#if USE_UNION
-    __m256i_32_t tmp;
-    tmp.m = a;
-    return tmp.v[imm];
-#else
-    return (int32_t)_mm_extract_epi32(_mm256_extracti128_si256(a,imm/4), imm%4);
-#endif
-}
-
 /* avx2 _mm256_slli_si256 does not shift across 128-bit lanes, emulate it */
 static inline __m256i shift(__m256i a) {
     return _mm256_alignr_epi8(a,

@@ -22,15 +22,6 @@
 #define NEG_INF_8 (INT8_MIN)
 #define MAX(a,b) ((a)>(b)?(a):(b))
 
-#if 0
-/* avx2 does not have _mm256_extract_epi8, emulate it */
-static inline int8_t _mm256_extract_epi8(__m256i a, int imm) {
-    __m256i_8_t tmp;
-    tmp.m = a;
-    return tmp.v[imm];
-}
-#endif
-
 /* avx2 _mm256_slli_si256 does not shift across 128-bit lanes, emulate it */
 static inline __m256i shift(__m256i a) {
     return _mm256_alignr_epi8(a,
@@ -110,7 +101,7 @@ parasail_result_t* FNAME(
     __m256i vGapO = _mm256_set1_epi8(open);
     __m256i vGapE = _mm256_set1_epi8(gap);
     __m256i vNegInf = _mm256_set1_epi8(NEG_INF_8);
-    int8_t score = 0;
+    int8_t score = NEG_INF_8;
     __m256i vMaxH = vNegInf;
     __m256i insert_mask = _mm256_set_epi8(
             0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1);

@@ -42,7 +42,7 @@ ALIGNMENT_SRC += src/sw_stats_scan.c
 ###################
 
 # parallel scan methods
-#
+
 if HAVE_SSE2
 ALIGNMENT_SRC += src/nw_scan_sse2_128_32.c
 ALIGNMENT_SRC += src/sg_scan_sse2_128_32.c
@@ -77,11 +77,11 @@ ALIGNMENT_SRC += src/sg_scan_avx2_256_32.c
 #ALIGNMENT_SRC += src/sw_scan_avx2_256_32.c
 
 ALIGNMENT_SRC += src/nw_scan_avx2_256_16.c
-#ALIGNMENT_SRC += src/sg_scan_avx2_256_16.c
+ALIGNMENT_SRC += src/sg_scan_avx2_256_16.c
 #ALIGNMENT_SRC += src/sw_scan_avx2_256_16.c
 
 ALIGNMENT_SRC += src/nw_scan_avx2_256_8.c
-#ALIGNMENT_SRC += src/sg_scan_avx2_256_8.c
+ALIGNMENT_SRC += src/sg_scan_avx2_256_8.c
 #ALIGNMENT_SRC += src/sw_scan_avx2_256_8.c
 endif
 

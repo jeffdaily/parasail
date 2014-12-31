@@ -169,8 +169,8 @@ int main(int argc, char **argv)
 #endif
 #if HAVE_AVX2
         {sg_scan_avx2_256_32,       "sg", "scan",    "avx2",  "256", "32", 0, 0, 0},
-        //{sg_scan_avx2_256_16,       "sg", "scan",    "avx2",  "256", "16", 0, 0, 0},
-        //{sg_scan_avx2_256_8,        "sg", "scan",    "avx2",  "256", "8",  0, 0, 0},
+        {sg_scan_avx2_256_16,       "sg", "scan",    "avx2",  "256", "16", 0, 0, 0},
+        {sg_scan_avx2_256_8,        "sg", "scan",    "avx2",  "256", "8",  0, 0, 0},
         //{sg_diag_avx2_256_32,       "sg", "diag",    "avx2",  "256", "32", 0, 0, 0},
         //{sg_diag_avx2_256_16,       "sg", "diag",    "avx2",  "256", "16", 0, 0, 0},
         //{sg_diag_avx2_256_8,        "sg", "diag",    "avx2",  "256", "8",  0, 0, 0},
@@ -266,8 +266,8 @@ int main(int argc, char **argv)
 #endif
 #if HAVE_AVX2
         {sg_table_scan_avx2_256_32,       "sg", "scan",    "avx2",  "256", "32", 1, 0, 0},
-        //{sg_table_scan_avx2_256_16,       "sg", "scan",    "avx2",  "256", "16", 1, 0, 0},
-        //{sg_table_scan_avx2_256_8,        "sg", "scan",    "avx2",  "256", "8",  1, 0, 0},
+        {sg_table_scan_avx2_256_16,       "sg", "scan",    "avx2",  "256", "16", 1, 0, 0},
+        {sg_table_scan_avx2_256_8,        "sg", "scan",    "avx2",  "256", "8",  1, 0, 0},
         //{sg_table_diag_avx2_256_32,       "sg", "diag",    "avx2",  "256", "32", 1, 0, 0},
         //{sg_table_diag_avx2_256_16,       "sg", "diag",    "avx2",  "256", "16", 1, 0, 0},
         //{sg_table_diag_avx2_256_8,        "sg", "diag",    "avx2",  "256", "8",  1, 0, 0},

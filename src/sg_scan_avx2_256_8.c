@@ -29,6 +29,12 @@ static inline __m256i shift(__m256i a) {
             15);
 }
 
+static inline __m256i lrotate8(__m256i a) {
+    return _mm256_alignr_epi8(a,
+            _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,0,1)),
+            15);
+}
+
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si256(
         int *array,
@@ -100,11 +106,24 @@ parasail_result_t* FNAME(
     __m256i* const restrict pvH = parasail_memalign_m256i(32, segLen);
     __m256i vGapO = _mm256_set1_epi8(open);
     __m256i vGapE = _mm256_set1_epi8(gap);
+    __m256i vSaturationCheck = _mm256_setzero_si256();
+    __m256i vNegLimit = _mm256_set1_epi8(INT8_MIN);
+    __m256i vPosLimit = _mm256_set1_epi8(INT8_MAX);
     __m256i vNegInf = _mm256_set1_epi8(NEG_INF_8);
+    __m256i segLenXgap = _mm256_set1_epi8(segLen*gap);
     int8_t score = NEG_INF_8;
     __m256i vMaxH = vNegInf;
     __m256i insert_mask = _mm256_set_epi8(
             0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1);
+    __m256i segLenXgap_reset = _mm256_set_epi8(
+            -segLen*gap, NEG_INF_8, NEG_INF_8, NEG_INF_8,
+            NEG_INF_8, NEG_INF_8, NEG_INF_8, NEG_INF_8,
+            NEG_INF_8, NEG_INF_8, NEG_INF_8, NEG_INF_8,
+            NEG_INF_8, NEG_INF_8, NEG_INF_8, NEG_INF_8,
+            NEG_INF_8, NEG_INF_8, NEG_INF_8, NEG_INF_8,
+            NEG_INF_8, NEG_INF_8, NEG_INF_8, NEG_INF_8,
+            NEG_INF_8, NEG_INF_8, NEG_INF_8, NEG_INF_8,
+            NEG_INF_8, NEG_INF_8, NEG_INF_8, NEG_INF_8);
 #if PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
@@ -185,6 +204,7 @@ parasail_result_t* FNAME(
             vFt = _mm256_max_epi8(vFt, vHt);
             vHt = _mm256_load_si256(pvHt+i);
         }
+#if 0
         {
             __m256i_8_t tmp;
             tmp.m = vFt;
@@ -221,6 +241,19 @@ parasail_result_t* FNAME(
             tmp.v[31] = MAX(tmp.v[30]-segLen*gap, tmp.v[31]);
             vFt = tmp.m;
         }
+#else
+        {
+            __m256i vFt_save = vFt;
+            __m256i segLenXgap = segLenXgap_reset;
+            for (i=0; i<segWidth-1; ++i) {
+                __m256i vFtt = shift(vFt);
+                segLenXgap = lrotate8(segLenXgap);
+                vFtt = _mm256_adds_epi8(vFtt, segLenXgap);
+                vFt = _mm256_max_epi8(vFtt, vFt);
+            }
+            vFt = _mm256_blendv_epi8(vFt_save, vFt, insert_mask);
+        }
+#endif
         vHt = _mm256_load_si256(pvHt+(segLen-1));
         vHt = shift(vHt);
         vFt = shift(vFt);
@@ -239,6 +272,14 @@ parasail_result_t* FNAME(
             vFt = _mm256_subs_epi8(vFt, vGapO);
             vH = _mm256_max_epi8(vHt, vFt);
             _mm256_store_si256(pvH+i, vH);
+            /* check for saturation */
+            {
+                vSaturationCheck = _mm256_or_si256(vSaturationCheck,
+                        _mm256_or_si256(
+                            _mm256_cmpeq_epi8(vH, vNegLimit),
+                            _mm256_cmpeq_epi8(vH, vPosLimit)));
+            }
+
 #ifdef PARASAIL_TABLE
             arr_store_si256(result->score_table, vH, i, segLen, j, s2Len);
 #endif
@@ -319,6 +360,10 @@ parasail_result_t* FNAME(
             }
             vMaxH = shift(vMaxH);
         }
+    }
+
+    if (_mm256_movemask_epi8(vSaturationCheck)) {
+        score = INT8_MAX;
     }
 
     result->score = score;

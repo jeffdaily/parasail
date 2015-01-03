@@ -21,13 +21,17 @@
 
 #define NEG_INF_32 (INT32_MIN/(int32_t)(2))
 #define MAX(a,b) ((a)>(b)?(a):(b))
-#define USE_BLEND 0
-#define USE_UNION 1
 
 /* avx2 _mm256_slli_si256 does not shift across 128-bit lanes, emulate it */
 static inline __m256i shift(__m256i a) {
     return _mm256_alignr_epi8(a,
             _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,3,0)),
+            12);
+}
+
+static inline __m256i lrotate32(__m256i a) {
+    return _mm256_alignr_epi8(a,
+            _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,0,1)),
             12);
 }
 
@@ -79,7 +83,12 @@ parasail_result_t* FNAME(
     int32_t* const restrict boundary = parasail_memalign_int32_t(32, s2Len+1);
     __m256i vGapO = _mm256_set1_epi32(open);
     __m256i vGapE = _mm256_set1_epi32(gap);
-    int32_t score = 0;
+    __m256i vNegInf = _mm256_set1_epi32(NEG_INF_32);
+    int32_t score = NEG_INF_32;
+    __m256i vMaxH = vNegInf;
+    __m256i segLenXgap_reset = _mm256_set_epi32(
+            NEG_INF_32, NEG_INF_32, NEG_INF_32, NEG_INF_32,
+            NEG_INF_32, NEG_INF_32, NEG_INF_32, -segLen*gap);
 #if PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
@@ -93,8 +102,8 @@ parasail_result_t* FNAME(
         int32_t index = 0;
         for (k=0; k<n; ++k) {
             for (i=0; i<segLen; ++i) {
-                int32_t j = i;
                 __m256i_32_t t;
+                j = i;
                 for (segNum=0; segNum<segWidth; ++segNum) {
                     t.v[segNum] = matrix[k][MAP_BLOSUM_[(unsigned char)s1[j]]];
                     j += segLen;
@@ -171,6 +180,7 @@ parasail_result_t* FNAME(
                     vHt);
             vHt = _mm256_load_si256(pvHt+i);
         }
+#if 0
         {
             __m256i_32_t tmp;
             tmp.m = vFt;
@@ -183,6 +193,19 @@ parasail_result_t* FNAME(
             tmp.v[7] = MAX(tmp.v[6]-segLen*gap, tmp.v[7]);
             vFt = tmp.m;
         }
+#else
+        {
+            __m256i vFt_save = vFt;
+            __m256i segLenXgap = segLenXgap_reset;
+            for (i=0; i<segWidth-1; ++i) {
+                __m256i vFtt = shift(vFt);
+                segLenXgap = lrotate32(segLenXgap);
+                vFtt = _mm256_add_epi32(vFtt, segLenXgap);
+                vFt = _mm256_max_epi32(vFt, vFtt);
+            }
+            vFt = _mm256_blend_epi32(vFt_save, vFt, 0xFE);
+        }
+#endif
         vHt = _mm256_load_si256(pvHt+(segLen-1));
         vHt = shift(vHt);
         vHt = _mm256_insert_epi32(vHt, boundary[j+1], 0);

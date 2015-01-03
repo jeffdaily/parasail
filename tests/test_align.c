@@ -107,10 +107,10 @@ int main(int argc, char **argv)
     //size_t limit = 1000;
     //size_t limit = 500;
     //size_t limit = 200;
-    //size_t limit = 100;
+    size_t limit = 100;
     //size_t limit = 50;
     //size_t limit = 2;
-    size_t limit = 1;
+    //size_t limit = 1;
     size_t i;
     size_t index;
     func_t f;

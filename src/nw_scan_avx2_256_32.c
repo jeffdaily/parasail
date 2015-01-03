@@ -83,9 +83,7 @@ parasail_result_t* FNAME(
     int32_t* const restrict boundary = parasail_memalign_int32_t(32, s2Len+1);
     __m256i vGapO = _mm256_set1_epi32(open);
     __m256i vGapE = _mm256_set1_epi32(gap);
-    __m256i vNegInf = _mm256_set1_epi32(NEG_INF_32);
     int32_t score = NEG_INF_32;
-    __m256i vMaxH = vNegInf;
     __m256i segLenXgap_reset = _mm256_set_epi32(
             NEG_INF_32, NEG_INF_32, NEG_INF_32, NEG_INF_32,
             NEG_INF_32, NEG_INF_32, NEG_INF_32, -segLen*gap);

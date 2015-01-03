@@ -339,10 +339,6 @@ parasail_result_t* FNAME(
             arr_store_si128(result->score_table, vH, i, segLen, j, s2Len);
 #endif
         }
-#if PREFIX_SUM_CHECK
-        /* check if local prefix sum for L is needed */
-        if (_mm_movemask_epi8(vC))
-#endif
         {
             vLp = _mm_subs_epi8(vLp, vOne);
             {

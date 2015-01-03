@@ -156,7 +156,6 @@ parasail_result_t* FNAME(
         __m128i vLp;
         __m128i vLt;
         __m128i vEx;
-        __m128i cond_max;
         __m128i vQIndex;
 
         /* calculate E */
@@ -177,6 +176,7 @@ parasail_result_t* FNAME(
         pvW = pvP + MAP_BLOSUM_[(unsigned char)s2[j]]*segLen;
         pvC = pvPm+ MAP_BLOSUM_[(unsigned char)s2[j]]*segLen;
         for (i=0; i<segLen; ++i) {
+            __m128i cond_max;
             /* load values we need */
             vE = _mm_load_si128(pvE+i);
             vW = _mm_load_si128(pvW+i);
@@ -273,10 +273,6 @@ parasail_result_t* FNAME(
             arr_store_si128(result->score_table, vH, i, segLen, j, s2Len);
 #endif
         }
-#if PREFIX_SUM_CHECK
-        /* check if local prefix sum for L is needed */
-        if (_mm_movemask_epi8(vC))
-#endif
         {
             vLp = _mm_sub_epi16(vLp, vOne);
             {

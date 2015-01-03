@@ -110,7 +110,6 @@ parasail_result_t* FNAME(
     __m256i vNegLimit = _mm256_set1_epi8(INT8_MIN);
     __m256i vPosLimit = _mm256_set1_epi8(INT8_MAX);
     __m256i vNegInf = _mm256_set1_epi8(NEG_INF_8);
-    __m256i segLenXgap = _mm256_set1_epi8(segLen*gap);
     int8_t score = NEG_INF_8;
     __m256i vMaxH = vNegInf;
     __m256i insert_mask = _mm256_set_epi8(

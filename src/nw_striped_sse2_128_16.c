@@ -91,7 +91,7 @@ parasail_result_t* FNAME(
         int32_t index = 0;
         for (k=0; k<n; ++k) {
             for (i=0; i<segLen; ++i) {
-                int32_t j = i;
+                j = i;
                 __m128i_16_t t;
                 for (segNum=0; segNum<segWidth; ++segNum) {
                     t.v[segNum] = matrix[k][MAP_BLOSUM_[(unsigned char)s1[j]]];

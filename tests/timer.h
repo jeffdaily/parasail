@@ -62,13 +62,13 @@ static LARGE_INTEGER frequency;
 
 static unsigned long long timer_start()
 {
-#if HAVE_RDTSC
+#if defined(HAVE_RDTSC)
     return rdtsc();
-#elif HAVE_SYS_TIME_H
+#elif defined(HAVE_SYS_TIME_H)
     struct timeval timer;
     (void)gettimeofday(&timer, NULL);
     return timer.tv_sec * 1000000 + timer.tv_usec;
-#elif HAVE_WINDOWS_H
+#elif defined(HAVE_WINDOWS_H)
     LARGE_INTEGER timer;
     QueryPerformanceCounter(&timer);
     return timer.QuadPart * 1000 / frequency.QuadPart;
@@ -84,9 +84,9 @@ static unsigned long long timer_end(unsigned long long begin)
 
 static void timer_init()
 {
-#if HAVE_RDTSC
-#elif HAVE_SYS_TIME_H
-#elif HAVE_WINDOWS_H
+#if defined(HAVE_RDTSC)
+#elif defined(HAVE_SYS_TIME_H)
+#elif defined(HAVE_WINDOWS_H)
     QueryPerformanceFrequency(&frequency);
 #else
 #endif
@@ -94,11 +94,11 @@ static void timer_init()
 
 static const char *timer_name()
 {
-#if HAVE_RDTSC
+#if defined(HAVE_RDTSC)
     return "rdtsc";
-#elif HAVE_SYS_TIME_H
+#elif defined(HAVE_SYS_TIME_H)
     return "gettimeofday";
-#elif HAVE_WINDOWS_H
+#elif defined(HAVE_WINDOWS_H)
     return "windows QueryPerformanceCounter";
 #else
     return "no timers";

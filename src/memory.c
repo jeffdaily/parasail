@@ -20,10 +20,12 @@
 
 #if HAVE_SSE2 || HAVE_SSE41
 #include <emmintrin.h>
+#include "parasail_internal_sse.h"
 #endif
 
 #if HAVE_AVX2
 #include <immintrin.h>
+#include "parasail_internal_avx.h"
 #endif
 
 #include "parasail.h"

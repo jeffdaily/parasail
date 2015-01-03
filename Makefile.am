@@ -182,7 +182,7 @@ endif
 libparasail_la_SOURCES += $(ALIGNMENT_SRC)
 
 libparasail_table_la_SOURCES = $(ALIGNMENT_SRC)
-libparasail_table_la_CPPFLAGS = $(AM_CPPFLAGS) -DPARASAIL_TABLE
+libparasail_table_la_CPPFLAGS = $(AM_CPPFLAGS) -DPARASAIL_TABLE=1
 
 libparasail_la_LIBADD = libparasail_table.la
 

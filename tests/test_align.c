@@ -13,6 +13,8 @@
 #include "timer.h"
 #include "timer_real.h"
 
+#define USE_TIMER_REAL 0
+
 static double pctull(unsigned long long orig_, unsigned long long new_)
 {
     double orig = (double)orig_;
@@ -66,7 +68,9 @@ typedef struct func {
 
 
 static inline int elem(func_t f) {
-    return atoi(f.bits) / atoi(f.width);
+    int i_bits = atoi(f.bits);
+    int i_width = atoi(f.width);
+    return i_bits / i_width;
 }
 
 
@@ -104,9 +108,9 @@ int main(int argc, char **argv)
     //size_t limit = 500;
     //size_t limit = 200;
     //size_t limit = 100;
-    size_t limit = 50;
+    //size_t limit = 50;
     //size_t limit = 2;
-    //size_t limit = 1;
+    size_t limit = 1;
     size_t i;
     size_t index;
     func_t f;

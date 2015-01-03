@@ -146,7 +146,7 @@ int32_t FNAME(
         int32_t *t = (int32_t*)pvP;
         for (k=0; k<n; ++k) {
             for (i=0; i<segLen; ++i) {
-                int32_t j = i;
+                j = i;
                 for (segNum=0; segNum<segWidth; ++segNum) {
                     *t++ = matrix[k*n + MAP_BLOSUM_[(unsigned char)s1[j]]];
                     j += segLen;

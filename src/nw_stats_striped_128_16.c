@@ -116,7 +116,7 @@ int FNAME(
         int16_t *s = (int16_t*)vProfileS;
         for (nt=0; nt<n; ++nt) {
             for (i=0; i<segLen; ++i) {
-                int32_t j = i;
+                j = i;
                 for (segNum=0; segNum<8; ++segNum) {
                     *t++ = matrix[nt*n + MAP_BLOSUM_[(unsigned char)s1[j]]];
                     *s++ = (nt == MAP_BLOSUM_[(unsigned char)s1[j]]);
@@ -131,7 +131,7 @@ int FNAME(
         int16_t *h = (int16_t*)pvHStore;
         int16_t *e = (int16_t*)pvEStore;
         for (i=0; i<segLen; ++i) {
-            int32_t j = i;
+            j = i;
             for (segNum=0; segNum<8; ++segNum) {
                 *h = -open-gap*(segNum*segLen+i);
                 *e = *h-open;

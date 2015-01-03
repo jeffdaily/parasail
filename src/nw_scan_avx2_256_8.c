@@ -29,6 +29,12 @@ static inline __m256i shift(__m256i a) {
             15);
 }
 
+static inline __m256i lrotate8(__m256i a) {
+    return _mm256_alignr_epi8(a,
+            _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,0,1)),
+            15);
+}
+
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si256(
         int *array,
@@ -104,7 +110,18 @@ parasail_result_t* FNAME(
     __m256i vSaturationCheck = _mm256_setzero_si256();
     __m256i vNegLimit = _mm256_set1_epi8(INT8_MIN);
     __m256i vPosLimit = _mm256_set1_epi8(INT8_MAX);
-    int8_t score = 0;
+    int8_t score = NEG_INF_8;
+    __m256i insert_mask = _mm256_set_epi8(
+            0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1);
+    __m256i segLenXgap_reset = _mm256_set_epi8(
+            NEG_INF_8, NEG_INF_8, NEG_INF_8, NEG_INF_8,
+            NEG_INF_8, NEG_INF_8, NEG_INF_8, NEG_INF_8,
+            NEG_INF_8, NEG_INF_8, NEG_INF_8, NEG_INF_8,
+            NEG_INF_8, NEG_INF_8, NEG_INF_8, NEG_INF_8,
+            NEG_INF_8, NEG_INF_8, NEG_INF_8, NEG_INF_8,
+            NEG_INF_8, NEG_INF_8, NEG_INF_8, NEG_INF_8,
+            NEG_INF_8, NEG_INF_8, NEG_INF_8, NEG_INF_8,
+            NEG_INF_8, NEG_INF_8, NEG_INF_8, -segLen*gap);
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
@@ -196,6 +213,7 @@ parasail_result_t* FNAME(
                     vHt);
             vHt = _mm256_load_si256(pvHt+i);
         }
+#if 0
         {
             __m256i_8_t tmp;
             tmp.m = vFt;
@@ -232,6 +250,19 @@ parasail_result_t* FNAME(
             tmp.v[31] = MAX(tmp.v[30]-segLen*gap, tmp.v[31]);
             vFt = tmp.m;
         }
+#else
+        {
+            __m256i vFt_save = vFt;
+            __m256i segLenXgap = segLenXgap_reset;
+            for (i=0; i<segWidth-1; ++i) {
+                __m256i vFtt = shift(vFt);
+                segLenXgap = lrotate8(segLenXgap);
+                vFtt = _mm256_adds_epi8(vFtt, segLenXgap);
+                vFt = _mm256_max_epi8(vFtt, vFt);
+            }
+            vFt = _mm256_blendv_epi8(vFt_save, vFt, insert_mask);
+        }
+#endif
         vHt = _mm256_load_si256(pvHt+(segLen-1));
         vHt = shift(vHt);
         vHt = _mm256_insert_epi8(vHt, boundary[j+1], 0);

@@ -86,8 +86,8 @@ parasail_result_t* FNAME(
     int32_t score = NEG_INF_32;
     __m256i vMaxH = vNegInf;
     __m256i segLenXgap_reset = _mm256_set_epi32(
-            -segLen*gap, NEG_INF_32, NEG_INF_32, NEG_INF_32,
-            NEG_INF_32, NEG_INF_32, NEG_INF_32, NEG_INF_32);
+            NEG_INF_32, NEG_INF_32, NEG_INF_32, NEG_INF_32,
+            NEG_INF_32, NEG_INF_32, NEG_INF_32, -segLen*gap);
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else

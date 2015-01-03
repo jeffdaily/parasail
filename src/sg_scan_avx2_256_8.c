@@ -115,14 +115,14 @@ parasail_result_t* FNAME(
     __m256i insert_mask = _mm256_set_epi8(
             0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1);
     __m256i segLenXgap_reset = _mm256_set_epi8(
-            -segLen*gap, NEG_INF_8, NEG_INF_8, NEG_INF_8,
             NEG_INF_8, NEG_INF_8, NEG_INF_8, NEG_INF_8,
             NEG_INF_8, NEG_INF_8, NEG_INF_8, NEG_INF_8,
             NEG_INF_8, NEG_INF_8, NEG_INF_8, NEG_INF_8,
             NEG_INF_8, NEG_INF_8, NEG_INF_8, NEG_INF_8,
             NEG_INF_8, NEG_INF_8, NEG_INF_8, NEG_INF_8,
             NEG_INF_8, NEG_INF_8, NEG_INF_8, NEG_INF_8,
-            NEG_INF_8, NEG_INF_8, NEG_INF_8, NEG_INF_8);
+            NEG_INF_8, NEG_INF_8, NEG_INF_8, NEG_INF_8,
+            NEG_INF_8, NEG_INF_8, NEG_INF_8, -segLen*gap);
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else

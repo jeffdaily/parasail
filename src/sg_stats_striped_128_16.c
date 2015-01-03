@@ -22,7 +22,7 @@
 #include "blosum/blosum_map.h"
 
 
-#if PARASAIL_TABLE
+#ifdef PARASAIL_TABLE
 static inline void arr_store_si128(
         int *array,
         __m128i vH,

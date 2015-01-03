@@ -30,7 +30,7 @@ parasail_result_t* ENAME(
         const char * const restrict _s2, const int s2Len,
         const int open, const int gap, const int matrix[24][24])
 {
-#if PARASAIL_TABLE
+#ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(s1Len, s2Len);
 #else
     parasail_result_t *result = parasail_result_new();

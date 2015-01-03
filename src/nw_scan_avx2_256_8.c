@@ -105,7 +105,7 @@ parasail_result_t* FNAME(
     __m256i vNegLimit = _mm256_set1_epi8(INT8_MIN);
     __m256i vPosLimit = _mm256_set1_epi8(INT8_MAX);
     int8_t score = 0;
-#if PARASAIL_TABLE
+#ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
     parasail_result_t *result = parasail_result_new();

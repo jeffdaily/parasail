@@ -78,7 +78,7 @@ parasail_result_t* FNAME(
     __m256i vOne = _mm256_set1_epi32(1);
     __m256i vNegInf = _mm256_set1_epi32(NEG_INF_32);
     int32_t score = 0;
-#if PARASAIL_TABLE
+#ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
     parasail_result_t *result = parasail_result_new();

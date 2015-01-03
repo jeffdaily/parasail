@@ -124,7 +124,7 @@ parasail_result_t* FNAME(
             NEG_INF_8, NEG_INF_8, NEG_INF_8, NEG_INF_8,
             NEG_INF_8, NEG_INF_8, NEG_INF_8, NEG_INF_8,
             NEG_INF_8, NEG_INF_8, NEG_INF_8, NEG_INF_8);
-#if PARASAIL_TABLE
+#ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
     parasail_result_t *result = parasail_result_new();

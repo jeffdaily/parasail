@@ -86,7 +86,7 @@ parasail_result_t* FNAME(
     __m256i vGapO = _mm256_set1_epi16(open);
     __m256i vGapE = _mm256_set1_epi16(gap);
     int16_t score = 0;
-#if PARASAIL_TABLE
+#ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
     parasail_result_t *result = parasail_result_new();

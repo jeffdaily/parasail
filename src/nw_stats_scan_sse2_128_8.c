@@ -115,7 +115,7 @@ parasail_result_t* FNAME(
     int8_t score = 0;
     int8_t matches = 0;
     int8_t length = 0;
-#if PARASAIL_TABLE
+#ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table3(segLen*segWidth, s2Len);
 #else
     parasail_result_t *result = parasail_result_new();

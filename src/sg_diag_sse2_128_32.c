@@ -97,7 +97,7 @@ parasail_result_t* FNAME(
     int * const restrict s2 = s2B+PAD; /* will allow later for negative indices */
     int * const restrict tbl_pr = _tbl_pr+PAD;
     int * const restrict del_pr = _del_pr+PAD;
-#if PARASAIL_TABLE
+#ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(s1Len, s2Len);
 #else
     parasail_result_t *result = parasail_result_new();

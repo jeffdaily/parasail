@@ -45,7 +45,7 @@ static inline __m128i _mm_max_epi8(__m128i a, __m128i b) {
     return _mm_or_si128(a,b);
 }
 
-#if PARASAIL_TABLE
+#ifdef PARASAIL_TABLE
 static inline void arr_store_si128(
         int *array,
         __m128i vH,
@@ -124,7 +124,7 @@ parasail_result_t* FNAME(
             2*segLen,
             1*segLen,
             0*segLen);
-#if PARASAIL_TABLE
+#ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
     parasail_result_t *result = parasail_result_new();

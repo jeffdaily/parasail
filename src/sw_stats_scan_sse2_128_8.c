@@ -165,7 +165,7 @@ parasail_result_t* FNAME(
             2*segLen,
             1*segLen,
             0*segLen);
-#if PARASAIL_TABLE
+#ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table3(segLen*segWidth, s2Len);
 #else
     parasail_result_t *result = parasail_result_new();

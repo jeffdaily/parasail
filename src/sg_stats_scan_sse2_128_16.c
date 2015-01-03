@@ -81,7 +81,7 @@ parasail_result_t* FNAME(
     int16_t score = NEG_INF_16;
     int16_t matches = 0;
     int16_t length = 0;
-#if PARASAIL_TABLE
+#ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table3(segLen*segWidth, s2Len);
 #else
     parasail_result_t *result = parasail_result_new();

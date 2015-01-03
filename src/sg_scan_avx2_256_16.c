@@ -93,13 +93,13 @@ parasail_result_t* FNAME(
     __m256i vNegInf = _mm256_set1_epi16(NEG_INF_16);
     int16_t score = NEG_INF_16;
     __m256i vMaxH = vNegInf;
-    __m256i insert_mask = _mm256_set_epi8(
-            0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1);
     __m256i segLenXgap_reset = _mm256_set_epi16(
             NEG_INF_16, NEG_INF_16, NEG_INF_16, NEG_INF_16,
             NEG_INF_16, NEG_INF_16, NEG_INF_16, NEG_INF_16,
             NEG_INF_16, NEG_INF_16, NEG_INF_16, NEG_INF_16,
             NEG_INF_16, NEG_INF_16, NEG_INF_16, -segLen*gap);
+    __m256i insert_mask = _mm256_cmpeq_epi16(_mm256_setzero_si256(),
+            _mm256_set_epi16(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1));
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else

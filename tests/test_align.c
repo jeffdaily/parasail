@@ -120,8 +120,8 @@ int main(int argc, char **argv)
     //size_t limit = 1000;
     //size_t limit = 500;
     //size_t limit = 200;
-    size_t limit = 100;
-    //size_t limit = 50;
+    //size_t limit = 100;
+    size_t limit = 50;
     //size_t limit = 2;
     //size_t limit = 1;
     size_t i;
@@ -160,8 +160,8 @@ int main(int argc, char **argv)
         {nw_scan_avx2_256_32,       "nw", "scan",    "avx2",  "256", "32", 0, 0, 0},
         {nw_scan_avx2_256_16,       "nw", "scan",    "avx2",  "256", "16", 0, 0, 0},
         {nw_scan_avx2_256_8,        "nw", "scan",    "avx2",  "256", "8",  0, 0, 0},
-        //{nw_diag_avx2_256_32,       "nw", "diag",    "avx2",  "256", "32", 0, 0, 0},
-        //{nw_diag_avx2_256_16,       "nw", "diag",    "avx2",  "256", "16", 0, 0, 0},
+        {nw_diag_avx2_256_32,       "nw", "diag",    "avx2",  "256", "32", 0, 0, 0},
+        {nw_diag_avx2_256_16,       "nw", "diag",    "avx2",  "256", "16", 0, 0, 0},
         //{nw_diag_avx2_256_8,        "nw", "diag",    "avx2",  "256", "8",  0, 0, 0},
         //{nw_striped_avx2_256_32,    "nw", "striped", "avx2",  "256", "32", 0, 0, 0},
         //{nw_striped_avx2_256_16,    "nw", "striped", "avx2",  "256", "16", 0, 0, 0},
@@ -268,8 +268,8 @@ int main(int argc, char **argv)
         {nw_table_scan_avx2_256_32,       "nw", "scan",    "avx2",  "256", "32", 1, 0, 0},
         {nw_table_scan_avx2_256_16,       "nw", "scan",    "avx2",  "256", "16", 1, 0, 0},
         {nw_table_scan_avx2_256_8,        "nw", "scan",    "avx2",  "256", "8",  1, 0, 0},
-        //{nw_table_diag_avx2_256_32,       "nw", "diag",    "avx2",  "256", "32", 1, 0, 0},
-        //{nw_table_diag_avx2_256_16,       "nw", "diag",    "avx2",  "256", "16", 1, 0, 0},
+        {nw_table_diag_avx2_256_32,       "nw", "diag",    "avx2",  "256", "32", 1, 0, 0},
+        {nw_table_diag_avx2_256_16,       "nw", "diag",    "avx2",  "256", "16", 1, 0, 0},
         //{nw_table_diag_avx2_256_8,        "nw", "diag",    "avx2",  "256", "8",  1, 0, 0},
         //{nw_table_striped_avx2_256_32,    "nw", "striped", "avx2",  "256", "32", 1, 0, 0},
         //{nw_table_striped_avx2_256_16,    "nw", "striped", "avx2",  "256", "16", 1, 0, 0},

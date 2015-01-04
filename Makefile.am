@@ -117,11 +117,11 @@ endif
 
 if HAVE_AVX2
 ALIGNMENT_SRC += src/nw_diag_avx2_256_32.c
-#ALIGNMENT_SRC += src/sg_diag_avx2_256_32.c
+ALIGNMENT_SRC += src/sg_diag_avx2_256_32.c
 #ALIGNMENT_SRC += src/sw_diag_avx2_256_32.c
 
 ALIGNMENT_SRC += src/nw_diag_avx2_256_16.c
-#ALIGNMENT_SRC += src/sg_diag_avx2_256_16.c
+ALIGNMENT_SRC += src/sg_diag_avx2_256_16.c
 #ALIGNMENT_SRC += src/sw_diag_avx2_256_16.c
 
 #ALIGNMENT_SRC += src/nw_diag_avx2_256_8.c
@@ -159,7 +159,7 @@ ALIGNMENT_SRC += src/sg_striped_sse41_128_8.c
 ALIGNMENT_SRC += src/sw_striped_sse41_128_8.c
 endif
 
-if HAVE_SSE41
+if HAVE_AVX2
 ALIGNMENT_SRC += src/nw_striped_avx2_256_32.c
 #ALIGNMENT_SRC += src/sg_striped_avx2_256_32.c
 #ALIGNMENT_SRC += src/sw_striped_avx2_256_32.c

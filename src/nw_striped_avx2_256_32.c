@@ -21,6 +21,16 @@
 
 #define NEG_INF_32 (INT32_MIN/(int32_t)(2))
 
+#if HAVE_AVX2_MM256_INSERT_EPI32
+#else
+static inline __m256i _mm256_insert_epi32(__m256i a, int32_t b, int imm) {
+    __m256i_32_t tmp;
+    tmp.m = a;
+    tmp.v[imm] = b;
+    return tmp.m;
+}
+#endif
+
 /* avx2 _mm256_slli_si256 does not shift across 128-bit lanes, emulate it */
 static inline __m256i shift(__m256i a) {
     return _mm256_alignr_epi8(a,

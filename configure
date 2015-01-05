@@ -4803,6 +4803,102 @@ cat >>confdefs.h <<_ACEOF
 _ACEOF
 
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for AVX2 _mm256_extract_epi32" >&5
+$as_echo_n "checking for AVX2 _mm256_extract_epi32... " >&6; }
+if ${pt_cv_avx2_mm256_extract_epi32+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#include <immintrin.h>
+__m256i foo() {
+    __m256i vZero = _mm256_set1_epi8(0);
+    return _mm256_extract_epi32(vZero,99,0);
+}
+
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  pt_cv_avx2_mm256_extract_epi32=yes;
+         pt_cv_avx2_mm256_extract_epi32_val=1
+else
+  pt_cv_avx2_mm256_extract_epi32=no;
+         pt_cv_avx2_mm256_extract_epi32_val=0
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $pt_cv_avx2_mm256_extract_epi32" >&5
+$as_echo "$pt_cv_avx2_mm256_extract_epi32" >&6; }
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_AVX2_MM256_INSERT_EPI32 $pt_cv_avx2_mm256_extract_epi32_val
+_ACEOF
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for AVX2 _mm256_extract_epi16" >&5
+$as_echo_n "checking for AVX2 _mm256_extract_epi16... " >&6; }
+if ${pt_cv_avx2_mm256_extract_epi16+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#include <immintrin.h>
+__m256i foo() {
+    __m256i vZero = _mm256_set1_epi8(0);
+    return _mm256_extract_epi16(vZero,99,0);
+}
+
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  pt_cv_avx2_mm256_extract_epi16=yes;
+         pt_cv_avx2_mm256_extract_epi16_val=1
+else
+  pt_cv_avx2_mm256_extract_epi16=no;
+         pt_cv_avx2_mm256_extract_epi16_val=0
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $pt_cv_avx2_mm256_extract_epi16" >&5
+$as_echo "$pt_cv_avx2_mm256_extract_epi16" >&6; }
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_AVX2_MM256_INSERT_EPI16 $pt_cv_avx2_mm256_extract_epi16_val
+_ACEOF
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for AVX2 _mm256_extract_epi8" >&5
+$as_echo_n "checking for AVX2 _mm256_extract_epi8... " >&6; }
+if ${pt_cv_avx2_mm256_extract_epi8+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#include <immintrin.h>
+__m256i foo() {
+    __m256i vZero = _mm256_set1_epi8(0);
+    return _mm256_extract_epi8(vZero,99,0);
+}
+
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  pt_cv_avx2_mm256_extract_epi8=yes;
+         pt_cv_avx2_mm256_extract_epi8_val=1
+else
+  pt_cv_avx2_mm256_extract_epi8=no;
+         pt_cv_avx2_mm256_extract_epi8_val=0
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $pt_cv_avx2_mm256_extract_epi8" >&5
+$as_echo "$pt_cv_avx2_mm256_extract_epi8" >&6; }
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_AVX2_MM256_INSERT_EPI8 $pt_cv_avx2_mm256_extract_epi8_val
+_ACEOF
+
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for KNC" >&5
 $as_echo_n "checking for KNC... " >&6; }
 if ${pt_cv_knc+:} false; then :

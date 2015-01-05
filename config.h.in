@@ -6,13 +6,13 @@
 /* define to 1 if the C compiler supports AVX2 */
 #undef HAVE_AVX2
 
-/* define to 1 if the C compiler supports AVX2 _mm256_insert_epi16 */
+/* define to 1 if the C compiler supports AVX2 _mm256_extract_epi16 */
 #undef HAVE_AVX2_MM256_INSERT_EPI16
 
-/* define to 1 if the C compiler supports AVX2 _mm256_insert_epi32 */
+/* define to 1 if the C compiler supports AVX2 _mm256_extract_epi32 */
 #undef HAVE_AVX2_MM256_INSERT_EPI32
 
-/* define to 1 if the C compiler supports AVX2 _mm256_insert_epi8 */
+/* define to 1 if the C compiler supports AVX2 _mm256_extract_epi8 */
 #undef HAVE_AVX2_MM256_INSERT_EPI8
 
 /* Define to 1 if you have the <dlfcn.h> header file. */

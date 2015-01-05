@@ -22,6 +22,15 @@
 #define NEG_INF_8 (INT8_MIN)
 #define MAX(a,b) ((a)>(b)?(a):(b))
 
+#if HAVE_AVX2_MM256_EXTRACT_EPI8
+#else
+static inline int8_t _mm256_extract_epi8(__m256i a, int imm) {
+    __m256i_8_t tmp;
+    tmp.m = a;
+    return tmp.v[imm];
+}
+#endif
+
 /* avx2 _mm256_slli_si256 does not shift across 128-bit lanes, emulate it */
 static inline __m256i shift(__m256i a) {
     return _mm256_alignr_epi8(a,

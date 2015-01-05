@@ -30,6 +30,15 @@ static inline __m256i _mm256_insert_epi32(__m256i a, int32_t b, int imm) {
 }
 #endif
 
+#if HAVE_AVX2_MM256_EXTRACT_EPI32
+#else
+static inline int32_t _mm256_extract_epi32(__m256i a, int imm) {
+    __m256i_32_t tmp;
+    tmp.m = a;
+    return tmp.v[imm];
+}
+#endif
+
 /* avx2 _mm256_srli_si256 does not shift across 128-bit lanes, emulate it */
 static inline __m256i rshift32(__m256i a) {
     return _mm256_or_si256(

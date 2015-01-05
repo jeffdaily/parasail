@@ -119,6 +119,7 @@ parasail_result_t* FNAME(
     __m128i vZero = _mm_set1_epi32(0);
     __m128i vOne = _mm_set1_epi32(1);
     __m128i vN = _mm_set1_epi32(N);
+    __m128i vGapN = _mm_set1_epi8(gap*N);
     __m128i vNegOne = _mm_set1_epi32(-1);
     __m128i vI = _mm_set_epi32(0,1,2,3);
     __m128i vJreset = _mm_set_epi32(0,-1,-2,-3);
@@ -356,7 +357,7 @@ parasail_result_t* FNAME(
             vJ = _mm_add_epi32(vJ, vOne);
         }
         vI = _mm_add_epi32(vI, vN);
-        vIBoundary = _mm_sub_epi32(vIBoundary, _mm_mullo_epi32(vN, vGap));
+        vIBoundary = _mm_sub_epi32(vIBoundary, vGapN);
     }
     for (/*i=?*/; i<s1Len; i+=N) {
         __m128i vNscore = vNegInf;
@@ -614,7 +615,7 @@ parasail_result_t* FNAME(
             vJ = _mm_add_epi32(vJ, vOne);
         }
         vI = _mm_add_epi32(vI, vN);
-        vIBoundary = _mm_sub_epi32(vIBoundary, _mm_mullo_epi32(vN, vGap));
+        vIBoundary = _mm_sub_epi32(vIBoundary, vGapN);
     }
 
     /* max in vMaxScore */

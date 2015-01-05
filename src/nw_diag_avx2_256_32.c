@@ -133,7 +133,7 @@ parasail_result_t* FNAME(
     __m256i vGap  = _mm256_set1_epi32(gap);
     __m256i vOne = _mm256_set1_epi32(1);
     __m256i vN = _mm256_set1_epi32(N);
-    __m256i vGapN = _mm256_mullo_epi32(vN, vGap);
+    __m256i vGapN = _mm256_set1_epi32(gap*N);
     __m256i vNegOne = _mm256_set1_epi32(-1);
     __m256i vI = _mm256_set_epi32(0,1,2,3,4,5,6,7);
     __m256i vJreset = _mm256_set_epi32(0,-1,-2,-3,-4,-5,-6,-7);

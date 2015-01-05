@@ -64,30 +64,6 @@ static inline __m256i vshift16(const __m256i v, const int val)
     return ret;
 }
 
-static inline __m256i _mm256_mullo_epi16(__m256i a, __m256i b) {
-    __m256i_16_t x;
-    __m256i_16_t y;
-    x.m = a;
-    y.m = b;
-    x.v[ 0] = x.v[ 0] * y.v[ 0];
-    x.v[ 1] = x.v[ 1] * y.v[ 1];
-    x.v[ 2] = x.v[ 2] * y.v[ 2];
-    x.v[ 3] = x.v[ 3] * y.v[ 3];
-    x.v[ 4] = x.v[ 4] * y.v[ 4];
-    x.v[ 5] = x.v[ 5] * y.v[ 5];
-    x.v[ 6] = x.v[ 6] * y.v[ 6];
-    x.v[ 7] = x.v[ 7] * y.v[ 7];
-    x.v[ 8] = x.v[ 8] * y.v[ 8];
-    x.v[ 9] = x.v[ 9] * y.v[ 9];
-    x.v[10] = x.v[10] * y.v[10];
-    x.v[11] = x.v[11] * y.v[11];
-    x.v[12] = x.v[12] * y.v[12];
-    x.v[13] = x.v[13] * y.v[13];
-    x.v[14] = x.v[14] * y.v[14];
-    x.v[15] = x.v[15] * y.v[15];
-    return x.m;
-}
-
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si256(
         int *array,
@@ -183,7 +159,7 @@ parasail_result_t* FNAME(
     __m256i vZero = _mm256_set1_epi16(0);
     __m256i vOne = _mm256_set1_epi16(1);
     __m256i vN = _mm256_set1_epi16(N);
-    __m256i vGapN = _mm256_mullo_epi16(vN, vGap);
+    __m256i vGapN = _mm256_set1_epi16(gap*N);
     __m256i vNegOne = _mm256_set1_epi16(-1);
     __m256i vI = _mm256_set_epi16(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15);
     __m256i vJreset = _mm256_set_epi16(0,-1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11,-12,-13,-14,-15);

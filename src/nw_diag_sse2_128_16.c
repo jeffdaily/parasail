@@ -99,7 +99,7 @@ parasail_result_t* FNAME(
     __m128i vGap  = _mm_set1_epi16(gap);
     __m128i vOne = _mm_set1_epi16(1);
     __m128i vN = _mm_set1_epi16(N);
-    __m128i vGapN = _mm_mullo_epi16(vN, vGap);
+    __m128i vGapN = _mm_set1_epi16(gap*N);
     __m128i vNegOne = _mm_set1_epi16(-1);
     __m128i vI = _mm_set_epi16(0,1,2,3,4,5,6,7);
     __m128i vJreset = _mm_set_epi16(0,-1,-2,-3,-4,-5,-6,-7);

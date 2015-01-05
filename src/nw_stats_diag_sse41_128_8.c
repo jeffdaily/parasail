@@ -30,22 +30,6 @@ static inline __m128i vshift8(const __m128i v, const int val)
     return ret;
 }
 
-
-static inline __m128i _mm_mullo_epi8(__m128i a, __m128i b) {
-    __m128i zero = _mm_setzero_si128();
-    __m128i Alo = _mm_cvtepu8_epi16(a);
-    __m128i Ahi = _mm_unpackhi_epi8(a, zero);
-    __m128i Blo = _mm_cvtepu8_epi16(b);
-    __m128i Bhi = _mm_unpackhi_epi8(b, zero);
-    __m128i Clo = _mm_mullo_epi16(Alo, Blo);
-    __m128i Chi = _mm_mullo_epi16(Ahi, Bhi);
-    __m128i maskLo = _mm_set_epi8(0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 14, 12, 10, 8, 6, 4, 2, 0);
-    __m128i maskHi = _mm_set_epi8(14, 12, 10, 8, 6, 4, 2, 0, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80, 0x80);
-    __m128i C = _mm_or_si128(_mm_shuffle_epi8(Clo, maskLo), _mm_shuffle_epi8(Chi, maskHi));
-    return C;
-}
-
-
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si128(
         int *array,
@@ -151,7 +135,7 @@ parasail_result_t* FNAME(
     __m128i vZero = _mm_set1_epi8(0);
     __m128i vOne = _mm_set1_epi8(1);
     __m128i vN = _mm_set1_epi8(N);
-    __m128i vGapN = _mm_mullo_epi8(vN, vGap);
+    __m128i vGapN = _mm_set1_epi8(gap*N);
     __m128i vNegOne = _mm_set1_epi8(-1);
     __m128i vI = _mm_set_epi8(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15);
     __m128i vJreset = _mm_set_epi8(0,-1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11,-12,-13,-14,-15);

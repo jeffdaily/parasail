@@ -162,11 +162,11 @@ endif
 if HAVE_AVX2
 ALIGNMENT_SRC += src/nw_striped_avx2_256_32.c
 ALIGNMENT_SRC += src/sg_striped_avx2_256_32.c
-#ALIGNMENT_SRC += src/sw_striped_avx2_256_32.c
+ALIGNMENT_SRC += src/sw_striped_avx2_256_32.c
 
 ALIGNMENT_SRC += src/nw_striped_avx2_256_16.c
 ALIGNMENT_SRC += src/sg_striped_avx2_256_16.c
-#ALIGNMENT_SRC += src/sw_striped_avx2_256_16.c
+ALIGNMENT_SRC += src/sw_striped_avx2_256_16.c
 
 #ALIGNMENT_SRC += src/nw_striped_avx2_256_8.c
 #ALIGNMENT_SRC += src/sg_striped_avx2_256_8.c

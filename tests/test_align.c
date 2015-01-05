@@ -235,8 +235,8 @@ int main(int argc, char **argv)
         {sw_diag_avx2_256_32,       "sw", "diag",    "avx2",  "256", "32", 0, 0, 0},
         {sw_diag_avx2_256_16,       "sw", "diag",    "avx2",  "256", "16", 0, 0, 0},
         //{sw_diag_avx2_256_8,        "sw", "diag",    "avx2",  "256", "8",  0, 0, 0},
-        //{sw_striped_avx2_256_32,    "sw", "striped", "avx2",  "256", "32", 0, 0, 0},
-        //{sw_striped_avx2_256_16,    "sw", "striped", "avx2",  "256", "16", 0, 0, 0},
+        {sw_striped_avx2_256_32,    "sw", "striped", "avx2",  "256", "32", 0, 0, 0},
+        {sw_striped_avx2_256_16,    "sw", "striped", "avx2",  "256", "16", 0, 0, 0},
         //{sw_striped_avx2_256_8,     "sw", "striped", "avx2",  "256", "8",  0, 0, 0},
 #endif
                                    
@@ -343,8 +343,8 @@ int main(int argc, char **argv)
         {sw_table_diag_avx2_256_32,     "sw", "diag",    "avx2",  "256", "32", 1, 0, 0},
         {sw_table_diag_avx2_256_16,     "sw", "diag",    "avx2",  "256", "16", 1, 0, 0},
         //{sw_table_diag_avx2_256_8,      "sw", "diag",    "avx2",  "256", "8",  1, 0, 0},
-        //{sw_table_striped_avx2_256_32,  "sw", "striped", "avx2",  "256", "32", 1, 0, 0},
-        //{sw_table_striped_avx2_256_16,  "sw", "striped", "avx2",  "256", "16", 1, 0, 0},
+        {sw_table_striped_avx2_256_32,  "sw", "striped", "avx2",  "256", "32", 1, 0, 0},
+        {sw_table_striped_avx2_256_16,  "sw", "striped", "avx2",  "256", "16", 1, 0, 0},
         //{sw_table_striped_avx2_256_8,   "sw", "striped", "avx2",  "256", "8",  1, 0, 0},
 #endif
 

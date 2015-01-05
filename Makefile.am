@@ -207,6 +207,94 @@ ALIGNMENT_SRC += src/sg_stats_scan_sse41_128_8.c
 ALIGNMENT_SRC += src/sw_stats_scan_sse41_128_8.c
 endif
 
+# parallel diag methods
+
+if HAVE_SSE2
+#ALIGNMENT_SRC += src/nw_stats_diag_sse2_128_32.c
+#ALIGNMENT_SRC += src/sg_stats_diag_sse2_128_32.c
+#ALIGNMENT_SRC += src/sw_stats_diag_sse2_128_32.c
+
+#ALIGNMENT_SRC += src/nw_stats_diag_sse2_128_16.c
+#ALIGNMENT_SRC += src/sg_stats_diag_sse2_128_16.c
+#ALIGNMENT_SRC += src/sw_stats_diag_sse2_128_16.c
+
+#ALIGNMENT_SRC += src/nw_stats_diag_sse2_128_8.c
+#ALIGNMENT_SRC += src/sg_stats_diag_sse2_128_8.c
+#ALIGNMENT_SRC += src/sw_stats_diag_sse2_128_8.c
+endif
+
+if HAVE_SSE41
+#ALIGNMENT_SRC += src/nw_stats_diag_sse41_128_32.c
+#ALIGNMENT_SRC += src/sg_stats_diag_sse41_128_32.c
+#ALIGNMENT_SRC += src/sw_stats_diag_sse41_128_32.c
+
+#ALIGNMENT_SRC += src/nw_stats_diag_sse41_128_16.c
+#ALIGNMENT_SRC += src/sg_stats_diag_sse41_128_16.c
+#ALIGNMENT_SRC += src/sw_stats_diag_sse41_128_16.c
+
+#ALIGNMENT_SRC += src/nw_stats_diag_sse41_128_8.c
+#ALIGNMENT_SRC += src/sg_stats_diag_sse41_128_8.c
+#ALIGNMENT_SRC += src/sw_stats_diag_sse41_128_8.c
+endif
+
+if HAVE_AVX2
+#ALIGNMENT_SRC += src/nw_stats_diag_avx2_256_32.c
+#ALIGNMENT_SRC += src/sg_stats_diag_avx2_256_32.c
+#ALIGNMENT_SRC += src/sw_stats_diag_avx2_256_32.c
+
+#ALIGNMENT_SRC += src/nw_stats_diag_avx2_256_16.c
+#ALIGNMENT_SRC += src/sg_stats_diag_avx2_256_16.c
+#ALIGNMENT_SRC += src/sw_stats_diag_avx2_256_16.c
+
+#ALIGNMENT_SRC += src/nw_stats_diag_avx2_256_8.c
+#ALIGNMENT_SRC += src/sg_stats_diag_avx2_256_8.c
+#ALIGNMENT_SRC += src/sw_stats_diag_avx2_256_8.c
+endif
+
+# parallel striped methods
+
+if HAVE_SSE2
+#ALIGNMENT_SRC += src/nw_stats_striped_sse2_128_32.c
+#ALIGNMENT_SRC += src/sg_stats_striped_sse2_128_32.c
+#ALIGNMENT_SRC += src/sw_stats_striped_sse2_128_32.c
+
+ALIGNMENT_SRC += src/nw_stats_striped_sse2_128_16.c
+#ALIGNMENT_SRC += src/sg_stats_striped_sse2_128_16.c
+#ALIGNMENT_SRC += src/sw_stats_striped_sse2_128_16.c
+
+#ALIGNMENT_SRC += src/nw_stats_striped_sse2_128_8.c
+#ALIGNMENT_SRC += src/sg_stats_striped_sse2_128_8.c
+#ALIGNMENT_SRC += src/sw_stats_striped_sse2_128_8.c
+endif
+
+if HAVE_SSE41
+#ALIGNMENT_SRC += src/nw_stats_striped_sse41_128_32.c
+#ALIGNMENT_SRC += src/sg_stats_striped_sse41_128_32.c
+#ALIGNMENT_SRC += src/sw_stats_striped_sse41_128_32.c
+
+#ALIGNMENT_SRC += src/nw_stats_striped_sse41_128_16.c
+#ALIGNMENT_SRC += src/sg_stats_striped_sse41_128_16.c
+#ALIGNMENT_SRC += src/sw_stats_striped_sse41_128_16.c
+
+ALIGNMENT_SRC += src/nw_stats_striped_sse41_128_8.c
+#ALIGNMENT_SRC += src/sg_stats_striped_sse41_128_8.c
+#ALIGNMENT_SRC += src/sw_stats_striped_sse41_128_8.c
+endif
+
+if HAVE_AVX2
+#ALIGNMENT_SRC += src/nw_stats_striped_avx2_256_32.c
+#ALIGNMENT_SRC += src/sg_stats_striped_avx2_256_32.c
+#ALIGNMENT_SRC += src/sw_stats_striped_avx2_256_32.c
+
+#ALIGNMENT_SRC += src/nw_stats_striped_avx2_256_16.c
+#ALIGNMENT_SRC += src/sg_stats_striped_avx2_256_16.c
+#ALIGNMENT_SRC += src/sw_stats_striped_avx2_256_16.c
+
+#ALIGNMENT_SRC += src/nw_stats_striped_avx2_256_8.c
+#ALIGNMENT_SRC += src/sg_stats_striped_avx2_256_8.c
+#ALIGNMENT_SRC += src/sw_stats_striped_avx2_256_8.c
+endif
+
 libparasail_la_SOURCES += $(ALIGNMENT_SRC)
 
 libparasail_table_la_SOURCES = $(ALIGNMENT_SRC)

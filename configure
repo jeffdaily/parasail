@@ -4811,10 +4811,11 @@ else
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
+#include <stdint.h>
 #include <immintrin.h>
-__m256i foo() {
+int32_t foo() {
     __m256i vZero = _mm256_set1_epi8(0);
-    return _mm256_extract_epi32(vZero,99,0);
+    return _mm256_extract_epi32(vZero,0);
 }
 
 _ACEOF
@@ -4831,7 +4832,7 @@ fi
 $as_echo "$pt_cv_avx2_mm256_extract_epi32" >&6; }
 
 cat >>confdefs.h <<_ACEOF
-#define HAVE_AVX2_MM256_INSERT_EPI32 $pt_cv_avx2_mm256_extract_epi32_val
+#define HAVE_AVX2_MM256_EXTRACT_EPI32 $pt_cv_avx2_mm256_extract_epi32_val
 _ACEOF
 
 
@@ -4843,10 +4844,11 @@ else
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
+#include <stdint.h>
 #include <immintrin.h>
-__m256i foo() {
+int16_t foo() {
     __m256i vZero = _mm256_set1_epi8(0);
-    return _mm256_extract_epi16(vZero,99,0);
+    return _mm256_extract_epi16(vZero,0);
 }
 
 _ACEOF
@@ -4863,7 +4865,7 @@ fi
 $as_echo "$pt_cv_avx2_mm256_extract_epi16" >&6; }
 
 cat >>confdefs.h <<_ACEOF
-#define HAVE_AVX2_MM256_INSERT_EPI16 $pt_cv_avx2_mm256_extract_epi16_val
+#define HAVE_AVX2_MM256_EXTRACT_EPI16 $pt_cv_avx2_mm256_extract_epi16_val
 _ACEOF
 
 
@@ -4875,10 +4877,11 @@ else
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
+#include <stdint.h>
 #include <immintrin.h>
-__m256i foo() {
+int8_t foo() {
     __m256i vZero = _mm256_set1_epi8(0);
-    return _mm256_extract_epi8(vZero,99,0);
+    return _mm256_extract_epi8(vZero,0);
 }
 
 _ACEOF
@@ -4895,7 +4898,7 @@ fi
 $as_echo "$pt_cv_avx2_mm256_extract_epi8" >&6; }
 
 cat >>confdefs.h <<_ACEOF
-#define HAVE_AVX2_MM256_INSERT_EPI8 $pt_cv_avx2_mm256_extract_epi8_val
+#define HAVE_AVX2_MM256_EXTRACT_EPI8 $pt_cv_avx2_mm256_extract_epi8_val
 _ACEOF
 
 

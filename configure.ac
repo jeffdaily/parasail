@@ -143,51 +143,54 @@ AC_DEFINE_UNQUOTED([HAVE_AVX2_MM256_INSERT_EPI8],
 AC_CACHE_CHECK([for AVX2 _mm256_extract_epi32],
     [pt_cv_avx2_mm256_extract_epi32],
     [AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+#include <stdint.h>
 #include <immintrin.h>
-__m256i foo() {
+int32_t foo() {
     __m256i vZero = _mm256_set1_epi8(0);
-    return _mm256_extract_epi32(vZero,99,0);
+    return _mm256_extract_epi32(vZero,0);
 }
 ]])],
         [pt_cv_avx2_mm256_extract_epi32=yes;
          pt_cv_avx2_mm256_extract_epi32_val=1],
         [pt_cv_avx2_mm256_extract_epi32=no];
          pt_cv_avx2_mm256_extract_epi32_val=0)])
-AC_DEFINE_UNQUOTED([HAVE_AVX2_MM256_INSERT_EPI32],
+AC_DEFINE_UNQUOTED([HAVE_AVX2_MM256_EXTRACT_EPI32],
     [$pt_cv_avx2_mm256_extract_epi32_val],
     [define to 1 if the C compiler supports AVX2 _mm256_extract_epi32])
 
 AC_CACHE_CHECK([for AVX2 _mm256_extract_epi16],
     [pt_cv_avx2_mm256_extract_epi16],
     [AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+#include <stdint.h>
 #include <immintrin.h>
-__m256i foo() {
+int16_t foo() {
     __m256i vZero = _mm256_set1_epi8(0);
-    return _mm256_extract_epi16(vZero,99,0);
+    return _mm256_extract_epi16(vZero,0);
 }
 ]])],
         [pt_cv_avx2_mm256_extract_epi16=yes;
          pt_cv_avx2_mm256_extract_epi16_val=1],
         [pt_cv_avx2_mm256_extract_epi16=no];
          pt_cv_avx2_mm256_extract_epi16_val=0)])
-AC_DEFINE_UNQUOTED([HAVE_AVX2_MM256_INSERT_EPI16],
+AC_DEFINE_UNQUOTED([HAVE_AVX2_MM256_EXTRACT_EPI16],
     [$pt_cv_avx2_mm256_extract_epi16_val],
     [define to 1 if the C compiler supports AVX2 _mm256_extract_epi16])
 
 AC_CACHE_CHECK([for AVX2 _mm256_extract_epi8],
     [pt_cv_avx2_mm256_extract_epi8],
     [AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+#include <stdint.h>
 #include <immintrin.h>
-__m256i foo() {
+int8_t foo() {
     __m256i vZero = _mm256_set1_epi8(0);
-    return _mm256_extract_epi8(vZero,99,0);
+    return _mm256_extract_epi8(vZero,0);
 }
 ]])],
         [pt_cv_avx2_mm256_extract_epi8=yes;
          pt_cv_avx2_mm256_extract_epi8_val=1],
         [pt_cv_avx2_mm256_extract_epi8=no];
          pt_cv_avx2_mm256_extract_epi8_val=0)])
-AC_DEFINE_UNQUOTED([HAVE_AVX2_MM256_INSERT_EPI8],
+AC_DEFINE_UNQUOTED([HAVE_AVX2_MM256_EXTRACT_EPI8],
     [$pt_cv_avx2_mm256_extract_epi8_val],
     [define to 1 if the C compiler supports AVX2 _mm256_extract_epi8])
 

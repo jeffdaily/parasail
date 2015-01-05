@@ -13,6 +13,7 @@
 #include <stdlib.h>
 
 #include <emmintrin.h>
+#include <smmintrin.h>
 
 #include "parasail.h"
 #include "parasail_internal.h"

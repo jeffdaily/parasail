@@ -14,13 +14,12 @@
 
 #include <emmintrin.h>
 
-#ifdef PARASAIL_TABLE
-#include "align_striped_128_16_table.h"
-#else
-#include "align_striped_128_16.h"
-#endif
+#include "parasail.h"
+#include "parasail_internal.h"
+#include "parasail_internal_sse.h"
 #include "blosum/blosum_map.h"
 
+#define NEG_INF_16 (INT16_MIN/(int16_t)(2))
 
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si128(
@@ -42,62 +41,43 @@ static inline void arr_store_si128(
 }
 #endif
 
-
 #ifdef PARASAIL_TABLE
-#define FNAME sw_stats_striped_128_16_table
+#define FNAME sw_stats_table_striped_sse2_128_16
 #else
-#define FNAME sw_stats_striped_128_16
+#define FNAME sw_stats_striped_sse2_128_16
 #endif
 
-int FNAME(
+parasail_result_t* FNAME(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap,
-        const int8_t * const restrict matrix,
-        int * const restrict matches, int * const restrict length
-#ifdef PARASAIL_TABLE
-        , int * const restrict score_table
-        , int * const restrict match_table
-        , int * const restrict length_table
-#endif
-        )
+        const int open, const int gap, const int matrix[24][24])
 {
     int32_t i = 0;
     int32_t j = 0;
     int32_t k = 0;
-    int32_t nt = 0;
     int32_t segNum = 0;
     const int32_t n = 24; /* number of amino acids in table */
-    int32_t segLen = (s1Len + 7) / 8;
-    __m128i* vProfile = (__m128i*)malloc(n * segLen * sizeof(__m128i));
-    __m128i* vProfileS = (__m128i*)malloc(n * segLen * sizeof(__m128i));
-
-    /* the max alignment score */
-    int max = NEG_INF_16;
-
-    /* Define 16 byte 0 vector. */
+    const int32_t segWidth = 8; /* number of values in vector unit */
+    int32_t segLen = (s1Len + segWidth - 1) / segWidth;
+    __m128i* const restrict vProfile  = parasail_memalign_m128i(16, n * segLen);
+    __m128i* const restrict vProfileS = parasail_memalign_m128i(16, n * segLen);
+    __m128i* restrict pvHStore        = parasail_memalign_m128i(16, segLen);
+    __m128i* restrict pvHLoad         = parasail_memalign_m128i(16, segLen);
+    __m128i* restrict pvHMStore       = parasail_memalign_m128i(16, segLen);
+    __m128i* restrict pvHMLoad        = parasail_memalign_m128i(16, segLen);
+    __m128i* restrict pvHLStore       = parasail_memalign_m128i(16, segLen);
+    __m128i* restrict pvHLLoad        = parasail_memalign_m128i(16, segLen);
+    __m128i* restrict pvEStore        = parasail_memalign_m128i(16, segLen);
+    __m128i* restrict pvELoad         = parasail_memalign_m128i(16, segLen);
+    __m128i* restrict pvEM            = parasail_memalign_m128i(16, segLen);
+    __m128i* restrict pvEL            = parasail_memalign_m128i(16, segLen);
+    __m128i vGapO = _mm_set1_epi16(open);
+    __m128i vGapE = _mm_set1_epi16(gap);
     __m128i vZero = _mm_setzero_si128();
     __m128i vOne = _mm_set1_epi16(1);
-
-    __m128i* pvHStore = (__m128i*) calloc(segLen, sizeof(__m128i));
-    __m128i* pvHLoad = (__m128i*) calloc(segLen, sizeof(__m128i));
-    __m128i* pvHMStore = (__m128i*) calloc(segLen, sizeof(__m128i));
-    __m128i* pvHMLoad = (__m128i*) calloc(segLen, sizeof(__m128i));
-    __m128i* pvHLStore = (__m128i*) calloc(segLen, sizeof(__m128i));
-    __m128i* pvHLLoad = (__m128i*) calloc(segLen, sizeof(__m128i));
-    __m128i* pvEStore = (__m128i*) calloc(segLen, sizeof(__m128i));
-    __m128i* pvELoad = (__m128i*) calloc(segLen, sizeof(__m128i));
-    __m128i* pvEMStore = (__m128i*) calloc(segLen, sizeof(__m128i));
-    __m128i* pvEMLoad = (__m128i*) calloc(segLen, sizeof(__m128i));
-    __m128i* pvELStore = (__m128i*) calloc(segLen, sizeof(__m128i));
-    __m128i* pvELLoad = (__m128i*) calloc(segLen, sizeof(__m128i));
-
-    /* 16 byte insertion begin vector */
-    __m128i vGapO = _mm_set1_epi16(open);
-
-    /* 16 byte insertion extension vector */
-    __m128i vGapE = _mm_set1_epi16(gap);
-
+    int16_t score = NEG_INF_16;
+    int16_t matches = NEG_INF_16;
+    int16_t length = NEG_INF_16;
     /* for max calculation we don't want to include padded cells */
     __m128i vQLimit = _mm_set1_epi16(s1Len);
     __m128i vQIndex_reset = _mm_set_epi16(
@@ -109,36 +89,54 @@ int FNAME(
             2*segLen,
             1*segLen,
             0*segLen);
-
     /* Trace the highest score of the whole SW matrix. */
     __m128i vMaxH = vZero;
     __m128i vMaxM = vZero;
     __m128i vMaxL = vZero;
+#ifdef PARASAIL_TABLE
+    parasail_result_t *result = parasail_result_new_table3(segLen*segWidth, s2Len);
+#else
+    parasail_result_t *result = parasail_result_new();
+#endif
 
-    /* Generate query profile rearrange query sequence & calculate the weight
-     * of match/mismatch */
+    parasail_memset_m128i(pvHMStore, vZero, segLen);
+    parasail_memset_m128i(pvHLStore, vZero, segLen);
+
+    /* Generate query profile.
+     * Rearrange query sequence & calculate the weight of match/mismatch.
+     * Don't alias. */
     {
-        int16_t *t = (int16_t*)vProfile;
-        int16_t *s = (int16_t*)vProfileS;
-        for (nt=0; nt<n; ++nt) {
+        int32_t index = 0;
+        for (k=0; k<n; ++k) {
             for (i=0; i<segLen; ++i) {
+                __m128i_16_t t;
+                __m128i_16_t s;
                 j = i;
-                for (segNum=0; segNum<8; ++segNum) {
-                    *t++ = matrix[nt*n + MAP_BLOSUM_[(unsigned char)s1[j]]];
-                    *s++ = (nt == MAP_BLOSUM_[(unsigned char)s1[j]]);
+                for (segNum=0; segNum<segWidth; ++segNum) {
+                    t.v[segNum] = matrix[k][MAP_BLOSUM_[(unsigned char)s1[j]]];
+                    s.v[segNum] = (k == MAP_BLOSUM_[(unsigned char)s1[j]]);
                     j += segLen;
                 }
+                _mm_store_si128(&vProfile[index], t.m);
+                _mm_store_si128(&vProfileS[index], s.m);
+                ++index;
             }
         }
     }
 
-    /* initialize E */
+    /* initialize H and E */
     {
-        int16_t *e = (int16_t*)pvEStore;
+        int32_t index = 0;
         for (i=0; i<segLen; ++i) {
-            for (segNum=0; segNum<8; ++segNum) {
-                *e++ = -open;
+            __m128i_16_t h;
+            __m128i_16_t e;
+            for (segNum=0; segNum<segWidth; ++segNum) {
+                h.v[segNum] = 0;
+                e.v[segNum] = -open;
             }
+            _mm_store_si128(&pvHStore[index], h.m);
+            _mm_store_si128(&pvEStore[index], e.m);
+            ++index;
         }
     }
 
@@ -148,23 +146,33 @@ int FNAME(
         __m128i vE;
         __m128i vEM;
         __m128i vEL;
+        __m128i vF;
+        __m128i vFM;
+        __m128i vFL;
+        __m128i vH;
+        __m128i vHM;
+        __m128i vHL;
+        const __m128i* vP = NULL;
+        const __m128i* vPS = NULL;
+        __m128i* pv = NULL;
+
         /* Initialize F value to 0.  Any errors to vH values will be corrected
          * in the Lazy_F loop.  */
-        __m128i vF = vZero;
-        __m128i vFM = vZero;
-        __m128i vFL = vZero;
+        vF = vZero;
+        vFM = vZero;
+        vFL = vZero;
 
         /* load final segment of pvHStore and shift left by 2 bytes */
-        __m128i vH = _mm_slli_si128(pvHStore[segLen - 1], 2);
-        __m128i vHM = _mm_slli_si128(pvHMStore[segLen - 1], 2);
-        __m128i vHL = _mm_slli_si128(pvHLStore[segLen - 1], 2);
+        vH = _mm_slli_si128(pvHStore[segLen - 1], 2);
+        vHM = _mm_slli_si128(pvHMStore[segLen - 1], 2);
+        vHL = _mm_slli_si128(pvHLStore[segLen - 1], 2);
 
         /* Correct part of the vProfile */
-        const __m128i* vP = vProfile + MAP_BLOSUM_[(unsigned char)s2[j]] * segLen;
-        const __m128i* vPS = vProfileS + MAP_BLOSUM_[(unsigned char)s2[j]] * segLen;
+        vP = vProfile + MAP_BLOSUM_[(unsigned char)s2[j]] * segLen;
+        vPS = vProfileS + MAP_BLOSUM_[(unsigned char)s2[j]] * segLen;
 
         /* Swap the 2 H buffers. */
-        __m128i* pv = pvHLoad;
+        pv = pvHLoad;
         pvHLoad = pvHStore;
         pvHStore = pv;
         pv = pvHMLoad;
@@ -176,12 +184,6 @@ int FNAME(
         pv = pvELoad;
         pvELoad = pvEStore;
         pvEStore = pv;
-        pv = pvEMLoad;
-        pvEMLoad = pvEMStore;
-        pvEMStore = pv;
-        pv = pvELLoad;
-        pvELLoad = pvELStore;
-        pvELStore = pv;
 
         /* inner loop to process the query sequence */
         for (i=0; i<segLen; ++i) {
@@ -210,7 +212,7 @@ int FNAME(
             cond_zero = _mm_cmpeq_epi16(vH, vZero);
 
             /* calculate vM */
-            vEM = _mm_load_si128(pvEMLoad + i);
+            vEM = _mm_load_si128(pvEM + i);
             vHM = _mm_andnot_si128(case1not,
                     _mm_add_epi16(vHM, _mm_load_si128(vPS + i)));
             vHM = _mm_or_si128(vHM, _mm_and_si128(case2, vFM));
@@ -219,7 +221,7 @@ int FNAME(
             _mm_store_si128(pvHMStore + i, vHM);
 
             /* calculate vL */
-            vEL = _mm_load_si128(pvELLoad + i);
+            vEL = _mm_load_si128(pvEL + i);
             vHL = _mm_andnot_si128(case1not, _mm_add_epi16(vHL, vOne));
             vHL = _mm_or_si128(vHL, _mm_and_si128(case2,
                         _mm_add_epi16(vFL, vOne)));
@@ -229,9 +231,9 @@ int FNAME(
             _mm_store_si128(pvHLStore + i, vHL);
 
 #ifdef PARASAIL_TABLE
-            arr_store_si128(match_table, vHM, i, segLen, j, s2Len);
-            arr_store_si128(length_table, vHL, i, segLen, j, s2Len);
-            arr_store_si128(score_table, vH, i, segLen, j, s2Len);
+            arr_store_si128(result->matches_table, vHM, i, segLen, j, s2Len);
+            arr_store_si128(result->length_table, vHL, i, segLen, j, s2Len);
+            arr_store_si128(result->score_table, vH, i, segLen, j, s2Len);
 #endif
             /* update max vector seen so far */
             {
@@ -252,8 +254,8 @@ int FNAME(
             vE = _mm_subs_epi16(vE, vGapE);
             vE = _mm_max_epi16(vE, vH);
             _mm_store_si128(pvEStore + i, vE);
-            _mm_store_si128(pvEMStore + i, vHM);
-            _mm_store_si128(pvELStore + i, vHL);
+            _mm_store_si128(pvEM + i, vHM);
+            _mm_store_si128(pvEL + i, vHL);
 
             /* Update vF value. */
             vF = _mm_subs_epi16(vF, vGapE);
@@ -269,7 +271,7 @@ int FNAME(
 
         /* Lazy_F loop: has been revised to disallow adjecent insertion and
          * then deletion, so don't update E(i, i), learn from SWPS3 */
-        for (k=0; k<8; ++k) {
+        for (k=0; k<segWidth; ++k) {
             __m128i vHp = _mm_slli_si128(pvHLoad[segLen - 1], 2);
             vF = _mm_slli_si128(vF, 2);
             vFM = _mm_slli_si128(vFM, 2);
@@ -287,37 +289,31 @@ int FNAME(
                         _mm_cmplt_epi16(vHp,vF),_mm_cmplt_epi16(vHp,vE));
                 case2not = _mm_cmplt_epi16(vF,vE);
                 case2 = _mm_andnot_si128(case2not,case1not);
-                /*case3 = _mm_and_si128(case1not,case2not);*/
 
                 vH = _mm_load_si128(pvHStore + i);
                 vH = _mm_max_epi16(vH,vF);
                 _mm_store_si128(pvHStore + i, vH);
                 cond_zero = _mm_cmpeq_epi16(vH, vZero);
 
-                /* calculate vM */
-                vEM = _mm_load_si128(pvEMLoad + i);
-                vHM = _mm_andnot_si128(case1not, vHM);
+                vHM = _mm_load_si128(pvHMStore + i);
+                vHM = _mm_andnot_si128(case2, vHM);
                 vHM = _mm_or_si128(vHM, _mm_and_si128(case2, vFM));
-                /*vHM = _mm_or_si128(vHM, _mm_and_si128(case3, vEM));*/
                 vHM = _mm_andnot_si128(cond_zero, vHM);
                 _mm_store_si128(pvHMStore + i, vHM);
-                _mm_store_si128(pvEMStore + i, vHM);
+                _mm_store_si128(pvEM + i, vHM);
 
-                /* calculate vL */
-                vEL = _mm_load_si128(pvELLoad + i);
-                vHL = _mm_andnot_si128(case1not, vHL);
+                vHL = _mm_load_si128(pvHLStore + i);
+                vHL = _mm_andnot_si128(case2, vHL);
                 vHL = _mm_or_si128(vHL, _mm_and_si128(case2,
-                            _mm_add_epi16(vFL, vOne)));
-                /*vHL = _mm_or_si128(vHL, _mm_and_si128(case3,
-                              _mm_add_epi16(vEL, vOne)));*/
+                            _mm_add_epi16(vFL,vOne)));
                 vHL = _mm_andnot_si128(cond_zero, vHL);
                 _mm_store_si128(pvHLStore + i, vHL);
-                _mm_store_si128(pvELStore + i, vHL);
+                _mm_store_si128(pvEL + i, vHL);
 
 #ifdef PARASAIL_TABLE
-                arr_store_si128(match_table, vHM, i, segLen, j, s2Len);
-                arr_store_si128(length_table, vHL, i, segLen, j, s2Len);
-                arr_store_si128(score_table, vH, i, segLen, j, s2Len);
+                arr_store_si128(result->matches_table, vHM, i, segLen, j, s2Len);
+                arr_store_si128(result->length_table, vHL, i, segLen, j, s2Len);
+                arr_store_si128(result->score_table, vH, i, segLen, j, s2Len);
 #endif
                 vH = _mm_subs_epi16(vH, vGapO);
                 vF = _mm_subs_epi16(vF, vGapE);
@@ -334,33 +330,35 @@ end:
     }
 
     /* max in vec */
-    for (j=0; j<8; ++j) {
+    for (j=0; j<segWidth; ++j) {
         int16_t value = (int16_t) _mm_extract_epi16(vMaxH, 7);
-        if (value > max) {
-            max = value;
-            *matches = (int16_t) _mm_extract_epi16(vMaxM, 7);
-            *length = (int16_t) _mm_extract_epi16(vMaxL, 7);
+        if (value > score) {
+            score = value;
+            matches = (int16_t) _mm_extract_epi16(vMaxM, 7);
+            length = (int16_t) _mm_extract_epi16(vMaxL, 7);
         }
         vMaxH = _mm_slli_si128(vMaxH, 2);
         vMaxM = _mm_slli_si128(vMaxM, 2);
         vMaxL = _mm_slli_si128(vMaxL, 2);
     }
 
-    free(vProfile);
-    free(vProfileS);
-    free(pvHStore);
-    free(pvHLoad);
-    free(pvHMStore);
-    free(pvHMLoad);
-    free(pvHLStore);
-    free(pvHLLoad);
-    free(pvEStore);
-    free(pvELoad);
-    free(pvEMStore);
-    free(pvEMLoad);
-    free(pvELStore);
-    free(pvELLoad);
+    result->score = score;
+    result->matches = matches;
+    result->length = length;
 
-    return max;
+    free(pvEL);
+    free(pvEM);
+    free(pvELoad);
+    free(pvEStore);
+    free(pvHLLoad);
+    free(pvHLStore);
+    free(pvHMLoad);
+    free(pvHMStore);
+    free(pvHLoad);
+    free(pvHStore);
+    free(vProfileS);
+    free(vProfile);
+
+    return result;
 }
 

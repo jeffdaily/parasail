@@ -78,9 +78,9 @@ parasail_result_t* FNAME(
     __m128i vGapE = _mm_set1_epi16(gap);
     __m128i vZero = _mm_setzero_si128();
     __m128i vOne = _mm_set1_epi16(1);
-    int16_t score;
-    int16_t matches;
-    int16_t length;
+    int16_t score = NEG_INF_16;
+    int16_t matches = NEG_INF_16;
+    int16_t length = NEG_INF_16;
     __m128i initialF = _mm_set_epi16(
             -open-open-7*segLen*gap,
             -open-open-6*segLen*gap,
@@ -285,6 +285,10 @@ parasail_result_t* FNAME(
                 case2not = _mm_cmplt_epi16(vF,vE);
                 case2 = _mm_andnot_si128(case2not,case1not);
 
+                vH = _mm_load_si128(pvHStore + i);
+                vH = _mm_max_epi16(vH,vF);
+                _mm_store_si128(pvHStore + i, vH);
+
                 vHM = _mm_load_si128(pvHMStore + i);
                 vHM = _mm_andnot_si128(case2, vHM);
                 vHM = _mm_or_si128(vHM, _mm_and_si128(case2, vFM));
@@ -298,9 +302,6 @@ parasail_result_t* FNAME(
                 _mm_store_si128(pvHLStore + i, vHL);
                 _mm_store_si128(pvEL + i, vHL);
 
-                vH = _mm_load_si128(pvHStore + i);
-                vH = _mm_max_epi16(vH,vF);
-                _mm_store_si128(pvHStore + i, vH);
 #ifdef PARASAIL_TABLE
                 arr_store_si128(result->matches_table, vHM, i, segLen, j, s2Len);
                 arr_store_si128(result->length_table, vHL, i, segLen, j, s2Len);

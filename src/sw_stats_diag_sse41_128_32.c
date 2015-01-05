@@ -241,7 +241,7 @@ parasail_result_t* FNAME(
                 vWmatch = _mm_andnot_si128(cond, vWmatch);
                 vWlength = _mm_andnot_si128(cond, vWlength);
                 vDel = _mm_blendv_epi8(vDel, vNegInf, cond);
-                vIns = _mm_blendv_epi8(vDel, vNegInf, cond);
+                vIns = _mm_blendv_epi8(vIns, vNegInf, cond);
             }
 #ifdef PARASAIL_TABLE
             arr_store_si128(result->score_table, vWscore, i, s1Len, j, s2Len);

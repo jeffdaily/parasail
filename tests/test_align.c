@@ -409,7 +409,7 @@ int main(int argc, char **argv)
         //{sw_stats_diag_sse2_128_8,        "sw_stats", "diag",    "sse2",  "128", "8",  0, 1, 0},
         {sw_stats_striped_sse2_128_32,    "sw_stats", "striped", "sse2",  "128", "32", 0, 1, 0},
         {sw_stats_striped_sse2_128_16,    "sw_stats", "striped", "sse2",  "128", "16", 0, 1, 0},
-        //{sw_stats_striped_sse2_128_8,     "sw_stats", "striped", "sse2",  "128", "8",  0, 1, 0},
+        {sw_stats_striped_sse2_128_8,     "sw_stats", "striped", "sse2",  "128", "8",  0, 1, 0},
 #endif
 #if HAVE_SSE41
         {sw_stats_scan_sse41_128_32,      "sw_stats", "scan",    "sse41", "128", "32", 0, 1, 0},
@@ -420,7 +420,7 @@ int main(int argc, char **argv)
         //{sw_stats_diag_sse41_128_8,       "sw_stats", "diag",    "sse41", "128", "8",  0, 1, 0},
         {sw_stats_striped_sse41_128_32,   "sw_stats", "striped", "sse41", "128", "32", 0, 1, 0},
         {sw_stats_striped_sse41_128_16,   "sw_stats", "striped", "sse41", "128", "16", 0, 1, 0},
-        //{sw_stats_striped_sse41_128_8,    "sw_stats", "striped", "sse41", "128", "8",  0, 1, 0},
+        {sw_stats_striped_sse41_128_8,    "sw_stats", "striped", "sse41", "128", "8",  0, 1, 0},
 #endif
                                    
         {nw_stats_table,                        "nw_stats", "orig",    "NA",    "32",  "32", 1, 1, 1},
@@ -484,7 +484,7 @@ int main(int argc, char **argv)
         //{sw_stats_table_diag_sse2_128_8,        "sw_stats", "diag",    "sse2",  "128", "8",  1, 1, 0},
         {sw_stats_table_striped_sse2_128_32,    "sw_stats", "striped", "sse2",  "128", "32", 1, 1, 0},
         {sw_stats_table_striped_sse2_128_16,    "sw_stats", "striped", "sse2",  "128", "16", 1, 1, 0},
-        //{sw_stats_table_striped_sse2_128_8,     "sw_stats", "striped", "sse2",  "128", "8",  1, 1, 0},
+        {sw_stats_table_striped_sse2_128_8,     "sw_stats", "striped", "sse2",  "128", "8",  1, 1, 0},
 #endif
 #if HAVE_SSE41
         {sw_stats_table_scan_sse41_128_32,      "sw_stats", "scan",    "sse41", "128", "32", 1, 1, 0},
@@ -495,7 +495,7 @@ int main(int argc, char **argv)
         //{sw_stats_table_diag_sse41_128_8,       "sw_stats", "diag",    "sse41", "128", "8",  1, 1, 0},
         {sw_stats_table_striped_sse41_128_32,   "sw_stats", "striped", "sse41", "128", "32", 1, 1, 0},
         {sw_stats_table_striped_sse41_128_16,   "sw_stats", "striped", "sse41", "128", "16", 1, 1, 0},
-        //{sw_stats_table_striped_sse41_128_8,    "sw_stats", "striped", "sse41", "128", "8",  1, 1, 0},
+        {sw_stats_table_striped_sse41_128_8,    "sw_stats", "striped", "sse41", "128", "8",  1, 1, 0},
 #endif
 
         {NULL, "", "", "", "", "", 0, 0, 0}

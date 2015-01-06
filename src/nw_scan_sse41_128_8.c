@@ -13,6 +13,7 @@
 #include <stdlib.h>
 
 #include <emmintrin.h>
+#include <tmmintrin.h>
 #include <smmintrin.h>
 
 #include "parasail.h"
@@ -83,6 +84,14 @@ parasail_result_t* FNAME(
     __m128i vNegLimit = _mm_set1_epi8(INT8_MIN);
     __m128i vPosLimit = _mm_set1_epi8(INT8_MAX);
     int8_t score = 0;
+    __m128i segLenXgap_reset = _mm_set_epi8(
+            NEG_INF_8, NEG_INF_8, NEG_INF_8, NEG_INF_8,
+            NEG_INF_8, NEG_INF_8, NEG_INF_8, NEG_INF_8,
+            NEG_INF_8, NEG_INF_8, NEG_INF_8, NEG_INF_8,
+            NEG_INF_8, NEG_INF_8, NEG_INF_8, -segLen*gap);
+    __m128i rotate = _mm_set_epi8(14,13,12,11,10,9,8,7,6,5,4,3,2,1,0,15);
+    __m128i insert = _mm_cmpeq_epi8(_mm_setzero_si128(),
+            _mm_set_epi8(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1));
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
@@ -173,6 +182,7 @@ parasail_result_t* FNAME(
                     vHt);
             vHt = _mm_load_si128(pvHt+i);
         }
+#if 0
         {
             __m128i_8_t tmp;
             tmp.m = vFt;
@@ -193,6 +203,19 @@ parasail_result_t* FNAME(
             tmp.v[15] = MAX(tmp.v[14]-segLen*gap, tmp.v[15]);
             vFt = tmp.m;
         }
+#else
+        {
+            __m128i vFt_save = vFt;
+            __m128i segLenXgap = segLenXgap_reset;
+            for (i=0; i<segWidth-1; ++i) {
+                __m128i vFtt = _mm_slli_si128(vFt, 1);
+                segLenXgap = _mm_shuffle_epi8(segLenXgap, rotate);
+                vFtt = _mm_add_epi8(vFtt, segLenXgap);
+                vFt = _mm_max_epi8(vFt, vFtt);
+            }
+            vFt = _mm_blendv_epi8(vFt_save, vFt, insert);
+        }
+#endif
         vHt = _mm_slli_si128(_mm_load_si128(pvHt+(segLen-1)), 1);
         vHt = _mm_insert_epi8(vHt, boundary[j+1], 0);
         vFt = _mm_slli_si128(vFt, 1);

@@ -67,6 +67,10 @@ parasail_result_t* FNAME(
     __m128i vZero = _mm_setzero_si128();
     __m128i vOne = _mm_set1_epi32(1);
     int32_t score = NEG_INF_32;
+    __m128i segLenXgap_reset = _mm_set_epi32(
+            NEG_INF_32, NEG_INF_32, NEG_INF_32, -segLen*gap);
+    __m128i insert = _mm_cmpeq_epi32(_mm_setzero_si128(),
+            _mm_set_epi32(0,0,0,1));
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
@@ -154,6 +158,7 @@ parasail_result_t* FNAME(
                     vHt);
             vHt = _mm_load_si128(pvHt+i);
         }
+#if 0
         {
             __m128i_32_t tmp;
             tmp.m = vFt;
@@ -162,6 +167,19 @@ parasail_result_t* FNAME(
             tmp.v[3] = MAX(tmp.v[2]-segLen*gap, tmp.v[3]);
             vFt = tmp.m;
         }
+#else
+        {
+            __m128i vFt_save = vFt;
+            __m128i segLenXgap = segLenXgap_reset;
+            for (i=0; i<segWidth-1; ++i) {
+                __m128i vFtt = _mm_slli_si128(vFt, 4);
+                segLenXgap = _mm_shuffle_epi32(segLenXgap, 0x93);
+                vFtt = _mm_add_epi32(vFtt, segLenXgap);
+                vFt = _mm_max_epi32(vFt, vFtt);
+            }
+            vFt = _mm_blendv_epi8(vFt_save, vFt, insert);
+        }
+#endif
         vHt = _mm_slli_si128(_mm_load_si128(pvHt+(segLen-1)), 4);
         vFt = _mm_slli_si128(vFt, 4);
         vFt = _mm_insert_epi32(vFt, NEG_INF_32, 0);

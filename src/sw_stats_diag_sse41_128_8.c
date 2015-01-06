@@ -151,9 +151,9 @@ static inline void stt_store_si128(
 
 
 #ifdef PARASAIL_TABLE
-#define FNAME sw_stats_table_diag_sse2_128_8
+#define FNAME sw_stats_table_diag_sse41_128_8
 #else
-#define FNAME sw_stats_diag_sse2_128_8
+#define FNAME sw_stats_diag_sse41_128_8
 #endif
 
 parasail_result_t* FNAME(

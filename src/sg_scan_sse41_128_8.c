@@ -223,7 +223,7 @@ parasail_result_t* FNAME(
             for (i=0; i<segWidth-1; ++i) {
                 __m128i vFtt = _mm_slli_si128(vFt, 1);
                 segLenXgap = _mm_shuffle_epi8(segLenXgap, rotate);
-                vFtt = _mm_add_epi8(vFtt, segLenXgap);
+                vFtt = _mm_adds_epi8(vFtt, segLenXgap);
                 vFt = _mm_max_epi8(vFt, vFtt);
             }
             vFt = _mm_blendv_epi8(vFt_save, vFt, insert);

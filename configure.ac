@@ -46,12 +46,14 @@ AM_CONDITIONAL([HAVE_OPENMP],
 
 AC_CACHE_CHECK([for SSE2],
     [pt_cv_sse2],
-    [AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+    [AC_LINK_IFELSE([AC_LANG_SOURCE([[
 #include <emmintrin.h>
-__m128i foo() {
-    __m128i vZero = _mm_set1_epi16(0);
-    return _mm_add_epi16(vZero,vZero);
+int foo() {
+    __m128i vOne = _mm_set1_epi16(1);
+    __m128i result = _mm_add_epi16(vOne,vOne);
+    return _mm_extract_epi16(result, 0);
 }
+int main(int argc, char **argv) { return foo(); }
 ]])],
         [pt_cv_sse2=yes; pt_cv_sse2_val=1],
         [pt_cv_sse2=no]; pt_cv_sse2_val=0)])
@@ -61,12 +63,14 @@ AM_CONDITIONAL([HAVE_SSE2], [test x$pt_cv_sse2 = xyes])
 
 AC_CACHE_CHECK([for SSE4.1],
     [pt_cv_sse41],
-    [AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+    [AC_LINK_IFELSE([AC_LANG_SOURCE([[
 #include <smmintrin.h>
-__m128i foo() {
-    __m128i vZero = _mm_set1_epi8(0);
-    return _mm_max_epi16(vZero,vZero);
+int foo() {
+    __m128i vOne = _mm_set1_epi8(1);
+    __m128i result =  _mm_max_epi8(vOne,vOne);
+    return _mm_extract_epi8(result, 0);
 }
+int main(int argc, char **argv) { return foo(); }
 ]])],
         [pt_cv_sse41=yes; pt_cv_sse41_val=1],
         [pt_cv_sse41=no]; pt_cv_sse41_val=0)])
@@ -76,12 +80,14 @@ AM_CONDITIONAL([HAVE_SSE41], [test x$pt_cv_sse41 = xyes])
 
 AC_CACHE_CHECK([for AVX2],
     [pt_cv_avx2],
-    [AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+    [AC_LINK_IFELSE([AC_LANG_SOURCE([[
 #include <immintrin.h>
-__m256i foo() {
-    __m256i vZero = _mm256_set1_epi8(0);
-    return _mm256_add_epi8(vZero,vZero);
+int foo() {
+    __m256i vOne = _mm256_set1_epi8(1);
+    __m256i result =  _mm256_add_epi8(vOne,vOne);
+    return _mm_extract_epi16(_mm256_extracti128_si256(result,0),0);
 }
+int main(int argc, char **argv) { return foo(); }
 ]])],
         [pt_cv_avx2=yes; pt_cv_avx2_val=1],
         [pt_cv_avx2=no]; pt_cv_avx2_val=0)])
@@ -94,8 +100,8 @@ AC_CACHE_CHECK([for AVX2 _mm256_insert_epi32],
     [AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
 #include <immintrin.h>
 __m256i foo() {
-    __m256i vZero = _mm256_set1_epi8(0);
-    return _mm256_insert_epi32(vZero,99,0);
+    __m256i vOne = _mm256_set1_epi8(1);
+    return _mm256_insert_epi32(vOne,99,0);
 }
 ]])],
         [pt_cv_avx2_mm256_insert_epi32=yes;
@@ -199,12 +205,13 @@ AC_DEFINE_UNQUOTED([HAVE_AVX2_MM256_EXTRACT_EPI8],
 
 AC_CACHE_CHECK([for KNC],
     [pt_cv_knc],
-    [AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+    [AC_LINK_IFELSE([AC_LANG_SOURCE([[
 #include <immintrin.h>
 __mmask16 foo() {
     __mmask16 vMask;
     return _mm512_kand(vMask,vMask);
 }
+int main(int argc, char **argv) { __mmask16 = foo(); return 0; }
 ]])],
         [pt_cv_knc=yes; pt_cv_knc_val=1],
         [pt_cv_knc=no]; pt_cv_knc_val=0)])

@@ -134,9 +134,9 @@ parasail_result_t* FNAME(
     __m128i vJreset = _mm_set_epi8(0,-1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11,-12,-13,-14,-15);
     __m128i vMax = vNegInf;
     __m128i vILimit = _mm_set1_epi8(s1Len);
-    __m128i vILimit1 = _mm_sub_epi8(vILimit, vOne);
+    __m128i vILimit1 = _mm_subs_epi8(vILimit, vOne);
     __m128i vJLimit = _mm_set1_epi8(s2Len);
-    __m128i vJLimit1 = _mm_sub_epi8(vJLimit, vOne);
+    __m128i vJLimit1 = _mm_subs_epi8(vJLimit, vOne);
     __m128i vIBoundary = _mm_set_epi8(
             -open-0*gap,
             -open-1*gap,

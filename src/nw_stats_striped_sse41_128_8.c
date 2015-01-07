@@ -242,26 +242,30 @@ parasail_result_t* FNAME(
             /* calculate vM */
             vEM = _mm_load_si128(pvEM + i);
             vHM = _mm_andnot_si128(case1not,
-                    _mm_add_epi8(vHM, _mm_load_si128(vPS + i)));
+                    _mm_adds_epi8(vHM, _mm_load_si128(vPS + i)));
             vHM = _mm_or_si128(vHM, _mm_and_si128(case2, vFM));
             vHM = _mm_or_si128(vHM, _mm_and_si128(case3, vEM));
             _mm_store_si128(pvHMStore + i, vHM);
 
             /* calculate vL */
             vEL = _mm_load_si128(pvEL + i);
-            vHL = _mm_andnot_si128(case1not, _mm_add_epi8(vHL, vOne));
+            vHL = _mm_andnot_si128(case1not, _mm_adds_epi8(vHL, vOne));
             vHL = _mm_or_si128(vHL, _mm_and_si128(case2,
-                        _mm_add_epi8(vFL, vOne)));
+                        _mm_adds_epi8(vFL, vOne)));
             vHL = _mm_or_si128(vHL, _mm_and_si128(case3,
-                        _mm_add_epi8(vEL, vOne)));
+                        _mm_adds_epi8(vEL, vOne)));
             _mm_store_si128(pvHLStore + i, vHL);
 
             /* check for saturation */
             {
                 vSaturationCheck = _mm_or_si128(vSaturationCheck,
                         _mm_or_si128(
-                            _mm_cmpeq_epi8(vH, vNegLimit),
-                            _mm_cmpeq_epi8(vH, vPosLimit)));
+                            _mm_or_si128(
+                                _mm_cmpeq_epi8(vH, vNegLimit),
+                                _mm_cmpeq_epi8(vH, vPosLimit)),
+                            _mm_or_si128(
+                                _mm_cmpeq_epi8(vHM, vPosLimit),
+                                _mm_cmpeq_epi8(vHL, vPosLimit))));
             }
 #ifdef PARASAIL_TABLE
             arr_store_si128(result->matches_table, vHM, i, segLen, j, s2Len);
@@ -321,7 +325,7 @@ parasail_result_t* FNAME(
                 vHL = _mm_load_si128(pvHLStore + i);
                 vHL = _mm_andnot_si128(case2, vHL);
                 vHL = _mm_or_si128(vHL, _mm_and_si128(case2,
-                            _mm_add_epi8(vFL,vOne)));
+                            _mm_adds_epi8(vFL,vOne)));
                 _mm_store_si128(pvHLStore + i, vHL);
                 _mm_store_si128(pvEL + i, vHL);
 
@@ -332,8 +336,12 @@ parasail_result_t* FNAME(
                 {
                     vSaturationCheck = _mm_or_si128(vSaturationCheck,
                             _mm_or_si128(
-                                _mm_cmpeq_epi8(vH, vNegLimit),
-                                _mm_cmpeq_epi8(vH, vPosLimit)));
+                                _mm_or_si128(
+                                    _mm_cmpeq_epi8(vH, vNegLimit),
+                                    _mm_cmpeq_epi8(vH, vPosLimit)),
+                                _mm_or_si128(
+                                    _mm_cmpeq_epi8(vHM, vPosLimit),
+                                    _mm_cmpeq_epi8(vHL, vPosLimit))));
                 }
 #ifdef PARASAIL_TABLE
                 arr_store_si128(result->matches_table, vHM, i, segLen, j, s2Len);

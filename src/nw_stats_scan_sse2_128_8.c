@@ -378,11 +378,7 @@ parasail_result_t* FNAME(
             {
                 vSaturationCheck = _mm_or_si128(vSaturationCheck,
                         _mm_or_si128(
-                            _mm_cmpeq_epi8(vM, vNegLimit),
-                            _mm_cmpeq_epi8(vM, vPosLimit)));
-                vSaturationCheck = _mm_or_si128(vSaturationCheck,
-                        _mm_or_si128(
-                            _mm_cmpeq_epi8(vL, vNegLimit),
+                            _mm_cmpeq_epi8(vM, vPosLimit),
                             _mm_cmpeq_epi8(vL, vPosLimit)));
             }
 #ifdef PARASAIL_TABLE

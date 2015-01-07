@@ -166,9 +166,9 @@ parasail_result_t* FNAME(
     __m128i vMaxMatch = vNegInf;
     __m128i vMaxLength = vNegInf;
     __m128i vILimit = _mm_set1_epi8(s1Len);
-    __m128i vILimit1 = _mm_sub_epi8(vILimit, vOne);
+    __m128i vILimit1 = _mm_subs_epi8(vILimit, vOne);
     __m128i vJLimit = _mm_set1_epi8(s2Len);
-    __m128i vJLimit1 = _mm_sub_epi8(vJLimit, vOne);
+    __m128i vJLimit1 = _mm_subs_epi8(vJLimit, vOne);
     __m128i vIBoundary = _mm_set_epi8(
             -open-0*gap,
             -open-1*gap,
@@ -340,16 +340,16 @@ parasail_result_t* FNAME(
                 case2 = _mm_andnot_si128(case2not,case1not);
                 case3 = _mm_and_si128(case1not,case2not);
                 vCmatch = _mm_andnot_si128(case1not,
-                        _mm_add_epi8(vNWmatch, _mm_and_si128(
+                        _mm_adds_epi8(vNWmatch, _mm_and_si128(
                                 _mm_cmpeq_epi8(vs1,vs2),vOne)));
                 vClength= _mm_andnot_si128(case1not,
-                        _mm_add_epi8(vNWlength, vOne));
+                        _mm_adds_epi8(vNWlength, vOne));
                 vCmatch = _mm_or_si128(vCmatch, _mm_and_si128(case2, vNmatch));
                 vClength= _mm_or_si128(vClength,_mm_and_si128(case2,
-                            _mm_add_epi8(vNlength, vOne)));
+                            _mm_adds_epi8(vNlength, vOne)));
                 vCmatch = _mm_or_si128(vCmatch, _mm_and_si128(case3, vWmatch));
                 vClength= _mm_or_si128(vClength,_mm_and_si128(case3,
-                            _mm_add_epi8(vWlength, vOne)));
+                            _mm_adds_epi8(vWlength, vOne)));
                 vWmatch = vCmatch;
                 vWlength = vClength;
             }
@@ -372,8 +372,12 @@ parasail_result_t* FNAME(
             {
                 vSaturationCheck = _mm_or_si128(vSaturationCheck,
                         _mm_or_si128(
-                            _mm_cmpeq_epi8(vWscore, vNegLimit),
-                            _mm_cmpeq_epi8(vWscore, vPosLimit)));
+                            _mm_or_si128(
+                                _mm_cmpeq_epi8(vWscore, vNegLimit),
+                                _mm_cmpeq_epi8(vWscore, vPosLimit)),
+                            _mm_or_si128(
+                                _mm_cmpeq_epi8(vWmatch, vPosLimit),
+                                _mm_cmpeq_epi8(vWlength, vPosLimit))));
             }
 #ifdef PARASAIL_TABLE
             arr_store_si128(result->score_table, vWscore, i, s1Len, j, s2Len);
@@ -438,16 +442,16 @@ parasail_result_t* FNAME(
                 case2 = _mm_andnot_si128(case2not,case1not);
                 case3 = _mm_and_si128(case1not,case2not);
                 vCmatch = _mm_andnot_si128(case1not,
-                        _mm_add_epi8(vNWmatch, _mm_and_si128(
+                        _mm_adds_epi8(vNWmatch, _mm_and_si128(
                                 _mm_cmpeq_epi8(vs1,vs2),vOne)));
                 vClength= _mm_andnot_si128(case1not,
-                        _mm_add_epi8(vNWlength, vOne));
+                        _mm_adds_epi8(vNWlength, vOne));
                 vCmatch = _mm_or_si128(vCmatch, _mm_and_si128(case2, vNmatch));
                 vClength= _mm_or_si128(vClength,_mm_and_si128(case2,
-                            _mm_add_epi8(vNlength, vOne)));
+                            _mm_adds_epi8(vNlength, vOne)));
                 vCmatch = _mm_or_si128(vCmatch, _mm_and_si128(case3, vWmatch));
                 vClength= _mm_or_si128(vClength,_mm_and_si128(case3,
-                            _mm_add_epi8(vWlength, vOne)));
+                            _mm_adds_epi8(vWlength, vOne)));
                 vWmatch = vCmatch;
                 vWlength = vClength;
             }
@@ -455,8 +459,12 @@ parasail_result_t* FNAME(
             {
                 vSaturationCheck = _mm_or_si128(vSaturationCheck,
                         _mm_or_si128(
-                            _mm_cmpeq_epi8(vWscore, vNegLimit),
-                            _mm_cmpeq_epi8(vWscore, vPosLimit)));
+                            _mm_or_si128(
+                                _mm_cmpeq_epi8(vWscore, vNegLimit),
+                                _mm_cmpeq_epi8(vWscore, vPosLimit)),
+                            _mm_or_si128(
+                                _mm_cmpeq_epi8(vWmatch, vPosLimit),
+                                _mm_cmpeq_epi8(vWlength, vPosLimit))));
             }
 #ifdef PARASAIL_TABLE
             arr_store_si128(result->score_table, vWscore, i, s1Len, j, s2Len);
@@ -576,16 +584,16 @@ parasail_result_t* FNAME(
                 case2 = _mm_andnot_si128(case2not,case1not);
                 case3 = _mm_and_si128(case1not,case2not);
                 vCmatch = _mm_andnot_si128(case1not,
-                        _mm_add_epi8(vNWmatch, _mm_and_si128(
+                        _mm_adds_epi8(vNWmatch, _mm_and_si128(
                                 _mm_cmpeq_epi8(vs1,vs2),vOne)));
                 vClength= _mm_andnot_si128(case1not,
-                        _mm_add_epi8(vNWlength, vOne));
+                        _mm_adds_epi8(vNWlength, vOne));
                 vCmatch = _mm_or_si128(vCmatch, _mm_and_si128(case2, vNmatch));
                 vClength= _mm_or_si128(vClength,_mm_and_si128(case2,
-                            _mm_add_epi8(vNlength, vOne)));
+                            _mm_adds_epi8(vNlength, vOne)));
                 vCmatch = _mm_or_si128(vCmatch, _mm_and_si128(case3, vWmatch));
                 vClength= _mm_or_si128(vClength,_mm_and_si128(case3,
-                            _mm_add_epi8(vWlength, vOne)));
+                            _mm_adds_epi8(vWlength, vOne)));
                 vWmatch = vCmatch;
                 vWlength = vClength;
             }
@@ -608,8 +616,12 @@ parasail_result_t* FNAME(
             {
                 vSaturationCheck = _mm_or_si128(vSaturationCheck,
                         _mm_or_si128(
-                            _mm_cmpeq_epi8(vWscore, vNegLimit),
-                            _mm_cmpeq_epi8(vWscore, vPosLimit)));
+                            _mm_or_si128(
+                                _mm_cmpeq_epi8(vWscore, vNegLimit),
+                                _mm_cmpeq_epi8(vWscore, vPosLimit)),
+                            _mm_or_si128(
+                                _mm_cmpeq_epi8(vWmatch, vPosLimit),
+                                _mm_cmpeq_epi8(vWlength, vPosLimit))));
             }
 #ifdef PARASAIL_TABLE
             arr_store_si128(result->score_table, vWscore, i, s1Len, j, s2Len);
@@ -674,16 +686,16 @@ parasail_result_t* FNAME(
                 case2 = _mm_andnot_si128(case2not,case1not);
                 case3 = _mm_and_si128(case1not,case2not);
                 vCmatch = _mm_andnot_si128(case1not,
-                        _mm_add_epi8(vNWmatch, _mm_and_si128(
+                        _mm_adds_epi8(vNWmatch, _mm_and_si128(
                                 _mm_cmpeq_epi8(vs1,vs2),vOne)));
                 vClength= _mm_andnot_si128(case1not,
-                        _mm_add_epi8(vNWlength, vOne));
+                        _mm_adds_epi8(vNWlength, vOne));
                 vCmatch = _mm_or_si128(vCmatch, _mm_and_si128(case2, vNmatch));
                 vClength= _mm_or_si128(vClength,_mm_and_si128(case2,
-                            _mm_add_epi8(vNlength, vOne)));
+                            _mm_adds_epi8(vNlength, vOne)));
                 vCmatch = _mm_or_si128(vCmatch, _mm_and_si128(case3, vWmatch));
                 vClength= _mm_or_si128(vClength,_mm_and_si128(case3,
-                            _mm_add_epi8(vWlength, vOne)));
+                            _mm_adds_epi8(vWlength, vOne)));
                 vWmatch = vCmatch;
                 vWlength = vClength;
             }
@@ -691,8 +703,12 @@ parasail_result_t* FNAME(
             {
                 vSaturationCheck = _mm_or_si128(vSaturationCheck,
                         _mm_or_si128(
-                            _mm_cmpeq_epi8(vWscore, vNegLimit),
-                            _mm_cmpeq_epi8(vWscore, vPosLimit)));
+                            _mm_or_si128(
+                                _mm_cmpeq_epi8(vWscore, vNegLimit),
+                                _mm_cmpeq_epi8(vWscore, vPosLimit)),
+                            _mm_or_si128(
+                                _mm_cmpeq_epi8(vWmatch, vPosLimit),
+                                _mm_cmpeq_epi8(vWlength, vPosLimit))));
             }
 #ifdef PARASAIL_TABLE
             arr_store_si128(result->score_table, vWscore, i, s1Len, j, s2Len);
@@ -757,16 +773,16 @@ parasail_result_t* FNAME(
                 case2 = _mm_andnot_si128(case2not,case1not);
                 case3 = _mm_and_si128(case1not,case2not);
                 vCmatch = _mm_andnot_si128(case1not,
-                        _mm_add_epi8(vNWmatch, _mm_and_si128(
+                        _mm_adds_epi8(vNWmatch, _mm_and_si128(
                                 _mm_cmpeq_epi8(vs1,vs2),vOne)));
                 vClength= _mm_andnot_si128(case1not,
-                        _mm_add_epi8(vNWlength, vOne));
+                        _mm_adds_epi8(vNWlength, vOne));
                 vCmatch = _mm_or_si128(vCmatch, _mm_and_si128(case2, vNmatch));
                 vClength= _mm_or_si128(vClength,_mm_and_si128(case2,
-                            _mm_add_epi8(vNlength, vOne)));
+                            _mm_adds_epi8(vNlength, vOne)));
                 vCmatch = _mm_or_si128(vCmatch, _mm_and_si128(case3, vWmatch));
                 vClength= _mm_or_si128(vClength,_mm_and_si128(case3,
-                            _mm_add_epi8(vWlength, vOne)));
+                            _mm_adds_epi8(vWlength, vOne)));
                 vWmatch = vCmatch;
                 vWlength = vClength;
             }
@@ -774,8 +790,12 @@ parasail_result_t* FNAME(
             {
                 vSaturationCheck = _mm_or_si128(vSaturationCheck,
                         _mm_or_si128(
-                            _mm_cmpeq_epi8(vWscore, vNegLimit),
-                            _mm_cmpeq_epi8(vWscore, vPosLimit)));
+                            _mm_or_si128(
+                                _mm_cmpeq_epi8(vWscore, vNegLimit),
+                                _mm_cmpeq_epi8(vWscore, vPosLimit)),
+                            _mm_or_si128(
+                                _mm_cmpeq_epi8(vWmatch, vPosLimit),
+                                _mm_cmpeq_epi8(vWlength, vPosLimit))));
             }
 #ifdef PARASAIL_TABLE
             arr_store_si128(result->score_table, vWscore, i, s1Len, j, s2Len);

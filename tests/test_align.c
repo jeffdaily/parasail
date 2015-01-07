@@ -168,6 +168,11 @@ int main(int argc, char **argv)
         {nw_striped_avx2_256_16,    "nw", "striped", "avx2",  "256", "16", 0, 0, 0},
         //{nw_striped_avx2_256_8,     "nw", "striped", "avx2",  "256", "8",  0, 0, 0},
 #endif
+#if HAVE_KNC
+        {nw_scan_knc_512_32,        "nw", "scan",    "knc",   "512", "32", 0, 0, 0},
+        //{nw_diag_knc_512_32,        "nw", "diag",    "knc",   "512", "32", 0, 0, 0},
+        //{nw_striped_knc_512_32,     "nw", "striped", "knc",   "512", "32", 0, 0, 0},
+#endif
 
         {sg,                        "sg", "orig",    "NA",    "32",  "32", 0, 0, 1},
         {sg_scan,                   "sg", "scan",    "NA",    "32",  "32", 0, 0, 0},
@@ -275,6 +280,11 @@ int main(int argc, char **argv)
         {nw_table_striped_avx2_256_32,    "nw", "striped", "avx2",  "256", "32", 1, 0, 0},
         {nw_table_striped_avx2_256_16,    "nw", "striped", "avx2",  "256", "16", 1, 0, 0},
         //{nw_table_striped_avx2_256_8,     "nw", "striped", "avx2",  "256", "8",  1, 0, 0},
+#endif
+#if HAVE_KNC
+        {nw_table_scan_knc_512_32,        "nw", "scan",    "knc",   "512", "32", 1, 0, 0},
+        //{nw_table_diag_knc_512_32,        "nw", "diag",    "knc",   "512", "32", 1, 0, 0},
+        //{nw_table_striped_knc_512_32,     "nw", "striped", "knc",   "512", "32", 1, 0, 0},
 #endif
 
         {sg_table,                     "sg", "orig",    "NA",   "32",  "32", 1, 0, 1},
@@ -545,7 +555,8 @@ int main(int argc, char **argv)
             timer_nsecs_ref_mean = stats_nsecs._mean;
         }
         strcpy(name, f.alg);
-        if (f.is_table) {
+        /* xeon phi was unable to perform I/O running natively */
+        if (f.is_table && 0 == HAVE_KNC) {
             char suffix[256] = {0};
             if (strlen(f.type)) {
                 strcat(suffix, "_");
@@ -587,6 +598,8 @@ int main(int argc, char **argv)
                 print_array(filename, result->length_table, seqA, lena, seqB, lenb);
             }
             parasail_result_free(result);
+        }
+        if (f.is_table) {
             strcat(name, "_table");
         }
 #if USE_TIMER_REAL

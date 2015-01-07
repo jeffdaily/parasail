@@ -211,7 +211,7 @@ __mmask16 foo() {
     __mmask16 vMask;
     return _mm512_kand(vMask,vMask);
 }
-int main(int argc, char **argv) { __mmask16 = foo(); return 0; }
+int main(int argc, char **argv) { __mmask16 vMask = foo(); return 0; }
 ]])],
         [pt_cv_knc=yes; pt_cv_knc_val=1],
         [pt_cv_knc=no]; pt_cv_knc_val=0)])

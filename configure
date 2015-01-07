@@ -4930,7 +4930,7 @@ __mmask16 foo() {
     __mmask16 vMask;
     return _mm512_kand(vMask,vMask);
 }
-int main(int argc, char **argv) { __mmask16 = foo(); return 0; }
+int main(int argc, char **argv) { __mmask16 vMask = foo(); return 0; }
 
 _ACEOF
 if ac_fn_c_try_link "$LINENO"; then :

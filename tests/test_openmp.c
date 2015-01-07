@@ -65,6 +65,7 @@ static inline void k_combination2(unsigned long pos, unsigned long *a, unsigned 
 
 int main(int argc, char **argv)
 {
+    int shortest = INT_MAX;
     int longest = 0;
     double timer_clock = 0.0;
     unsigned long long timer_rtdsc = 0U;
@@ -74,6 +75,11 @@ int main(int argc, char **argv)
     const char **sequences = NULL;
     int *sizes = NULL;
 
+    if (argc > 1) {
+        seq_count = atol(argv[1]);
+        limit = binomial_coefficient(seq_count, 2);
+    }
+
     timer_init();
     printf("%s timer\n", timer_name());
 
@@ -82,11 +88,12 @@ int main(int argc, char **argv)
     sizes = (int*)malloc(sizeof(int)*seq_count);
     for (i=0; i<seq_count; ++i) {
         sizes[i] = (rand()%32767)+10;
+        shortest = sizes[i] < shortest ? sizes[i] : shortest;
         longest = sizes[i] > longest ? sizes[i] : longest;
         sequences[i] = rand_string(sizes[i]);
     }
-    printf("done generating %lu random srings, longest is %d\n",
-            seq_count, longest);
+    printf("done generating %lu random srings, shortest is %d, longest is %d\n",
+            seq_count, shortest, longest);
     printf("%lu choose 2 is %lu\n", seq_count, limit);
 
 #pragma omp parallel

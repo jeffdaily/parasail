@@ -122,8 +122,8 @@ int main(int argc, char **argv)
     //size_t limit = 500;
     //size_t limit = 200;
     //size_t limit = 100;
-    size_t limit = 50;
-    //size_t limit = 2;
+    //size_t limit = 50;
+    size_t limit = 2;
     //size_t limit = 1;
     size_t i;
     size_t index;
@@ -209,6 +209,11 @@ int main(int argc, char **argv)
         {sg_striped_avx2_256_16,    "sg", "striped", "avx2",  "256", "16", 0, 0, 0},
         //{sg_striped_avx2_256_8,     "sg", "striped", "avx2",  "256", "8",  0, 0, 0},
 #endif
+#if HAVE_KNC
+        {sg_scan_knc_512_32,        "sg", "scan",    "knc",   "512", "32", 0, 0, 0},
+        //{sg_diag_knc_512_32,        "sg", "diag",    "knc",   "512", "32", 0, 0, 0},
+        //{sg_striped_knc_512_32,     "sg", "striped", "knc",   "512", "32", 0, 0, 0},
+#endif
 
         {sw,                        "sw", "orig",    "NA",    "32",  "32", 0, 0, 1},
         {sw_scan,                   "sw", "scan",    "NA",    "32",  "32", 0, 0, 0},
@@ -244,6 +249,11 @@ int main(int argc, char **argv)
         {sw_striped_avx2_256_32,    "sw", "striped", "avx2",  "256", "32", 0, 0, 0},
         {sw_striped_avx2_256_16,    "sw", "striped", "avx2",  "256", "16", 0, 0, 0},
         //{sw_striped_avx2_256_8,     "sw", "striped", "avx2",  "256", "8",  0, 0, 0},
+#endif
+#if HAVE_KNC
+        {sw_scan_knc_512_32,        "sw", "scan",    "knc",   "512", "32", 0, 0, 0},
+        //{sw_diag_knc_512_32,        "sw", "diag",    "knc",   "512", "32", 0, 0, 0},
+        //{sw_striped_knc_512_32,     "sw", "striped", "knc",   "512", "32", 0, 0, 0},
 #endif
                                    
         {nw_table,                     "nw", "orig",    "NA",    "32",  "32", 1, 0, 1},
@@ -322,6 +332,11 @@ int main(int argc, char **argv)
         {sg_table_striped_avx2_256_16,    "sg", "striped", "avx2",  "256", "16", 1, 0, 0},
         //{sg_table_striped_avx2_256_8,     "sg", "striped", "avx2",  "256", "8",  1, 0, 0},
 #endif
+#if HAVE_KNC
+        {sg_table_scan_knc_512_32,        "sg", "scan",    "knc",   "512", "32", 1, 0, 0},
+        //{sg_table_diag_knc_512_32,        "sg", "diag",    "knc",   "512", "32", 1, 0, 0},
+        //{sg_table_striped_knc_512_32,     "sg", "striped", "knc",   "512", "32", 1, 0, 0},
+#endif
 
         {sw_table,                     "sw", "orig",    "NA",   "32",  "32", 1, 0, 1},
         {sw_table_scan,                "sw", "scan",    "NA",   "32",  "32", 1, 0, 0},
@@ -357,6 +372,11 @@ int main(int argc, char **argv)
         {sw_table_striped_avx2_256_32,  "sw", "striped", "avx2",  "256", "32", 1, 0, 0},
         {sw_table_striped_avx2_256_16,  "sw", "striped", "avx2",  "256", "16", 1, 0, 0},
         //{sw_table_striped_avx2_256_8,   "sw", "striped", "avx2",  "256", "8",  1, 0, 0},
+#endif
+#if HAVE_KNC
+        {sw_table_scan_knc_512_32,        "sw", "scan",    "knc",   "512", "32", 1, 0, 0},
+        //{sw_table_diag_knc_512_32,        "sw", "diag",    "knc",   "512", "32", 1, 0, 0},
+        //{sw_table_striped_knc_512_32,     "sw", "striped", "knc",   "512", "32", 1, 0, 0},
 #endif
 
         {nw_stats,                        "nw_stats", "orig",    "NA",    "32",  "32", 0, 1, 1},

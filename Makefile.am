@@ -89,8 +89,8 @@ endif
 
 if HAVE_KNC
 ALIGNMENT_SRC += src/nw_scan_knc_512_32.c
-#ALIGNMENT_SRC += src/sg_scan_knc_512_32.c
-#ALIGNMENT_SRC += src/sw_scan_knc_512_32.c
+ALIGNMENT_SRC += src/sg_scan_knc_512_32.c
+ALIGNMENT_SRC += src/sw_scan_knc_512_32.c
 endif
 
 # parallel diag methods

@@ -10,9 +10,11 @@ AM_LDFLAGS =
 LDADD = libparasail.la
 
 libparasail_la_SOURCES =
+libparasail_la_SOURCES += src/parasail_cpuid.h
 libparasail_la_SOURCES += src/parasail_internal.h
 libparasail_la_SOURCES += src/parasail_internal_sse.h
 libparasail_la_SOURCES += src/parasail_internal_avx.h
+libparasail_la_SOURCES += src/cpuid.c
 libparasail_la_SOURCES += src/memory.c
 
 ALIGNMENT_SRC = 
@@ -303,18 +305,15 @@ libparasail_table_la_CPPFLAGS = $(AM_CPPFLAGS) -DPARASAIL_TABLE=1
 libparasail_la_LIBADD = libparasail_table.la
 
 check_PROGRAMS += tests/test_align
-check_PROGRAMS += tests/test_align_stats
-check_PROGRAMS += tests/test_align_table
+check_PROGRAMS += tests/test_isa
 if HAVE_OPENMP
 check_PROGRAMS += tests/test_openmp
 endif
 
 tests_test_align_SOURCES        = tests/test_align.c
-tests_test_align_LDADD         = $(LDADD) $(CLOCK_LIBS)
+tests_test_align_LDADD          = $(LDADD) $(CLOCK_LIBS)
 
-tests_test_align_stats_SOURCES  = tests/test_align_stats.c
-
-tests_test_align_table_SOURCES  = tests/test_align_table.c
+tests_test_isa_SOURCES          = tests/test_isa.c
 
 tests_test_openmp_SOURCES       = tests/test_openmp.c
 tests_test_openmp_CFLAGS        = $(AM_CFLAGS) $(OPENMP_CFLAGS)

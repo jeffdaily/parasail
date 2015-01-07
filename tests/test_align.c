@@ -8,6 +8,7 @@
 #include <string.h>
 
 #include "parasail.h"
+#include "parasail_cpuid.h"
 #include "blosum/blosum62.h"
 #include "stats.h"
 #include "timer.h"
@@ -515,6 +516,12 @@ int main(int argc, char **argv)
     while (f.f) {
         char name[16] = {'\0'};
         size_t new_limit = f.is_table ? 2 : limit;
+        if ((0 == strncmp(f.isa, "sse2",  4) && 0 == parasail_can_use_sse2()) 
+                || (0 == strncmp(f.isa, "sse41", 5) && 0 == parasail_can_use_sse41())
+                || (0 == strncmp(f.isa, "avx2",  4) && 0 == parasail_can_use_avx2())) {
+            f = functions[index++];
+            continue;
+        }
         stats_clear(&stats_rdtsc);
         timer_rdtsc = timer_start();
         timer_nsecs = timer_real();

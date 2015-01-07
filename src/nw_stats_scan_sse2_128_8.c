@@ -413,18 +413,18 @@ parasail_result_t* FNAME(
     result->matches = matches;
     result->length = length;
 
-    free(boundary);
-    free(pvL);
-    free(pvM);
-    free(pvH);
-    free(pvEx);
-    free(pvLt);
-    free(pvMt);
-    free(pvFt);
-    free(pvHt);
-    free(pvE);
-    free(pvPm);
-    free(pvP);
+    parasail_free(boundary);
+    parasail_free(pvL);
+    parasail_free(pvM);
+    parasail_free(pvH);
+    parasail_free(pvEx);
+    parasail_free(pvLt);
+    parasail_free(pvMt);
+    parasail_free(pvFt);
+    parasail_free(pvHt);
+    parasail_free(pvE);
+    parasail_free(pvPm);
+    parasail_free(pvP);
 
     return result;
 }

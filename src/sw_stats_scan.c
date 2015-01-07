@@ -153,17 +153,17 @@ parasail_result_t* ENAME(
     result->matches = matches;
     result->length = length;
 
-    free(Ex);
-    free(Lt);
-    free(Mt);
-    free(LB);
-    free(MB);
-    free(FtB);
-    free(HtB);
-    free(E);
-    free(HB);
-    free(s2);
-    free(s1);
+    parasail_free(Ex);
+    parasail_free(Lt);
+    parasail_free(Mt);
+    parasail_free(LB);
+    parasail_free(MB);
+    parasail_free(FtB);
+    parasail_free(HtB);
+    parasail_free(E);
+    parasail_free(HB);
+    parasail_free(s2);
+    parasail_free(s1);
 
     return result;
 }

@@ -117,12 +117,12 @@ parasail_result_t* ENAME(
     result->matches = mch_pr[s2Len];
     result->length = len_pr[s2Len];
 
-    free(len_pr);
-    free(mch_pr);
-    free(del_pr);
-    free(tbl_pr);
-    free(s2);
-    free(s1);
+    parasail_free(len_pr);
+    parasail_free(mch_pr);
+    parasail_free(del_pr);
+    parasail_free(tbl_pr);
+    parasail_free(s2);
+    parasail_free(s1);
 
     return result;
 }

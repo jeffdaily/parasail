@@ -284,12 +284,12 @@ int32_t FNAME(
         score = (int32_t) extract (vH, 15);
     }
 
-    _mm_free(pvP);
-    _mm_free(pvE);
-    _mm_free(pvHt);
-    _mm_free(pvFt);
-    _mm_free(pvH);
-    free(boundary);
+    _mm_parasail_free(pvP);
+    _mm_parasail_free(pvE);
+    _mm_parasail_free(pvHt);
+    _mm_parasail_free(pvFt);
+    _mm_parasail_free(pvH);
+    parasail_free(boundary);
 
     return score;
 }

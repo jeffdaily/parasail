@@ -218,11 +218,11 @@ end:
 
     result->score = score;
 
-    free(boundary);
-    free(pvE);
-    free(pvHLoad);
-    free(pvHStore);
-    free(vProfile);
+    parasail_free(boundary);
+    parasail_free(pvE);
+    parasail_free(pvHLoad);
+    parasail_free(pvHStore);
+    parasail_free(vProfile);
 
     return result;
 }

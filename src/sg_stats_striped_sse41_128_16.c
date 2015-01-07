@@ -373,18 +373,18 @@ end:
     result->matches = matches;
     result->length = length;
 
-    free(pvEL);
-    free(pvEM);
-    free(pvELoad);
-    free(pvEStore);
-    free(pvHLLoad);
-    free(pvHLStore);
-    free(pvHMLoad);
-    free(pvHMStore);
-    free(pvHLoad);
-    free(pvHStore);
-    free(vProfileS);
-    free(vProfile);
+    parasail_free(pvEL);
+    parasail_free(pvEM);
+    parasail_free(pvELoad);
+    parasail_free(pvEStore);
+    parasail_free(pvHLLoad);
+    parasail_free(pvHLStore);
+    parasail_free(pvHMLoad);
+    parasail_free(pvHMStore);
+    parasail_free(pvHLoad);
+    parasail_free(pvHStore);
+    parasail_free(vProfileS);
+    parasail_free(vProfile);
 
     return result;
 }

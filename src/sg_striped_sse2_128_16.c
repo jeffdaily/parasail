@@ -236,10 +236,10 @@ end:
 
     result->score = score;
 
-    free(pvE);
-    free(pvHLoad);
-    free(pvHStore);
-    free(vProfile);
+    parasail_free(pvE);
+    parasail_free(pvHLoad);
+    parasail_free(pvHStore);
+    parasail_free(vProfile);
 
     return result;
 }

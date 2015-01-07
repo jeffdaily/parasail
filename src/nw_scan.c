@@ -116,12 +116,12 @@ parasail_result_t* ENAME(
 
     result->score = H[s1Len-1];
 
-    free(FtB);
-    free(HtB);
-    free(E);
-    free(HB);
-    free(s2);
-    free(s1);
+    parasail_free(FtB);
+    parasail_free(HtB);
+    parasail_free(E);
+    parasail_free(HB);
+    parasail_free(s2);
+    parasail_free(s1);
 
     return result;
 }

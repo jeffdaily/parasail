@@ -264,12 +264,12 @@ parasail_result_t* FNAME(
 
     result->score = score;
 
-    free(boundary);
-    free(pvH);
-    free(pvFt);
-    free(pvHt);
-    free(pvE);
-    free(pvP);
+    parasail_free(boundary);
+    parasail_free(pvH);
+    parasail_free(pvFt);
+    parasail_free(pvHt);
+    parasail_free(pvE);
+    parasail_free(pvP);
 
     return result;
 }

@@ -318,12 +318,12 @@ parasail_result_t* FNAME(
     result->matches = matches;
     result->length = length;
 
-    free(s1);
-    free(s2B);
-    free(_tbl_pr);
-    free(_del_pr);
-    free(_mch_pr);
-    free(_len_pr);
+    parasail_free(s1);
+    parasail_free(s2B);
+    parasail_free(_tbl_pr);
+    parasail_free(_del_pr);
+    parasail_free(_mch_pr);
+    parasail_free(_len_pr);
 
     return result;
 }

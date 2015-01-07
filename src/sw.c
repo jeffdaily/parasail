@@ -84,10 +84,10 @@ parasail_result_t* ENAME(
 
     result->score = score;
 
-    free(del_pr);
-    free(tbl_pr);
-    free(s2);
-    free(s1);
+    parasail_free(del_pr);
+    parasail_free(tbl_pr);
+    parasail_free(s2);
+    parasail_free(s1);
 
     return result;
 }

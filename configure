@@ -4916,7 +4916,7 @@ else
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
-#include <zmmintrin.h>
+#include <immintrin.h>
 __mmask16 foo() {
     __mmask16 vMask;
     return _mm512_kand(vMask,vMask);
@@ -4986,6 +4986,17 @@ do :
 if test "x$ac_cv_func_posix_memalign" = xyes; then :
   cat >>confdefs.h <<_ACEOF
 #define HAVE_POSIX_MEMALIGN 1
+_ACEOF
+
+fi
+done
+
+for ac_func in _mm_malloc
+do :
+  ac_fn_c_check_func "$LINENO" "_mm_malloc" "ac_cv_func__mm_malloc"
+if test "x$ac_cv_func__mm_malloc" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE__MM_MALLOC 1
 _ACEOF
 
 fi

@@ -28,13 +28,19 @@
 #include "parasail_internal_avx.h"
 #endif
 
+#if HAVE_KNC
+#include <immintrin.h>
+#endif
+
 #include "parasail.h"
 #include "parasail_internal.h"
 
 void* parasail_memalign(size_t alignment, size_t size)
 {
     void *ptr = NULL;
-#ifdef HAVE_POSIX_MEMALIGN
+#if defined(HAVE__MM_MALLOC)
+    ptr = _mm_malloc(size, alignment);
+#elif defined(HAVE_POSIX_MEMALIGN)
     int retcode = posix_memalign(&ptr, alignment, size);
     assert(0 == retcode);
 #elif defined(HAVE_ALIGNED_ALLOC)
@@ -46,6 +52,15 @@ void* parasail_memalign(size_t alignment, size_t size)
 #endif
     assert(NULL != ptr);
     return ptr;
+}
+
+void parasail_free(void *ptr)
+{
+#if HAVE__MM_MALLOC
+    _mm_free(ptr);
+#else
+    free(ptr);
+#endif
 }
 
 int * parasail_memalign_int(size_t alignment, size_t size)
@@ -79,6 +94,13 @@ __m128i * parasail_memalign_m128i(size_t alignment, size_t size)
 __m256i * parasail_memalign_m256i(size_t alignment, size_t size)
 {
     return (__m256i *) parasail_memalign(alignment, size*sizeof(__m256i));
+}
+#endif
+
+#if HAVE_KNC
+__m512i * parasail_memalign_m512i(size_t alignment, size_t size)
+{
+    return (__m512i *) parasail_memalign(alignment, size*sizeof(__m512i));
 }
 #endif
 
@@ -135,6 +157,16 @@ void parasail_memset_m256i(__m256i *b, __m256i c, size_t len)
     size_t i;
     for (i=0; i<len; ++i) {
         _mm256_store_si256(&b[i], c);
+    }
+}
+#endif
+
+#if HAVE_KNC
+void parasail_memset_m512i(__m512i *b, __m512i c, size_t len)
+{
+    size_t i;
+    for (i=0; i<len; ++i) {
+        _mm512_store_epi32(&b[i], c);
     }
 }
 #endif

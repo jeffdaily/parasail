@@ -200,7 +200,7 @@ AC_DEFINE_UNQUOTED([HAVE_AVX2_MM256_EXTRACT_EPI8],
 AC_CACHE_CHECK([for KNC],
     [pt_cv_knc],
     [AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
-#include <zmmintrin.h>
+#include <immintrin.h>
 __mmask16 foo() {
     __mmask16 vMask;
     return _mm512_kand(vMask,vMask);
@@ -217,6 +217,7 @@ AC_CHECK_FUNCS([aligned_alloc])
 AC_CHECK_FUNCS([memalign])
 AC_CHECK_FUNCS([memset])
 AC_CHECK_FUNCS([posix_memalign])
+AC_CHECK_FUNCS([_mm_malloc])
 
 parasail_save_LIBS="$LIBS"
 AC_SEARCH_LIBS([clock_gettime], [rt])

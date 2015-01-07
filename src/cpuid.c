@@ -50,7 +50,7 @@ static int check_xcr0_ymm()
 }
 
 
-#if defined(__INTEL_COMPILER) && (__INTEL_COMPILER >= 1300)
+#if defined(__INTEL_COMPILER) && (__INTEL_COMPILER >= 1300) && 0 == HAVE_KNC
 
 #include <immintrin.h>
 

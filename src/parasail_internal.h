@@ -22,6 +22,8 @@ int8_t * parasail_memalign_int8_t(size_t alignment, size_t size);
 int16_t * parasail_memalign_int16_t(size_t alignment, size_t size);
 int32_t * parasail_memalign_int32_t(size_t alignment, size_t size);
 
+void parasail_free(void *ptr);
+
 void parasail_memset(void *b, int c, size_t len);
 void parasail_memset_int(int *b, int c, size_t len);
 void parasail_memset_int8_t(int8_t *b, int8_t c, size_t len);

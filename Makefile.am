@@ -317,7 +317,7 @@ check_PROGRAMS += tests/test_openmp
 endif
 
 tests_test_align_SOURCES        = tests/test_align.c
-tests_test_align_LDADD          = $(LDADD) $(CLOCK_LIBS)
+tests_test_align_LDADD          = $(LDADD) $(CLOCK_LIBS) $(MATH_LIBS)
 
 tests_test_isa_SOURCES          = tests/test_isa.c
 

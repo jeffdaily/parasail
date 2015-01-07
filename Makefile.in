@@ -804,7 +804,8 @@ libparasail_table_la_OBJECTS = $(am_libparasail_table_la_OBJECTS)
 am_tests_test_align_OBJECTS = tests/test_align.$(OBJEXT)
 tests_test_align_OBJECTS = $(am_tests_test_align_OBJECTS)
 am__DEPENDENCIES_1 =
-tests_test_align_DEPENDENCIES = $(LDADD) $(am__DEPENDENCIES_1)
+tests_test_align_DEPENDENCIES = $(LDADD) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
 am_tests_test_isa_OBJECTS = tests/test_isa.$(OBJEXT)
 tests_test_isa_OBJECTS = $(am_tests_test_isa_OBJECTS)
 tests_test_isa_LDADD = $(LDADD)
@@ -1061,7 +1062,7 @@ libparasail_table_la_SOURCES = $(ALIGNMENT_SRC)
 libparasail_table_la_CPPFLAGS = $(AM_CPPFLAGS) -DPARASAIL_TABLE=1
 libparasail_la_LIBADD = libparasail_table.la
 tests_test_align_SOURCES = tests/test_align.c
-tests_test_align_LDADD = $(LDADD) $(CLOCK_LIBS)
+tests_test_align_LDADD = $(LDADD) $(CLOCK_LIBS) $(MATH_LIBS)
 tests_test_isa_SOURCES = tests/test_isa.c
 tests_test_openmp_SOURCES = tests/test_openmp.c
 tests_test_openmp_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)

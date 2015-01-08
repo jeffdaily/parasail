@@ -4925,21 +4925,19 @@ else
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
+#ifdef __MIC__
 #include <immintrin.h>
-__mmask16 foo() {
-    __mmask16 vMask;
-    return _mm512_kand(vMask,vMask);
-}
-int main(int argc, char **argv) { __mmask16 vMask = foo(); return 0; }
+#else
+#error CHOKE
+#endif
 
 _ACEOF
-if ac_fn_c_try_link "$LINENO"; then :
+if ac_fn_c_try_compile "$LINENO"; then :
   pt_cv_knc=yes; pt_cv_knc_val=1
 else
   pt_cv_knc=no; pt_cv_knc_val=0
 fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $pt_cv_knc" >&5
 $as_echo "$pt_cv_knc" >&6; }

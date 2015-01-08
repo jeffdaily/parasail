@@ -205,13 +205,12 @@ AC_DEFINE_UNQUOTED([HAVE_AVX2_MM256_EXTRACT_EPI8],
 
 AC_CACHE_CHECK([for KNC],
     [pt_cv_knc],
-    [AC_LINK_IFELSE([AC_LANG_SOURCE([[
+    [AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+#ifdef __MIC__
 #include <immintrin.h>
-__mmask16 foo() {
-    __mmask16 vMask;
-    return _mm512_kand(vMask,vMask);
-}
-int main(int argc, char **argv) { __mmask16 vMask = foo(); return 0; }
+#else
+#error CHOKE
+#endif
 ]])],
         [pt_cv_knc=yes; pt_cv_knc_val=1],
         [pt_cv_knc=no]; pt_cv_knc_val=0)])

@@ -27,6 +27,12 @@ int main(int argc, char **argv)
         printf("avx2 NOT supported\n");
     }
 
+#ifdef __MIC__
+    printf("knc supported\n");
+#else
+    printf("knc NOT supported\n");
+#endif
+
     return 0;
 }
 

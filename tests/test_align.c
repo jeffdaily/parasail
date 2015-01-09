@@ -401,8 +401,8 @@ int main(int argc, char **argv)
 #endif
 #if HAVE_AVX2
         {nw_stats_scan_avx2_256_32,      "nw_stats", "scan",    "avx2", "256", "32", 0, 1, 0},
-        //{nw_stats_scan_avx2_256_16,      "nw_stats", "scan",    "avx2", "256", "16", 0, 1, 0},
-        //{nw_stats_scan_avx2_256_8,       "nw_stats", "scan",    "avx2", "256", "8",  0, 1, 0},
+        {nw_stats_scan_avx2_256_16,      "nw_stats", "scan",    "avx2", "256", "16", 0, 1, 0},
+        {nw_stats_scan_avx2_256_8,       "nw_stats", "scan",    "avx2", "256", "8",  0, 1, 0},
         //{nw_stats_diag_avx2_256_32,      "nw_stats", "diag",    "avx2", "256", "32", 0, 1, 0},
         //{nw_stats_diag_avx2_256_16,      "nw_stats", "diag",    "avx2", "256", "16", 0, 1, 0},
         //{nw_stats_diag_avx2_256_8,       "nw_stats", "diag",    "avx2", "256", "8",  0, 1, 0},
@@ -485,10 +485,10 @@ int main(int argc, char **argv)
         {nw_stats_table_striped_sse41_128_16,   "nw_stats", "striped", "sse41", "128", "16", 1, 1, 0},
         {nw_stats_table_striped_sse41_128_8,    "nw_stats", "striped", "sse41", "128", "8",  1, 1, 0},
 #endif
-#if HAVE_SSE41
+#if HAVE_AVX2
         {nw_stats_table_scan_avx2_256_32,       "nw_stats", "scan",    "avx2",  "256", "32", 1, 1, 0},
-        //{nw_stats_table_scan_avx2_256_16,       "nw_stats", "scan",    "avx2",  "256", "16", 1, 1, 0},
-        //{nw_stats_table_scan_avx2_256_8,        "nw_stats", "scan",    "avx2",  "256", "8",  1, 1, 0},
+        {nw_stats_table_scan_avx2_256_16,       "nw_stats", "scan",    "avx2",  "256", "16", 1, 1, 0},
+        {nw_stats_table_scan_avx2_256_8,        "nw_stats", "scan",    "avx2",  "256", "8",  1, 1, 0},
         //{nw_stats_table_diag_avx2_256_32,       "nw_stats", "diag",    "avx2",  "256", "32", 1, 1, 0},
         //{nw_stats_table_diag_avx2_256_16,       "nw_stats", "diag",    "avx2",  "256", "16", 1, 1, 0},
         //{nw_stats_table_diag_avx2_256_8,        "nw_stats", "diag",    "avx2",  "256", "8",  1, 1, 0},

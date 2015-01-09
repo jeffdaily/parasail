@@ -192,9 +192,8 @@ parasail_result_t* FNAME(
         vHt = _mm256_insert_epi32(vHt, boundary[j+1], 0);
         vFt = _mm256_set1_epi32(NEG_INF_32);
         for (i=0; i<segLen; ++i) {
-            vFt = _mm256_max_epi32(
-                    _mm256_sub_epi32(vFt, vGapE),
-                    vHt);
+            vFt = _mm256_sub_epi32(vFt, vGapE);
+            vFt = _mm256_max_epi32(vFt, vHt);
             vHt = _mm256_load_si256(pvHt+i);
         }
 #if 0

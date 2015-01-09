@@ -118,19 +118,15 @@ int main(int argc, char **argv)
     double timer_nsecs;
     double timer_nsecs_single;
     double timer_nsecs_ref_mean;
-    //size_t limit = 1000;
-    //size_t limit = 500;
-    //size_t limit = 200;
-    //size_t limit = 100;
-    //size_t limit = 50;
-    size_t limit = 2;
-    //size_t limit = 1;
-    size_t i;
-    size_t index;
+    int limit = 100;
+    int i;
+    int index;
     func_t f;
     parasail_result_t *result = NULL;
     stats_t stats_rdtsc;
     stats_t stats_nsecs;
+
+    if (argc > 1) { limit = atoi(argv[1]); }
 
     func_t functions[] = {
         {nw,                        "nw", "orig",    "NA",    "32",  "32", 0, 0, 1},
@@ -403,6 +399,17 @@ int main(int argc, char **argv)
         {nw_stats_striped_sse41_128_16,   "nw_stats", "striped", "sse41", "128", "16", 0, 1, 0},
         {nw_stats_striped_sse41_128_8,    "nw_stats", "striped", "sse41", "128", "8",  0, 1, 0},
 #endif
+#if HAVE_AVX2
+        {nw_stats_scan_avx2_256_32,      "nw_stats", "scan",    "avx2", "256", "32", 0, 1, 0},
+        //{nw_stats_scan_avx2_256_16,      "nw_stats", "scan",    "avx2", "256", "16", 0, 1, 0},
+        //{nw_stats_scan_avx2_256_8,       "nw_stats", "scan",    "avx2", "256", "8",  0, 1, 0},
+        //{nw_stats_diag_avx2_256_32,      "nw_stats", "diag",    "avx2", "256", "32", 0, 1, 0},
+        //{nw_stats_diag_avx2_256_16,      "nw_stats", "diag",    "avx2", "256", "16", 0, 1, 0},
+        //{nw_stats_diag_avx2_256_8,       "nw_stats", "diag",    "avx2", "256", "8",  0, 1, 0},
+        //{nw_stats_striped_avx2_256_32,   "nw_stats", "striped", "avx2", "256", "32", 0, 1, 0},
+        //{nw_stats_striped_avx2_256_16,   "nw_stats", "striped", "avx2", "256", "16", 0, 1, 0},
+        //{nw_stats_striped_avx2_256_8,    "nw_stats", "striped", "avx2", "256", "8",  0, 1, 0},
+#endif
                                    
         {sg_stats,                        "sg_stats", "orig",    "NA",    "32",  "32", 0, 1, 1},
         {sg_stats_scan,                   "sg_stats", "scan",    "NA",    "32",  "32", 0, 1, 0},
@@ -478,6 +485,17 @@ int main(int argc, char **argv)
         {nw_stats_table_striped_sse41_128_16,   "nw_stats", "striped", "sse41", "128", "16", 1, 1, 0},
         {nw_stats_table_striped_sse41_128_8,    "nw_stats", "striped", "sse41", "128", "8",  1, 1, 0},
 #endif
+#if HAVE_SSE41
+        {nw_stats_table_scan_avx2_256_32,       "nw_stats", "scan",    "avx2",  "256", "32", 1, 1, 0},
+        //{nw_stats_table_scan_avx2_256_16,       "nw_stats", "scan",    "avx2",  "256", "16", 1, 1, 0},
+        //{nw_stats_table_scan_avx2_256_8,        "nw_stats", "scan",    "avx2",  "256", "8",  1, 1, 0},
+        //{nw_stats_table_diag_avx2_256_32,       "nw_stats", "diag",    "avx2",  "256", "32", 1, 1, 0},
+        //{nw_stats_table_diag_avx2_256_16,       "nw_stats", "diag",    "avx2",  "256", "16", 1, 1, 0},
+        //{nw_stats_table_diag_avx2_256_8,        "nw_stats", "diag",    "avx2",  "256", "8",  1, 1, 0},
+        //{nw_stats_table_striped_avx2_256_32,    "nw_stats", "striped", "avx2",  "256", "32", 1, 1, 0},
+        //{nw_stats_table_striped_avx2_256_16,    "nw_stats", "striped", "avx2",  "256", "16", 1, 1, 0},
+        //{nw_stats_table_striped_avx2_256_8,     "nw_stats", "striped", "avx2",  "256", "8",  1, 1, 0},
+#endif
 
         {sg_stats_table,                        "sg_stats", "orig",    "NA",    "32",  "32", 1, 1, 1},
         {sg_stats_table_scan,                   "sg_stats", "scan",    "NA",    "32",  "32", 1, 1, 0},
@@ -545,7 +563,7 @@ int main(int argc, char **argv)
     f = functions[index++];
     while (f.f) {
         char name[16] = {'\0'};
-        size_t new_limit = f.is_table ? 2 : limit;
+        int new_limit = f.is_table ? 1 : limit;
         if ((0 == strncmp(f.isa, "sse2",  4) && 0 == parasail_can_use_sse2()) 
                 || (0 == strncmp(f.isa, "sse41", 5) && 0 == parasail_can_use_sse41())
                 || (0 == strncmp(f.isa, "avx2",  4) && 0 == parasail_can_use_avx2())) {

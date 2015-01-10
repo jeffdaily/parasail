@@ -408,6 +408,12 @@ end:
         }
     }
 
+    if (_mm_movemask_epi8(vSaturationCheck)) {
+        score = INT8_MAX;
+        matches = 0;
+        length = 0;
+    }
+
     result->score = score;
     result->matches = matches;
     result->length = length;

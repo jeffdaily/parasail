@@ -20,7 +20,7 @@
 #include "parasail_internal_avx.h"
 #include "blosum/blosum_map.h"
 
-#define NEG_INF_8 (INT8_MIN/(int8_t)(2))
+#define NEG_INF_8 (INT8_MIN)
 #define MAX(a,b) ((a)>(b)?(a):(b))
 
 /* avx2 does not have _mm256_cmplt_epi8, emulate it */
@@ -51,7 +51,7 @@ static inline int8_t _mm256_extract_epi8(__m256i a, int imm) {
 static inline __m256i shift(__m256i a) {
     return _mm256_alignr_epi8(a,
             _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,3,0)),
-            14);
+            15);
 }
 
 /* avx2 _mm256_srli_si256 does not shift across 128-bit lanes, emulate it */
@@ -59,14 +59,14 @@ static inline __m256i rshift(__m256i a) {
     return _mm256_or_si256(
             _mm256_slli_si256(
                 _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(3,0,0,1)),
-                14),
-            _mm256_srli_si256(a, 2));
+                15),
+            _mm256_srli_si256(a, 1));
 }
 
 static inline __m256i lrotate8(__m256i a) {
     return _mm256_alignr_epi8(a,
             _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,0,1)),
-            14);
+            15);
 }
 
 

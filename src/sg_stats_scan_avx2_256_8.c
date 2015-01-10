@@ -27,6 +27,11 @@ static inline __m256i _mm256_cmplt_epi8(__m256i a, __m256i b) {
     return _mm256_cmpgt_epi8(b,a);
 }
 
+/* avx2 does not have _mm256_cmplt_epi16, emulate it */
+static inline __m256i _mm256_cmplt_epi16(__m256i a, __m256i b) {
+    return _mm256_cmpgt_epi16(b,a);
+}
+
 #if HAVE_AVX2_MM256_INSERT_EPI8
 #else
 static inline __m256i _mm256_insert_epi8(__m256i a, int8_t b, int imm) {
@@ -110,6 +115,49 @@ static inline void arr_store_si256(
     array[(30*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH, 30);
     array[(31*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH, 31);
 }
+
+static inline void arr_store_si256_bias(
+        int *array,
+        __m256i vH,
+        int32_t t,
+        int32_t seglen,
+        int32_t d,
+        int32_t dlen,
+        int32_t bias)
+{
+    array[( 0*seglen+t)*dlen + d] = bias + (int8_t)_mm256_extract_epi8(vH, 0);
+    array[( 1*seglen+t)*dlen + d] = bias + (int8_t)_mm256_extract_epi8(vH, 1);
+    array[( 2*seglen+t)*dlen + d] = bias + (int8_t)_mm256_extract_epi8(vH, 2);
+    array[( 3*seglen+t)*dlen + d] = bias + (int8_t)_mm256_extract_epi8(vH, 3);
+    array[( 4*seglen+t)*dlen + d] = bias + (int8_t)_mm256_extract_epi8(vH, 4);
+    array[( 5*seglen+t)*dlen + d] = bias + (int8_t)_mm256_extract_epi8(vH, 5);
+    array[( 6*seglen+t)*dlen + d] = bias + (int8_t)_mm256_extract_epi8(vH, 6);
+    array[( 7*seglen+t)*dlen + d] = bias + (int8_t)_mm256_extract_epi8(vH, 7);
+    array[( 8*seglen+t)*dlen + d] = bias + (int8_t)_mm256_extract_epi8(vH, 8);
+    array[( 9*seglen+t)*dlen + d] = bias + (int8_t)_mm256_extract_epi8(vH, 9);
+    array[(10*seglen+t)*dlen + d] = bias + (int8_t)_mm256_extract_epi8(vH, 10);
+    array[(11*seglen+t)*dlen + d] = bias + (int8_t)_mm256_extract_epi8(vH, 11);
+    array[(12*seglen+t)*dlen + d] = bias + (int8_t)_mm256_extract_epi8(vH, 12);
+    array[(13*seglen+t)*dlen + d] = bias + (int8_t)_mm256_extract_epi8(vH, 13);
+    array[(14*seglen+t)*dlen + d] = bias + (int8_t)_mm256_extract_epi8(vH, 14);
+    array[(15*seglen+t)*dlen + d] = bias + (int8_t)_mm256_extract_epi8(vH, 15);
+    array[(16*seglen+t)*dlen + d] = bias + (int8_t)_mm256_extract_epi8(vH, 16);
+    array[(17*seglen+t)*dlen + d] = bias + (int8_t)_mm256_extract_epi8(vH, 17);
+    array[(18*seglen+t)*dlen + d] = bias + (int8_t)_mm256_extract_epi8(vH, 18);
+    array[(19*seglen+t)*dlen + d] = bias + (int8_t)_mm256_extract_epi8(vH, 19);
+    array[(20*seglen+t)*dlen + d] = bias + (int8_t)_mm256_extract_epi8(vH, 20);
+    array[(21*seglen+t)*dlen + d] = bias + (int8_t)_mm256_extract_epi8(vH, 21);
+    array[(22*seglen+t)*dlen + d] = bias + (int8_t)_mm256_extract_epi8(vH, 22);
+    array[(23*seglen+t)*dlen + d] = bias + (int8_t)_mm256_extract_epi8(vH, 23);
+    array[(24*seglen+t)*dlen + d] = bias + (int8_t)_mm256_extract_epi8(vH, 24);
+    array[(25*seglen+t)*dlen + d] = bias + (int8_t)_mm256_extract_epi8(vH, 25);
+    array[(26*seglen+t)*dlen + d] = bias + (int8_t)_mm256_extract_epi8(vH, 26);
+    array[(27*seglen+t)*dlen + d] = bias + (int8_t)_mm256_extract_epi8(vH, 27);
+    array[(28*seglen+t)*dlen + d] = bias + (int8_t)_mm256_extract_epi8(vH, 28);
+    array[(29*seglen+t)*dlen + d] = bias + (int8_t)_mm256_extract_epi8(vH, 29);
+    array[(30*seglen+t)*dlen + d] = bias + (int8_t)_mm256_extract_epi8(vH, 30);
+    array[(31*seglen+t)*dlen + d] = bias + (int8_t)_mm256_extract_epi8(vH, 31);
+}
 #endif
 
 #ifdef PARASAIL_TABLE
@@ -147,6 +195,9 @@ parasail_result_t* FNAME(
     __m256i vGapE = _mm256_set1_epi8(gap);
     __m256i vZero = _mm256_setzero_si256();
     __m256i vOne = _mm256_set1_epi8(1);
+    int8_t bias = 127;
+    int ibias = 127;
+    __m256i vNegBias = _mm256_set1_epi8(-bias);
     __m256i vNegInf = _mm256_set1_epi8(NEG_INF_8);
     __m256i vSaturationCheck = _mm256_setzero_si256();
     __m256i vNegLimit = _mm256_set1_epi8(INT8_MIN);
@@ -175,8 +226,8 @@ parasail_result_t* FNAME(
     parasail_result_t *result = parasail_result_new();
 #endif
 
-    parasail_memset_m256i(pvM, vZero, segLen);
-    parasail_memset_m256i(pvL, vZero, segLen);
+    parasail_memset_m256i(pvM, vNegBias, segLen);
+    parasail_memset_m256i(pvL, vNegBias, segLen);
 
     /* Generate query profile and match profile.
      * Rearrange query sequence & calculate the weight of match/mismatch.
@@ -247,7 +298,9 @@ parasail_result_t* FNAME(
         /* calculate Ht */
         vH = shift(_mm256_load_si256(pvH+(segLen-1)));
         vMp= shift(_mm256_load_si256(pvM+(segLen-1)));
+        vMp= _mm256_insert_epi8(vMp, -bias, 0);
         vLp= shift(_mm256_load_si256(pvL+(segLen-1)));
+        vLp= _mm256_insert_epi8(vLp, -bias, 0);
         vLp= _mm256_adds_epi8(vLp, vOne);
         pvW = pvP + MAP_BLOSUM_[(unsigned char)s2[j]]*segLen;
         pvC = pvPm+ MAP_BLOSUM_[(unsigned char)s2[j]]*segLen;
@@ -347,8 +400,8 @@ parasail_result_t* FNAME(
         }
 
         /* calculate H,M,L */
-        vMp = vZero;
-        vLp = vOne;
+        vMp = vNegBias;
+        vLp = _mm256_adds_epi8(vNegBias, vOne);
         vC = _mm256_cmpeq_epi8(vZero, vZero); /* check if prefix sum is needed */
         vC = rshift(vC); /* zero out last value */
         for (i=0; i<segLen; ++i) {
@@ -412,7 +465,9 @@ parasail_result_t* FNAME(
         }
         /* final pass for M,L */
         vMp = shift(vMp);
+        vMp = _mm256_insert_epi8(vMp, -bias, 0);
         vLp = shift(vLp);
+        vLp = _mm256_insert_epi8(vLp, -bias, 0);
         for (i=0; i<segLen; ++i) {
             /* statistics */
             vEx = _mm256_load_si256(pvEx+i);
@@ -433,8 +488,8 @@ parasail_result_t* FNAME(
                             _mm256_cmpeq_epi8(vL, vPosLimit)));
             }
 #ifdef PARASAIL_TABLE
-            arr_store_si256(result->matches_table, vM, i, segLen, j, s2Len);
-            arr_store_si256(result->length_table, vL, i, segLen, j, s2Len);
+            arr_store_si256_bias(result->matches_table, vM, i, segLen, j, s2Len, bias);
+            arr_store_si256_bias(result->length_table, vL, i, segLen, j, s2Len, bias);
 #endif
         }
 
@@ -462,8 +517,8 @@ parasail_result_t* FNAME(
         value = (int8_t) _mm256_extract_epi8(vMaxH, 31);
         if (value > score) {
             score = value;
-            matches = (int8_t) _mm256_extract_epi8(vMaxM, 31);
-            length = (int8_t) _mm256_extract_epi8(vMaxL, 31);
+            matches = ibias + (int)((int8_t)_mm256_extract_epi8(vMaxM, 31));
+            length = ibias + (int)((int8_t)_mm256_extract_epi8(vMaxL, 31));
         }
     }
 
@@ -472,8 +527,8 @@ parasail_result_t* FNAME(
         __m256i vMaxH = vNegInf;
         __m256i vMaxM = vZero;
         __m256i vMaxL = vZero;
-        __m256i vQLimit = _mm256_set1_epi8(s1Len);
-        __m256i vQIndex = _mm256_set_epi8(
+        __m256i vQLimit16 = _mm256_set1_epi16(s1Len);
+        __m256i vQIndexHi16 = _mm256_set_epi16(
                 31*segLen,
                 30*segLen,
                 29*segLen,
@@ -489,7 +544,8 @@ parasail_result_t* FNAME(
                 19*segLen,
                 18*segLen,
                 17*segLen,
-                16*segLen,
+                16*segLen);
+        __m256i vQIndexLo16 = _mm256_set_epi16(
                 15*segLen,
                 14*segLen,
                 13*segLen,
@@ -506,18 +562,22 @@ parasail_result_t* FNAME(
                 2*segLen,
                 1*segLen,
                 0*segLen);
+        __m256i vOne16 = _mm256_set1_epi16(1);
 
         for (i=0; i<segLen; ++i) {
             __m256i vH = _mm256_load_si256(pvH + i);
             __m256i vM = _mm256_load_si256(pvM + i);
             __m256i vL = _mm256_load_si256(pvL + i);
-            __m256i cond_lmt = _mm256_cmplt_epi8(vQIndex, vQLimit);
+            __m256i cond_lmt = _mm256_packs_epi16(
+                _mm256_cmplt_epi16(vQIndexLo16, vQLimit16),
+                _mm256_cmplt_epi16(vQIndexHi16, vQLimit16));
             __m256i cond_max = _mm256_cmpgt_epi8(vH, vMaxH);
             __m256i cond_all = _mm256_and_si256(cond_max, cond_lmt);
             vMaxH = _mm256_blendv_epi8(vMaxH, vH, cond_all);
             vMaxM = _mm256_blendv_epi8(vMaxM, vM, cond_all);
             vMaxL = _mm256_blendv_epi8(vMaxL, vL, cond_all);
-            vQIndex = _mm256_adds_epi8(vQIndex, vOne);
+            vQIndexLo16 = _mm256_adds_epi8(vQIndexLo16, vOne16);
+            vQIndexHi16 = _mm256_adds_epi8(vQIndexHi16, vOne16);
         }
 
         /* max in vec */
@@ -525,8 +585,8 @@ parasail_result_t* FNAME(
             int8_t value = (int8_t) _mm256_extract_epi8(vMaxH, 31);
             if (value > score) {
                 score = value;
-                matches = (int8_t) _mm256_extract_epi8(vMaxM, 31);
-                length = (int8_t) _mm256_extract_epi8(vMaxL, 31);
+                matches = ibias + (int)((int8_t)_mm256_extract_epi8(vMaxM, 31));
+                length = ibias + (int)((int8_t)_mm256_extract_epi8(vMaxL, 31));
             }
             vMaxH = shift(vMaxH);
             vMaxM = shift(vMaxM);

@@ -27,6 +27,11 @@ static inline __m256i _mm256_cmplt_epi8(__m256i a, __m256i b) {
     return _mm256_cmpgt_epi8(b,a);
 }
 
+/* avx2 does not have _mm256_cmplt_epi16, emulate it */
+static inline __m256i _mm256_cmplt_epi16(__m256i a, __m256i b) {
+    return _mm256_cmpgt_epi16(b,a);
+}
+
 #if HAVE_AVX2_MM256_EXTRACT_EPI8
 #else
 static inline int8_t _mm256_extract_epi8(__m256i a, int imm) {
@@ -509,8 +514,8 @@ parasail_result_t* FNAME(
             /* update max vector seen so far */
             {
                 __m256i cond_lmt = _mm256_packs_epi16(
-                    _mm256_cmplt_epi8(vQIndexLo16, vQLimit16),
-                    _mm256_cmplt_epi8(vQIndexHi16, vQLimit16));
+                    _mm256_cmplt_epi16(vQIndexLo16, vQLimit16),
+                    _mm256_cmplt_epi16(vQIndexHi16, vQLimit16));
                 __m256i cond_max = _mm256_cmpgt_epi8(vH, vMaxH);
                 __m256i cond_all = _mm256_and_si256(cond_max, cond_lmt);
                 vMaxH = _mm256_blendv_epi8(vMaxH, vH, cond_all);

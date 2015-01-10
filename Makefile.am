@@ -217,15 +217,15 @@ endif
 
 if HAVE_AVX2
 ALIGNMENT_SRC += src/nw_stats_scan_avx2_256_32.c
-#ALIGNMENT_SRC += src/sg_stats_scan_avx2_256_32.c
+ALIGNMENT_SRC += src/sg_stats_scan_avx2_256_32.c
 #ALIGNMENT_SRC += src/sw_stats_scan_avx2_256_32.c
 
 ALIGNMENT_SRC += src/nw_stats_scan_avx2_256_16.c
-#ALIGNMENT_SRC += src/sg_stats_scan_avx2_256_16.c
+ALIGNMENT_SRC += src/sg_stats_scan_avx2_256_16.c
 #ALIGNMENT_SRC += src/sw_stats_scan_avx2_256_16.c
 
 ALIGNMENT_SRC += src/nw_stats_scan_avx2_256_8.c
-#ALIGNMENT_SRC += src/sg_stats_scan_avx2_256_8.c
+ALIGNMENT_SRC += src/sg_stats_scan_avx2_256_8.c
 #ALIGNMENT_SRC += src/sw_stats_scan_avx2_256_8.c
 endif
 

@@ -239,8 +239,8 @@ parasail_result_t* FNAME(
             vH = _mm256_load_si256(pvH+i);
             vE = _mm256_load_si256(pvE+i);
             vE = _mm256_max_epi8(
-                    _mm256_sub_epi8(vE, vGapE),
-                    _mm256_sub_epi8(vH, vGapO));
+                    _mm256_subs_epi8(vE, vGapE),
+                    _mm256_subs_epi8(vH, vGapO));
             _mm256_store_si256(pvE+i, vE);
         }
 
@@ -248,7 +248,7 @@ parasail_result_t* FNAME(
         vH = shift(_mm256_load_si256(pvH+(segLen-1)));
         vMp= shift(_mm256_load_si256(pvM+(segLen-1)));
         vLp= shift(_mm256_load_si256(pvL+(segLen-1)));
-        vLp= _mm256_add_epi8(vLp, vOne);
+        vLp= _mm256_adds_epi8(vLp, vOne);
         pvW = pvP + MAP_BLOSUM_[(unsigned char)s2[j]]*segLen;
         pvC = pvPm+ MAP_BLOSUM_[(unsigned char)s2[j]]*segLen;
         for (i=0; i<segLen; ++i) {
@@ -256,15 +256,15 @@ parasail_result_t* FNAME(
             vE = _mm256_load_si256(pvE+i);
             vW = _mm256_load_si256(pvW+i);
             /* compute */
-            vH = _mm256_add_epi8(vH, vW);
+            vH = _mm256_adds_epi8(vH, vW);
             vHt = _mm256_max_epi8(vH, vE);
             /* statistics */
             vC = _mm256_load_si256(pvC+i);
-            vMp = _mm256_add_epi8(vMp, vC);
+            vMp = _mm256_adds_epi8(vMp, vC);
             vEx = _mm256_cmpgt_epi8(vE, vH);
             vM = _mm256_load_si256(pvM+i);
             vL = _mm256_load_si256(pvL+i);
-            vL = _mm256_add_epi8(vL, vOne);
+            vL = _mm256_adds_epi8(vL, vOne);
             vMt = _mm256_blendv_epi8(vMp, vM, vEx);
             vLt = _mm256_blendv_epi8(vLp, vL, vEx);
             /* store results */
@@ -282,7 +282,7 @@ parasail_result_t* FNAME(
         vHt = shift(_mm256_load_si256(pvHt+(segLen-1)));
         vFt = vNegInf;
         for (i=0; i<segLen; ++i) {
-            vFt = _mm256_sub_epi8(vFt, vGapE);
+            vFt = _mm256_subs_epi8(vFt, vGapE);
             vFt = _mm256_max_epi8(vFt, vHt);
             vHt = _mm256_load_si256(pvHt+i);
         }
@@ -340,7 +340,7 @@ parasail_result_t* FNAME(
         vFt = shift(vFt);
         vFt = _mm256_insert_epi8(vFt, NEG_INF_8, 0);
         for (i=0; i<segLen; ++i) {
-            vFt = _mm256_sub_epi8(vFt, vGapE);
+            vFt = _mm256_subs_epi8(vFt, vGapE);
             vFt = _mm256_max_epi8(vFt, vHt);
             vHt = _mm256_load_si256(pvHt+i);
             _mm256_store_si256(pvFt+i, vFt);
@@ -356,7 +356,7 @@ parasail_result_t* FNAME(
             vHt = _mm256_load_si256(pvHt+i);
             vFt = _mm256_load_si256(pvFt+i);
             /* compute */
-            vFt = _mm256_sub_epi8(vFt, vGapO);
+            vFt = _mm256_subs_epi8(vFt, vGapO);
             vH = _mm256_max_epi8(vHt, vFt);
             /* statistics */
             vEx = _mm256_load_si256(pvEx+i);
@@ -368,7 +368,7 @@ parasail_result_t* FNAME(
             vM = _mm256_blendv_epi8(vMt, vMp, vEx);
             vL = _mm256_blendv_epi8(vLt, vLp, vEx);
             vMp = vM;
-            vLp = _mm256_add_epi8(vL, vOne);
+            vLp = _mm256_adds_epi8(vL, vOne);
             vC = _mm256_and_si256(vC, vEx);
             /* store results */
             _mm256_store_si256(pvH+i, vH);
@@ -385,7 +385,7 @@ parasail_result_t* FNAME(
 #endif
         }
         {
-            vLp = _mm256_sub_epi8(vLp, vOne);
+            vLp = _mm256_subs_epi8(vLp, vOne);
             {
                 __m256i_8_t uMp, uLp, uC;
                 uC.m = vC;
@@ -408,7 +408,7 @@ parasail_result_t* FNAME(
                 uLp.v[7] = uC.v[7] ? uLp.v[7] + uLp.v[6] : uLp.v[7];
                 vLp = uLp.m;
             }
-            vLp = _mm256_add_epi8(vLp, vOne);
+            vLp = _mm256_adds_epi8(vLp, vOne);
         }
         /* final pass for M,L */
         vMp = shift(vMp);
@@ -421,7 +421,7 @@ parasail_result_t* FNAME(
             vM = _mm256_blendv_epi8(vMt, vMp, vEx);
             vL = _mm256_blendv_epi8(vLt, vLp, vEx);
             vMp = vM;
-            vLp = _mm256_add_epi8(vL, vOne);
+            vLp = _mm256_adds_epi8(vL, vOne);
             /* store results */
             _mm256_store_si256(pvM+i, vM);
             _mm256_store_si256(pvL+i, vL);
@@ -517,7 +517,7 @@ parasail_result_t* FNAME(
             vMaxH = _mm256_blendv_epi8(vMaxH, vH, cond_all);
             vMaxM = _mm256_blendv_epi8(vMaxM, vM, cond_all);
             vMaxL = _mm256_blendv_epi8(vMaxL, vL, cond_all);
-            vQIndex = _mm256_add_epi8(vQIndex, vOne);
+            vQIndex = _mm256_adds_epi8(vQIndex, vOne);
         }
 
         /* max in vec */

@@ -257,13 +257,21 @@ parasail_result_t* FNAME(
         {
             __m256i_16_t tmp;
             tmp.m = vFt;
-            tmp.v[1] = MAX(tmp.v[0]-segLen*gap, tmp.v[1]);
-            tmp.v[2] = MAX(tmp.v[1]-segLen*gap, tmp.v[2]);
-            tmp.v[3] = MAX(tmp.v[2]-segLen*gap, tmp.v[3]);
-            tmp.v[4] = MAX(tmp.v[3]-segLen*gap, tmp.v[4]);
-            tmp.v[5] = MAX(tmp.v[4]-segLen*gap, tmp.v[5]);
-            tmp.v[6] = MAX(tmp.v[5]-segLen*gap, tmp.v[6]);
-            tmp.v[7] = MAX(tmp.v[6]-segLen*gap, tmp.v[7]);
+            tmp.v[ 1] = MAX(tmp.v[ 0]-segLen*gap, tmp.v[ 1]);
+            tmp.v[ 2] = MAX(tmp.v[ 1]-segLen*gap, tmp.v[ 2]);
+            tmp.v[ 3] = MAX(tmp.v[ 2]-segLen*gap, tmp.v[ 3]);
+            tmp.v[ 4] = MAX(tmp.v[ 3]-segLen*gap, tmp.v[ 4]);
+            tmp.v[ 5] = MAX(tmp.v[ 4]-segLen*gap, tmp.v[ 5]);
+            tmp.v[ 6] = MAX(tmp.v[ 5]-segLen*gap, tmp.v[ 6]);
+            tmp.v[ 7] = MAX(tmp.v[ 6]-segLen*gap, tmp.v[ 7]);
+            tmp.v[ 8] = MAX(tmp.v[ 7]-segLen*gap, tmp.v[ 8]);
+            tmp.v[ 9] = MAX(tmp.v[ 8]-segLen*gap, tmp.v[ 9]);
+            tmp.v[10] = MAX(tmp.v[ 9]-segLen*gap, tmp.v[10]);
+            tmp.v[11] = MAX(tmp.v[10]-segLen*gap, tmp.v[11]);
+            tmp.v[12] = MAX(tmp.v[11]-segLen*gap, tmp.v[12]);
+            tmp.v[13] = MAX(tmp.v[12]-segLen*gap, tmp.v[13]);
+            tmp.v[14] = MAX(tmp.v[13]-segLen*gap, tmp.v[14]);
+            tmp.v[15] = MAX(tmp.v[14]-segLen*gap, tmp.v[15]);
             vFt = tmp.m;
         }
 #else
@@ -276,7 +284,7 @@ parasail_result_t* FNAME(
                 vFtt = _mm256_add_epi16(vFtt, segLenXgap);
                 vFt = _mm256_max_epi16(vFt, vFtt);
             }
-            vFt = _mm256_blend_epi16(vFt_save, vFt, 0xFE);
+            vFt = _mm256_blendv_epi8(vFt_save, vFt, insert_mask);
         }
 #endif
         vHt = shift(_mm256_load_si256(pvHt+(segLen-1)));

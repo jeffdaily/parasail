@@ -12,8 +12,7 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#include <emmintrin.h>
-#include <smmintrin.h>
+#include <immintrin.h>
 
 #include "parasail.h"
 #include "parasail_internal.h"

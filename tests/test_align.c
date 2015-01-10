@@ -471,6 +471,17 @@ int main(int argc, char **argv)
         {sw_stats_striped_sse41_128_16,   "sw_stats", "striped", "sse41", "128", "16", 0, 1, 0},
         {sw_stats_striped_sse41_128_8,    "sw_stats", "striped", "sse41", "128", "8",  0, 1, 0},
 #endif
+#if HAVE_AVX2
+        {sw_stats_scan_avx2_256_32,      "sw_stats", "scan",    "avx2", "256", "32", 0, 1, 0},
+        {sw_stats_scan_avx2_256_16,      "sw_stats", "scan",    "avx2", "256", "16", 0, 1, 0},
+        {sw_stats_scan_avx2_256_8,       "sw_stats", "scan",    "avx2", "256", "8",  0, 1, 0},
+        //{sw_stats_diag_avx2_256_32,      "sw_stats", "diag",    "avx2", "256", "32", 0, 1, 0},
+        //{sw_stats_diag_avx2_256_16,      "sw_stats", "diag",    "avx2", "256", "16", 0, 1, 0},
+        //{sw_stats_diag_avx2_256_8,       "sw_stats", "diag",    "avx2", "256", "8",  0, 1, 0},
+        //{sw_stats_striped_avx2_256_32,   "sw_stats", "striped", "avx2", "256", "32", 0, 1, 0},
+        //{sw_stats_striped_avx2_256_16,   "sw_stats", "striped", "avx2", "256", "16", 0, 1, 0},
+        //{sw_stats_striped_avx2_256_8,    "sw_stats", "striped", "avx2", "256", "8",  0, 1, 0},
+#endif
                                    
         {nw_stats_table,                        "nw_stats", "orig",    "NA",    "32",  "32", 1, 1, 1},
         {nw_stats_table_scan,                   "nw_stats", "scan",    "NA",    "32",  "32", 1, 1, 0},
@@ -567,6 +578,17 @@ int main(int argc, char **argv)
         {sw_stats_table_striped_sse41_128_32,   "sw_stats", "striped", "sse41", "128", "32", 1, 1, 0},
         {sw_stats_table_striped_sse41_128_16,   "sw_stats", "striped", "sse41", "128", "16", 1, 1, 0},
         {sw_stats_table_striped_sse41_128_8,    "sw_stats", "striped", "sse41", "128", "8",  1, 1, 0},
+#endif
+#if HAVE_AVX2
+        {sw_stats_table_scan_avx2_256_32,       "sw_stats", "scan",    "avx2",  "256", "32", 1, 1, 0},
+        {sw_stats_table_scan_avx2_256_16,       "sw_stats", "scan",    "avx2",  "256", "16", 1, 1, 0},
+        {sw_stats_table_scan_avx2_256_8,        "sw_stats", "scan",    "avx2",  "256", "8",  1, 1, 0},
+        //{sw_stats_table_diag_avx2_256_32,       "sw_stats", "diag",    "avx2",  "256", "32", 1, 1, 0},
+        //{sw_stats_table_diag_avx2_256_16,       "sw_stats", "diag",    "avx2",  "256", "16", 1, 1, 0},
+        //{sw_stats_table_diag_avx2_256_8,        "sw_stats", "diag",    "avx2",  "256", "8",  1, 1, 0},
+        //{sw_stats_table_striped_avx2_256_32,    "sw_stats", "striped", "avx2",  "256", "32", 1, 1, 0},
+        //{sw_stats_table_striped_avx2_256_16,    "sw_stats", "striped", "avx2",  "256", "16", 1, 1, 0},
+        //{sw_stats_table_striped_avx2_256_8,     "sw_stats", "striped", "avx2",  "256", "8",  1, 1, 0},
 #endif
 
         {NULL, "", "", "", "", "", 0, 0, 0}

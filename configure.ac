@@ -52,9 +52,9 @@ AS_CASE(["$vendor"],
         [gnu],      [SSE2_CFLAGS="-march=core2";
                      SSE41_CFLAGS="-march=corei7";
                      AVX2_CFLAGS="-march=core-avx2";],
-        [intel],    [SSE2_CFLAGS="-msse2 -xsse2";
-                     SSE41_CFLAGS="-msse4.1 -xsse4.1";
-                     AVX2_CFLAGS="-mcore-avx2 -xcore-avx2";])
+        [intel],    [SSE2_CFLAGS="-march=core2";
+                     SSE41_CFLAGS="-march=corei7";
+                     AVX2_CFLAGS="-march=core-avx2";])
 AC_SUBST([SSE2_CFLAGS])
 AC_SUBST([SSE41_CFLAGS])
 AC_SUBST([AVX2_CFLAGS])

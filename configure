@@ -673,6 +673,9 @@ HAVE_SSE41_FALSE
 HAVE_SSE41_TRUE
 HAVE_SSE2_FALSE
 HAVE_SSE2_TRUE
+AVX2_CFLAGS
+SSE41_CFLAGS
+SSE2_CFLAGS
 HAVE_OPENMP_FALSE
 HAVE_OPENMP_TRUE
 OPENMP_CFLAGS
@@ -4593,12 +4596,115 @@ else
 fi
 
 
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for C compiler vendor" >&5
+$as_echo_n "checking for C compiler vendor... " >&6; }
+if ${ps_cv_c_compiler_vendor+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+
+ps_save_ac_ext="$ac_ext"
+
+
+ps_cv_c_compiler_vendor=unknown
+ps_cpp_vendor_symbols=
+for vendor in intel ibm pathscale amd cray gnu sun hp dec borland comeau kai lcc metrowerks sgi microsoft watcom portland fujitsu
+do
+case $vendor in #(
+  amd) :
+    ps_cpp_vendor_symbols="defined(__OPEN64__)" ;; #(
+  borland) :
+    ps_cpp_vendor_symbols="defined(__BORLANDC__) || defined(__TURBOC__)" ;; #(
+  comeau) :
+    ps_cpp_vendor_symbols="defined(__COMO__)" ;; #(
+  cray) :
+    ps_cpp_vendor_symbols="defined(_CRAYC) || defined(_ADDR64)" ;; #(
+  dec) :
+    ps_cpp_vendor_symbols="defined(__DECC) || defined(__DECCXX) || defined(__DECC_VER) || defined(__DECCXX_VER)" ;; #(
+  fujitsu) :
+    ps_cpp_vendor_symbols="defined(__fcc__) || defined(__fcc_version__) || defined(_FCC_VER) || defined(__FCC_VER_)" ;; #(
+  gnu) :
+    ps_cpp_vendor_symbols="defined(__GNUC__)" ;; #(
+  hp) :
+    ps_cpp_vendor_symbols="defined(__HP_cc) || defined(__HP_aCC)" ;; #(
+  ibm) :
+    ps_cpp_vendor_symbols="defined(__xlc__) || defined(__xlC__) || defined(__IBMC__) || defined(__IBMCPP__)" ;; #(
+  intel) :
+    ps_cpp_vendor_symbols="defined(__ICC) || defined(__ECC) || defined(__INTEL_COMPILER)" ;; #(
+  kai) :
+    ps_cpp_vendor_symbols="defined(__KCC)" ;; #(
+  lcc) :
+    ps_cpp_vendor_symbols="defined(__LCC__)" ;; #(
+  metrowerks) :
+    ps_cpp_vendor_symbols="defined(__MWERKS__)" ;; #(
+  microsoft) :
+    ps_cpp_vendor_symbols="defined(_MSC_VER)" ;; #(
+  pathscale) :
+    ps_cpp_vendor_symbols="defined(__PATHCC__) || defined(__PATHSCALE__)" ;; #(
+  portland) :
+    ps_cpp_vendor_symbols="defined(__PGI)" ;; #(
+  sgi) :
+    ps_cpp_vendor_symbols="defined(__sgi) || defined(sgi)" ;; #(
+  sun) :
+    ps_cpp_vendor_symbols="defined(__SUNPRO_C) || defined(__SUNPRO_CC)" ;; #(
+  watcom) :
+    ps_cpp_vendor_symbols="defined(__WATCOMC__)" ;; #(
+  *) :
+     ;;
+esac
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+int
+main ()
+{
+
+#if !($ps_cpp_vendor_symbols)
+    chokeonthis
+#endif
+
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  ps_cv_c_compiler_vendor=$vendor; break
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+done
+ps_cpp_vendor_symbols=
+ac_ext="$ps_save_ac_ext"
+
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ps_cv_c_compiler_vendor" >&5
+$as_echo "$ps_cv_c_compiler_vendor" >&6; }
+
+
+
+case "$vendor" in #(
+  gnu) :
+    SSE2_CFLAGS="-march=pentium4";
+                     SSE41_CFLAGS="-march=corei7";
+                     AVX2_CFLAGS="-march=core-avx2"; ;; #(
+  intel) :
+    SSE2_CFLAGS="-msse2 -xsse2";
+                     SSE41_CFLAGS="-msse4.1 -xsse4.1";
+                     AVX2_CFLAGS="-mcore-avx2 -xcore-avx2"; ;; #(
+  *) :
+     ;;
+esac
+
+
+
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for SSE2" >&5
 $as_echo_n "checking for SSE2... " >&6; }
 if ${pt_cv_sse2+:} false; then :
   $as_echo_n "(cached) " >&6
 else
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+  save_CFLAGS="$CFLAGS"
+     CFLAGS="$SSE2_CFLAGS"
+     cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
 #include <emmintrin.h>
@@ -4617,6 +4723,7 @@ else
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
+     CFLAGS="$save_CFLAGS"
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $pt_cv_sse2" >&5
 $as_echo "$pt_cv_sse2" >&6; }
@@ -4639,7 +4746,9 @@ $as_echo_n "checking for SSE4.1... " >&6; }
 if ${pt_cv_sse41+:} false; then :
   $as_echo_n "(cached) " >&6
 else
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+  save_CFLAGS="$CFLAGS"
+     CFLAGS="$SSE41_CFLAGS"
+     cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
 #include <smmintrin.h>
@@ -4658,6 +4767,7 @@ else
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
+     CFLAGS="$save_CFLAGS"
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $pt_cv_sse41" >&5
 $as_echo "$pt_cv_sse41" >&6; }
@@ -4680,7 +4790,9 @@ $as_echo_n "checking for AVX2... " >&6; }
 if ${pt_cv_avx2+:} false; then :
   $as_echo_n "(cached) " >&6
 else
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+  save_CFLAGS="$CFLAGS"
+     CFLAGS="$AVX2_CFLAGS"
+     cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
 #include <immintrin.h>
@@ -4699,6 +4811,7 @@ else
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
+     CFLAGS="$save_CFLAGS"
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $pt_cv_avx2" >&5
 $as_echo "$pt_cv_avx2" >&6; }
@@ -4721,7 +4834,9 @@ $as_echo_n "checking for AVX2 _mm256_insert_epi32... " >&6; }
 if ${pt_cv_avx2_mm256_insert_epi32+:} false; then :
   $as_echo_n "(cached) " >&6
 else
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+  save_CFLAGS="$CFLAGS"
+     CFLAGS="$AVX2_CFLAGS"
+     cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
 #include <immintrin.h>
@@ -4739,6 +4854,7 @@ else
          pt_cv_avx2_mm256_insert_epi32_val=0
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+     CFLAGS="$save_CFLAGS"
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $pt_cv_avx2_mm256_insert_epi32" >&5
 $as_echo "$pt_cv_avx2_mm256_insert_epi32" >&6; }
@@ -4753,7 +4869,9 @@ $as_echo_n "checking for AVX2 _mm256_insert_epi16... " >&6; }
 if ${pt_cv_avx2_mm256_insert_epi16+:} false; then :
   $as_echo_n "(cached) " >&6
 else
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+  save_CFLAGS="$CFLAGS"
+     CFLAGS="$AVX2_CFLAGS"
+     cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
 #include <immintrin.h>
@@ -4771,6 +4889,7 @@ else
          pt_cv_avx2_mm256_insert_epi16_val=0
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+     CFLAGS="$save_CFLAGS"
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $pt_cv_avx2_mm256_insert_epi16" >&5
 $as_echo "$pt_cv_avx2_mm256_insert_epi16" >&6; }
@@ -4785,7 +4904,9 @@ $as_echo_n "checking for AVX2 _mm256_insert_epi8... " >&6; }
 if ${pt_cv_avx2_mm256_insert_epi8+:} false; then :
   $as_echo_n "(cached) " >&6
 else
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+  save_CFLAGS="$CFLAGS"
+     CFLAGS="$AVX2_CFLAGS"
+     cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
 #include <immintrin.h>
@@ -4803,6 +4924,7 @@ else
          pt_cv_avx2_mm256_insert_epi8_val=0
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+     CFLAGS="$save_CFLAGS"
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $pt_cv_avx2_mm256_insert_epi8" >&5
 $as_echo "$pt_cv_avx2_mm256_insert_epi8" >&6; }
@@ -4817,7 +4939,9 @@ $as_echo_n "checking for AVX2 _mm256_extract_epi32... " >&6; }
 if ${pt_cv_avx2_mm256_extract_epi32+:} false; then :
   $as_echo_n "(cached) " >&6
 else
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+  save_CFLAGS="$CFLAGS"
+     CFLAGS="$AVX2_CFLAGS"
+     cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
 #include <stdint.h>
@@ -4838,6 +4962,7 @@ else
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
+     CFLAGS="$save_CFLAGS"
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $pt_cv_avx2_mm256_extract_epi32" >&5
 $as_echo "$pt_cv_avx2_mm256_extract_epi32" >&6; }
@@ -4852,7 +4977,9 @@ $as_echo_n "checking for AVX2 _mm256_extract_epi16... " >&6; }
 if ${pt_cv_avx2_mm256_extract_epi16+:} false; then :
   $as_echo_n "(cached) " >&6
 else
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+  save_CFLAGS="$CFLAGS"
+     CFLAGS="$AVX2_CFLAGS"
+     cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
 #include <stdint.h>
@@ -4873,6 +5000,7 @@ else
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
+     CFLAGS="$save_CFLAGS"
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $pt_cv_avx2_mm256_extract_epi16" >&5
 $as_echo "$pt_cv_avx2_mm256_extract_epi16" >&6; }
@@ -4887,7 +5015,9 @@ $as_echo_n "checking for AVX2 _mm256_extract_epi8... " >&6; }
 if ${pt_cv_avx2_mm256_extract_epi8+:} false; then :
   $as_echo_n "(cached) " >&6
 else
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+  save_CFLAGS="$CFLAGS"
+     CFLAGS="$AVX2_CFLAGS"
+     cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
 #include <stdint.h>
@@ -4908,6 +5038,7 @@ else
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
+     CFLAGS="$save_CFLAGS"
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $pt_cv_avx2_mm256_extract_epi8" >&5
 $as_echo "$pt_cv_avx2_mm256_extract_epi8" >&6; }
@@ -8298,7 +8429,7 @@ $as_echo "$lt_cv_ld_force_load" >&6; }
       case ${MACOSX_DEPLOYMENT_TARGET-10.0},$host in
 	10.0,*86*-darwin8*|10.0,*-darwin[91]*)
 	  _lt_dar_allow_undefined='${wl}-undefined ${wl}dynamic_lookup' ;;
-	10.[012][,.]*)
+	10.[012]*)
 	  _lt_dar_allow_undefined='${wl}-flat_namespace ${wl}-undefined ${wl}suppress' ;;
 	10.*)
 	  _lt_dar_allow_undefined='${wl}-undefined ${wl}dynamic_lookup' ;;
@@ -14747,6 +14878,12 @@ $as_echo "$as_me: " >&6;}
 $as_echo "$as_me:                     CC=$CC" >&6;}
 { $as_echo "$as_me:${as_lineno-$LINENO}:                 CFLAGS=$CFLAGS" >&5
 $as_echo "$as_me:                 CFLAGS=$CFLAGS" >&6;}
+{ $as_echo "$as_me:${as_lineno-$LINENO}:            SSE2_CFLAGS=$SSE2_CFLAGS" >&5
+$as_echo "$as_me:            SSE2_CFLAGS=$SSE2_CFLAGS" >&6;}
+{ $as_echo "$as_me:${as_lineno-$LINENO}:           SSE41_CFLAGS=$SSE41_CFLAGS" >&5
+$as_echo "$as_me:           SSE41_CFLAGS=$SSE41_CFLAGS" >&6;}
+{ $as_echo "$as_me:${as_lineno-$LINENO}:            AVX2_CFLAGS=$AVX2_CFLAGS" >&5
+$as_echo "$as_me:            AVX2_CFLAGS=$AVX2_CFLAGS" >&6;}
 { $as_echo "$as_me:${as_lineno-$LINENO}:                    CPP=$CPP" >&5
 $as_echo "$as_me:                    CPP=$CPP" >&6;}
 { $as_echo "$as_me:${as_lineno-$LINENO}:               CPPFLAGS=$CPPFLAGS" >&5

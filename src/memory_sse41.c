@@ -18,6 +18,20 @@
 #include <stdlib.h>
 #include <string.h>
 
+#if HAVE_SSE2 || HAVE_SSE41
+#include <emmintrin.h>
+#include "parasail_internal_sse.h"
+#endif
+
+#if HAVE_AVX2
+#include <immintrin.h>
+#include "parasail_internal_avx.h"
+#endif
+
+#if HAVE_KNC
+#include <immintrin.h>
+#endif
+
 #include "parasail.h"
 #include "parasail_internal.h"
 
@@ -69,6 +83,27 @@ int32_t * parasail_memalign_int32_t(size_t alignment, size_t size)
     return (int32_t *) parasail_memalign(alignment, size*sizeof(int32_t));
 }
 
+#if HAVE_SSE2 || HAVE_SSE41
+__m128i * parasail_memalign_m128i(size_t alignment, size_t size)
+{
+    return (__m128i *) parasail_memalign(alignment, size*sizeof(__m128i));
+}
+#endif
+
+#if HAVE_AVX2
+__m256i * parasail_memalign_m256i(size_t alignment, size_t size)
+{
+    return (__m256i *) parasail_memalign(alignment, size*sizeof(__m256i));
+}
+#endif
+
+#if HAVE_KNC
+__m512i * parasail_memalign_m512i(size_t alignment, size_t size)
+{
+    return (__m512i *) parasail_memalign(alignment, size*sizeof(__m512i));
+}
+#endif
+
 void parasail_memset(void *b, int c, size_t len)
 {
     (void)memset(b, c, len);
@@ -105,6 +140,36 @@ void parasail_memset_int32_t(int32_t *b, int32_t c, size_t len)
         b[i] = c;
     }
 }
+
+#if HAVE_SSE2 || HAVE_SSE41
+void parasail_memset_m128i(__m128i *b, __m128i c, size_t len)
+{
+    size_t i;
+    for (i=0; i<len; ++i) {
+        _mm_store_si128(&b[i], c);
+    }
+}
+#endif
+
+#if HAVE_AVX2
+void parasail_memset_m256i(__m256i *b, __m256i c, size_t len)
+{
+    size_t i;
+    for (i=0; i<len; ++i) {
+        _mm256_store_si256(&b[i], c);
+    }
+}
+#endif
+
+#if HAVE_KNC
+void parasail_memset_m512i(__m512i *b, __m512i c, size_t len)
+{
+    size_t i;
+    for (i=0; i<len; ++i) {
+        _mm512_store_epi32(&b[i], c);
+    }
+}
+#endif
 
 parasail_result_t* parasail_result_new()
 {

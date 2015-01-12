@@ -69,7 +69,9 @@ parasail_result_t* FNAME(
     __m128i* const restrict pvH = parasail_memalign_m128i(16, segLen);
     __m128i vGapO = _mm_set1_epi16(open);
     __m128i vGapE = _mm_set1_epi16(gap);
+    __m128i vNegInf = _mm_set1_epi16(NEG_INF_16);
     int16_t score = 0;
+    __m128i vMaxH = vNegInf;
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
@@ -182,25 +184,28 @@ parasail_result_t* FNAME(
 #endif
         }
 
-        /* extract last value from column */
+        /* extract vector containing last value from column */
         {
-            int16_t value;
             vH = _mm_load_si128(pvH + offset);
-            for (k=0; k<position; ++k) {
-                vH = _mm_slli_si128(vH, 2);
-            }
-            value = (int16_t) _mm_extract_epi16(vH, 7);
-            if (value > score) {
-                score = value;
-            }
+            vMaxH = _mm_max_epi16(vH, vMaxH);
+        }
+    }
+
+    /* extract last value from column */
+    {
+        int16_t value;
+        for (k=0; k<position; ++k) {
+            vMaxH = _mm_slli_si128(vMaxH, 2);
+        }
+        value = (int16_t) _mm_extract_epi16(vMaxH, 7);
+        if (value > score) {
+            score = value;
         }
     }
 
     /* max of last column */
     {
-        __m128i vNegInf = _mm_set1_epi16(NEG_INF_16);
         __m128i vOne = _mm_set1_epi16(1);
-        __m128i vMaxH = vNegInf;
         __m128i vQLimit = _mm_set1_epi16(s1Len);
         __m128i vQIndex = _mm_set_epi16(
                 7*segLen,
@@ -211,6 +216,7 @@ parasail_result_t* FNAME(
                 2*segLen,
                 1*segLen,
                 0*segLen);
+        vMaxH = vNegInf;
 
         for (i=0; i<segLen; ++i) {
             __m128i vH = _mm_load_si128(pvH + i);

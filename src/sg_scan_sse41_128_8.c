@@ -78,10 +78,12 @@ parasail_result_t* FNAME(
     __m128i* const restrict pvH = parasail_memalign_m128i(16, segLen);
     __m128i vGapO = _mm_set1_epi8(open);
     __m128i vGapE = _mm_set1_epi8(gap);
+    __m128i vNegInf = _mm_set1_epi8(NEG_INF_8);
     __m128i vSaturationCheck = _mm_setzero_si128();
     __m128i vNegLimit = _mm_set1_epi8(INT8_MIN);
     __m128i vPosLimit = _mm_set1_epi8(INT8_MAX);
     int8_t score = NEG_INF_8;
+    __m128i vMaxH = vNegInf;
     __m128i segLenXgap_reset = _mm_set_epi8(
             NEG_INF_8, NEG_INF_8, NEG_INF_8, NEG_INF_8,
             NEG_INF_8, NEG_INF_8, NEG_INF_8, NEG_INF_8,
@@ -260,17 +262,22 @@ parasail_result_t* FNAME(
 #endif
         }
 
-        /* extract last value from column */
+        /* extract vector containing last value from column */
         {
-            int8_t value;
             vH = _mm_load_si128(pvH + offset);
-            for (k=0; k<position; ++k) {
-                vH = _mm_slli_si128(vH, 1);
-            }
-            value = (int8_t) _mm_extract_epi8(vH, 15);
-            if (value > score) {
-                score = value;
-            }
+            vMaxH = _mm_max_epi8(vH, vMaxH);
+        }
+    }
+
+    /* extract last value from column */
+    {
+        int8_t value;
+        for (k=0; k<position; ++k) {
+            vMaxH = _mm_slli_si128(vMaxH, 1);
+        }
+        value = (int8_t) _mm_extract_epi8(vMaxH, 15);
+        if (value > score) {
+            score = value;
         }
     }
 

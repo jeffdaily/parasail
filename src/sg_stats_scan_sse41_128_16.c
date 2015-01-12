@@ -302,7 +302,7 @@ parasail_result_t* FNAME(
 #endif
         }
 
-        /* extract last value from column */
+        /* extract vector containing last value from column */
         {
             __m128i cond_max;
             vH = _mm_load_si128(pvH + offset);

@@ -12,11 +12,12 @@ AC_LANG_CASE([Fortran],    [ac_ext=F])
 AC_LANG_CASE([Fortran 77], [ac_ext=F])
 ps_cv_compiler_vendor=unknown
 ps_cpp_vendor_symbols=
-for vendor in intel ibm pathscale amd cray gnu sun hp dec borland comeau kai lcc metrowerks sgi microsoft watcom portland fujitsu
+for vendor in intel ibm pathscale amd cray clang gnu sun hp dec borland comeau kai lcc metrowerks sgi microsoft watcom portland fujitsu
 do
 AS_CASE([$vendor],
 [amd],       [ps_cpp_vendor_symbols="defined(__OPEN64__)"],
 [borland],   [ps_cpp_vendor_symbols="defined(__BORLANDC__) || defined(__TURBOC__)"],
+[clang],     [ps_cpp_vendor_symbols="defined(__clang__)"],
 [comeau],    [ps_cpp_vendor_symbols="defined(__COMO__)"],
 [cray],      [ps_cpp_vendor_symbols="defined(_CRAYC) || defined(_ADDR64)"],
 [dec],       [ps_cpp_vendor_symbols="defined(__DECC) || defined(__DECCXX) || defined(__DECC_VER) || defined(__DECCXX_VER)"],

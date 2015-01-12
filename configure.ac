@@ -46,6 +46,9 @@ AM_CONDITIONAL([HAVE_OPENMP],
 PS_COMPILER_VENDOR
 
 AS_CASE(["$vendor"],
+        [clang],    [SSE2_CFLAGS="-msse2";
+                     SSE41_CFLAGS="-msse4";
+                     AVX2_CFLAGS="-mavx2";],
         [gnu],      [SSE2_CFLAGS="-march=pentium4";
                      SSE41_CFLAGS="-march=corei7";
                      AVX2_CFLAGS="-march=core-avx2";],

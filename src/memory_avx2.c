@@ -11,6 +11,7 @@
 
 #include <immintrin.h>
 
+#include "parasail_internal.h"
 #include "parasail_internal_avx.h"
 
 __m256i * parasail_memalign_m256i(size_t alignment, size_t size)

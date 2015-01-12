@@ -11,6 +11,7 @@
 
 #include <emmintrin.h>
 
+#include "parasail_internal.h"
 #include "parasail_internal_sse.h"
 
 __m128i * parasail_memalign_m128i(size_t alignment, size_t size)

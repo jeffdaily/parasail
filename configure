@@ -4608,13 +4608,15 @@ ps_save_ac_ext="$ac_ext"
 
 ps_cv_c_compiler_vendor=unknown
 ps_cpp_vendor_symbols=
-for vendor in intel ibm pathscale amd cray gnu sun hp dec borland comeau kai lcc metrowerks sgi microsoft watcom portland fujitsu
+for vendor in intel ibm pathscale amd cray clang gnu sun hp dec borland comeau kai lcc metrowerks sgi microsoft watcom portland fujitsu
 do
 case $vendor in #(
   amd) :
     ps_cpp_vendor_symbols="defined(__OPEN64__)" ;; #(
   borland) :
     ps_cpp_vendor_symbols="defined(__BORLANDC__) || defined(__TURBOC__)" ;; #(
+  clang) :
+    ps_cpp_vendor_symbols="defined(__clang__)" ;; #(
   comeau) :
     ps_cpp_vendor_symbols="defined(__COMO__)" ;; #(
   cray) :
@@ -4682,6 +4684,10 @@ $as_echo "$ps_cv_c_compiler_vendor" >&6; }
 
 
 case "$vendor" in #(
+  clang) :
+    SSE2_CFLAGS="-msse2";
+                     SSE41_CFLAGS="-msse4";
+                     AVX2_CFLAGS="-mavx2"; ;; #(
   gnu) :
     SSE2_CFLAGS="-march=pentium4";
                      SSE41_CFLAGS="-march=corei7";

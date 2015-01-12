@@ -49,7 +49,7 @@ AS_CASE(["$vendor"],
         [clang],    [SSE2_CFLAGS="-msse2";
                      SSE41_CFLAGS="-msse4";
                      AVX2_CFLAGS="-mavx2";],
-        [gnu],      [SSE2_CFLAGS="-march=pentium4";
+        [gnu],      [SSE2_CFLAGS="-march=core2";
                      SSE41_CFLAGS="-march=corei7";
                      AVX2_CFLAGS="-march=core-avx2";],
         [intel],    [SSE2_CFLAGS="-msse2 -xsse2";
@@ -259,6 +259,27 @@ AC_CACHE_CHECK([for KNC],
 AC_DEFINE_UNQUOTED([HAVE_KNC], [$pt_cv_knc_val],
     [define to 1 if the C compiler supports KNC])
 AM_CONDITIONAL([HAVE_KNC], [test x$pt_cv_knc = xyes])
+
+AC_CACHE_CHECK([for xgetbv],
+    [pt_cv_xgetbv],
+    [AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+#include <stdint.h>
+int check_xcr0_ymm()
+{
+    uint32_t xcr0;
+#if defined(_MSC_VER)
+    xcr0 = (uint32_t)_xgetbv(0);  /* min VS2010 SP1 compiler is required */
+#else
+    __asm__ ("xgetbv" : "=a" (xcr0) : "c" (0) : "%edx" );
+#endif
+    return ((xcr0 & 6) == 6); /* checking if xmm and ymm state are enabled in XCR0 */
+}
+]])],
+        [pt_cv_xgetbv=yes; pt_cv_xgetbv_val=1],
+        [pt_cv_xgetbv=no; pt_cv_xgetbv_val=0])])
+AC_DEFINE_UNQUOTED([HAVE_XGETBV], [$pt_cv_xgetbv_val],
+    [define to 1 if the C compiler supports xgetbv])
+AM_CONDITIONAL([HAVE_XGETBV], [test x$pt_cv_xgetbv = xyes])
 
 # Checks for library functions.
 AC_CHECK_FUNCS([aligned_alloc])

@@ -665,6 +665,8 @@ build
 LIBTOOL
 MATH_LIBS
 CLOCK_LIBS
+HAVE_XGETBV_FALSE
+HAVE_XGETBV_TRUE
 HAVE_KNC_FALSE
 HAVE_KNC_TRUE
 HAVE_AVX2_FALSE
@@ -4689,7 +4691,7 @@ case "$vendor" in #(
                      SSE41_CFLAGS="-msse4";
                      AVX2_CFLAGS="-mavx2"; ;; #(
   gnu) :
-    SSE2_CFLAGS="-march=pentium4";
+    SSE2_CFLAGS="-march=core2";
                      SSE41_CFLAGS="-march=corei7";
                      AVX2_CFLAGS="-march=core-avx2"; ;; #(
   intel) :
@@ -5089,6 +5091,50 @@ _ACEOF
 else
   HAVE_KNC_TRUE='#'
   HAVE_KNC_FALSE=
+fi
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for xgetbv" >&5
+$as_echo_n "checking for xgetbv... " >&6; }
+if ${pt_cv_xgetbv+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#include <stdint.h>
+int check_xcr0_ymm()
+{
+    uint32_t xcr0;
+#if defined(_MSC_VER)
+    xcr0 = (uint32_t)_xgetbv(0);  /* min VS2010 SP1 compiler is required */
+#else
+    __asm__ ("xgetbv" : "=a" (xcr0) : "c" (0) : "%edx" );
+#endif
+    return ((xcr0 & 6) == 6); /* checking if xmm and ymm state are enabled in XCR0 */
+}
+
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  pt_cv_xgetbv=yes; pt_cv_xgetbv_val=1
+else
+  pt_cv_xgetbv=no; pt_cv_xgetbv_val=0
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $pt_cv_xgetbv" >&5
+$as_echo "$pt_cv_xgetbv" >&6; }
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_XGETBV $pt_cv_xgetbv_val
+_ACEOF
+
+ if test x$pt_cv_xgetbv = xyes; then
+  HAVE_XGETBV_TRUE=
+  HAVE_XGETBV_FALSE='#'
+else
+  HAVE_XGETBV_TRUE='#'
+  HAVE_XGETBV_FALSE=
 fi
 
 
@@ -12635,6 +12681,10 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${HAVE_KNC_TRUE}" && test -z "${HAVE_KNC_FALSE}"; then
   as_fn_error $? "conditional \"HAVE_KNC\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${HAVE_XGETBV_TRUE}" && test -z "${HAVE_XGETBV_FALSE}"; then
+  as_fn_error $? "conditional \"HAVE_XGETBV\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 

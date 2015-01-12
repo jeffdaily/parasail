@@ -87,6 +87,9 @@
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
 
+/* define to 1 if the C compiler supports xgetbv */
+#undef HAVE_XGETBV
+
 /* Define to 1 if you have the `_mm_malloc' function. */
 #undef HAVE__MM_MALLOC
 

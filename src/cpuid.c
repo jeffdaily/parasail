@@ -40,6 +40,7 @@ static void run_cpuid(uint32_t eax, uint32_t ecx, uint32_t* abcd)
 
 static int check_xcr0_ymm() 
 {
+#if HAVE_XGETBV
     uint32_t xcr0;
 #if defined(_MSC_VER)
     xcr0 = (uint32_t)_xgetbv(0);  /* min VS2010 SP1 compiler is required */
@@ -47,6 +48,9 @@ static int check_xcr0_ymm()
     __asm__ ("xgetbv" : "=a" (xcr0) : "c" (0) : "%edx" );
 #endif
     return ((xcr0 & 6) == 6); /* checking if xmm and ymm state are enabled in XCR0 */
+#else
+    return 0;
+#endif
 }
 
 

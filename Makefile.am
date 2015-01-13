@@ -163,9 +163,9 @@ SRC_AVX2 += src/nw_diag_avx2_256_16.c
 SRC_AVX2 += src/sg_diag_avx2_256_16.c
 SRC_AVX2 += src/sw_diag_avx2_256_16.c
 
-#SRC_AVX2 += src/nw_diag_avx2_256_8.c
-#SRC_AVX2 += src/sg_diag_avx2_256_8.c
-#SRC_AVX2 += src/sw_diag_avx2_256_8.c
+SRC_AVX2 += src/nw_diag_avx2_256_8.c
+SRC_AVX2 += src/sg_diag_avx2_256_8.c
+SRC_AVX2 += src/sw_diag_avx2_256_8.c
 
 # parallel striped methods
 

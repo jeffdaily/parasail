@@ -162,7 +162,7 @@ int main(int argc, char **argv)
         {nw_diag_avx2_256_8,        "nw", "diag",    "avx2",  "256", "8",  0, 0, 0},
         {nw_striped_avx2_256_32,    "nw", "striped", "avx2",  "256", "32", 0, 0, 0},
         {nw_striped_avx2_256_16,    "nw", "striped", "avx2",  "256", "16", 0, 0, 0},
-        //{nw_striped_avx2_256_8,     "nw", "striped", "avx2",  "256", "8",  0, 0, 0},
+        {nw_striped_avx2_256_8,     "nw", "striped", "avx2",  "256", "8",  0, 0, 0},
 #endif
 #if HAVE_KNC
         {nw_scan_knc_512_32,        "nw", "scan",    "knc",   "512", "32", 0, 0, 0},
@@ -203,7 +203,7 @@ int main(int argc, char **argv)
         {sg_diag_avx2_256_8,        "sg", "diag",    "avx2",  "256", "8",  0, 0, 0},
         {sg_striped_avx2_256_32,    "sg", "striped", "avx2",  "256", "32", 0, 0, 0},
         {sg_striped_avx2_256_16,    "sg", "striped", "avx2",  "256", "16", 0, 0, 0},
-        //{sg_striped_avx2_256_8,     "sg", "striped", "avx2",  "256", "8",  0, 0, 0},
+        {sg_striped_avx2_256_8,     "sg", "striped", "avx2",  "256", "8",  0, 0, 0},
 #endif
 #if HAVE_KNC
         {sg_scan_knc_512_32,        "sg", "scan",    "knc",   "512", "32", 0, 0, 0},
@@ -244,7 +244,7 @@ int main(int argc, char **argv)
         {sw_diag_avx2_256_8,        "sw", "diag",    "avx2",  "256", "8",  0, 0, 0},
         {sw_striped_avx2_256_32,    "sw", "striped", "avx2",  "256", "32", 0, 0, 0},
         {sw_striped_avx2_256_16,    "sw", "striped", "avx2",  "256", "16", 0, 0, 0},
-        //{sw_striped_avx2_256_8,     "sw", "striped", "avx2",  "256", "8",  0, 0, 0},
+        {sw_striped_avx2_256_8,     "sw", "striped", "avx2",  "256", "8",  0, 0, 0},
 #endif
 #if HAVE_KNC
         {sw_scan_knc_512_32,        "sw", "scan",    "knc",   "512", "32", 0, 0, 0},
@@ -285,7 +285,7 @@ int main(int argc, char **argv)
         {nw_table_diag_avx2_256_8,        "nw", "diag",    "avx2",  "256", "8",  1, 0, 0},
         {nw_table_striped_avx2_256_32,    "nw", "striped", "avx2",  "256", "32", 1, 0, 0},
         {nw_table_striped_avx2_256_16,    "nw", "striped", "avx2",  "256", "16", 1, 0, 0},
-        //{nw_table_striped_avx2_256_8,     "nw", "striped", "avx2",  "256", "8",  1, 0, 0},
+        {nw_table_striped_avx2_256_8,     "nw", "striped", "avx2",  "256", "8",  1, 0, 0},
 #endif
 #if HAVE_KNC
         {nw_table_scan_knc_512_32,        "nw", "scan",    "knc",   "512", "32", 1, 0, 0},
@@ -326,7 +326,7 @@ int main(int argc, char **argv)
         {sg_table_diag_avx2_256_8,        "sg", "diag",    "avx2",  "256", "8",  1, 0, 0},
         {sg_table_striped_avx2_256_32,    "sg", "striped", "avx2",  "256", "32", 1, 0, 0},
         {sg_table_striped_avx2_256_16,    "sg", "striped", "avx2",  "256", "16", 1, 0, 0},
-        //{sg_table_striped_avx2_256_8,     "sg", "striped", "avx2",  "256", "8",  1, 0, 0},
+        {sg_table_striped_avx2_256_8,     "sg", "striped", "avx2",  "256", "8",  1, 0, 0},
 #endif
 #if HAVE_KNC
         {sg_table_scan_knc_512_32,        "sg", "scan",    "knc",   "512", "32", 1, 0, 0},
@@ -367,7 +367,7 @@ int main(int argc, char **argv)
         {sw_table_diag_avx2_256_8,      "sw", "diag",    "avx2",  "256", "8",  1, 0, 0},
         {sw_table_striped_avx2_256_32,  "sw", "striped", "avx2",  "256", "32", 1, 0, 0},
         {sw_table_striped_avx2_256_16,  "sw", "striped", "avx2",  "256", "16", 1, 0, 0},
-        //{sw_table_striped_avx2_256_8,   "sw", "striped", "avx2",  "256", "8",  1, 0, 0},
+        {sw_table_striped_avx2_256_8,   "sw", "striped", "avx2",  "256", "8",  1, 0, 0},
 #endif
 #if HAVE_KNC
         {sw_table_scan_knc_512_32,        "sw", "scan",    "knc",   "512", "32", 1, 0, 0},

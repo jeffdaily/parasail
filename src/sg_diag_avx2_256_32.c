@@ -20,6 +20,11 @@
 
 #define NEG_INF_32 (INT32_MIN/(int32_t)(2))
 
+/* avx2 does not have _mm256_cmplt_epi32, emulate it */
+static inline __m256i _mm256_cmplt_epi32(__m256i a, __m256i b) {
+    return _mm256_cmpgt_epi32(b,a);
+}
+
 #if HAVE_AVX2_MM256_INSERT_EPI32
 #else
 static inline __m256i _mm256_insert_epi32(__m256i a, int32_t b, int imm) {
@@ -322,7 +327,7 @@ parasail_result_t* FNAME(
         const int * const restrict matrow5 = matrix[s1[i+5]];
         const int * const restrict matrow6 = matrix[s1[i+6]];
         const int * const restrict matrow7 = matrix[s1[i+7]];
-        __m256i vIgtLimit1 = _mm256_cmpgt_epi32(vI, vILimit1);
+        __m256i vIltLimit = _mm256_cmplt_epi32(vI, vILimit);
         __m256i vIeqLimit1 = _mm256_cmpeq_epi32(vI, vILimit1);
         /* iterate over database sequence */
         for (j=0; j<N; ++j) {
@@ -445,12 +450,12 @@ parasail_result_t* FNAME(
             /* as minor diagonal vector passes across the i or j limit
              * boundary, extract the last value of the column or row */
             {
-                __m256i cond_j = _mm256_andnot_si256(
-                        vIgtLimit1,
+                __m256i cond_j = _mm256_and_si256(
+                        vIltLimit,
                         _mm256_cmpeq_epi32(vJ, vJLimit1));
-                __m256i cond_i = _mm256_andnot_si256(
-                        _mm256_cmpgt_epi32(vJ, vJLimit1),
-                        vIeqLimit1);
+                __m256i cond_i = _mm256_and_si256(
+                        vIeqLimit1,
+                        _mm256_cmplt_epi32(vJ, vJLimit));
                 __m256i cond_max = _mm256_cmpgt_epi32(vWscore, vMaxScore);
                 __m256i cond_all = _mm256_and_si256(cond_max,
                         _mm256_or_si256(cond_i, cond_j));

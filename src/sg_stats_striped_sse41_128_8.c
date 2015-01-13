@@ -354,7 +354,7 @@ end:
         __m128i vMaxLastColH = vNegInf;
         __m128i vMaxLastColHM = vNegInf;
         __m128i vMaxLastColHL = vNegInf;
-        __m128i vQIndex = _mm_set_epi8(
+        __m128i vQIndexHi16 = _mm_set_epi16(
                 15*segLen,
                 14*segLen,
                 13*segLen,
@@ -362,7 +362,8 @@ end:
                 11*segLen,
                 10*segLen,
                 9*segLen,
-                8*segLen,
+                8*segLen);
+        __m128i vQIndexLo16 = _mm_set_epi16(
                 7*segLen,
                 6*segLen,
                 5*segLen,
@@ -371,7 +372,8 @@ end:
                 2*segLen,
                 1*segLen,
                 0*segLen);
-        __m128i vQLimit = _mm_set1_epi8(s1Len);
+        __m128i vQLimit16 = _mm_set1_epi16(s1Len);
+        __m128i vOne16 = _mm_set1_epi16(1);
 
         for (i=0; i<segLen; ++i) {
             /* load the last stored values */
@@ -379,7 +381,9 @@ end:
             __m128i vHM = _mm_load_si128(pvHMStore + i);
             __m128i vHL = _mm_load_si128(pvHLStore + i);
             /* mask off the values that were padded */
-            __m128i cond_lmt = _mm_cmplt_epi8(vQIndex, vQLimit);
+            __m128i cond_lmt = _mm_packs_epi16(
+                    _mm_cmplt_epi16(vQIndexLo16, vQLimit16),
+                    _mm_cmplt_epi16(vQIndexHi16, vQLimit16));
             __m128i cond_max = _mm_cmpgt_epi8(vH, vMaxLastColH);
             __m128i cond_all = _mm_and_si128(cond_max, cond_lmt);
             vMaxLastColH = _mm_andnot_si128(cond_all, vMaxLastColH);
@@ -391,7 +395,8 @@ end:
             vMaxLastColHL = _mm_andnot_si128(cond_all, vMaxLastColHL);
             vMaxLastColHL = _mm_or_si128(vMaxLastColHL,
                     _mm_and_si128(cond_all, vHL));
-            vQIndex = _mm_adds_epi8(vQIndex, vOne);
+            vQIndexLo16 = _mm_adds_epi16(vQIndexLo16, vOne16);
+            vQIndexHi16 = _mm_adds_epi16(vQIndexHi16, vOne16);
         }
 
         /* max in vec */

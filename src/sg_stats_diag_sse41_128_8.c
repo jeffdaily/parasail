@@ -372,14 +372,10 @@ parasail_result_t* FNAME(
                         _mm_cmpeq_epi16(vJLo16,vNegOne16),
                         _mm_cmpeq_epi16(vJHi16,vNegOne16));
                 vWscore = _mm_andnot_si128(cond, vWscore);
-                vWmatch = _mm_andnot_si128(cond, vWmatch);
-                vWmatch = _mm_or_si128(vWmatch, _mm_and_si128(cond, vNegInf));
-                vWlength = _mm_andnot_si128(cond, vWlength);
-                vWlength = _mm_or_si128(vWlength, _mm_and_si128(cond, vNegInf));
-                vDel = _mm_andnot_si128(cond, vDel);
-                vDel = _mm_or_si128(vDel, _mm_and_si128(cond, vNegInf));
-                vIns = _mm_andnot_si128(cond, vIns);
-                vIns = _mm_or_si128(vIns, _mm_and_si128(cond, vNegInf));
+                vWmatch = _mm_blendv_epi8(vWmatch, vNegInf, cond);
+                vWlength = _mm_blendv_epi8(vWlength, vNegInf, cond);
+                vDel = _mm_blendv_epi8(vDel, vNegInf, cond);
+                vIns = _mm_blendv_epi8(vIns, vNegInf, cond);
             }
             /* check for saturation */
             {
@@ -585,15 +581,9 @@ parasail_result_t* FNAME(
                         _mm_cmpeq_epi16(vJHi16, vJLimit116));
                 __m128i cond_max = _mm_cmpgt_epi8(vWscore, vMaxScore);
                 __m128i cond_all = _mm_and_si128(cond_max, cond_j);
-                vMaxScore = _mm_andnot_si128(cond_all, vMaxScore);
-                vMaxScore = _mm_or_si128(vMaxScore,
-                        _mm_and_si128(cond_all, vWscore));
-                vMaxMatch = _mm_andnot_si128(cond_all, vMaxMatch);
-                vMaxMatch = _mm_or_si128(vMaxMatch,
-                        _mm_and_si128(cond_all, vWmatch));
-                vMaxLength = _mm_andnot_si128(cond_all, vMaxLength);
-                vMaxLength = _mm_or_si128(vMaxLength,
-                        _mm_and_si128(cond_all, vWlength));
+                vMaxScore = _mm_blendv_epi8(vMaxScore, vWscore, cond_all);
+                vMaxMatch = _mm_blendv_epi8(vMaxMatch, vWmatch, cond_all);
+                vMaxLength = _mm_blendv_epi8(vMaxLength, vWlength, cond_all);
             }
             vJLo16 = _mm_adds_epi16(vJLo16, vOne16);
             vJHi16 = _mm_adds_epi16(vJHi16, vOne16);
@@ -725,14 +715,10 @@ parasail_result_t* FNAME(
                         _mm_cmpeq_epi16(vJLo16,vNegOne16),
                         _mm_cmpeq_epi16(vJHi16,vNegOne16));
                 vWscore = _mm_andnot_si128(cond, vWscore);
-                vWmatch = _mm_andnot_si128(cond, vWmatch);
-                vWmatch = _mm_or_si128(vWmatch, _mm_and_si128(cond, vNegInf));
-                vWlength = _mm_andnot_si128(cond, vWlength);
-                vWlength = _mm_or_si128(vWlength, _mm_and_si128(cond, vNegInf));
-                vDel = _mm_andnot_si128(cond, vDel);
-                vDel = _mm_or_si128(vDel, _mm_and_si128(cond, vNegInf));
-                vIns = _mm_andnot_si128(cond, vIns);
-                vIns = _mm_or_si128(vIns, _mm_and_si128(cond, vNegInf));
+                vWmatch = _mm_blendv_epi8(vWmatch, vNegInf, cond);
+                vWlength = _mm_blendv_epi8(vWlength, vNegInf, cond);
+                vDel = _mm_blendv_epi8(vDel, vNegInf, cond);
+                vIns = _mm_blendv_epi8(vIns, vNegInf, cond);
             }
             /* check for saturation */
             {
@@ -769,15 +755,9 @@ parasail_result_t* FNAME(
                         );
                 __m128i cond_max = _mm_cmpgt_epi8(vWscore, vMaxScore);
                 __m128i cond_all = _mm_and_si128(cond_max, cond_i);
-                vMaxScore = _mm_andnot_si128(cond_all, vMaxScore);
-                vMaxScore = _mm_or_si128(vMaxScore,
-                        _mm_and_si128(cond_all, vWscore));
-                vMaxMatch = _mm_andnot_si128(cond_all, vMaxMatch);
-                vMaxMatch = _mm_or_si128(vMaxMatch,
-                        _mm_and_si128(cond_all, vWmatch));
-                vMaxLength = _mm_andnot_si128(cond_all, vMaxLength);
-                vMaxLength = _mm_or_si128(vMaxLength,
-                        _mm_and_si128(cond_all, vWlength));
+                vMaxScore = _mm_blendv_epi8(vMaxScore, vWscore, cond_all);
+                vMaxMatch = _mm_blendv_epi8(vMaxMatch, vWmatch, cond_all);
+                vMaxLength = _mm_blendv_epi8(vMaxLength, vWlength, cond_all);
             }
             vJLo16 = _mm_adds_epi16(vJLo16, vOne16);
             vJHi16 = _mm_adds_epi16(vJHi16, vOne16);
@@ -882,15 +862,9 @@ parasail_result_t* FNAME(
                         );
                 __m128i cond_max = _mm_cmpgt_epi8(vWscore, vMaxScore);
                 __m128i cond_all = _mm_and_si128(cond_max, cond_i);
-                vMaxScore = _mm_andnot_si128(cond_all, vMaxScore);
-                vMaxScore = _mm_or_si128(vMaxScore,
-                        _mm_and_si128(cond_all, vWscore));
-                vMaxMatch = _mm_andnot_si128(cond_all, vMaxMatch);
-                vMaxMatch = _mm_or_si128(vMaxMatch,
-                        _mm_and_si128(cond_all, vWmatch));
-                vMaxLength = _mm_andnot_si128(cond_all, vMaxLength);
-                vMaxLength = _mm_or_si128(vMaxLength,
-                        _mm_and_si128(cond_all, vWlength));
+                vMaxScore = _mm_blendv_epi8(vMaxScore, vWscore, cond_all);
+                vMaxMatch = _mm_blendv_epi8(vMaxMatch, vWmatch, cond_all);
+                vMaxLength = _mm_blendv_epi8(vMaxLength, vWlength, cond_all);
             }
             vJLo16 = _mm_adds_epi16(vJLo16, vOne16);
             vJHi16 = _mm_adds_epi16(vJHi16, vOne16);
@@ -1002,15 +976,9 @@ parasail_result_t* FNAME(
                 __m128i cond_max = _mm_cmpgt_epi8(vWscore, vMaxScore);
                 __m128i cond_all = _mm_and_si128(cond_max,
                         _mm_or_si128(cond_i, cond_j));
-                vMaxScore = _mm_andnot_si128(cond_all, vMaxScore);
-                vMaxScore = _mm_or_si128(vMaxScore,
-                        _mm_and_si128(cond_all, vWscore));
-                vMaxMatch = _mm_andnot_si128(cond_all, vMaxMatch);
-                vMaxMatch = _mm_or_si128(vMaxMatch,
-                        _mm_and_si128(cond_all, vWmatch));
-                vMaxLength = _mm_andnot_si128(cond_all, vMaxLength);
-                vMaxLength = _mm_or_si128(vMaxLength,
-                        _mm_and_si128(cond_all, vWlength));
+                vMaxScore = _mm_blendv_epi8(vMaxScore, vWscore, cond_all);
+                vMaxMatch = _mm_blendv_epi8(vMaxMatch, vWmatch, cond_all);
+                vMaxLength = _mm_blendv_epi8(vMaxLength, vWlength, cond_all);
             }
             vJLo16 = _mm_adds_epi16(vJLo16, vOne16);
             vJHi16 = _mm_adds_epi16(vJHi16, vOne16);

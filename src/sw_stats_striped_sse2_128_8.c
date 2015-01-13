@@ -110,8 +110,9 @@ parasail_result_t* FNAME(
     int8_t matches = NEG_INF_8;
     int8_t length = NEG_INF_8;
     /* for max calculation we don't want to include padded cells */
-    __m128i vQLimit = _mm_set1_epi8(s1Len);
-    __m128i vQIndex_reset = _mm_set_epi8(
+    __m128i vOne16 = _mm_set1_epi16(1);
+    __m128i vQLimit16 = _mm_set1_epi16(s1Len);
+    __m128i vQIndexHi16_reset = _mm_set_epi16(
             15*segLen,
             14*segLen,
             13*segLen,
@@ -119,7 +120,8 @@ parasail_result_t* FNAME(
             11*segLen,
             10*segLen,
             9*segLen,
-            8*segLen,
+            8*segLen);
+    __m128i vQIndexLo16_reset = _mm_set_epi16(
             7*segLen,
             6*segLen,
             5*segLen,
@@ -184,7 +186,8 @@ parasail_result_t* FNAME(
 
     /* outer loop over database sequence */
     for (j=0; j<s2Len; ++j) {
-        __m128i vQIndex = vQIndex_reset;
+        __m128i vQIndexLo16 = vQIndexLo16_reset;
+        __m128i vQIndexHi16 = vQIndexHi16_reset;
         __m128i vE;
         __m128i vEM;
         __m128i vEL;
@@ -291,7 +294,9 @@ parasail_result_t* FNAME(
             /* update max vector seen so far */
             {
                 __m128i cond_max = _mm_cmpgt_epi8(vH,vMaxH);
-                __m128i cond_lmt = _mm_cmplt_epi8(vQIndex,vQLimit);
+                __m128i cond_lmt = _mm_packs_epi16(
+                        _mm_cmplt_epi16(vQIndexLo16, vQLimit16),
+                        _mm_cmplt_epi16(vQIndexHi16, vQLimit16));
                 __m128i cond_all = _mm_and_si128(cond_max, cond_lmt);
                 vMaxH = _mm_andnot_si128(cond_all, vMaxH);
                 vMaxH = _mm_or_si128(vMaxH, _mm_and_si128(cond_all, vH));
@@ -299,7 +304,8 @@ parasail_result_t* FNAME(
                 vMaxM = _mm_or_si128(vMaxM, _mm_and_si128(cond_all, vHM));
                 vMaxL = _mm_andnot_si128(cond_all, vMaxL);
                 vMaxL = _mm_or_si128(vMaxL, _mm_and_si128(cond_all, vHL));
-                vQIndex = _mm_adds_epi8(vQIndex, vOne);
+                vQIndexLo16 = _mm_adds_epi16(vQIndexLo16, vOne16);
+                vQIndexHi16 = _mm_adds_epi16(vQIndexHi16, vOne16);
             }
 
             /* Update vE value. */

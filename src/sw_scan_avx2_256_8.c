@@ -22,6 +22,11 @@
 #define NEG_INF_8 (INT8_MIN)
 #define MAX(a,b) ((a)>(b)?(a):(b))
 
+/* avx2 does not have _mm256_cmplt_epi16, emulate it */
+static inline __m256i _mm256_cmplt_epi16(__m256i a, __m256i b) {
+    return _mm256_cmpgt_epi16(b,a);
+}
+
 #if HAVE_AVX2_MM256_EXTRACT_EPI8
 #else
 static inline int8_t _mm256_extract_epi8(__m256i a, int imm) {
@@ -116,9 +121,8 @@ parasail_result_t* FNAME(
     __m256i vSaturationCheck = _mm256_setzero_si256();
     __m256i vNegLimit = _mm256_set1_epi8(INT8_MIN);
     __m256i vPosLimit = _mm256_set1_epi8(INT8_MAX);
-    __m256i vZero = _mm256_setzero_si256();
-    __m256i vOne = _mm256_set1_epi8(1);
     __m256i vNegInf = _mm256_set1_epi8(NEG_INF_8);
+    __m256i vMaxH = vNegInf;
     int8_t score = NEG_INF_8;
     __m256i segLenXgap_reset = _mm256_set_epi8(
             NEG_INF_8, NEG_INF_8, NEG_INF_8, NEG_INF_8,
@@ -132,14 +136,10 @@ parasail_result_t* FNAME(
     __m256i insert_mask = _mm256_cmpeq_epi8(_mm256_setzero_si256(),
             _mm256_set_epi8(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
                             0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1));
-#ifdef PARASAIL_TABLE
-    parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
-#else
-    parasail_result_t *result = parasail_result_new();
-#endif
-    __m256i vMaxH = vNegInf;
-    __m256i vQLimit = _mm256_set1_epi8(s1Len-1);
-    __m256i vQIndex_reset = _mm256_set_epi8(
+    __m256i vZero = _mm256_setzero_si256();
+    __m256i vOne16 = _mm256_set1_epi16(1);
+    __m256i vQLimit16 = _mm256_set1_epi16(s1Len);
+    __m256i vQIndexHi16_reset = _mm256_set_epi16(
             segLen*31,
             segLen*30,
             segLen*29,
@@ -155,7 +155,8 @@ parasail_result_t* FNAME(
             segLen*19,
             segLen*18,
             segLen*17,
-            segLen*16,
+            segLen*16);
+    __m256i vQIndexLo16_reset = _mm256_set_epi16(
             segLen*15,
             segLen*14,
             segLen*13,
@@ -172,6 +173,11 @@ parasail_result_t* FNAME(
             segLen* 2,
             segLen* 1,
             segLen* 0);
+#ifdef PARASAIL_TABLE
+    parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
+#else
+    parasail_result_t *result = parasail_result_new();
+#endif
 
     /* Generate query profile.
      * Rearrange query sequence & calculate the weight of match/mismatch.
@@ -217,7 +223,8 @@ parasail_result_t* FNAME(
         __m256i vHp;
         __m256i *pvW;
         __m256i vW;
-        __m256i vQIndex = vQIndex_reset;
+        __m256i vQIndexLo16 = vQIndexLo16_reset;
+        __m256i vQIndexHi16 = vQIndexHi16_reset;
 
         /* calculate E */
         /* calculate Ht */
@@ -332,11 +339,14 @@ parasail_result_t* FNAME(
 #endif
             /* update max vector seen so far */
             {
-                __m256i cond_lmt = _mm256_cmpgt_epi8(vQIndex, vQLimit);
+                __m256i cond_lmt = _mm256_packs_epi16(
+                        _mm256_cmplt_epi16(vQIndexLo16, vQLimit16),
+                        _mm256_cmplt_epi16(vQIndexHi16, vQLimit16));
                 __m256i cond_max = _mm256_cmpgt_epi8(vH, vMaxH);
-                __m256i cond_all = _mm256_andnot_si256(cond_lmt, cond_max);
+                __m256i cond_all = _mm256_and_si256(cond_max, cond_lmt);
                 vMaxH = _mm256_blendv_epi8(vMaxH, vH, cond_all);
-                vQIndex = _mm256_adds_epi8(vQIndex, vOne);
+                vQIndexLo16 = _mm256_adds_epi16(vQIndexLo16, vOne16);
+                vQIndexHi16 = _mm256_adds_epi16(vQIndexHi16, vOne16);
             }
         }
     }

@@ -360,7 +360,7 @@ parasail_result_t* FNAME(
             vH = _mm256_load_si256(pvH + offset);
             vM = _mm256_load_si256(pvM + offset);
             vL = _mm256_load_si256(pvL + offset);
-            cond_max = _mm256_cmpgt_epi16(vH, vMaxH);
+            cond_max = _mm256_cmpgt_epi32(vH, vMaxH);
             vMaxH = _mm256_blendv_epi8(vMaxH, vH, cond_max);
             vMaxM = _mm256_blendv_epi8(vMaxM, vM, cond_max);
             vMaxL = _mm256_blendv_epi8(vMaxL, vL, cond_max);

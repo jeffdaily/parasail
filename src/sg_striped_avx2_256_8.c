@@ -21,6 +21,11 @@
 
 #define NEG_INF_8 (INT8_MIN)
 
+/* avx2 does not have _mm256_cmplt_epi16, emulate it */
+static inline __m256i _mm256_cmplt_epi16(__m256i a, __m256i b) {
+    return _mm256_cmpgt_epi16(b,a);
+}
+
 #if HAVE_AVX2_MM256_INSERT_EPI8
 #else
 static inline __m256i _mm256_insert_epi8(__m256i a, int8_t b, int imm) {
@@ -259,7 +264,7 @@ end:
     /* max of last column */
     {
         __m256i vMaxLastColH = vNegInf;
-        __m256i vQIndex = _mm256_set_epi8(
+        __m256i vQIndexHi16 = _mm256_set_epi16(
                 31*segLen,
                 30*segLen,
                 29*segLen,
@@ -275,7 +280,8 @@ end:
                 19*segLen,
                 18*segLen,
                 17*segLen,
-                16*segLen,
+                16*segLen);
+        __m256i vQIndexLo16 = _mm256_set_epi16(
                 15*segLen,
                 14*segLen,
                 13*segLen,
@@ -292,16 +298,19 @@ end:
                 2*segLen,
                 1*segLen,
                 0*segLen);
-        __m256i vQLimit1 = _mm256_set1_epi8(s1Len-1);
-        __m256i vOne = _mm256_set1_epi8(1);
+        __m256i vQLimit16 = _mm256_set1_epi16(s1Len);
+        __m256i vOne16 = _mm256_set1_epi16(1);
 
         for (i=0; i<segLen; ++i) {
             __m256i vH = _mm256_load_si256(pvHStore + i);
-            __m256i cond_lmt = _mm256_cmpgt_epi8(vQIndex, vQLimit1);
+            __m256i cond_lmt = _mm256_packs_epi16(
+                    _mm256_cmplt_epi16(vQIndexLo16, vQLimit16),
+                    _mm256_cmplt_epi16(vQIndexHi16, vQLimit16));
             __m256i cond_max = _mm256_cmpgt_epi8(vH, vMaxLastColH);
-            __m256i cond_all = _mm256_andnot_si256(cond_lmt, cond_max);
+            __m256i cond_all = _mm256_and_si256(cond_max, cond_lmt);
             vMaxLastColH = _mm256_blendv_epi8(vMaxLastColH, vH, cond_all);
-            vQIndex = _mm256_adds_epi8(vQIndex, vOne);
+            vQIndexLo16 = _mm256_adds_epi16(vQIndexLo16, vOne16);
+            vQIndexHi16 = _mm256_adds_epi16(vQIndexHi16, vOne16);
         }
 
         /* max in vec */

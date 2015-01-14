@@ -20,6 +20,11 @@
 
 #define NEG_INF_32 (INT32_MIN/(int32_t)(2))
 
+/* avx2 does not have _mm256_cmplt_epi32, emulate it */
+static inline __m256i _mm256_cmplt_epi32(__m256i a, __m256i b) {
+    return _mm256_cmpgt_epi32(b,a);
+}
+
 #if HAVE_AVX2_MM256_INSERT_EPI32
 #else
 static inline __m256i _mm256_insert_epi32(__m256i a, int32_t b, int imm) {
@@ -138,8 +143,8 @@ parasail_result_t* FNAME(
     __m256i vI = _mm256_set_epi32(0,1,2,3,4,5,6,7);
     __m256i vJreset = _mm256_set_epi32(0,-1,-2,-3,-4,-5,-6,-7);
     __m256i vMax = vNegInf;
-    __m256i vILimit1 = _mm256_set1_epi32(s1Len-1);
-    __m256i vJLimit1 = _mm256_set1_epi32(s2Len-1);
+    __m256i vILimit = _mm256_set1_epi32(s1Len);
+    __m256i vJLimit = _mm256_set1_epi32(s2Len);
 
     /* convert _s1 from char to int in range 0-23 */
     for (i=0; i<s1Len; ++i) {
@@ -194,7 +199,7 @@ parasail_result_t* FNAME(
         const int * const restrict matrow5 = matrix[s1[i+5]];
         const int * const restrict matrow6 = matrix[s1[i+6]];
         const int * const restrict matrow7 = matrix[s1[i+7]];
-        __m256i vIgtLimit1 = _mm256_cmpgt_epi32(vI, vILimit1);
+        __m256i vIltLimit = _mm256_cmplt_epi32(vI, vILimit);
         /* iterate over database sequence */
         for (j=0; j<s2Len+PAD; ++j) {
             __m256i vMat;
@@ -237,12 +242,12 @@ parasail_result_t* FNAME(
             /* as minor diagonal vector passes across table, extract
              * max values within the i,j bounds */
             {
-                __m256i cond_valid_J = _mm256_andnot_si256(
-                        _mm256_cmpgt_epi32(vJ, vJLimit1),
-                        _mm256_cmpgt_epi32(vJ, vNegOne));
+                __m256i cond_valid_J = _mm256_and_si256(
+                        _mm256_cmpgt_epi32(vJ, vNegOne),
+                        _mm256_cmplt_epi32(vJ, vJLimit));
                 __m256i cond_max = _mm256_cmpgt_epi32(vWscore, vMax);
                 __m256i cond_all = _mm256_and_si256(cond_max,
-                        _mm256_andnot_si256(vIgtLimit1, cond_valid_J));
+                        _mm256_and_si256(vIltLimit, cond_valid_J));
                 vMax = _mm256_blendv_epi8(vMax, vWscore, cond_all);
             }
             vJ = _mm256_add_epi32(vJ, vOne);

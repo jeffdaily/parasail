@@ -16,13 +16,6 @@
 
 #define USE_TIMER_REAL 0
 
-static double pctull(unsigned long long orig_, unsigned long long new_)
-{
-    double orig = (double)orig_;
-    double new = (double)new_;
-    return orig / new;
-}
-
 static double pctf(double orig, double new)
 {
     return orig / new;
@@ -109,18 +102,20 @@ int main(int argc, char **argv)
 #endif
     const int lena = strlen(seqA);
     const int lenb = strlen(seqB);
-    int score;
-    int matches;
-    int length;
-    unsigned long long timer_rdtsc;
-    unsigned long long timer_rdtsc_single;
-    double timer_rdtsc_ref_mean;
-    double timer_nsecs;
-    double timer_nsecs_single;
-    double timer_nsecs_ref_mean;
+    int score = 0;
+    int matches = 0;
+    int length = 0;
+    unsigned long long timer_rdtsc = 0;
+    unsigned long long timer_rdtsc_single = 0;
+    double timer_rdtsc_ref_mean = 0.0;
+    double timer_nsecs = 0.0;
+    double timer_nsecs_single = 0.0;
+#if USE_TIMER_REAL
+    double timer_nsecs_ref_mean = 0.0;
+#endif
     int limit = 100;
-    int i;
-    int index;
+    int i = 0;
+    int index = 0;
     func_t f;
     parasail_result_t *result = NULL;
     stats_t stats_rdtsc;
@@ -595,6 +590,7 @@ int main(int argc, char **argv)
     };
 
     timer_init();
+    printf("%s timer\n", timer_name());
 
     printf("%-15s %8s %6s %4s %5s %5s %8s %8s %8s %8s %5s %8s %8s %8s\n",
             "name", "type", "isa", "bits", "width", "elem",
@@ -634,7 +630,9 @@ int main(int argc, char **argv)
         timer_nsecs = timer_real() - timer_nsecs;
         if (f.is_ref) {
             timer_rdtsc_ref_mean = stats_rdtsc._mean;
+#if USE_TIMER_REAL
             timer_nsecs_ref_mean = stats_nsecs._mean;
+#endif
         }
         strcpy(name, f.alg);
         /* xeon phi was unable to perform I/O running natively */

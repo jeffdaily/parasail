@@ -21,14 +21,6 @@
 
 #define NEG_INF_8 (INT8_MIN)
 
-/* sse2 does not have _mm_insert_epi8, emulate it */
-static inline __m128i _mm_insert_epi8(__m128i a, int8_t i, int imm) {
-    __m128i_8_t tmp;
-    tmp.m = a;
-    tmp.v[imm] = i;
-    return tmp.m;
-}
-
 /* sse2 does not have _mm_extract_epi8, emulate it */
 static inline int8_t _mm_extract_epi8(__m128i a, int imm) {
     __m128i_8_t tmp;

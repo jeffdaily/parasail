@@ -109,7 +109,6 @@ int main(int argc, char **argv)
     timer_rtdsc = timer_start();
 #pragma omp parallel
     {
-        int thread_num = omp_get_thread_num();
         unsigned long a=0;
         unsigned long b=1;
         parasail_result_t *result = NULL;

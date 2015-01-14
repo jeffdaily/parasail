@@ -146,9 +146,7 @@ parasail_result_t* FNAME(
     __m128i vMaxMatch = vNegInf;
     __m128i vMaxLength = vNegInf;
     __m128i vILimit16 = _mm_set1_epi16(s1Len);
-    __m128i vILimit116 = _mm_sub_epi16(vILimit16, vOne16);
     __m128i vJLimit16 = _mm_set1_epi16(s2Len);
-    __m128i vJLimit116 = _mm_sub_epi16(vJLimit16, vOne16);
 
     /* convert _s1 from char to int in range 0-23 */
     for (i=0; i<s1Len; ++i) {

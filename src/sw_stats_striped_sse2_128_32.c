@@ -21,14 +21,6 @@
 
 #define NEG_INF_32 (INT32_MIN/(int32_t)(2))
 
-/* sse2 does not have _mm_insert_epi32, emulate it */
-static inline __m128i _mm_insert_epi32(__m128i a, int32_t i, int imm) {
-    __m128i_32_t tmp;
-    tmp.m = a;
-    tmp.v[imm] = i;
-    return tmp.m;
-}
-
 /* sse2 does not have _mm_extract_epi32, emulate it */
 static inline int32_t _mm_extract_epi32(__m128i a, int imm) {
     __m128i_32_t tmp;

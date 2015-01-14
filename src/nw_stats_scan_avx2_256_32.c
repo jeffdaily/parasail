@@ -191,7 +191,6 @@ parasail_result_t* FNAME(
         __m256i vHt;
         __m256i vFt;
         __m256i vH;
-        __m256i vHp;
         __m256i *pvW;
         __m256i vW;
         __m256i *pvC;

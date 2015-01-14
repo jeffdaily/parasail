@@ -271,7 +271,7 @@ parasail_result_t* FNAME(
 
         /* Lazy_F loop: has been revised to disallow adjecent insertion and
          * then deletion, so don't update E(i, i), learn from SWPS3 */
-        for (k=0; k<8; ++k) {
+        for (k=0; k<segWidth; ++k) {
             vF = shift(vF);
             for (i=0; i<segLen; ++i) {
                 vH = _mm256_load_si256(pvHStore + i);
@@ -299,7 +299,7 @@ end:
     }
 
     /* max in vec */
-    for (j=0; j<8; ++j) {
+    for (j=0; j<segWidth; ++j) {
         int8_t value = (int8_t) _mm256_extract_epi8(vMaxH, 31);
         if (value > score) {
             score = value;

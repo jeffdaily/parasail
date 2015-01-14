@@ -203,7 +203,7 @@ parasail_result_t* FNAME(
 
         /* Lazy_F loop: has been revised to disallow adjecent insertion and
          * then deletion, so don't update E(i, i), learn from SWPS3 */
-        for (k=0; k<16; ++k) {
+        for (k=0; k<segWidth; ++k) {
             vF = _mm_slli_si128(vF, 1);
             vF = _mm_insert_epi8(vF, -open, 0);
             for (i=0; i<segLen; ++i) {
@@ -280,7 +280,7 @@ end:
         }
 
         /* max in vec */
-        for (j=0; j<16; ++j) {
+        for (j=0; j<segWidth; ++j) {
             int8_t value = (int8_t) _mm_extract_epi8(vMaxLastColH, 15);
             if (value > score) {
                 score = value;

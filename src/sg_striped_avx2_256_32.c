@@ -193,7 +193,7 @@ parasail_result_t* FNAME(
 
         /* Lazy_F loop: has been revised to disallow adjecent insertion and
          * then deletion, so don't update E(i, i), learn from SWPS3 */
-        for (k=0; k<8; ++k) {
+        for (k=0; k<segWidth; ++k) {
             vF = shift(vF);
             vF = _mm256_insert_epi32(vF, -open, 0);
             for (i=0; i<segLen; ++i) {
@@ -250,7 +250,7 @@ end:
         }
 
         /* max in vec */
-        for (j=0; j<8; ++j) {
+        for (j=0; j<segWidth; ++j) {
             int32_t value = (int32_t) _mm256_extract_epi32(vMaxLastColH, 7);
             if (value > score) {
                 score = value;

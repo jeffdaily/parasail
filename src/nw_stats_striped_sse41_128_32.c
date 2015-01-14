@@ -257,7 +257,7 @@ parasail_result_t* FNAME(
 
         /* Lazy_F loop: has been revised to disallow adjecent insertion and
          * then deletion, so don't update E(i, i), learn from SWPS3 */
-        for (k=0; k<8; ++k) {
+        for (k=0; k<segWidth; ++k) {
             __m128i vHp = _mm_slli_si128(pvHLoad[segLen - 1], 4);
             vHp = _mm_insert_epi32(vHp, boundary[j], 0);
             vF = _mm_slli_si128(vF, 4);

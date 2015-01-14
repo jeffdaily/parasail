@@ -30,6 +30,7 @@ static inline __m128i vshift8(const __m128i v, const int val)
     return ret;
 }
 
+
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si128(
         int *array,
@@ -88,67 +89,7 @@ static inline void arr_store_si128(
         array[(i+15)*s2Len + (j-15)] = (int8_t)_mm_extract_epi8(vWscore, 0);
     }
 }
-
-
-static inline void stt_store_si128(
-        int *array,
-        __m128i vWscore,
-        int i,
-        int s1Len,
-        int j,
-        int s2Len)
-{
-    if (0 <= i+0 && i+0 < s1Len && 0 <= j-0 && j-0 < s2Len) {
-        array[(i+0)*s2Len + (j-0)] = INT8_MAX+1+(int8_t)_mm_extract_epi8(vWscore, 15);
-    }
-    if (0 <= i+1 && i+1 < s1Len && 0 <= j-1 && j-1 < s2Len) {
-        array[(i+1)*s2Len + (j-1)] = INT8_MAX+1+(int8_t)_mm_extract_epi8(vWscore, 14);
-    }
-    if (0 <= i+2 && i+2 < s1Len && 0 <= j-2 && j-2 < s2Len) {
-        array[(i+2)*s2Len + (j-2)] = INT8_MAX+1+(int8_t)_mm_extract_epi8(vWscore, 13);
-    }
-    if (0 <= i+3 && i+3 < s1Len && 0 <= j-3 && j-3 < s2Len) {
-        array[(i+3)*s2Len + (j-3)] = INT8_MAX+1+(int8_t)_mm_extract_epi8(vWscore, 12);
-    }
-    if (0 <= i+4 && i+4 < s1Len && 0 <= j-4 && j-4 < s2Len) {
-        array[(i+4)*s2Len + (j-4)] = INT8_MAX+1+(int8_t)_mm_extract_epi8(vWscore, 11);
-    }
-    if (0 <= i+5 && i+5 < s1Len && 0 <= j-5 && j-5 < s2Len) {
-        array[(i+5)*s2Len + (j-5)] = INT8_MAX+1+(int8_t)_mm_extract_epi8(vWscore, 10);
-    }
-    if (0 <= i+6 && i+6 < s1Len && 0 <= j-6 && j-6 < s2Len) {
-        array[(i+6)*s2Len + (j-6)] = INT8_MAX+1+(int8_t)_mm_extract_epi8(vWscore, 9);
-    }
-    if (0 <= i+7 && i+7 < s1Len && 0 <= j-7 && j-7 < s2Len) {
-        array[(i+7)*s2Len + (j-7)] = INT8_MAX+1+(int8_t)_mm_extract_epi8(vWscore, 8);
-    }
-    if (0 <= i+8 && i+8 < s1Len && 0 <= j-8 && j-8 < s2Len) {
-        array[(i+8)*s2Len + (j-8)] = INT8_MAX+1+(int8_t)_mm_extract_epi8(vWscore, 7);
-    }
-    if (0 <= i+9 && i+9 < s1Len && 0 <= j-9 && j-9 < s2Len) {
-        array[(i+9)*s2Len + (j-9)] = INT8_MAX+1+(int8_t)_mm_extract_epi8(vWscore, 6);
-    }
-    if (0 <= i+10 && i+10 < s1Len && 0 <= j-10 && j-10 < s2Len) {
-        array[(i+10)*s2Len + (j-10)] = INT8_MAX+1+(int8_t)_mm_extract_epi8(vWscore, 5);
-    }
-    if (0 <= i+11 && i+11 < s1Len && 0 <= j-11 && j-11 < s2Len) {
-        array[(i+11)*s2Len + (j-11)] = INT8_MAX+1+(int8_t)_mm_extract_epi8(vWscore, 4);
-    }
-    if (0 <= i+12 && i+12 < s1Len && 0 <= j-12 && j-12 < s2Len) {
-        array[(i+12)*s2Len + (j-12)] = INT8_MAX+1+(int8_t)_mm_extract_epi8(vWscore, 3);
-    }
-    if (0 <= i+13 && i+13 < s1Len && 0 <= j-13 && j-13 < s2Len) {
-        array[(i+13)*s2Len + (j-13)] = INT8_MAX+1+(int8_t)_mm_extract_epi8(vWscore, 2);
-    }
-    if (0 <= i+14 && i+14 < s1Len && 0 <= j-14 && j-14 < s2Len) {
-        array[(i+14)*s2Len + (j-14)] = INT8_MAX+1+(int8_t)_mm_extract_epi8(vWscore, 1);
-    }
-    if (0 <= i+15 && i+15 < s1Len && 0 <= j-15 && j-15 < s2Len) {
-        array[(i+15)*s2Len + (j-15)] = INT8_MAX+1+(int8_t)_mm_extract_epi8(vWscore, 0);
-    }
-}
 #endif
-
 
 #ifdef PARASAIL_TABLE
 #define FNAME sw_stats_table_diag_sse41_128_8
@@ -235,32 +176,32 @@ parasail_result_t* FNAME(
     for (j=0; j<s2Len; ++j) {
         tbl_pr[j] = 0;
         del_pr[j] = NEG_INF_8;
-        mch_pr[j] = INT8_MIN;
-        len_pr[j] = INT8_MIN;
+        mch_pr[j] = 0;
+        len_pr[j] = 0;
     }
     /* pad front of stored row values */
     for (j=-PAD; j<0; ++j) {
         tbl_pr[j] = NEG_INF_8;
         del_pr[j] = NEG_INF_8;
-        mch_pr[j] = INT8_MIN;
-        len_pr[j] = INT8_MIN;
+        mch_pr[j] = 0;
+        len_pr[j] = 0;
     }
     /* pad back of stored row values */
     for (j=s2Len; j<s2Len+PAD; ++j) {
         tbl_pr[j] = NEG_INF_8;
         del_pr[j] = NEG_INF_8;
-        mch_pr[j] = INT8_MIN;
-        len_pr[j] = INT8_MIN;
+        mch_pr[j] = 0;
+        len_pr[j] = 0;
     }
 
     /* iterate over query sequence */
     for (i=0; i<s1Len; i+=N) {
         __m128i vNscore = vNegInf0;
-        __m128i vNmatch = vNegInf;
-        __m128i vNlength = vNegInf;
+        __m128i vNmatch = vZero;
+        __m128i vNlength = vZero;
         __m128i vWscore = vNegInf0;
-        __m128i vWmatch = vNegInf;
-        __m128i vWlength = vNegInf;
+        __m128i vWmatch = vZero;
+        __m128i vWlength = vZero;
         __m128i vIns = vNegInf;
         __m128i vDel = vNegInf;
         __m128i vJLo16 = vJresetLo16;
@@ -369,6 +310,12 @@ parasail_result_t* FNAME(
                 vWmatch = vCmatch;
                 vWlength = vClength;
             }
+            {
+                __m128i cond_zero = _mm_cmpeq_epi8(vWscore, vZero);
+                vWmatch = _mm_andnot_si128(cond_zero, vWmatch);
+                vWlength = _mm_andnot_si128(cond_zero, vWlength);
+            }
+
             /* as minor diagonal vector passes across the j=-1 boundary,
              * assign the appropriate boundary conditions */
             {
@@ -376,8 +323,8 @@ parasail_result_t* FNAME(
                         _mm_cmpeq_epi16(vJLo16,vNegOne16),
                         _mm_cmpeq_epi16(vJHi16,vNegOne16));
                 vWscore = _mm_andnot_si128(cond, vWscore);
-                vWmatch = _mm_blendv_epi8(vWmatch, vNegInf, cond);
-                vWlength = _mm_blendv_epi8(vWlength, vNegInf, cond);
+                vWmatch = _mm_andnot_si128(cond, vWmatch);
+                vWlength = _mm_andnot_si128(cond, vWlength);
                 vDel = _mm_blendv_epi8(vDel, vNegInf, cond);
                 vIns = _mm_blendv_epi8(vIns, vNegInf, cond);
             }
@@ -394,8 +341,8 @@ parasail_result_t* FNAME(
             }
 #ifdef PARASAIL_TABLE
             arr_store_si128(result->score_table, vWscore, i, s1Len, j, s2Len);
-            stt_store_si128(result->matches_table, vWmatch, i, s1Len, j, s2Len);
-            stt_store_si128(result->length_table, vWlength, i, s1Len, j, s2Len);
+            arr_store_si128(result->matches_table, vWmatch, i, s1Len, j, s2Len);
+            arr_store_si128(result->length_table, vWlength, i, s1Len, j, s2Len);
 #endif
             tbl_pr[j-15] = (int8_t)_mm_extract_epi8(vWscore,0);
             mch_pr[j-15] = (int8_t)_mm_extract_epi8(vWmatch,0);
@@ -440,13 +387,13 @@ parasail_result_t* FNAME(
     }
     if (_mm_movemask_epi8(vSaturationCheck)) {
         score = INT8_MAX;
-        matches = INT8_MIN;
-        length = INT8_MIN;
+        matches = 0;
+        length = 0;
     }
 
     result->score = score;
-    result->matches = matches+INT8_MAX+1;
-    result->length = length+INT8_MAX+1;
+    result->matches = matches;
+    result->length = length;
 
     parasail_free(_len_pr);
     parasail_free(_mch_pr);

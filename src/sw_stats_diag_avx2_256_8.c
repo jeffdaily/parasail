@@ -20,9 +20,21 @@
 
 #define NEG_INF_8 (INT8_MIN)
 
+/* avx2 _mm256_packs_epi16 does not pack across 128-bit lanes, emulate it */
+static inline __m256i pack16(__m256i a, __m256i b) {
+    return _mm256_permute4x64_epi64(
+            _mm256_packs_epi16(a, b),
+            _MM_SHUFFLE(3,1,2,0));
+}
+
 /* avx2 does not have _mm256_cmplt_epi8, emulate it */
 static inline __m256i _mm256_cmplt_epi8(__m256i a, __m256i b) {
     return _mm256_cmpgt_epi8(b,a);
+}
+
+/* avx2 does not have _mm256_cmplt_epi16, emulate it */
+static inline __m256i _mm256_cmplt_epi16(__m256i a, __m256i b) {
+    return _mm256_cmpgt_epi16(b,a);
 }
 
 #if HAVE_AVX2_MM256_INSERT_EPI8
@@ -218,21 +230,20 @@ parasail_result_t* FNAME(
     __m256i vNegInf0 = rshift8(vNegInf); /* shift in a 0 */
     __m256i vOpen = _mm256_set1_epi8(open);
     __m256i vGap  = _mm256_set1_epi8(gap);
-    __m256i vOne = _mm256_set1_epi8(1);
     __m256i vZero = _mm256_set1_epi8(0);
-    __m256i vN = _mm256_set1_epi8(N);
-    __m256i vNegOne = _mm256_set1_epi8(-1);
-    __m256i vI = _mm256_set_epi8(
-            0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,
-            16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31);
-    __m256i vJreset = _mm256_set_epi8(
-            0,-1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11,-12,-13,-14,-15,
-            -16,-17,-18,-19,-20,-21,-22,-23,-24,-25,-26,-27,-28,-29,-30,-31);
+    __m256i vN16 = _mm256_set1_epi16(N);
+    __m256i vOne = _mm256_set1_epi8(1);
+    __m256i vOne16 = _mm256_set1_epi16(1);
+    __m256i vNegOne16 = _mm256_set1_epi16(-1);
+    __m256i vILo16 = _mm256_set_epi16(16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31);;
+    __m256i vIHi16 = _mm256_set_epi16(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15);
+    __m256i vJresetLo16 = _mm256_set_epi16(-16,-17,-18,-19,-20,-21,-22,-23,-24,-25,-26,-27,-28,-29,-30,-31);
+    __m256i vJresetHi16 = _mm256_set_epi16(0,-1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11,-12,-13,-14,-15);
     __m256i vMaxScore = vNegInf;
     __m256i vMaxMatch = vNegInf;
     __m256i vMaxLength = vNegInf;
-    __m256i vILimit = _mm256_set1_epi8(s1Len);
-    __m256i vJLimit = _mm256_set1_epi8(s2Len);
+    __m256i vILimit16 = _mm256_set1_epi16(s1Len);
+    __m256i vJLimit16 = _mm256_set1_epi16(s2Len);
 
     /* convert _s1 from char to int in range 0-23 */
     for (i=0; i<s1Len; ++i) {
@@ -288,7 +299,8 @@ parasail_result_t* FNAME(
         __m256i vWlength = vZero;
         __m256i vIns = vNegInf;
         __m256i vDel = vNegInf;
-        __m256i vJ = vJreset;
+        __m256i vJLo16 = vJresetLo16;
+        __m256i vJHi16 = vJresetHi16;
         __m256i vs1 = _mm256_set_epi8(
                 s1[i+0],
                 s1[i+1],
@@ -355,7 +367,9 @@ parasail_result_t* FNAME(
         const int * const restrict matrow29 = matrix[s1[i+29]];
         const int * const restrict matrow30 = matrix[s1[i+30]];
         const int * const restrict matrow31 = matrix[s1[i+31]];
-        __m256i vIltLimit = _mm256_cmplt_epi8(vI, vILimit);
+        __m256i vIltLimit = pack16(
+                _mm256_cmplt_epi16(vILo16, vILimit16),
+                _mm256_cmplt_epi16(vIHi16, vILimit16));
         /* iterate over database sequence */
         for (j=0; j<s2Len+PAD; ++j) {
             __m256i vMat;
@@ -448,7 +462,9 @@ parasail_result_t* FNAME(
             /* as minor diagonal vector passes across the j=-1 boundary,
              * assign the appropriate boundary conditions */
             {
-                __m256i cond = _mm256_cmpeq_epi8(vJ,vNegOne);
+                __m256i cond = pack16(
+                        _mm256_cmpeq_epi16(vJLo16,vNegOne16),
+                        _mm256_cmpeq_epi16(vJHi16,vNegOne16));
                 vWscore = _mm256_andnot_si256(cond, vWscore);
                 vWmatch = _mm256_andnot_si256(cond, vWmatch);
                 vWlength = _mm256_andnot_si256(cond, vWlength);
@@ -479,8 +495,12 @@ parasail_result_t* FNAME(
              * max values within the i,j bounds */
             {
                 __m256i cond_valid_J = _mm256_and_si256(
-                        _mm256_cmpgt_epi8(vJ, vNegOne),
-                        _mm256_cmplt_epi8(vJ, vJLimit));
+                        pack16(
+                            _mm256_cmpgt_epi16(vJLo16, vNegOne16),
+                            _mm256_cmpgt_epi16(vJHi16, vNegOne16)),
+                        pack16(
+                            _mm256_cmplt_epi16(vJLo16, vJLimit16),
+                            _mm256_cmplt_epi16(vJHi16, vJLimit16)));
                 __m256i cond_max = _mm256_cmpgt_epi8(vWscore, vMaxScore);
                 __m256i cond_all = _mm256_and_si256(cond_max,
                         _mm256_and_si256(vIltLimit, cond_valid_J));
@@ -488,9 +508,11 @@ parasail_result_t* FNAME(
                 vMaxMatch = _mm256_blendv_epi8(vMaxMatch, vWmatch, cond_all);
                 vMaxLength = _mm256_blendv_epi8(vMaxLength, vWlength, cond_all);
             }
-            vJ = _mm256_adds_epi8(vJ, vOne);
+            vJLo16 = _mm256_adds_epi16(vJLo16, vOne16);
+            vJHi16 = _mm256_adds_epi16(vJHi16, vOne16);
         }
-        vI = _mm256_adds_epi8(vI, vN);
+        vILo16 = _mm256_adds_epi16(vILo16, vN16);
+        vIHi16 = _mm256_adds_epi16(vIHi16, vN16);
     }
 
     /* max in vMaxScore */

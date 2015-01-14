@@ -21,6 +21,13 @@
 
 #define NEG_INF_8 (INT8_MIN)
 
+/* avx2 _mm256_packs_epi16 does not pack across 128-bit lanes, emulate it */
+static inline __m256i pack16(__m256i a, __m256i b) {
+    return _mm256_permute4x64_epi64(
+            _mm256_packs_epi16(a, b),
+            _MM_SHUFFLE(3,1,2,0));
+}
+
 /* avx2 does not have _mm256_cmplt_epi16, emulate it */
 static inline __m256i _mm256_cmplt_epi16(__m256i a, __m256i b) {
     return _mm256_cmpgt_epi16(b,a);
@@ -238,7 +245,7 @@ parasail_result_t* FNAME(
 
             /* update max vector seen so far */
             {
-                __m256i cond_lmt = _mm256_packs_epi16(
+                __m256i cond_lmt = pack16(
                         _mm256_cmplt_epi16(vQIndexLo16, vQLimit16),
                         _mm256_cmplt_epi16(vQIndexHi16, vQLimit16));
                 __m256i cond_max = _mm256_cmpgt_epi8(vH, vMaxH);

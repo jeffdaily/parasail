@@ -21,6 +21,13 @@
 
 #define NEG_INF_8 (INT8_MIN)
 
+/* avx2 _mm256_packs_epi16 does not pack across 128-bit lanes, emulate it */
+static inline __m256i pack16(__m256i a, __m256i b) {
+    return _mm256_permute4x64_epi64(
+            _mm256_packs_epi16(a, b),
+            _MM_SHUFFLE(3,1,2,0));
+}
+
 /* avx2 does not have _mm256_cmplt_epi16, emulate it */
 static inline __m256i _mm256_cmplt_epi16(__m256i a, __m256i b) {
     return _mm256_cmpgt_epi16(b,a);
@@ -301,7 +308,7 @@ parasail_result_t* FNAME(
         const int * const restrict matrow29 = matrix[s1[i+29]];
         const int * const restrict matrow30 = matrix[s1[i+30]];
         const int * const restrict matrow31 = matrix[s1[i+31]];
-        __m256i vIltLimit = _mm256_packs_epi16(
+        __m256i vIltLimit = pack16(
                 _mm256_cmplt_epi16(vILo16, vILimit16),
                 _mm256_cmplt_epi16(vIHi16, vILimit16));
         /* iterate over database sequence */
@@ -357,7 +364,7 @@ parasail_result_t* FNAME(
             /* as minor diagonal vector passes across the j=-1 boundary,
              * assign the appropriate boundary conditions */
             {
-                __m256i cond = _mm256_packs_epi16(
+                __m256i cond = pack16(
                         _mm256_cmpeq_epi16(vJLo16,vNegOne16),
                         _mm256_cmpeq_epi16(vJHi16,vNegOne16));
                 vWscore = _mm256_andnot_si256(cond, vWscore);
@@ -380,10 +387,10 @@ parasail_result_t* FNAME(
              * max values within the i,j bounds */
             {
                 __m256i cond_valid_J = _mm256_and_si256(
-                        _mm256_packs_epi16(
+                        pack16(
                             _mm256_cmpgt_epi16(vJLo16, vNegOne16),
                             _mm256_cmpgt_epi16(vJHi16, vNegOne16)),
-                        _mm256_packs_epi16(
+                        pack16(
                             _mm256_cmplt_epi16(vJLo16, vJLimit16),
                             _mm256_cmplt_epi16(vJHi16, vJLimit16)));
                 __m256i cond_max = _mm256_cmpgt_epi8(vWscore, vMax);

@@ -21,6 +21,11 @@
 
 #define NEG_INF_16 (INT16_MIN/(int16_t)(2))
 
+/* avx2 does not have _mm256_cmplt_epi16, emulate it */
+static inline __m256i _mm256_cmplt_epi16(__m256i a, __m256i b) {
+    return _mm256_cmpgt_epi16(b,a);
+}
+
 #if HAVE_AVX2_MM256_EXTRACT_EPI16
 #else
 static inline int16_t _mm256_extract_epi16(__m256i a, int imm) {
@@ -93,6 +98,7 @@ parasail_result_t* FNAME(
     __m256i vZero = _mm256_setzero_si256();
     __m256i vOne = _mm256_set1_epi16(1);
     /* for max calculation we don't want to include padded cells */
+    __m256i vQLimit = _mm256_set1_epi16(s1Len);
     __m256i vQIndex_reset = _mm256_set_epi16(
             15*segLen,
             14*segLen,
@@ -110,7 +116,6 @@ parasail_result_t* FNAME(
             2*segLen,
             1*segLen,
             0*segLen);
-    __m256i vQLimit1 = _mm256_set1_epi16(s1Len-1);
     __m256i vMaxH = vZero;
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
@@ -189,9 +194,9 @@ parasail_result_t* FNAME(
 
             /* update max vector seen so far */
             {
-                __m256i cond_lmt = _mm256_cmpgt_epi16(vQIndex, vQLimit1);
                 __m256i cond_max = _mm256_cmpgt_epi16(vH, vMaxH);
-                __m256i cond_all = _mm256_andnot_si256(cond_lmt, cond_max);
+                __m256i cond_lmt = _mm256_cmplt_epi16(vQIndex, vQLimit);
+                __m256i cond_all = _mm256_and_si256(cond_max, cond_lmt);
                 vMaxH = _mm256_blendv_epi8(vMaxH, vH, cond_all);
                 vQIndex = _mm256_add_epi16(vQIndex, vOne);
             }
@@ -212,7 +217,7 @@ parasail_result_t* FNAME(
 
         /* Lazy_F loop: has been revised to disallow adjecent insertion and
          * then deletion, so don't update E(i, i), learn from SWPS3 */
-        for (k=0; k<8; ++k) {
+        for (k=0; k<segWidth; ++k) {
             vF = shift(vF);
             for (i=0; i<segLen; ++i) {
                 vH = _mm256_load_si256(pvHStore + i);
@@ -233,7 +238,7 @@ end:
     }
 
     /* max in vec */
-    for (j=0; j<8; ++j) {
+    for (j=0; j<segWidth; ++j) {
         int16_t value = (int16_t) _mm256_extract_epi16(vMaxH, 15);
         if (value > score) {
             score = value;

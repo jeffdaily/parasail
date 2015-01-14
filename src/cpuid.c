@@ -109,7 +109,7 @@ static int check_sse41()
     run_cpuid(0, 0, info);
     nIds = info[0];
 
-    //  Detect Instruction Set
+    /*  Detect Instruction Set */
     if (nIds >= 1){
         run_cpuid(0x00000001, 0, info);
         return (info[2] & ((int)1 << 19)) != 0;
@@ -127,7 +127,7 @@ static int check_sse2()
     run_cpuid(0, 0, info);
     nIds = info[0];
 
-    //  Detect Instruction Set
+    /*  Detect Instruction Set */
     if (nIds >= 1){
         run_cpuid(0x00000001, 0, info);
         return (info[3] & ((int)1 << 26)) != 0;

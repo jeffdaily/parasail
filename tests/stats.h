@@ -73,7 +73,7 @@ static inline void stats_sample_stats(stats_t *stats, const stats_t * const B) {
     else {
         double delta = B->_mean - stats->_mean;
         unsigned long X_n = stats->_n + B->_n;
-        //double X_mean = stats->_mean + delta*(B->_n/X_n);
+        /*double X_mean = stats->_mean + delta*(B->_n/X_n);*/
         double X_mean = (stats->_n*stats->_mean + B->_n*B->_mean) / X_n;
         double X_M2 = stats->_M2 + B->_M2 + delta*delta*stats->_n*B->_n/X_n;
 

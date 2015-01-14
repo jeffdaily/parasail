@@ -157,7 +157,7 @@ parasail_result_t* FNAME(
 
         /* Initialize F value to 0.  Any errors to vH values will be corrected
          * in the Lazy_F loop.  */
-        //vF = initialF;
+        /*vF = initialF;*/
         vF = vNegInf;
         vFM = vZero;
         vFL = vZero;

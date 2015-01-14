@@ -22,7 +22,8 @@
 inline static double timer_real()
 {
     struct timespec ts;
-#ifdef __MACH__ // OS X does not have clock_gettime, use clock_get_time
+#ifdef __MACH__
+    /* OS X does not have clock_gettime, use clock_get_time */
     clock_serv_t cclock;
     mach_timespec_t mts;
     host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
@@ -31,10 +32,12 @@ inline static double timer_real()
     ts.tv_sec = mts.tv_sec;
     ts.tv_nsec = mts.tv_nsec;
 #elif defined(__FreeBSD__)
-    long retval = clock_gettime(CLOCK_MONOTONIC, &ts); // Works on FreeBSD
+    /* Works on FreeBSD */
+    long retval = clock_gettime(CLOCK_MONOTONIC, &ts);
     assert(0 == retval);
 #else
-    long retval = clock_gettime(CLOCK_REALTIME, &ts); // Works on Linux
+    /* Works on Linux */
+    long retval = clock_gettime(CLOCK_REALTIME, &ts);
     assert(0 == retval);
 #endif
     return (double)(ts.tv_sec) + (double)(ts.tv_nsec)/1000000000.0;

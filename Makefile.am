@@ -311,17 +311,17 @@ SRC_SSE41 += src/nw_stats_striped_sse41_128_8.c
 SRC_SSE41 += src/sg_stats_striped_sse41_128_8.c
 SRC_SSE41 += src/sw_stats_striped_sse41_128_8.c
 
-#SRC_AVX2 += src/nw_stats_striped_avx2_256_32.c
-#SRC_AVX2 += src/sg_stats_striped_avx2_256_32.c
-#SRC_AVX2 += src/sw_stats_striped_avx2_256_32.c
+SRC_AVX2 += src/nw_stats_striped_avx2_256_32.c
+SRC_AVX2 += src/sg_stats_striped_avx2_256_32.c
+SRC_AVX2 += src/sw_stats_striped_avx2_256_32.c
 
-#SRC_AVX2 += src/nw_stats_striped_avx2_256_16.c
-#SRC_AVX2 += src/sg_stats_striped_avx2_256_16.c
-#SRC_AVX2 += src/sw_stats_striped_avx2_256_16.c
+SRC_AVX2 += src/nw_stats_striped_avx2_256_16.c
+SRC_AVX2 += src/sg_stats_striped_avx2_256_16.c
+SRC_AVX2 += src/sw_stats_striped_avx2_256_16.c
 
-#SRC_AVX2 += src/nw_stats_striped_avx2_256_8.c
-#SRC_AVX2 += src/sg_stats_striped_avx2_256_8.c
-#SRC_AVX2 += src/sw_stats_striped_avx2_256_8.c
+SRC_AVX2 += src/nw_stats_striped_avx2_256_8.c
+SRC_AVX2 += src/sg_stats_striped_avx2_256_8.c
+SRC_AVX2 += src/sw_stats_striped_avx2_256_8.c
 
 #########################
 # library magic

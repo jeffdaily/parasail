@@ -408,7 +408,6 @@ end:
 
     /* max of last column */
     {
-        __m256i vNegInf = _mm256_set1_epi8(NEG_INF_8);
         __m256i vMaxLastColH = vNegInf;
         __m256i vMaxLastColHM = vNegInf;
         __m256i vMaxLastColHL = vNegInf;

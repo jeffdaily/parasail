@@ -372,7 +372,6 @@ end:
 
     /* max of last column */
     {
-        __m128i vNegInf = _mm_set1_epi8(NEG_INF_8);
         __m128i vMaxLastColH = vNegInf;
         __m128i vMaxLastColHM = vNegInf;
         __m128i vMaxLastColHL = vNegInf;

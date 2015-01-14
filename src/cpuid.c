@@ -38,6 +38,19 @@ static void run_cpuid(uint32_t eax, uint32_t ecx, uint32_t* abcd)
 }     
 
 
+#if defined(__INTEL_COMPILER) && (__INTEL_COMPILER >= 1300) && 0 == HAVE_KNC
+
+#include <immintrin.h>
+
+static int check_4th_gen_intel_core_features()
+{
+    const int the_4th_gen_features = 
+        (_FEATURE_AVX2 | _FEATURE_FMA | _FEATURE_BMI | _FEATURE_LZCNT | _FEATURE_MOVBE);
+    return _may_i_use_cpu_feature( the_4th_gen_features );
+}
+
+#else /* non-Intel compiler */
+
 static int check_xcr0_ymm() 
 {
 #if HAVE_XGETBV
@@ -53,19 +66,6 @@ static int check_xcr0_ymm()
 #endif
 }
 
-
-#if defined(__INTEL_COMPILER) && (__INTEL_COMPILER >= 1300) && 0 == HAVE_KNC
-
-#include <immintrin.h>
-
-static int check_4th_gen_intel_core_features()
-{
-    const int the_4th_gen_features = 
-        (_FEATURE_AVX2 | _FEATURE_FMA | _FEATURE_BMI | _FEATURE_LZCNT | _FEATURE_MOVBE);
-    return _may_i_use_cpu_feature( the_4th_gen_features );
-}
-
-#else /* non-Intel compiler */
 
 static int check_4th_gen_intel_core_features()
 {

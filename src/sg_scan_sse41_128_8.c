@@ -283,8 +283,6 @@ parasail_result_t* FNAME(
 
     /* max of last column */
     {
-        __m128i vNegInf = _mm_set1_epi8(NEG_INF_8);
-        __m128i vMaxH = vNegInf;
         __m128i vQIndexHi16 = _mm_set_epi16(
                 15*segLen,
                 14*segLen,
@@ -305,6 +303,7 @@ parasail_result_t* FNAME(
                 0*segLen);
         __m128i vQLimit16 = _mm_set1_epi16(s1Len);
         __m128i vOne16 = _mm_set1_epi16(1);
+        vMaxH = vNegInf;
 
         for (i=0; i<segLen; ++i) {
             /* load the last stored values */

@@ -405,9 +405,6 @@ parasail_result_t* FNAME(
 
     /* max of last column */
     {
-        __m256i vMaxH = vNegInf;
-        __m256i vMaxM = vZero;
-        __m256i vMaxL = vZero;
         __m256i vQLimit = _mm256_set1_epi16(s1Len);
         __m256i vQIndex = _mm256_set_epi16(
                 15*segLen,
@@ -426,6 +423,9 @@ parasail_result_t* FNAME(
                 2*segLen,
                 1*segLen,
                 0*segLen);
+        vMaxH = vNegInf;
+        vMaxM = vZero;
+        vMaxL = vZero;
 
         for (i=0; i<segLen; ++i) {
             __m256i vH = _mm256_load_si256(pvH + i);

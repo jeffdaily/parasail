@@ -81,7 +81,7 @@ parasail_result_t* FNAME(
     const int32_t n = 24; /* number of amino acids in table */
     const int32_t segWidth = 8; /* number of values in vector unit */
     int32_t segNum = 0;
-    int32_t segLen = (s1Len + segWidth - 1) / segWidth;
+    const int32_t segLen = (s1Len + segWidth - 1) / segWidth;
     __m256i* const restrict pvP = parasail_memalign_m256i(32, n * segLen);
     __m256i* const restrict pvE = parasail_memalign_m256i(32, segLen);
     __m256i* const restrict pvHt= parasail_memalign_m256i(32, segLen);

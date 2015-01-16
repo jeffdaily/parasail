@@ -211,19 +211,22 @@ parasail_result_t* FNAME(
 
             /* calculate vM */
             vEM = _mm_load_si128(pvEM + i);
-            vHM = _mm_andnot_si128(case1not,
-                    _mm_adds_epi8(vHM, _mm_load_si128(vPS + i)));
-            vHM = _mm_or_si128(vHM, _mm_and_si128(case2, vFM));
-            vHM = _mm_or_si128(vHM, _mm_and_si128(case3, vEM));
+            vHM = _mm_blendv_epi8(
+                    _mm_adds_epi8(vHM, _mm_load_si128(vPS + i)),
+                    _mm_or_si128(
+                        _mm_and_si128(case2, vFM),
+                        _mm_and_si128(case3, vEM)),
+                    case1not);
             _mm_store_si128(pvHMStore + i, vHM);
 
             /* calculate vL */
             vEL = _mm_load_si128(pvEL + i);
-            vHL = _mm_andnot_si128(case1not, _mm_adds_epi8(vHL, vOne));
-            vHL = _mm_or_si128(vHL, _mm_and_si128(case2,
-                        _mm_adds_epi8(vFL, vOne)));
-            vHL = _mm_or_si128(vHL, _mm_and_si128(case3,
-                        _mm_adds_epi8(vEL, vOne)));
+            vHL = _mm_blendv_epi8(
+                    _mm_adds_epi8(vHL, vOne),
+                    _mm_or_si128(
+                        _mm_and_si128(case2, _mm_adds_epi8(vFL, vOne)),
+                        _mm_and_si128(case3, _mm_adds_epi8(vEL, vOne))),
+                    case1not);
             _mm_store_si128(pvHLStore + i, vHL);
 
             /* check for saturation */
@@ -286,15 +289,12 @@ parasail_result_t* FNAME(
                 case2 = _mm_andnot_si128(case2not,case1not);
 
                 vHM = _mm_load_si128(pvHMStore + i);
-                vHM = _mm_andnot_si128(case2, vHM);
-                vHM = _mm_or_si128(vHM, _mm_and_si128(case2, vFM));
+                vHM = _mm_blendv_epi8(vHM, vFM, case2);
                 _mm_store_si128(pvHMStore + i, vHM);
                 _mm_store_si128(pvEM + i, vHM);
 
                 vHL = _mm_load_si128(pvHLStore + i);
-                vHL = _mm_andnot_si128(case2, vHL);
-                vHL = _mm_or_si128(vHL, _mm_and_si128(case2,
-                            _mm_adds_epi8(vFL,vOne)));
+                vHL = _mm_blendv_epi8(vHL, _mm_adds_epi8(vFL,vOne), case2);
                 _mm_store_si128(pvHLStore + i, vHL);
                 _mm_store_si128(pvEL + i, vHL);
 

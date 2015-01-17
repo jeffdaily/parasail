@@ -52,6 +52,9 @@ SRC_CORE += src/parasail_internal_avx.h
 SRC_CORE += src/parasail_internal_knc.h
 SRC_CORE += src/cpuid.c
 SRC_CORE += src/memory.c
+SRC_CORE += src/nw_dispatch.c
+SRC_CORE += src/sg_dispatch.c
+SRC_CORE += src/sw_dispatch.c
 
 #################
 # vector memory
@@ -392,6 +395,7 @@ endif
 
 check_PROGRAMS += tests/test_align
 check_PROGRAMS += tests/test_isa
+check_PROGRAMS += tests/test_sw_dispatch
 if HAVE_OPENMP
 check_PROGRAMS += tests/test_openmp
 endif
@@ -400,6 +404,8 @@ tests_test_align_SOURCES        = tests/test_align.c
 tests_test_align_LDADD          = $(LDADD) $(CLOCK_LIBS) $(MATH_LIBS)
 
 tests_test_isa_SOURCES          = tests/test_isa.c
+
+tests_test_sw_dispatch__SOURCES = tests/test_sw_dispatch_.c
 
 tests_test_openmp_SOURCES       = tests/test_openmp.c
 tests_test_openmp_CFLAGS        = $(AM_CFLAGS) $(OPENMP_CFLAGS)

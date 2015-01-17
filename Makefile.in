@@ -80,7 +80,7 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 check_PROGRAMS = tests/test_align$(EXEEXT) tests/test_isa$(EXEEXT) \
-	$(am__EXEEXT_1)
+	tests/test_sw_dispatch$(EXEEXT) $(am__EXEEXT_1)
 @HAVE_SSE2_TRUE@am__append_1 = libparasail_sse2_memory.la \
 @HAVE_SSE2_TRUE@	libparasail_sse2.la libparasail_sse2_table.la
 @HAVE_SSE41_TRUE@am__append_2 = libparasail_sse41.la \
@@ -158,7 +158,8 @@ libparasail_la_DEPENDENCIES = libparasail_novec.la \
 	libparasail_novec_table.la $(am__append_5) $(am__append_6) \
 	$(am__append_7) $(am__append_8)
 am__dirstamp = $(am__leading_dot)dirstamp
-am__objects_1 = src/cpuid.lo src/memory.lo
+am__objects_1 = src/cpuid.lo src/memory.lo src/nw_dispatch.lo \
+	src/sg_dispatch.lo src/sw_dispatch.lo
 am_libparasail_la_OBJECTS = $(am__objects_1)
 libparasail_la_OBJECTS = $(am_libparasail_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -651,6 +652,10 @@ tests_test_openmp_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(tests_test_openmp_CFLAGS) $(CFLAGS) \
 	$(tests_test_openmp_LDFLAGS) $(LDFLAGS) -o $@
+tests_test_sw_dispatch_SOURCES = tests/test_sw_dispatch.c
+tests_test_sw_dispatch_OBJECTS = tests/test_sw_dispatch.$(OBJEXT)
+tests_test_sw_dispatch_LDADD = $(LDADD)
+tests_test_sw_dispatch_DEPENDENCIES = libparasail.la
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -699,7 +704,7 @@ SOURCES = $(libparasail_la_SOURCES) $(libparasail_avx2_la_SOURCES) \
 	$(libparasail_sse41_la_SOURCES) \
 	$(libparasail_sse41_table_la_SOURCES) \
 	$(tests_test_align_SOURCES) $(tests_test_isa_SOURCES) \
-	$(tests_test_openmp_SOURCES)
+	$(tests_test_openmp_SOURCES) tests/test_sw_dispatch.c
 DIST_SOURCES = $(libparasail_la_SOURCES) \
 	$(libparasail_avx2_la_SOURCES) \
 	$(libparasail_avx2_memory_la_SOURCES) \
@@ -715,7 +720,7 @@ DIST_SOURCES = $(libparasail_la_SOURCES) \
 	$(libparasail_sse41_la_SOURCES) \
 	$(libparasail_sse41_table_la_SOURCES) \
 	$(tests_test_align_SOURCES) $(tests_test_isa_SOURCES) \
-	$(tests_test_openmp_SOURCES)
+	$(tests_test_openmp_SOURCES) tests/test_sw_dispatch.c
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -897,7 +902,8 @@ LDADD = libparasail.la
 #################
 SRC_CORE = src/parasail_cpuid.h src/parasail_internal.h \
 	src/parasail_internal_sse.h src/parasail_internal_avx.h \
-	src/parasail_internal_knc.h src/cpuid.c src/memory.c
+	src/parasail_internal_knc.h src/cpuid.c src/memory.c \
+	src/nw_dispatch.c src/sg_dispatch.c src/sw_dispatch.c
 
 #################
 # vector memory
@@ -1088,6 +1094,7 @@ libparasail_la_LIBADD = libparasail_novec.la \
 tests_test_align_SOURCES = tests/test_align.c
 tests_test_align_LDADD = $(LDADD) $(CLOCK_LIBS) $(MATH_LIBS)
 tests_test_isa_SOURCES = tests/test_isa.c
+tests_test_sw_dispatch__SOURCES = tests/test_sw_dispatch_.c
 tests_test_openmp_SOURCES = tests/test_openmp.c
 tests_test_openmp_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_test_openmp_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
@@ -1200,6 +1207,9 @@ src/$(DEPDIR)/$(am__dirstamp):
 	@: > src/$(DEPDIR)/$(am__dirstamp)
 src/cpuid.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/memory.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/nw_dispatch.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/sg_dispatch.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/sw_dispatch.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 
 libparasail.la: $(libparasail_la_OBJECTS) $(libparasail_la_DEPENDENCIES) $(EXTRA_libparasail_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(LINK) -rpath $(libdir) $(libparasail_la_OBJECTS) $(libparasail_la_LIBADD) $(LIBS)
@@ -1989,6 +1999,12 @@ tests/tests_test_openmp-test_openmp.$(OBJEXT): tests/$(am__dirstamp) \
 tests/test_openmp$(EXEEXT): $(tests_test_openmp_OBJECTS) $(tests_test_openmp_DEPENDENCIES) $(EXTRA_tests_test_openmp_DEPENDENCIES) tests/$(am__dirstamp)
 	@rm -f tests/test_openmp$(EXEEXT)
 	$(AM_V_CCLD)$(tests_test_openmp_LINK) $(tests_test_openmp_OBJECTS) $(tests_test_openmp_LDADD) $(LIBS)
+tests/test_sw_dispatch.$(OBJEXT): tests/$(am__dirstamp) \
+	tests/$(DEPDIR)/$(am__dirstamp)
+
+tests/test_sw_dispatch$(EXEEXT): $(tests_test_sw_dispatch_OBJECTS) $(tests_test_sw_dispatch_DEPENDENCIES) $(EXTRA_tests_test_sw_dispatch_DEPENDENCIES) tests/$(am__dirstamp)
+	@rm -f tests/test_sw_dispatch$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(tests_test_sw_dispatch_OBJECTS) $(tests_test_sw_dispatch_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -2358,8 +2374,12 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_sse41_table_la-sw_striped_sse41_128_32.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_sse41_table_la-sw_striped_sse41_128_8.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/memory.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/nw_dispatch.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sg_dispatch.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sw_dispatch.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_align.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_isa.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_sw_dispatch.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/tests_test_openmp-test_openmp.Po@am__quote@
 
 .c.o:

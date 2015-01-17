@@ -114,6 +114,7 @@ parasail_result_t* parasail_result_new()
     result = (parasail_result_t*)malloc(sizeof(parasail_result_t));
     assert(result);
 
+    result->saturated = 0;
     result->score = 0;
     result->matches = 0;
     result->length = 0;

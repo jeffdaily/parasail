@@ -250,6 +250,10 @@ SRC_AVX2 += src/nw_stats_scan_avx2_256_8.c
 SRC_AVX2 += src/sg_stats_scan_avx2_256_8.c
 SRC_AVX2 += src/sw_stats_scan_avx2_256_8.c
 
+SRC_KNC += src/nw_stats_scan_knc_512_32.c
+#SRC_KNC += src/sg_stats_scan_knc_512_32.c
+#SRC_KNC += src/sw_stats_scan_knc_512_32.c
+
 # parallel diag methods
 
 SRC_SSE2 += src/nw_stats_diag_sse2_128_32.c
@@ -405,7 +409,7 @@ tests_test_align_LDADD          = $(LDADD) $(CLOCK_LIBS) $(MATH_LIBS)
 
 tests_test_isa_SOURCES          = tests/test_isa.c
 
-tests_test_sw_dispatch__SOURCES = tests/test_sw_dispatch_.c
+tests_test_sw_dispatch_SOURCES  = tests/test_sw_dispatch.c
 
 tests_test_openmp_SOURCES       = tests/test_openmp.c
 tests_test_openmp_CFLAGS        = $(AM_CFLAGS) $(OPENMP_CFLAGS)

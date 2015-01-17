@@ -405,6 +405,11 @@ int main(int argc, char **argv)
         {nw_stats_striped_avx2_256_16,   "nw_stats", "striped", "avx2", "256", "16", 0, 1, 0},
         {nw_stats_striped_avx2_256_8,    "nw_stats", "striped", "avx2", "256", "8",  0, 1, 0},
 #endif
+#if HAVE_KNC
+        {nw_stats_scan_knc_512_32,        "nw_stats", "scan",    "knc",   "512", "32", 0, 1, 0},
+        //{nw_stats_diag_knc_512_32,        "nw_stats", "diag",    "knc",   "512", "32", 0, 1, 0},
+        //{nw_stats_striped_knc_512_32,     "nw_stats", "striped", "knc",   "512", "32", 0, 1, 0},
+#endif
                                    
         {sg_stats,                        "sg_stats", "orig",    "NA",    "32",  "32", 0, 1, 1},
         {sg_stats_scan,                   "sg_stats", "scan",    "NA",    "32",  "32", 0, 1, 0},
@@ -513,6 +518,11 @@ int main(int argc, char **argv)
         {nw_stats_table_striped_avx2_256_16,    "nw_stats", "striped", "avx2",  "256", "16", 1, 1, 0},
         {nw_stats_table_striped_avx2_256_8,     "nw_stats", "striped", "avx2",  "256", "8",  1, 1, 0},
 #endif
+#if HAVE_KNC
+        {nw_stats_table_scan_knc_512_32,        "nw_stats", "scan",    "knc",   "512", "32", 1, 1, 0},
+        //{nw_stats_table_diag_knc_512_32,        "nw_stats", "diag",    "knc",   "512", "32", 1, 1, 0},
+        //{nw_stats_table_striped_knc_512_32,     "nw_stats", "striped", "knc",   "512", "32", 1, 1, 0},
+#endif
 
         {sg_stats_table,                        "sg_stats", "orig",    "NA",    "32",  "32", 1, 1, 1},
         {sg_stats_table_scan,                   "sg_stats", "scan",    "NA",    "32",  "32", 1, 1, 0},
@@ -604,6 +614,10 @@ int main(int argc, char **argv)
     while (f.f) {
         char name[16] = {'\0'};
         int new_limit = f.is_table ? 1 : limit;
+        if (f.is_table && HAVE_KNC) {
+            f = functions[index++];
+            continue;
+        }
         if ((0 == strncmp(f.isa, "sse2",  4) && 0 == parasail_can_use_sse2()) 
                 || (0 == strncmp(f.isa, "sse41", 5) && 0 == parasail_can_use_sse41())
                 || (0 == strncmp(f.isa, "avx2",  4) && 0 == parasail_can_use_avx2())) {
@@ -636,7 +650,7 @@ int main(int argc, char **argv)
         }
         strcpy(name, f.alg);
         /* xeon phi was unable to perform I/O running natively */
-        if (f.is_table && 0 == HAVE_KNC) {
+        if (f.is_table) {
             char suffix[256] = {0};
             if (strlen(f.type)) {
                 strcat(suffix, "_");

@@ -522,6 +522,7 @@ parasail_result_t* FNAME(
         vMax = _mm_slli_si128(vMax, 1);
     }
     if (_mm_movemask_epi8(vSaturationCheck)) {
+        result->saturated = 1;
         score = INT8_MAX;
     }
 

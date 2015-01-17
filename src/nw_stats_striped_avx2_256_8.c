@@ -440,6 +440,7 @@ end:
     }
 
     if (_mm256_movemask_epi8(vSaturationCheck)) {
+        result->saturated = 1;
         score = INT8_MAX;
         matches = 0;
         length = 0;

@@ -82,7 +82,7 @@ parasail_result_t* FNAME(
     __m128i* const restrict pvH  = parasail_memalign_m128i(16, segLen);
     __m128i* const restrict pvM  = parasail_memalign_m128i(16, segLen);
     __m128i* const restrict pvL  = parasail_memalign_m128i(16, segLen);
-    int16_t* const restrict boundary = parasail_memalign_int16_t(16, s2Len+1);
+    int8_t* const restrict boundary = parasail_memalign_int8_t(16, s2Len+1);
     __m128i vGapO = _mm_set1_epi8(open);
     __m128i vGapE = _mm_set1_epi8(gap);
     __m128i vZero = _mm_setzero_si128();

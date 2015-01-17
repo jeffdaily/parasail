@@ -27,6 +27,16 @@ static inline __m256i _mm256_cmplt_epi16(__m256i a, __m256i b) {
     return _mm256_cmpgt_epi16(b,a);
 }
 
+#if HAVE_AVX2_MM256_INSERT_EPI16
+#else
+static inline __m256i _mm256_insert_epi16(__m256i a, int16_t b, int imm) {
+    __m256i_16_t tmp;
+    tmp.m = a;
+    tmp.v[imm] = b;
+    return tmp.m;
+}
+#endif
+
 #if HAVE_AVX2_MM256_EXTRACT_EPI16
 #else
 static inline int16_t _mm256_extract_epi16(__m256i a, int imm) {

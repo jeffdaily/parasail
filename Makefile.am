@@ -251,8 +251,8 @@ SRC_AVX2 += src/sg_stats_scan_avx2_256_8.c
 SRC_AVX2 += src/sw_stats_scan_avx2_256_8.c
 
 SRC_KNC += src/nw_stats_scan_knc_512_32.c
-#SRC_KNC += src/sg_stats_scan_knc_512_32.c
-#SRC_KNC += src/sw_stats_scan_knc_512_32.c
+SRC_KNC += src/sg_stats_scan_knc_512_32.c
+SRC_KNC += src/sw_stats_scan_knc_512_32.c
 
 # parallel diag methods
 

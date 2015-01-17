@@ -225,7 +225,6 @@ parasail_result_t* FNAME(
                 vZero, permute_mask, permute_idx, vHt);
         vFt = _mm512_mask_permutevar_epi32(
                 vNegInf, permute_mask, permute_idx, vFt);
-        //vFt = _mm512_blendv_epi8(vNegInf, vFt, insert_mask);
         for (i=0; i<segLen; ++i) {
             vFt = _mm512_sub_epi32(vFt, vGapE);
             vFt = _mm512_max_epi32(vFt, vHt);
@@ -267,7 +266,7 @@ parasail_result_t* FNAME(
     /* max of last column */
     {
         __m512i vOne = _mm512_set1_epi32(1);
-        __m512i vQLimit = _mm512_set1_epi32(s1Len-1);
+        __m512i vQLimit = _mm512_set1_epi32(s1Len);
         __m512i vQIndex = _mm512_set_16to16_pi(
                 segLen*15,
                 segLen*14,
@@ -289,10 +288,10 @@ parasail_result_t* FNAME(
 
         for (i=0; i<segLen; ++i) {
             __m512i vH = _mm512_load_epi32(pvH + i);
-            __mmask16 cond_lmt = _mm512_cmpgt_epi32_mask(vQIndex, vQLimit);
+            __mmask16 cond_lmt = _mm512_cmplt_epi32_mask(vQIndex, vQLimit);
             __mmask16 cond_max = _mm512_cmpgt_epi32_mask(vH, vMaxH);
-            __mmask16 cond_all = _mm512_kandn(cond_lmt, cond_max);
-            vMaxH = _mm512_mask_blend_epi32(cond_max, vMaxH, vH);
+            __mmask16 cond_all = _mm512_kand(cond_max, cond_lmt);
+            vMaxH = _mm512_mask_blend_epi32(cond_all, vMaxH, vH);
             vQIndex = _mm512_add_epi32(vQIndex, vOne);
         }
 

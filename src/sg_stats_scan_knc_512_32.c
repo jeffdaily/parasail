@@ -65,9 +65,9 @@ static inline void arr_store_si512(
 
 
 #ifdef PARASAIL_TABLE
-#define FNAME nw_stats_table_scan_knc_512_32
+#define FNAME sg_stats_table_scan_knc_512_32
 #else
-#define FNAME nw_stats_scan_knc_512_32
+#define FNAME sg_stats_scan_knc_512_32
 #endif
 
 parasail_result_t* FNAME(
@@ -95,16 +95,18 @@ parasail_result_t* FNAME(
     __m512i* const restrict pvH  = parasail_memalign_m512i(64, segLen);
     __m512i* const restrict pvM  = parasail_memalign_m512i(64, segLen);
     __m512i* const restrict pvL  = parasail_memalign_m512i(64, segLen);
-    int32_t* const restrict boundary = parasail_memalign_int32_t(64, s2Len+1);
     __m512i vGapO = _mm512_set1_epi32(open);
     __m512i vGapE = _mm512_set1_epi32(gap);
     __m512i vZero = _mm512_set1_epi32(0);
     __m512i vOne = _mm512_set1_epi32(1);
     __m512i vNegInf = _mm512_set1_epi32(NEG_INF_32);
     __m512i vSegLimit = _mm512_set1_epi32(segWidth-1);
-    int32_t score = NEG_INF_32;
-    int32_t matches = 0;
-    int32_t length = 0;
+    int score = NEG_INF_32;
+    int matches = 0;
+    int length = 0;
+    __m512i vMaxH = vNegInf;
+    __m512i vMaxM = vZero;
+    __m512i vMaxL = vZero;
     __m512i permute_idx = _mm512_set_16to16_pi(14,13,12,11,10,9,8,7,6,5,4,3,2,1,0,15);
     __mmask16 permute_mask = _mm512_cmplt_epi32_mask(permute_idx, vSegLimit);
     __m512i segLenXgap_reset = _mm512_set_16to16_pi(
@@ -150,20 +152,12 @@ parasail_result_t* FNAME(
             __m512i_32_t h;
             __m512i_32_t e;
             for (segNum=0; segNum<segWidth; ++segNum) {
-                h.v[segNum] = -open-gap*(segNum*segLen+i);
+                h.v[segNum] = 0;
                 e.v[segNum] = NEG_INF_32;
             }
             _mm512_store_epi32(&pvH[index], h.m);
             _mm512_store_epi32(&pvE[index], e.m);
             ++index;
-        }
-    }
-
-    /* initialize uppder boundary */
-    {
-        boundary[0] = 0;
-        for (i=1; i<=s2Len; ++i) {
-            boundary[i] = -open-gap*(i-1);
         }
     }
 
@@ -198,8 +192,8 @@ parasail_result_t* FNAME(
 
         /* calculate Ht */
         vH = _mm512_load_epi32(pvH+(segLen-1));
-        vH = _mm512_permutevar_epi32(permute_idx, vH);
-        vH = insert(vH, boundary[j], 0);
+        vH = _mm512_mask_permutevar_epi32(
+                vZero, permute_mask, permute_idx, vH);
         vMp= _mm512_load_epi32(pvM+(segLen-1));
         vMp= _mm512_mask_permutevar_epi32(
                 vZero, permute_mask, permute_idx, vMp);
@@ -238,15 +232,14 @@ parasail_result_t* FNAME(
 
         /* calculate Ft */
         vHt = _mm512_load_epi32(pvHt+(segLen-1));
-        vHt = _mm512_permutevar_epi32(permute_idx, vHt);
-        vHt = insert(vHt, boundary[j+1], 0);
+        vHt = _mm512_mask_permutevar_epi32(
+                vZero, permute_mask, permute_idx, vHt);
         vFt = vNegInf;
         for (i=0; i<segLen; ++i) {
             vFt = _mm512_sub_epi32(vFt, vGapE);
             vFt = _mm512_max_epi32(vFt, vHt);
             vHt = _mm512_load_epi32(pvHt+i);
         }
-#if 1
         {
             __m512i_32_t tmp;
             tmp.m = vFt;
@@ -267,25 +260,11 @@ parasail_result_t* FNAME(
             tmp.v[15] = MAX(tmp.v[14]-segLen*gap, tmp.v[15]);
             vFt = tmp.m;
         }
-#else
-        {
-            __m512i vFt_save = vFt;
-            __m512i segLenXgap = segLenXgap_reset;
-            for (i=0; i<segWidth-1; ++i) {
-                __m512i vFtt = _mm512_mask_permutevar_epi32(
-                        vNegInf, permute_mask, permute_idx, vFt);
-                segLenXgap = _mm512_permutevar_epi32(permute_idx, segLenXgap);
-                vFtt = _mm512_add_epi32(vFtt, segLenXgap);
-                vFt = _mm512_max_epi32(vFt, vFtt);
-            }
-            //vFt = _mm512_blendv_epi8(vFt_save, vFt, insert_mask);
-        }
-#endif
         vHt = _mm512_load_epi32(pvHt+(segLen-1));
-        vHt = _mm512_permutevar_epi32(permute_idx, vHt);
-        vHt = insert(vHt, boundary[j+1], 0);
-        vFt = _mm512_permutevar_epi32(permute_idx, vFt);
-        vFt = insert(vFt, NEG_INF_32, 0);
+        vHt = _mm512_mask_permutevar_epi32(
+                vZero, permute_mask, permute_idx, vHt);
+        vFt = _mm512_mask_permutevar_epi32(
+                vNegInf, permute_mask, permute_idx, vFt);
         for (i=0; i<segLen; ++i) {
             vFt = _mm512_sub_epi32(vFt, vGapE);
             vFt = _mm512_max_epi32(vFt, vHt);
@@ -387,28 +366,92 @@ parasail_result_t* FNAME(
             arr_store_si512(result->length_table, vL, i, segLen, j, s2Len);
 #endif
         }
+
+        /* extract vector containing last value from column */
+        {
+            __mmask16 cond_max;
+            vH = _mm512_load_epi32(pvH + offset);
+            vM = _mm512_load_epi32(pvM + offset);
+            vL = _mm512_load_epi32(pvL + offset);
+            cond_max = _mm512_cmpgt_epi32_mask(vH, vMaxH);
+            vMaxH = _mm512_mask_blend_epi32(cond_max, vMaxH, vH);
+            vMaxM = _mm512_mask_blend_epi32(cond_max, vMaxM, vM);
+            vMaxL = _mm512_mask_blend_epi32(cond_max, vMaxL, vL);
+        }
     }
 
-    /* extract last value from the last column */
+    /* extract last value from column */
     {
-        __m512i vH = _mm512_load_epi32(pvH + offset);
-        __m512i vM = _mm512_load_epi32(pvM + offset);
-        __m512i vL = _mm512_load_epi32(pvL + offset);
+        int32_t value;
         for (k=0; k<position; ++k) {
-            vH = _mm512_permutevar_epi32(permute_idx, vH);
-            vM = _mm512_permutevar_epi32(permute_idx, vM);
-            vL = _mm512_permutevar_epi32(permute_idx, vL);
+            vMaxH = _mm512_permutevar_epi32(permute_idx, vMaxH);
+            vMaxM = _mm512_permutevar_epi32(permute_idx, vMaxM);
+            vMaxL = _mm512_permutevar_epi32(permute_idx, vMaxL);
         }
-        score = (int32_t) extract (vH, 15);
-        matches = (int32_t) extract (vM, 15);
-        length = (int32_t) extract (vL, 15);
+        value = (int32_t) extract(vMaxH, 15);
+        if (value > score) {
+            score = value;
+            matches = (int32_t)extract(vMaxM, 15);
+            length = (int32_t)extract(vMaxL, 15);
+        }
+    }
+
+    /* max of last column */
+    {
+        __m512i vQIndex = _mm512_set_16to16_pi(
+                15*segLen,
+                14*segLen,
+                13*segLen,
+                12*segLen,
+                11*segLen,
+                10*segLen,
+                9*segLen,
+                8*segLen,
+                7*segLen,
+                6*segLen,
+                5*segLen,
+                4*segLen,
+                3*segLen,
+                2*segLen,
+                1*segLen,
+                0*segLen);
+        __m512i vQLimit = _mm512_set1_epi32(s1Len);
+        vMaxH = vNegInf;
+        vMaxM = vZero;
+        vMaxL = vZero;
+
+        for (i=0; i<segLen; ++i) {
+            /* load the last stored values */
+            __m512i vH = _mm512_load_epi32(pvH + i);
+            __m512i vM = _mm512_load_epi32(pvM + i);
+            __m512i vL = _mm512_load_epi32(pvL + i);
+            __mmask16 cond_lmt = _mm512_cmplt_epi32_mask(vQIndex, vQLimit);
+            __mmask16 cond_max = _mm512_cmpgt_epi32_mask(vH, vMaxH);
+            __mmask16 cond_all = _mm512_kand(cond_max, cond_lmt);
+            vMaxH = _mm512_mask_blend_epi32(cond_all, vMaxH, vH);
+            vMaxM = _mm512_mask_blend_epi32(cond_all, vMaxM, vM);
+            vMaxL = _mm512_mask_blend_epi32(cond_all, vMaxL, vL);
+            vQIndex = _mm512_add_epi32(vQIndex, vOne);
+        }
+
+        /* max in vec */
+        for (j=0; j<segWidth; ++j) {
+            int32_t value = (int32_t) extract(vMaxH, 15);
+            if (value > score) {
+                score = value;
+                matches = (int32_t)extract(vMaxM, 15);
+                length = (int32_t)extract(vMaxL, 15);
+            }
+            vMaxH = _mm512_permutevar_epi32(permute_idx, vMaxH);
+            vMaxM = _mm512_permutevar_epi32(permute_idx, vMaxM);
+            vMaxL = _mm512_permutevar_epi32(permute_idx, vMaxL);
+        }
     }
 
     result->score = score;
     result->matches = matches;
     result->length = length;
 
-    parasail_free(boundary);
     parasail_free(pvL);
     parasail_free(pvM);
     parasail_free(pvH);

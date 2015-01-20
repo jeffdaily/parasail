@@ -243,7 +243,7 @@ int main(int argc, char **argv)
 #endif
 #if HAVE_KNC
         {sw_scan_knc_512_32,        "sw", "scan",    "knc",   "512", "32", 0, 0, 0},
-        //{sw_diag_knc_512_32,        "sw", "diag",    "knc",   "512", "32", 0, 0, 0},
+        {sw_diag_knc_512_32,        "sw", "diag",    "knc",   "512", "32", 0, 0, 0},
         //{sw_striped_knc_512_32,     "sw", "striped", "knc",   "512", "32", 0, 0, 0},
 #endif
                                    
@@ -366,7 +366,7 @@ int main(int argc, char **argv)
 #endif
 #if HAVE_KNC
         {sw_table_scan_knc_512_32,        "sw", "scan",    "knc",   "512", "32", 1, 0, 0},
-        //{sw_table_diag_knc_512_32,        "sw", "diag",    "knc",   "512", "32", 1, 0, 0},
+        {sw_table_diag_knc_512_32,        "sw", "diag",    "knc",   "512", "32", 1, 0, 0},
         //{sw_table_striped_knc_512_32,     "sw", "striped", "knc",   "512", "32", 1, 0, 0},
 #endif
 
@@ -634,10 +634,12 @@ int main(int argc, char **argv)
     while (f.f) {
         char name[16] = {'\0'};
         int new_limit = f.is_table ? 1 : limit;
+#if 0
         if (f.is_table && HAVE_KNC) {
             f = functions[index++];
             continue;
         }
+#endif
         if ((0 == strncmp(f.isa, "sse2",  4) && 0 == parasail_can_use_sse2()) 
                 || (0 == strncmp(f.isa, "sse41", 5) && 0 == parasail_can_use_sse41())
                 || (0 == strncmp(f.isa, "avx2",  4) && 0 == parasail_can_use_avx2())) {

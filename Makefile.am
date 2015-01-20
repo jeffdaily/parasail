@@ -170,6 +170,10 @@ SRC_AVX2 += src/nw_diag_avx2_256_8.c
 SRC_AVX2 += src/sg_diag_avx2_256_8.c
 SRC_AVX2 += src/sw_diag_avx2_256_8.c
 
+#SRC_KNC += src/nw_diag_knc_512_32.c
+#SRC_KNC += src/sg_diag_knc_512_32.c
+SRC_KNC += src/sw_diag_knc_512_32.c
+
 # parallel striped methods
 
 SRC_SSE2 += src/nw_striped_sse2_128_32.c
@@ -207,6 +211,10 @@ SRC_AVX2 += src/sw_striped_avx2_256_16.c
 SRC_AVX2 += src/nw_striped_avx2_256_8.c
 SRC_AVX2 += src/sg_striped_avx2_256_8.c
 SRC_AVX2 += src/sw_striped_avx2_256_8.c
+
+#SRC_KNC += src/nw_striped_knc_512_32.c
+#SRC_KNC += src/sg_striped_knc_512_32.c
+#SRC_KNC += src/sw_striped_knc_512_32.c
 
 #########################
 # parallel stats methods
@@ -292,6 +300,10 @@ SRC_AVX2 += src/nw_stats_diag_avx2_256_8.c
 SRC_AVX2 += src/sg_stats_diag_avx2_256_8.c
 SRC_AVX2 += src/sw_stats_diag_avx2_256_8.c
 
+#SRC_KNC += src/nw_stats_diag_knc_512_32.c
+#SRC_KNC += src/sg_stats_diag_knc_512_32.c
+#SRC_KNC += src/sw_stats_diag_knc_512_32.c
+
 # parallel striped methods
 
 SRC_SSE2 += src/nw_stats_striped_sse2_128_32.c
@@ -329,6 +341,10 @@ SRC_AVX2 += src/sw_stats_striped_avx2_256_16.c
 SRC_AVX2 += src/nw_stats_striped_avx2_256_8.c
 SRC_AVX2 += src/sg_stats_striped_avx2_256_8.c
 SRC_AVX2 += src/sw_stats_striped_avx2_256_8.c
+
+#SRC_KNC += src/nw_stats_striped_knc_512_32.c
+#SRC_KNC += src/sg_stats_striped_knc_512_32.c
+#SRC_KNC += src/sw_stats_striped_knc_512_32.c
 
 #########################
 # library magic

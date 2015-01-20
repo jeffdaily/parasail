@@ -305,6 +305,7 @@ libparasail_knc_la_LIBADD =
 am__objects_5 = src/libparasail_knc_la-nw_scan_knc_512_32.lo \
 	src/libparasail_knc_la-sg_scan_knc_512_32.lo \
 	src/libparasail_knc_la-sw_scan_knc_512_32.lo \
+	src/libparasail_knc_la-sw_diag_knc_512_32.lo \
 	src/libparasail_knc_la-nw_stats_scan_knc_512_32.lo \
 	src/libparasail_knc_la-sg_stats_scan_knc_512_32.lo \
 	src/libparasail_knc_la-sw_stats_scan_knc_512_32.lo
@@ -329,6 +330,7 @@ libparasail_knc_table_la_LIBADD =
 am__objects_7 = src/libparasail_knc_table_la-nw_scan_knc_512_32.lo \
 	src/libparasail_knc_table_la-sg_scan_knc_512_32.lo \
 	src/libparasail_knc_table_la-sw_scan_knc_512_32.lo \
+	src/libparasail_knc_table_la-sw_diag_knc_512_32.lo \
 	src/libparasail_knc_table_la-nw_stats_scan_knc_512_32.lo \
 	src/libparasail_knc_table_la-sg_stats_scan_knc_512_32.lo \
 	src/libparasail_knc_table_la-sw_stats_scan_knc_512_32.lo
@@ -935,6 +937,10 @@ SRC_NOVEC = src/nw.c src/sg.c src/sw.c src/nw_scan.c src/sg_scan.c \
 
 # parallel striped methods
 
+#SRC_KNC += src/nw_striped_knc_512_32.c
+#SRC_KNC += src/sg_striped_knc_512_32.c
+#SRC_KNC += src/sw_striped_knc_512_32.c
+
 #########################
 # parallel stats methods
 #########################
@@ -942,6 +948,10 @@ SRC_NOVEC = src/nw.c src/sg.c src/sw.c src/nw_scan.c src/sg_scan.c \
 # parallel scan methods
 
 # parallel diag methods
+
+#SRC_KNC += src/nw_stats_diag_knc_512_32.c
+#SRC_KNC += src/sg_stats_diag_knc_512_32.c
+#SRC_KNC += src/sw_stats_diag_knc_512_32.c
 
 # parallel striped methods
 SRC_SSE2 = src/nw_scan_sse2_128_32.c src/sg_scan_sse2_128_32.c \
@@ -1056,9 +1066,17 @@ SRC_AVX2 = src/nw_scan_avx2_256_32.c src/sg_scan_avx2_256_32.c \
 	src/nw_stats_striped_avx2_256_8.c \
 	src/sg_stats_striped_avx2_256_8.c \
 	src/sw_stats_striped_avx2_256_8.c
+
+#SRC_KNC += src/nw_diag_knc_512_32.c
+#SRC_KNC += src/sg_diag_knc_512_32.c
 SRC_KNC = src/nw_scan_knc_512_32.c src/sg_scan_knc_512_32.c \
-	src/sw_scan_knc_512_32.c src/nw_stats_scan_knc_512_32.c \
-	src/sg_stats_scan_knc_512_32.c src/sw_stats_scan_knc_512_32.c
+	src/sw_scan_knc_512_32.c src/sw_diag_knc_512_32.c \
+	src/nw_stats_scan_knc_512_32.c src/sg_stats_scan_knc_512_32.c \
+	src/sw_stats_scan_knc_512_32.c
+
+#SRC_KNC += src/nw_stats_striped_knc_512_32.c
+#SRC_KNC += src/sg_stats_striped_knc_512_32.c
+#SRC_KNC += src/sw_stats_striped_knc_512_32.c
 
 #########################
 # library magic
@@ -1453,6 +1471,8 @@ src/libparasail_knc_la-sg_scan_knc_512_32.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/libparasail_knc_la-sw_scan_knc_512_32.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
+src/libparasail_knc_la-sw_diag_knc_512_32.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
 src/libparasail_knc_la-nw_stats_scan_knc_512_32.lo:  \
 	src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/libparasail_knc_la-sg_stats_scan_knc_512_32.lo:  \
@@ -1472,6 +1492,8 @@ src/libparasail_knc_table_la-nw_scan_knc_512_32.lo:  \
 src/libparasail_knc_table_la-sg_scan_knc_512_32.lo:  \
 	src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/libparasail_knc_table_la-sw_scan_knc_512_32.lo:  \
+	src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/libparasail_knc_table_la-sw_diag_knc_512_32.lo:  \
 	src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/libparasail_knc_table_la-nw_stats_scan_knc_512_32.lo:  \
 	src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
@@ -2148,6 +2170,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_knc_la-nw_stats_scan_knc_512_32.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_knc_la-sg_scan_knc_512_32.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_knc_la-sg_stats_scan_knc_512_32.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_knc_la-sw_diag_knc_512_32.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_knc_la-sw_scan_knc_512_32.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_knc_la-sw_stats_scan_knc_512_32.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_knc_memory_la-memory_knc.Plo@am__quote@
@@ -2155,6 +2178,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_knc_table_la-nw_stats_scan_knc_512_32.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_knc_table_la-sg_scan_knc_512_32.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_knc_table_la-sg_stats_scan_knc_512_32.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_knc_table_la-sw_diag_knc_512_32.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_knc_table_la-sw_scan_knc_512_32.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_knc_table_la-sw_stats_scan_knc_512_32.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_novec_la-nw.Plo@am__quote@
@@ -3215,6 +3239,13 @@ src/libparasail_knc_la-sw_scan_knc_512_32.lo: src/sw_scan_knc_512_32.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libparasail_knc_la_CFLAGS) $(CFLAGS) -c -o src/libparasail_knc_la-sw_scan_knc_512_32.lo `test -f 'src/sw_scan_knc_512_32.c' || echo '$(srcdir)/'`src/sw_scan_knc_512_32.c
 
+src/libparasail_knc_la-sw_diag_knc_512_32.lo: src/sw_diag_knc_512_32.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libparasail_knc_la_CFLAGS) $(CFLAGS) -MT src/libparasail_knc_la-sw_diag_knc_512_32.lo -MD -MP -MF src/$(DEPDIR)/libparasail_knc_la-sw_diag_knc_512_32.Tpo -c -o src/libparasail_knc_la-sw_diag_knc_512_32.lo `test -f 'src/sw_diag_knc_512_32.c' || echo '$(srcdir)/'`src/sw_diag_knc_512_32.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/libparasail_knc_la-sw_diag_knc_512_32.Tpo src/$(DEPDIR)/libparasail_knc_la-sw_diag_knc_512_32.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/sw_diag_knc_512_32.c' object='src/libparasail_knc_la-sw_diag_knc_512_32.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libparasail_knc_la_CFLAGS) $(CFLAGS) -c -o src/libparasail_knc_la-sw_diag_knc_512_32.lo `test -f 'src/sw_diag_knc_512_32.c' || echo '$(srcdir)/'`src/sw_diag_knc_512_32.c
+
 src/libparasail_knc_la-nw_stats_scan_knc_512_32.lo: src/nw_stats_scan_knc_512_32.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libparasail_knc_la_CFLAGS) $(CFLAGS) -MT src/libparasail_knc_la-nw_stats_scan_knc_512_32.lo -MD -MP -MF src/$(DEPDIR)/libparasail_knc_la-nw_stats_scan_knc_512_32.Tpo -c -o src/libparasail_knc_la-nw_stats_scan_knc_512_32.lo `test -f 'src/nw_stats_scan_knc_512_32.c' || echo '$(srcdir)/'`src/nw_stats_scan_knc_512_32.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/libparasail_knc_la-nw_stats_scan_knc_512_32.Tpo src/$(DEPDIR)/libparasail_knc_la-nw_stats_scan_knc_512_32.Plo
@@ -3263,6 +3294,13 @@ src/libparasail_knc_table_la-sw_scan_knc_512_32.lo: src/sw_scan_knc_512_32.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/sw_scan_knc_512_32.c' object='src/libparasail_knc_table_la-sw_scan_knc_512_32.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libparasail_knc_table_la_CPPFLAGS) $(CPPFLAGS) $(libparasail_knc_table_la_CFLAGS) $(CFLAGS) -c -o src/libparasail_knc_table_la-sw_scan_knc_512_32.lo `test -f 'src/sw_scan_knc_512_32.c' || echo '$(srcdir)/'`src/sw_scan_knc_512_32.c
+
+src/libparasail_knc_table_la-sw_diag_knc_512_32.lo: src/sw_diag_knc_512_32.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libparasail_knc_table_la_CPPFLAGS) $(CPPFLAGS) $(libparasail_knc_table_la_CFLAGS) $(CFLAGS) -MT src/libparasail_knc_table_la-sw_diag_knc_512_32.lo -MD -MP -MF src/$(DEPDIR)/libparasail_knc_table_la-sw_diag_knc_512_32.Tpo -c -o src/libparasail_knc_table_la-sw_diag_knc_512_32.lo `test -f 'src/sw_diag_knc_512_32.c' || echo '$(srcdir)/'`src/sw_diag_knc_512_32.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/libparasail_knc_table_la-sw_diag_knc_512_32.Tpo src/$(DEPDIR)/libparasail_knc_table_la-sw_diag_knc_512_32.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/sw_diag_knc_512_32.c' object='src/libparasail_knc_table_la-sw_diag_knc_512_32.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libparasail_knc_table_la_CPPFLAGS) $(CPPFLAGS) $(libparasail_knc_table_la_CFLAGS) $(CFLAGS) -c -o src/libparasail_knc_table_la-sw_diag_knc_512_32.lo `test -f 'src/sw_diag_knc_512_32.c' || echo '$(srcdir)/'`src/sw_diag_knc_512_32.c
 
 src/libparasail_knc_table_la-nw_stats_scan_knc_512_32.lo: src/nw_stats_scan_knc_512_32.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libparasail_knc_table_la_CPPFLAGS) $(CPPFLAGS) $(libparasail_knc_table_la_CFLAGS) $(CFLAGS) -MT src/libparasail_knc_table_la-nw_stats_scan_knc_512_32.lo -MD -MP -MF src/$(DEPDIR)/libparasail_knc_table_la-nw_stats_scan_knc_512_32.Tpo -c -o src/libparasail_knc_table_la-nw_stats_scan_knc_512_32.lo `test -f 'src/nw_stats_scan_knc_512_32.c' || echo '$(srcdir)/'`src/nw_stats_scan_knc_512_32.c

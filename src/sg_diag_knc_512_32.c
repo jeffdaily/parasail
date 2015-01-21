@@ -106,9 +106,9 @@ static inline void arr_store_si512(
 #endif
 
 #ifdef PARASAIL_TABLE
-#define FNAME sw_table_diag_knc_512_32
+#define FNAME sg_table_diag_knc_512_32
 #else
-#define FNAME sw_diag_knc_512_32
+#define FNAME sg_diag_knc_512_32
 #endif
 
 parasail_result_t* FNAME(
@@ -147,6 +147,8 @@ parasail_result_t* FNAME(
     __m512i vMax = vNegInf;
     __m512i vILimit = _mm512_set1_epi32(s1Len);
     __m512i vJLimit = _mm512_set1_epi32(s2Len);
+    __m512i vILimit1 = _mm512_set1_epi32(s1Len-1);
+    __m512i vJLimit1 = _mm512_set1_epi32(s2Len-1);
     __m512i permute_idx = _mm512_set_16to16_pi(14,13,12,11,10,9,8,7,6,5,4,3,2,1,0,15);
     __m512i permute2_idx = _mm512_set_16to16_pi(0,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1);
 
@@ -211,7 +213,7 @@ parasail_result_t* FNAME(
         const int * const restrict matrow13 = matrix[s1[i+13]];
         const int * const restrict matrow14 = matrix[s1[i+14]];
         const int * const restrict matrow15 = matrix[s1[i+15]];
-        __mmask16 vIltLimit = _mm512_cmplt_epi32_mask(vI, vILimit);
+        __mmask16 vIeqLimit1 = _mm512_cmpeq_epi32_mask(vI, vILimit1);
         /* iterate over database sequence */
         for (j=0; j<s2Len+PAD; ++j) {
             __m512i vMat;
@@ -245,7 +247,6 @@ parasail_result_t* FNAME(
             vNWscore = _mm512_add_epi32(vNWscore, vMat);
             vWscore = _mm512_max_epi32(vNWscore, vIns);
             vWscore = _mm512_max_epi32(vWscore, vDel);
-            vWscore = _mm512_max_epi32(vWscore, vZero);
             /* as minor diagonal vector passes across the j=-1 boundary,
              * assign the appropriate boundary conditions */
             {
@@ -260,14 +261,20 @@ parasail_result_t* FNAME(
             tbl_pr[j-15] = (int32_t)extract(vWscore,0);
             del_pr[j-15] = (int32_t)extract(vDel,0);
             /* as minor diagonal vector passes across table, extract
-             * max values within the i,j bounds */
+             * max values at the i,j bounds */
             {
-                __mmask16 cond_valid_J = _mm512_kand(
-                        _mm512_cmpgt_epi32_mask(vJ, vNegOne),
-                        _mm512_cmplt_epi32_mask(vJ, vJLimit));
+                __mmask16 cond_valid_I =
+                    _mm512_kand(vIeqLimit1,
+                            _mm512_kand(
+                                _mm512_cmpgt_epi32_mask(vJ, vNegOne),
+                                _mm512_cmplt_epi32_mask(vJ, vJLimit)));
+                __mmask16 cond_valid_J =
+                    _mm512_kand(
+                            _mm512_cmpeq_epi32_mask(vJ, vJLimit1),
+                            _mm512_cmplt_epi32_mask(vI, vILimit));
                 __mmask16 cond_max = _mm512_cmpgt_epi32_mask(vWscore, vMax);
                 __mmask16 cond_all = _mm512_kand(cond_max,
-                        _mm512_kand(vIltLimit, cond_valid_J));
+                        _mm512_kor(cond_valid_I, cond_valid_J));
                 vMax = _mm512_mask_blend_epi32(cond_all, vMax, vWscore);
             }
             vJ = _mm512_add_epi32(vJ, vOne);

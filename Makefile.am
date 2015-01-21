@@ -171,7 +171,7 @@ SRC_AVX2 += src/sg_diag_avx2_256_8.c
 SRC_AVX2 += src/sw_diag_avx2_256_8.c
 
 #SRC_KNC += src/nw_diag_knc_512_32.c
-#SRC_KNC += src/sg_diag_knc_512_32.c
+SRC_KNC += src/sg_diag_knc_512_32.c
 SRC_KNC += src/sw_diag_knc_512_32.c
 
 # parallel striped methods

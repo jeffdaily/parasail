@@ -4,18 +4,50 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <errno.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <pwd.h>
+
 #include "parasail.h"
 #include "blosum/blosum62.h"
 
+static const char *get_user_name()
+{
+    uid_t uid = geteuid();
+    struct passwd *pw = getpwuid(uid);
+    if (pw) {
+        return pw->pw_name;
+    }
+    return "";
+}
+
 static void print_array(
-        const char * filename,
+        const char * filename_,
         const int * const restrict array,
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len)
 {
     int i;
     int j;
-    FILE *f = fopen(filename, "w");
+    FILE *f = NULL;
+#ifdef __MIC__
+    const char *username = get_user_name();
+    char filename[4096] = {0};
+    strcat(filename, "/tmp/");
+    if (username[0] != '\0') {
+        strcat(filename, username);
+        strcat(filename, "/");
+    }
+    strcat(filename, filename_);
+#else
+    const char *filename = filename_;
+#endif
+    f = fopen(filename, "w");
+    if (NULL == f) {
+        printf("fopen(%s) error: %s\n", filename, strerror(errno));
+        exit(-1);
+    }
     fprintf(f, " ");
     for (j=0; j<s2Len; ++j) {
         fprintf(f, "%4c", s2[j]);

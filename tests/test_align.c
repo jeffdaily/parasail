@@ -194,7 +194,7 @@ int main(int argc, char **argv)
 #if HAVE_KNC
         {nw_scan_knc_512_32,        "nw", "scan",    "knc",   "512", "32", 0, 0, 0},
         {nw_diag_knc_512_32,        "nw", "diag",    "knc",   "512", "32", 0, 0, 0},
-        //{nw_striped_knc_512_32,     "nw", "striped", "knc",   "512", "32", 0, 0, 0},
+        {nw_striped_knc_512_32,     "nw", "striped", "knc",   "512", "32", 0, 0, 0},
 #endif
 
         {sg,                        "sg", "orig",    "NA",    "32",  "32", 0, 0, 1},
@@ -235,7 +235,7 @@ int main(int argc, char **argv)
 #if HAVE_KNC
         {sg_scan_knc_512_32,        "sg", "scan",    "knc",   "512", "32", 0, 0, 0},
         {sg_diag_knc_512_32,        "sg", "diag",    "knc",   "512", "32", 0, 0, 0},
-        //{sg_striped_knc_512_32,     "sg", "striped", "knc",   "512", "32", 0, 0, 0},
+        {sg_striped_knc_512_32,     "sg", "striped", "knc",   "512", "32", 0, 0, 0},
 #endif
 
         {sw,                        "sw", "orig",    "NA",    "32",  "32", 0, 0, 1},
@@ -276,7 +276,7 @@ int main(int argc, char **argv)
 #if HAVE_KNC
         {sw_scan_knc_512_32,        "sw", "scan",    "knc",   "512", "32", 0, 0, 0},
         {sw_diag_knc_512_32,        "sw", "diag",    "knc",   "512", "32", 0, 0, 0},
-        //{sw_striped_knc_512_32,     "sw", "striped", "knc",   "512", "32", 0, 0, 0},
+        {sw_striped_knc_512_32,     "sw", "striped", "knc",   "512", "32", 0, 0, 0},
 #endif
                                    
         {nw_table,                     "nw", "orig",    "NA",    "32",  "32", 1, 0, 1},
@@ -317,7 +317,7 @@ int main(int argc, char **argv)
 #if HAVE_KNC
         {nw_table_scan_knc_512_32,        "nw", "scan",    "knc",   "512", "32", 1, 0, 0},
         {nw_table_diag_knc_512_32,        "nw", "diag",    "knc",   "512", "32", 1, 0, 0},
-        //{nw_table_striped_knc_512_32,     "nw", "striped", "knc",   "512", "32", 1, 0, 0},
+        {nw_table_striped_knc_512_32,     "nw", "striped", "knc",   "512", "32", 1, 0, 0},
 #endif
 
         {sg_table,                     "sg", "orig",    "NA",   "32",  "32", 1, 0, 1},
@@ -358,7 +358,7 @@ int main(int argc, char **argv)
 #if HAVE_KNC
         {sg_table_scan_knc_512_32,        "sg", "scan",    "knc",   "512", "32", 1, 0, 0},
         {sg_table_diag_knc_512_32,        "sg", "diag",    "knc",   "512", "32", 1, 0, 0},
-        //{sg_table_striped_knc_512_32,     "sg", "striped", "knc",   "512", "32", 1, 0, 0},
+        {sg_table_striped_knc_512_32,     "sg", "striped", "knc",   "512", "32", 1, 0, 0},
 #endif
 
         {sw_table,                     "sw", "orig",    "NA",   "32",  "32", 1, 0, 1},
@@ -399,7 +399,7 @@ int main(int argc, char **argv)
 #if HAVE_KNC
         {sw_table_scan_knc_512_32,        "sw", "scan",    "knc",   "512", "32", 1, 0, 0},
         {sw_table_diag_knc_512_32,        "sw", "diag",    "knc",   "512", "32", 1, 0, 0},
-        //{sw_table_striped_knc_512_32,     "sw", "striped", "knc",   "512", "32", 1, 0, 0},
+        {sw_table_striped_knc_512_32,     "sw", "striped", "knc",   "512", "32", 1, 0, 0},
 #endif
 
         {nw_stats,                        "nw_stats", "orig",    "NA",    "32",  "32", 0, 1, 1},

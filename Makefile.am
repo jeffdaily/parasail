@@ -212,9 +212,9 @@ SRC_AVX2 += src/nw_striped_avx2_256_8.c
 SRC_AVX2 += src/sg_striped_avx2_256_8.c
 SRC_AVX2 += src/sw_striped_avx2_256_8.c
 
-#SRC_KNC += src/nw_striped_knc_512_32.c
-#SRC_KNC += src/sg_striped_knc_512_32.c
-#SRC_KNC += src/sw_striped_knc_512_32.c
+SRC_KNC += src/nw_striped_knc_512_32.c
+SRC_KNC += src/sg_striped_knc_512_32.c
+SRC_KNC += src/sw_striped_knc_512_32.c
 
 #########################
 # parallel stats methods

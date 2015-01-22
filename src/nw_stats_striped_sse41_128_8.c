@@ -228,7 +228,8 @@ parasail_result_t* FNAME(
             /* determine which direction of length and match to
              * propagate, before vH is finished calculating */
             case1not = _mm_or_si128(
-                    _mm_cmplt_epi8(vH,vF),_mm_cmplt_epi8(vH,vE));
+                    _mm_cmplt_epi8(vH,vF),
+                    _mm_cmplt_epi8(vH,vE));
             case2not = _mm_cmplt_epi8(vF,vE);
             case2 = _mm_andnot_si128(case2not,case1not);
             case3 = _mm_and_si128(case1not,case2not);

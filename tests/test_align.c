@@ -481,7 +481,7 @@ int main(int argc, char **argv)
 #if HAVE_KNC
         {sg_stats_scan_knc_512_32,        "sg_stats", "scan",    "knc",   "512", "32", 0, 1, 0},
         {sg_stats_diag_knc_512_32,        "sg_stats", "diag",    "knc",   "512", "32", 0, 1, 0},
-        //{sg_stats_striped_knc_512_32,     "sg_stats", "striped", "knc",   "512", "32", 0, 1, 0},
+        {sg_stats_striped_knc_512_32,     "sg_stats", "striped", "knc",   "512", "32", 0, 1, 0},
 #endif
                                    
         {sw_stats,                        "sw_stats", "orig",    "NA",    "32",  "32", 0, 1, 1},
@@ -522,7 +522,7 @@ int main(int argc, char **argv)
 #if HAVE_KNC
         {sw_stats_scan_knc_512_32,        "sw_stats", "scan",    "knc",   "512", "32", 0, 1, 0},
         {sw_stats_diag_knc_512_32,        "sw_stats", "diag",    "knc",   "512", "32", 0, 1, 0},
-        //{sw_stats_striped_knc_512_32,     "sw_stats", "striped", "knc",   "512", "32", 0, 1, 0},
+        {sw_stats_striped_knc_512_32,     "sw_stats", "striped", "knc",   "512", "32", 0, 1, 0},
 #endif
                                    
         {nw_stats_table,                        "nw_stats", "orig",    "NA",    "32",  "32", 1, 1, 1},
@@ -604,7 +604,7 @@ int main(int argc, char **argv)
 #if HAVE_KNC
         {sg_stats_table_scan_knc_512_32,        "sg_stats", "scan",    "knc",   "512", "32", 1, 1, 0},
         {sg_stats_table_diag_knc_512_32,        "sg_stats", "diag",    "knc",   "512", "32", 1, 1, 0},
-        //{sg_stats_table_striped_knc_512_32,     "sg_stats", "striped", "knc",   "512", "32", 1, 1, 0},
+        {sg_stats_table_striped_knc_512_32,     "sg_stats", "striped", "knc",   "512", "32", 1, 1, 0},
 #endif
 
         {sw_stats_table,                        "sw_stats", "orig",    "NA",    "32",  "32", 1, 1, 1},
@@ -645,7 +645,7 @@ int main(int argc, char **argv)
 #if HAVE_KNC
         {sw_stats_table_scan_knc_512_32,        "sw_stats", "scan",    "knc",   "512", "32", 1, 1, 0},
         {sw_stats_table_diag_knc_512_32,        "sw_stats", "diag",    "knc",   "512", "32", 1, 1, 0},
-        //{sw_stats_table_striped_knc_512_32,     "sw_stats", "striped", "knc",   "512", "32", 1, 1, 0},
+        {sw_stats_table_striped_knc_512_32,     "sw_stats", "striped", "knc",   "512", "32", 1, 1, 0},
 #endif
 
         {NULL, "", "", "", "", "", 0, 0, 0}

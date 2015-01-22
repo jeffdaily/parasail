@@ -26,6 +26,7 @@ static double pctf(double orig, double new)
     return orig / new;
 }
 
+#ifdef __MIC__
 static const char *get_user_name()
 {
     uid_t uid = geteuid();
@@ -35,6 +36,7 @@ static const char *get_user_name()
     }
     return "";
 }
+#endif
 
 static void print_array(
         const char * filename_,

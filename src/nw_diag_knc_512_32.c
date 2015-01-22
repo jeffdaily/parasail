@@ -12,8 +12,7 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#include <emmintrin.h>
-#include <smmintrin.h>
+#include <immintrin.h>
 
 #include "parasail.h"
 #include "parasail_internal.h"
@@ -144,7 +143,7 @@ parasail_result_t* FNAME(
     __m512i vGapN = _mm512_set1_epi32(gap*N);
     __m512i vI = _mm512_set_epi32(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15);
     __m512i vJreset = _mm512_set_epi32(0,-1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11,-12,-13,-14,-15);
-    __m512i vMax = vNegInf;
+    __m512i vMaxScore = vNegInf;
     __m512i vILimit1 = _mm512_set1_epi32(s1Len-1);
     __m512i vJLimit1 = _mm512_set1_epi32(s2Len-1);
     __m512i permute_idx = _mm512_set_16to16_pi(14,13,12,11,10,9,8,7,6,5,4,3,2,1,0,15);
@@ -283,10 +282,10 @@ parasail_result_t* FNAME(
             {
                 __mmask16 cond_valid_I = _mm512_cmpeq_epi32_mask(vI, vILimit1);
                 __mmask16 cond_valid_J = _mm512_cmpeq_epi32_mask(vJ, vJLimit1);
-                __mmask16 cond_max = _mm512_cmpgt_epi32_mask(vWscore, vMax);
+                __mmask16 cond_max = _mm512_cmpgt_epi32_mask(vWscore, vMaxScore);
                 __mmask16 cond_all = _mm512_kand(cond_max,
                         _mm512_kand(cond_valid_I, cond_valid_J));
-                vMax = _mm512_mask_blend_epi32(cond_all, vMax, vWscore);
+                vMaxScore = _mm512_mask_blend_epi32(cond_all, vMaxScore, vWscore);
             }
             vJ = _mm512_add_epi32(vJ, vOne);
         }
@@ -294,14 +293,14 @@ parasail_result_t* FNAME(
         vIBoundary = _mm512_sub_epi32(vIBoundary, vGapN);
     }
 
-    /* max in vMax */
+    /* max in vMaxScore */
     for (i=0; i<N; ++i) {
         int32_t value;
-        value = (int32_t) extract(vMax, 15);
+        value = (int32_t) extract(vMaxScore, 15);
         if (value > score) {
             score = value;
         }
-        vMax = _mm512_permutevar_epi32(permute_idx, vMax);
+        vMaxScore = _mm512_permutevar_epi32(permute_idx, vMaxScore);
     }
 
     result->score = score;

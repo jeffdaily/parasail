@@ -105,9 +105,9 @@ static inline void arr_store_si512(
 #endif
 
 #ifdef PARASAIL_TABLE
-#define FNAME sg_table_diag_knc_512_32
+#define FNAME nw_stats_table_diag_knc_512_32
 #else
-#define FNAME sg_diag_knc_512_32
+#define FNAME nw_stats_diag_knc_512_32
 #endif
 
 parasail_result_t* FNAME(
@@ -122,34 +122,57 @@ parasail_result_t* FNAME(
     int * const restrict s2B= parasail_memalign_int(64, s2Len+PAD2);
     int * const restrict _tbl_pr = parasail_memalign_int(64, s2Len+PAD2);
     int * const restrict _del_pr = parasail_memalign_int(64, s2Len+PAD2);
+    int * const restrict _mch_pr = parasail_memalign_int(64, s2Len+PAD2);
+    int * const restrict _len_pr = parasail_memalign_int(64, s2Len+PAD2);
     int * const restrict s2 = s2B+PAD; /* will allow later for negative indices */
     int * const restrict tbl_pr = _tbl_pr+PAD;
     int * const restrict del_pr = _del_pr+PAD;
+    int * const restrict mch_pr = _mch_pr+PAD;
+    int * const restrict len_pr = _len_pr+PAD;
 #ifdef PARASAIL_TABLE
-    parasail_result_t *result = parasail_result_new_table1(s1Len, s2Len);
+    parasail_result_t *result = parasail_result_new_table3(s1Len, s2Len);
 #else
     parasail_result_t *result = parasail_result_new();
 #endif
     int i = 0;
     int j = 0;
     int score = NEG_INF_32;
+    int matches = NEG_INF_32;
+    int length = NEG_INF_32;
     __m512i vNegInf = _mm512_set1_epi32(NEG_INF_32);
-    __m512i vNegInf0 = insert(vNegInf, 0, 15);
     __m512i vOpen = _mm512_set1_epi32(open);
     __m512i vGap  = _mm512_set1_epi32(gap);
     __m512i vZero = _mm512_set1_epi32(0);
     __m512i vOne = _mm512_set1_epi32(1);
     __m512i vNegOne = _mm512_set1_epi32(-1);
     __m512i vN = _mm512_set1_epi32(N);
+    __m512i vGapN = _mm512_set1_epi32(gap*N);
     __m512i vI = _mm512_set_epi32(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15);
     __m512i vJreset = _mm512_set_epi32(0,-1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11,-12,-13,-14,-15);
     __m512i vMaxScore = vNegInf;
-    __m512i vILimit = _mm512_set1_epi32(s1Len);
-    __m512i vJLimit = _mm512_set1_epi32(s2Len);
+    __m512i vMaxMatch = vNegInf;
+    __m512i vMaxLength = vNegInf;
     __m512i vILimit1 = _mm512_set1_epi32(s1Len-1);
     __m512i vJLimit1 = _mm512_set1_epi32(s2Len-1);
     __m512i permute_idx = _mm512_set_16to16_pi(14,13,12,11,10,9,8,7,6,5,4,3,2,1,0,15);
     __m512i permute2_idx = _mm512_set_16to16_pi(0,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1);
+    __m512i vIBoundary = _mm512_set_16to16_pi(
+            -open-0*gap,
+            -open-1*gap,
+            -open-2*gap,
+            -open-3*gap,
+            -open-4*gap,
+            -open-5*gap,
+            -open-6*gap,
+            -open-7*gap,
+            -open-8*gap,
+            -open-9*gap,
+            -open-10*gap,
+            -open-11*gap,
+            -open-12*gap,
+            -open-13*gap,
+            -open-14*gap,
+            -open-15*gap);
 
     /* convert _s1 from char to int in range 0-23 */
     for (i=0; i<s1Len; ++i) {
@@ -175,27 +198,57 @@ parasail_result_t* FNAME(
 
     /* set initial values for stored row */
     for (j=0; j<s2Len; ++j) {
-        tbl_pr[j] = 0;
+        tbl_pr[j] = -open - j*gap;
         del_pr[j] = NEG_INF_32;
+        mch_pr[j] = 0;
+        len_pr[j] = 0;
     }
     /* pad front of stored row values */
     for (j=-PAD; j<0; ++j) {
         tbl_pr[j] = NEG_INF_32;
         del_pr[j] = NEG_INF_32;
+        mch_pr[j] = 0;
+        len_pr[j] = 0;
     }
     /* pad back of stored row values */
     for (j=s2Len; j<s2Len+PAD; ++j) {
         tbl_pr[j] = NEG_INF_32;
         del_pr[j] = NEG_INF_32;
+        mch_pr[j] = 0;
+        len_pr[j] = 0;
     }
+    tbl_pr[-1] = 0; /* upper left corner */
 
     /* iterate over query sequence */
     for (i=0; i<s1Len; i+=N) {
-        __m512i vNscore = vNegInf0;
-        __m512i vWscore = vZero;
+        __m512i vNscore = vNegInf;
+        __m512i vNmatch = vZero;
+        __m512i vNlength = vZero;
+        __m512i vWscore = vNegInf;
+        __m512i vWmatch = vZero;
+        __m512i vWlength = vZero;
         __m512i vIns = vNegInf;
         __m512i vDel = vNegInf;
         __m512i vJ = vJreset;
+        __m512i vs1 = _mm512_set_16to16_pi(
+                s1[i+0],
+                s1[i+1],
+                s1[i+2],
+                s1[i+3],
+                s1[i+4],
+                s1[i+5],
+                s1[i+6],
+                s1[i+7],
+                s1[i+8],
+                s1[i+9],
+                s1[i+10],
+                s1[i+11],
+                s1[i+12],
+                s1[i+13],
+                s1[i+14],
+                s1[i+15]
+                );
+        __m512i vs2 = vNegInf;
         const int * const restrict matrow0 = matrix[s1[i+0]];
         const int * const restrict matrow1 = matrix[s1[i+1]];
         const int * const restrict matrow2 = matrix[s1[i+2]];
@@ -212,12 +265,22 @@ parasail_result_t* FNAME(
         const int * const restrict matrow13 = matrix[s1[i+13]];
         const int * const restrict matrow14 = matrix[s1[i+14]];
         const int * const restrict matrow15 = matrix[s1[i+15]];
-        __mmask16 vIeqLimit1 = _mm512_cmpeq_epi32_mask(vI, vILimit1);
+        vNscore = vshift8(vNscore, tbl_pr[-1]);
+        vNmatch = vshift8(vNmatch, 0);
+        vNlength = vshift8(vNlength, 0);
+        vWscore = vshift8(vWscore, -open - i*gap);
+        vWmatch = vshift8(vWmatch, 0);
+        vWlength = vshift8(vWlength, 0);
+        tbl_pr[-1] = -open - (i+N)*gap;
         /* iterate over database sequence */
         for (j=0; j<s2Len+PAD; ++j) {
             __m512i vMat;
             __m512i vNWscore = vNscore;
+            __m512i vNWmatch = vNmatch;
+            __m512i vNWlength = vNlength;
             vNscore = vshift8(vWscore, tbl_pr[j]);
+            vNmatch = vshift8(vWmatch, mch_pr[j]);
+            vNlength = vshift8(vWlength, len_pr[j]);
             vDel = vshift8(vDel, del_pr[j]);
             vDel = _mm512_max_epi32(
                     _mm512_sub_epi32(vNscore, vOpen),
@@ -225,6 +288,7 @@ parasail_result_t* FNAME(
             vIns = _mm512_max_epi32(
                     _mm512_sub_epi32(vWscore, vOpen),
                     _mm512_sub_epi32(vIns, vGap));
+            vs2 = vshift8(vs2, s2[j]);
             vMat = _mm512_set_epi32(
                     matrow0[s2[j-0]],
                     matrow1[s2[j-1]],
@@ -246,39 +310,71 @@ parasail_result_t* FNAME(
             vNWscore = _mm512_add_epi32(vNWscore, vMat);
             vWscore = _mm512_max_epi32(vNWscore, vIns);
             vWscore = _mm512_max_epi32(vWscore, vDel);
+            /* conditional block */
+            {
+                __mmask16 case1not;
+                __mmask16 case2not;
+                __mmask16 case2;
+                __mmask16 case3;
+                __m512i vCmatch;
+                __m512i vCmatchT;
+                __m512i vClength;
+                case1not = _mm512_kor(
+                        _mm512_cmplt_epi32_mask(vNWscore,vDel),
+                        _mm512_cmplt_epi32_mask(vNWscore,vIns));
+                case2not = _mm512_cmplt_epi32_mask(vDel,vIns);
+                case2 = _mm512_kandn(case2not,case1not);
+                case3 = _mm512_kand(case1not,case2not);
+                vCmatch = _mm512_mask_blend_epi32(case1not,
+                        _mm512_mask_add_epi32(
+                            vNWmatch,
+                            _mm512_cmpeq_epi32_mask(vs1,vs2),
+                            vNWmatch, vOne),
+                        _mm512_mask_blend_epi32(case2, vWmatch, vNmatch));
+                vClength = _mm512_mask_blend_epi32(case1not,
+                        _mm512_add_epi32(vNWlength, vOne),
+                        _mm512_mask_blend_epi32(case2,
+                            _mm512_add_epi32(vWlength, vOne),
+                            _mm512_add_epi32(vNlength, vOne)));
+                vWmatch = vCmatch;
+                vWlength = vClength;
+            }
+
             /* as minor diagonal vector passes across the j=-1 boundary,
              * assign the appropriate boundary conditions */
             {
                 __mmask16 cond = _mm512_cmpeq_epi32_mask(vJ,vNegOne);
-                vWscore = _mm512_mask_blend_epi32(cond, vWscore, vZero);
+                vWscore = _mm512_mask_blend_epi32(cond, vWscore, vIBoundary);
+                vWmatch = _mm512_mask_blend_epi32(cond, vWmatch, vZero);
+                vWlength = _mm512_mask_blend_epi32(cond, vWlength, vZero);
                 vDel = _mm512_mask_blend_epi32(cond, vDel, vNegInf);
                 vIns = _mm512_mask_blend_epi32(cond, vIns, vNegInf);
             }
 #ifdef PARASAIL_TABLE
             arr_store_si512(result->score_table, vWscore, i, s1Len, j, s2Len);
+            arr_store_si512(result->matches_table, vWmatch, i, s1Len, j, s2Len);
+            arr_store_si512(result->length_table, vWlength, i, s1Len, j, s2Len);
 #endif
             tbl_pr[j-15] = (int32_t)extract(vWscore,0);
+            mch_pr[j-15] = (int32_t)extract(vWmatch,0);
+            len_pr[j-15] = (int32_t)extract(vWlength,0);
             del_pr[j-15] = (int32_t)extract(vDel,0);
             /* as minor diagonal vector passes across table, extract
-             * max values at the i,j bounds */
+               last table value at the i,j bound */
             {
-                __mmask16 cond_valid_I =
-                    _mm512_kand(vIeqLimit1,
-                            _mm512_kand(
-                                _mm512_cmpgt_epi32_mask(vJ, vNegOne),
-                                _mm512_cmplt_epi32_mask(vJ, vJLimit)));
-                __mmask16 cond_valid_J =
-                    _mm512_kand(
-                            _mm512_cmpeq_epi32_mask(vJ, vJLimit1),
-                            _mm512_cmplt_epi32_mask(vI, vILimit));
+                __mmask16 cond_valid_I = _mm512_cmpeq_epi32_mask(vI, vILimit1);
+                __mmask16 cond_valid_J = _mm512_cmpeq_epi32_mask(vJ, vJLimit1);
                 __mmask16 cond_max = _mm512_cmpgt_epi32_mask(vWscore, vMaxScore);
                 __mmask16 cond_all = _mm512_kand(cond_max,
-                        _mm512_kor(cond_valid_I, cond_valid_J));
+                        _mm512_kand(cond_valid_I, cond_valid_J));
                 vMaxScore = _mm512_mask_blend_epi32(cond_all, vMaxScore, vWscore);
+                vMaxMatch = _mm512_mask_blend_epi32(cond_all, vMaxMatch, vWmatch);
+                vMaxLength = _mm512_mask_blend_epi32(cond_all, vMaxLength, vWlength);
             }
             vJ = _mm512_add_epi32(vJ, vOne);
         }
         vI = _mm512_add_epi32(vI, vN);
+        vIBoundary = _mm512_sub_epi32(vIBoundary, vGapN);
     }
 
     /* max in vMaxScore */
@@ -287,12 +383,20 @@ parasail_result_t* FNAME(
         value = (int32_t) extract(vMaxScore, 15);
         if (value > score) {
             score = value;
+            matches = (int32_t) extract(vMaxMatch, 15);
+            length = (int32_t) extract(vMaxLength, 15);
         }
         vMaxScore = _mm512_permutevar_epi32(permute_idx, vMaxScore);
+        vMaxMatch = _mm512_permutevar_epi32(permute_idx, vMaxMatch);
+        vMaxLength = _mm512_permutevar_epi32(permute_idx, vMaxLength);
     }
 
     result->score = score;
+    result->matches = matches;
+    result->length = length;
 
+    parasail_free(_len_pr);
+    parasail_free(_mch_pr);
     parasail_free(_del_pr);
     parasail_free(_tbl_pr);
     parasail_free(s2B);

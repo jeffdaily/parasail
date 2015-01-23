@@ -128,6 +128,7 @@ parasail_result_t* FNAME(
                     t.v[segNum] = matrix[k][MAP_BLOSUM_[(unsigned char)s1[j]]];
                     s.v[segNum] = (k == MAP_BLOSUM_[(unsigned char)s1[j]]);
                     j += segLen;
+                    if (j >= s1Len) break;
                 }
                 _mm_store_si128(&vProfile[index], t.m);
                 _mm_store_si128(&vProfileS[index], s.m);

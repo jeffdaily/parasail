@@ -155,6 +155,7 @@ parasail_result_t* FNAME(
                     t.v[segNum] = matrix[k][MAP_BLOSUM_[(unsigned char)s1[j]]];
                     s.v[segNum] = (k == MAP_BLOSUM_[(unsigned char)s1[j]]);
                     j += segLen;
+                    if (j >= s1Len) break;
                 }
                 _mm512_store_epi32(&pvP[index], t.m);
                 _mm512_store_epi32(&pvPm[index], s.m);

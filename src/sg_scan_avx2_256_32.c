@@ -115,6 +115,7 @@ parasail_result_t* FNAME(
                 for (segNum=0; segNum<segWidth; ++segNum) {
                     t.v[segNum] = matrix[k][MAP_BLOSUM_[(unsigned char)s1[j]]];
                     j += segLen;
+                    if (j >= s1Len) break;
                 }
                 _mm256_store_si256(&pvP[index], t.m);
                 ++index;

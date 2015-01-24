@@ -671,6 +671,8 @@ HAVE_KNC_FALSE
 HAVE_KNC_TRUE
 HAVE_AVX2_FALSE
 HAVE_AVX2_TRUE
+HAVE_SSE_FALSE
+HAVE_SSE_TRUE
 HAVE_SSE41_FALSE
 HAVE_SSE41_TRUE
 HAVE_SSE2_FALSE
@@ -4685,24 +4687,58 @@ $as_echo "$ps_cv_c_compiler_vendor" >&6; }
 
 
 
-case "$vendor" in #(
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for SSE2 flags" >&5
+$as_echo_n "checking for SSE2 flags... " >&6; }
+if test "x$SSE2_CFLAGS" = x; then :
+  case "$vendor" in #(
   clang) :
-    SSE2_CFLAGS="-msse2";
-                     SSE41_CFLAGS="-msse4";
-                     AVX2_CFLAGS="-mavx2"; ;; #(
+    SSE2_CFLAGS="-msse2" ;; #(
   gnu) :
-    SSE2_CFLAGS="-march=core2";
-                     SSE41_CFLAGS="-march=corei7";
-                     AVX2_CFLAGS="-march=core-avx2"; ;; #(
+    SSE2_CFLAGS="-march=core2" ;; #(
   intel) :
-    SSE2_CFLAGS="-march=core2";
-                     SSE41_CFLAGS="-march=corei7";
-                     AVX2_CFLAGS="-march=core-avx2"; ;; #(
+    SSE2_CFLAGS="-march=core2" ;; #(
   *) :
      ;;
 esac
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $SSE2_CFLAGS" >&5
+$as_echo "$SSE2_CFLAGS" >&6; }
 
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for SSE4.1 flags" >&5
+$as_echo_n "checking for SSE4.1 flags... " >&6; }
+if test "x$SSE41_CFLAGS" = x; then :
+  case "$vendor" in #(
+  clang) :
+    SSE41_CFLAGS="-msse4" ;; #(
+  gnu) :
+    SSE41_CFLAGS="-march=corei7" ;; #(
+  intel) :
+    SSE41_CFLAGS="-march=corei7" ;; #(
+  *) :
+     ;;
+esac
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $SSE41_CFLAGS" >&5
+$as_echo "$SSE41_CFLAGS" >&6; }
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for AVX2 flags" >&5
+$as_echo_n "checking for AVX2 flags... " >&6; }
+if test "x$AVX2_CFLAGS" = x; then :
+  case "$vendor" in #(
+  clang) :
+    AVX2_CFLAGS="-mavx2" ;; #(
+  gnu) :
+    AVX2_CFLAGS="-march=core-avx2" ;; #(
+  intel) :
+    AVX2_CFLAGS="-march=core-avx2" ;; #(
+  *) :
+     ;;
+esac
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $AVX2_CFLAGS" >&5
+$as_echo "$AVX2_CFLAGS" >&6; }
 
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for SSE2" >&5
@@ -4711,7 +4747,7 @@ if ${pt_cv_sse2+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   save_CFLAGS="$CFLAGS"
-     CFLAGS="$SSE2_CFLAGS"
+     CFLAGS="$SSE2_CFLAGS $CFLAGS"
      cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -4740,7 +4776,7 @@ cat >>confdefs.h <<_ACEOF
 #define HAVE_SSE2 $pt_cv_sse2_val
 _ACEOF
 
- if test x$pt_cv_sse2 = xyes; then
+ if test "x$pt_cv_sse2" = xyes; then
   HAVE_SSE2_TRUE=
   HAVE_SSE2_FALSE='#'
 else
@@ -4755,7 +4791,7 @@ if ${pt_cv_sse41+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   save_CFLAGS="$CFLAGS"
-     CFLAGS="$SSE41_CFLAGS"
+     CFLAGS="$SSE41_CFLAGS $CFLAGS"
      cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -4784,12 +4820,21 @@ cat >>confdefs.h <<_ACEOF
 #define HAVE_SSE41 $pt_cv_sse41_val
 _ACEOF
 
- if test x$pt_cv_sse41 = xyes; then
+ if test "x$pt_cv_sse41" = xyes; then
   HAVE_SSE41_TRUE=
   HAVE_SSE41_FALSE='#'
 else
   HAVE_SSE41_TRUE='#'
   HAVE_SSE41_FALSE=
+fi
+
+
+ if test "x$pt_cv_sse2" = xyes || test "x$pt_cv_sse41" = xyes; then
+  HAVE_SSE_TRUE=
+  HAVE_SSE_FALSE='#'
+else
+  HAVE_SSE_TRUE='#'
+  HAVE_SSE_FALSE=
 fi
 
 
@@ -4799,7 +4844,7 @@ if ${pt_cv_avx2+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   save_CFLAGS="$CFLAGS"
-     CFLAGS="$AVX2_CFLAGS"
+     CFLAGS="$AVX2_CFLAGS $CFLAGS"
      cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -4828,7 +4873,7 @@ cat >>confdefs.h <<_ACEOF
 #define HAVE_AVX2 $pt_cv_avx2_val
 _ACEOF
 
- if test x$pt_cv_avx2 = xyes; then
+ if test "x$pt_cv_avx2" = xyes; then
   HAVE_AVX2_TRUE=
   HAVE_AVX2_FALSE='#'
 else
@@ -4843,7 +4888,7 @@ if ${pt_cv_avx2_mm256_insert_epi32+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   save_CFLAGS="$CFLAGS"
-     CFLAGS="$AVX2_CFLAGS"
+     CFLAGS="$AVX2_CFLAGS $CFLAGS"
      cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -4878,7 +4923,7 @@ if ${pt_cv_avx2_mm256_insert_epi16+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   save_CFLAGS="$CFLAGS"
-     CFLAGS="$AVX2_CFLAGS"
+     CFLAGS="$AVX2_CFLAGS $CFLAGS"
      cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -4913,7 +4958,7 @@ if ${pt_cv_avx2_mm256_insert_epi8+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   save_CFLAGS="$CFLAGS"
-     CFLAGS="$AVX2_CFLAGS"
+     CFLAGS="$AVX2_CFLAGS $CFLAGS"
      cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -4948,7 +4993,7 @@ if ${pt_cv_avx2_mm256_extract_epi32+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   save_CFLAGS="$CFLAGS"
-     CFLAGS="$AVX2_CFLAGS"
+     CFLAGS="$AVX2_CFLAGS $CFLAGS"
      cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -4986,7 +5031,7 @@ if ${pt_cv_avx2_mm256_extract_epi16+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   save_CFLAGS="$CFLAGS"
-     CFLAGS="$AVX2_CFLAGS"
+     CFLAGS="$AVX2_CFLAGS $CFLAGS"
      cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -5024,7 +5069,7 @@ if ${pt_cv_avx2_mm256_extract_epi8+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   save_CFLAGS="$CFLAGS"
-     CFLAGS="$AVX2_CFLAGS"
+     CFLAGS="$AVX2_CFLAGS $CFLAGS"
      cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -5085,7 +5130,7 @@ cat >>confdefs.h <<_ACEOF
 #define HAVE_KNC $pt_cv_knc_val
 _ACEOF
 
- if test x$pt_cv_knc = xyes; then
+ if test "x$pt_cv_knc" = xyes; then
   HAVE_KNC_TRUE=
   HAVE_KNC_FALSE='#'
 else
@@ -5129,7 +5174,7 @@ cat >>confdefs.h <<_ACEOF
 #define HAVE_XGETBV $pt_cv_xgetbv_val
 _ACEOF
 
- if test x$pt_cv_xgetbv = xyes; then
+ if test "x$pt_cv_xgetbv" = xyes; then
   HAVE_XGETBV_TRUE=
   HAVE_XGETBV_FALSE='#'
 else
@@ -12673,6 +12718,10 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${HAVE_SSE41_TRUE}" && test -z "${HAVE_SSE41_FALSE}"; then
   as_fn_error $? "conditional \"HAVE_SSE41\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${HAVE_SSE_TRUE}" && test -z "${HAVE_SSE_FALSE}"; then
+  as_fn_error $? "conditional \"HAVE_SSE\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${HAVE_AVX2_TRUE}" && test -z "${HAVE_AVX2_FALSE}"; then

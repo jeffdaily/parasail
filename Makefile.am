@@ -11,8 +11,10 @@ LDADD = libparasail.la
 
 noinst_LTLIBRARIES += libparasail_novec.la
 noinst_LTLIBRARIES += libparasail_novec_table.la
+if HAVE_SSE
+noinst_LTLIBRARIES += libparasail_sse_memory.la
+endif
 if HAVE_SSE2
-noinst_LTLIBRARIES += libparasail_sse2_memory.la
 noinst_LTLIBRARIES += libparasail_sse2.la
 noinst_LTLIBRARIES += libparasail_sse2_table.la
 endif
@@ -32,7 +34,7 @@ noinst_LTLIBRARIES += libparasail_knc_table.la
 endif
 
 SRC_CORE =
-MEM_SRC_SSE2 =
+MEM_SRC_SSE =
 MEM_SRC_AVX2 =
 MEM_SRC_KNC =
 SRC_NOVEC =
@@ -60,7 +62,7 @@ SRC_CORE += src/sw_dispatch.c
 # vector memory
 #################
 
-MEM_SRC_SSE2 += src/memory_sse2.c
+MEM_SRC_SSE += src/memory_sse.c
 
 MEM_SRC_AVX2 += src/memory_avx2.c
 
@@ -382,19 +384,27 @@ libparasail_sse41_table_la_CPPFLAGS = $(AM_CPPFLAGS) -DPARASAIL_TABLE=1
 libparasail_avx2_table_la_CPPFLAGS  = $(AM_CPPFLAGS) -DPARASAIL_TABLE=1
 libparasail_knc_table_la_CPPFLAGS   = $(AM_CPPFLAGS) -DPARASAIL_TABLE=1
 
-libparasail_sse2_memory_la_SOURCES = $(MEM_SRC_SSE2)
+libparasail_sse_memory_la_SOURCES  = $(MEM_SRC_SSE)
 libparasail_avx2_memory_la_SOURCES = $(MEM_SRC_AVX2)
 libparasail_knc_memory_la_SOURCES  = $(MEM_SRC_KNC)
 
-libparasail_sse2_memory_la_CFLAGS = $(AM_CFLAGS) $(SSE2_CFLAGS)
+if HAVE_SSE2
+libparasail_sse_memory_la_CFLAGS  = $(AM_CFLAGS) $(SSE2_CFLAGS)
+else
+if HAVE_SSE41
+libparasail_sse_memory_la_CFLAGS  = $(AM_CFLAGS) $(SSE41_CFLAGS)
+endif
+endif
 libparasail_avx2_memory_la_CFLAGS = $(AM_CFLAGS) $(AVX2_CFLAGS)
 libparasail_knc_memory_la_CFLAGS  = $(AM_CFLAGS)
 
 libparasail_la_LIBADD =
 libparasail_la_LIBADD += libparasail_novec.la
 libparasail_la_LIBADD += libparasail_novec_table.la
+if HAVE_SSE
+libparasail_la_LIBADD += libparasail_sse_memory.la
+endif
 if HAVE_SSE2
-libparasail_la_LIBADD += libparasail_sse2_memory.la
 libparasail_la_LIBADD += libparasail_sse2.la
 libparasail_la_LIBADD += libparasail_sse2_table.la
 endif

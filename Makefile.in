@@ -679,7 +679,7 @@ am_tests_test_openmp_OBJECTS =  \
 	tests/tests_test_openmp-test_openmp.$(OBJEXT)
 tests_test_openmp_OBJECTS = $(am_tests_test_openmp_OBJECTS)
 tests_test_openmp_DEPENDENCIES = $(LDADD) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 tests_test_openmp_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(tests_test_openmp_CFLAGS) $(CFLAGS) \
@@ -866,6 +866,7 @@ SSE2_CFLAGS = @SSE2_CFLAGS@
 SSE41_CFLAGS = @SSE41_CFLAGS@
 STRIP = @STRIP@
 VERSION = @VERSION@
+Z_LIBS = @Z_LIBS@
 abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
 abs_top_builddir = @abs_top_builddir@
@@ -925,7 +926,7 @@ noinst_LTLIBRARIES = libparasail_novec.la libparasail_novec_table.la \
 	$(am__append_1) $(am__append_2) $(am__append_3) \
 	$(am__append_4) $(am__append_5)
 AM_CFLAGS = 
-AM_CPPFLAGS = -I$(top_srcdir)/src
+AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_srcdir)/contrib
 AM_LDFLAGS = 
 LDADD = libparasail.la
 
@@ -1140,7 +1141,7 @@ tests_test_sw_dispatch_SOURCES = tests/test_sw_dispatch.c
 tests_test_openmp_SOURCES = tests/test_openmp.c
 tests_test_openmp_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_test_openmp_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
-tests_test_openmp_LDADD = $(LDADD) $(CLOCK_LIBS) $(MATH_LIBS)
+tests_test_openmp_LDADD = $(LDADD) $(CLOCK_LIBS) $(MATH_LIBS) $(Z_LIBS)
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 

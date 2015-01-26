@@ -5,7 +5,7 @@ lib_LTLIBRARIES = libparasail.la
 noinst_LTLIBRARIES =
 check_PROGRAMS =
 AM_CFLAGS =
-AM_CPPFLAGS = -I$(top_srcdir)/src
+AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_srcdir)/contrib
 AM_LDFLAGS =
 LDADD = libparasail.la
 
@@ -440,5 +440,5 @@ tests_test_sw_dispatch_SOURCES  = tests/test_sw_dispatch.c
 tests_test_openmp_SOURCES       = tests/test_openmp.c
 tests_test_openmp_CFLAGS        = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_test_openmp_LDFLAGS       = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
-tests_test_openmp_LDADD         = $(LDADD) $(CLOCK_LIBS) $(MATH_LIBS)
+tests_test_openmp_LDADD         = $(LDADD) $(CLOCK_LIBS) $(MATH_LIBS) $(Z_LIBS)
 

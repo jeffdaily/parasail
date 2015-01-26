@@ -52,13 +52,13 @@ static inline void parse_sequences(
             char **new_strings = NULL;
             size_t *new_sizes = NULL;
             memory *= 2;
-            new_strings = realloc(strings, memory);
+            new_strings = realloc(strings, sizeof(char*) * memory);
             if (NULL == new_strings) {
                 perror("realloc");
                 exit(1);
             }
             strings = new_strings;
-            new_sizes = realloc(sizes, memory);
+            new_sizes = realloc(sizes, sizeof(size_t) * memory);
             if (NULL == new_sizes) {
                 perror("realloc");
                 exit(1);

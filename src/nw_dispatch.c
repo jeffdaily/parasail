@@ -23,263 +23,477 @@ typedef parasail_result_t* parasail_func(
         const int open, const int gap, const int matrix[24][24]);
 
 /* forward declare the dispatcher function */
-static parasail_func parasail_nw_dispatcher;
-static parasail_func parasail_nw_32_dispatcher;
-static parasail_func parasail_nw_16_dispatcher;
-static parasail_func parasail_nw_8_dispatcher;
-
-/* forward declare the vector impls, if needed */
-#if HAVE_AVX2
-static parasail_func nw_scan_avx2;
-#endif
-#if HAVE_SSE41
-static parasail_func nw_scan_sse41;
-#endif
-#if HAVE_SSE2
-static parasail_func nw_scan_sse2;
-#endif
+parasail_func parasail_nw_scan_dispatcher;
+parasail_func parasail_nw_scan_32_dispatcher;
+parasail_func parasail_nw_scan_16_dispatcher;
+parasail_func parasail_nw_scan_8_dispatcher;
+parasail_func parasail_nw_striped_dispatcher;
+parasail_func parasail_nw_striped_32_dispatcher;
+parasail_func parasail_nw_striped_16_dispatcher;
+parasail_func parasail_nw_striped_8_dispatcher;
+parasail_func parasail_nw_diag_dispatcher;
+parasail_func parasail_nw_diag_32_dispatcher;
+parasail_func parasail_nw_diag_16_dispatcher;
+parasail_func parasail_nw_diag_8_dispatcher;
 
 /* declare and initialize the nw pointer to the dispatcher function */
-static parasail_func * parasail_nw_pointer = &parasail_nw_dispatcher;
-static parasail_func * parasail_nw_32_pointer = &parasail_nw_32_dispatcher;
-static parasail_func * parasail_nw_16_pointer = &parasail_nw_16_dispatcher;
-static parasail_func * parasail_nw_8_pointer = &parasail_nw_8_dispatcher;
+parasail_func * parasail_nw_scan_32_pointer = &parasail_nw_scan_32_dispatcher;
+parasail_func * parasail_nw_scan_16_pointer = &parasail_nw_scan_16_dispatcher;
+parasail_func * parasail_nw_scan_8_pointer  = &parasail_nw_scan_8_dispatcher;
+parasail_func * parasail_nw_striped_32_pointer = &parasail_nw_striped_32_dispatcher;
+parasail_func * parasail_nw_striped_16_pointer = &parasail_nw_striped_16_dispatcher;
+parasail_func * parasail_nw_striped_8_pointer  = &parasail_nw_striped_8_dispatcher;
+parasail_func * parasail_nw_diag_32_pointer = &parasail_nw_diag_32_dispatcher;
+parasail_func * parasail_nw_diag_16_pointer = &parasail_nw_diag_16_dispatcher;
+parasail_func * parasail_nw_diag_8_pointer  = &parasail_nw_diag_8_dispatcher;
 
 /* dispatcher function implementation */
-static parasail_result_t* parasail_nw_dispatcher(
+parasail_result_t* parasail_nw_scan_32_dispatcher(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
         const int open, const int gap, const int matrix[24][24])
 {
 #if HAVE_KNC
-    parasail_nw_pointer = nw_scan_knc_512_32;
+    parasail_nw_scan_32_pointer = nw_scan_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_nw_pointer = nw_scan_avx2;
+        parasail_nw_scan_32_pointer = nw_scan_avx2_256_32;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_nw_pointer = nw_scan_sse41;
+        parasail_nw_scan_32_pointer = nw_scan_sse41_128_32;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_nw_pointer = nw_scan_sse2;
+        parasail_nw_scan_32_pointer = nw_scan_sse2_128_32;
     }
     else
 #endif
 #endif
     {
     }
-    return parasail_nw_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+    return parasail_nw_scan_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
 
 /* dispatcher function implementation */
-static parasail_result_t* parasail_nw_32_dispatcher(
+parasail_result_t* parasail_nw_scan_16_dispatcher(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
         const int open, const int gap, const int matrix[24][24])
 {
 #if HAVE_KNC
-    parasail_nw_pointer = nw_scan_knc_512_32;
+    parasail_nw_scan_16_pointer = nw_scan_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_nw_pointer = nw_scan_avx2_256_32;
+        parasail_nw_scan_16_pointer = nw_scan_avx2_256_16;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_nw_pointer = nw_scan_sse41_128_32;
+        parasail_nw_scan_16_pointer = nw_scan_sse41_128_16;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_nw_pointer = nw_scan_sse2_128_32;
+        parasail_nw_scan_16_pointer = nw_scan_sse2_128_16;
     }
     else
 #endif
 #endif
     {
     }
-    return parasail_nw_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+    return parasail_nw_scan_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
 
 /* dispatcher function implementation */
-static parasail_result_t* parasail_nw_16_dispatcher(
+parasail_result_t* parasail_nw_scan_8_dispatcher(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
         const int open, const int gap, const int matrix[24][24])
 {
 #if HAVE_KNC
-    parasail_nw_pointer = nw_scan_knc_512_32;
+    parasail_nw_scan_8_pointer = nw_scan_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_nw_pointer = nw_scan_avx2_256_16;
+        parasail_nw_scan_8_pointer = nw_scan_avx2_256_8;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_nw_pointer = nw_scan_sse41_128_16;
+        parasail_nw_scan_8_pointer = nw_scan_sse41_128_8;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_nw_pointer = nw_scan_sse2_128_16;
+        parasail_nw_scan_8_pointer = nw_scan_sse2_128_8;
     }
     else
 #endif
 #endif
     {
     }
-    return parasail_nw_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+    return parasail_nw_scan_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
 
 /* dispatcher function implementation */
-static parasail_result_t* parasail_nw_8_dispatcher(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24])
-{
-#if HAVE_KNC
-    parasail_nw_pointer = nw_scan_knc_512_32;
-#else
-#if HAVE_AVX2
-    if (parasail_can_use_avx2()) {
-        parasail_nw_pointer = nw_scan_avx2_256_8;
-    }
-    else
-#endif
-#if HAVE_SSE41
-    if (parasail_can_use_sse41()) {
-        parasail_nw_pointer = nw_scan_sse41_128_8;
-    }
-    else
-#endif
-#if HAVE_SSE2
-    if (parasail_can_use_sse2()) {
-        parasail_nw_pointer = nw_scan_sse2_128_8;
-    }
-    else
-#endif
-#endif
-    {
-    }
-    return parasail_nw_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
-}
-
-#if HAVE_AVX2
-/* nw vec impl which checks for saturation */
-static parasail_result_t* nw_scan_avx2(
+parasail_result_t* parasail_nw_scan(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
         const int open, const int gap, const int matrix[24][24])
 {
     parasail_result_t *result;
 
-    result = nw_scan_avx2_256_8(s1, s1Len, s2, s2Len, open, gap, matrix);
+    result = parasail_nw_scan_8(s1, s1Len, s2, s2Len, open, gap, matrix);
     if (result->saturated) {
         parasail_result_free(result);
-        result = nw_scan_avx2_256_16(s1, s1Len, s2, s2Len, open, gap, matrix);
+        result = parasail_nw_scan_16(s1, s1Len, s2, s2Len, open, gap, matrix);
     }
     if (result->saturated) {
         parasail_result_free(result);
-        result = nw_scan_avx2_256_32(s1, s1Len, s2, s2Len, open, gap, matrix);
+        result = parasail_nw_scan_32(s1, s1Len, s2, s2Len, open, gap, matrix);
     }
+
     return result;
 }
-#endif
 
+/* nw implementation which simply calls the pointer,
+ * first time it's the dispatcher, otherwise it's correct nw impl */
+parasail_result_t* parasail_nw_scan_32(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap, const int matrix[24][24])
+{
+    return parasail_nw_scan_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+/* nw implementation which simply calls the pointer,
+ * first time it's the dispatcher, otherwise it's correct nw impl */
+parasail_result_t* parasail_nw_scan_16(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap, const int matrix[24][24])
+{
+    return parasail_nw_scan_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+/* nw implementation which simply calls the pointer,
+ * first time it's the dispatcher, otherwise it's correct nw impl */
+parasail_result_t* parasail_nw_scan_8(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap, const int matrix[24][24])
+{
+    return parasail_nw_scan_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+/* dispatcher function implementation */
+parasail_result_t* parasail_nw_striped_32_dispatcher(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap, const int matrix[24][24])
+{
+#if HAVE_KNC
+    parasail_nw_striped_32_pointer = nw_striped_knc_512_32;
+#else
+#if HAVE_AVX2
+    if (parasail_can_use_avx2()) {
+        parasail_nw_striped_32_pointer = nw_striped_avx2_256_32;
+    }
+    else
+#endif
 #if HAVE_SSE41
-/* nw vec impl which checks for saturation */
-static parasail_result_t* nw_scan_sse41(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24])
-{
-    parasail_result_t *result;
-
-    result = nw_scan_sse41_128_8(s1, s1Len, s2, s2Len, open, gap, matrix);
-    if (result->saturated) {
-        parasail_result_free(result);
-        result = nw_scan_sse41_128_16(s1, s1Len, s2, s2Len, open, gap, matrix);
+    if (parasail_can_use_sse41()) {
+        parasail_nw_striped_32_pointer = nw_striped_sse41_128_32;
     }
-    if (result->saturated) {
-        parasail_result_free(result);
-        result = nw_scan_sse41_128_32(s1, s1Len, s2, s2Len, open, gap, matrix);
-    }
-    return result;
-}
+    else
 #endif
-
 #if HAVE_SSE2
-/* nw vec impl which checks for saturation */
-static parasail_result_t* nw_scan_sse2(
+    if (parasail_can_use_sse2()) {
+        parasail_nw_striped_32_pointer = nw_striped_sse2_128_32;
+    }
+    else
+#endif
+#endif
+    {
+    }
+    return parasail_nw_striped_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+/* dispatcher function implementation */
+parasail_result_t* parasail_nw_striped_16_dispatcher(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap, const int matrix[24][24])
+{
+#if HAVE_KNC
+    parasail_nw_striped_16_pointer = nw_striped_knc_512_32;
+#else
+#if HAVE_AVX2
+    if (parasail_can_use_avx2()) {
+        parasail_nw_striped_16_pointer = nw_striped_avx2_256_16;
+    }
+    else
+#endif
+#if HAVE_SSE41
+    if (parasail_can_use_sse41()) {
+        parasail_nw_striped_16_pointer = nw_striped_sse41_128_16;
+    }
+    else
+#endif
+#if HAVE_SSE2
+    if (parasail_can_use_sse2()) {
+        parasail_nw_striped_16_pointer = nw_striped_sse2_128_16;
+    }
+    else
+#endif
+#endif
+    {
+    }
+    return parasail_nw_striped_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+/* dispatcher function implementation */
+parasail_result_t* parasail_nw_striped_8_dispatcher(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap, const int matrix[24][24])
+{
+#if HAVE_KNC
+    parasail_nw_striped_8_pointer = nw_striped_knc_512_32;
+#else
+#if HAVE_AVX2
+    if (parasail_can_use_avx2()) {
+        parasail_nw_striped_8_pointer = nw_striped_avx2_256_8;
+    }
+    else
+#endif
+#if HAVE_SSE41
+    if (parasail_can_use_sse41()) {
+        parasail_nw_striped_8_pointer = nw_striped_sse41_128_8;
+    }
+    else
+#endif
+#if HAVE_SSE2
+    if (parasail_can_use_sse2()) {
+        parasail_nw_striped_8_pointer = nw_striped_sse2_128_8;
+    }
+    else
+#endif
+#endif
+    {
+    }
+    return parasail_nw_striped_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+/* dispatcher function implementation */
+parasail_result_t* parasail_nw_striped(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
         const int open, const int gap, const int matrix[24][24])
 {
     parasail_result_t *result;
 
-    result = nw_scan_sse2_128_8(s1, s1Len, s2, s2Len, open, gap, matrix);
+    result = parasail_nw_striped_8(s1, s1Len, s2, s2Len, open, gap, matrix);
     if (result->saturated) {
         parasail_result_free(result);
-        result = nw_scan_sse2_128_16(s1, s1Len, s2, s2Len, open, gap, matrix);
+        result = parasail_nw_striped_16(s1, s1Len, s2, s2Len, open, gap, matrix);
     }
     if (result->saturated) {
         parasail_result_free(result);
-        result = nw_scan_sse2_128_32(s1, s1Len, s2, s2Len, open, gap, matrix);
+        result = parasail_nw_striped_32(s1, s1Len, s2, s2Len, open, gap, matrix);
     }
+
     return result;
 }
+
+/* nw implementation which simply calls the pointer,
+ * first time it's the dispatcher, otherwise it's correct nw impl */
+parasail_result_t* parasail_nw_striped_32(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap, const int matrix[24][24])
+{
+    return parasail_nw_striped_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+/* nw implementation which simply calls the pointer,
+ * first time it's the dispatcher, otherwise it's correct nw impl */
+parasail_result_t* parasail_nw_striped_16(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap, const int matrix[24][24])
+{
+    return parasail_nw_striped_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+/* nw implementation which simply calls the pointer,
+ * first time it's the dispatcher, otherwise it's correct nw impl */
+parasail_result_t* parasail_nw_striped_8(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap, const int matrix[24][24])
+{
+    return parasail_nw_striped_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+/* dispatcher function implementation */
+parasail_result_t* parasail_nw_diag_32_dispatcher(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap, const int matrix[24][24])
+{
+#if HAVE_KNC
+    parasail_nw_diag_32_pointer = nw_diag_knc_512_32;
+#else
+#if HAVE_AVX2
+    if (parasail_can_use_avx2()) {
+        parasail_nw_diag_32_pointer = nw_diag_avx2_256_32;
+    }
+    else
 #endif
+#if HAVE_SSE41
+    if (parasail_can_use_sse41()) {
+        parasail_nw_diag_32_pointer = nw_diag_sse41_128_32;
+    }
+    else
+#endif
+#if HAVE_SSE2
+    if (parasail_can_use_sse2()) {
+        parasail_nw_diag_32_pointer = nw_diag_sse2_128_32;
+    }
+    else
+#endif
+#endif
+    {
+    }
+    return parasail_nw_diag_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
 
-/* nw implementation which simply calls the pointer,
- * first time it's the dispatcher, otherwise it's correct nw impl */
-parasail_result_t* parasail_nw(
+/* dispatcher function implementation */
+parasail_result_t* parasail_nw_diag_16_dispatcher(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
         const int open, const int gap, const int matrix[24][24])
 {
-    return parasail_nw_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+#if HAVE_KNC
+    parasail_nw_diag_16_pointer = nw_diag_knc_512_32;
+#else
+#if HAVE_AVX2
+    if (parasail_can_use_avx2()) {
+        parasail_nw_diag_16_pointer = nw_diag_avx2_256_16;
+    }
+    else
+#endif
+#if HAVE_SSE41
+    if (parasail_can_use_sse41()) {
+        parasail_nw_diag_16_pointer = nw_diag_sse41_128_16;
+    }
+    else
+#endif
+#if HAVE_SSE2
+    if (parasail_can_use_sse2()) {
+        parasail_nw_diag_16_pointer = nw_diag_sse2_128_16;
+    }
+    else
+#endif
+#endif
+    {
+    }
+    return parasail_nw_diag_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+/* dispatcher function implementation */
+parasail_result_t* parasail_nw_diag_8_dispatcher(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap, const int matrix[24][24])
+{
+#if HAVE_KNC
+    parasail_nw_diag_8_pointer = nw_diag_knc_512_32;
+#else
+#if HAVE_AVX2
+    if (parasail_can_use_avx2()) {
+        parasail_nw_diag_8_pointer = nw_diag_avx2_256_8;
+    }
+    else
+#endif
+#if HAVE_SSE41
+    if (parasail_can_use_sse41()) {
+        parasail_nw_diag_8_pointer = nw_diag_sse41_128_8;
+    }
+    else
+#endif
+#if HAVE_SSE2
+    if (parasail_can_use_sse2()) {
+        parasail_nw_diag_8_pointer = nw_diag_sse2_128_8;
+    }
+    else
+#endif
+#endif
+    {
+    }
+    return parasail_nw_diag_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+/* dispatcher function implementation */
+parasail_result_t* parasail_nw_diag(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap, const int matrix[24][24])
+{
+    parasail_result_t *result;
+
+    result = parasail_nw_diag_8(s1, s1Len, s2, s2Len, open, gap, matrix);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_diag_16(s1, s1Len, s2, s2Len, open, gap, matrix);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_diag_32(s1, s1Len, s2, s2Len, open, gap, matrix);
+    }
+
+    return result;
 }
 
 /* nw implementation which simply calls the pointer,
  * first time it's the dispatcher, otherwise it's correct nw impl */
-parasail_result_t* parasail_nw_32(
+parasail_result_t* parasail_nw_diag_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
         const int open, const int gap, const int matrix[24][24])
 {
-    return parasail_nw_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+    return parasail_nw_diag_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
 
 /* nw implementation which simply calls the pointer,
  * first time it's the dispatcher, otherwise it's correct nw impl */
-parasail_result_t* parasail_nw_16(
+parasail_result_t* parasail_nw_diag_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
         const int open, const int gap, const int matrix[24][24])
 {
-    return parasail_nw_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+    return parasail_nw_diag_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
 
 /* nw implementation which simply calls the pointer,
  * first time it's the dispatcher, otherwise it's correct nw impl */
-parasail_result_t* parasail_nw_8(
+parasail_result_t* parasail_nw_diag_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
         const int open, const int gap, const int matrix[24][24])
 {
-    return parasail_nw_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+    return parasail_nw_diag_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
 

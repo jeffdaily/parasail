@@ -49,3 +49,19 @@ for a in alg:
                     print " "*8+"const char * const restrict s2, const int s2Len,"
                     print " "*8+"const int open, const int gap, const int matrix[24][24]);"
 
+# dispatching implementations (3x2x3x4 = 72 impl)
+alg = ["nw", "sg", "sw"]
+stats = ["", "_stats"]
+par = ["_scan", "_striped", "_diag"]
+width = ["", "_32", "_16", "_8"]
+
+for a in alg:
+    for s in stats:
+        for p in par:
+            for w in width:
+                print ""
+                print "parasail_result_t* parasail_"+a+s+p+w+'('
+                print " "*8+"const char * const restrict s1, const int s1Len,"
+                print " "*8+"const char * const restrict s2, const int s2Len,"
+                print " "*8+"const int open, const int gap, const int matrix[24][24]);"
+

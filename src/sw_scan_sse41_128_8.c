@@ -79,11 +79,6 @@ parasail_result_t* FNAME(
     __m128i vGapE = _mm_set1_epi8(gap);
     int8_t bias = INT8_MIN;
     __m128i vBias = _mm_set1_epi8(-bias);
-#if 0
-    __m128i vSaturationCheck = _mm_setzero_si128();
-    __m128i vNegLimit = _mm_set1_epi8(INT8_MIN);
-    __m128i vPosLimit = _mm_set1_epi8(INT8_MAX);
-#endif
     __m128i vMaxH = _mm_set1_epi8(NEG_INF_8);
     int8_t score = NEG_INF_8;
     __m128i segLenXgap_reset = _mm_set_epi8(
@@ -251,10 +246,8 @@ parasail_result_t* FNAME(
     }
 
     /* check for saturation */
-    if (score == INT8_MAX)
-    {
+    if (score == INT8_MAX) {
         result->saturated = 1;
-        score = INT8_MAX;
     }
 
     result->score = score - (int)(bias);

@@ -76,31 +76,7 @@ parasail_result_t* FNAME(
     __m128i vGapO = _mm_set1_epi8(open);
     __m128i vGapE = _mm_set1_epi8(gap);
     __m128i vZero = _mm_setzero_si128();
-    __m128i vOne16 = _mm_set1_epi16(1);
-    /* for max calculation we don't want to include padded cells */
-    __m128i vQIndexHi16_reset = _mm_set_epi16(
-            15*segLen,
-            14*segLen,
-            13*segLen,
-            12*segLen,
-            11*segLen,
-            10*segLen,
-            9*segLen,
-            8*segLen);
-    __m128i vQIndexLo16_reset = _mm_set_epi16(
-            7*segLen,
-            6*segLen,
-            5*segLen,
-            4*segLen,
-            3*segLen,
-            2*segLen,
-            1*segLen,
-            0*segLen);
-    __m128i vQLimit16 = _mm_set1_epi16(s1Len);
     __m128i vMaxH = vZero;
-    __m128i vSaturationCheck = _mm_setzero_si128();
-    __m128i vNegLimit = _mm_set1_epi8(INT8_MIN);
-    __m128i vPosLimit = _mm_set1_epi8(INT8_MAX);
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
@@ -144,8 +120,6 @@ parasail_result_t* FNAME(
 
     /* outer loop over database sequence */
     for (j=0; j<s2Len; ++j) {
-        __m128i vQIndexLo16 = vQIndexLo16_reset;
-        __m128i vQIndexHi16 = vQIndexHi16_reset;
         __m128i vE;
         /* Initialize F value to 0.  Any errors to vH values will be corrected
          * in the Lazy_F loop.  */
@@ -173,27 +147,13 @@ parasail_result_t* FNAME(
             vH = _mm_max_epi8(vH, vZero);
             /* Save vH values. */
             _mm_store_si128(pvHStore + i, vH);
-            /* check for saturation */
-            {
-                vSaturationCheck = _mm_or_si128(vSaturationCheck,
-                        _mm_or_si128(
-                            _mm_cmpeq_epi8(vH, vNegLimit),
-                            _mm_cmpeq_epi8(vH, vPosLimit)));
-            }
 #ifdef PARASAIL_TABLE
             arr_store_si128(result->score_table, vH, i, segLen, j, s2Len);
 #endif
 
             /* update max vector seen so far */
             {
-                __m128i cond_lmt = _mm_packs_epi16(
-                    _mm_cmplt_epi16(vQIndexLo16, vQLimit16),
-                    _mm_cmplt_epi16(vQIndexHi16, vQLimit16));
-                __m128i cond_max = _mm_cmpgt_epi8(vH, vMaxH);
-                __m128i cond_all = _mm_and_si128(cond_max, cond_lmt);
-                vMaxH = _mm_blendv_epi8(vMaxH, vH, cond_all);
-                vQIndexLo16 = _mm_add_epi16(vQIndexLo16, vOne16);
-                vQIndexHi16 = _mm_add_epi16(vQIndexHi16, vOne16);
+                vMaxH = _mm_max_epi8(vH, vMaxH);
             }
 
             /* Update vE value. */
@@ -218,13 +178,6 @@ parasail_result_t* FNAME(
                 vH = _mm_load_si128(pvHStore + i);
                 vH = _mm_max_epi8(vH,vF);
                 _mm_store_si128(pvHStore + i, vH);
-                /* check for saturation */
-                {
-                    vSaturationCheck = _mm_or_si128(vSaturationCheck,
-                            _mm_or_si128(
-                                _mm_cmpeq_epi8(vH, vNegLimit),
-                                _mm_cmpeq_epi8(vH, vPosLimit)));
-                }
 #ifdef PARASAIL_TABLE
                 arr_store_si128(result->score_table, vH, i, segLen, j, s2Len);
 #endif
@@ -246,6 +199,11 @@ end:
             score = value;
         }
         vMaxH = _mm_slli_si128(vMaxH, 1);
+    }
+
+    /* check for saturation */
+    if (score == INT8_MAX) {
+        result->saturated = 1;
     }
 
     result->score = score;

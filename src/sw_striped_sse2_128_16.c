@@ -68,17 +68,6 @@ parasail_result_t* FNAME(
     __m128i vGapE = _mm_set1_epi16(gap);
     __m128i vZero = _mm_setzero_si128();
     __m128i vOne = _mm_set1_epi16(1);
-    /* for max calculation we don't want to include padded cells */
-    __m128i vQLimit = _mm_set1_epi16(s1Len);
-    __m128i vQIndex_reset = _mm_set_epi16(
-            7*segLen,
-            6*segLen,
-            5*segLen,
-            4*segLen,
-            3*segLen,
-            2*segLen,
-            1*segLen,
-            0*segLen);
     __m128i vMaxH = vZero;
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
@@ -123,7 +112,6 @@ parasail_result_t* FNAME(
 
     /* outer loop over database sequence */
     for (j=0; j<s2Len; ++j) {
-        __m128i vQIndex = vQIndex_reset;
         __m128i vE;
         /* Initialize F value to 0.  Any errors to vH values will be corrected
          * in the Lazy_F loop.  */
@@ -157,12 +145,7 @@ parasail_result_t* FNAME(
 
             /* update max vector seen so far */
             {
-                __m128i cond_max = _mm_cmpgt_epi16(vH,vMaxH);
-                __m128i cond_lmt = _mm_cmplt_epi16(vQIndex,vQLimit);
-                __m128i cond_all = _mm_and_si128(cond_max, cond_lmt);
-                vMaxH = _mm_andnot_si128(cond_all, vMaxH);
-                vMaxH = _mm_or_si128(vMaxH, _mm_and_si128(cond_all, vH));
-                vQIndex = _mm_add_epi16(vQIndex, vOne);
+                vMaxH = _mm_max_epi16(vH, vMaxH);
             }
 
             /* Update vE value. */

@@ -89,17 +89,6 @@ parasail_result_t* FNAME(
     __m256i vGapE = _mm256_set1_epi32(gap);
     __m256i vZero = _mm256_setzero_si256();
     __m256i vOne = _mm256_set1_epi32(1);
-    /* for max calculation we don't want to include padded cells */
-    __m256i vQLimit = _mm256_set1_epi32(s1Len);
-    __m256i vQIndex_reset = _mm256_set_epi32(
-            7*segLen,
-            6*segLen,
-            5*segLen,
-            4*segLen,
-            3*segLen,
-            2*segLen,
-            1*segLen,
-            0*segLen);
     __m256i vMaxH = vZero;
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
@@ -144,7 +133,6 @@ parasail_result_t* FNAME(
 
     /* outer loop over database sequence */
     for (j=0; j<s2Len; ++j) {
-        __m256i vQIndex = vQIndex_reset;
         __m256i vE;
         /* Initialize F value to 0.  Any errors to vH values will be corrected
          * in the Lazy_F loop.  */
@@ -178,11 +166,7 @@ parasail_result_t* FNAME(
 
             /* update max vector seen so far */
             {
-                __m256i cond_max = _mm256_cmpgt_epi32(vH,vMaxH);
-                __m256i cond_lmt = _mm256_cmplt_epi32(vQIndex,vQLimit);
-                __m256i cond_all = _mm256_and_si256(cond_max, cond_lmt);
-                vMaxH = _mm256_blendv_epi8(vMaxH, vH, cond_all);
-                vQIndex = _mm256_add_epi32(vQIndex, vOne);
+                vMaxH = _mm256_max_epi32(vH, vMaxH);
             }
 
             /* Update vE value. */
@@ -213,7 +197,7 @@ parasail_result_t* FNAME(
                 vH = _mm256_sub_epi32(vH, vGapO);
                 vF = _mm256_sub_epi32(vF, vGapE);
                 if (! _mm256_movemask_epi8(_mm256_cmpgt_epi32(vF, vH))) goto end;
-                vF = _mm256_max_epi32(vF, vH);
+                /*vF = _mm256_max_epi32(vF, vH);*/
             }
         }
 end:

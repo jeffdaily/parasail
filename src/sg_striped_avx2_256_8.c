@@ -134,6 +134,7 @@ parasail_result_t* FNAME(
     __m256i vSaturationCheck = _mm256_setzero_si256();
     __m256i vNegLimit = _mm256_set1_epi8(INT8_MIN);
     __m256i vPosLimit = _mm256_set1_epi8(INT8_MAX);
+    __m256i vMaxH = vNegInf;
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
@@ -249,7 +250,7 @@ parasail_result_t* FNAME(
                 vH = _mm256_subs_epi8(vH, vGapO);
                 vF = _mm256_subs_epi8(vF, vGapE);
                 if (! _mm256_movemask_epi8(_mm256_cmpgt_epi8(vF, vH))) goto end;
-                vF = _mm256_max_epi8(vF, vH);
+                /*vF = _mm256_max_epi8(vF, vH);*/
             }
         }
 end:
@@ -270,63 +271,20 @@ end:
 
     /* max of last column */
     {
-        __m256i vMaxLastColH = vNegInf;
-        __m256i vQIndexHi16 = _mm256_set_epi16(
-                31*segLen,
-                30*segLen,
-                29*segLen,
-                28*segLen,
-                27*segLen,
-                26*segLen,
-                25*segLen,
-                24*segLen,
-                23*segLen,
-                22*segLen,
-                21*segLen,
-                10*segLen,
-                19*segLen,
-                18*segLen,
-                17*segLen,
-                16*segLen);
-        __m256i vQIndexLo16 = _mm256_set_epi16(
-                15*segLen,
-                14*segLen,
-                13*segLen,
-                12*segLen,
-                11*segLen,
-                10*segLen,
-                9*segLen,
-                8*segLen,
-                7*segLen,
-                6*segLen,
-                5*segLen,
-                4*segLen,
-                3*segLen,
-                2*segLen,
-                1*segLen,
-                0*segLen);
-        __m256i vQLimit16 = _mm256_set1_epi16(s1Len);
-        __m256i vOne16 = _mm256_set1_epi16(1);
+        vMaxH = vNegInf;
 
         for (i=0; i<segLen; ++i) {
             __m256i vH = _mm256_load_si256(pvHStore + i);
-            __m256i cond_lmt = pack16(
-                    _mm256_cmplt_epi16(vQIndexLo16, vQLimit16),
-                    _mm256_cmplt_epi16(vQIndexHi16, vQLimit16));
-            __m256i cond_max = _mm256_cmpgt_epi8(vH, vMaxLastColH);
-            __m256i cond_all = _mm256_and_si256(cond_max, cond_lmt);
-            vMaxLastColH = _mm256_blendv_epi8(vMaxLastColH, vH, cond_all);
-            vQIndexLo16 = _mm256_adds_epi16(vQIndexLo16, vOne16);
-            vQIndexHi16 = _mm256_adds_epi16(vQIndexHi16, vOne16);
+            vMaxH = _mm256_max_epi8(vH, vMaxH);
         }
 
         /* max in vec */
         for (j=0; j<segWidth; ++j) {
-            int8_t value = (int8_t) _mm256_extract_epi8(vMaxLastColH, 31);
+            int8_t value = (int8_t) _mm256_extract_epi8(vMaxH, 31);
             if (value > score) {
                 score = value;
             }
-            vMaxLastColH = shift(vMaxLastColH);
+            vMaxH = shift(vMaxH);
         }
     }
 

@@ -247,26 +247,11 @@ parasail_result_t* FNAME(
 
     /* max of last column */
     {
-        __m256i vOne = _mm256_set1_epi32(1);
-        __m256i vQLimit = _mm256_set1_epi32(s1Len-1);
-        __m256i vQIndex = _mm256_set_epi32(
-                7*segLen,
-                6*segLen,
-                5*segLen,
-                4*segLen,
-                3*segLen,
-                2*segLen,
-                1*segLen,
-                0*segLen);
         vMaxH = vNegInf;
 
         for (i=0; i<segLen; ++i) {
             __m256i vH = _mm256_load_si256(pvH + i);
-            __m256i cond_lmt = _mm256_cmpgt_epi32(vQIndex, vQLimit);
-            __m256i cond_max = _mm256_cmpgt_epi32(vH, vMaxH);
-            __m256i cond_all = _mm256_andnot_si256(cond_lmt, cond_max);
-            vMaxH = _mm256_blendv_epi8(vMaxH, vH, cond_all);
-            vQIndex = _mm256_add_epi32(vQIndex, vOne);
+            vMaxH = _mm256_max_epi32(vH, vMaxH);
         }
 
         /* max in vec */

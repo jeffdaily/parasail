@@ -91,10 +91,12 @@ parasail_result_t* FNAME(
     __m256i* restrict pvHStore = parasail_memalign_m256i(32, segLen);
     __m256i* restrict pvHLoad =  parasail_memalign_m256i(32, segLen);
     __m256i* const restrict pvE = parasail_memalign_m256i(32, segLen);
-    int score = NEG_INF_32;
     __m256i vGapO = _mm256_set1_epi32(open);
     __m256i vGapE = _mm256_set1_epi32(gap);
     __m256i vOne = _mm256_set1_epi32(1);
+    __m256i vNegInf = _mm256_set1_epi32(NEG_INF_32);
+    int score = NEG_INF_32;
+    __m256i vMaxH = vNegInf;
     __m256i initialF = _mm256_set_epi32(
             -open-open-7*segLen*gap,
             -open-open-6*segLen*gap,
@@ -206,56 +208,45 @@ parasail_result_t* FNAME(
                 vH = _mm256_sub_epi32(vH, vGapO);
                 vF = _mm256_sub_epi32(vF, vGapE);
                 if (! _mm256_movemask_epi8(_mm256_cmpgt_epi32(vF, vH))) goto end;
-                vF = _mm256_max_epi32(vF, vH);
+                /*vF = _mm256_max_epi32(vF, vH);*/
             }
         }
 end:
         {
-            /* extract last value from the column */
-            int32_t tmp;
+            /* extract vector containing last value from the column */
             vH = _mm256_load_si256(pvHStore + offset);
-            for (k=0; k<position; ++k) {
-                vH = shift(vH);
-            }
-            /* max of last value in each column */
-            tmp = (int32_t) _mm256_extract_epi32 (vH, 7);
-            if (tmp > score) {
-                score = tmp;
-            }
+            vMaxH = _mm256_max_epi32(vH, vMaxH);
+        }
+    }
+
+    /* max last value from all columns */
+    {
+        int32_t value;
+        for (k=0; k<position; ++k) {
+            vMaxH = shift(vMaxH);
+        }
+        value = (int32_t) _mm256_extract_epi32(vMaxH, 7);
+        if (value > score) {
+            score = value;
         }
     }
 
     /* max of last column */
     {
-        __m256i vNegInf = _mm256_set1_epi32(NEG_INF_32);
-        __m256i vMaxLastColH = vNegInf;
-        __m256i vQIndex = _mm256_set_epi32(
-                7*segLen,
-                6*segLen,
-                5*segLen,
-                4*segLen,
-                3*segLen,
-                2*segLen,
-                1*segLen,
-                0*segLen);
-        __m256i vQLimit1 = _mm256_set1_epi32(s1Len-1);
+        vMaxH = vNegInf;
 
         for (i=0; i<segLen; ++i) {
             __m256i vH = _mm256_load_si256(pvHStore + i);
-            __m256i cond_lmt = _mm256_cmpgt_epi32(vQIndex, vQLimit1);
-            __m256i cond_max = _mm256_cmpgt_epi32(vH, vMaxLastColH);
-            __m256i cond_all = _mm256_andnot_si256(cond_lmt, cond_max);
-            vMaxLastColH = _mm256_blendv_epi8(vMaxLastColH, vH, cond_all);
-            vQIndex = _mm256_add_epi32(vQIndex, vOne);
+            vMaxH = _mm256_max_epi32(vH, vMaxH);
         }
 
         /* max in vec */
         for (j=0; j<segWidth; ++j) {
-            int32_t value = (int32_t) _mm256_extract_epi32(vMaxLastColH, 7);
+            int32_t value = (int32_t) _mm256_extract_epi32(vMaxH, 7);
             if (value > score) {
                 score = value;
             }
-            vMaxLastColH = shift(vMaxLastColH);
+            vMaxH = shift(vMaxH);
         }
     }
 

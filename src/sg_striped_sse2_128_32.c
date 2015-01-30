@@ -84,10 +84,12 @@ parasail_result_t* FNAME(
     __m128i* restrict pvHStore = parasail_memalign_m128i(16, segLen);
     __m128i* restrict pvHLoad =  parasail_memalign_m128i(16, segLen);
     __m128i* const restrict pvE = parasail_memalign_m128i(16, segLen);
-    int score = NEG_INF_32;
     __m128i vGapO = _mm_set1_epi32(open);
     __m128i vGapE = _mm_set1_epi32(gap);
+    __m128i vNegInf = _mm_set1_epi32(NEG_INF_32);
     __m128i vOne = _mm_set1_epi32(1);
+    int score = NEG_INF_32;
+    __m128i vMaxH = vNegInf;
     __m128i initialF = _mm_set_epi32(
             -open-open-3*segLen*gap,
             -open-open-2*segLen*gap,
@@ -195,53 +197,45 @@ parasail_result_t* FNAME(
                 vH = _mm_sub_epi32(vH, vGapO);
                 vF = _mm_sub_epi32(vF, vGapE);
                 if (! _mm_movemask_epi8(_mm_cmpgt_epi32(vF, vH))) goto end;
-                vF = _mm_max_epi32(vF, vH);
+                /*vF = _mm_max_epi32(vF, vH);*/
             }
         }
 end:
         {
-            /* extract last value from the column */
-            int32_t tmp;
+            /* extract vector containing last value from the column */
             vH = _mm_load_si128(pvHStore + offset);
-            for (k=0; k<position; ++k) {
-                vH = _mm_slli_si128 (vH, 4);
-            }
-            /* max of last value in each column */
-            tmp = (int32_t) _mm_extract_epi32 (vH, 3);
-            if (tmp > score) {
-                score = tmp;
-            }
+            vMaxH = _mm_max_epi32(vH, vMaxH);
+        }
+    }
+
+    /* extract last value from column */
+    {
+        int32_t value;
+        for (k=0; k<position; ++k) {
+            vMaxH = _mm_slli_si128(vMaxH, 4);
+        }
+        value = (int32_t) _mm_extract_epi32(vMaxH, 3);
+        if (value > score) {
+            score = value;
         }
     }
 
     /* max of last column */
     {
-        __m128i vNegInf = _mm_set1_epi32(NEG_INF_32);
-        __m128i vMaxLastColH = vNegInf;
-        __m128i vQIndex = _mm_set_epi32(
-                3*segLen,
-                2*segLen,
-                1*segLen,
-                0*segLen);
-        __m128i vQLimit = _mm_set1_epi32(s1Len);
+        vMaxH = vNegInf;
 
         for (i=0; i<segLen; ++i) {
             __m128i vH = _mm_load_si128(pvHStore + i);
-            __m128i cond_lmt = _mm_cmplt_epi32(vQIndex, vQLimit);
-            __m128i cond_max = _mm_cmpgt_epi32(vH, vMaxLastColH);
-            __m128i cond_all = _mm_and_si128(cond_max, cond_lmt);
-            vMaxLastColH = _mm_andnot_si128(cond_all, vMaxLastColH);
-            vMaxLastColH = _mm_or_si128(vMaxLastColH, _mm_and_si128(cond_all, vH));
-            vQIndex = _mm_add_epi32(vQIndex, vOne);
+            vMaxH = _mm_max_epi32(vH, vMaxH);
         }
 
         /* max in vec */
         for (j=0; j<segWidth; ++j) {
-            int32_t value = (int32_t) _mm_extract_epi32(vMaxLastColH, 3);
+            int32_t value = (int32_t) _mm_extract_epi32(vMaxH, 3);
             if (value > score) {
                 score = value;
             }
-            vMaxLastColH = _mm_slli_si128(vMaxLastColH, 4);
+            vMaxH = _mm_slli_si128(vMaxH, 4);
         }
     }
 

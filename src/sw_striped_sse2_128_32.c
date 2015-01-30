@@ -187,7 +187,7 @@ parasail_result_t* FNAME(
                 vH = _mm_sub_epi32(vH, vGapO);
                 vF = _mm_sub_epi32(vF, vGapE);
                 if (! _mm_movemask_epi8(_mm_cmpgt_epi32(vF, vH))) goto end;
-                vF = _mm_max_epi32(vF, vH);
+                /*vF = _mm_max_epi32(vF, vH);*/
             }
         }
 end:

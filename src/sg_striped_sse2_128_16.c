@@ -70,7 +70,6 @@ parasail_result_t* FNAME(
     __m128i vNegInf = _mm_set1_epi16(NEG_INF_16);
     int score = NEG_INF_16;
     __m128i vMaxH = vNegInf;
-    __m128i vOne = _mm_set1_epi16(1);
     __m128i initialF = _mm_set_epi16(
             -open-open-7*segLen*gap,
             -open-open-6*segLen*gap,

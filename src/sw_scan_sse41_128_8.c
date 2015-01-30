@@ -78,7 +78,6 @@ parasail_result_t* FNAME(
     __m128i vGapO = _mm_set1_epi8(open);
     __m128i vGapE = _mm_set1_epi8(gap);
     int8_t bias = INT8_MIN;
-    __m128i vBias = _mm_set1_epi8(-bias);
     __m128i vMaxH = _mm_set1_epi8(NEG_INF_8);
     int8_t score = NEG_INF_8;
     __m128i segLenXgap_reset = _mm_set_epi8(
@@ -89,7 +88,7 @@ parasail_result_t* FNAME(
     __m128i rotate = _mm_set_epi8(14,13,12,11,10,9,8,7,6,5,4,3,2,1,0,15);
     __m128i insert = _mm_cmpeq_epi8(_mm_setzero_si128(),
             _mm_set_epi8(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1));
-    __m128i vZero = _mm_setzero_si128();
+    /*__m128i vZero = _mm_setzero_si128();*/
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else

@@ -65,7 +65,6 @@ parasail_result_t* FNAME(
     __m128i vGapO = _mm_set1_epi32(open);
     __m128i vGapE = _mm_set1_epi32(gap);
     __m128i vZero = _mm_setzero_si128();
-    __m128i vOne = _mm_set1_epi32(1);
     int32_t score = NEG_INF_32;
     __m128i segLenXgap_reset = _mm_set_epi32(
             NEG_INF_32, NEG_INF_32, NEG_INF_32, -segLen*gap);

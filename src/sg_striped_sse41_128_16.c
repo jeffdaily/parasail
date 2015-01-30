@@ -68,7 +68,6 @@ parasail_result_t* FNAME(
     __m128i* const restrict pvE = parasail_memalign_m128i(16, segLen);
     __m128i vGapO = _mm_set1_epi16(open);
     __m128i vGapE = _mm_set1_epi16(gap);
-    __m128i vOne = _mm_set1_epi16(1);
     __m128i vNegInf = _mm_set1_epi16(NEG_INF_16);
     int score = NEG_INF_16;
     __m128i vMaxH = vNegInf;

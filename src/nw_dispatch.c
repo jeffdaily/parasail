@@ -23,15 +23,12 @@ typedef parasail_result_t* parasail_func(
         const int open, const int gap, const int matrix[24][24]);
 
 /* forward declare the dispatcher function */
-parasail_func parasail_nw_scan_dispatcher;
 parasail_func parasail_nw_scan_32_dispatcher;
 parasail_func parasail_nw_scan_16_dispatcher;
 parasail_func parasail_nw_scan_8_dispatcher;
-parasail_func parasail_nw_striped_dispatcher;
 parasail_func parasail_nw_striped_32_dispatcher;
 parasail_func parasail_nw_striped_16_dispatcher;
 parasail_func parasail_nw_striped_8_dispatcher;
-parasail_func parasail_nw_diag_dispatcher;
 parasail_func parasail_nw_diag_32_dispatcher;
 parasail_func parasail_nw_diag_16_dispatcher;
 parasail_func parasail_nw_diag_8_dispatcher;

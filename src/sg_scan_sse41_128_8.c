@@ -283,39 +283,12 @@ parasail_result_t* FNAME(
 
     /* max of last column */
     {
-        __m128i vQIndexHi16 = _mm_set_epi16(
-                15*segLen,
-                14*segLen,
-                13*segLen,
-                12*segLen,
-                11*segLen,
-                10*segLen,
-                9*segLen,
-                8*segLen);
-        __m128i vQIndexLo16 = _mm_set_epi16(
-                7*segLen,
-                6*segLen,
-                5*segLen,
-                4*segLen,
-                3*segLen,
-                2*segLen,
-                1*segLen,
-                0*segLen);
-        __m128i vQLimit16 = _mm_set1_epi16(s1Len);
-        __m128i vOne16 = _mm_set1_epi16(1);
         vMaxH = vNegInf;
 
         for (i=0; i<segLen; ++i) {
             /* load the last stored values */
             __m128i vH = _mm_load_si128(pvH + i);
-            __m128i cond_lmt = _mm_packs_epi16(
-                    _mm_cmplt_epi16(vQIndexLo16, vQLimit16),
-                    _mm_cmplt_epi16(vQIndexHi16, vQLimit16));
-            __m128i cond_max = _mm_cmpgt_epi8(vH, vMaxH);
-            __m128i cond_all = _mm_and_si128(cond_max, cond_lmt);
-            vMaxH = _mm_blendv_epi8(vMaxH, vH, cond_all);
-            vQIndexLo16 = _mm_adds_epi16(vQIndexLo16, vOne16);
-            vQIndexHi16 = _mm_adds_epi16(vQIndexHi16, vOne16);
+            vMaxH = _mm_max_epi8(vH, vMaxH);
         }
 
         /* max in vec */

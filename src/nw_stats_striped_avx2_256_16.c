@@ -355,7 +355,7 @@ parasail_result_t* FNAME(
                 vH = _mm256_sub_epi16(vH, vGapO);
                 vF = _mm256_sub_epi16(vF, vGapE);
                 if (! _mm256_movemask_epi8(_mm256_cmpgt_epi16(vF, vH))) goto end;
-                vF = _mm256_max_epi16(vF, vH);
+                /*vF = _mm256_max_epi16(vF, vH);*/
                 vFM = vHM;
                 vFL = vHL;
                 vHp = _mm256_load_si256(pvHLoad + i);

@@ -301,7 +301,7 @@ parasail_result_t* FNAME(
                 vH = _mm_subs_epi16(vH, vGapO);
                 vF = _mm_subs_epi16(vF, vGapE);
                 if (! _mm_movemask_epi8(_mm_cmpgt_epi16(vF, vH))) goto end;
-                vF = _mm_max_epi16(vF, vH);
+                /*vF = _mm_max_epi16(vF, vH);*/
                 vFM = vHM;
                 vFL = vHL;
                 vHp = _mm_load_si128(pvHLoad + i);

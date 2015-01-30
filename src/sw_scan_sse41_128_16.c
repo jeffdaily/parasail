@@ -83,16 +83,6 @@ parasail_result_t* FNAME(
     parasail_result_t *result = parasail_result_new();
 #endif
     __m128i vMaxH = _mm_set1_epi16(NEG_INF_16);
-    __m128i vQLimit = _mm_set1_epi16(s1Len);
-    __m128i vQIndex_reset = _mm_set_epi16(
-            7*segLen,
-            6*segLen,
-            5*segLen,
-            4*segLen,
-            3*segLen,
-            2*segLen,
-            1*segLen,
-            0*segLen);
 
     /* Generate query profile.
      * Rearrange query sequence & calculate the weight of match/mismatch.
@@ -138,7 +128,6 @@ parasail_result_t* FNAME(
         __m128i vHp;
         __m128i *pvW;
         __m128i vW;
-        __m128i vQIndex = vQIndex_reset;
 
         /* calculate E */
         /* calculate Ht */
@@ -219,11 +208,7 @@ parasail_result_t* FNAME(
 #endif
             /* update max vector seen so far */
             {
-                __m128i cond_max = _mm_cmpgt_epi16(vH,vMaxH);
-                __m128i cond_lmt = _mm_cmplt_epi16(vQIndex,vQLimit);
-                __m128i cond_all = _mm_and_si128(cond_max, cond_lmt);
-                vMaxH = _mm_blendv_epi8(vMaxH, vH, cond_all);
-                vQIndex = _mm_add_epi16(vQIndex, vOne);
+                vMaxH = _mm_max_epi16(vH, vMaxH);
             }
         }
     }

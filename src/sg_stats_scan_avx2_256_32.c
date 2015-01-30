@@ -395,16 +395,6 @@ parasail_result_t* FNAME(
 
     /* max of last column */
     {
-        __m256i vQLimit = _mm256_set1_epi32(s1Len);
-        __m256i vQIndex = _mm256_set_epi32(
-                7*segLen,
-                6*segLen,
-                5*segLen,
-                4*segLen,
-                3*segLen,
-                2*segLen,
-                1*segLen,
-                0*segLen);
         vMaxH = vNegInf;
         vMaxM = vZero;
         vMaxL = vZero;
@@ -413,13 +403,10 @@ parasail_result_t* FNAME(
             __m256i vH = _mm256_load_si256(pvH + i);
             __m256i vM = _mm256_load_si256(pvM + i);
             __m256i vL = _mm256_load_si256(pvL + i);
-            __m256i cond_lmt = _mm256_cmplt_epi32(vQIndex, vQLimit);
             __m256i cond_max = _mm256_cmpgt_epi32(vH, vMaxH);
-            __m256i cond_all = _mm256_and_si256(cond_max, cond_lmt);
-            vMaxH = _mm256_blendv_epi8(vMaxH, vH, cond_all);
-            vMaxM = _mm256_blendv_epi8(vMaxM, vM, cond_all);
-            vMaxL = _mm256_blendv_epi8(vMaxL, vL, cond_all);
-            vQIndex = _mm256_add_epi32(vQIndex, vOne);
+            vMaxH = _mm256_blendv_epi8(vMaxH, vH, cond_max);
+            vMaxM = _mm256_blendv_epi8(vMaxM, vM, cond_max);
+            vMaxL = _mm256_blendv_epi8(vMaxL, vL, cond_max);
         }
 
         /* max in vec */

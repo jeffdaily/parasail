@@ -146,25 +146,6 @@ parasail_result_t* FNAME(
     __m128i vMaxH = vZero;
     __m128i vMaxM = vZero;
     __m128i vMaxL = vZero;
-    __m128i vQLimit16 = _mm_set1_epi16(s1Len);
-    __m128i vQIndexHi16_reset = _mm_set_epi16(
-            15*segLen,
-            14*segLen,
-            13*segLen,
-            12*segLen,
-            11*segLen,
-            10*segLen,
-            9*segLen,
-            8*segLen);
-    __m128i vQIndexLo16_reset = _mm_set_epi16(
-            7*segLen,
-            6*segLen,
-            5*segLen,
-            4*segLen,
-            3*segLen,
-            2*segLen,
-            1*segLen,
-            0*segLen);
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table3(segLen*segWidth, s2Len);
 #else
@@ -232,8 +213,6 @@ parasail_result_t* FNAME(
         __m128i vLp;
         __m128i vLt;
         __m128i vEx;
-        __m128i vQIndexHi16;
-        __m128i vQIndexLo16;
 
         /* calculate E */
         for (i=0; i<segLen; ++i) {
@@ -412,8 +391,6 @@ parasail_result_t* FNAME(
             vLp = _mm_adds_epi8(vLp, vOne);
         }
         /* final pass for M,L */
-        vQIndexLo16 = vQIndexLo16_reset;
-        vQIndexHi16 = vQIndexHi16_reset;
         vMp = _mm_slli_si128(vMp, 1);
         vMp = _mm_insert_epi8(vMp, -bias, 0);
         vLp = _mm_slli_si128(vLp, 1);
@@ -451,19 +428,13 @@ parasail_result_t* FNAME(
 #endif
             /* update max vector seen so far */
             {
-                __m128i cond_lmt = _mm_packs_epi16(
-                        _mm_cmplt_epi16(vQIndexLo16, vQLimit16),
-                        _mm_cmplt_epi16(vQIndexHi16, vQLimit16));
                 __m128i cond_max = _mm_cmpgt_epi8(vH, vMaxH);
-                __m128i cond_all = _mm_and_si128(cond_max, cond_lmt);
-                vMaxH = _mm_andnot_si128(cond_all, vMaxH);
-                vMaxH = _mm_or_si128(vMaxH, _mm_and_si128(cond_all, vH));
-                vMaxM = _mm_andnot_si128(cond_all, vMaxM);
-                vMaxM = _mm_or_si128(vMaxM, _mm_and_si128(cond_all, vM));
-                vMaxL = _mm_andnot_si128(cond_all, vMaxL);
-                vMaxL = _mm_or_si128(vMaxL, _mm_and_si128(cond_all, vL));
-                vQIndexLo16 = _mm_adds_epi16(vQIndexLo16, vOne16);
-                vQIndexHi16 = _mm_adds_epi16(vQIndexHi16, vOne16);
+                vMaxH = _mm_andnot_si128(cond_max, vMaxH);
+                vMaxH = _mm_or_si128(vMaxH, _mm_and_si128(cond_max, vH));
+                vMaxM = _mm_andnot_si128(cond_max, vMaxM);
+                vMaxM = _mm_or_si128(vMaxM, _mm_and_si128(cond_max, vM));
+                vMaxL = _mm_andnot_si128(cond_max, vMaxL);
+                vMaxL = _mm_or_si128(vMaxL, _mm_and_si128(cond_max, vL));
             }
         }
     }

@@ -99,6 +99,10 @@ parasail_result_t* FNAME(
     int32_t score = NEG_INF_32;
     int32_t matches = NEG_INF_32;
     int32_t length = NEG_INF_32;
+    __m128i vNegInf = _mm_set1_epi32(NEG_INF_32);
+    __m128i vMaxH = vNegInf;
+    __m128i vMaxHM = vNegInf;
+    __m128i vMaxHL = vNegInf;
     __m128i initialF = _mm_set_epi32(
             -open-3*segLen*gap,
             -open-2*segLen*gap,
@@ -316,71 +320,74 @@ parasail_result_t* FNAME(
         }
 end:
         {
-            int32_t tmp;
-            /* extract last value from the column */
+            /* extract vector containing last value from the column */
+            __m128i cond_max;
             vH = _mm_load_si128(pvHStore + offset);
             vHM = _mm_load_si128(pvHMStore + offset);
             vHL = _mm_load_si128(pvHLStore + offset);
-            for (k=0; k<position; ++k) {
-                vH = _mm_slli_si128 (vH, 4);
-                vHM = _mm_slli_si128 (vHM, 4);
-                vHL = _mm_slli_si128 (vHL, 4);
-            }
-            /* max of last value in each column */
-            tmp = (int32_t) _mm_extract_epi32 (vH, 3);
-            if (tmp > score) {
-                score = tmp;
-                matches = (int32_t)_mm_extract_epi32(vHM, 3);
-                length = (int32_t)_mm_extract_epi32(vHL, 3);
-            }
+            cond_max = _mm_cmpgt_epi32(vH, vMaxH);
+            vMaxH = _mm_andnot_si128(cond_max, vMaxH);
+            vMaxH = _mm_or_si128(vMaxH,
+                    _mm_and_si128(cond_max, vH));
+            vMaxHM = _mm_andnot_si128(cond_max, vMaxHM);
+            vMaxHM = _mm_or_si128(vMaxHM,
+                    _mm_and_si128(cond_max, vHM));
+            vMaxHL = _mm_andnot_si128(cond_max, vMaxHL);
+            vMaxHL = _mm_or_si128(vMaxHL,
+                    _mm_and_si128(cond_max, vHL));
+        }
+    }
+
+    /* extract last value from the column */
+    {
+        int32_t tmp;
+        for (k=0; k<position; ++k) {
+            vMaxH  = _mm_slli_si128(vMaxH, 4);
+            vMaxHM = _mm_slli_si128(vMaxHM, 4);
+            vMaxHL = _mm_slli_si128(vMaxHL, 4);
+        }
+        tmp = (int32_t) _mm_extract_epi32 (vMaxH, 3);
+        if (tmp > score) {
+            score = tmp;
+            matches = (int32_t)_mm_extract_epi32(vMaxHM, 3);
+            length = (int32_t)_mm_extract_epi32(vMaxHL, 3);
         }
     }
 
     /* max of last column */
     {
-        __m128i vNegInf = _mm_set1_epi32(NEG_INF_32);
-        __m128i vMaxLastColH = vNegInf;
-        __m128i vMaxLastColHM = vNegInf;
-        __m128i vMaxLastColHL = vNegInf;
-        __m128i vQIndex = _mm_set_epi32(
-                3*segLen,
-                2*segLen,
-                1*segLen,
-                0*segLen);
-        __m128i vQLimit = _mm_set1_epi32(s1Len);
+        vMaxH = vNegInf;
+        vMaxHM = vNegInf;
+        vMaxHL = vNegInf;
 
         for (i=0; i<segLen; ++i) {
             /* load the last stored values */
             __m128i vH = _mm_load_si128(pvHStore + i);
             __m128i vHM = _mm_load_si128(pvHMStore + i);
             __m128i vHL = _mm_load_si128(pvHLStore + i);
-            /* mask off the values that were padded */
-            __m128i cond_lmt = _mm_cmplt_epi32(vQIndex, vQLimit);
-            __m128i cond_max = _mm_cmpgt_epi32(vH, vMaxLastColH);
-            __m128i cond_all = _mm_and_si128(cond_max, cond_lmt);
-            vMaxLastColH = _mm_andnot_si128(cond_all, vMaxLastColH);
-            vMaxLastColH = _mm_or_si128(vMaxLastColH,
-                    _mm_and_si128(cond_all, vH));
-            vMaxLastColHM = _mm_andnot_si128(cond_all, vMaxLastColHM);
-            vMaxLastColHM = _mm_or_si128(vMaxLastColHM,
-                    _mm_and_si128(cond_all, vHM));
-            vMaxLastColHL = _mm_andnot_si128(cond_all, vMaxLastColHL);
-            vMaxLastColHL = _mm_or_si128(vMaxLastColHL,
-                    _mm_and_si128(cond_all, vHL));
-            vQIndex = _mm_add_epi32(vQIndex, vOne);
+            __m128i cond_max = _mm_cmpgt_epi32(vH, vMaxH);
+            vMaxH = _mm_andnot_si128(cond_max, vMaxH);
+            vMaxH = _mm_or_si128(vMaxH,
+                    _mm_and_si128(cond_max, vH));
+            vMaxHM = _mm_andnot_si128(cond_max, vMaxHM);
+            vMaxHM = _mm_or_si128(vMaxHM,
+                    _mm_and_si128(cond_max, vHM));
+            vMaxHL = _mm_andnot_si128(cond_max, vMaxHL);
+            vMaxHL = _mm_or_si128(vMaxHL,
+                    _mm_and_si128(cond_max, vHL));
         }
 
         /* max in vec */
         for (j=0; j<segWidth; ++j) {
-            int32_t value = (int32_t) _mm_extract_epi32(vMaxLastColH, 3);
+            int32_t value = (int32_t) _mm_extract_epi32(vMaxH, 3);
             if (value > score) {
                 score = value;
-                matches = (int32_t)_mm_extract_epi32(vMaxLastColHM, 3);
-                length = (int32_t)_mm_extract_epi32(vMaxLastColHL, 3);
+                matches = (int32_t)_mm_extract_epi32(vMaxHM, 3);
+                length = (int32_t)_mm_extract_epi32(vMaxHL, 3);
             }
-            vMaxLastColH = _mm_slli_si128(vMaxLastColH, 4);
-            vMaxLastColHM = _mm_slli_si128(vMaxLastColHM, 4);
-            vMaxLastColHL = _mm_slli_si128(vMaxLastColHL, 4);
+            vMaxH = _mm_slli_si128(vMaxH, 4);
+            vMaxHM = _mm_slli_si128(vMaxHM, 4);
+            vMaxHL = _mm_slli_si128(vMaxHL, 4);
         }
     }
 

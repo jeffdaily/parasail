@@ -214,41 +214,6 @@ parasail_result_t* FNAME(
     __m256i vMaxH = vZero;
     __m256i vMaxM = vZero;
     __m256i vMaxL = vZero;
-    __m256i vQLimit16 = _mm256_set1_epi16(s1Len);
-    __m256i vQIndexHi16_reset = _mm256_set_epi16(
-            31*segLen,
-            30*segLen,
-            29*segLen,
-            28*segLen,
-            27*segLen,
-            26*segLen,
-            25*segLen,
-            24*segLen,
-            23*segLen,
-            22*segLen,
-            21*segLen,
-            20*segLen,
-            19*segLen,
-            18*segLen,
-            17*segLen,
-            16*segLen);
-    __m256i vQIndexLo16_reset = _mm256_set_epi16(
-            15*segLen,
-            14*segLen,
-            13*segLen,
-            12*segLen,
-            11*segLen,
-            10*segLen,
-            9*segLen,
-            8*segLen,
-            7*segLen,
-            6*segLen,
-            5*segLen,
-            4*segLen,
-            3*segLen,
-            2*segLen,
-            1*segLen,
-            0*segLen);
     __m256i segLenXgap_reset = _mm256_set_epi8(
             NEG_INF_8, NEG_INF_8, NEG_INF_8, NEG_INF_8,
             NEG_INF_8, NEG_INF_8, NEG_INF_8, NEG_INF_8,
@@ -325,8 +290,6 @@ parasail_result_t* FNAME(
         __m256i vLp;
         __m256i vLt;
         __m256i vEx;
-        __m256i vQIndexLo16;
-        __m256i vQIndexHi16;
 
         /* calculate E */
         for (i=0; i<segLen; ++i) {
@@ -497,8 +460,6 @@ parasail_result_t* FNAME(
             vLp = _mm256_adds_epi8(vLp, vOne);
         }
         /* final pass for M,L */
-        vQIndexLo16 = vQIndexLo16_reset;
-        vQIndexHi16 = vQIndexHi16_reset;
         vMp = shift(vMp);
         vMp = _mm256_insert_epi8(vMp, -bias, 0);
         vLp = shift(vLp);
@@ -530,16 +491,10 @@ parasail_result_t* FNAME(
 #endif
             /* update max vector seen so far */
             {
-                __m256i cond_lmt = pack16(
-                    _mm256_cmplt_epi16(vQIndexLo16, vQLimit16),
-                    _mm256_cmplt_epi16(vQIndexHi16, vQLimit16));
                 __m256i cond_max = _mm256_cmpgt_epi8(vH, vMaxH);
-                __m256i cond_all = _mm256_and_si256(cond_max, cond_lmt);
-                vMaxH = _mm256_blendv_epi8(vMaxH, vH, cond_all);
-                vMaxM = _mm256_blendv_epi8(vMaxM, vM, cond_all);
-                vMaxL = _mm256_blendv_epi8(vMaxL, vL, cond_all);
-                vQIndexLo16 = _mm256_adds_epi8(vQIndexLo16, vOne16);
-                vQIndexHi16 = _mm256_adds_epi8(vQIndexHi16, vOne16);
+                vMaxH = _mm256_blendv_epi8(vMaxH, vH, cond_max);
+                vMaxM = _mm256_blendv_epi8(vMaxM, vM, cond_max);
+                vMaxL = _mm256_blendv_epi8(vMaxL, vL, cond_max);
             }
         }
     }

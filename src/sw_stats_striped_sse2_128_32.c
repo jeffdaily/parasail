@@ -89,13 +89,6 @@ parasail_result_t* FNAME(
     int32_t score = NEG_INF_32;
     int32_t matches = NEG_INF_32;
     int32_t length = NEG_INF_32;
-    /* for max calculation we don't want to include padded cells */
-    __m128i vQLimit = _mm_set1_epi32(s1Len);
-    __m128i vQIndex_reset = _mm_set_epi32(
-            3*segLen,
-            2*segLen,
-            1*segLen,
-            0*segLen);
     /* Trace the highest score of the whole SW matrix. */
     __m128i vMaxH = vZero;
     __m128i vMaxM = vZero;
@@ -149,7 +142,6 @@ parasail_result_t* FNAME(
 
     /* outer loop over database sequence */
     for (j=0; j<s2Len; ++j) {
-        __m128i vQIndex = vQIndex_reset;
         __m128i vE;
         __m128i vEM;
         __m128i vEL;
@@ -245,15 +237,12 @@ parasail_result_t* FNAME(
             /* update max vector seen so far */
             {
                 __m128i cond_max = _mm_cmpgt_epi32(vH,vMaxH);
-                __m128i cond_lmt = _mm_cmplt_epi32(vQIndex,vQLimit);
-                __m128i cond_all = _mm_and_si128(cond_max, cond_lmt);
-                vMaxH = _mm_andnot_si128(cond_all, vMaxH);
-                vMaxH = _mm_or_si128(vMaxH, _mm_and_si128(cond_all, vH));
-                vMaxM = _mm_andnot_si128(cond_all, vMaxM);
-                vMaxM = _mm_or_si128(vMaxM, _mm_and_si128(cond_all, vHM));
-                vMaxL = _mm_andnot_si128(cond_all, vMaxL);
-                vMaxL = _mm_or_si128(vMaxL, _mm_and_si128(cond_all, vHL));
-                vQIndex = _mm_add_epi32(vQIndex, vOne);
+                vMaxH = _mm_andnot_si128(cond_max, vMaxH);
+                vMaxH = _mm_or_si128(vMaxH, _mm_and_si128(cond_max, vH));
+                vMaxM = _mm_andnot_si128(cond_max, vMaxM);
+                vMaxM = _mm_or_si128(vMaxM, _mm_and_si128(cond_max, vHM));
+                vMaxL = _mm_andnot_si128(cond_max, vMaxL);
+                vMaxL = _mm_or_si128(vMaxL, _mm_and_si128(cond_max, vHL));
             }
 
             /* Update vE value. */

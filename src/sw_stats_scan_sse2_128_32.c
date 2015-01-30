@@ -101,12 +101,6 @@ parasail_result_t* FNAME(
     __m128i vMaxH = vZero;
     __m128i vMaxM = vZero;
     __m128i vMaxL = vZero;
-    __m128i vQLimit = _mm_set1_epi32(s1Len);
-    __m128i vQIndex_reset = _mm_set_epi32(
-            3*segLen,
-            2*segLen,
-            1*segLen,
-            0*segLen);
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table3(segLen*segWidth, s2Len);
 #else
@@ -171,7 +165,6 @@ parasail_result_t* FNAME(
         __m128i vLp;
         __m128i vLt;
         __m128i vEx;
-        __m128i vQIndex;
 
         /* calculate E */
         for (i=0; i<segLen; ++i) {
@@ -303,7 +296,6 @@ parasail_result_t* FNAME(
             vLp = _mm_add_epi32(vLp, vOne);
         }
         /* final pass for M,L */
-        vQIndex = vQIndex_reset;
         vMp = _mm_slli_si128(vMp, 4);
         vLp = _mm_slli_si128(vLp, 4);
         for (i=0; i<segLen; ++i) {
@@ -328,16 +320,13 @@ parasail_result_t* FNAME(
 #endif
             /* update max vector seen so far */
             {
-                __m128i cond_lmt = _mm_cmplt_epi32(vQIndex, vQLimit);
                 __m128i cond_max = _mm_cmpgt_epi32(vH, vMaxH);
-                __m128i cond_all = _mm_and_si128(cond_max, cond_lmt);
-                vMaxH = _mm_andnot_si128(cond_all, vMaxH);
-                vMaxH = _mm_or_si128(vMaxH, _mm_and_si128(cond_all, vH));
-                vMaxM = _mm_andnot_si128(cond_all, vMaxM);
-                vMaxM = _mm_or_si128(vMaxM, _mm_and_si128(cond_all, vM));
-                vMaxL = _mm_andnot_si128(cond_all, vMaxL);
-                vMaxL = _mm_or_si128(vMaxL, _mm_and_si128(cond_all, vL));
-                vQIndex = _mm_add_epi32(vQIndex, vOne);
+                vMaxH = _mm_andnot_si128(cond_max, vMaxH);
+                vMaxH = _mm_or_si128(vMaxH, _mm_and_si128(cond_max, vH));
+                vMaxM = _mm_andnot_si128(cond_max, vMaxM);
+                vMaxM = _mm_or_si128(vMaxM, _mm_and_si128(cond_max, vM));
+                vMaxL = _mm_andnot_si128(cond_max, vMaxL);
+                vMaxL = _mm_or_si128(vMaxL, _mm_and_si128(cond_max, vL));
             }
         }
     }

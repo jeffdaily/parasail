@@ -136,24 +136,6 @@ parasail_result_t* FNAME(
     __m256i vMaxH = vZero;
     __m256i vMaxM = vZero;
     __m256i vMaxL = vZero;
-    __m256i vQLimit = _mm256_set1_epi16(s1Len);
-    __m256i vQIndex_reset = _mm256_set_epi16(
-            15*segLen,
-            14*segLen,
-            13*segLen,
-            12*segLen,
-            11*segLen,
-            10*segLen,
-            9*segLen,
-            8*segLen,
-            7*segLen,
-            6*segLen,
-            5*segLen,
-            4*segLen,
-            3*segLen,
-            2*segLen,
-            1*segLen,
-            0*segLen);
     __m256i segLenXgap_reset = _mm256_set_epi16(
             NEG_INF_16, NEG_INF_16, NEG_INF_16, NEG_INF_16,
             NEG_INF_16, NEG_INF_16, NEG_INF_16, NEG_INF_16,
@@ -225,7 +207,6 @@ parasail_result_t* FNAME(
         __m256i vLp;
         __m256i vLt;
         __m256i vEx;
-        __m256i vQIndex;
 
         /* calculate E */
         for (i=0; i<segLen; ++i) {
@@ -387,7 +368,6 @@ parasail_result_t* FNAME(
             vLp = _mm256_add_epi16(vLp, vOne);
         }
         /* final pass for M,L */
-        vQIndex = vQIndex_reset;
         vMp = shift(vMp);
         vLp = shift(vLp);
         for (i=0; i<segLen; ++i) {
@@ -410,13 +390,10 @@ parasail_result_t* FNAME(
 #endif
             /* update max vector seen so far */
             {
-                __m256i cond_lmt = _mm256_cmplt_epi16(vQIndex, vQLimit);
                 __m256i cond_max = _mm256_cmpgt_epi16(vH, vMaxH);
-                __m256i cond_all = _mm256_and_si256(cond_max, cond_lmt);
-                vMaxH = _mm256_blendv_epi8(vMaxH, vH, cond_all);
-                vMaxM = _mm256_blendv_epi8(vMaxM, vM, cond_all);
-                vMaxL = _mm256_blendv_epi8(vMaxL, vL, cond_all);
-                vQIndex = _mm256_add_epi16(vQIndex, vOne);
+                vMaxH = _mm256_blendv_epi8(vMaxH, vH, cond_max);
+                vMaxM = _mm256_blendv_epi8(vMaxM, vM, cond_max);
+                vMaxL = _mm256_blendv_epi8(vMaxL, vL, cond_max);
             }
         }
     }

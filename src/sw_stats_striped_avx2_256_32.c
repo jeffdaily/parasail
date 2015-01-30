@@ -99,17 +99,6 @@ parasail_result_t* FNAME(
     int32_t score = NEG_INF_32;
     int32_t matches = NEG_INF_32;
     int32_t length = NEG_INF_32;
-    /* for max calculation we don't want to include padded cells */
-    __m256i vQLimit = _mm256_set1_epi32(s1Len);
-    __m256i vQIndex_reset = _mm256_set_epi32(
-            7*segLen,
-            6*segLen,
-            5*segLen,
-            4*segLen,
-            3*segLen,
-            2*segLen,
-            1*segLen,
-            0*segLen);
     /* Trace the highest score of the whole SW matrix. */
     __m256i vMaxH = vZero;
     __m256i vMaxM = vZero;
@@ -163,7 +152,6 @@ parasail_result_t* FNAME(
 
     /* outer loop over database sequence */
     for (j=0; j<s2Len; ++j) {
-        __m256i vQIndex = vQIndex_reset;
         __m256i vE;
         __m256i vEM;
         __m256i vEL;
@@ -260,12 +248,9 @@ parasail_result_t* FNAME(
             /* update max vector seen so far */
             {
                 __m256i cond_max = _mm256_cmpgt_epi32(vH,vMaxH);
-                __m256i cond_lmt = _mm256_cmplt_epi32(vQIndex,vQLimit);
-                __m256i cond_all = _mm256_and_si256(cond_max, cond_lmt);
-                vMaxH = _mm256_blendv_epi8(vMaxH, vH, cond_all);
-                vMaxM = _mm256_blendv_epi8(vMaxM, vHM, cond_all);
-                vMaxL = _mm256_blendv_epi8(vMaxL, vHL, cond_all);
-                vQIndex = _mm256_add_epi32(vQIndex, vOne);
+                vMaxH = _mm256_blendv_epi8(vMaxH, vH,  cond_max);
+                vMaxM = _mm256_blendv_epi8(vMaxM, vHM, cond_max);
+                vMaxL = _mm256_blendv_epi8(vMaxL, vHL, cond_max);
             }
 
             /* Update vE value. */

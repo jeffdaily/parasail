@@ -424,16 +424,20 @@ libparasail_la_LIBADD += libparasail_knc.la
 libparasail_la_LIBADD += libparasail_knc_table.la
 endif
 
+if HAVE_SSE2
 check_LTLIBRARIES += tests/libssw.la
 tests_libssw_la_SOURCES =
 tests_libssw_la_SOURCES += contrib/ssw.c
 tests_libssw_la_SOURCES += contrib/ssw.h
+endif
 
 check_PROGRAMS += tests/test_align
 check_PROGRAMS += tests/test_isa
 check_PROGRAMS += tests/test_sw_dispatch
 if HAVE_OPENMP
+if HAVE_ZLIB
 check_PROGRAMS += tests/test_openmp
+endif
 endif
 
 tests_test_align_SOURCES = tests/test_align.c

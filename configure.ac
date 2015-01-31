@@ -322,6 +322,7 @@ AS_CASE(["$ac_cv_search_sqrt"],
 AC_SUBST([MATH_LIBS])
 
 parasail_save_LIBS="$LIBS"
+AC_CHECK_HEADERS([zlib.h])
 AC_SEARCH_LIBS([gzopen], [z])
 LIBS="$parasail_save_LIBS"
 AS_CASE(["$ac_cv_search_gzopen"],
@@ -329,6 +330,7 @@ AS_CASE(["$ac_cv_search_gzopen"],
         [*no*], [],
         [Z_LIBS="$ac_cv_search_gzopen"])
 AC_SUBST([Z_LIBS])
+AM_CONDITIONAL([HAVE_ZLIB], [test "x$ac_cv_search_gzopen" != xno && test "x$ac_cv_header_zlib_h" = xyes])
 
 ###############################################################################
 # Libtool setup -- no compiler/linker tests after this

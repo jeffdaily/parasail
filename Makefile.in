@@ -99,7 +99,8 @@ check_PROGRAMS = tests/test_align$(EXEEXT) tests/test_isa$(EXEEXT) \
 @HAVE_AVX2_TRUE@	libparasail_avx2.la libparasail_avx2_table.la
 @HAVE_KNC_TRUE@am__append_10 = libparasail_knc_memory.la \
 @HAVE_KNC_TRUE@	libparasail_knc.la libparasail_knc_table.la
-@HAVE_OPENMP_TRUE@am__append_11 = tests/test_openmp
+@HAVE_SSE2_TRUE@am__append_11 = tests/libssw.la
+@HAVE_OPENMP_TRUE@@HAVE_ZLIB_TRUE@am__append_12 = tests/test_openmp
 subdir = .
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) \
@@ -666,9 +667,12 @@ libparasail_sse_memory_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(LDFLAGS) -o $@
 @HAVE_SSE_TRUE@am_libparasail_sse_memory_la_rpath =
 tests_libssw_la_LIBADD =
-am_tests_libssw_la_OBJECTS = contrib/ssw.lo
+am__tests_libssw_la_SOURCES_DIST = contrib/ssw.c contrib/ssw.h
+@HAVE_SSE2_TRUE@am_tests_libssw_la_OBJECTS = contrib/ssw.lo
 tests_libssw_la_OBJECTS = $(am_tests_libssw_la_OBJECTS)
-@HAVE_OPENMP_TRUE@am__EXEEXT_1 = tests/test_openmp$(EXEEXT)
+@HAVE_SSE2_TRUE@am_tests_libssw_la_rpath =
+@HAVE_OPENMP_TRUE@@HAVE_ZLIB_TRUE@am__EXEEXT_1 =  \
+@HAVE_OPENMP_TRUE@@HAVE_ZLIB_TRUE@	tests/test_openmp$(EXEEXT)
 am_tests_test_align_OBJECTS = tests/test_align.$(OBJEXT)
 tests_test_align_OBJECTS = $(am_tests_test_align_OBJECTS)
 am__DEPENDENCIES_1 =
@@ -755,9 +759,9 @@ DIST_SOURCES = $(libparasail_la_SOURCES) \
 	$(libparasail_sse41_la_SOURCES) \
 	$(libparasail_sse41_table_la_SOURCES) \
 	$(libparasail_sse_memory_la_SOURCES) \
-	$(tests_libssw_la_SOURCES) $(tests_test_align_SOURCES) \
-	$(tests_test_isa_SOURCES) $(tests_test_openmp_SOURCES) \
-	$(tests_test_sw_dispatch_SOURCES)
+	$(am__tests_libssw_la_SOURCES_DIST) \
+	$(tests_test_align_SOURCES) $(tests_test_isa_SOURCES) \
+	$(tests_test_openmp_SOURCES) $(tests_test_sw_dispatch_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -930,7 +934,7 @@ lib_LTLIBRARIES = libparasail.la
 noinst_LTLIBRARIES = libparasail_novec.la libparasail_novec_table.la \
 	$(am__append_1) $(am__append_2) $(am__append_3) \
 	$(am__append_4) $(am__append_5)
-check_LTLIBRARIES = tests/libssw.la
+check_LTLIBRARIES = $(am__append_11)
 AM_CFLAGS = 
 AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_srcdir)/contrib
 AM_LDFLAGS = 
@@ -1140,7 +1144,7 @@ libparasail_knc_memory_la_CFLAGS = $(AM_CFLAGS)
 libparasail_la_LIBADD = libparasail_novec.la \
 	libparasail_novec_table.la $(am__append_6) $(am__append_7) \
 	$(am__append_8) $(am__append_9) $(am__append_10)
-tests_libssw_la_SOURCES = contrib/ssw.c contrib/ssw.h
+@HAVE_SSE2_TRUE@tests_libssw_la_SOURCES = contrib/ssw.c contrib/ssw.h
 tests_test_align_SOURCES = tests/test_align.c
 tests_test_align_LDADD = $(LDADD) $(CLOCK_LIBS) $(MATH_LIBS) $(Z_LIBS) \
 	tests/libssw.la
@@ -2102,7 +2106,7 @@ tests/$(am__dirstamp):
 	@: > tests/$(am__dirstamp)
 
 tests/libssw.la: $(tests_libssw_la_OBJECTS) $(tests_libssw_la_DEPENDENCIES) $(EXTRA_tests_libssw_la_DEPENDENCIES) tests/$(am__dirstamp)
-	$(AM_V_CCLD)$(LINK)  $(tests_libssw_la_OBJECTS) $(tests_libssw_la_LIBADD) $(LIBS)
+	$(AM_V_CCLD)$(LINK) $(am_tests_libssw_la_rpath) $(tests_libssw_la_OBJECTS) $(tests_libssw_la_LIBADD) $(LIBS)
 
 clean-checkPROGRAMS:
 	@list='$(check_PROGRAMS)'; test -n "$$list" || exit 0; \

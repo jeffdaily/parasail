@@ -12,7 +12,9 @@
 #include <sys/types.h>
 #include <pwd.h>
 
+#if HAVE_SSE2
 #include "ssw.h"
+#endif
 
 #include "parasail.h"
 #include "parasail_internal.h"
@@ -82,6 +84,7 @@ static void print_array(
     fclose(f);
 }
 
+#if HAVE_SSE2
 static inline parasail_result_t* ssw_(
         const char * const restrict s1, const int s1_len,
         const char * const restrict s2, const int s2_len,
@@ -135,6 +138,7 @@ parasail_result_t* ssw_16(
 {
     return ssw_(s1, s1_len, s2, s2_len, open, gap, matrix, 1);
 }
+#endif
 
 typedef struct func {
     parasail_result_t* (*f)(const char * const restrict s1, const int s1Len,

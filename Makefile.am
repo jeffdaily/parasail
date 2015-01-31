@@ -4,6 +4,7 @@ include_HEADERS = src/parasail.h
 lib_LTLIBRARIES = libparasail.la
 noinst_LTLIBRARIES =
 check_PROGRAMS =
+check_LTLIBRARIES = 
 AM_CFLAGS =
 AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_srcdir)/contrib
 AM_LDFLAGS =
@@ -423,6 +424,11 @@ libparasail_la_LIBADD += libparasail_knc.la
 libparasail_la_LIBADD += libparasail_knc_table.la
 endif
 
+check_LTLIBRARIES += tests/libssw.la
+tests_libssw_la_SOURCES =
+tests_libssw_la_SOURCES += contrib/ssw.c
+tests_libssw_la_SOURCES += contrib/ssw.h
+
 check_PROGRAMS += tests/test_align
 check_PROGRAMS += tests/test_isa
 check_PROGRAMS += tests/test_sw_dispatch
@@ -430,15 +436,25 @@ if HAVE_OPENMP
 check_PROGRAMS += tests/test_openmp
 endif
 
-tests_test_align_SOURCES        = tests/test_align.c
-tests_test_align_LDADD          = $(LDADD) $(CLOCK_LIBS) $(MATH_LIBS)
+tests_test_align_SOURCES = tests/test_align.c
+tests_test_align_LDADD   =
+tests_test_align_LDADD   += $(LDADD)
+tests_test_align_LDADD   += $(CLOCK_LIBS)
+tests_test_align_LDADD   += $(MATH_LIBS)
+tests_test_align_LDADD   += $(Z_LIBS)
+tests_test_align_LDADD   += tests/libssw.la
 
-tests_test_isa_SOURCES          = tests/test_isa.c
+tests_test_isa_SOURCES = tests/test_isa.c
 
-tests_test_sw_dispatch_SOURCES  = tests/test_sw_dispatch.c
+tests_test_sw_dispatch_SOURCES = tests/test_sw_dispatch.c
 
-tests_test_openmp_SOURCES       = tests/test_openmp.c
-tests_test_openmp_CFLAGS        = $(AM_CFLAGS) $(OPENMP_CFLAGS)
-tests_test_openmp_LDFLAGS       = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
-tests_test_openmp_LDADD         = $(LDADD) $(CLOCK_LIBS) $(MATH_LIBS) $(Z_LIBS)
+tests_test_openmp_SOURCES = tests/test_openmp.c
+tests_test_openmp_CFLAGS  = $(AM_CFLAGS) $(OPENMP_CFLAGS)
+tests_test_openmp_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
+tests_test_openmp_LDADD   =
+tests_test_openmp_LDADD   += $(LDADD)
+tests_test_openmp_LDADD   += $(CLOCK_LIBS)
+tests_test_openmp_LDADD   += $(MATH_LIBS)
+tests_test_openmp_LDADD   += $(Z_LIBS)
+tests_test_openmp_LDADD   += tests/libssw.la
 

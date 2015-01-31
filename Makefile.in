@@ -665,12 +665,15 @@ libparasail_sse_memory_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(libparasail_sse_memory_la_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
 @HAVE_SSE_TRUE@am_libparasail_sse_memory_la_rpath =
+tests_libssw_la_LIBADD =
+am_tests_libssw_la_OBJECTS = contrib/ssw.lo
+tests_libssw_la_OBJECTS = $(am_tests_libssw_la_OBJECTS)
 @HAVE_OPENMP_TRUE@am__EXEEXT_1 = tests/test_openmp$(EXEEXT)
 am_tests_test_align_OBJECTS = tests/test_align.$(OBJEXT)
 tests_test_align_OBJECTS = $(am_tests_test_align_OBJECTS)
 am__DEPENDENCIES_1 =
 tests_test_align_DEPENDENCIES = $(LDADD) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) tests/libssw.la
 am_tests_test_isa_OBJECTS = tests/test_isa.$(OBJEXT)
 tests_test_isa_OBJECTS = $(am_tests_test_isa_OBJECTS)
 tests_test_isa_LDADD = $(LDADD)
@@ -679,7 +682,7 @@ am_tests_test_openmp_OBJECTS =  \
 	tests/tests_test_openmp-test_openmp.$(OBJEXT)
 tests_test_openmp_OBJECTS = $(am_tests_test_openmp_OBJECTS)
 tests_test_openmp_DEPENDENCIES = $(LDADD) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) tests/libssw.la
 tests_test_openmp_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(tests_test_openmp_CFLAGS) $(CFLAGS) \
@@ -735,8 +738,9 @@ SOURCES = $(libparasail_la_SOURCES) $(libparasail_avx2_la_SOURCES) \
 	$(libparasail_sse41_la_SOURCES) \
 	$(libparasail_sse41_table_la_SOURCES) \
 	$(libparasail_sse_memory_la_SOURCES) \
-	$(tests_test_align_SOURCES) $(tests_test_isa_SOURCES) \
-	$(tests_test_openmp_SOURCES) $(tests_test_sw_dispatch_SOURCES)
+	$(tests_libssw_la_SOURCES) $(tests_test_align_SOURCES) \
+	$(tests_test_isa_SOURCES) $(tests_test_openmp_SOURCES) \
+	$(tests_test_sw_dispatch_SOURCES)
 DIST_SOURCES = $(libparasail_la_SOURCES) \
 	$(libparasail_avx2_la_SOURCES) \
 	$(libparasail_avx2_memory_la_SOURCES) \
@@ -751,8 +755,9 @@ DIST_SOURCES = $(libparasail_la_SOURCES) \
 	$(libparasail_sse41_la_SOURCES) \
 	$(libparasail_sse41_table_la_SOURCES) \
 	$(libparasail_sse_memory_la_SOURCES) \
-	$(tests_test_align_SOURCES) $(tests_test_isa_SOURCES) \
-	$(tests_test_openmp_SOURCES) $(tests_test_sw_dispatch_SOURCES)
+	$(tests_libssw_la_SOURCES) $(tests_test_align_SOURCES) \
+	$(tests_test_isa_SOURCES) $(tests_test_openmp_SOURCES) \
+	$(tests_test_sw_dispatch_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -925,6 +930,7 @@ lib_LTLIBRARIES = libparasail.la
 noinst_LTLIBRARIES = libparasail_novec.la libparasail_novec_table.la \
 	$(am__append_1) $(am__append_2) $(am__append_3) \
 	$(am__append_4) $(am__append_5)
+check_LTLIBRARIES = tests/libssw.la
 AM_CFLAGS = 
 AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_srcdir)/contrib
 AM_LDFLAGS = 
@@ -1134,14 +1140,17 @@ libparasail_knc_memory_la_CFLAGS = $(AM_CFLAGS)
 libparasail_la_LIBADD = libparasail_novec.la \
 	libparasail_novec_table.la $(am__append_6) $(am__append_7) \
 	$(am__append_8) $(am__append_9) $(am__append_10)
+tests_libssw_la_SOURCES = contrib/ssw.c contrib/ssw.h
 tests_test_align_SOURCES = tests/test_align.c
-tests_test_align_LDADD = $(LDADD) $(CLOCK_LIBS) $(MATH_LIBS)
+tests_test_align_LDADD = $(LDADD) $(CLOCK_LIBS) $(MATH_LIBS) $(Z_LIBS) \
+	tests/libssw.la
 tests_test_isa_SOURCES = tests/test_isa.c
 tests_test_sw_dispatch_SOURCES = tests/test_sw_dispatch.c
 tests_test_openmp_SOURCES = tests/test_openmp.c
 tests_test_openmp_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_test_openmp_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
-tests_test_openmp_LDADD = $(LDADD) $(CLOCK_LIBS) $(MATH_LIBS) $(Z_LIBS)
+tests_test_openmp_LDADD = $(LDADD) $(CLOCK_LIBS) $(MATH_LIBS) \
+	$(Z_LIBS) tests/libssw.la
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -1196,6 +1205,17 @@ $(srcdir)/config.h.in:  $(am__configure_deps)
 
 distclean-hdr:
 	-rm -f config.h stamp-h1
+
+clean-checkLTLIBRARIES:
+	-test -z "$(check_LTLIBRARIES)" || rm -f $(check_LTLIBRARIES)
+	@list='$(check_LTLIBRARIES)'; \
+	locs=`for p in $$list; do echo $$p; done | \
+	      sed 's|^[^/]*$$|.|; s|/[^/]*$$||; s|$$|/so_locations|' | \
+	      sort -u`; \
+	test -z "$$locs" || { \
+	  echo rm -f $${locs}; \
+	  rm -f $${locs}; \
+	}
 
 install-libLTLIBRARIES: $(lib_LTLIBRARIES)
 	@$(NORMAL_INSTALL)
@@ -2069,6 +2089,20 @@ src/libparasail_sse_memory_la-memory_sse.lo: src/$(am__dirstamp) \
 
 libparasail_sse_memory.la: $(libparasail_sse_memory_la_OBJECTS) $(libparasail_sse_memory_la_DEPENDENCIES) $(EXTRA_libparasail_sse_memory_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(libparasail_sse_memory_la_LINK) $(am_libparasail_sse_memory_la_rpath) $(libparasail_sse_memory_la_OBJECTS) $(libparasail_sse_memory_la_LIBADD) $(LIBS)
+contrib/$(am__dirstamp):
+	@$(MKDIR_P) contrib
+	@: > contrib/$(am__dirstamp)
+contrib/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) contrib/$(DEPDIR)
+	@: > contrib/$(DEPDIR)/$(am__dirstamp)
+contrib/ssw.lo: contrib/$(am__dirstamp) \
+	contrib/$(DEPDIR)/$(am__dirstamp)
+tests/$(am__dirstamp):
+	@$(MKDIR_P) tests
+	@: > tests/$(am__dirstamp)
+
+tests/libssw.la: $(tests_libssw_la_OBJECTS) $(tests_libssw_la_DEPENDENCIES) $(EXTRA_tests_libssw_la_DEPENDENCIES) tests/$(am__dirstamp)
+	$(AM_V_CCLD)$(LINK)  $(tests_libssw_la_OBJECTS) $(tests_libssw_la_LIBADD) $(LIBS)
 
 clean-checkPROGRAMS:
 	@list='$(check_PROGRAMS)'; test -n "$$list" || exit 0; \
@@ -2078,9 +2112,6 @@ clean-checkPROGRAMS:
 	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
 	echo " rm -f" $$list; \
 	rm -f $$list
-tests/$(am__dirstamp):
-	@$(MKDIR_P) tests
-	@: > tests/$(am__dirstamp)
 tests/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) tests/$(DEPDIR)
 	@: > tests/$(DEPDIR)/$(am__dirstamp)
@@ -2111,6 +2142,8 @@ tests/test_sw_dispatch$(EXEEXT): $(tests_test_sw_dispatch_OBJECTS) $(tests_test_
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
+	-rm -f contrib/*.$(OBJEXT)
+	-rm -f contrib/*.lo
 	-rm -f src/*.$(OBJEXT)
 	-rm -f src/*.lo
 	-rm -f tests/*.$(OBJEXT)
@@ -2118,6 +2151,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@contrib/$(DEPDIR)/ssw.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/cpuid.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_avx2_la-nw_diag_avx2_256_16.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_avx2_la-nw_diag_avx2_256_32.Plo@am__quote@
@@ -5267,6 +5301,7 @@ mostlyclean-libtool:
 
 clean-libtool:
 	-rm -rf .libs _libs
+	-rm -rf contrib/.libs contrib/_libs
 	-rm -rf src/.libs src/_libs
 	-rm -rf tests/.libs tests/_libs
 
@@ -5510,7 +5545,7 @@ distcleancheck: distclean
 	       $(distcleancheck_listfiles) ; \
 	       exit 1; } >&2
 check-am: all-am
-	$(MAKE) $(AM_MAKEFLAGS) $(check_PROGRAMS)
+	$(MAKE) $(AM_MAKEFLAGS) $(check_LTLIBRARIES) $(check_PROGRAMS)
 check: check-am
 all-am: Makefile $(LTLIBRARIES) $(HEADERS) config.h
 installdirs:
@@ -5543,6 +5578,8 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
+	-rm -f contrib/$(DEPDIR)/$(am__dirstamp)
+	-rm -f contrib/$(am__dirstamp)
 	-rm -f src/$(DEPDIR)/$(am__dirstamp)
 	-rm -f src/$(am__dirstamp)
 	-rm -f tests/$(DEPDIR)/$(am__dirstamp)
@@ -5553,12 +5590,13 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-checkPROGRAMS clean-generic clean-libLTLIBRARIES \
-	clean-libtool clean-noinstLTLIBRARIES mostlyclean-am
+clean-am: clean-checkLTLIBRARIES clean-checkPROGRAMS clean-generic \
+	clean-libLTLIBRARIES clean-libtool clean-noinstLTLIBRARIES \
+	mostlyclean-am
 
 distclean: distclean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-	-rm -rf src/$(DEPDIR) tests/$(DEPDIR)
+	-rm -rf contrib/$(DEPDIR) src/$(DEPDIR) tests/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-hdr distclean-libtool distclean-tags
@@ -5606,7 +5644,7 @@ installcheck-am:
 maintainer-clean: maintainer-clean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
-	-rm -rf src/$(DEPDIR) tests/$(DEPDIR)
+	-rm -rf contrib/$(DEPDIR) src/$(DEPDIR) tests/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
@@ -5628,23 +5666,24 @@ uninstall-am: uninstall-includeHEADERS uninstall-libLTLIBRARIES
 .MAKE: all check-am install-am install-strip
 
 .PHONY: CTAGS GTAGS TAGS all all-am am--refresh check check-am clean \
-	clean-checkPROGRAMS clean-cscope clean-generic \
-	clean-libLTLIBRARIES clean-libtool clean-noinstLTLIBRARIES \
-	cscope cscopelist-am ctags ctags-am dist dist-all dist-bzip2 \
-	dist-gzip dist-lzip dist-shar dist-tarZ dist-xz dist-zip \
-	distcheck distclean distclean-compile distclean-generic \
-	distclean-hdr distclean-libtool distclean-tags distcleancheck \
-	distdir distuninstallcheck dvi dvi-am html html-am info \
-	info-am install install-am install-data install-data-am \
-	install-dvi install-dvi-am install-exec install-exec-am \
-	install-html install-html-am install-includeHEADERS \
-	install-info install-info-am install-libLTLIBRARIES \
-	install-man install-pdf install-pdf-am install-ps \
-	install-ps-am install-strip installcheck installcheck-am \
-	installdirs maintainer-clean maintainer-clean-generic \
-	mostlyclean mostlyclean-compile mostlyclean-generic \
-	mostlyclean-libtool pdf pdf-am ps ps-am tags tags-am uninstall \
-	uninstall-am uninstall-includeHEADERS uninstall-libLTLIBRARIES
+	clean-checkLTLIBRARIES clean-checkPROGRAMS clean-cscope \
+	clean-generic clean-libLTLIBRARIES clean-libtool \
+	clean-noinstLTLIBRARIES cscope cscopelist-am ctags ctags-am \
+	dist dist-all dist-bzip2 dist-gzip dist-lzip dist-shar \
+	dist-tarZ dist-xz dist-zip distcheck distclean \
+	distclean-compile distclean-generic distclean-hdr \
+	distclean-libtool distclean-tags distcleancheck distdir \
+	distuninstallcheck dvi dvi-am html html-am info info-am \
+	install install-am install-data install-data-am install-dvi \
+	install-dvi-am install-exec install-exec-am install-html \
+	install-html-am install-includeHEADERS install-info \
+	install-info-am install-libLTLIBRARIES install-man install-pdf \
+	install-pdf-am install-ps install-ps-am install-strip \
+	installcheck installcheck-am installdirs maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-compile \
+	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
+	tags tags-am uninstall uninstall-am uninstall-includeHEADERS \
+	uninstall-libLTLIBRARIES
 
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

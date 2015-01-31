@@ -12,7 +12,10 @@
 #include <sys/types.h>
 #include <pwd.h>
 
+#include "ssw.h"
+
 #include "parasail.h"
+#include "parasail_internal.h"
 #include "parasail_cpuid.h"
 #include "blosum/blosum62.h"
 #include "stats.h"
@@ -77,6 +80,60 @@ static void print_array(
         fprintf(f, "\n");
     }
     fclose(f);
+}
+
+static inline parasail_result_t* ssw_(
+        const char * const restrict s1, const int s1_len,
+        const char * const restrict s2, const int s2_len,
+        const int open, const int gap, const int matrix[24][24],
+        int score_size)
+{
+    parasail_result_t *result = parasail_result_new();
+    s_profile *profile = NULL;
+    int8_t *s1_num = (int8_t*)malloc(sizeof(int8_t) * s1_len);
+    int8_t *s2_num = (int8_t*)malloc(sizeof(int8_t) * s2_len);
+    s_align *ssw_result = NULL;
+    int m = 0;
+
+    /* This table is used to transform amino acid letters into numbers. */
+    static const int8_t table[128] = {
+        23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,
+        23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,
+        23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,
+        23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,
+        23, 0,  20, 4,  3,  6,  13, 7,  8,  9,  23, 11, 10, 12, 2,  23,
+        14, 5,  1,  15, 16, 23, 19, 17, 22, 18, 21, 23, 23, 23, 23, 23,
+        23, 0,  20, 4,  3,  6,  13, 7,  8,  9,  23, 11, 10, 12, 2,  23,
+        14, 5,  1,  15, 16, 23, 19, 17, 22, 18, 21, 23, 23, 23, 23, 23
+    };
+
+    /* initialize score matrix */
+    for (m = 0; m < s1_len; ++m) s1_num[m] = table[(int)s1[m]];
+    for (m = 0; m < s2_len; ++m) s2_num[m] = table[(int)s2[m]];
+    profile = ssw_init(s1_num, s1_len, blosum62__, 24, score_size);
+    ssw_result = ssw_align(profile, s2_num, s2_len, -open, -gap, 2, 0, 0, s1_len/2);
+    result->score = ssw_result->score1;
+    result->saturated = ssw_result->saturated;
+    align_destroy(ssw_result);
+    init_destroy(profile);
+
+    return result;
+}
+
+parasail_result_t* ssw_8(
+        const char * const restrict s1, const int s1_len,
+        const char * const restrict s2, const int s2_len,
+        const int open, const int gap, const int matrix[24][24])
+{
+    return ssw_(s1, s1_len, s2, s2_len, open, gap, matrix, 2);
+}
+
+parasail_result_t* ssw_16(
+        const char * const restrict s1, const int s1_len,
+        const char * const restrict s2, const int s2_len,
+        const int open, const int gap, const int matrix[24][24])
+{
+    return ssw_(s1, s1_len, s2, s2_len, open, gap, matrix, 1);
 }
 
 typedef struct func {
@@ -252,6 +309,8 @@ int main(int argc, char **argv)
         {sw_striped_sse2_128_32,    "sw", "striped", "sse2",  "128", "32", 0, 0, 0},
         {sw_striped_sse2_128_16,    "sw", "striped", "sse2",  "128", "16", 0, 0, 0},
         {sw_striped_sse2_128_8,     "sw", "striped", "sse2",  "128", "8",  0, 0, 0},
+        {ssw_16,                    "sw", "ssw",     "sse2",  "128", "16", 0, 0, 0},
+        {ssw_8,                     "sw", "ssw",     "sse2",  "128", "8",  0, 0, 0},
 #endif
 #if HAVE_SSE41
         {sw_scan_sse41_128_32,      "sw", "scan",    "sse41", "128", "32", 0, 0, 0},

@@ -21,18 +21,6 @@
 
 #define NEG_INF_8 (INT8_MIN)
 
-/* avx2 _mm256_packs_epi16 does not pack across 128-bit lanes, emulate it */
-static inline __m256i pack16(__m256i a, __m256i b) {
-    return _mm256_permute4x64_epi64(
-            _mm256_packs_epi16(a, b),
-            _MM_SHUFFLE(3,1,2,0));
-}
-
-/* avx2 does not have _mm256_cmplt_epi16, emulate it */
-static inline __m256i _mm256_cmplt_epi16(__m256i a, __m256i b) {
-    return _mm256_cmpgt_epi16(b,a);
-}
-
 #if HAVE_AVX2_MM256_EXTRACT_EPI8
 #else
 static inline int8_t _mm256_extract_epi8(__m256i a, int imm) {

@@ -22,21 +22,9 @@
 #define NEG_INF_8 (INT8_MIN)
 #define MAX(a,b) ((a)>(b)?(a):(b))
 
-/* avx2 _mm256_packs_epi16 does not pack across 128-bit lanes, emulate it */
-static inline __m256i pack16(__m256i a, __m256i b) {
-    return _mm256_permute4x64_epi64(
-            _mm256_packs_epi16(a, b),
-            _MM_SHUFFLE(3,1,2,0));
-}
-
 /* avx2 does not have _mm256_cmplt_epi8, emulate it */
 static inline __m256i _mm256_cmplt_epi8(__m256i a, __m256i b) {
     return _mm256_cmpgt_epi8(b,a);
-}
-
-/* avx2 does not have _mm256_cmplt_epi16, emulate it */
-static inline __m256i _mm256_cmplt_epi16(__m256i a, __m256i b) {
-    return _mm256_cmpgt_epi16(b,a);
 }
 
 #if HAVE_AVX2_MM256_INSERT_EPI8
@@ -201,7 +189,6 @@ parasail_result_t* FNAME(
     __m256i vGapE = _mm256_set1_epi8(gap);
     __m256i vZero = _mm256_setzero_si256();
     __m256i vOne = _mm256_set1_epi8(1);
-    __m256i vOne16 = _mm256_set1_epi16(1);
     int8_t bias = 127;
     int ibias = 127;
     __m256i vNegBias = _mm256_set1_epi8(-bias);

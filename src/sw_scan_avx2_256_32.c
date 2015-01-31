@@ -90,7 +90,6 @@ parasail_result_t* FNAME(
     __m256i vGapO = _mm256_set1_epi32(open);
     __m256i vGapE = _mm256_set1_epi32(gap);
     __m256i vZero = _mm256_setzero_si256();
-    __m256i vOne = _mm256_set1_epi32(1);
     __m256i vNegInf = _mm256_set1_epi32(NEG_INF_32);
     int32_t score = NEG_INF_32;
     __m256i segLenXgap_reset = _mm256_set_epi32(

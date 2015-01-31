@@ -21,11 +21,6 @@
 
 #define NEG_INF_32 (INT32_MIN/(int32_t)(2))
 
-/* avx2 does not have _mm256_cmplt_epi32, emulate it */
-static inline __m256i _mm256_cmplt_epi32(__m256i a, __m256i b) {
-    return _mm256_cmpgt_epi32(b,a);
-}
-
 #if HAVE_AVX2_MM256_EXTRACT_EPI32
 #else
 static inline int32_t _mm256_extract_epi32(__m256i a, int imm) {
@@ -88,7 +83,6 @@ parasail_result_t* FNAME(
     __m256i vGapO = _mm256_set1_epi32(open);
     __m256i vGapE = _mm256_set1_epi32(gap);
     __m256i vZero = _mm256_setzero_si256();
-    __m256i vOne = _mm256_set1_epi32(1);
     __m256i vMaxH = vZero;
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);

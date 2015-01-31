@@ -133,7 +133,6 @@ parasail_result_t* FNAME(
     __m128i vGapE = _mm_set1_epi8(gap);
     __m128i vZero = _mm_setzero_si128();
     __m128i vOne = _mm_set1_epi8(1);
-    __m128i vOne16 = _mm_set1_epi16(1);
     int8_t bias = 127;
     int ibias = 127;
     __m128i vNegBias = _mm_set1_epi8(-bias);

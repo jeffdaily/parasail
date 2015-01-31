@@ -311,7 +311,7 @@ parasail_result_t* FNAME(
                 vH = _mm512_sub_epi32(vH, vGapO);
                 vF = _mm512_sub_epi32(vF, vGapE);
                 if (! _mm512_mask2int(_mm512_cmpgt_epi32_mask(vF, vH))) goto end;
-                vF = _mm512_max_epi32(vF, vH);
+                /*vF = _mm512_max_epi32(vF, vH);*/
                 vFM = vHM;
                 vFL = vHL;
                 vHp = _mm512_load_epi32(pvHLoad + i);
@@ -349,25 +349,6 @@ end:
 
     /* max of last column */
     {
-        __m512i vQIndex = _mm512_set_16to16_pi(
-                15*segLen,
-                14*segLen,
-                13*segLen,
-                12*segLen,
-                11*segLen,
-                10*segLen,
-                9*segLen,
-                8*segLen,
-                7*segLen,
-                6*segLen,
-                5*segLen,
-                4*segLen,
-                3*segLen,
-                2*segLen,
-                1*segLen,
-                0*segLen);
-        __m512i vQLimit = _mm512_set1_epi32(s1Len);
-        __m512i vOne = _mm512_set1_epi32(1);
         vMaxH = vNegInf;
         vMaxHM = vZero;
         vMaxHL = vZero;
@@ -376,13 +357,10 @@ end:
             __m512i vH = _mm512_load_epi32(pvHStore + i);
             __m512i vHM = _mm512_load_epi32(pvHMStore + i);
             __m512i vHL = _mm512_load_epi32(pvHLStore + i);
-            __mmask16 cond_lmt = _mm512_cmplt_epi32_mask(vQIndex, vQLimit);
             __mmask16 cond_max = _mm512_cmpgt_epi32_mask(vH, vMaxH);
-            __mmask16 cond_all = _mm512_kand(cond_max, cond_lmt);
-            vMaxH = _mm512_mask_blend_epi32(cond_all, vMaxH, vH);
-            vMaxHM = _mm512_mask_blend_epi32(cond_all, vMaxHM, vHM);
-            vMaxHL = _mm512_mask_blend_epi32(cond_all, vMaxHL, vHL);
-            vQIndex = _mm512_add_epi32(vQIndex, vOne);
+            vMaxH  = _mm512_mask_blend_epi32(cond_max, vMaxH, vH);
+            vMaxHM = _mm512_mask_blend_epi32(cond_max, vMaxHM, vHM);
+            vMaxHL = _mm512_mask_blend_epi32(cond_max, vMaxHL, vHL);
         }
 
         /* max in vec */

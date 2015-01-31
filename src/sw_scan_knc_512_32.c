@@ -109,24 +109,6 @@ parasail_result_t* FNAME(
 #else
     parasail_result_t *result = parasail_result_new();
 #endif
-    __m512i vQLimit = _mm512_set1_epi32(s1Len-1);
-    __m512i vQIndex_reset = _mm512_set_16to16_pi(
-            segLen*15,
-            segLen*14,
-            segLen*13,
-            segLen*12,
-            segLen*11,
-            segLen*10,
-            segLen* 9,
-            segLen* 8,
-            segLen* 7,
-            segLen* 6,
-            segLen* 5,
-            segLen* 4,
-            segLen* 3,
-            segLen* 2,
-            segLen* 1,
-            segLen* 0);
 
     /* Generate query profile.
      * Rearrange query sequence & calculate the weight of match/mismatch.
@@ -172,7 +154,6 @@ parasail_result_t* FNAME(
         __m512i vHp;
         __m512i *pvW;
         __m512i vW;
-        __m512i vQIndex = vQIndex_reset;
 
         /* calculate E */
         /* calculate Ht */
@@ -266,11 +247,7 @@ parasail_result_t* FNAME(
 #endif
             /* update max vector seen so far */
             {
-                __mmask16 cond_lmt = _mm512_cmpgt_epi32_mask(vQIndex, vQLimit);
-                __mmask16 cond_max = _mm512_cmpgt_epi32_mask(vH, vMaxH);
-                __mmask16 cond_all = _mm512_kandn(cond_lmt, cond_max);
-                vMaxH = _mm512_mask_blend_epi32(cond_max, vMaxH, vH);
-                vQIndex = _mm512_add_epi32(vQIndex, vOne);
+                vMaxH = _mm512_max_epi32(vH, vMaxH);
             }
         }
     }

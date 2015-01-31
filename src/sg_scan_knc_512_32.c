@@ -265,34 +265,11 @@ parasail_result_t* FNAME(
 
     /* max of last column */
     {
-        __m512i vOne = _mm512_set1_epi32(1);
-        __m512i vQLimit = _mm512_set1_epi32(s1Len);
-        __m512i vQIndex = _mm512_set_16to16_pi(
-                segLen*15,
-                segLen*14,
-                segLen*13,
-                segLen*12,
-                segLen*11,
-                segLen*10,
-                segLen* 9,
-                segLen* 8,
-                segLen* 7,
-                segLen* 6,
-                segLen* 5,
-                segLen* 4,
-                segLen* 3,
-                segLen* 2,
-                segLen* 1,
-                segLen* 0);
         vMaxH = vNegInf;
 
         for (i=0; i<segLen; ++i) {
             __m512i vH = _mm512_load_epi32(pvH + i);
-            __mmask16 cond_lmt = _mm512_cmplt_epi32_mask(vQIndex, vQLimit);
-            __mmask16 cond_max = _mm512_cmpgt_epi32_mask(vH, vMaxH);
-            __mmask16 cond_all = _mm512_kand(cond_max, cond_lmt);
-            vMaxH = _mm512_mask_blend_epi32(cond_all, vMaxH, vH);
-            vQIndex = _mm512_add_epi32(vQIndex, vOne);
+            vMaxH = _mm512_max_epi32(vH, vMaxH);
         }
 
 #if 1

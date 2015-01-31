@@ -119,24 +119,6 @@ parasail_result_t* FNAME(
 #else
     parasail_result_t *result = parasail_result_new();
 #endif
-    __m512i vQLimit = _mm512_set1_epi32(s1Len);
-    __m512i vQIndex_reset = _mm512_set_16to16_pi(
-            segLen*15,
-            segLen*14,
-            segLen*13,
-            segLen*12,
-            segLen*11,
-            segLen*10,
-            segLen* 9,
-            segLen* 8,
-            segLen* 7,
-            segLen* 6,
-            segLen* 5,
-            segLen* 4,
-            segLen* 3,
-            segLen* 2,
-            segLen* 1,
-            segLen* 0);
 
     parasail_memset_m512i(pvM, vZero, segLen);
     parasail_memset_m512i(pvL, vZero, segLen);
@@ -197,7 +179,6 @@ parasail_result_t* FNAME(
         __m512i vLt;
         __mmask16 vEx;
         __mmask16 vCx;
-        __m512i vQIndex = vQIndex_reset;
 
         /* calculate E */
         for (i=0; i<segLen; ++i) {
@@ -371,7 +352,6 @@ parasail_result_t* FNAME(
             vLp = _mm512_add_epi32(vLp, vOne);
         }
         /* final pass for M,L */
-        vQIndex = vQIndex_reset;
         vMp = _mm512_mask_permutevar_epi32(
                 vZero, permute_mask, permute_idx, vMp);
         vLp = _mm512_mask_permutevar_epi32(
@@ -395,13 +375,10 @@ parasail_result_t* FNAME(
 #endif
             /* update max vector seen so far */
             {
-                __mmask16 cond_lmt = _mm512_cmplt_epi32_mask(vQIndex, vQLimit);
                 __mmask16 cond_max = _mm512_cmpgt_epi32_mask(vH, vMaxH);
-                __mmask16 cond_all = _mm512_kand(cond_max, cond_lmt);
-                vMaxH = _mm512_mask_blend_epi32(cond_all, vMaxH, vH);
-                vMaxM = _mm512_mask_blend_epi32(cond_all, vMaxM, vM);
-                vMaxL = _mm512_mask_blend_epi32(cond_all, vMaxL, vL);
-                vQIndex = _mm512_add_epi32(vQIndex, vOne);
+                vMaxH = _mm512_mask_blend_epi32(cond_max, vMaxH, vH);
+                vMaxM = _mm512_mask_blend_epi32(cond_max, vMaxM, vM);
+                vMaxL = _mm512_mask_blend_epi32(cond_max, vMaxL, vL);
             }
         }
     }

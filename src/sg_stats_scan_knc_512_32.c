@@ -398,24 +398,6 @@ parasail_result_t* FNAME(
 
     /* max of last column */
     {
-        __m512i vQIndex = _mm512_set_16to16_pi(
-                15*segLen,
-                14*segLen,
-                13*segLen,
-                12*segLen,
-                11*segLen,
-                10*segLen,
-                9*segLen,
-                8*segLen,
-                7*segLen,
-                6*segLen,
-                5*segLen,
-                4*segLen,
-                3*segLen,
-                2*segLen,
-                1*segLen,
-                0*segLen);
-        __m512i vQLimit = _mm512_set1_epi32(s1Len);
         vMaxH = vNegInf;
         vMaxM = vZero;
         vMaxL = vZero;
@@ -425,13 +407,10 @@ parasail_result_t* FNAME(
             __m512i vH = _mm512_load_epi32(pvH + i);
             __m512i vM = _mm512_load_epi32(pvM + i);
             __m512i vL = _mm512_load_epi32(pvL + i);
-            __mmask16 cond_lmt = _mm512_cmplt_epi32_mask(vQIndex, vQLimit);
             __mmask16 cond_max = _mm512_cmpgt_epi32_mask(vH, vMaxH);
-            __mmask16 cond_all = _mm512_kand(cond_max, cond_lmt);
-            vMaxH = _mm512_mask_blend_epi32(cond_all, vMaxH, vH);
-            vMaxM = _mm512_mask_blend_epi32(cond_all, vMaxM, vM);
-            vMaxL = _mm512_mask_blend_epi32(cond_all, vMaxL, vL);
-            vQIndex = _mm512_add_epi32(vQIndex, vOne);
+            vMaxH = _mm512_mask_blend_epi32(cond_max, vMaxH, vH);
+            vMaxM = _mm512_mask_blend_epi32(cond_max, vMaxM, vM);
+            vMaxL = _mm512_mask_blend_epi32(cond_max, vMaxL, vL);
         }
 
         /* max in vec */

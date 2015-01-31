@@ -228,7 +228,7 @@ parasail_result_t* FNAME(
                 vH = _mm512_sub_epi32(vH, vGapO);
                 vF = _mm512_sub_epi32(vF, vGapE);
                 if (! _mm512_mask2int(_mm512_cmpgt_epi32_mask(vF, vH))) goto end;
-                vF = _mm512_max_epi32(vF, vH);
+                /*vF = _mm512_max_epi32(vF, vH);*/
             }
         }
 end:

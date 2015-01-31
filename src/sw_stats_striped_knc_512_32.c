@@ -105,25 +105,6 @@ parasail_result_t* FNAME(
     __m512i vZero = _mm512_set1_epi32(0);
     __m512i vOne = _mm512_set1_epi32(1);
     __m512i vNegInf = _mm512_set1_epi32(NEG_INF_32);
-    /* for max calculation we don't want to include padded cells */
-    __m512i vQIndex_reset = _mm512_set_16to16_pi(
-            15*segLen,
-            14*segLen,
-            13*segLen,
-            12*segLen,
-            11*segLen,
-            10*segLen,
-            9*segLen,
-            8*segLen,
-            7*segLen,
-            6*segLen,
-            5*segLen,
-            4*segLen,
-            3*segLen,
-            2*segLen,
-            1*segLen,
-            0*segLen);
-    __m512i vQLimit = _mm512_set1_epi32(s1Len);
     __m512i vMaxH = vZero;
     __m512i vMaxHM = vZero;
     __m512i vMaxHL = vZero;
@@ -176,7 +157,6 @@ parasail_result_t* FNAME(
 
     /* outer loop over database sequence */
     for (j=0; j<s2Len; ++j) {
-        __m512i vQIndex = vQIndex_reset;
         __m512i vE;
         __m512i vEM;
         __m512i vEL;
@@ -272,13 +252,10 @@ parasail_result_t* FNAME(
 
             /* update max vector seen so far */
             {
-                __mmask16 cond_lmt = _mm512_cmplt_epi32_mask(vQIndex, vQLimit);
                 __mmask16 cond_max = _mm512_cmpgt_epi32_mask(vH, vMaxH);
-                __mmask16 cond_all = _mm512_kand(cond_max, cond_lmt);
-                vMaxH = _mm512_mask_blend_epi32(cond_all, vMaxH, vH);
-                vMaxHM = _mm512_mask_blend_epi32(cond_all, vMaxHM, vHM);
-                vMaxHL = _mm512_mask_blend_epi32(cond_all, vMaxHL, vHL);
-                vQIndex = _mm512_add_epi32(vQIndex, vOne);
+                vMaxH  = _mm512_mask_blend_epi32(cond_max, vMaxH, vH);
+                vMaxHM = _mm512_mask_blend_epi32(cond_max, vMaxHM, vHM);
+                vMaxHL = _mm512_mask_blend_epi32(cond_max, vMaxHL, vHL);
             }
 
             /* Update vE value. */
@@ -354,7 +331,7 @@ parasail_result_t* FNAME(
                 vH = _mm512_sub_epi32(vH, vGapO);
                 vF = _mm512_sub_epi32(vF, vGapE);
                 if (! _mm512_mask2int(_mm512_cmpgt_epi32_mask(vF, vH))) goto end;
-                vF = _mm512_max_epi32(vF, vH);
+                /*vF = _mm512_max_epi32(vF, vH);*/
                 vFM = vHM;
                 vFL = vHL;
                 vHp = _mm512_load_epi32(pvHLoad + i);

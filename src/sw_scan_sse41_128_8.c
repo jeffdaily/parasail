@@ -79,7 +79,7 @@ parasail_result_t* FNAME(
     __m128i vGapE = _mm_set1_epi8(gap);
     int8_t bias = INT8_MIN;
     __m128i vMaxH = _mm_set1_epi8(NEG_INF_8);
-    int8_t score = NEG_INF_8;
+    int score = NEG_INF_8;
     __m128i segLenXgap_reset = _mm_set_epi8(
             NEG_INF_8, NEG_INF_8, NEG_INF_8, NEG_INF_8,
             NEG_INF_8, NEG_INF_8, NEG_INF_8, NEG_INF_8,
@@ -237,7 +237,7 @@ parasail_result_t* FNAME(
 
     /* max in vec */
     for (j=0; j<segWidth; ++j) {
-        int8_t value = (int8_t) _mm_extract_epi8(vMaxH, 15);
+        int value = (int8_t) _mm_extract_epi8(vMaxH, 15) - (int)bias;
         if (value > score) {
             score = value;
         }
@@ -249,7 +249,7 @@ parasail_result_t* FNAME(
         result->saturated = 1;
     }
 
-    result->score = score - (int)(bias);
+    result->score = score;
 
     parasail_free(pvH);
     parasail_free(pvFt);

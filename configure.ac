@@ -17,6 +17,9 @@ AC_CONFIG_SRCDIR([src/parasail.h])
 ###############################################################################
 AM_INIT_AUTOMAKE([color-tests foreign parallel-tests silent-rules subdir-objects])
 
+# Don't emit "rebuild rules" for configure, Makefile.ins, etc.
+AM_MAINTAINER_MODE
+
 ###############################################################################
 # C compiler
 ###############################################################################

@@ -492,7 +492,6 @@ int main(int argc, char **argv)
     int shortest = INT_MAX;
     int longest = 0;
     double timer_clock = 0.0;
-    unsigned long long timer_rtdsc = 0U;
     unsigned long i = 0;
     size_t seq_count = 10;
     size_t limit = 0;
@@ -627,22 +626,16 @@ int main(int argc, char **argv)
     timer_init();
     printf("%s timer\n", timer_name());
 
-    int *saturated = NULL;
 #pragma omp parallel
     {
 #pragma omp single
         {
             int N = omp_get_max_threads();
             printf("omp_get_max_threads()=%d\n", N);
-            saturated = malloc(sizeof(int)*omp_get_max_threads());
         }
     }
 
     timer_clock = timer_real();
-    timer_rtdsc = timer_start();
-    for (i=0; i<omp_get_max_threads(); ++i) {
-        saturated[i] = 0;
-    }
 #pragma omp parallel
     {
         int tid = omp_get_thread_num();
@@ -654,18 +647,11 @@ int main(int argc, char **argv)
             k_combination2(i, &a, &b);
             result = function(sequences[a], sizes[a], sequences[b], sizes[b],
                     10, 1, blosum62);
-            saturated[tid] += result->saturated;
             parasail_result_free(result);
         }
     }
-    int saturated_sum = 0;
-    for (i=0; i<omp_get_max_threads(); ++i) {
-        /*printf("saturated[%d]=%d\n", i, saturated[i]);*/
-        saturated_sum += saturated[i];
-    }
-    timer_rtdsc = timer_end(timer_rtdsc);
     timer_clock = timer_real() - timer_clock;
-    printf("nw\t%llu\t%f\tsaturated=%d\n", timer_rtdsc, timer_clock, saturated_sum);
+    printf("%s\t%s\t%f\n", funcname, blosumname, timer_clock);
 
     return 0;
 }

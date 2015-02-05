@@ -19,7 +19,13 @@ KSEQ_INIT(gzFile, gzread)
 
 #include "parasail.h"
 #include "parasail_internal.h"
+#include "blosum/blosum40.h"
+#include "blosum/blosum45.h"
+#include "blosum/blosum50.h"
 #include "blosum/blosum62.h"
+#include "blosum/blosum75.h"
+#include "blosum/blosum80.h"
+#include "blosum/blosum90.h"
 #include "timer.h"
 #include "timer_real.h"
 
@@ -105,6 +111,22 @@ parasail_result_t* parasail_sw(
 
     return result;
 }
+
+typedef struct blosum {
+    const char * name;
+    const int (*blosum)[24];
+} blosum_t;
+
+blosum_t blosums[] = {
+    {"blosum40",blosum40},
+    {"blosum45",blosum45},
+    {"blosum50",blosum50},
+    {"blosum62",blosum62},
+    {"blosum75",blosum75},
+    {"blosum80",blosum80},
+    {"blosum90",blosum90},
+    {"NULL",NULL},
+};
 
 typedef struct func {
     const char * name;
@@ -481,11 +503,17 @@ int main(int argc, char **argv)
     pf function = NULL;
     char *filename = NULL;
     int c = 0;
+    char *blosumname = NULL;
+    const int (*blosum)[24] = NULL;
 
-    while ((c = getopt(argc, argv, "a:f:n:")) != -1) {
+
+    while ((c = getopt(argc, argv, "a:b:f:n:")) != -1) {
         switch (c) {
             case 'a':
                 funcname = optarg;
+                break;
+            case 'b':
+                blosumname = optarg;
                 break;
             case 'f':
                 filename = optarg;
@@ -540,6 +568,38 @@ int main(int argc, char **argv)
     }
     else {
         fprintf(stderr, "No alignment function specified.\n");
+        exit(1);
+    }
+
+    /* select the blosum matrix */
+    if (blosumname) {
+        int index = 0;
+        blosum_t b;
+        b = blosums[index++];
+        while (b.blosum) {
+            if (0 == strcmp(blosumname, b.name)) {
+                blosum = b.blosum;
+                printf("blosum: %s\n", blosumname);
+                break;
+            }
+            b = blosums[index++];
+        }
+        if (NULL == blosum) {
+            fprintf(stderr, "Specified blosum matrix not found.\n");
+            fprintf(stderr, "Choices are {"
+                    "blosum62,"
+                    "blosum40,"
+                    "blosum45,"
+                    "blosum50,"
+                    "blosum62,"
+                    "blosum75,"
+                    "blosum80,"
+                    "blosum90}\n");
+            exit(1);
+        }
+    }
+    else {
+        fprintf(stderr, "No blosum matrix specified.\n");
         exit(1);
     }
 

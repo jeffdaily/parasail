@@ -432,6 +432,7 @@ tests_libssw_la_SOURCES += contrib/ssw.h
 endif
 
 check_PROGRAMS += tests/test_align
+check_PROGRAMS += tests/test_gcups
 check_PROGRAMS += tests/test_isa
 check_PROGRAMS += tests/test_sw_dispatch
 if HAVE_OPENMP
@@ -447,6 +448,11 @@ tests_test_align_LDADD   += $(CLOCK_LIBS)
 tests_test_align_LDADD   += $(MATH_LIBS)
 tests_test_align_LDADD   += $(Z_LIBS)
 tests_test_align_LDADD   += tests/libssw.la
+
+tests_test_gcups_SOURCES = tests/test_gcups.c
+tests_test_gcups_LDADD   =
+tests_test_gcups_LDADD   += $(LDADD)
+tests_test_gcups_LDADD   += $(Z_LIBS)
 
 tests_test_isa_SOURCES = tests/test_isa.c
 

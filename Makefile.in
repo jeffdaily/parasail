@@ -79,8 +79,9 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-check_PROGRAMS = tests/test_align$(EXEEXT) tests/test_isa$(EXEEXT) \
-	tests/test_sw_dispatch$(EXEEXT) $(am__EXEEXT_1)
+check_PROGRAMS = tests/test_align$(EXEEXT) tests/test_gcups$(EXEEXT) \
+	tests/test_isa$(EXEEXT) tests/test_sw_dispatch$(EXEEXT) \
+	$(am__EXEEXT_1)
 @HAVE_SSE_TRUE@am__append_1 = libparasail_sse_memory.la
 @HAVE_SSE2_TRUE@am__append_2 = libparasail_sse2.la \
 @HAVE_SSE2_TRUE@	libparasail_sse2_table.la
@@ -678,6 +679,9 @@ tests_test_align_OBJECTS = $(am_tests_test_align_OBJECTS)
 am__DEPENDENCIES_1 =
 tests_test_align_DEPENDENCIES = $(LDADD) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) tests/libssw.la
+am_tests_test_gcups_OBJECTS = tests/test_gcups.$(OBJEXT)
+tests_test_gcups_OBJECTS = $(am_tests_test_gcups_OBJECTS)
+tests_test_gcups_DEPENDENCIES = $(LDADD) $(am__DEPENDENCIES_1)
 am_tests_test_isa_OBJECTS = tests/test_isa.$(OBJEXT)
 tests_test_isa_OBJECTS = $(am_tests_test_isa_OBJECTS)
 tests_test_isa_LDADD = $(LDADD)
@@ -743,8 +747,8 @@ SOURCES = $(libparasail_la_SOURCES) $(libparasail_avx2_la_SOURCES) \
 	$(libparasail_sse41_table_la_SOURCES) \
 	$(libparasail_sse_memory_la_SOURCES) \
 	$(tests_libssw_la_SOURCES) $(tests_test_align_SOURCES) \
-	$(tests_test_isa_SOURCES) $(tests_test_openmp_SOURCES) \
-	$(tests_test_sw_dispatch_SOURCES)
+	$(tests_test_gcups_SOURCES) $(tests_test_isa_SOURCES) \
+	$(tests_test_openmp_SOURCES) $(tests_test_sw_dispatch_SOURCES)
 DIST_SOURCES = $(libparasail_la_SOURCES) \
 	$(libparasail_avx2_la_SOURCES) \
 	$(libparasail_avx2_memory_la_SOURCES) \
@@ -760,8 +764,9 @@ DIST_SOURCES = $(libparasail_la_SOURCES) \
 	$(libparasail_sse41_table_la_SOURCES) \
 	$(libparasail_sse_memory_la_SOURCES) \
 	$(am__tests_libssw_la_SOURCES_DIST) \
-	$(tests_test_align_SOURCES) $(tests_test_isa_SOURCES) \
-	$(tests_test_openmp_SOURCES) $(tests_test_sw_dispatch_SOURCES)
+	$(tests_test_align_SOURCES) $(tests_test_gcups_SOURCES) \
+	$(tests_test_isa_SOURCES) $(tests_test_openmp_SOURCES) \
+	$(tests_test_sw_dispatch_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -1149,6 +1154,8 @@ libparasail_la_LIBADD = libparasail_novec.la \
 tests_test_align_SOURCES = tests/test_align.c
 tests_test_align_LDADD = $(LDADD) $(CLOCK_LIBS) $(MATH_LIBS) $(Z_LIBS) \
 	tests/libssw.la
+tests_test_gcups_SOURCES = tests/test_gcups.c
+tests_test_gcups_LDADD = $(LDADD) $(Z_LIBS)
 tests_test_isa_SOURCES = tests/test_isa.c
 tests_test_sw_dispatch_SOURCES = tests/test_sw_dispatch.c
 tests_test_openmp_SOURCES = tests/test_openmp.c
@@ -2126,6 +2133,12 @@ tests/test_align.$(OBJEXT): tests/$(am__dirstamp) \
 tests/test_align$(EXEEXT): $(tests_test_align_OBJECTS) $(tests_test_align_DEPENDENCIES) $(EXTRA_tests_test_align_DEPENDENCIES) tests/$(am__dirstamp)
 	@rm -f tests/test_align$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(tests_test_align_OBJECTS) $(tests_test_align_LDADD) $(LIBS)
+tests/test_gcups.$(OBJEXT): tests/$(am__dirstamp) \
+	tests/$(DEPDIR)/$(am__dirstamp)
+
+tests/test_gcups$(EXEEXT): $(tests_test_gcups_OBJECTS) $(tests_test_gcups_DEPENDENCIES) $(EXTRA_tests_test_gcups_DEPENDENCIES) tests/$(am__dirstamp)
+	@rm -f tests/test_gcups$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(tests_test_gcups_OBJECTS) $(tests_test_gcups_LDADD) $(LIBS)
 tests/test_isa.$(OBJEXT): tests/$(am__dirstamp) \
 	tests/$(DEPDIR)/$(am__dirstamp)
 
@@ -2550,6 +2563,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sg_dispatch.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sw_dispatch.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_align.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_gcups.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_isa.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_sw_dispatch.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/tests_test_openmp-test_openmp.Po@am__quote@

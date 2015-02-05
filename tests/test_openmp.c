@@ -8,14 +8,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <unistd.h>
 
 #include <omp.h>
 
-#include <zlib.h>
 #include "kseq.h"
-KSEQ_INIT(gzFile, gzread)
+KSEQ_INIT(int, read)
 
+#if HAVE_SSE2
 #include "ssw.h"
+#endif
 
 #include "parasail.h"
 #include "parasail_internal.h"
@@ -35,6 +37,7 @@ typedef parasail_result_t* (*pf)(
         const int open, const int gap,
         const int matrix[24][24]);
 
+#if HAVE_SSE2
 parasail_result_t* parasail_ssw_(
         const char * const restrict s1, const int s1_len,
         const char * const restrict s2, const int s2_len,
@@ -88,6 +91,7 @@ parasail_result_t* parasail_ssw_16(
 {
     return parasail_ssw_(s1, s1_len, s2, s2_len, open, gap, matrix, 1);
 }
+#endif
 
 parasail_result_t* parasail_sw(
         const char * const restrict s1, const int s1Len,
@@ -388,7 +392,7 @@ func_t functions[] = {
 static inline void parse_sequences(
         const char *filename, char ***strings_, size_t **sizes_, size_t *count_)
 {
-    gzFile fp;
+    FILE* fp;
     kseq_t *seq = NULL;
     int l = 0;
     char **strings = NULL;
@@ -397,14 +401,14 @@ static inline void parse_sequences(
     size_t memory = 1000;
     size_t i = 0;
 
-    fp = gzopen(filename, "r");
-    if(fp == Z_NULL) {
-        perror("gzopen");
+    fp = fopen(filename, "r");
+    if(fp == NULL) {
+        perror("fopen");
         exit(1);
     }
     strings = malloc(sizeof(char*) * memory);
     sizes = malloc(sizeof(size_t) * memory);
-    seq = kseq_init(fp);
+    seq = kseq_init(fileno(fp));
     while ((l = kseq_read(seq)) >= 0) {
         strings[count] = strdup(seq->seq.s);
         if (NULL == strings[count]) {
@@ -432,7 +436,7 @@ static inline void parse_sequences(
         }
     }
     kseq_destroy(seq);
-    gzclose(fp);
+    fclose(fp);
 
     *strings_ = strings;
     *sizes_ = sizes;

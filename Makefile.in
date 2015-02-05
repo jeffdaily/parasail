@@ -101,7 +101,7 @@ check_PROGRAMS = tests/test_align$(EXEEXT) tests/test_gcups$(EXEEXT) \
 @HAVE_KNC_TRUE@am__append_10 = libparasail_knc_memory.la \
 @HAVE_KNC_TRUE@	libparasail_knc.la libparasail_knc_table.la
 @HAVE_SSE2_TRUE@am__append_11 = tests/libssw.la
-@HAVE_OPENMP_TRUE@@HAVE_ZLIB_TRUE@am__append_12 = tests/test_openmp
+@HAVE_OPENMP_TRUE@am__append_12 = tests/test_openmp
 subdir = .
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) \
@@ -672,8 +672,7 @@ am__tests_libssw_la_SOURCES_DIST = contrib/ssw.c contrib/ssw.h
 @HAVE_SSE2_TRUE@am_tests_libssw_la_OBJECTS = contrib/ssw.lo
 tests_libssw_la_OBJECTS = $(am_tests_libssw_la_OBJECTS)
 @HAVE_SSE2_TRUE@am_tests_libssw_la_rpath =
-@HAVE_OPENMP_TRUE@@HAVE_ZLIB_TRUE@am__EXEEXT_1 =  \
-@HAVE_OPENMP_TRUE@@HAVE_ZLIB_TRUE@	tests/test_openmp$(EXEEXT)
+@HAVE_OPENMP_TRUE@am__EXEEXT_1 = tests/test_openmp$(EXEEXT)
 am_tests_test_align_OBJECTS = tests/test_align.$(OBJEXT)
 tests_test_align_OBJECTS = $(am_tests_test_align_OBJECTS)
 am__DEPENDENCIES_1 =

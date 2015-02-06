@@ -16,7 +16,7 @@
 
 typedef union __m512i_32 {
     __m512i m;
-    int32_t v[16];
+    int32_t v[16] __attribute__((aligned(64)));
 } __m512i_32_t;
 
 __m512i * parasail_memalign_m512i(size_t alignment, size_t size);

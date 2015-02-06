@@ -24,9 +24,7 @@
 void* parasail_memalign(size_t alignment, size_t size)
 {
     void *ptr = NULL;
-#if defined(HAVE__MM_MALLOC)
-    ptr = _mm_malloc(size, alignment);
-#elif defined(HAVE_POSIX_MEMALIGN)
+#if defined(HAVE_POSIX_MEMALIGN)
     int retcode = posix_memalign(&ptr, alignment, size);
     assert(0 == retcode);
 #elif defined(HAVE_ALIGNED_ALLOC)
@@ -42,11 +40,7 @@ void* parasail_memalign(size_t alignment, size_t size)
 
 void parasail_free(void *ptr)
 {
-#if HAVE__MM_MALLOC
-    _mm_free(ptr);
-#else
     free(ptr);
-#endif
 }
 
 int * parasail_memalign_int(size_t alignment, size_t size)

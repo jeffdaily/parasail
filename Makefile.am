@@ -435,6 +435,7 @@ check_PROGRAMS += tests/test_align
 check_PROGRAMS += tests/test_gcups
 check_PROGRAMS += tests/test_isa
 check_PROGRAMS += tests/test_sw_dispatch
+check_PROGRAMS += tests/test_verify
 if HAVE_OPENMP
 check_PROGRAMS += tests/test_openmp
 endif
@@ -465,4 +466,6 @@ tests_test_openmp_LDADD   += $(CLOCK_LIBS)
 tests_test_openmp_LDADD   += $(MATH_LIBS)
 tests_test_openmp_LDADD   += $(Z_LIBS)
 tests_test_openmp_LDADD   += tests/libssw.la
+
+tests_test_verify_SOURCES = tests/test_verify.c
 

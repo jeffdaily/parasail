@@ -194,7 +194,7 @@ end:
 
     /* max of last column */
     {
-        __m128i vMaxLastColH = vNegInf;
+        vMaxH = vNegInf;
 
         for (i=0; i<segLen; ++i) {
             __m128i vH = _mm_load_si128(pvHStore + i);
@@ -203,11 +203,11 @@ end:
 
         /* max in vec */
         for (j=0; j<segWidth; ++j) {
-            int32_t value = (int32_t) _mm_extract_epi32(vMaxLastColH, 3);
+            int32_t value = (int32_t) _mm_extract_epi32(vMaxH, 3);
             if (value > score) {
                 score = value;
             }
-            vMaxLastColH = _mm_slli_si128(vMaxLastColH, 4);
+            vMaxH = _mm_slli_si128(vMaxH, 4);
         }
     }
 

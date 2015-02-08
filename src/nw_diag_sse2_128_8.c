@@ -203,7 +203,8 @@ parasail_result_t* FNAME(
 
     /* set initial values for stored row */
     for (j=0; j<s2Len; ++j) {
-        tbl_pr[j] = -open - j*gap;
+        int32_t tmp = -open -j*gap;
+        tbl_pr[j] = tmp < INT8_MIN ? INT8_MIN : tmp;
         del_pr[j] = NEG_INF_8;
     }
     /* pad front of stored row values */
@@ -241,9 +242,14 @@ parasail_result_t* FNAME(
         const int * const restrict matrow13 = matrix[s1[i+13]];
         const int * const restrict matrow14 = matrix[s1[i+14]];
         const int * const restrict matrow15 = matrix[s1[i+15]];
+        int32_t tmp;
         vNscore = vshift8(vNscore, tbl_pr[-1]);
-        vWscore = vshift8(vWscore, -open - i*gap);
-        tbl_pr[-1] = -open - (i+N)*gap;
+        tmp = -open -i*gap;
+        tmp = tmp < INT8_MIN ? INT8_MIN : tmp;
+        vWscore = vshift8(vWscore, tmp);
+        tmp = -open - (i+N)*gap;
+        tmp = tmp < INT8_MIN ? INT8_MIN : tmp;
+        tbl_pr[-1] = tmp;
         /* iterate over database sequence */
         for (j=0; j<N; ++j) {
             __m128i vMat;
@@ -374,9 +380,14 @@ parasail_result_t* FNAME(
         const int * const restrict matrow13 = matrix[s1[i+13]];
         const int * const restrict matrow14 = matrix[s1[i+14]];
         const int * const restrict matrow15 = matrix[s1[i+15]];
+        int32_t tmp;
         vNscore = vshift8(vNscore, tbl_pr[-1]);
-        vWscore = vshift8(vWscore, -open - i*gap);
-        tbl_pr[-1] = -open - (i+N)*gap;
+        tmp = -open -i*gap;
+        tmp = tmp < INT8_MIN ? INT8_MIN : tmp;
+        vWscore = vshift8(vWscore, tmp);
+        tmp = -open - (i+N)*gap;
+        tmp = tmp < INT8_MIN ? INT8_MIN : tmp;
+        tbl_pr[-1] = tmp;
         /* iterate over database sequence */
         for (j=0; j<N; ++j) {
             __m128i vMat;

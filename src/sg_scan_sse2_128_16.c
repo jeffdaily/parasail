@@ -70,7 +70,7 @@ parasail_result_t* FNAME(
     __m128i vGapO = _mm_set1_epi16(open);
     __m128i vGapE = _mm_set1_epi16(gap);
     __m128i vNegInf = _mm_set1_epi16(NEG_INF_16);
-    int16_t score = 0;
+    int16_t score = NEG_INF_16;
     __m128i vMaxH = vNegInf;
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);

@@ -53,6 +53,9 @@ typedef struct gap_score {
 
 gap_score_t gap_scores[] = {
     {10,1},
+    {10,2},
+    {14,2},
+    {40,2},
     {INT_MIN,INT_MIN}
 };
 

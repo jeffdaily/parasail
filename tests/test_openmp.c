@@ -507,10 +507,11 @@ int main(int argc, char **argv)
     char *filename = NULL;
     int c = 0;
     char *blosumname = NULL;
-    const int (*blosum)[24] = NULL;
+    const int (*blosum)[24] = blosum62;
+    int gap_open = 10;
+    int gap_extend = 1;
 
-
-    while ((c = getopt(argc, argv, "a:b:f:n:")) != -1) {
+    while ((c = getopt(argc, argv, "a:b:f:n:o:e:")) != -1) {
         switch (c) {
             case 'a':
                 funcname = optarg;
@@ -524,6 +525,22 @@ int main(int argc, char **argv)
             case 'n':
                 errno = 0;
                 seq_count = strtol(optarg, &endptr, 10);
+                if (errno) {
+                    perror("strtol");
+                    exit(1);
+                }
+                break;
+            case 'o':
+                errno = 0;
+                gap_open = strtol(optarg, &endptr, 10);
+                if (errno) {
+                    perror("strtol");
+                    exit(1);
+                }
+                break;
+            case 'e':
+                errno = 0;
+                gap_extend = strtol(optarg, &endptr, 10);
                 if (errno) {
                     perror("strtol");
                     exit(1);
@@ -587,10 +604,9 @@ int main(int argc, char **argv)
             }
             b = blosums[index++];
         }
-        if (NULL == blosum) {
+        if (NULL == b.blosum) {
             fprintf(stderr, "Specified blosum matrix not found.\n");
             fprintf(stderr, "Choices are {"
-                    "blosum62,"
                     "blosum40,"
                     "blosum45,"
                     "blosum50,"
@@ -600,10 +616,6 @@ int main(int argc, char **argv)
                     "blosum90}\n");
             exit(1);
         }
-    }
-    else {
-        fprintf(stderr, "No blosum matrix specified.\n");
-        exit(1);
     }
 
     if (filename) {
@@ -650,7 +662,7 @@ int main(int argc, char **argv)
             parasail_result_t *result = NULL;
             k_combination2(i, &a, &b);
             result = function(sequences[a], sizes[a], sequences[b], sizes[b],
-                    10, 1, blosum62);
+                    gap_open, gap_extend, blosum);
             parasail_result_free(result);
         }
     }

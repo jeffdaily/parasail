@@ -129,6 +129,7 @@ parasail_result_t* FNAME(
     __m128i vZero = _mm_set1_epi8(0);
     __m128i vOne16 = _mm_set1_epi16(1);
     __m128i vNegOne16 = _mm_set1_epi16(-1);
+    __m128i vN16 = _mm_set1_epi16(N);
     __m128i vILo16 = _mm_set_epi16(8,9,10,11,12,13,14,15);
     __m128i vIHi16 = _mm_set_epi16(0,1,2,3,4,5,6,7);
     __m128i vJresetLo16 = _mm_set_epi16(-8,-9,-10,-11,-12,-13,-14,-15);
@@ -276,6 +277,8 @@ parasail_result_t* FNAME(
             vJLo16 = _mm_adds_epi16(vJLo16, vOne16);
             vJHi16 = _mm_adds_epi16(vJHi16, vOne16);
         }
+        vILo16 = _mm_adds_epi16(vILo16, vN16);
+        vIHi16 = _mm_adds_epi16(vIHi16, vN16);
     }
 
     /* max in vMax */

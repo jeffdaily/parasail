@@ -228,7 +228,8 @@ end:
     }
 
     /* check for saturation */
-    if (score == INT8_MAX) {
+    if (score == (INT8_MAX - (int)bias)) {
+        score = INT8_MAX;
         result->saturated = 1;
     }
 

@@ -113,7 +113,7 @@ parasail_result_t* ENAME(
 #ifdef PARASAIL_TABLE
             result->score_table[i*s2Len + j] = H[i];
 #endif
-            score = MAX(score, H[s1Len-1]);
+            score = MAX(score, H[i]);
         }
     }
 

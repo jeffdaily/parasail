@@ -380,7 +380,7 @@ parasail_result_t* FNAME(
                         _mm_packs_epi16(
                             _mm_cmplt_epi16(vJLo16, vJLimit16),
                             _mm_cmplt_epi16(vJHi16, vJLimit16)));
-                __m128i cond_max = _mm_cmpgt_epi16(vWscore, vMaxScore);
+                __m128i cond_max = _mm_cmpgt_epi8(vWscore, vMaxScore);
                 __m128i cond_all = _mm_and_si128(cond_max,
                         _mm_and_si128(vIltLimit, cond_valid_J));
                 vMaxScore = _mm_andnot_si128(cond_all, vMaxScore);
@@ -413,6 +413,7 @@ parasail_result_t* FNAME(
         vMaxMatch = _mm_slli_si128(vMaxMatch, 1);
         vMaxLength = _mm_slli_si128(vMaxLength, 1);
     }
+
     if (_mm_movemask_epi8(vSaturationCheck)) {
         result->saturated = 1;
         score = INT8_MAX;

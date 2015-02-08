@@ -690,6 +690,17 @@ int main(int argc, char **argv)
     }
 #endif
 
+#if HAVE_SSE41
+    if (parasail_can_use_sse41()) {
+        check_functions(nw_sse41, sequences, sizes, seq_count, limit);
+        check_functions(sg_sse41, sequences, sizes, seq_count, limit);
+        check_functions(sw_sse41, sequences, sizes, seq_count, limit);
+        check_functions(nw_stats_sse41, sequences, sizes, seq_count, limit);
+        check_functions(sg_stats_sse41, sequences, sizes, seq_count, limit);
+        check_functions(sw_stats_sse41, sequences, sizes, seq_count, limit);
+    }
+#endif
+
     for (i=0; i<seq_count; ++i) {
         free(sequences[i]);
     }

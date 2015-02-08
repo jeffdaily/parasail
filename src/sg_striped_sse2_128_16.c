@@ -103,7 +103,7 @@ parasail_result_t* FNAME(
             __m128i_16_t e;
             for (segNum=0; segNum<segWidth; ++segNum) {
                 h.v[segNum] = 0;
-                e.v[segNum] = NEG_INF_16;
+                e.v[segNum] = -open;
             }
             _mm_store_si128(&pvHStore[index], h.m);
             _mm_store_si128(&pvE[index], e.m);

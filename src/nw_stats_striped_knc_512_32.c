@@ -105,23 +105,6 @@ parasail_result_t* FNAME(
     __m512i vGapE = _mm512_set1_epi32(gap);
     __m512i vZero = _mm512_set1_epi32(0);
     __m512i vOne = _mm512_set1_epi32(1);
-    __m512i initialF = _mm512_set_epi32(
-            -open-open-15*segLen*gap,
-            -open-open-14*segLen*gap,
-            -open-open-13*segLen*gap,
-            -open-open-12*segLen*gap,
-            -open-open-11*segLen*gap,
-            -open-open-10*segLen*gap,
-            -open-open-9*segLen*gap,
-            -open-open-8*segLen*gap,
-            -open-open-7*segLen*gap,
-            -open-open-6*segLen*gap,
-            -open-open-5*segLen*gap,
-            -open-open-4*segLen*gap,
-            -open-open-3*segLen*gap,
-            -open-open-2*segLen*gap,
-            -open-open-1*segLen*gap,
-            -open-open-0*segLen*gap);
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table3(segLen*segWidth, s2Len);
 #else
@@ -177,8 +160,6 @@ parasail_result_t* FNAME(
         }
     }
 
-    initialF = _mm512_add_epi32(initialF, vGapE);
-
     /* outer loop over database sequence */
     for (j=0; j<s2Len; ++j) {
         __m512i vE;
@@ -194,10 +175,9 @@ parasail_result_t* FNAME(
         const __m512i* vPS = NULL;
         __m512i* pv = NULL;
 
-        /* Initialize F value to 0.  Any errors to vH values will be corrected
-         * in the Lazy_F loop.  */
-        initialF = _mm512_sub_epi32(initialF, vGapE);
-        vF = initialF;
+        /* Initialize F value to neg inf.  Any errors to vH values will
+         * be corrected in the Lazy_F loop.  */
+        vF = _mm512_set1_epi32(NEG_INF_32);
         vFM = vZero;
         vFL = vZero;
 

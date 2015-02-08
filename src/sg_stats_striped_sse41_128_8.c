@@ -158,9 +158,8 @@ parasail_result_t* FNAME(
         const __m128i* vPS = NULL;
         __m128i* pv = NULL;
 
-        /* Initialize F value to 0.  Any errors to vH values will be corrected
-         * in the Lazy_F loop.  */
-        /*vF = initialF;*/
+        /* Initialize F value to neg inf.  Any errors to vH values will
+         * be corrected in the Lazy_F loop.  */
         vF = vNegInf;
         vFM = vZero;
         vFL = vZero;

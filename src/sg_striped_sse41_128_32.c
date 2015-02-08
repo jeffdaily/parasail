@@ -67,11 +67,6 @@ parasail_result_t* FNAME(
     __m128i vNegInf = _mm_set1_epi32(NEG_INF_32);
     int score = NEG_INF_32;
     __m128i vMaxH = vNegInf;
-    __m128i initialF = _mm_set_epi32(
-            -open-open-3*segLen*gap,
-            -open-open-2*segLen*gap,
-            -open-open-1*segLen*gap,
-            -open-open-0*segLen*gap);
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
@@ -116,9 +111,9 @@ parasail_result_t* FNAME(
     /* outer loop over database sequence */
     for (j=0; j<s2Len; ++j) {
         __m128i vE;
-        /* Initialize F value to 0.  Any errors to vH values will be corrected
-         * in the Lazy_F loop.  */
-        __m128i vF = initialF;
+        /* Initialize F value to neg inf.  Any errors to vH values will
+         * be corrected in the Lazy_F loop.  */
+        __m128i vF = vNegInf;
 
         /* load final segment of pvHStore and shift left by 2 bytes */
         __m128i vH = _mm_slli_si128(pvHStore[segLen - 1], 4);

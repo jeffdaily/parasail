@@ -115,15 +115,6 @@ parasail_result_t* FNAME(
     __m256i vMaxH = vNegInf;
     __m256i vMaxHM = vNegInf;
     __m256i vMaxHL = vNegInf;
-    __m256i initialF = _mm256_set_epi32(
-            -open-7*segLen*gap,
-            -open-6*segLen*gap,
-            -open-5*segLen*gap,
-            -open-4*segLen*gap,
-            -open-3*segLen*gap,
-            -open-2*segLen*gap,
-            -open-1*segLen*gap,
-            -open-0*segLen*gap);
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table3(segLen*segWidth, s2Len);
 #else
@@ -186,9 +177,9 @@ parasail_result_t* FNAME(
         const __m256i* vPS = NULL;
         __m256i* pv = NULL;
 
-        /* Initialize F value to 0.  Any errors to vH values will be corrected
-         * in the Lazy_F loop.  */
-        vF = initialF;
+        /* Initialize F value to neg inf.  Any errors to vH values will
+         * be corrected in the Lazy_F loop.  */
+        vF = vNegInf;
         vFM = vZero;
         vFL = vZero;
 

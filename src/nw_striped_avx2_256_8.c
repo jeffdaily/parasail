@@ -119,39 +119,6 @@ parasail_result_t* FNAME(
     int score;
     __m256i vGapO = _mm256_set1_epi8(open);
     __m256i vGapE = _mm256_set1_epi8(gap);
-    __m256i initialF = _mm256_set_epi8(
-            -open-open-31*segLen*gap,
-            -open-open-30*segLen*gap,
-            -open-open-29*segLen*gap,
-            -open-open-28*segLen*gap,
-            -open-open-27*segLen*gap,
-            -open-open-26*segLen*gap,
-            -open-open-25*segLen*gap,
-            -open-open-24*segLen*gap,
-            -open-open-23*segLen*gap,
-            -open-open-22*segLen*gap,
-            -open-open-21*segLen*gap,
-            -open-open-20*segLen*gap,
-            -open-open-19*segLen*gap,
-            -open-open-18*segLen*gap,
-            -open-open-17*segLen*gap,
-            -open-open-16*segLen*gap,
-            -open-open-15*segLen*gap,
-            -open-open-14*segLen*gap,
-            -open-open-13*segLen*gap,
-            -open-open-12*segLen*gap,
-            -open-open-11*segLen*gap,
-            -open-open-10*segLen*gap,
-            -open-open- 9*segLen*gap,
-            -open-open- 8*segLen*gap,
-            -open-open- 7*segLen*gap,
-            -open-open- 6*segLen*gap,
-            -open-open- 5*segLen*gap,
-            -open-open- 4*segLen*gap,
-            -open-open- 3*segLen*gap,
-            -open-open- 2*segLen*gap,
-            -open-open- 1*segLen*gap,
-            -open-open- 0*segLen*gap);
     __m256i vSaturationCheck = _mm256_setzero_si256();
     __m256i vNegLimit = _mm256_set1_epi8(INT8_MIN);
     __m256i vPosLimit = _mm256_set1_epi8(INT8_MAX);
@@ -204,8 +171,6 @@ parasail_result_t* FNAME(
         }
     }
 
-    initialF = _mm256_adds_epi8(initialF, vGapE);
-
     /* outer loop over database sequence */
     for (j=0; j<s2Len; ++j) {
         __m256i vE;
@@ -214,10 +179,9 @@ parasail_result_t* FNAME(
         const __m256i* vP = NULL;
         __m256i* pv = NULL;
 
-        /* Initialize F value to 0.  Any errors to vH values will be corrected
-         * in the Lazy_F loop.  */
-        initialF = _mm256_subs_epi8(initialF, vGapE);
-        vF = initialF;
+        /* Initialize F value to neg inf.  Any errors to vH values will
+         * be corrected in the Lazy_F loop.  */
+        vF = _mm256_set1_epi8(NEG_INF_8);
 
         /* load final segment of pvHStore and shift left by 2 bytes */
         vH = shift(pvHStore[segLen - 1]);

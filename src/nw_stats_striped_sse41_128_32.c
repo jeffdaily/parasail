@@ -78,11 +78,6 @@ parasail_result_t* FNAME(
     int32_t score;
     int32_t matches;
     int32_t length;
-    __m128i initialF = _mm_set_epi32(
-            -open-open-3*segLen*gap,
-            -open-open-2*segLen*gap,
-            -open-open-1*segLen*gap,
-            -open-open-0*segLen*gap);
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table3(segLen*segWidth, s2Len);
 #else
@@ -138,8 +133,6 @@ parasail_result_t* FNAME(
         }
     }
 
-    initialF = _mm_add_epi32(initialF, vGapE);
-
     /* outer loop over database sequence */
     for (j=0; j<s2Len; ++j) {
         __m128i vE;
@@ -155,10 +148,9 @@ parasail_result_t* FNAME(
         const __m128i* vPS = NULL;
         __m128i* pv = NULL;
 
-        /* Initialize F value to 0.  Any errors to vH values will be corrected
-         * in the Lazy_F loop.  */
-        initialF = _mm_sub_epi32(initialF, vGapE);
-        vF = initialF;
+        /* Initialize F value to neg inf.  Any errors to vH values will
+         * be corrected in the Lazy_F loop.  */
+        vF = _mm_set1_epi32(NEG_INF_32);
         vFM = vZero;
         vFL = vZero;
 

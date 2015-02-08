@@ -69,15 +69,6 @@ parasail_result_t* FNAME(
     int score;
     __m128i vGapO = _mm_set1_epi16(open);
     __m128i vGapE = _mm_set1_epi16(gap);
-    __m128i initialF = _mm_set_epi16(
-            -open-open-7*segLen*gap,
-            -open-open-6*segLen*gap,
-            -open-open-5*segLen*gap,
-            -open-open-4*segLen*gap,
-            -open-open-3*segLen*gap,
-            -open-open-2*segLen*gap,
-            -open-open-1*segLen*gap,
-            -open-open-0*segLen*gap);
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
@@ -127,8 +118,6 @@ parasail_result_t* FNAME(
         }
     }
 
-    initialF = _mm_adds_epi16(initialF, vGapE);
-
     /* outer loop over database sequence */
     for (j=0; j<s2Len; ++j) {
         __m128i vE;
@@ -137,10 +126,9 @@ parasail_result_t* FNAME(
         const __m128i* vP = NULL;
         __m128i* pv = NULL;
 
-        /* Initialize F value to 0.  Any errors to vH values will be corrected
-         * in the Lazy_F loop.  */
-        initialF = _mm_subs_epi16(initialF, vGapE);
-        vF = initialF;
+        /* Initialize F value to neg inf.  Any errors to vH values will
+         * be corrected in the Lazy_F loop.  */
+        vF = _mm_set1_epi16(INT16_MIN);
 
         /* load final segment of pvHStore and shift left by 2 bytes */
         vH = _mm_slli_si128(pvHStore[segLen - 1], 2);

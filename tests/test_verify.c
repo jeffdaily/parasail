@@ -704,6 +704,17 @@ int main(int argc, char **argv)
     }
 #endif
 
+#if HAVE_AVX2
+    if (parasail_can_use_avx2()) {
+        check_functions(nw_avx2, sequences, sizes, seq_count, limit);
+        check_functions(sg_avx2, sequences, sizes, seq_count, limit);
+        check_functions(sw_avx2, sequences, sizes, seq_count, limit);
+        check_functions(nw_stats_avx2, sequences, sizes, seq_count, limit);
+        check_functions(sg_stats_avx2, sequences, sizes, seq_count, limit);
+        check_functions(sw_stats_avx2, sequences, sizes, seq_count, limit);
+    }
+#endif
+
     for (i=0; i<seq_count; ++i) {
         free(sequences[i]);
     }

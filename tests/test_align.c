@@ -12,19 +12,40 @@
 #include <sys/types.h>
 #include <pwd.h>
 
-#if HAVE_SSE2
-#include "ssw.h"
-#endif
+#include "kseq.h"
+KSEQ_INIT(int, read)
 
 #include "parasail.h"
 #include "parasail_internal.h"
 #include "parasail_cpuid.h"
+#include "blosum/blosum40.h"
+#include "blosum/blosum45.h"
+#include "blosum/blosum50.h"
 #include "blosum/blosum62.h"
+#include "blosum/blosum75.h"
+#include "blosum/blosum80.h"
+#include "blosum/blosum90.h"
 #include "stats.h"
 #include "timer.h"
 #include "timer_real.h"
 
 #define USE_TIMER_REAL 0
+
+typedef struct blosum {
+    const char * name;
+    const int (*blosum)[24];
+} blosum_t;
+
+blosum_t blosums[] = {
+    {"blosum40",blosum40},
+    {"blosum45",blosum45},
+    {"blosum50",blosum50},
+    {"blosum62",blosum62},
+    {"blosum75",blosum75},
+    {"blosum80",blosum80},
+    {"blosum90",blosum90},
+    {"NULL",NULL},
+};
 
 static double pctf(double orig, double new)
 {
@@ -84,61 +105,66 @@ static void print_array(
     fclose(f);
 }
 
-#if HAVE_SSE2
-static inline parasail_result_t* ssw_(
-        const char * const restrict s1, const int s1_len,
-        const char * const restrict s2, const int s2_len,
-        const int open, const int gap, const int matrix[24][24],
-        int score_size)
+static inline void parse_sequences(
+        const char *filename,
+        char ***strings_,
+        unsigned long **sizes_,
+        unsigned long *count_)
 {
-    parasail_result_t *result = parasail_result_new();
-    s_profile *profile = NULL;
-    int8_t *s1_num = (int8_t*)malloc(sizeof(int8_t) * s1_len);
-    int8_t *s2_num = (int8_t*)malloc(sizeof(int8_t) * s2_len);
-    s_align *ssw_result = NULL;
-    int m = 0;
+    FILE* fp;
+    kseq_t *seq = NULL;
+    int l = 0;
+    char **strings = NULL;
+    unsigned long *sizes = NULL;
+    unsigned long count = 0;
+    unsigned long memory = 1000;
+    unsigned long i = 0;
 
-    /* This table is used to transform amino acid letters into numbers. */
-    static const int8_t table[128] = {
-        23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,
-        23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,
-        23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,
-        23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,
-        23, 0,  20, 4,  3,  6,  13, 7,  8,  9,  23, 11, 10, 12, 2,  23,
-        14, 5,  1,  15, 16, 23, 19, 17, 22, 18, 21, 23, 23, 23, 23, 23,
-        23, 0,  20, 4,  3,  6,  13, 7,  8,  9,  23, 11, 10, 12, 2,  23,
-        14, 5,  1,  15, 16, 23, 19, 17, 22, 18, 21, 23, 23, 23, 23, 23
-    };
+    errno = 0;
+    fp = fopen(filename, "r");
+    if(fp == NULL) {
+        perror("fopen");
+        exit(1);
+    }
+    strings = malloc(sizeof(char*) * memory);
+    sizes = malloc(sizeof(unsigned long) * memory);
+    seq = kseq_init(fileno(fp));
+    while ((l = kseq_read(seq)) >= 0) {
+        errno = 0;
+        strings[count] = strdup(seq->seq.s);
+        if (NULL == strings[count]) {
+            perror("strdup");
+            exit(1);
+        }
+        sizes[count] = seq->seq.l;
+        ++count;
+        if (count >= memory) {
+            char **new_strings = NULL;
+            unsigned long *new_sizes = NULL;
+            memory *= 2;
+            errno = 0;
+            new_strings = realloc(strings, sizeof(char*) * memory);
+            if (NULL == new_strings) {
+                perror("realloc");
+                exit(1);
+            }
+            strings = new_strings;
+            errno = 0;
+            new_sizes = realloc(sizes, sizeof(unsigned long) * memory);
+            if (NULL == new_sizes) {
+                perror("realloc");
+                exit(1);
+            }
+            sizes = new_sizes;
+        }
+    }
+    kseq_destroy(seq);
+    fclose(fp);
 
-    /* initialize score matrix */
-    for (m = 0; m < s1_len; ++m) s1_num[m] = table[(int)s1[m]];
-    for (m = 0; m < s2_len; ++m) s2_num[m] = table[(int)s2[m]];
-    profile = ssw_init(s1_num, s1_len, blosum62__, 24, score_size);
-    ssw_result = ssw_align(profile, s2_num, s2_len, -open, -gap, 2, 0, 0, s1_len/2);
-    result->score = ssw_result->score1;
-    result->saturated = ssw_result->saturated;
-    align_destroy(ssw_result);
-    init_destroy(profile);
-
-    return result;
+    *strings_ = strings;
+    *sizes_ = sizes;
+    *count_ = count;
 }
-
-parasail_result_t* ssw_8(
-        const char * const restrict s1, const int s1_len,
-        const char * const restrict s2, const int s2_len,
-        const int open, const int gap, const int matrix[24][24])
-{
-    return ssw_(s1, s1_len, s2, s2_len, open, gap, matrix, 2);
-}
-
-parasail_result_t* ssw_16(
-        const char * const restrict s1, const int s1_len,
-        const char * const restrict s2, const int s2_len,
-        const int open, const int gap, const int matrix[24][24])
-{
-    return ssw_(s1, s1_len, s2, s2_len, open, gap, matrix, 1);
-}
-#endif
 
 typedef struct func {
     parasail_result_t* (*f)(const char * const restrict s1, const int s1Len,
@@ -165,38 +191,12 @@ static inline int elem(func_t f) {
 
 int main(int argc, char **argv)
 {
-#if 0
-    const char *seqA = "MEFYDVAVTVGMLCIIIYLLLVRQFRYWTERNVPQLNPHLLFGDVRDVNKTHHIGEKFRQLYNELKGKHPFGGIYMFTKPVALVTDLELVKNVFVKDFQYFHDRGTYYDEKHDPLSAHLFNLEGYKWKSLRNKITPTFTSGKMKMMFPTVAAAGKQFKDYLEDAIGEQEEFELKELLARYTTDVIGTCAFGIECNSMRNPNAEFRVMGKKIFGRSRSNLQLLLMNAFPSVAKLVGIKLILPEVSDFFMNAVRDTIKYRVENNVQRNDFMDILIRMRSDKETKSDDGTLTFHEIAAQAFVFFVAGFETSSSLMAFTLYELALDQDMQDKARKCVTDVLERHNGELTYEAAMEMDYLDCVLKGWVR"
-                       "MEFYDVAVTVGMLCIIIYLLLVRQFRYWTERNVPQLNPHLLFGDVRDVNKTHHIGEKFRQLYNELKGKHPFGGIYMFTKPVALVTDLELVKNVFVKDFQYFHDRGTYYDEKHDPLSAHLFNLEGYKWKSLRNKITPTFTSGKMKMMFPTVAAAGKQFKDYLEDAIGEQEEFELKELLARYTTDVIGTCAFGIECNSMRNPNAEFRVMGKKIFGRSRSNLQLLLMNAFPSVAKLVGIKLILPEVSDFFMNAVRDTIKYRVENNVQRNDFMDILIRMRSDKETKSDDGTLTFHEIAAQAFVFFVAGFETSSSLMAFTLYELALDQDMQDKARKCVTDVLERHNGELTYEAAMEMDYLDCVLKGWVR"
-                       "MEFYDVAVTVGMLCIIIYLLLVRQFRYWTERNVPQLNPHLLFGDVRDVNKTHHIGEKFRQLYNELKGKHPFGGIYMFTKPVALVTDLELVKNVFVKDFQYFHDRGTYYDEKHDPLSAHLFNLEGYKWKSLRNKITPTFTSGKMKMMFPTVAAAGKQFKDYLEDAIGEQEEFELKELLARYTTDVIGTCAFGIECNSMRNPNAEFRVMGKKIFGRSRSNLQLLLMNAFPSVAKLVGIKLILPEVSDFFMNAVRDTIKYRVENNVQRNDFMDILIRMRSDKETKSDDGTLTFHEIAAQAFVFFVAGFETSSSLMAFTLYELALDQDMQDKARKCVTDVLERHNGELTYEAAMEMDYLDCVLKGWVR"
-                       "MEFYDVAVTVGMLCIIIYLLLVRQFRYWTERNVPQLNPHLLFGDVRDVNKTHHIGEKFRQLYNELKGKHPFGGIYMFTKPVALVTDLELVKNVFVKDFQYFHDRGTYYDEKHDPLSAHLFNLEGYKWKSLRNKITPTFTSGKMKMMFPTVAAAGKQFKDYLEDAIGEQEEFELKELLARYTTDVIGTCAFGIECNSMRNPNAEFRVMGKKIFGRSRSNLQLLLMNAFPSVAKLVGIKLILPEVSDFFMNAVRDTIKYRVENNVQRNDFMDILIRMRSDKETKSDDGTLTFHEIAAQAFVFFVAGFETSSSLMAFTLYELALDQDMQDKARKCVTDVLERHNGELTYEAAMEMDYLDCVLKGWVR";
-    const char *seqB = "AALGVAARAGFLAAGFASSSELSSELSSEDSAAFLAAAAGVAAFAGVFTIAAFGVAATADLLAAGLHSSSELSSELSSEDSAAFFAATAGVAALAGVLAAAAAFGVAATADFFAAGLESSSELSSELSSDDSAVFFAAAAGVATFAGVLAAAATFGVAACAGFFAAGLDSSSELSSELSSEDSAAFFAAAAGVATFTGVLAAAAACAAAACVGFFAAGLDSSSELSSELSSEDSAAFFAAAAGVAALAGVLAAAAACAGFFAAGLESSSELSSE"
-                       "AALGVAARAGFLAAGFASSSELSSELSSEDSAAFLAAAAGVAAFAGVFTIAAFGVAATADLLAAGLHSSSELSSELSSEDSAAFFAATAGVAALAGVLAAAAAFGVAATADFFAAGLESSSELSSELSSDDSAVFFAAAAGVATFAGVLAAAATFGVAACAGFFAAGLDSSSELSSELSSEDSAAFFAAAAGVATFTGVLAAAAACAAAACVGFFAAGLDSSSELSSELSSEDSAAFFAAAAGVAALAGVLAAAAACAGFFAAGLESSSELSSE"
-                       "AALGVAARAGFLAAGFASSSELSSELSSEDSAAFLAAAAGVAAFAGVFTIAAFGVAATADLLAAGLHSSSELSSELSSEDSAAFFAATAGVAALAGVLAAAAAFGVAATADFFAAGLESSSELSSELSSDDSAVFFAAAAGVATFAGVLAAAATFGVAACAGFFAAGLDSSSELSSELSSEDSAAFFAAAAGVATFTGVLAAAAACAAAACVGFFAAGLDSSSELSSELSSEDSAAFFAAAAGVAALAGVLAAAAACAGFFAAGLESSSELSSE"
-                       "AALGVAARAGFLAAGFASSSELSSELSSEDSAAFLAAAAGVAAFAGVFTIAAFGVAATADLLAAGLHSSSELSSELSSEDSAAFFAATAGVAALAGVLAAAAAFGVAATADFFAAGLESSSELSSELSSDDSAVFFAAAAGVATFAGVLAAAATFGVAACAGFFAAGLDSSSELSSELSSEDSAAFFAAAAGVATFTGVLAAAAACAAAACVGFFAAGLDSSSELSSELSSEDSAAFFAAAAGVAALAGVLAAAAACAGFFAAGLESSSELSSE";
-#endif
-#if 1
-    const char *seqA = "MEFYDVAVTVGMLCIIIYLLLVRQFRYWTERNVPQLNPHLLFGDVRDVNKTHHIGEKFRQLYNELKGKHPFGGIYMFTKPVALVTDLELVKNVFVKDFQYFHDRGTYYDEKHDPLSAHLFNLEGYKWKSLRNKITPTFTSGKMKMMFPTVAAAGKQFKDYLEDAIGEQEEFELKELLARYTTDVIGTCAFGIECNSMRNPNAEFRVMGKKIFGRSRSNLQLLLMNAFPSVAKLVGIKLILPEVSDFFMNAVRDTIKYRVENNVQRNDFMDILIRMRSDKETKSDDGTLTFHEIAAQAFVFFVAGFETSSSLMAFTLYELALDQDMQDKARKCVTDVLERHNGELTYEAAMEMDYLDCVLKGWVR"
-                       "MEFYDVAVTVGMLCIIIYLLLVRQFRYWTERNVPQLNPHLLFGDVRDVNKTHHIGEKFRQLYNELKGKHPFGGIYMFTKPVALVTDLELVKNVFVKDFQYFHDRGTYYDEKHDPLSAHLFNLEGYKWKSLRNKITPTFTSGKMKMMFPTVAAAGKQFKDYLEDAIGEQEEFELKELLARYTTDVIGTCAFGIECNSMRNPNAEFRVMGKKIFGRSRSNLQLLLMNAFPSVAKLVGIKLILPEVSDFFMNAVRDTIKYRVENNVQRNDFMDILIRMRSDKETKSDDGTLTFHEIAAQAFVFFVAGFETSSSLMAFTLYELALDQDMQDKARKCVTDVLERHNGELTYEAAMEMDYLDCVLKGWVR";
-    const char *seqB = "AALGVAARAGFLAAGFASSSELSSELSSEDSAAFLAAAAGVAAFAGVFTIAAFGVAATADLLAAGLHSSSELSSELSSEDSAAFFAATAGVAALAGVLAAAAAFGVAATADFFAAGLESSSELSSELSSDDSAVFFAAAAGVATFAGVLAAAATFGVAACAGFFAAGLDSSSELSSELSSEDSAAFFAAAAGVATFTGVLAAAAACAAAACVGFFAAGLDSSSELSSELSSEDSAAFFAAAAGVAALAGVLAAAAACAGFFAAGLESSSELSSE"
-                       "AALGVAARAGFLAAGFASSSELSSELSSEDSAAFLAAAAGVAAFAGVFTIAAFGVAATADLLAAGLHSSSELSSELSSEDSAAFFAATAGVAALAGVLAAAAAFGVAATADFFAAGLESSSELSSELSSDDSAVFFAAAAGVATFAGVLAAAATFGVAACAGFFAAGLDSSSELSSELSSEDSAAFFAAAAGVATFTGVLAAAAACAAAACVGFFAAGLDSSSELSSELSSEDSAAFFAAAAGVAALAGVLAAAAACAGFFAAGLESSSELSSE";
-#endif
-#if 0
-    const char *seqA = "MEFYDVAVTVGMLCIIIYLLLVRQFRYWTERNVPQLNPHLLFGDVRDVNKTHHIGEKFRQLYNELKGKHPFGGIYMFTKPVALVTDLELVKNVFVKDFQYFHDRGTYYDEKHDPLSAHLFNLEGYKWKSLRNKITPTFTSGKMKMMFPTVAAAGKQFKDYLEDAIGEQEEFELKELLARYTTDVIGTCAFGIECNSMRNPNAEFRVMGKKIFGRSRSNLQLLLMNAFPSVAKLVGIKLILPEVSDFFMNAVRDTIKYRVENNVQRNDFMDILIRMRSDKETKSDDGTLTFHEIAAQAFVFFVAGFETSSSLMAFTLYELALDQDMQDKARKCVTDVLERHNGELTYEAAMEMDYLDCVLKGWVR";
-    const char *seqB = "AALGVAARAGFLAAGFASSSELSSELSSEDSAAFLAAAAGVAAFAGVFTIAAFGVAATADLLAAGLHSSSELSSELSSEDSAAFFAATAGVAALAGVLAAAAAFGVAATADFFAAGLESSSELSSELSSDDSAVFFAAAAGVATFAGVLAAAATFGVAACAGFFAAGLDSSSELSSELSSEDSAAFFAAAAGVATFTGVLAAAAACAAAACVGFFAAGLDSSSELSSELSSEDSAAFFAAAAGVAALAGVLAAAAACAGFFAAGLESSSELSSE";
-#endif
-#if 0
-    const char *seqA = "MEFYDVAVTV"
-                       "MEFYDVAVTV"
-                       "MEFYDVAVTV"
-                       "MEFYDVAVTV";
-    const char *seqB = "AALGVAARAGFLAAGFASSS"
-                       "AALGVAARAGFLAAGFASSS"
-                       "AALGVAARAGFLAAGFASSS"
-                       "AALGVAARAGFLAAGFASSS";
-#endif
-    const int lena = strlen(seqA);
-    const int lenb = strlen(seqB);
+    long seqA_index = LONG_MAX;
+    long seqB_index = LONG_MAX;
+    const char *seqA = NULL;
+    const char *seqB = NULL;
+    int lena = 0;
+    int lenb = 0;
     int score = 0;
     int matches = 0;
     int length = 0;
@@ -208,15 +208,160 @@ int main(int argc, char **argv)
 #if USE_TIMER_REAL
     double timer_nsecs_ref_mean = 0.0;
 #endif
-    int limit = 100;
+    int limit = 2;
     int i = 0;
     int index = 0;
     func_t f;
     parasail_result_t *result = NULL;
     stats_t stats_rdtsc;
     stats_t stats_nsecs;
+    int c = 0;
+    char *filename = NULL;
+    char **sequences = NULL;
+    unsigned long *sizes = NULL;
+    unsigned long seq_count = 0;
+    char *endptr = NULL;
+    char *blosumname = NULL;
+    blosum_t b;
+    int open = 0;
+    int extend = 0;
 
-    if (argc > 1) { limit = atoi(argv[1]); }
+    while ((c = getopt(argc, argv, "a:b:f:m:n:o:e:")) != -1) {
+        switch (c) {
+            case 'a':
+                errno = 0;
+                seqA_index = strtol(optarg, &endptr, 10);
+                if (errno) {
+                    perror("strtol seqA_index");
+                    fprintf(stderr, "invalid seqA index\n");
+                    exit(1);
+                }
+                break;
+            case 'b':
+                errno = 0;
+                seqB_index = strtol(optarg, &endptr, 10);
+                if (errno) {
+                    perror("strtol seqB_index");
+                    fprintf(stderr, "invalid seqB index\n");
+                    exit(1);
+                }
+                break;
+            case 'f':
+                filename = optarg;
+                break;
+            case 'm':
+                blosumname = optarg;
+                break;
+            case 'n':
+                errno = 0;
+                limit = strtol(optarg, &endptr, 10);
+                if (errno) {
+                    perror("strtol limit");
+                    exit(1);
+                }
+                break;
+            case 'o':
+                errno = 0;
+                open = strtol(optarg, &endptr, 10);
+                if (errno) {
+                    perror("strtol open");
+                    exit(1);
+                }
+                break;
+            case 'e':
+                errno = 0;
+                extend = strtol(optarg, &endptr, 10);
+                if (errno) {
+                    perror("strtol extend");
+                    exit(1);
+                }
+                break;
+            case '?':
+                if (optopt == 'a'
+                        || optopt == 'b'
+                        || optopt == 'f'
+                        || optopt == 'n') {
+                    fprintf(stderr,
+                            "Option -%c requires an argument.\n",
+                            optopt);
+                }
+                else if (isprint(optopt)) {
+                    fprintf(stderr, "Unknown option `-%c'.\n",
+                            optopt);
+                }
+                else {
+                    fprintf(stderr,
+                            "Unknown option character `\\x%x'.\n",
+                            optopt);
+                }
+                exit(1);
+            default:
+                fprintf(stderr, "default case in getopt\n");
+                exit(1);
+        }
+    }
+
+    if (filename) {
+        parse_sequences(filename, &sequences, &sizes, &seq_count);
+    }
+    else {
+        fprintf(stderr, "no filename specified\n");
+        exit(1);
+    }
+
+    /* select the blosum matrix */
+    if (blosumname) {
+        int index = 0;
+        b = blosums[index++];
+        while (b.blosum) {
+            if (0 == strcmp(blosumname, b.name)) {
+                break;
+            }
+            b = blosums[index++];
+        }
+        if (NULL == b.blosum) {
+            fprintf(stderr, "Specified blosum matrix not found.\n");
+            fprintf(stderr, "Choices are {"
+                    "blosum62,"
+                    "blosum40,"
+                    "blosum45,"
+                    "blosum50,"
+                    "blosum62,"
+                    "blosum75,"
+                    "blosum80,"
+                    "blosum90}\n");
+            exit(1);
+        }
+    }
+    else {
+        fprintf(stderr, "No blosum matrix specified.\n");
+        exit(1);
+    }
+
+    if (seqA_index == LONG_MAX) {
+        fprintf(stderr, "seqA index not specified\n");
+        exit(1);
+    }
+
+    if (seqB_index == LONG_MAX) {
+        fprintf(stderr, "seqB index not specified\n");
+        exit(1);
+    }
+
+    if (seqA_index >= seq_count) {
+        fprintf(stderr, "seqA index out of bounds\n");
+        exit(1);
+    }
+
+    if (seqB_index >= seq_count) {
+        fprintf(stderr, "seqB index out of bounds\n");
+        exit(1);
+    }
+
+    seqA = sequences[seqA_index];
+    seqB = sequences[seqB_index];
+    lena = strlen(seqA);
+    lenb = strlen(seqB);
 
     func_t functions[] = {
         {nw,                        "nw", "orig",    "NA",    "32",  "32", 0, 0, 1},
@@ -313,8 +458,6 @@ int main(int argc, char **argv)
         {sw_striped_sse2_128_32,    "sw", "striped", "sse2",  "128", "32", 0, 0, 0},
         {sw_striped_sse2_128_16,    "sw", "striped", "sse2",  "128", "16", 0, 0, 0},
         {sw_striped_sse2_128_8,     "sw", "striped", "sse2",  "128", "8",  0, 0, 0},
-        {ssw_16,                    "sw", "ssw",     "sse2",  "128", "16", 0, 0, 0},
-        {ssw_8,                     "sw", "ssw",     "sse2",  "128", "8",  0, 0, 0},
 #endif
 #if HAVE_SSE41
         {sw_scan_sse41_128_32,      "sw", "scan",    "sse41", "128", "32", 0, 0, 0},
@@ -718,6 +861,11 @@ int main(int argc, char **argv)
 
     timer_init();
     printf("%s timer\n", timer_name());
+    printf("file: %s\n", filename);
+    printf("blosum: %s\n", blosumname);
+    printf("gap open: %d\n", open);
+    printf("gap extend: %d\n", extend);
+    printf("seq pair %lu,%lu\n", seqA_index, seqB_index);
 
     printf("%-15s %8s %6s %4s %5s %5s %8s %8s %8s %8s %5s %8s %8s %8s\n",
             "name", "type", "isa", "bits", "width", "elem",
@@ -749,7 +897,7 @@ int main(int argc, char **argv)
         for (i=0; i<new_limit; ++i) {
             timer_rdtsc_single = timer_start();
             timer_nsecs_single = timer_real();
-            result = f.f(seqA, lena, seqB, lenb, 10, 1, blosum62);
+            result = f.f(seqA, lena, seqB, lenb, open, extend, b.blosum);
             timer_rdtsc_single = timer_end(timer_rdtsc_single);
             timer_nsecs_single = timer_real() - timer_nsecs_single;
             stats_sample_value(&stats_rdtsc, timer_rdtsc_single);
@@ -788,7 +936,7 @@ int main(int argc, char **argv)
                 strcat(suffix, f.width);
             }
             strcat(suffix, ".txt");
-            result = f.f(seqA, lena, seqB, lenb, 10, 1, blosum62);
+            result = f.f(seqA, lena, seqB, lenb, open, extend, b.blosum);
             {
                 char filename[256] = {'\0'};
                 strcpy(filename, f.alg);

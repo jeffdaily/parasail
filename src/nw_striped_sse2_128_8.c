@@ -135,7 +135,8 @@ parasail_result_t* FNAME(
             __m128i_8_t h;
             __m128i_8_t e;
             for (segNum=0; segNum<segWidth; ++segNum) {
-                h.v[segNum] = -open-gap*(segNum*segLen+i);
+                int32_t tmp = -open-gap*(segNum*segLen+i);
+                h.v[segNum] = tmp < INT8_MIN ? INT8_MIN : tmp;
                 e.v[segNum] = NEG_INF_8;
             }
             _mm_store_si128(&pvHStore[index], h.m);

@@ -154,7 +154,8 @@ parasail_result_t* FNAME(
             __m256i_8_t h;
             __m256i_8_t e;
             for (segNum=0; segNum<segWidth; ++segNum) {
-                h.v[segNum] = -open-gap*(segNum*segLen+i);
+                int32_t tmp = -open-gap*(segNum*segLen+i);
+                h.v[segNum] = tmp < INT8_MIN ? INT8_MIN : tmp;
                 e.v[segNum] = NEG_INF_8;
             }
             _mm256_store_si256(&pvHStore[index], h.m);
@@ -167,7 +168,8 @@ parasail_result_t* FNAME(
     {
         boundary[0] = 0;
         for (i=1; i<=s2Len; ++i) {
-            boundary[i] = -open-gap*(i-1);
+            int32_t tmp = -open-gap*(i-1);
+            boundary[i] = tmp < INT8_MIN ? INT8_MIN : tmp;
         }
     }
 

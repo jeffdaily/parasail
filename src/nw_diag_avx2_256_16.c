@@ -9,7 +9,6 @@
  */
 #include "config.h"
 
-#include <assert.h>
 #include <stdlib.h>
 
 #include <immintrin.h>
@@ -184,8 +183,6 @@ parasail_result_t* FNAME(
             -open-13*gap,
             -open-14*gap,
             -open-15*gap);
-    assert(s1Len > N);
-    assert(s2Len > N);
 
     /* convert _s1 from char to int in range 0-23 */
     for (i=0; i<s1Len; ++i) {
@@ -227,7 +224,7 @@ parasail_result_t* FNAME(
     tbl_pr[-1] = 0; /* upper left corner */
 
     /* iterate over query sequence */
-    for (i=0; i<s1Len-N; i+=N) {
+    for (i=0; i<s1Len; i+=N) {
         __m256i vNscore = vNegInf;
         __m256i vWscore = vZero;
         __m256i vIns = vNegInf;
@@ -253,7 +250,7 @@ parasail_result_t* FNAME(
         vWscore = vshift16(vWscore, -open - i*gap);
         tbl_pr[-1] = -open - (i+N)*gap;
         /* iterate over database sequence */
-        for (j=0; j<N; ++j) {
+        for (j=0; j<s2Len+PAD; ++j) {
             __m256i vMat;
             __m256i vNWscore = vNscore;
             vNscore = vshift16(vWscore, tbl_pr[j]);
@@ -293,199 +290,6 @@ parasail_result_t* FNAME(
                 vDel = _mm256_blendv_epi8(vDel, vNegInf, cond);
                 vIns = _mm256_blendv_epi8(vIns, vNegInf, cond);
             }
-#ifdef PARASAIL_TABLE
-            arr_store_si256(result->score_table, vWscore, i, s1Len, j, s2Len);
-#endif
-            tbl_pr[j-15] = (int16_t)_mm256_extract_epi16(vWscore,0);
-            del_pr[j-15] = (int16_t)_mm256_extract_epi16(vDel,0);
-            vJ = _mm256_adds_epi16(vJ, vOne);
-        }
-        for (j=N; j<s2Len+PAD; ++j) {
-            __m256i vMat;
-            __m256i vNWscore = vNscore;
-            vNscore = vshift16(vWscore, tbl_pr[j]);
-            vDel = vshift16(vDel, del_pr[j]);
-            vDel = _mm256_max_epi16(
-                    _mm256_subs_epi16(vNscore, vOpen),
-                    _mm256_subs_epi16(vDel, vGap));
-            vIns = _mm256_max_epi16(
-                    _mm256_subs_epi16(vWscore, vOpen),
-                    _mm256_subs_epi16(vIns, vGap));
-            vMat = _mm256_set_epi16(
-                    matrow0[s2[j-0]],
-                    matrow1[s2[j-1]],
-                    matrow2[s2[j-2]],
-                    matrow3[s2[j-3]],
-                    matrow4[s2[j-4]],
-                    matrow5[s2[j-5]],
-                    matrow6[s2[j-6]],
-                    matrow7[s2[j-7]],
-                    matrow8[s2[j-8]],
-                    matrow9[s2[j-9]],
-                    matrow10[s2[j-10]],
-                    matrow11[s2[j-11]],
-                    matrow12[s2[j-12]],
-                    matrow13[s2[j-13]],
-                    matrow14[s2[j-14]],
-                    matrow15[s2[j-15]]
-                    );
-            vNWscore = _mm256_adds_epi16(vNWscore, vMat);
-            vWscore = _mm256_max_epi16(vNWscore, vIns);
-            vWscore = _mm256_max_epi16(vWscore, vDel);
-#ifdef PARASAIL_TABLE
-            arr_store_si256(result->score_table, vWscore, i, s1Len, j, s2Len);
-#endif
-            tbl_pr[j-15] = (int16_t)_mm256_extract_epi16(vWscore,0);
-            del_pr[j-15] = (int16_t)_mm256_extract_epi16(vDel,0);
-            vJ = _mm256_adds_epi16(vJ, vOne);
-        }
-        vI = _mm256_adds_epi16(vI, vN);
-        vIBoundary = _mm256_subs_epi16(vIBoundary, vGapN);
-    }
-    for (/*i=?*/; i<s1Len; i+=N) {
-        __m256i vNscore = vNegInf;
-        __m256i vWscore = vZero;
-        __m256i vIns = vNegInf;
-        __m256i vDel = vNegInf;
-        __m256i vJ = vJreset;
-        const int * const restrict matrow0 = matrix[s1[i+0]];
-        const int * const restrict matrow1 = matrix[s1[i+1]];
-        const int * const restrict matrow2 = matrix[s1[i+2]];
-        const int * const restrict matrow3 = matrix[s1[i+3]];
-        const int * const restrict matrow4 = matrix[s1[i+4]];
-        const int * const restrict matrow5 = matrix[s1[i+5]];
-        const int * const restrict matrow6 = matrix[s1[i+6]];
-        const int * const restrict matrow7 = matrix[s1[i+7]];
-        const int * const restrict matrow8 = matrix[s1[i+8]];
-        const int * const restrict matrow9 = matrix[s1[i+9]];
-        const int * const restrict matrow10 = matrix[s1[i+10]];
-        const int * const restrict matrow11 = matrix[s1[i+11]];
-        const int * const restrict matrow12 = matrix[s1[i+12]];
-        const int * const restrict matrow13 = matrix[s1[i+13]];
-        const int * const restrict matrow14 = matrix[s1[i+14]];
-        const int * const restrict matrow15 = matrix[s1[i+15]];
-        vNscore = vshift16(vNscore, tbl_pr[-1]);
-        vWscore = vshift16(vWscore, -open - i*gap);
-        tbl_pr[-1] = -open - (i+N)*gap;
-        /* iterate over database sequence */
-        for (j=0; j<N; ++j) {
-            __m256i vMat;
-            __m256i vNWscore = vNscore;
-            vNscore = vshift16(vWscore, tbl_pr[j]);
-            vDel = vshift16(vDel, del_pr[j]);
-            vDel = _mm256_max_epi16(
-                    _mm256_subs_epi16(vNscore, vOpen),
-                    _mm256_subs_epi16(vDel, vGap));
-            vIns = _mm256_max_epi16(
-                    _mm256_subs_epi16(vWscore, vOpen),
-                    _mm256_subs_epi16(vIns, vGap));
-            vMat = _mm256_set_epi16(
-                    matrow0[s2[j-0]],
-                    matrow1[s2[j-1]],
-                    matrow2[s2[j-2]],
-                    matrow3[s2[j-3]],
-                    matrow4[s2[j-4]],
-                    matrow5[s2[j-5]],
-                    matrow6[s2[j-6]],
-                    matrow7[s2[j-7]],
-                    matrow8[s2[j-8]],
-                    matrow9[s2[j-9]],
-                    matrow10[s2[j-10]],
-                    matrow11[s2[j-11]],
-                    matrow12[s2[j-12]],
-                    matrow13[s2[j-13]],
-                    matrow14[s2[j-14]],
-                    matrow15[s2[j-15]]
-                    );
-            vNWscore = _mm256_adds_epi16(vNWscore, vMat);
-            vWscore = _mm256_max_epi16(vNWscore, vIns);
-            vWscore = _mm256_max_epi16(vWscore, vDel);
-            /* as minor diagonal vector passes across the j=-1 boundary,
-             * assign the appropriate boundary conditions */
-            {
-                __m256i cond = _mm256_cmpeq_epi16(vJ,vNegOne);
-                vWscore = _mm256_blendv_epi8(vWscore, vIBoundary, cond);
-                vDel = _mm256_blendv_epi8(vDel, vNegInf, cond);
-                vIns = _mm256_blendv_epi8(vIns, vNegInf, cond);
-            }
-#ifdef PARASAIL_TABLE
-            arr_store_si256(result->score_table, vWscore, i, s1Len, j, s2Len);
-#endif
-            tbl_pr[j-15] = (int16_t)_mm256_extract_epi16(vWscore,0);
-            del_pr[j-15] = (int16_t)_mm256_extract_epi16(vDel,0);
-            vJ = _mm256_adds_epi16(vJ, vOne);
-        }
-        for (j=N; j<s2Len-1; ++j) {
-            __m256i vMat;
-            __m256i vNWscore = vNscore;
-            vNscore = vshift16(vWscore, tbl_pr[j]);
-            vDel = vshift16(vDel, del_pr[j]);
-            vDel = _mm256_max_epi16(
-                    _mm256_subs_epi16(vNscore, vOpen),
-                    _mm256_subs_epi16(vDel, vGap));
-            vIns = _mm256_max_epi16(
-                    _mm256_subs_epi16(vWscore, vOpen),
-                    _mm256_subs_epi16(vIns, vGap));
-            vMat = _mm256_set_epi16(
-                    matrow0[s2[j-0]],
-                    matrow1[s2[j-1]],
-                    matrow2[s2[j-2]],
-                    matrow3[s2[j-3]],
-                    matrow4[s2[j-4]],
-                    matrow5[s2[j-5]],
-                    matrow6[s2[j-6]],
-                    matrow7[s2[j-7]],
-                    matrow8[s2[j-8]],
-                    matrow9[s2[j-9]],
-                    matrow10[s2[j-10]],
-                    matrow11[s2[j-11]],
-                    matrow12[s2[j-12]],
-                    matrow13[s2[j-13]],
-                    matrow14[s2[j-14]],
-                    matrow15[s2[j-15]]
-                    );
-            vNWscore = _mm256_adds_epi16(vNWscore, vMat);
-            vWscore = _mm256_max_epi16(vNWscore, vIns);
-            vWscore = _mm256_max_epi16(vWscore, vDel);
-#ifdef PARASAIL_TABLE
-            arr_store_si256(result->score_table, vWscore, i, s1Len, j, s2Len);
-#endif
-            tbl_pr[j-15] = (int16_t)_mm256_extract_epi16(vWscore,0);
-            del_pr[j-15] = (int16_t)_mm256_extract_epi16(vDel,0);
-            vJ = _mm256_adds_epi16(vJ, vOne);
-        }
-        for (j=s2Len-1; j<s2Len+PAD; ++j) {
-            __m256i vMat;
-            __m256i vNWscore = vNscore;
-            vNscore = vshift16(vWscore, tbl_pr[j]);
-            vDel = vshift16(vDel, del_pr[j]);
-            vDel = _mm256_max_epi16(
-                    _mm256_subs_epi16(vNscore, vOpen),
-                    _mm256_subs_epi16(vDel, vGap));
-            vIns = _mm256_max_epi16(
-                    _mm256_subs_epi16(vWscore, vOpen),
-                    _mm256_subs_epi16(vIns, vGap));
-            vMat = _mm256_set_epi16(
-                    matrow0[s2[j-0]],
-                    matrow1[s2[j-1]],
-                    matrow2[s2[j-2]],
-                    matrow3[s2[j-3]],
-                    matrow4[s2[j-4]],
-                    matrow5[s2[j-5]],
-                    matrow6[s2[j-6]],
-                    matrow7[s2[j-7]],
-                    matrow8[s2[j-8]],
-                    matrow9[s2[j-9]],
-                    matrow10[s2[j-10]],
-                    matrow11[s2[j-11]],
-                    matrow12[s2[j-12]],
-                    matrow13[s2[j-13]],
-                    matrow14[s2[j-14]],
-                    matrow15[s2[j-15]]
-                    );
-            vNWscore = _mm256_adds_epi16(vNWscore, vMat);
-            vWscore = _mm256_max_epi16(vNWscore, vIns);
-            vWscore = _mm256_max_epi16(vWscore, vDel);
 #ifdef PARASAIL_TABLE
             arr_store_si256(result->score_table, vWscore, i, s1Len, j, s2Len);
 #endif
@@ -496,9 +300,7 @@ parasail_result_t* FNAME(
             {
                 __m256i cond_valid_I = _mm256_cmpeq_epi16(vI, vILimit1);
                 __m256i cond_valid_J = _mm256_cmpeq_epi16(vJ, vJLimit1);
-                __m256i cond_max = _mm256_cmpgt_epi16(vWscore, vMax);
-                __m256i cond_all = _mm256_and_si256(cond_max,
-                        _mm256_and_si256(cond_valid_I, cond_valid_J));
+                __m256i cond_all = _mm256_and_si256(cond_valid_I, cond_valid_J);
                 vMax = _mm256_blendv_epi8(vMax, vWscore, cond_all);
             }
             vJ = _mm256_adds_epi16(vJ, vOne);

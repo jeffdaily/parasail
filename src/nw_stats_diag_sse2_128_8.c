@@ -9,7 +9,6 @@
  */
 #include "config.h"
 
-#include <assert.h>
 #include <stdlib.h>
 
 #include <emmintrin.h>
@@ -186,8 +185,6 @@ parasail_result_t* FNAME(
             -open-13*gap,
             -open-14*gap,
             -open-15*gap);
-    assert(s1Len > N);
-    assert(s2Len > N);
 
     /* convert _s1 from char to int in range 0-23 */
     for (i=0; i<s1Len; ++i) {
@@ -213,7 +210,8 @@ parasail_result_t* FNAME(
 
     /* set initial values for stored row */
     for (j=0; j<s2Len; ++j) {
-        tbl_pr[j] = -open - j*gap;
+        int32_t tmp = -open - j*gap;
+        tbl_pr[j] = tmp < INT8_MIN ? INT8_MIN : tmp;
         del_pr[j] = NEG_INF_8;
         mch_pr[j] = 0;
         len_pr[j] = 0;
@@ -235,7 +233,7 @@ parasail_result_t* FNAME(
     tbl_pr[-1] = 0; /* upper left corner */
 
     /* iterate over query sequence */
-    for (i=0; i<s1Len-N; i+=N) {
+    for (i=0; i<s1Len; i+=N) {
         __m128i vNscore = vNegInf;
         __m128i vNmatch = vZero;
         __m128i vNlength = vZero;
@@ -280,15 +278,19 @@ parasail_result_t* FNAME(
         const int * const restrict matrow13 = matrix[s1[i+13]];
         const int * const restrict matrow14 = matrix[s1[i+14]];
         const int * const restrict matrow15 = matrix[s1[i+15]];
+        int32_t tmp;
         vNscore = vshift8(vNscore, tbl_pr[-1]);
         vNmatch = vshift8(vNmatch, 0);
         vNlength = vshift8(vNlength, 0);
-        vWscore = vshift8(vWscore, -open - i*gap);
+        tmp = -open - i*gap;
+        tmp = tmp < INT8_MIN ? INT8_MIN : tmp;
+        vWscore = vshift8(vWscore, tmp);
         vWmatch = vshift8(vWmatch, 0);
         vWlength = vshift8(vWlength, 0);
-        tbl_pr[-1] = -open - (i+N)*gap;
+        tmp = -open - (i+N)*gap;
+        tbl_pr[-1] = tmp < INT8_MIN ? INT8_MIN : tmp;
         /* iterate over database sequence */
-        for (j=0; j<N; ++j) {
+        for (j=0; j<s2Len+PAD; ++j) {
             __m128i vMat;
             __m128i vNWscore = vNscore;
             __m128i vNWmatch = vNmatch;
@@ -367,424 +369,6 @@ parasail_result_t* FNAME(
                 vDel = _mm_or_si128(vDel, _mm_and_si128(cond, vNegInf));
                 vIns = _mm_andnot_si128(cond, vIns);
                 vIns = _mm_or_si128(vIns, _mm_and_si128(cond, vNegInf));
-            }
-            /* check for saturation */
-            {
-                vSaturationCheck = _mm_or_si128(vSaturationCheck,
-                        _mm_or_si128(
-                            _mm_or_si128(
-                                _mm_cmpeq_epi8(vWscore, vNegLimit),
-                                _mm_cmpeq_epi8(vWscore, vPosLimit)),
-                            _mm_or_si128(
-                                _mm_cmpeq_epi8(vWmatch, vPosLimit),
-                                _mm_cmpeq_epi8(vWlength, vPosLimit))));
-            }
-#ifdef PARASAIL_TABLE
-            arr_store_si128(result->score_table, vWscore, i, s1Len, j, s2Len);
-            arr_store_si128(result->matches_table, vWmatch, i, s1Len, j, s2Len);
-            arr_store_si128(result->length_table, vWlength, i, s1Len, j, s2Len);
-#endif
-            tbl_pr[j-15] = (int8_t)_mm_extract_epi8(vWscore,0);
-            mch_pr[j-15] = (int8_t)_mm_extract_epi8(vWmatch,0);
-            len_pr[j-15] = (int8_t)_mm_extract_epi8(vWlength,0);
-            del_pr[j-15] = (int8_t)_mm_extract_epi8(vDel,0);
-            vJ = _mm_adds_epi8(vJ, vOne);
-        }
-        for (j=N; j<s2Len+PAD; ++j) {
-            __m128i vMat;
-            __m128i vNWscore = vNscore;
-            __m128i vNWmatch = vNmatch;
-            __m128i vNWlength = vNlength;
-            vNscore = vshift8(vWscore, tbl_pr[j]);
-            vNmatch = vshift8(vWmatch, mch_pr[j]);
-            vNlength = vshift8(vWlength, len_pr[j]);
-            vDel = vshift8(vDel, del_pr[j]);
-            vDel = _mm_max_epi8(
-                    _mm_subs_epi8(vNscore, vOpen),
-                    _mm_subs_epi8(vDel, vGap));
-            vIns = _mm_max_epi8(
-                    _mm_subs_epi8(vWscore, vOpen),
-                    _mm_subs_epi8(vIns, vGap));
-            vs2 = vshift8(vs2, s2[j]);
-            vMat = _mm_set_epi8(
-                    matrow0[s2[j-0]],
-                    matrow1[s2[j-1]],
-                    matrow2[s2[j-2]],
-                    matrow3[s2[j-3]],
-                    matrow4[s2[j-4]],
-                    matrow5[s2[j-5]],
-                    matrow6[s2[j-6]],
-                    matrow7[s2[j-7]],
-                    matrow8[s2[j-8]],
-                    matrow9[s2[j-9]],
-                    matrow10[s2[j-10]],
-                    matrow11[s2[j-11]],
-                    matrow12[s2[j-12]],
-                    matrow13[s2[j-13]],
-                    matrow14[s2[j-14]],
-                    matrow15[s2[j-15]]
-                    );
-            vNWscore = _mm_adds_epi8(vNWscore, vMat);
-            vWscore = _mm_max_epi8(vNWscore, vIns);
-            vWscore = _mm_max_epi8(vWscore, vDel);
-            /* conditional block */
-            {
-                __m128i case1not;
-                __m128i case2not;
-                __m128i case2;
-                __m128i case3;
-                __m128i vCmatch;
-                __m128i vClength;
-                case1not = _mm_or_si128(
-                        _mm_cmplt_epi8(vNWscore,vDel),
-                        _mm_cmplt_epi8(vNWscore,vIns));
-                case2not = _mm_cmplt_epi8(vDel,vIns);
-                case2 = _mm_andnot_si128(case2not,case1not);
-                case3 = _mm_and_si128(case1not,case2not);
-                vCmatch = _mm_andnot_si128(case1not,
-                        _mm_adds_epi8(vNWmatch, _mm_and_si128(
-                                _mm_cmpeq_epi8(vs1,vs2),vOne)));
-                vClength= _mm_andnot_si128(case1not,
-                        _mm_adds_epi8(vNWlength, vOne));
-                vCmatch = _mm_or_si128(vCmatch, _mm_and_si128(case2, vNmatch));
-                vClength= _mm_or_si128(vClength,_mm_and_si128(case2,
-                            _mm_adds_epi8(vNlength, vOne)));
-                vCmatch = _mm_or_si128(vCmatch, _mm_and_si128(case3, vWmatch));
-                vClength= _mm_or_si128(vClength,_mm_and_si128(case3,
-                            _mm_adds_epi8(vWlength, vOne)));
-                vWmatch = vCmatch;
-                vWlength = vClength;
-            }
-            /* check for saturation */
-            {
-                vSaturationCheck = _mm_or_si128(vSaturationCheck,
-                        _mm_or_si128(
-                            _mm_or_si128(
-                                _mm_cmpeq_epi8(vWscore, vNegLimit),
-                                _mm_cmpeq_epi8(vWscore, vPosLimit)),
-                            _mm_or_si128(
-                                _mm_cmpeq_epi8(vWmatch, vPosLimit),
-                                _mm_cmpeq_epi8(vWlength, vPosLimit))));
-            }
-#ifdef PARASAIL_TABLE
-            arr_store_si128(result->score_table, vWscore, i, s1Len, j, s2Len);
-            arr_store_si128(result->matches_table, vWmatch, i, s1Len, j, s2Len);
-            arr_store_si128(result->length_table, vWlength, i, s1Len, j, s2Len);
-#endif
-            tbl_pr[j-15] = (int8_t)_mm_extract_epi8(vWscore,0);
-            mch_pr[j-15] = (int8_t)_mm_extract_epi8(vWmatch,0);
-            len_pr[j-15] = (int8_t)_mm_extract_epi8(vWlength,0);
-            del_pr[j-15] = (int8_t)_mm_extract_epi8(vDel,0);
-            vJ = _mm_adds_epi8(vJ, vOne);
-        }
-        vI = _mm_adds_epi8(vI, vN);
-        vIBoundary = _mm_subs_epi8(vIBoundary, vGapN);
-    }
-    for (/*i=?*/; i<s1Len; i+=N) {
-        __m128i vNscore = vNegInf;
-        __m128i vNmatch = vZero;
-        __m128i vNlength = vZero;
-        __m128i vWscore = vNegInf;
-        __m128i vWmatch = vZero;
-        __m128i vWlength = vZero;
-        __m128i vIns = vNegInf;
-        __m128i vDel = vNegInf;
-        __m128i vJ = vJreset;
-        __m128i vs1 = _mm_set_epi8(
-                s1[i+0],
-                s1[i+1],
-                s1[i+2],
-                s1[i+3],
-                s1[i+4],
-                s1[i+5],
-                s1[i+6],
-                s1[i+7],
-                s1[i+8],
-                s1[i+9],
-                s1[i+10],
-                s1[i+11],
-                s1[i+12],
-                s1[i+13],
-                s1[i+14],
-                s1[i+15]);
-        __m128i vs2 = vNegInf;
-        const int * const restrict matrow0 = matrix[s1[i+0]];
-        const int * const restrict matrow1 = matrix[s1[i+1]];
-        const int * const restrict matrow2 = matrix[s1[i+2]];
-        const int * const restrict matrow3 = matrix[s1[i+3]];
-        const int * const restrict matrow4 = matrix[s1[i+4]];
-        const int * const restrict matrow5 = matrix[s1[i+5]];
-        const int * const restrict matrow6 = matrix[s1[i+6]];
-        const int * const restrict matrow7 = matrix[s1[i+7]];
-        const int * const restrict matrow8 = matrix[s1[i+8]];
-        const int * const restrict matrow9 = matrix[s1[i+9]];
-        const int * const restrict matrow10 = matrix[s1[i+10]];
-        const int * const restrict matrow11 = matrix[s1[i+11]];
-        const int * const restrict matrow12 = matrix[s1[i+12]];
-        const int * const restrict matrow13 = matrix[s1[i+13]];
-        const int * const restrict matrow14 = matrix[s1[i+14]];
-        const int * const restrict matrow15 = matrix[s1[i+15]];
-        vNscore = vshift8(vNscore, tbl_pr[-1]);
-        vNmatch = vshift8(vNmatch, 0);
-        vNlength = vshift8(vNlength, 0);
-        vWscore = vshift8(vWscore, -open - i*gap);
-        vWmatch = vshift8(vWmatch, 0);
-        vWlength = vshift8(vWlength, 0);
-        tbl_pr[-1] = -open - (i+N)*gap;
-        /* iterate over database sequence */
-        for (j=0; j<N; ++j) {
-            __m128i vMat;
-            __m128i vNWscore = vNscore;
-            __m128i vNWmatch = vNmatch;
-            __m128i vNWlength = vNlength;
-            vNscore = vshift8(vWscore, tbl_pr[j]);
-            vNmatch = vshift8(vWmatch, mch_pr[j]);
-            vNlength = vshift8(vWlength, len_pr[j]);
-            vDel = vshift8(vDel, del_pr[j]);
-            vDel = _mm_max_epi8(
-                    _mm_subs_epi8(vNscore, vOpen),
-                    _mm_subs_epi8(vDel, vGap));
-            vIns = _mm_max_epi8(
-                    _mm_subs_epi8(vWscore, vOpen),
-                    _mm_subs_epi8(vIns, vGap));
-            vs2 = vshift8(vs2, s2[j]);
-            vMat = _mm_set_epi8(
-                    matrow0[s2[j-0]],
-                    matrow1[s2[j-1]],
-                    matrow2[s2[j-2]],
-                    matrow3[s2[j-3]],
-                    matrow4[s2[j-4]],
-                    matrow5[s2[j-5]],
-                    matrow6[s2[j-6]],
-                    matrow7[s2[j-7]],
-                    matrow8[s2[j-8]],
-                    matrow9[s2[j-9]],
-                    matrow10[s2[j-10]],
-                    matrow11[s2[j-11]],
-                    matrow12[s2[j-12]],
-                    matrow13[s2[j-13]],
-                    matrow14[s2[j-14]],
-                    matrow15[s2[j-15]]
-                    );
-            vNWscore = _mm_adds_epi8(vNWscore, vMat);
-            vWscore = _mm_max_epi8(vNWscore, vIns);
-            vWscore = _mm_max_epi8(vWscore, vDel);
-            /* conditional block */
-            {
-                __m128i case1not;
-                __m128i case2not;
-                __m128i case2;
-                __m128i case3;
-                __m128i vCmatch;
-                __m128i vClength;
-                case1not = _mm_or_si128(
-                        _mm_cmplt_epi8(vNWscore,vDel),
-                        _mm_cmplt_epi8(vNWscore,vIns));
-                case2not = _mm_cmplt_epi8(vDel,vIns);
-                case2 = _mm_andnot_si128(case2not,case1not);
-                case3 = _mm_and_si128(case1not,case2not);
-                vCmatch = _mm_andnot_si128(case1not,
-                        _mm_adds_epi8(vNWmatch, _mm_and_si128(
-                                _mm_cmpeq_epi8(vs1,vs2),vOne)));
-                vClength= _mm_andnot_si128(case1not,
-                        _mm_adds_epi8(vNWlength, vOne));
-                vCmatch = _mm_or_si128(vCmatch, _mm_and_si128(case2, vNmatch));
-                vClength= _mm_or_si128(vClength,_mm_and_si128(case2,
-                            _mm_adds_epi8(vNlength, vOne)));
-                vCmatch = _mm_or_si128(vCmatch, _mm_and_si128(case3, vWmatch));
-                vClength= _mm_or_si128(vClength,_mm_and_si128(case3,
-                            _mm_adds_epi8(vWlength, vOne)));
-                vWmatch = vCmatch;
-                vWlength = vClength;
-            }
-
-            /* as minor diagonal vector passes across the j=-1 boundary,
-             * assign the appropriate boundary conditions */
-            {
-                __m128i cond = _mm_cmpeq_epi8(vJ,vNegOne);
-                vWscore = _mm_andnot_si128(cond, vWscore); /* all but j=-1 */
-                vWscore = _mm_or_si128(vWscore,
-                        _mm_and_si128(cond, vIBoundary));
-                vWmatch = _mm_andnot_si128(cond, vWmatch);
-                vWlength = _mm_andnot_si128(cond, vWlength);
-                vDel = _mm_andnot_si128(cond, vDel);
-                vDel = _mm_or_si128(vDel, _mm_and_si128(cond, vNegInf));
-                vIns = _mm_andnot_si128(cond, vIns);
-                vIns = _mm_or_si128(vIns, _mm_and_si128(cond, vNegInf));
-            }
-            /* check for saturation */
-            {
-                vSaturationCheck = _mm_or_si128(vSaturationCheck,
-                        _mm_or_si128(
-                            _mm_or_si128(
-                                _mm_cmpeq_epi8(vWscore, vNegLimit),
-                                _mm_cmpeq_epi8(vWscore, vPosLimit)),
-                            _mm_or_si128(
-                                _mm_cmpeq_epi8(vWmatch, vPosLimit),
-                                _mm_cmpeq_epi8(vWlength, vPosLimit))));
-            }
-#ifdef PARASAIL_TABLE
-            arr_store_si128(result->score_table, vWscore, i, s1Len, j, s2Len);
-            arr_store_si128(result->matches_table, vWmatch, i, s1Len, j, s2Len);
-            arr_store_si128(result->length_table, vWlength, i, s1Len, j, s2Len);
-#endif
-            tbl_pr[j-15] = (int8_t)_mm_extract_epi8(vWscore,0);
-            mch_pr[j-15] = (int8_t)_mm_extract_epi8(vWmatch,0);
-            len_pr[j-15] = (int8_t)_mm_extract_epi8(vWlength,0);
-            del_pr[j-15] = (int8_t)_mm_extract_epi8(vDel,0);
-            vJ = _mm_adds_epi8(vJ, vOne);
-        }
-        for (j=N; j<s2Len-1; ++j) {
-            __m128i vMat;
-            __m128i vNWscore = vNscore;
-            __m128i vNWmatch = vNmatch;
-            __m128i vNWlength = vNlength;
-            vNscore = vshift8(vWscore, tbl_pr[j]);
-            vNmatch = vshift8(vWmatch, mch_pr[j]);
-            vNlength = vshift8(vWlength, len_pr[j]);
-            vDel = vshift8(vDel, del_pr[j]);
-            vDel = _mm_max_epi8(
-                    _mm_subs_epi8(vNscore, vOpen),
-                    _mm_subs_epi8(vDel, vGap));
-            vIns = _mm_max_epi8(
-                    _mm_subs_epi8(vWscore, vOpen),
-                    _mm_subs_epi8(vIns, vGap));
-            vs2 = vshift8(vs2, s2[j]);
-            vMat = _mm_set_epi8(
-                    matrow0[s2[j-0]],
-                    matrow1[s2[j-1]],
-                    matrow2[s2[j-2]],
-                    matrow3[s2[j-3]],
-                    matrow4[s2[j-4]],
-                    matrow5[s2[j-5]],
-                    matrow6[s2[j-6]],
-                    matrow7[s2[j-7]],
-                    matrow8[s2[j-8]],
-                    matrow9[s2[j-9]],
-                    matrow10[s2[j-10]],
-                    matrow11[s2[j-11]],
-                    matrow12[s2[j-12]],
-                    matrow13[s2[j-13]],
-                    matrow14[s2[j-14]],
-                    matrow15[s2[j-15]]
-                    );
-            vNWscore = _mm_adds_epi8(vNWscore, vMat);
-            vWscore = _mm_max_epi8(vNWscore, vIns);
-            vWscore = _mm_max_epi8(vWscore, vDel);
-            /* conditional block */
-            {
-                __m128i case1not;
-                __m128i case2not;
-                __m128i case2;
-                __m128i case3;
-                __m128i vCmatch;
-                __m128i vClength;
-                case1not = _mm_or_si128(
-                        _mm_cmplt_epi8(vNWscore,vDel),
-                        _mm_cmplt_epi8(vNWscore,vIns));
-                case2not = _mm_cmplt_epi8(vDel,vIns);
-                case2 = _mm_andnot_si128(case2not,case1not);
-                case3 = _mm_and_si128(case1not,case2not);
-                vCmatch = _mm_andnot_si128(case1not,
-                        _mm_adds_epi8(vNWmatch, _mm_and_si128(
-                                _mm_cmpeq_epi8(vs1,vs2),vOne)));
-                vClength= _mm_andnot_si128(case1not,
-                        _mm_adds_epi8(vNWlength, vOne));
-                vCmatch = _mm_or_si128(vCmatch, _mm_and_si128(case2, vNmatch));
-                vClength= _mm_or_si128(vClength,_mm_and_si128(case2,
-                            _mm_adds_epi8(vNlength, vOne)));
-                vCmatch = _mm_or_si128(vCmatch, _mm_and_si128(case3, vWmatch));
-                vClength= _mm_or_si128(vClength,_mm_and_si128(case3,
-                            _mm_adds_epi8(vWlength, vOne)));
-                vWmatch = vCmatch;
-                vWlength = vClength;
-            }
-            /* check for saturation */
-            {
-                vSaturationCheck = _mm_or_si128(vSaturationCheck,
-                        _mm_or_si128(
-                            _mm_or_si128(
-                                _mm_cmpeq_epi8(vWscore, vNegLimit),
-                                _mm_cmpeq_epi8(vWscore, vPosLimit)),
-                            _mm_or_si128(
-                                _mm_cmpeq_epi8(vWmatch, vPosLimit),
-                                _mm_cmpeq_epi8(vWlength, vPosLimit))));
-            }
-#ifdef PARASAIL_TABLE
-            arr_store_si128(result->score_table, vWscore, i, s1Len, j, s2Len);
-            arr_store_si128(result->matches_table, vWmatch, i, s1Len, j, s2Len);
-            arr_store_si128(result->length_table, vWlength, i, s1Len, j, s2Len);
-#endif
-            tbl_pr[j-15] = (int8_t)_mm_extract_epi8(vWscore,0);
-            mch_pr[j-15] = (int8_t)_mm_extract_epi8(vWmatch,0);
-            len_pr[j-15] = (int8_t)_mm_extract_epi8(vWlength,0);
-            del_pr[j-15] = (int8_t)_mm_extract_epi8(vDel,0);
-            vJ = _mm_adds_epi8(vJ, vOne);
-        }
-        for (j=s2Len-1; j<s2Len+PAD; ++j) {
-            __m128i vMat;
-            __m128i vNWscore = vNscore;
-            __m128i vNWmatch = vNmatch;
-            __m128i vNWlength = vNlength;
-            vNscore = vshift8(vWscore, tbl_pr[j]);
-            vNmatch = vshift8(vWmatch, mch_pr[j]);
-            vNlength = vshift8(vWlength, len_pr[j]);
-            vDel = vshift8(vDel, del_pr[j]);
-            vDel = _mm_max_epi8(
-                    _mm_subs_epi8(vNscore, vOpen),
-                    _mm_subs_epi8(vDel, vGap));
-            vIns = _mm_max_epi8(
-                    _mm_subs_epi8(vWscore, vOpen),
-                    _mm_subs_epi8(vIns, vGap));
-            vs2 = vshift8(vs2, s2[j]);
-            vMat = _mm_set_epi8(
-                    matrow0[s2[j-0]],
-                    matrow1[s2[j-1]],
-                    matrow2[s2[j-2]],
-                    matrow3[s2[j-3]],
-                    matrow4[s2[j-4]],
-                    matrow5[s2[j-5]],
-                    matrow6[s2[j-6]],
-                    matrow7[s2[j-7]],
-                    matrow8[s2[j-8]],
-                    matrow9[s2[j-9]],
-                    matrow10[s2[j-10]],
-                    matrow11[s2[j-11]],
-                    matrow12[s2[j-12]],
-                    matrow13[s2[j-13]],
-                    matrow14[s2[j-14]],
-                    matrow15[s2[j-15]]
-                    );
-            vNWscore = _mm_adds_epi8(vNWscore, vMat);
-            vWscore = _mm_max_epi8(vNWscore, vIns);
-            vWscore = _mm_max_epi8(vWscore, vDel);
-            /* conditional block */
-            {
-                __m128i case1not;
-                __m128i case2not;
-                __m128i case2;
-                __m128i case3;
-                __m128i vCmatch;
-                __m128i vClength;
-                case1not = _mm_or_si128(
-                        _mm_cmplt_epi8(vNWscore,vDel),
-                        _mm_cmplt_epi8(vNWscore,vIns));
-                case2not = _mm_cmplt_epi8(vDel,vIns);
-                case2 = _mm_andnot_si128(case2not,case1not);
-                case3 = _mm_and_si128(case1not,case2not);
-                vCmatch = _mm_andnot_si128(case1not,
-                        _mm_adds_epi8(vNWmatch, _mm_and_si128(
-                                _mm_cmpeq_epi8(vs1,vs2),vOne)));
-                vClength= _mm_andnot_si128(case1not,
-                        _mm_adds_epi8(vNWlength, vOne));
-                vCmatch = _mm_or_si128(vCmatch, _mm_and_si128(case2, vNmatch));
-                vClength= _mm_or_si128(vClength,_mm_and_si128(case2,
-                            _mm_adds_epi8(vNlength, vOne)));
-                vCmatch = _mm_or_si128(vCmatch, _mm_and_si128(case3, vWmatch));
-                vClength= _mm_or_si128(vClength,_mm_and_si128(case3,
-                            _mm_adds_epi8(vWlength, vOne)));
-                vWmatch = vCmatch;
-                vWlength = vClength;
             }
             /* check for saturation */
             {
@@ -811,9 +395,7 @@ parasail_result_t* FNAME(
             {
                 __m128i cond_valid_I = _mm_cmpeq_epi8(vI, vILimit1);
                 __m128i cond_valid_J = _mm_cmpeq_epi8(vJ, vJLimit1);
-                __m128i cond_max = _mm_cmpgt_epi8(vWscore, vMaxScore);
-                __m128i cond_all = _mm_and_si128(cond_max,
-                        _mm_and_si128(cond_valid_I, cond_valid_J));
+                __m128i cond_all = _mm_and_si128(cond_valid_I, cond_valid_J);
                 vMaxScore = _mm_andnot_si128(cond_all, vMaxScore);
                 vMaxScore = _mm_or_si128(vMaxScore,
                         _mm_and_si128(cond_all, vWscore));

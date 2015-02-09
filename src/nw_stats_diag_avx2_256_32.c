@@ -9,7 +9,6 @@
  */
 #include "config.h"
 
-#include <assert.h>
 #include <stdlib.h>
 
 #include <immintrin.h>
@@ -166,8 +165,6 @@ parasail_result_t* FNAME(
             -open-5*gap,
             -open-6*gap,
             -open-7*gap);
-    assert(s1Len > N);
-    assert(s2Len > N);
 
     /* convert _s1 from char to int in range 0-23 */
     for (i=0; i<s1Len; ++i) {
@@ -215,7 +212,7 @@ parasail_result_t* FNAME(
     tbl_pr[-1] = 0; /* upper left corner */
 
     /* iterate over query sequence */
-    for (i=0; i<s1Len-N; i+=N) {
+    for (i=0; i<s1Len; i+=N) {
         __m256i vNscore = vNegInf;
         __m256i vNmatch = vZero;
         __m256i vNlength = vZero;
@@ -251,7 +248,7 @@ parasail_result_t* FNAME(
         vWlength = vshift32(vWlength, 0);
         tbl_pr[-1] = -open - (i+N)*gap;
         /* iterate over database sequence */
-        for (j=0; j<N; ++j) {
+        for (j=0; j<s2Len+PAD; ++j) {
             __m256i vMat;
             __m256i vNWscore = vNscore;
             __m256i vNWmatch = vNmatch;
@@ -319,331 +316,6 @@ parasail_result_t* FNAME(
                 vDel = _mm256_blendv_epi8(vDel, vNegInf, cond);
                 vIns = _mm256_blendv_epi8(vIns, vNegInf, cond);
             }
-#ifdef PARASAIL_TABLE
-            arr_store_si256(result->score_table, vWscore, i, s1Len, j, s2Len);
-            arr_store_si256(result->matches_table, vWmatch, i, s1Len, j, s2Len);
-            arr_store_si256(result->length_table, vWlength, i, s1Len, j, s2Len);
-#endif
-            tbl_pr[j-7] = (int32_t)_mm256_extract_epi32(vWscore,0);
-            mch_pr[j-7] = (int32_t)_mm256_extract_epi32(vWmatch,0);
-            len_pr[j-7] = (int32_t)_mm256_extract_epi32(vWlength,0);
-            del_pr[j-7] = (int32_t)_mm256_extract_epi32(vDel,0);
-            vJ = _mm256_add_epi32(vJ, vOne);
-        }
-        for (j=N; j<s2Len+PAD; ++j) {
-            __m256i vMat;
-            __m256i vNWscore = vNscore;
-            __m256i vNWmatch = vNmatch;
-            __m256i vNWlength = vNlength;
-            vNscore = vshift32(vWscore, tbl_pr[j]);
-            vNmatch = vshift32(vWmatch, mch_pr[j]);
-            vNlength = vshift32(vWlength, len_pr[j]);
-            vDel = vshift32(vDel, del_pr[j]);
-            vDel = _mm256_max_epi32(
-                    _mm256_sub_epi32(vNscore, vOpen),
-                    _mm256_sub_epi32(vDel, vGap));
-            vIns = _mm256_max_epi32(
-                    _mm256_sub_epi32(vWscore, vOpen),
-                    _mm256_sub_epi32(vIns, vGap));
-            vs2 = vshift32(vs2, s2[j]);
-            vMat = _mm256_set_epi32(
-                    matrow0[s2[j-0]],
-                    matrow1[s2[j-1]],
-                    matrow2[s2[j-2]],
-                    matrow3[s2[j-3]],
-                    matrow4[s2[j-4]],
-                    matrow5[s2[j-5]],
-                    matrow6[s2[j-6]],
-                    matrow7[s2[j-7]]
-                    );
-            vNWscore = _mm256_add_epi32(vNWscore, vMat);
-            vWscore = _mm256_max_epi32(vNWscore, vIns);
-            vWscore = _mm256_max_epi32(vWscore, vDel);
-            /* conditional block */
-            {
-                __m256i case1not;
-                __m256i case2not;
-                __m256i case2;
-                __m256i case3;
-                __m256i vCmatch;
-                __m256i vClength;
-                case1not = _mm256_or_si256(
-                        _mm256_cmplt_epi32(vNWscore,vDel),
-                        _mm256_cmplt_epi32(vNWscore,vIns));
-                case2not = _mm256_cmplt_epi32(vDel,vIns);
-                case2 = _mm256_andnot_si256(case2not,case1not);
-                case3 = _mm256_and_si256(case1not,case2not);
-                vCmatch = _mm256_andnot_si256(case1not,
-                        _mm256_add_epi32(vNWmatch, _mm256_and_si256(
-                                _mm256_cmpeq_epi32(vs1,vs2),vOne)));
-                vClength= _mm256_andnot_si256(case1not,
-                        _mm256_add_epi32(vNWlength, vOne));
-                vCmatch = _mm256_or_si256(vCmatch, _mm256_and_si256(case2, vNmatch));
-                vClength= _mm256_or_si256(vClength,_mm256_and_si256(case2,
-                            _mm256_add_epi32(vNlength, vOne)));
-                vCmatch = _mm256_or_si256(vCmatch, _mm256_and_si256(case3, vWmatch));
-                vClength= _mm256_or_si256(vClength,_mm256_and_si256(case3,
-                            _mm256_add_epi32(vWlength, vOne)));
-                vWmatch = vCmatch;
-                vWlength = vClength;
-            }
-
-#ifdef PARASAIL_TABLE
-            arr_store_si256(result->score_table, vWscore, i, s1Len, j, s2Len);
-            arr_store_si256(result->matches_table, vWmatch, i, s1Len, j, s2Len);
-            arr_store_si256(result->length_table, vWlength, i, s1Len, j, s2Len);
-#endif
-            tbl_pr[j-7] = (int32_t)_mm256_extract_epi32(vWscore,0);
-            mch_pr[j-7] = (int32_t)_mm256_extract_epi32(vWmatch,0);
-            len_pr[j-7] = (int32_t)_mm256_extract_epi32(vWlength,0);
-            del_pr[j-7] = (int32_t)_mm256_extract_epi32(vDel,0);
-            vJ = _mm256_add_epi32(vJ, vOne);
-        }
-        vI = _mm256_add_epi32(vI, vN);
-        vIBoundary = _mm256_sub_epi32(vIBoundary, vGapN);
-    }
-    for (/*i=?*/; i<s1Len; i+=N) {
-        __m256i vNscore = vNegInf;
-        __m256i vNmatch = vZero;
-        __m256i vNlength = vZero;
-        __m256i vWscore = vNegInf;
-        __m256i vWmatch = vZero;
-        __m256i vWlength = vZero;
-        __m256i vIns = vNegInf;
-        __m256i vDel = vNegInf;
-        __m256i vJ = vJreset;
-        __m256i vs1 = _mm256_set_epi32(
-                s1[i+0],
-                s1[i+1],
-                s1[i+2],
-                s1[i+3],
-                s1[i+4],
-                s1[i+5],
-                s1[i+6],
-                s1[i+7]);
-        __m256i vs2 = vNegInf;
-        const int * const restrict matrow0 = matrix[s1[i+0]];
-        const int * const restrict matrow1 = matrix[s1[i+1]];
-        const int * const restrict matrow2 = matrix[s1[i+2]];
-        const int * const restrict matrow3 = matrix[s1[i+3]];
-        const int * const restrict matrow4 = matrix[s1[i+4]];
-        const int * const restrict matrow5 = matrix[s1[i+5]];
-        const int * const restrict matrow6 = matrix[s1[i+6]];
-        const int * const restrict matrow7 = matrix[s1[i+7]];
-        vNscore = vshift32(vNscore, tbl_pr[-1]);
-        vNmatch = vshift32(vNmatch, 0);
-        vNlength = vshift32(vNlength, 0);
-        vWscore = vshift32(vWscore, -open - i*gap);
-        vWmatch = vshift32(vWmatch, 0);
-        vWlength = vshift32(vWlength, 0);
-        tbl_pr[-1] = -open - (i+N)*gap;
-        /* iterate over database sequence */
-        for (j=0; j<N; ++j) {
-            __m256i vMat;
-            __m256i vNWscore = vNscore;
-            __m256i vNWmatch = vNmatch;
-            __m256i vNWlength = vNlength;
-            vNscore = vshift32(vWscore, tbl_pr[j]);
-            vNmatch = vshift32(vWmatch, mch_pr[j]);
-            vNlength = vshift32(vWlength, len_pr[j]);
-            vDel = vshift32(vDel, del_pr[j]);
-            vDel = _mm256_max_epi32(
-                    _mm256_sub_epi32(vNscore, vOpen),
-                    _mm256_sub_epi32(vDel, vGap));
-            vIns = _mm256_max_epi32(
-                    _mm256_sub_epi32(vWscore, vOpen),
-                    _mm256_sub_epi32(vIns, vGap));
-            vs2 = vshift32(vs2, s2[j]);
-            vMat = _mm256_set_epi32(
-                    matrow0[s2[j-0]],
-                    matrow1[s2[j-1]],
-                    matrow2[s2[j-2]],
-                    matrow3[s2[j-3]],
-                    matrow4[s2[j-4]],
-                    matrow5[s2[j-5]],
-                    matrow6[s2[j-6]],
-                    matrow7[s2[j-7]]
-                    );
-            vNWscore = _mm256_add_epi32(vNWscore, vMat);
-            vWscore = _mm256_max_epi32(vNWscore, vIns);
-            vWscore = _mm256_max_epi32(vWscore, vDel);
-            /* conditional block */
-            {
-                __m256i case1not;
-                __m256i case2not;
-                __m256i case2;
-                __m256i case3;
-                __m256i vCmatch;
-                __m256i vClength;
-                case1not = _mm256_or_si256(
-                        _mm256_cmplt_epi32(vNWscore,vDel),
-                        _mm256_cmplt_epi32(vNWscore,vIns));
-                case2not = _mm256_cmplt_epi32(vDel,vIns);
-                case2 = _mm256_andnot_si256(case2not,case1not);
-                case3 = _mm256_and_si256(case1not,case2not);
-                vCmatch = _mm256_andnot_si256(case1not,
-                        _mm256_add_epi32(vNWmatch, _mm256_and_si256(
-                                _mm256_cmpeq_epi32(vs1,vs2),vOne)));
-                vClength= _mm256_andnot_si256(case1not,
-                        _mm256_add_epi32(vNWlength, vOne));
-                vCmatch = _mm256_or_si256(vCmatch, _mm256_and_si256(case2, vNmatch));
-                vClength= _mm256_or_si256(vClength,_mm256_and_si256(case2,
-                            _mm256_add_epi32(vNlength, vOne)));
-                vCmatch = _mm256_or_si256(vCmatch, _mm256_and_si256(case3, vWmatch));
-                vClength= _mm256_or_si256(vClength,_mm256_and_si256(case3,
-                            _mm256_add_epi32(vWlength, vOne)));
-                vWmatch = vCmatch;
-                vWlength = vClength;
-            }
-
-            /* as minor diagonal vector passes across the j=-1 boundary,
-             * assign the appropriate boundary conditions */
-            {
-                __m256i cond = _mm256_cmpeq_epi32(vJ,vNegOne);
-                vWscore = _mm256_blendv_epi8(vWscore, vIBoundary, cond);
-                vWmatch = _mm256_andnot_si256(cond, vWmatch);
-                vWlength = _mm256_andnot_si256(cond, vWlength);
-                vDel = _mm256_blendv_epi8(vDel, vNegInf, cond);
-                vIns = _mm256_blendv_epi8(vIns, vNegInf, cond);
-            }
-#ifdef PARASAIL_TABLE
-            arr_store_si256(result->score_table, vWscore, i, s1Len, j, s2Len);
-            arr_store_si256(result->matches_table, vWmatch, i, s1Len, j, s2Len);
-            arr_store_si256(result->length_table, vWlength, i, s1Len, j, s2Len);
-#endif
-            tbl_pr[j-7] = (int32_t)_mm256_extract_epi32(vWscore,0);
-            mch_pr[j-7] = (int32_t)_mm256_extract_epi32(vWmatch,0);
-            len_pr[j-7] = (int32_t)_mm256_extract_epi32(vWlength,0);
-            del_pr[j-7] = (int32_t)_mm256_extract_epi32(vDel,0);
-            vJ = _mm256_add_epi32(vJ, vOne);
-        }
-        for (j=N; j<s2Len-1; ++j) {
-            __m256i vMat;
-            __m256i vNWscore = vNscore;
-            __m256i vNWmatch = vNmatch;
-            __m256i vNWlength = vNlength;
-            vNscore = vshift32(vWscore, tbl_pr[j]);
-            vNmatch = vshift32(vWmatch, mch_pr[j]);
-            vNlength = vshift32(vWlength, len_pr[j]);
-            vDel = vshift32(vDel, del_pr[j]);
-            vDel = _mm256_max_epi32(
-                    _mm256_sub_epi32(vNscore, vOpen),
-                    _mm256_sub_epi32(vDel, vGap));
-            vIns = _mm256_max_epi32(
-                    _mm256_sub_epi32(vWscore, vOpen),
-                    _mm256_sub_epi32(vIns, vGap));
-            vs2 = vshift32(vs2, s2[j]);
-            vMat = _mm256_set_epi32(
-                    matrow0[s2[j-0]],
-                    matrow1[s2[j-1]],
-                    matrow2[s2[j-2]],
-                    matrow3[s2[j-3]],
-                    matrow4[s2[j-4]],
-                    matrow5[s2[j-5]],
-                    matrow6[s2[j-6]],
-                    matrow7[s2[j-7]]
-                    );
-            vNWscore = _mm256_add_epi32(vNWscore, vMat);
-            vWscore = _mm256_max_epi32(vNWscore, vIns);
-            vWscore = _mm256_max_epi32(vWscore, vDel);
-            /* conditional block */
-            {
-                __m256i case1not;
-                __m256i case2not;
-                __m256i case2;
-                __m256i case3;
-                __m256i vCmatch;
-                __m256i vClength;
-                case1not = _mm256_or_si256(
-                        _mm256_cmplt_epi32(vNWscore,vDel),
-                        _mm256_cmplt_epi32(vNWscore,vIns));
-                case2not = _mm256_cmplt_epi32(vDel,vIns);
-                case2 = _mm256_andnot_si256(case2not,case1not);
-                case3 = _mm256_and_si256(case1not,case2not);
-                vCmatch = _mm256_andnot_si256(case1not,
-                        _mm256_add_epi32(vNWmatch, _mm256_and_si256(
-                                _mm256_cmpeq_epi32(vs1,vs2),vOne)));
-                vClength= _mm256_andnot_si256(case1not,
-                        _mm256_add_epi32(vNWlength, vOne));
-                vCmatch = _mm256_or_si256(vCmatch, _mm256_and_si256(case2, vNmatch));
-                vClength= _mm256_or_si256(vClength,_mm256_and_si256(case2,
-                            _mm256_add_epi32(vNlength, vOne)));
-                vCmatch = _mm256_or_si256(vCmatch, _mm256_and_si256(case3, vWmatch));
-                vClength= _mm256_or_si256(vClength,_mm256_and_si256(case3,
-                            _mm256_add_epi32(vWlength, vOne)));
-                vWmatch = vCmatch;
-                vWlength = vClength;
-            }
-
-#ifdef PARASAIL_TABLE
-            arr_store_si256(result->score_table, vWscore, i, s1Len, j, s2Len);
-            arr_store_si256(result->matches_table, vWmatch, i, s1Len, j, s2Len);
-            arr_store_si256(result->length_table, vWlength, i, s1Len, j, s2Len);
-#endif
-            tbl_pr[j-7] = (int32_t)_mm256_extract_epi32(vWscore,0);
-            mch_pr[j-7] = (int32_t)_mm256_extract_epi32(vWmatch,0);
-            len_pr[j-7] = (int32_t)_mm256_extract_epi32(vWlength,0);
-            del_pr[j-7] = (int32_t)_mm256_extract_epi32(vDel,0);
-            vJ = _mm256_add_epi32(vJ, vOne);
-        }
-        for (j=s2Len-1; j<s2Len+PAD; ++j) {
-            __m256i vMat;
-            __m256i vNWscore = vNscore;
-            __m256i vNWmatch = vNmatch;
-            __m256i vNWlength = vNlength;
-            vNscore = vshift32(vWscore, tbl_pr[j]);
-            vNmatch = vshift32(vWmatch, mch_pr[j]);
-            vNlength = vshift32(vWlength, len_pr[j]);
-            vDel = vshift32(vDel, del_pr[j]);
-            vDel = _mm256_max_epi32(
-                    _mm256_sub_epi32(vNscore, vOpen),
-                    _mm256_sub_epi32(vDel, vGap));
-            vIns = _mm256_max_epi32(
-                    _mm256_sub_epi32(vWscore, vOpen),
-                    _mm256_sub_epi32(vIns, vGap));
-            vs2 = vshift32(vs2, s2[j]);
-            vMat = _mm256_set_epi32(
-                    matrow0[s2[j-0]],
-                    matrow1[s2[j-1]],
-                    matrow2[s2[j-2]],
-                    matrow3[s2[j-3]],
-                    matrow4[s2[j-4]],
-                    matrow5[s2[j-5]],
-                    matrow6[s2[j-6]],
-                    matrow7[s2[j-7]]
-                    );
-            vNWscore = _mm256_add_epi32(vNWscore, vMat);
-            vWscore = _mm256_max_epi32(vNWscore, vIns);
-            vWscore = _mm256_max_epi32(vWscore, vDel);
-            /* conditional block */
-            {
-                __m256i case1not;
-                __m256i case2not;
-                __m256i case2;
-                __m256i case3;
-                __m256i vCmatch;
-                __m256i vClength;
-                case1not = _mm256_or_si256(
-                        _mm256_cmplt_epi32(vNWscore,vDel),
-                        _mm256_cmplt_epi32(vNWscore,vIns));
-                case2not = _mm256_cmplt_epi32(vDel,vIns);
-                case2 = _mm256_andnot_si256(case2not,case1not);
-                case3 = _mm256_and_si256(case1not,case2not);
-                vCmatch = _mm256_andnot_si256(case1not,
-                        _mm256_add_epi32(vNWmatch, _mm256_and_si256(
-                                _mm256_cmpeq_epi32(vs1,vs2),vOne)));
-                vClength= _mm256_andnot_si256(case1not,
-                        _mm256_add_epi32(vNWlength, vOne));
-                vCmatch = _mm256_or_si256(vCmatch, _mm256_and_si256(case2, vNmatch));
-                vClength= _mm256_or_si256(vClength,_mm256_and_si256(case2,
-                            _mm256_add_epi32(vNlength, vOne)));
-                vCmatch = _mm256_or_si256(vCmatch, _mm256_and_si256(case3, vWmatch));
-                vClength= _mm256_or_si256(vClength,_mm256_and_si256(case3,
-                            _mm256_add_epi32(vWlength, vOne)));
-                vWmatch = vCmatch;
-                vWlength = vClength;
-            }
-
 #ifdef PARASAIL_TABLE
             arr_store_si256(result->score_table, vWscore, i, s1Len, j, s2Len);
             arr_store_si256(result->matches_table, vWmatch, i, s1Len, j, s2Len);
@@ -658,9 +330,7 @@ parasail_result_t* FNAME(
             {
                 __m256i cond_valid_I = _mm256_cmpeq_epi32(vI, vILimit1);
                 __m256i cond_valid_J = _mm256_cmpeq_epi32(vJ, vJLimit1);
-                __m256i cond_max = _mm256_cmpgt_epi32(vWscore, vMaxScore);
-                __m256i cond_all = _mm256_and_si256(cond_max,
-                        _mm256_and_si256(cond_valid_I, cond_valid_J));
+                __m256i cond_all = _mm256_and_si256(cond_valid_I, cond_valid_J);
                 vMaxScore = _mm256_blendv_epi8(vMaxScore, vWscore, cond_all);
                 vMaxMatch = _mm256_blendv_epi8(vMaxMatch, vWmatch, cond_all);
                 vMaxLength = _mm256_blendv_epi8(vMaxLength, vWlength, cond_all);

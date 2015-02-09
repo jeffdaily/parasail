@@ -9,7 +9,6 @@
  */
 #include "config.h"
 
-#include <assert.h>
 #include <stdlib.h>
 
 #include <emmintrin.h>
@@ -154,8 +153,6 @@ parasail_result_t* FNAME(
             -open-13*gap,
             -open-14*gap,
             -open-15*gap);
-    assert(s1Len > N);
-    assert(s2Len > N);
 
     /* convert _s1 from char to int in range 0-23 */
     for (i=0; i<s1Len; ++i) {
@@ -181,7 +178,8 @@ parasail_result_t* FNAME(
 
     /* set initial values for stored row */
     for (j=0; j<s2Len; ++j) {
-        tbl_pr[j] = -open - j*gap;
+        int32_t tmp = -open - j*gap;
+        tbl_pr[j] = tmp < INT8_MIN ? INT8_MIN : tmp;
         del_pr[j] = NEG_INF_8;
     }
     /* pad front of stored row values */
@@ -197,7 +195,7 @@ parasail_result_t* FNAME(
     tbl_pr[-1] = 0; /* upper left corner */
 
     /* iterate over query sequence */
-    for (i=0; i<s1Len-N; i+=N) {
+    for (i=0; i<s1Len; i+=N) {
         __m128i vNscore = vNegInf;
         __m128i vWscore = vZero;
         __m128i vIns = vNegInf;
@@ -219,11 +217,15 @@ parasail_result_t* FNAME(
         const int * const restrict matrow13 = matrix[s1[i+13]];
         const int * const restrict matrow14 = matrix[s1[i+14]];
         const int * const restrict matrow15 = matrix[s1[i+15]];
+        int32_t tmp;
         vNscore = vshift8(vNscore, tbl_pr[-1]);
-        vWscore = vshift8(vWscore, -open - i*gap);
-        tbl_pr[-1] = -open - (i+N)*gap;
+        tmp = -open - i*gap;
+        tmp = tmp < INT8_MIN ? INT8_MIN : tmp;
+        vWscore = vshift8(vWscore, tmp);
+        tmp = -open - (i+N)*gap;
+        tbl_pr[-1] = tmp < INT8_MIN ? INT8_MIN : tmp;
         /* iterate over database sequence */
-        for (j=0; j<N; ++j) {
+        for (j=0; j<s2Len+PAD; ++j) {
             __m128i vMat;
             __m128i vNWscore = vNscore;
             vNscore = vshift8(vWscore, tbl_pr[j]);
@@ -263,227 +265,6 @@ parasail_result_t* FNAME(
                 vDel = _mm_blendv_epi8(vDel, vNegInf, cond);
                 vIns = _mm_blendv_epi8(vIns, vNegInf, cond);
             }
-            /* check for saturation */
-            {
-                vSaturationCheck = _mm_or_si128(vSaturationCheck,
-                        _mm_or_si128(
-                            _mm_cmpeq_epi8(vWscore, vNegLimit),
-                            _mm_cmpeq_epi8(vWscore, vPosLimit)));
-            }
-#ifdef PARASAIL_TABLE
-            arr_store_si128(result->score_table, vWscore, i, s1Len, j, s2Len);
-#endif
-            tbl_pr[j-15] = (int8_t)_mm_extract_epi8(vWscore,0);
-            del_pr[j-15] = (int8_t)_mm_extract_epi8(vDel,0);
-            vJ = _mm_adds_epi8(vJ, vOne);
-        }
-        for (j=N; j<s2Len+PAD; ++j) {
-            __m128i vMat;
-            __m128i vNWscore = vNscore;
-            vNscore = vshift8(vWscore, tbl_pr[j]);
-            vDel = vshift8(vDel, del_pr[j]);
-            vDel = _mm_max_epi8(
-                    _mm_subs_epi8(vNscore, vOpen),
-                    _mm_subs_epi8(vDel, vGap));
-            vIns = _mm_max_epi8(
-                    _mm_subs_epi8(vWscore, vOpen),
-                    _mm_subs_epi8(vIns, vGap));
-            vMat = _mm_set_epi8(
-                    matrow0[s2[j-0]],
-                    matrow1[s2[j-1]],
-                    matrow2[s2[j-2]],
-                    matrow3[s2[j-3]],
-                    matrow4[s2[j-4]],
-                    matrow5[s2[j-5]],
-                    matrow6[s2[j-6]],
-                    matrow7[s2[j-7]],
-                    matrow8[s2[j-8]],
-                    matrow9[s2[j-9]],
-                    matrow10[s2[j-10]],
-                    matrow11[s2[j-11]],
-                    matrow12[s2[j-12]],
-                    matrow13[s2[j-13]],
-                    matrow14[s2[j-14]],
-                    matrow15[s2[j-15]]
-                    );
-            vNWscore = _mm_adds_epi8(vNWscore, vMat);
-            vWscore = _mm_max_epi8(vNWscore, vIns);
-            vWscore = _mm_max_epi8(vWscore, vDel);
-            /* check for saturation */
-            {
-                vSaturationCheck = _mm_or_si128(vSaturationCheck,
-                        _mm_or_si128(
-                            _mm_cmpeq_epi8(vWscore, vNegLimit),
-                            _mm_cmpeq_epi8(vWscore, vPosLimit)));
-            }
-#ifdef PARASAIL_TABLE
-            arr_store_si128(result->score_table, vWscore, i, s1Len, j, s2Len);
-#endif
-            tbl_pr[j-15] = (int8_t)_mm_extract_epi8(vWscore,0);
-            del_pr[j-15] = (int8_t)_mm_extract_epi8(vDel,0);
-            vJ = _mm_adds_epi8(vJ, vOne);
-        }
-        vI = _mm_adds_epi8(vI, vN);
-        vIBoundary = _mm_subs_epi8(vIBoundary, vGapN);
-    }
-    for (/*i=?*/; i<s1Len; i+=N) {
-        __m128i vNscore = vNegInf;
-        __m128i vWscore = vZero;
-        __m128i vIns = vNegInf;
-        __m128i vDel = vNegInf;
-        __m128i vJ = vJreset;
-        const int * const restrict matrow0 = matrix[s1[i+0]];
-        const int * const restrict matrow1 = matrix[s1[i+1]];
-        const int * const restrict matrow2 = matrix[s1[i+2]];
-        const int * const restrict matrow3 = matrix[s1[i+3]];
-        const int * const restrict matrow4 = matrix[s1[i+4]];
-        const int * const restrict matrow5 = matrix[s1[i+5]];
-        const int * const restrict matrow6 = matrix[s1[i+6]];
-        const int * const restrict matrow7 = matrix[s1[i+7]];
-        const int * const restrict matrow8 = matrix[s1[i+8]];
-        const int * const restrict matrow9 = matrix[s1[i+9]];
-        const int * const restrict matrow10 = matrix[s1[i+10]];
-        const int * const restrict matrow11 = matrix[s1[i+11]];
-        const int * const restrict matrow12 = matrix[s1[i+12]];
-        const int * const restrict matrow13 = matrix[s1[i+13]];
-        const int * const restrict matrow14 = matrix[s1[i+14]];
-        const int * const restrict matrow15 = matrix[s1[i+15]];
-        vNscore = vshift8(vNscore, tbl_pr[-1]);
-        vWscore = vshift8(vWscore, -open - i*gap);
-        tbl_pr[-1] = -open - (i+N)*gap;
-        /* iterate over database sequence */
-        for (j=0; j<N; ++j) {
-            __m128i vMat;
-            __m128i vNWscore = vNscore;
-            vNscore = vshift8(vWscore, tbl_pr[j]);
-            vDel = vshift8(vDel, del_pr[j]);
-            vDel = _mm_max_epi8(
-                    _mm_subs_epi8(vNscore, vOpen),
-                    _mm_subs_epi8(vDel, vGap));
-            vIns = _mm_max_epi8(
-                    _mm_subs_epi8(vWscore, vOpen),
-                    _mm_subs_epi8(vIns, vGap));
-            vMat = _mm_set_epi8(
-                    matrow0[s2[j-0]],
-                    matrow1[s2[j-1]],
-                    matrow2[s2[j-2]],
-                    matrow3[s2[j-3]],
-                    matrow4[s2[j-4]],
-                    matrow5[s2[j-5]],
-                    matrow6[s2[j-6]],
-                    matrow7[s2[j-7]],
-                    matrow8[s2[j-8]],
-                    matrow9[s2[j-9]],
-                    matrow10[s2[j-10]],
-                    matrow11[s2[j-11]],
-                    matrow12[s2[j-12]],
-                    matrow13[s2[j-13]],
-                    matrow14[s2[j-14]],
-                    matrow15[s2[j-15]]
-                    );
-            vNWscore = _mm_adds_epi8(vNWscore, vMat);
-            vWscore = _mm_max_epi8(vNWscore, vIns);
-            vWscore = _mm_max_epi8(vWscore, vDel);
-            /* as minor diagonal vector passes across the j=-1 boundary,
-             * assign the appropriate boundary conditions */
-            {
-                __m128i cond = _mm_cmpeq_epi8(vJ,vNegOne);
-                vWscore = _mm_blendv_epi8(vWscore, vIBoundary, cond);
-                vDel = _mm_blendv_epi8(vDel, vNegInf, cond);
-                vIns = _mm_blendv_epi8(vIns, vNegInf, cond);
-            }
-            /* check for saturation */
-            {
-                vSaturationCheck = _mm_or_si128(vSaturationCheck,
-                        _mm_or_si128(
-                            _mm_cmpeq_epi8(vWscore, vNegLimit),
-                            _mm_cmpeq_epi8(vWscore, vPosLimit)));
-            }
-#ifdef PARASAIL_TABLE
-            arr_store_si128(result->score_table, vWscore, i, s1Len, j, s2Len);
-#endif
-            tbl_pr[j-15] = (int8_t)_mm_extract_epi8(vWscore,0);
-            del_pr[j-15] = (int8_t)_mm_extract_epi8(vDel,0);
-            vJ = _mm_adds_epi8(vJ, vOne);
-        }
-        for (j=N; j<s2Len-1; ++j) {
-            __m128i vMat;
-            __m128i vNWscore = vNscore;
-            vNscore = vshift8(vWscore, tbl_pr[j]);
-            vDel = vshift8(vDel, del_pr[j]);
-            vDel = _mm_max_epi8(
-                    _mm_subs_epi8(vNscore, vOpen),
-                    _mm_subs_epi8(vDel, vGap));
-            vIns = _mm_max_epi8(
-                    _mm_subs_epi8(vWscore, vOpen),
-                    _mm_subs_epi8(vIns, vGap));
-            vMat = _mm_set_epi8(
-                    matrow0[s2[j-0]],
-                    matrow1[s2[j-1]],
-                    matrow2[s2[j-2]],
-                    matrow3[s2[j-3]],
-                    matrow4[s2[j-4]],
-                    matrow5[s2[j-5]],
-                    matrow6[s2[j-6]],
-                    matrow7[s2[j-7]],
-                    matrow8[s2[j-8]],
-                    matrow9[s2[j-9]],
-                    matrow10[s2[j-10]],
-                    matrow11[s2[j-11]],
-                    matrow12[s2[j-12]],
-                    matrow13[s2[j-13]],
-                    matrow14[s2[j-14]],
-                    matrow15[s2[j-15]]
-                    );
-            vNWscore = _mm_adds_epi8(vNWscore, vMat);
-            vWscore = _mm_max_epi8(vNWscore, vIns);
-            vWscore = _mm_max_epi8(vWscore, vDel);
-            /* check for saturation */
-            {
-                vSaturationCheck = _mm_or_si128(vSaturationCheck,
-                        _mm_or_si128(
-                            _mm_cmpeq_epi8(vWscore, vNegLimit),
-                            _mm_cmpeq_epi8(vWscore, vPosLimit)));
-            }
-#ifdef PARASAIL_TABLE
-            arr_store_si128(result->score_table, vWscore, i, s1Len, j, s2Len);
-#endif
-            tbl_pr[j-15] = (int8_t)_mm_extract_epi8(vWscore,0);
-            del_pr[j-15] = (int8_t)_mm_extract_epi8(vDel,0);
-            vJ = _mm_adds_epi8(vJ, vOne);
-        }
-        for (j=s2Len-1; j<s2Len+PAD; ++j) {
-            __m128i vMat;
-            __m128i vNWscore = vNscore;
-            vNscore = vshift8(vWscore, tbl_pr[j]);
-            vDel = vshift8(vDel, del_pr[j]);
-            vDel = _mm_max_epi8(
-                    _mm_subs_epi8(vNscore, vOpen),
-                    _mm_subs_epi8(vDel, vGap));
-            vIns = _mm_max_epi8(
-                    _mm_subs_epi8(vWscore, vOpen),
-                    _mm_subs_epi8(vIns, vGap));
-            vMat = _mm_set_epi8(
-                    matrow0[s2[j-0]],
-                    matrow1[s2[j-1]],
-                    matrow2[s2[j-2]],
-                    matrow3[s2[j-3]],
-                    matrow4[s2[j-4]],
-                    matrow5[s2[j-5]],
-                    matrow6[s2[j-6]],
-                    matrow7[s2[j-7]],
-                    matrow8[s2[j-8]],
-                    matrow9[s2[j-9]],
-                    matrow10[s2[j-10]],
-                    matrow11[s2[j-11]],
-                    matrow12[s2[j-12]],
-                    matrow13[s2[j-13]],
-                    matrow14[s2[j-14]],
-                    matrow15[s2[j-15]]
-                    );
-            vNWscore = _mm_adds_epi8(vNWscore, vMat);
-            vWscore = _mm_max_epi8(vNWscore, vIns);
-            vWscore = _mm_max_epi8(vWscore, vDel);
             /* check for saturation */
             {
                 vSaturationCheck = _mm_or_si128(vSaturationCheck,
@@ -501,9 +282,7 @@ parasail_result_t* FNAME(
             {
                 __m128i cond_valid_I = _mm_cmpeq_epi8(vI, vILimit1);
                 __m128i cond_valid_J = _mm_cmpeq_epi8(vJ, vJLimit1);
-                __m128i cond_max = _mm_cmpgt_epi8(vWscore, vMax);
-                __m128i cond_all = _mm_and_si128(cond_max,
-                        _mm_and_si128(cond_valid_I, cond_valid_J));
+                __m128i cond_all = _mm_and_si128(cond_valid_I, cond_valid_J);
                 vMax = _mm_blendv_epi8(vMax, vWscore, cond_all);
             }
             vJ = _mm_adds_epi8(vJ, vOne);

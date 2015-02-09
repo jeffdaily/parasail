@@ -468,4 +468,6 @@ tests_test_openmp_LDADD   += $(Z_LIBS)
 tests_test_openmp_LDADD   += tests/libssw.la
 
 tests_test_verify_SOURCES = tests/test_verify.c
+tests_test_verify_CFLAGS  = $(AM_CFLAGS) $(OPENMP_CFLAGS)
+tests_test_verify_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
 

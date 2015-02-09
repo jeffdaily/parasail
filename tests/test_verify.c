@@ -584,6 +584,7 @@ static inline void check_functions(
                     NULL!=functions[function_index].f;
                     ++function_index) {
                 //printf("\t\t\t%s\n", functions[function_index].name);
+#pragma omp parallel for
                 for (pair_index=0; pair_index<pair_limit; ++pair_index) {
                     parasail_result_t *reference_result = NULL;
                     parasail_result_t *result = NULL;
@@ -608,10 +609,13 @@ static inline void check_functions(
                         continue;
                     }
                     if (reference_result->score != result->score) {
-                        printf("%s(%lu,%lu,%d,%d,%s) wrong score\n",
-                                functions[function_index].name,
-                                a, b, open, extend,
-                                blosums[blosum_index].name);
+#pragma omp critical(printer)
+                        {
+                            printf("%s(%lu,%lu,%d,%d,%s) wrong score\n",
+                                    functions[function_index].name,
+                                    a, b, open, extend,
+                                    blosums[blosum_index].name);
+                        }
                     }
                     parasail_result_free(reference_result);
                     parasail_result_free(result);
@@ -682,7 +686,7 @@ int main(int argc, char **argv)
     printf("%lu choose 2 is %lu\n", seq_count, limit);
 
 
-#if HAVE_SSE2
+#if 0 && HAVE_SSE2
     if (parasail_can_use_sse2()) {
         check_functions(nw_sse2, sequences, sizes, seq_count, limit);
         check_functions(sg_sse2, sequences, sizes, seq_count, limit);

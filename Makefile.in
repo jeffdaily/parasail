@@ -698,10 +698,15 @@ am_tests_test_sw_dispatch_OBJECTS = tests/test_sw_dispatch.$(OBJEXT)
 tests_test_sw_dispatch_OBJECTS = $(am_tests_test_sw_dispatch_OBJECTS)
 tests_test_sw_dispatch_LDADD = $(LDADD)
 tests_test_sw_dispatch_DEPENDENCIES = libparasail.la
-am_tests_test_verify_OBJECTS = tests/test_verify.$(OBJEXT)
+am_tests_test_verify_OBJECTS =  \
+	tests/tests_test_verify-test_verify.$(OBJEXT)
 tests_test_verify_OBJECTS = $(am_tests_test_verify_OBJECTS)
 tests_test_verify_LDADD = $(LDADD)
 tests_test_verify_DEPENDENCIES = libparasail.la
+tests_test_verify_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(tests_test_verify_CFLAGS) $(CFLAGS) \
+	$(tests_test_verify_LDFLAGS) $(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -1168,6 +1173,8 @@ tests_test_openmp_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
 tests_test_openmp_LDADD = $(LDADD) $(CLOCK_LIBS) $(MATH_LIBS) \
 	$(Z_LIBS) tests/libssw.la
 tests_test_verify_SOURCES = tests/test_verify.c
+tests_test_verify_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)
+tests_test_verify_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -2162,12 +2169,12 @@ tests/test_sw_dispatch.$(OBJEXT): tests/$(am__dirstamp) \
 tests/test_sw_dispatch$(EXEEXT): $(tests_test_sw_dispatch_OBJECTS) $(tests_test_sw_dispatch_DEPENDENCIES) $(EXTRA_tests_test_sw_dispatch_DEPENDENCIES) tests/$(am__dirstamp)
 	@rm -f tests/test_sw_dispatch$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(tests_test_sw_dispatch_OBJECTS) $(tests_test_sw_dispatch_LDADD) $(LIBS)
-tests/test_verify.$(OBJEXT): tests/$(am__dirstamp) \
+tests/tests_test_verify-test_verify.$(OBJEXT): tests/$(am__dirstamp) \
 	tests/$(DEPDIR)/$(am__dirstamp)
 
 tests/test_verify$(EXEEXT): $(tests_test_verify_OBJECTS) $(tests_test_verify_DEPENDENCIES) $(EXTRA_tests_test_verify_DEPENDENCIES) tests/$(am__dirstamp)
 	@rm -f tests/test_verify$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(tests_test_verify_OBJECTS) $(tests_test_verify_LDADD) $(LIBS)
+	$(AM_V_CCLD)$(tests_test_verify_LINK) $(tests_test_verify_OBJECTS) $(tests_test_verify_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -2577,8 +2584,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_gcups.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_isa.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_sw_dispatch.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_verify.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/tests_test_openmp-test_openmp.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/tests_test_verify-test_verify.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -5326,6 +5333,20 @@ tests/tests_test_openmp-test_openmp.obj: tests/test_openmp.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/test_openmp.c' object='tests/tests_test_openmp-test_openmp.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_test_openmp_CFLAGS) $(CFLAGS) -c -o tests/tests_test_openmp-test_openmp.obj `if test -f 'tests/test_openmp.c'; then $(CYGPATH_W) 'tests/test_openmp.c'; else $(CYGPATH_W) '$(srcdir)/tests/test_openmp.c'; fi`
+
+tests/tests_test_verify-test_verify.o: tests/test_verify.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_test_verify_CFLAGS) $(CFLAGS) -MT tests/tests_test_verify-test_verify.o -MD -MP -MF tests/$(DEPDIR)/tests_test_verify-test_verify.Tpo -c -o tests/tests_test_verify-test_verify.o `test -f 'tests/test_verify.c' || echo '$(srcdir)/'`tests/test_verify.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) tests/$(DEPDIR)/tests_test_verify-test_verify.Tpo tests/$(DEPDIR)/tests_test_verify-test_verify.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/test_verify.c' object='tests/tests_test_verify-test_verify.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_test_verify_CFLAGS) $(CFLAGS) -c -o tests/tests_test_verify-test_verify.o `test -f 'tests/test_verify.c' || echo '$(srcdir)/'`tests/test_verify.c
+
+tests/tests_test_verify-test_verify.obj: tests/test_verify.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_test_verify_CFLAGS) $(CFLAGS) -MT tests/tests_test_verify-test_verify.obj -MD -MP -MF tests/$(DEPDIR)/tests_test_verify-test_verify.Tpo -c -o tests/tests_test_verify-test_verify.obj `if test -f 'tests/test_verify.c'; then $(CYGPATH_W) 'tests/test_verify.c'; else $(CYGPATH_W) '$(srcdir)/tests/test_verify.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) tests/$(DEPDIR)/tests_test_verify-test_verify.Tpo tests/$(DEPDIR)/tests_test_verify-test_verify.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/test_verify.c' object='tests/tests_test_verify-test_verify.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_test_verify_CFLAGS) $(CFLAGS) -c -o tests/tests_test_verify-test_verify.obj `if test -f 'tests/test_verify.c'; then $(CYGPATH_W) 'tests/test_verify.c'; else $(CYGPATH_W) '$(srcdir)/tests/test_verify.c'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo

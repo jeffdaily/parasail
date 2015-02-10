@@ -187,133 +187,7 @@ parasail_result_t* FNAME(
     }
 
     /* iterate over query sequence */
-    for (i=0; i<s1Len-N; i+=N) {
-        __m256i vNscore = vNegInf0;
-        __m256i vWscore = vNegInf0;
-        __m256i vIns = vNegInf;
-        __m256i vDel = vNegInf;
-        __m256i vJ = vJreset;
-        const int * const restrict matrow0 = matrix[s1[i+0]];
-        const int * const restrict matrow1 = matrix[s1[i+1]];
-        const int * const restrict matrow2 = matrix[s1[i+2]];
-        const int * const restrict matrow3 = matrix[s1[i+3]];
-        const int * const restrict matrow4 = matrix[s1[i+4]];
-        const int * const restrict matrow5 = matrix[s1[i+5]];
-        const int * const restrict matrow6 = matrix[s1[i+6]];
-        const int * const restrict matrow7 = matrix[s1[i+7]];
-        /* iterate over database sequence */
-        for (j=0; j<N; ++j) {
-            __m256i vMat;
-            __m256i vNWscore = vNscore;
-            vNscore = vshift32(vWscore, tbl_pr[j]);
-            vDel = vshift32(vDel, del_pr[j]);
-            vDel = _mm256_max_epi32(
-                    _mm256_sub_epi32(vNscore, vOpen),
-                    _mm256_sub_epi32(vDel, vGap));
-            vIns = _mm256_max_epi32(
-                    _mm256_sub_epi32(vWscore, vOpen),
-                    _mm256_sub_epi32(vIns, vGap));
-            vMat = _mm256_set_epi32(
-                    matrow0[s2[j-0]],
-                    matrow1[s2[j-1]],
-                    matrow2[s2[j-2]],
-                    matrow3[s2[j-3]],
-                    matrow4[s2[j-4]],
-                    matrow5[s2[j-5]],
-                    matrow6[s2[j-6]],
-                    matrow7[s2[j-7]]
-                    );
-            vNWscore = _mm256_add_epi32(vNWscore, vMat);
-            vWscore = _mm256_max_epi32(vNWscore, vIns);
-            vWscore = _mm256_max_epi32(vWscore, vDel);
-            /* as minor diagonal vector passes across the j=-1 boundary,
-             * assign the appropriate boundary conditions */
-            {
-                __m256i cond = _mm256_cmpeq_epi32(vJ,vNegOne);
-                vWscore = _mm256_andnot_si256(cond, vWscore);
-                vDel = _mm256_blendv_epi8(vDel, vNegInf, cond);
-                vIns = _mm256_blendv_epi8(vIns, vNegInf, cond);
-            }
-#ifdef PARASAIL_TABLE
-            arr_store_si256(result->score_table, vWscore, i, s1Len, j, s2Len);
-#endif
-            tbl_pr[j-7] = (int32_t)_mm256_extract_epi32(vWscore,0);
-            del_pr[j-7] = (int32_t)_mm256_extract_epi32(vDel,0);
-            vJ = _mm256_add_epi32(vJ, vOne);
-        }
-        for (j=N; j<s2Len-1; ++j) {
-            __m256i vMat;
-            __m256i vNWscore = vNscore;
-            vNscore = vshift32(vWscore, tbl_pr[j]);
-            vDel = vshift32(vDel, del_pr[j]);
-            vDel = _mm256_max_epi32(
-                    _mm256_sub_epi32(vNscore, vOpen),
-                    _mm256_sub_epi32(vDel, vGap));
-            vIns = _mm256_max_epi32(
-                    _mm256_sub_epi32(vWscore, vOpen),
-                    _mm256_sub_epi32(vIns, vGap));
-            vMat = _mm256_set_epi32(
-                    matrow0[s2[j-0]],
-                    matrow1[s2[j-1]],
-                    matrow2[s2[j-2]],
-                    matrow3[s2[j-3]],
-                    matrow4[s2[j-4]],
-                    matrow5[s2[j-5]],
-                    matrow6[s2[j-6]],
-                    matrow7[s2[j-7]]
-                    );
-            vNWscore = _mm256_add_epi32(vNWscore, vMat);
-            vWscore = _mm256_max_epi32(vNWscore, vIns);
-            vWscore = _mm256_max_epi32(vWscore, vDel);
-#ifdef PARASAIL_TABLE
-            arr_store_si256(result->score_table, vWscore, i, s1Len, j, s2Len);
-#endif
-            tbl_pr[j-7] = (int32_t)_mm256_extract_epi32(vWscore,0);
-            del_pr[j-7] = (int32_t)_mm256_extract_epi32(vDel,0);
-            vJ = _mm256_add_epi32(vJ, vOne);
-        }
-        for (j=s2Len-1; j<s2Len+PAD; ++j) {
-            __m256i vMat;
-            __m256i vNWscore = vNscore;
-            vNscore = vshift32(vWscore, tbl_pr[j]);
-            vDel = vshift32(vDel, del_pr[j]);
-            vDel = _mm256_max_epi32(
-                    _mm256_sub_epi32(vNscore, vOpen),
-                    _mm256_sub_epi32(vDel, vGap));
-            vIns = _mm256_max_epi32(
-                    _mm256_sub_epi32(vWscore, vOpen),
-                    _mm256_sub_epi32(vIns, vGap));
-            vMat = _mm256_set_epi32(
-                    matrow0[s2[j-0]],
-                    matrow1[s2[j-1]],
-                    matrow2[s2[j-2]],
-                    matrow3[s2[j-3]],
-                    matrow4[s2[j-4]],
-                    matrow5[s2[j-5]],
-                    matrow6[s2[j-6]],
-                    matrow7[s2[j-7]]
-                    );
-            vNWscore = _mm256_add_epi32(vNWscore, vMat);
-            vWscore = _mm256_max_epi32(vNWscore, vIns);
-            vWscore = _mm256_max_epi32(vWscore, vDel);
-#ifdef PARASAIL_TABLE
-            arr_store_si256(result->score_table, vWscore, i, s1Len, j, s2Len);
-#endif
-            tbl_pr[j-7] = (int32_t)_mm256_extract_epi32(vWscore,0);
-            del_pr[j-7] = (int32_t)_mm256_extract_epi32(vDel,0);
-            /* as minor diagonal vector passes across the j limit
-             * boundary, extract the last value of the row */
-            {
-                __m256i cond_j = _mm256_cmpeq_epi32(vJ, vJLimit1);
-                __m256i cond_max = _mm256_cmpgt_epi32(vWscore, vMaxScore);
-                __m256i cond_all = _mm256_and_si256(cond_max, cond_j);
-                vMaxScore = _mm256_blendv_epi8(vMaxScore, vWscore, cond_all);
-            }
-            vJ = _mm256_add_epi32(vJ, vOne);
-        }
-        vI = _mm256_add_epi32(vI, vN);
-    }
-    for (/*i=?*/; i<s1Len; i+=N) {
+    for (i=0; i<s1Len; i+=N) {
         __m256i vNscore = vNegInf0;
         __m256i vWscore = vNegInf0;
         __m256i vIns = vNegInf;
@@ -330,7 +204,7 @@ parasail_result_t* FNAME(
         __m256i vIltLimit = _mm256_cmplt_epi32(vI, vILimit);
         __m256i vIeqLimit1 = _mm256_cmpeq_epi32(vI, vILimit1);
         /* iterate over database sequence */
-        for (j=0; j<N; ++j) {
+        for (j=0; j<s2Len+PAD; ++j) {
             __m256i vMat;
             __m256i vNWscore = vNscore;
             vNscore = vshift32(vWscore, tbl_pr[j]);
@@ -367,99 +241,20 @@ parasail_result_t* FNAME(
 #endif
             tbl_pr[j-7] = (int32_t)_mm256_extract_epi32(vWscore,0);
             del_pr[j-7] = (int32_t)_mm256_extract_epi32(vDel,0);
-            /* as minor diagonal vector passes across the i limit
-             * boundary, extract the last value of the column */
-            {
-                __m256i cond_i = _mm256_and_si256(
-                        vIeqLimit1,
-                        _mm256_cmpgt_epi32(vJ, vNegOne));
-                __m256i cond_max = _mm256_cmpgt_epi32(vWscore, vMaxScore);
-                __m256i cond_all = _mm256_and_si256(cond_max, cond_i);
-                vMaxScore = _mm256_blendv_epi8(vMaxScore, vWscore, cond_all);
-            }
-            vJ = _mm256_add_epi32(vJ, vOne);
-        }
-        for (j=N; j<s2Len-1; ++j) {
-            __m256i vMat;
-            __m256i vNWscore = vNscore;
-            vNscore = vshift32(vWscore, tbl_pr[j]);
-            vDel = vshift32(vDel, del_pr[j]);
-            vDel = _mm256_max_epi32(
-                    _mm256_sub_epi32(vNscore, vOpen),
-                    _mm256_sub_epi32(vDel, vGap));
-            vIns = _mm256_max_epi32(
-                    _mm256_sub_epi32(vWscore, vOpen),
-                    _mm256_sub_epi32(vIns, vGap));
-            vMat = _mm256_set_epi32(
-                    matrow0[s2[j-0]],
-                    matrow1[s2[j-1]],
-                    matrow2[s2[j-2]],
-                    matrow3[s2[j-3]],
-                    matrow4[s2[j-4]],
-                    matrow5[s2[j-5]],
-                    matrow6[s2[j-6]],
-                    matrow7[s2[j-7]]
-                    );
-            vNWscore = _mm256_add_epi32(vNWscore, vMat);
-            vWscore = _mm256_max_epi32(vNWscore, vIns);
-            vWscore = _mm256_max_epi32(vWscore, vDel);
-#ifdef PARASAIL_TABLE
-            arr_store_si256(result->score_table, vWscore, i, s1Len, j, s2Len);
-#endif
-            tbl_pr[j-7] = (int32_t)_mm256_extract_epi32(vWscore,0);
-            del_pr[j-7] = (int32_t)_mm256_extract_epi32(vDel,0);
-            /* as minor diagonal vector passes across the i limit
-             * boundary, extract the last value of the column */
-            {
-                __m256i cond_i = vIeqLimit1;
-                __m256i cond_max = _mm256_cmpgt_epi32(vWscore, vMaxScore);
-                __m256i cond_all = _mm256_and_si256(cond_max, cond_i);
-                vMaxScore = _mm256_blendv_epi8(vMaxScore, vWscore, cond_all);
-            }
-            vJ = _mm256_add_epi32(vJ, vOne);
-        }
-        for (j=s2Len-1; j<s2Len+PAD; ++j) {
-            __m256i vMat;
-            __m256i vNWscore = vNscore;
-            vNscore = vshift32(vWscore, tbl_pr[j]);
-            vDel = vshift32(vDel, del_pr[j]);
-            vDel = _mm256_max_epi32(
-                    _mm256_sub_epi32(vNscore, vOpen),
-                    _mm256_sub_epi32(vDel, vGap));
-            vIns = _mm256_max_epi32(
-                    _mm256_sub_epi32(vWscore, vOpen),
-                    _mm256_sub_epi32(vIns, vGap));
-            vMat = _mm256_set_epi32(
-                    matrow0[s2[j-0]],
-                    matrow1[s2[j-1]],
-                    matrow2[s2[j-2]],
-                    matrow3[s2[j-3]],
-                    matrow4[s2[j-4]],
-                    matrow5[s2[j-5]],
-                    matrow6[s2[j-6]],
-                    matrow7[s2[j-7]]
-                    );
-            vNWscore = _mm256_add_epi32(vNWscore, vMat);
-            vWscore = _mm256_max_epi32(vNWscore, vIns);
-            vWscore = _mm256_max_epi32(vWscore, vDel);
-#ifdef PARASAIL_TABLE
-            arr_store_si256(result->score_table, vWscore, i, s1Len, j, s2Len);
-#endif
-            tbl_pr[j-7] = (int32_t)_mm256_extract_epi32(vWscore,0);
-            del_pr[j-7] = (int32_t)_mm256_extract_epi32(vDel,0);
             /* as minor diagonal vector passes across the i or j limit
              * boundary, extract the last value of the column or row */
             {
-                __m256i cond_j = _mm256_and_si256(
-                        vIltLimit,
-                        _mm256_cmpeq_epi32(vJ, vJLimit1));
-                __m256i cond_i = _mm256_and_si256(
-                        vIeqLimit1,
-                        _mm256_cmplt_epi32(vJ, vJLimit));
+                __m256i vJeqLimit1 = _mm256_cmpeq_epi32(vJ, vJLimit1);
+                __m256i vJgtNegOne = _mm256_cmpgt_epi32(vJ, vNegOne);
+                __m256i vJltLimit = _mm256_cmplt_epi32(vJ, vJLimit);
+                __m256i cond_j = _mm256_and_si256(vIltLimit, vJeqLimit1);
+                __m256i cond_i = _mm256_and_si256(vIeqLimit1,
+                        _mm256_and_si256(vJgtNegOne, vJltLimit));
                 __m256i cond_max = _mm256_cmpgt_epi32(vWscore, vMaxScore);
                 __m256i cond_all = _mm256_and_si256(cond_max,
                         _mm256_or_si256(cond_i, cond_j));
                 vMaxScore = _mm256_blendv_epi8(vMaxScore, vWscore, cond_all);
+
             }
             vJ = _mm256_add_epi32(vJ, vOne);
         }

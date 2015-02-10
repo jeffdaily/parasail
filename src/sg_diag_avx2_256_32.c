@@ -254,7 +254,6 @@ parasail_result_t* FNAME(
                 __m256i cond_all = _mm256_and_si256(cond_max,
                         _mm256_or_si256(cond_i, cond_j));
                 vMaxScore = _mm256_blendv_epi8(vMaxScore, vWscore, cond_all);
-
             }
             vJ = _mm256_add_epi32(vJ, vOne);
         }

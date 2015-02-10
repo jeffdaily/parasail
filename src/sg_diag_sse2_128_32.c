@@ -160,121 +160,7 @@ parasail_result_t* FNAME(
     tbl_pr[-1] = 0; /* upper left corner */
 
     /* iterate over query sequence */
-    for (i=0; i<s1Len-N; i+=N) {
-        __m128i vNscore = vNegInf0;
-        __m128i vWscore = vNegInf0;
-        __m128i vIns = vNegInf;
-        __m128i vDel = vNegInf;
-        __m128i vJ = vJreset;
-        const int * const restrict matrow0 = matrix[s1[i+0]];
-        const int * const restrict matrow1 = matrix[s1[i+1]];
-        const int * const restrict matrow2 = matrix[s1[i+2]];
-        const int * const restrict matrow3 = matrix[s1[i+3]];
-        /* iterate over database sequence */
-        for (j=0; j<N; ++j) {
-            __m128i vMat;
-            __m128i vNWscore = vNscore;
-            vNscore = vshift32(vWscore, tbl_pr[j]);
-            vDel = vshift32(vDel, del_pr[j]);
-            vDel = _mm_max_epi32(
-                    _mm_sub_epi32(vNscore, vOpen),
-                    _mm_sub_epi32(vDel, vGap));
-            vIns = _mm_max_epi32(
-                    _mm_sub_epi32(vWscore, vOpen),
-                    _mm_sub_epi32(vIns, vGap));
-            vMat = _mm_set_epi32(
-                    matrow0[s2[j-0]],
-                    matrow1[s2[j-1]],
-                    matrow2[s2[j-2]],
-                    matrow3[s2[j-3]]
-                    );
-            vNWscore = _mm_add_epi32(vNWscore, vMat);
-            vWscore = _mm_max_epi32(vNWscore, vIns);
-            vWscore = _mm_max_epi32(vWscore, vDel);
-            /* as minor diagonal vector passes across the j=-1 boundary,
-             * assign the appropriate boundary conditions */
-            {
-                __m128i cond = _mm_cmpeq_epi32(vJ,vNegOne);
-                vWscore = _mm_andnot_si128(cond, vWscore);
-                vDel = _mm_andnot_si128(cond, vDel);
-                vDel = _mm_or_si128(vDel, _mm_and_si128(cond, vNegInf));
-                vIns = _mm_andnot_si128(cond, vIns);
-                vIns = _mm_or_si128(vIns, _mm_and_si128(cond, vNegInf));
-            }
-#ifdef PARASAIL_TABLE
-            arr_store_si128(result->score_table, vWscore, i, s1Len, j, s2Len);
-#endif
-            tbl_pr[j-3] = (int32_t)_mm_extract_epi32(vWscore,0);
-            del_pr[j-3] = (int32_t)_mm_extract_epi32(vDel,0);
-            vJ = _mm_add_epi32(vJ, vOne);
-        }
-        for (j=N; j<s2Len-1; ++j) {
-            __m128i vMat;
-            __m128i vNWscore = vNscore;
-            vNscore = vshift32(vWscore, tbl_pr[j]);
-            vDel = vshift32(vDel, del_pr[j]);
-            vDel = _mm_max_epi32(
-                    _mm_sub_epi32(vNscore, vOpen),
-                    _mm_sub_epi32(vDel, vGap));
-            vIns = _mm_max_epi32(
-                    _mm_sub_epi32(vWscore, vOpen),
-                    _mm_sub_epi32(vIns, vGap));
-            vMat = _mm_set_epi32(
-                    matrow0[s2[j-0]],
-                    matrow1[s2[j-1]],
-                    matrow2[s2[j-2]],
-                    matrow3[s2[j-3]]
-                    );
-            vNWscore = _mm_add_epi32(vNWscore, vMat);
-            vWscore = _mm_max_epi32(vNWscore, vIns);
-            vWscore = _mm_max_epi32(vWscore, vDel);
-#ifdef PARASAIL_TABLE
-            arr_store_si128(result->score_table, vWscore, i, s1Len, j, s2Len);
-#endif
-            tbl_pr[j-3] = (int32_t)_mm_extract_epi32(vWscore,0);
-            del_pr[j-3] = (int32_t)_mm_extract_epi32(vDel,0);
-            vJ = _mm_add_epi32(vJ, vOne);
-        }
-        for (j=s2Len-1; j<s2Len+PAD; ++j) {
-            __m128i vMat;
-            __m128i vNWscore = vNscore;
-            vNscore = vshift32(vWscore, tbl_pr[j]);
-            vDel = vshift32(vDel, del_pr[j]);
-            vDel = _mm_max_epi32(
-                    _mm_sub_epi32(vNscore, vOpen),
-                    _mm_sub_epi32(vDel, vGap));
-            vIns = _mm_max_epi32(
-                    _mm_sub_epi32(vWscore, vOpen),
-                    _mm_sub_epi32(vIns, vGap));
-            vMat = _mm_set_epi32(
-                    matrow0[s2[j-0]],
-                    matrow1[s2[j-1]],
-                    matrow2[s2[j-2]],
-                    matrow3[s2[j-3]]
-                    );
-            vNWscore = _mm_add_epi32(vNWscore, vMat);
-            vWscore = _mm_max_epi32(vNWscore, vIns);
-            vWscore = _mm_max_epi32(vWscore, vDel);
-#ifdef PARASAIL_TABLE
-            arr_store_si128(result->score_table, vWscore, i, s1Len, j, s2Len);
-#endif
-            tbl_pr[j-3] = (int32_t)_mm_extract_epi32(vWscore,0);
-            del_pr[j-3] = (int32_t)_mm_extract_epi32(vDel,0);
-            /* as minor diagonal vector passes across the j limit
-             * boundary, extract the last value of the row */
-            {
-                __m128i cond_j = _mm_cmpeq_epi32(vJ, vJLimit1);
-                __m128i cond_max = _mm_cmpgt_epi32(vWscore, vMaxScore);
-                __m128i cond_all = _mm_and_si128(cond_max, cond_j);
-                vMaxScore = _mm_andnot_si128(cond_all, vMaxScore);
-                vMaxScore = _mm_or_si128(vMaxScore,
-                        _mm_and_si128(cond_all, vWscore));
-            }
-            vJ = _mm_add_epi32(vJ, vOne);
-        }
-        vI = _mm_add_epi32(vI, vN);
-    }
-    for (/*i=?*/; i<s1Len; i+=N) {
+    for (i=0; i<s1Len; i+=N) {
         __m128i vNscore = vNegInf0;
         __m128i vWscore = vNegInf0;
         __m128i vIns = vNegInf;
@@ -287,7 +173,7 @@ parasail_result_t* FNAME(
         __m128i vIltLimit = _mm_cmplt_epi32(vI, vILimit);
         __m128i vIeqLimit1 = _mm_cmpeq_epi32(vI, vILimit1);
         /* iterate over database sequence */
-        for (j=0; j<N; ++j) {
+        for (j=0; j<s2Len+PAD; ++j) {
             __m128i vMat;
             __m128i vNWscore = vNscore;
             vNscore = vshift32(vWscore, tbl_pr[j]);
@@ -322,91 +208,15 @@ parasail_result_t* FNAME(
 #endif
             tbl_pr[j-3] = (int32_t)_mm_extract_epi32(vWscore,0);
             del_pr[j-3] = (int32_t)_mm_extract_epi32(vDel,0);
-            /* as minor diagonal vector passes across the i limit
-             * boundary, extract the last value of the column */
-            {
-                __m128i cond_i = _mm_and_si128(
-                        vIeqLimit1,
-                        _mm_cmpgt_epi32(vJ, vNegOne));
-                __m128i cond_max = _mm_cmpgt_epi32(vWscore, vMaxScore);
-                __m128i cond_all = _mm_and_si128(cond_max, cond_i);
-                vMaxScore = _mm_andnot_si128(cond_all, vMaxScore);
-                vMaxScore = _mm_or_si128(vMaxScore,
-                        _mm_and_si128(cond_all, vWscore));
-            }
-            vJ = _mm_add_epi32(vJ, vOne);
-        }
-        for (j=N; j<s2Len-1; ++j) {
-            __m128i vMat;
-            __m128i vNWscore = vNscore;
-            vNscore = vshift32(vWscore, tbl_pr[j]);
-            vDel = vshift32(vDel, del_pr[j]);
-            vDel = _mm_max_epi32(
-                    _mm_sub_epi32(vNscore, vOpen),
-                    _mm_sub_epi32(vDel, vGap));
-            vIns = _mm_max_epi32(
-                    _mm_sub_epi32(vWscore, vOpen),
-                    _mm_sub_epi32(vIns, vGap));
-            vMat = _mm_set_epi32(
-                    matrow0[s2[j-0]],
-                    matrow1[s2[j-1]],
-                    matrow2[s2[j-2]],
-                    matrow3[s2[j-3]]
-                    );
-            vNWscore = _mm_add_epi32(vNWscore, vMat);
-            vWscore = _mm_max_epi32(vNWscore, vIns);
-            vWscore = _mm_max_epi32(vWscore, vDel);
-#ifdef PARASAIL_TABLE
-            arr_store_si128(result->score_table, vWscore, i, s1Len, j, s2Len);
-#endif
-            tbl_pr[j-3] = (int32_t)_mm_extract_epi32(vWscore,0);
-            del_pr[j-3] = (int32_t)_mm_extract_epi32(vDel,0);
-            /* as minor diagonal vector passes across the i limit
-             * boundary, extract the last value of the column */
-            {
-                __m128i cond_i = vIeqLimit1;
-                __m128i cond_max = _mm_cmpgt_epi32(vWscore, vMaxScore);
-                __m128i cond_all = _mm_and_si128(cond_max, cond_i);
-                vMaxScore = _mm_andnot_si128(cond_all, vMaxScore);
-                vMaxScore = _mm_or_si128(vMaxScore,
-                        _mm_and_si128(cond_all, vWscore));
-            }
-            vJ = _mm_add_epi32(vJ, vOne);
-        }
-        for (j=s2Len-1; j<s2Len+PAD; ++j) {
-            __m128i vMat;
-            __m128i vNWscore = vNscore;
-            vNscore = vshift32(vWscore, tbl_pr[j]);
-            vDel = vshift32(vDel, del_pr[j]);
-            vDel = _mm_max_epi32(
-                    _mm_sub_epi32(vNscore, vOpen),
-                    _mm_sub_epi32(vDel, vGap));
-            vIns = _mm_max_epi32(
-                    _mm_sub_epi32(vWscore, vOpen),
-                    _mm_sub_epi32(vIns, vGap));
-            vMat = _mm_set_epi32(
-                    matrow0[s2[j-0]],
-                    matrow1[s2[j-1]],
-                    matrow2[s2[j-2]],
-                    matrow3[s2[j-3]]
-                    );
-            vNWscore = _mm_add_epi32(vNWscore, vMat);
-            vWscore = _mm_max_epi32(vNWscore, vIns);
-            vWscore = _mm_max_epi32(vWscore, vDel);
-#ifdef PARASAIL_TABLE
-            arr_store_si128(result->score_table, vWscore, i, s1Len, j, s2Len);
-#endif
-            tbl_pr[j-3] = (int32_t)_mm_extract_epi32(vWscore,0);
-            del_pr[j-3] = (int32_t)_mm_extract_epi32(vDel,0);
             /* as minor diagonal vector passes across the i or j limit
              * boundary, extract the last value of the column or row */
             {
-                __m128i cond_j = _mm_and_si128(
-                        vIltLimit,
-                        _mm_cmpeq_epi32(vJ, vJLimit1));
-                __m128i cond_i = _mm_and_si128(
-                        vIeqLimit1,
-                        _mm_cmplt_epi32(vJ, vJLimit));
+                __m128i vJeqLimit1 = _mm_cmpeq_epi32(vJ, vJLimit1);
+                __m128i vJgtNegOne = _mm_cmpgt_epi32(vJ, vNegOne);
+                __m128i vJltLimit = _mm_cmplt_epi32(vJ, vJLimit);
+                __m128i cond_j = _mm_and_si128(vIltLimit, vJeqLimit1);
+                __m128i cond_i = _mm_and_si128(vIeqLimit1,
+                        _mm_and_si128(vJgtNegOne, vJltLimit));
                 __m128i cond_max = _mm_cmpgt_epi32(vWscore, vMaxScore);
                 __m128i cond_all = _mm_and_si128(cond_max,
                         _mm_or_si128(cond_i, cond_j));

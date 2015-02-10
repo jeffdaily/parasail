@@ -686,7 +686,7 @@ int main(int argc, char **argv)
     printf("%lu choose 2 is %lu\n", seq_count, limit);
 
 
-#if 0 && HAVE_SSE2
+#if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         check_functions(nw_sse2, sequences, sizes, seq_count, limit);
         check_functions(sg_sse2, sequences, sizes, seq_count, limit);

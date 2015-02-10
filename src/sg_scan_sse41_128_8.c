@@ -197,7 +197,7 @@ parasail_result_t* FNAME(
                     vHt);
             vHt = _mm_load_si128(pvHt+i);
         }
-#if 0
+#if 1
         {
             __m128i_8_t tmp;
             tmp.m = vFt;

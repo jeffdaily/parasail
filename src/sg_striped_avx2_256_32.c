@@ -129,7 +129,7 @@ parasail_result_t* FNAME(
             __m256i_32_t e;
             for (segNum=0; segNum<segWidth; ++segNum) {
                 h.v[segNum] = 0;
-                e.v[segNum] = NEG_INF_32;
+                e.v[segNum] = -open;
             }
             _mm256_store_si256(&pvHStore[index], h.m);
             _mm256_store_si256(&pvE[index], e.m);

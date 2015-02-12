@@ -436,6 +436,7 @@ check_PROGRAMS += tests/test_gcups
 check_PROGRAMS += tests/test_isa
 check_PROGRAMS += tests/test_sw_dispatch
 check_PROGRAMS += tests/test_verify
+check_PROGRAMS += tests/test_verify_tables
 if HAVE_OPENMP
 check_PROGRAMS += tests/test_openmp
 endif
@@ -470,4 +471,8 @@ tests_test_openmp_LDADD   += tests/libssw.la
 tests_test_verify_SOURCES = tests/test_verify.c
 tests_test_verify_CFLAGS  = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_test_verify_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
+
+tests_test_verify_tables_SOURCES = tests/test_verify_tables.c
+tests_test_verify_tables_CFLAGS  = $(AM_CFLAGS) $(OPENMP_CFLAGS)
+tests_test_verify_tables_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
 

@@ -620,6 +620,8 @@ static inline void check_functions(
                             blosums[blosum_index].blosum);
                     if (result->saturated) {
                         /* no point in comparing a result that saturated */
+                        parasail_result_free(reference_result);
+                        parasail_result_free(result);
                         continue;
                     }
                     if (reference_result->score != result->score) {

@@ -510,6 +510,7 @@ int main(int argc, char **argv)
     const int (*blosum)[24] = blosum62;
     int gap_open = 10;
     int gap_extend = 1;
+    int N = 1;
 
     while ((c = getopt(argc, argv, "a:b:f:n:o:e:")) != -1) {
         switch (c) {
@@ -646,7 +647,7 @@ int main(int argc, char **argv)
     {
 #pragma omp single
         {
-            int N = omp_get_max_threads();
+            N = omp_get_max_threads();
             printf("omp_get_max_threads()=%d\n", N);
         }
     }
@@ -667,7 +668,7 @@ int main(int argc, char **argv)
         }
     }
     timer_clock = timer_real() - timer_clock;
-    printf("%s\t%s\t%f\n", funcname, blosumname, timer_clock);
+    printf("%s\t%s\t%d\t%f\n", funcname, blosumname, N, timer_clock);
 
     return 0;
 }

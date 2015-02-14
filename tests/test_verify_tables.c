@@ -198,7 +198,7 @@ func_t sg_knc_functions[] = {
     {"sg_table_striped_knc_512_32",        sg_table_striped_knc_512_32,     },
     {"NULL", NULL}
 };
-funcs_t sg_avx2 = {"sg_table_avx2", sg_avx2_functions};
+funcs_t sg_knc = {"sg_table_knc", sg_knc_functions};
 #endif
 
 #if HAVE_SSE2

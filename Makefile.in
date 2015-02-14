@@ -103,6 +103,7 @@ check_PROGRAMS = tests/test_align$(EXEEXT) tests/test_gcups$(EXEEXT) \
 @HAVE_KNC_TRUE@	libparasail_knc.la libparasail_knc_table.la
 @HAVE_SSE2_TRUE@am__append_11 = tests/libssw.la
 @HAVE_OPENMP_TRUE@am__append_12 = tests/test_openmp
+@HAVE_SSE2_TRUE@am__append_13 = tests/libssw.la
 subdir = .
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) \
@@ -678,7 +679,7 @@ am_tests_test_align_OBJECTS = tests/test_align.$(OBJEXT)
 tests_test_align_OBJECTS = $(am_tests_test_align_OBJECTS)
 am__DEPENDENCIES_1 =
 tests_test_align_DEPENDENCIES = $(LDADD) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) tests/libssw.la
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 am_tests_test_gcups_OBJECTS = tests/test_gcups.$(OBJEXT)
 tests_test_gcups_OBJECTS = $(am_tests_test_gcups_OBJECTS)
 tests_test_gcups_DEPENDENCIES = $(LDADD) $(am__DEPENDENCIES_1)
@@ -690,7 +691,7 @@ am_tests_test_openmp_OBJECTS =  \
 	tests/tests_test_openmp-test_openmp.$(OBJEXT)
 tests_test_openmp_OBJECTS = $(am_tests_test_openmp_OBJECTS)
 tests_test_openmp_DEPENDENCIES = $(LDADD) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) tests/libssw.la
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) $(am__append_13)
 tests_test_openmp_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(tests_test_openmp_CFLAGS) $(CFLAGS) \
@@ -1174,8 +1175,7 @@ libparasail_la_LIBADD = libparasail_novec.la \
 	$(am__append_8) $(am__append_9) $(am__append_10)
 @HAVE_SSE2_TRUE@tests_libssw_la_SOURCES = contrib/ssw.c contrib/ssw.h
 tests_test_align_SOURCES = tests/test_align.c
-tests_test_align_LDADD = $(LDADD) $(CLOCK_LIBS) $(MATH_LIBS) $(Z_LIBS) \
-	tests/libssw.la
+tests_test_align_LDADD = $(LDADD) $(CLOCK_LIBS) $(MATH_LIBS) $(Z_LIBS)
 tests_test_gcups_SOURCES = tests/test_gcups.c
 tests_test_gcups_LDADD = $(LDADD) $(Z_LIBS)
 tests_test_isa_SOURCES = tests/test_isa.c
@@ -1184,7 +1184,7 @@ tests_test_openmp_SOURCES = tests/test_openmp.c
 tests_test_openmp_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_test_openmp_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
 tests_test_openmp_LDADD = $(LDADD) $(CLOCK_LIBS) $(MATH_LIBS) \
-	$(Z_LIBS) tests/libssw.la
+	$(Z_LIBS) $(am__append_13)
 tests_test_verify_SOURCES = tests/test_verify.c
 tests_test_verify_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_test_verify_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)

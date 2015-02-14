@@ -447,7 +447,6 @@ tests_test_align_LDADD   += $(LDADD)
 tests_test_align_LDADD   += $(CLOCK_LIBS)
 tests_test_align_LDADD   += $(MATH_LIBS)
 tests_test_align_LDADD   += $(Z_LIBS)
-tests_test_align_LDADD   += tests/libssw.la
 
 tests_test_gcups_SOURCES = tests/test_gcups.c
 tests_test_gcups_LDADD   =
@@ -466,7 +465,9 @@ tests_test_openmp_LDADD   += $(LDADD)
 tests_test_openmp_LDADD   += $(CLOCK_LIBS)
 tests_test_openmp_LDADD   += $(MATH_LIBS)
 tests_test_openmp_LDADD   += $(Z_LIBS)
+if HAVE_SSE2
 tests_test_openmp_LDADD   += tests/libssw.la
+endif
 
 tests_test_verify_SOURCES = tests/test_verify.c
 tests_test_verify_CFLAGS  = $(AM_CFLAGS) $(OPENMP_CFLAGS)

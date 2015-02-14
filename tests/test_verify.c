@@ -198,7 +198,7 @@ func_t sg_knc_functions[] = {
     {"sg_striped_knc_512_32",        sg_striped_knc_512_32,     },
     {"NULL", NULL}
 };
-funcs_t sg_avx2 = {"sg_avx2", sg_avx2_functions};
+funcs_t sg_knc = {"sg_knc", sg_knc_functions};
 #endif
 
 #if HAVE_SSE2
@@ -718,6 +718,17 @@ int main(int argc, char **argv)
         check_functions(nw_stats_avx2, sequences, sizes, seq_count, limit);
         check_functions(sg_stats_avx2, sequences, sizes, seq_count, limit);
         check_functions(sw_stats_avx2, sequences, sizes, seq_count, limit);
+    }
+#endif
+
+#if HAVE_KNC
+    {
+        check_functions(nw_knc, sequences, sizes, seq_count, limit);
+        check_functions(sg_knc, sequences, sizes, seq_count, limit);
+        check_functions(sw_knc, sequences, sizes, seq_count, limit);
+        check_functions(nw_stats_knc, sequences, sizes, seq_count, limit);
+        check_functions(sg_stats_knc, sequences, sizes, seq_count, limit);
+        check_functions(sw_stats_knc, sequences, sizes, seq_count, limit);
     }
 #endif
 

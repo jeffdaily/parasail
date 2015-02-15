@@ -87,7 +87,6 @@ parasail_result_t* FNAME(
     __m512i* const restrict pvP  = parasail_memalign_m512i(64, n * segLen);
     __m512i* const restrict pvE  = parasail_memalign_m512i(64, segLen);
     __m512i* const restrict pvHt = parasail_memalign_m512i(64, segLen);
-    __m512i* const restrict pvFt = parasail_memalign_m512i(64, segLen);
     __m512i* const restrict pvH  = parasail_memalign_m512i(64, segLen);
     __m512i vGapO = _mm512_set1_epi32(open);
     __m512i vGapE = _mm512_set1_epi32(gap);
@@ -231,15 +230,7 @@ parasail_result_t* FNAME(
             vFt = _mm512_sub_epi32(vFt, vGapE);
             vFt = _mm512_max_epi32(vFt, vHt);
             vHt = _mm512_load_epi32(pvHt+i);
-            _mm512_store_epi32(pvFt+i, vFt);
-        }
-
-        /* calculate H */
-        for (i=0; i<segLen; ++i) {
-            vHt = _mm512_load_epi32(pvHt+i);
-            vFt = _mm512_load_epi32(pvFt+i);
-            vFt = _mm512_sub_epi32(vFt, vGapO);
-            vH = _mm512_max_epi32(vHt, vFt);
+            vH = _mm512_max_epi32(vHt, _mm512_sub_epi32(vFt, vGapO));
             vH = _mm512_max_epi32(vH, vZero);
             _mm512_store_epi32(pvH+i, vH);
 #ifdef PARASAIL_TABLE
@@ -273,7 +264,6 @@ parasail_result_t* FNAME(
     result->score = score;
 
     parasail_free(pvH);
-    parasail_free(pvFt);
     parasail_free(pvHt);
     parasail_free(pvE);
     parasail_free(pvP);

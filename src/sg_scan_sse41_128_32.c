@@ -179,8 +179,7 @@ parasail_result_t* FNAME(
             vFt = _mm_sub_epi32(vFt, vGapE);
             vFt = _mm_max_epi32(vFt, vHt);
             vHt = _mm_load_si128(pvHt+i);
-            vFt = _mm_sub_epi32(vFt, vGapO);
-            vH = _mm_max_epi32(vHt, vFt);
+            vH = _mm_max_epi32(vHt, _mm_sub_epi32(vFt, vGapO));
             _mm_store_si128(pvH+i, vH);
 #ifdef PARASAIL_TABLE
             arr_store_si128(result->score_table, vH, i, segLen, j, s2Len);

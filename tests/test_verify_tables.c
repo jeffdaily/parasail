@@ -773,6 +773,17 @@ int main(int argc, char **argv)
     }
 #endif
 
+#if HAVE_KNC
+    {
+        check_functions(nw_knc, sequences, sizes, seq_count, limit);
+        check_functions(sg_knc, sequences, sizes, seq_count, limit);
+        check_functions(sw_knc, sequences, sizes, seq_count, limit);
+        check_functions(nw_stats_knc, sequences, sizes, seq_count, limit);
+        check_functions(sg_stats_knc, sequences, sizes, seq_count, limit);
+        check_functions(sw_stats_knc, sequences, sizes, seq_count, limit);
+    }
+#endif
+
     for (i=0; i<seq_count; ++i) {
         free(sequences[i]);
     }

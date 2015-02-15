@@ -11,10 +11,10 @@ alg = ["nw", "sg", "sw"]
 stats = [""]
 par = ["_scan", "_striped", "_diag"]
 #isa = ["_sse2_128_16", "_sse41_128_16", "_avx2_256_16"]
-isa = ["_sse41_128_16"]
+isa = ["_knc_512_32"]
 #blosum = ["40","45","50","62","75","80","90"]
 blosum = ["62"]
-threads = ["1", "2", "4", "8", "16", "32", "64"]
+threads = ["1", "2", "4", "8", "16", "32", "64", "128", "256"]
 for a in alg:
     for s in stats:
         for p in par:
@@ -33,7 +33,7 @@ stats = [""]
 par = [""]
 #blosum = ["40","45","50","62","75","80","90"]
 blosum = ["62"]
-threads = ["1", "2", "4", "8", "16", "32", "64"]
+threads = ["1", "2", "4", "8", "16", "32", "64", "128", "256"]
 for a in alg:
     for s in stats:
         for p in par:

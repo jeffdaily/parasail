@@ -93,7 +93,6 @@ parasail_result_t* FNAME(
     __m256i* const restrict pvP = parasail_memalign_m256i(32, n * segLen);
     __m256i* const restrict pvE = parasail_memalign_m256i(32, segLen);
     __m256i* const restrict pvHt= parasail_memalign_m256i(32, segLen);
-    __m256i* const restrict pvFt= parasail_memalign_m256i(32, segLen);
     __m256i* const restrict pvH = parasail_memalign_m256i(32, segLen);
     __m256i vGapO = _mm256_set1_epi16(open);
     __m256i vGapE = _mm256_set1_epi16(gap);
@@ -232,13 +231,6 @@ parasail_result_t* FNAME(
                     _mm256_sub_epi16(vFt, vGapE),
                     vHt);
             vHt = _mm256_load_si256(pvHt+i);
-            _mm256_store_si256(pvFt+i, vFt);
-        }
-
-        /* calculate H */
-        for (i=0; i<segLen; ++i) {
-            vHt = _mm256_load_si256(pvHt+i);
-            vFt = _mm256_load_si256(pvFt+i);
             vH = _mm256_max_epi16(
                     vHt,
                     _mm256_sub_epi16(vFt, vGapO));
@@ -266,7 +258,6 @@ parasail_result_t* FNAME(
     result->score = score;
 
     parasail_free(pvH);
-    parasail_free(pvFt);
     parasail_free(pvHt);
     parasail_free(pvE);
     parasail_free(pvP);

@@ -259,6 +259,7 @@ parasail_result_t* FNAME(
             vHt = _mm_max_epi8(vH, vE);
             vHt = _mm_max_epi8(vHt, vZero);
             /* statistics */
+            vC = _mm_load_si128(pvC+i);
             vD = _mm_load_si128(pvD+i);
             vMp = _mm_adds_epi8(vMp, vC);
             vSp = _mm_adds_epi8(vSp, vD);

@@ -221,6 +221,7 @@ int main(int argc, char **argv)
     char **sequences = NULL;
     unsigned long *sizes = NULL;
     unsigned long seq_count = 0;
+    unsigned long s = 0;
     char *endptr = NULL;
     char *blosumname = NULL;
     blosum_t b;
@@ -988,6 +989,14 @@ int main(int argc, char **argv)
                 stats_stddev(&stats_rdtsc), stats_rdtsc._min, stats_rdtsc._max);
 #endif
         f = functions[index++];
+    }
+
+    if (filename) {
+        for (s=0; s<seq_count; ++s) {
+            free(sequences[s]);
+        }
+        free(sequences);
+        free(sizes);
     }
 
     return 0;

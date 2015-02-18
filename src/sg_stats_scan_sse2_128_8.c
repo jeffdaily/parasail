@@ -122,14 +122,17 @@ parasail_result_t* FNAME(
     const int32_t position = (segWidth - 1) - (s1Len - 1) / segLen;
     __m128i* const restrict pvP  = parasail_memalign_m128i(16, n * segLen);
     __m128i* const restrict pvPm = parasail_memalign_m128i(16, n * segLen);
+    __m128i* const restrict pvPs = parasail_memalign_m128i(16, n * segLen);
     __m128i* const restrict pvE  = parasail_memalign_m128i(16, segLen);
     __m128i* const restrict pvHt = parasail_memalign_m128i(16, segLen);
     __m128i* const restrict pvFt = parasail_memalign_m128i(16, segLen);
     __m128i* const restrict pvMt = parasail_memalign_m128i(16, segLen);
+    __m128i* const restrict pvSt = parasail_memalign_m128i(16, segLen);
     __m128i* const restrict pvLt = parasail_memalign_m128i(16, segLen);
     __m128i* const restrict pvEx = parasail_memalign_m128i(16, segLen);
     __m128i* const restrict pvH  = parasail_memalign_m128i(16, segLen);
     __m128i* const restrict pvM  = parasail_memalign_m128i(16, segLen);
+    __m128i* const restrict pvS  = parasail_memalign_m128i(16, segLen);
     __m128i* const restrict pvL  = parasail_memalign_m128i(16, segLen);
     __m128i vGapO = _mm_set1_epi8(open);
     __m128i vGapE = _mm_set1_epi8(gap);
@@ -146,9 +149,11 @@ parasail_result_t* FNAME(
     __m128i vPosLimit = _mm_set1_epi8(INT8_MAX);
     int8_t score = NEG_INF_8;
     int matches = 0;
+    int similar = 0;
     int length = 0;
     __m128i vMaxH = vNegInf;
     __m128i vMaxM = vZero;
+    __m128i vMaxS = vZero;
     __m128i vMaxL = vZero;
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table3(segLen*segWidth, s2Len);
@@ -163,16 +168,19 @@ parasail_result_t* FNAME(
         int32_t index = 0;
         for (k=0; k<n; ++k) {
             for (i=0; i<segLen; ++i) {
-                __m128i_8_t t;
+                __m128i_8_t p;
+                __m128i_8_t m;
                 __m128i_8_t s;
                 j = i;
                 for (segNum=0; segNum<segWidth; ++segNum) {
-                    t.v[segNum] = j >= s1Len ? 0 : matrix[k][MAP_BLOSUM_[(unsigned char)s1[j]]];
-                    s.v[segNum] = j >= s1Len ? 0 : (k == MAP_BLOSUM_[(unsigned char)s1[j]]);
+                    p.v[segNum] = j >= s1Len ? 0 : matrix[k][MAP_BLOSUM_[(unsigned char)s1[j]]];
+                    m.v[segNum] = j >= s1Len ? 0 : (k == MAP_BLOSUM_[(unsigned char)s1[j]]);
+                    s.v[segNum] = p.v[segNum] > 0;
                     j += segLen;
                 }
-                _mm_store_si128(&pvP[index], t.m);
-                _mm_store_si128(&pvPm[index], s.m);
+                _mm_store_si128(&pvP[index], p.m);
+                _mm_store_si128(&pvPm[index], m.m);
+                _mm_store_si128(&pvPs[index], s.m);
                 ++index;
             }
         }
@@ -195,6 +203,7 @@ parasail_result_t* FNAME(
             _mm_store_si128(&pvH[index], h.m);
             _mm_store_si128(&pvE[index], e.m);
             _mm_store_si128(&pvM[index], m.m);
+            _mm_store_si128(&pvS[index], m.m);
             _mm_store_si128(&pvL[index], l.m);
             ++index;
         }
@@ -209,10 +218,15 @@ parasail_result_t* FNAME(
         __m128i *pvW;
         __m128i vW;
         __m128i *pvC;
+        __m128i *pvD;
         __m128i vC;
+        __m128i vD;
         __m128i vM;
         __m128i vMp;
         __m128i vMt;
+        __m128i vS;
+        __m128i vSp;
+        __m128i vSt;
         __m128i vL;
         __m128i vLp;
         __m128i vLt;
@@ -232,11 +246,14 @@ parasail_result_t* FNAME(
         vH = _mm_slli_si128(_mm_load_si128(pvH+(segLen-1)), 1);
         vMp= _mm_slli_si128(_mm_load_si128(pvM+(segLen-1)), 1);
         vMp= _mm_insert_epi8(vMp, -bias, 0);
+        vSp= _mm_slli_si128(_mm_load_si128(pvS+(segLen-1)), 1);
+        vSp= _mm_insert_epi8(vSp, -bias, 0);
         vLp= _mm_slli_si128(_mm_load_si128(pvL+(segLen-1)), 1);
         vLp= _mm_insert_epi8(vLp, -bias, 0);
         vLp= _mm_adds_epi8(vLp, vOne);
         pvW = pvP + MAP_BLOSUM_[(unsigned char)s2[j]]*segLen;
         pvC = pvPm+ MAP_BLOSUM_[(unsigned char)s2[j]]*segLen;
+        pvD = pvPs+ MAP_BLOSUM_[(unsigned char)s2[j]]*segLen;
         for (i=0; i<segLen; ++i) {
             /* load values we need */
             vE = _mm_load_si128(pvE+i);
@@ -246,23 +263,30 @@ parasail_result_t* FNAME(
             vHt = _mm_max_epi8(vH, vE);
             /* statistics */
             vC = _mm_load_si128(pvC+i);
+            vD = _mm_load_si128(pvD+i);
             vMp = _mm_adds_epi8(vMp, vC);
+            vSp = _mm_adds_epi8(vSp, vD);
             vEx = _mm_cmpgt_epi8(vE, vH);
             vM = _mm_load_si128(pvM+i);
+            vS = _mm_load_si128(pvS+i);
             vL = _mm_load_si128(pvL+i);
             vL = _mm_adds_epi8(vL, vOne);
             vMt = _mm_and_si128(vEx, vM);
             vMt = _mm_or_si128(vMt, _mm_andnot_si128(vEx, vMp));
+            vSt = _mm_and_si128(vEx, vS);
+            vSt = _mm_or_si128(vSt, _mm_andnot_si128(vEx, vSp));
             vLt = _mm_and_si128(vEx, vL);
             vLt = _mm_or_si128(vLt, _mm_andnot_si128(vEx, vLp));
             /* store results */
             _mm_store_si128(pvHt+i, vHt);
             _mm_store_si128(pvEx+i, vEx);
             _mm_store_si128(pvMt+i, vMt);
+            _mm_store_si128(pvSt+i, vSt);
             _mm_store_si128(pvLt+i, vLt);
             /* prep for next iteration */
             vH = _mm_load_si128(pvH+i);
             vMp = vM;
+            vSp = vS;
             vLp = vL;
         }
 
@@ -306,6 +330,7 @@ parasail_result_t* FNAME(
 
         /* calculate H,M,L */
         vMp = vNegBias;
+        vSp = vNegBias;
         vLp = _mm_adds_epi8(vNegBias, vOne);
         vC = _mm_cmpeq_epi8(vZero, vZero); /* check if prefix sum is needed */
         vC = _mm_srli_si128(vC, 1); /* zero out last value */
@@ -319,6 +344,7 @@ parasail_result_t* FNAME(
             /* statistics */
             vEx = _mm_load_si128(pvEx+i);
             vMt = _mm_load_si128(pvMt+i);
+            vSt = _mm_load_si128(pvSt+i);
             vLt = _mm_load_si128(pvLt+i);
             vEx = _mm_or_si128(
                     _mm_and_si128(vEx, _mm_cmpeq_epi8(vHt, vFt)),
@@ -326,6 +352,9 @@ parasail_result_t* FNAME(
             vM = _mm_and_si128(vEx, vMp);
             vM = _mm_or_si128(vM, _mm_andnot_si128(vEx, vMt));
             vMp = vM;
+            vS = _mm_and_si128(vEx, vSp);
+            vS = _mm_or_si128(vS, _mm_andnot_si128(vEx, vSt));
+            vSp = vS;
             vL = _mm_and_si128(vEx, vLp);
             vL = _mm_or_si128(vL, _mm_andnot_si128(vEx, vLt));
             vLp = _mm_adds_epi8(vL, vOne);
@@ -347,7 +376,7 @@ parasail_result_t* FNAME(
         {
             vLp = _mm_subs_epi8(vLp, vOne);
             {
-                __m128i_8_t uMp, uLp, uC;
+                __m128i_8_t uMp, uSp, uLp, uC;
                 uC.m = vC;
                 uMp.m = vMp;
                 uMp.v[ 1] = uC.v[ 1] ? uMp.v[ 0] : uMp.v[ 1];
@@ -366,6 +395,23 @@ parasail_result_t* FNAME(
                 uMp.v[14] = uC.v[14] ? uMp.v[13] : uMp.v[14];
                 uMp.v[15] = uC.v[15] ? uMp.v[14] : uMp.v[15];
                 vMp = uMp.m;
+                uSp.m = vSp;
+                uSp.v[ 1] = uC.v[ 1] ? uSp.v[ 0] : uSp.v[ 1];
+                uSp.v[ 2] = uC.v[ 2] ? uSp.v[ 1] : uSp.v[ 2];
+                uSp.v[ 3] = uC.v[ 3] ? uSp.v[ 2] : uSp.v[ 3];
+                uSp.v[ 4] = uC.v[ 4] ? uSp.v[ 3] : uSp.v[ 4];
+                uSp.v[ 5] = uC.v[ 5] ? uSp.v[ 4] : uSp.v[ 5];
+                uSp.v[ 6] = uC.v[ 6] ? uSp.v[ 5] : uSp.v[ 6];
+                uSp.v[ 7] = uC.v[ 7] ? uSp.v[ 6] : uSp.v[ 7];
+                uSp.v[ 8] = uC.v[ 8] ? uSp.v[ 7] : uSp.v[ 8];
+                uSp.v[ 9] = uC.v[ 9] ? uSp.v[ 8] : uSp.v[ 9];
+                uSp.v[10] = uC.v[10] ? uSp.v[ 9] : uSp.v[10];
+                uSp.v[11] = uC.v[11] ? uSp.v[10] : uSp.v[11];
+                uSp.v[12] = uC.v[12] ? uSp.v[11] : uSp.v[12];
+                uSp.v[13] = uC.v[13] ? uSp.v[12] : uSp.v[13];
+                uSp.v[14] = uC.v[14] ? uSp.v[13] : uSp.v[14];
+                uSp.v[15] = uC.v[15] ? uSp.v[14] : uSp.v[15];
+                vSp = uSp.m;
                 uLp.m = vLp;
                 uLp.v[ 1] = uC.v[ 1] ? ibias + uLp.v[ 1] + uLp.v[ 0] : uLp.v[ 1];
                 uLp.v[ 2] = uC.v[ 2] ? ibias + uLp.v[ 2] + uLp.v[ 1] : uLp.v[ 2];
@@ -389,21 +435,28 @@ parasail_result_t* FNAME(
         /* final pass for M,L */
         vMp = _mm_slli_si128(vMp, 1);
         vMp = _mm_insert_epi8(vMp, -bias, 0);
+        vSp = _mm_slli_si128(vSp, 1);
+        vSp = _mm_insert_epi8(vSp, -bias, 0);
         vLp = _mm_slli_si128(vLp, 1);
         vLp = _mm_insert_epi8(vLp, -bias, 0);
         for (i=0; i<segLen; ++i) {
             /* statistics */
             vEx = _mm_load_si128(pvEx+i);
             vMt = _mm_load_si128(pvMt+i);
+            vSt = _mm_load_si128(pvSt+i);
             vLt = _mm_load_si128(pvLt+i);
             vM = _mm_and_si128(vEx, vMp);
             vM = _mm_or_si128(vM, _mm_andnot_si128(vEx, vMt));
             vMp = vM;
+            vS = _mm_and_si128(vEx, vSp);
+            vS = _mm_or_si128(vS, _mm_andnot_si128(vEx, vSt));
+            vSp = vS;
             vL = _mm_and_si128(vEx, vLp);
             vL = _mm_or_si128(vL, _mm_andnot_si128(vEx, vLt));
             vLp = _mm_adds_epi8(vL, vOne);
             /* store results */
             _mm_store_si128(pvM+i, vM);
+            _mm_store_si128(pvS+i, vS);
             _mm_store_si128(pvL+i, vL);
             /* check for saturation */
             {
@@ -413,11 +466,16 @@ parasail_result_t* FNAME(
                             _mm_cmpeq_epi8(vM, vPosLimit)));
                 vSaturationCheck = _mm_or_si128(vSaturationCheck,
                         _mm_or_si128(
+                            _mm_cmpeq_epi8(vS, vNegLimit),
+                            _mm_cmpeq_epi8(vS, vPosLimit)));
+                vSaturationCheck = _mm_or_si128(vSaturationCheck,
+                        _mm_or_si128(
                             _mm_cmpeq_epi8(vL, vNegLimit),
                             _mm_cmpeq_epi8(vL, vPosLimit)));
             }
 #ifdef PARASAIL_TABLE
             arr_store_si128_bias(result->matches_table, vM, i, segLen, j, s2Len, bias);
+            arr_store_si128_bias(result->similar_table, vS, i, segLen, j, s2Len, bias);
             arr_store_si128_bias(result->length_table, vL, i, segLen, j, s2Len, bias);
 #endif
         }
@@ -427,12 +485,15 @@ parasail_result_t* FNAME(
             __m128i cond_max;
             vH = _mm_load_si128(pvH + offset);
             vM = _mm_load_si128(pvM + offset);
+            vS = _mm_load_si128(pvS + offset);
             vL = _mm_load_si128(pvL + offset);
             cond_max = _mm_cmpgt_epi8(vH, vMaxH);
             vMaxH = _mm_andnot_si128(cond_max, vMaxH);
             vMaxH = _mm_or_si128(vMaxH, _mm_and_si128(cond_max, vH));
             vMaxM = _mm_andnot_si128(cond_max, vMaxM);
             vMaxM = _mm_or_si128(vMaxM, _mm_and_si128(cond_max, vM));
+            vMaxS = _mm_andnot_si128(cond_max, vMaxS);
+            vMaxS = _mm_or_si128(vMaxS, _mm_and_si128(cond_max, vS));
             vMaxL = _mm_andnot_si128(cond_max, vMaxL);
             vMaxL = _mm_or_si128(vMaxL, _mm_and_si128(cond_max, vL));
         }
@@ -444,12 +505,14 @@ parasail_result_t* FNAME(
         for (k=0; k<position; ++k) {
             vMaxH = _mm_slli_si128(vMaxH, 1);
             vMaxM = _mm_slli_si128(vMaxM, 1);
+            vMaxS = _mm_slli_si128(vMaxS, 1);
             vMaxL = _mm_slli_si128(vMaxL, 1);
         }
         value = (int8_t) _mm_extract_epi8(vMaxH, 15);
         if (value > score) {
             score = value;
             matches = ibias + (int)((int8_t)_mm_extract_epi8(vMaxM, 15));
+            similar = ibias + (int)((int8_t)_mm_extract_epi8(vMaxS, 15));
             length = ibias + (int)((int8_t)_mm_extract_epi8(vMaxL, 15));
         }
     }
@@ -458,18 +521,22 @@ parasail_result_t* FNAME(
     {
         vMaxH = vNegInf;
         vMaxM = vZero;
+        vMaxS = vZero;
         vMaxL = vZero;
 
         for (i=0; i<segLen; ++i) {
             /* load the last stored values */
             __m128i vH = _mm_load_si128(pvH + i);
             __m128i vM = _mm_load_si128(pvM + i);
+            __m128i vS = _mm_load_si128(pvS + i);
             __m128i vL = _mm_load_si128(pvL + i);
             __m128i cond_max = _mm_cmpgt_epi8(vH, vMaxH);
             vMaxH = _mm_andnot_si128(cond_max, vMaxH);
             vMaxH = _mm_or_si128(vMaxH, _mm_and_si128(cond_max, vH));
             vMaxM = _mm_andnot_si128(cond_max, vMaxM);
             vMaxM = _mm_or_si128(vMaxM, _mm_and_si128(cond_max, vM));
+            vMaxS = _mm_andnot_si128(cond_max, vMaxS);
+            vMaxS = _mm_or_si128(vMaxS, _mm_and_si128(cond_max, vS));
             vMaxL = _mm_andnot_si128(cond_max, vMaxL);
             vMaxL = _mm_or_si128(vMaxL, _mm_and_si128(cond_max, vL));
         }
@@ -480,10 +547,12 @@ parasail_result_t* FNAME(
             if (value > score) {
                 score = value;
                 matches = ibias + (int)((int8_t)_mm_extract_epi8(vMaxM, 15));
+                similar = ibias + (int)((int8_t)_mm_extract_epi8(vMaxS, 15));
                 length = ibias + (int)((int8_t)_mm_extract_epi8(vMaxL, 15));
             }
             vMaxH = _mm_slli_si128(vMaxH, 1);
             vMaxM = _mm_slli_si128(vMaxM, 1);
+            vMaxS = _mm_slli_si128(vMaxS, 1);
             vMaxL = _mm_slli_si128(vMaxL, 1);
         }
     }
@@ -492,22 +561,27 @@ parasail_result_t* FNAME(
         result->saturated = 1;
         score = INT8_MAX;
         matches = 0;
+        similar = 0;
         length = 0;
     }
 
     result->score = score;
     result->matches = matches;
+    result->similar = similar;
     result->length = length;
 
     parasail_free(pvL);
+    parasail_free(pvS);
     parasail_free(pvM);
     parasail_free(pvH);
     parasail_free(pvEx);
     parasail_free(pvLt);
+    parasail_free(pvSt);
     parasail_free(pvMt);
     parasail_free(pvFt);
     parasail_free(pvHt);
     parasail_free(pvE);
+    parasail_free(pvPs);
     parasail_free(pvPm);
     parasail_free(pvP);
 

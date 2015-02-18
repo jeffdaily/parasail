@@ -46,9 +46,12 @@ parasail_result_t* ENAME(
     int * const restrict Ft = FtB+1;
     int * const restrict MB = parasail_memalign_int(16, s1Len+1);
     int * const restrict M  = MB+1;
+    int * const restrict SB = parasail_memalign_int(16, s1Len+1);
+    int * const restrict S  = SB+1;
     int * const restrict LB = parasail_memalign_int(16, s1Len+1);
     int * const restrict L  = LB+1;
     int * const restrict Mt = parasail_memalign_int(16, s1Len);
+    int * const restrict St = parasail_memalign_int(16, s1Len);
     int * const restrict Lt = parasail_memalign_int(16, s1Len);
     int * const restrict Ex = parasail_memalign_int(16, s1Len);
     int i = 0;
@@ -74,6 +77,12 @@ parasail_result_t* ENAME(
         M[i] = 0;
     }
 
+    /* initialize S */
+    S[-1] = 0;
+    for (i=0; i<s1Len; ++i) {
+        S[i] = 0;
+    }
+
     /* initialize L */
     L[-1] = 0;
     for (i=0; i<s1Len; ++i) {
@@ -89,6 +98,7 @@ parasail_result_t* ENAME(
     for (j=0; j<s2Len; ++j) {
         const int * const restrict matcol = matrix[s2[j]];
         int FM = 0;
+        int FS = 0;
         int FL = 0;
         /* calculate E */
         for (i=0; i<s1Len; ++i) {
@@ -99,6 +109,7 @@ parasail_result_t* ENAME(
             int tmp = H[i-1]+matcol[s1[i]];
             Ht[i] = MAX(tmp, E[i]);
             Mt[i] = tmp >= E[i] ? M[i-1] + (s1[i]==s2[j]) : M[i];
+            St[i] = tmp >= E[i] ? S[i-1] + (matcol[s1[i]] > 0) : S[i];
             Lt[i] = tmp >= E[i] ? L[i-1] + 1 : L[i] + 1;
             Ex[i] = (E[i] > tmp);
         }
@@ -108,25 +119,29 @@ parasail_result_t* ENAME(
         for (i=0; i<s1Len; ++i) {
             Ft[i] = MAX(Ft[i-1]-gap, Ht[i-1]);
         }
-        /* calculate H,M,L */
+        /* calculate H,M,S,L */
         for (i=0; i<s1Len; ++i) {
             int tmp = Ft[i]-open;
             H[i] = MAX(Ht[i], tmp);
             if ((Ht[i] == tmp && Ex[i]) || (Ht[i] < tmp)) {
                 /* we favor F/up/del when F and E scores tie */
                 M[i] = FM;
+                S[i] = FS;
                 L[i] = FL + 1;
             }
             else {
                 M[i] = Mt[i];
+                S[i] = St[i];
                 L[i] = Lt[i];
             }
 #ifdef PARASAIL_TABLE
             result->score_table[i*s2Len + j] = H[i];
             result->matches_table[i*s2Len + j] = M[i];
+            result->similar_table[i*s2Len + j] = S[i];
             result->length_table[i*s2Len + j] = L[i];
 #endif
             FM = M[i];
+            FS = S[i];
             FL = L[i];
         }
         H[-1] = -open - j*gap;
@@ -134,12 +149,15 @@ parasail_result_t* ENAME(
 
     result->score = H[s1Len-1];
     result->matches = M[s1Len-1];
+    result->similar = S[s1Len-1];
     result->length = L[s1Len-1];
 
     parasail_free(Ex);
     parasail_free(Lt);
+    parasail_free(St);
     parasail_free(Mt);
     parasail_free(LB);
+    parasail_free(SB);
     parasail_free(MB);
     parasail_free(FtB);
     parasail_free(HtB);

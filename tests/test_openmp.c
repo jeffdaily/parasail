@@ -511,6 +511,7 @@ int main(int argc, char **argv)
     int gap_open = 10;
     int gap_extend = 1;
     int N = 1;
+    int saturated = 0;
 
     while ((c = getopt(argc, argv, "a:b:f:n:o:e:")) != -1) {
         switch (c) {
@@ -664,11 +665,13 @@ int main(int argc, char **argv)
             k_combination2(i, &a, &b);
             result = function(sequences[a], sizes[a], sequences[b], sizes[b],
                     gap_open, gap_extend, blosum);
+#pragma omp atomic
+            saturated += result->saturated;
             parasail_result_free(result);
         }
     }
     timer_clock = timer_real() - timer_clock;
-    printf("%s\t%s\t%d\t%f\n", funcname, blosumname, N, timer_clock);
+    printf("%s\t%s\t%d\t%d\t%f\n", funcname, blosumname, N, saturated, timer_clock);
 
     return 0;
 }

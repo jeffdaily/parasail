@@ -111,9 +111,11 @@ parasail_result_t* parasail_result_new()
     result->saturated = 0;
     result->score = 0;
     result->matches = 0;
+    result->similar = 0;
     result->length = 0;
     result->score_table = NULL;
     result->matches_table = NULL;
+    result->similar_table = NULL;
     result->length_table = NULL;
 
     return result;
@@ -152,6 +154,8 @@ parasail_result_t* parasail_result_new_table3(const int a, const int b)
     
     result->matches_table = (int *)malloc(sizeof(int)*a*b);
     assert(result->matches_table);
+    result->similar_table = (int *)malloc(sizeof(int)*a*b);
+    assert(result->similar_table);
     result->length_table = (int *)malloc(sizeof(int)*a*b);
     assert(result->length_table);
 
@@ -165,6 +169,7 @@ void parasail_result_free(parasail_result_t *result)
     
     if (NULL != result->score_table) free(result->score_table);
     if (NULL != result->matches_table) free(result->matches_table);
+    if (NULL != result->similar_table) free(result->similar_table);
     if (NULL != result->length_table) free(result->length_table);
     free(result);
 }

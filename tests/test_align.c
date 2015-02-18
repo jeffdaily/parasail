@@ -199,6 +199,7 @@ int main(int argc, char **argv)
     int lenb = 0;
     int score = 0;
     int matches = 0;
+    int similar = 0;
     int length = 0;
     unsigned long long timer_rdtsc = 0;
     unsigned long long timer_rdtsc_single = 0;
@@ -223,8 +224,8 @@ int main(int argc, char **argv)
     char *endptr = NULL;
     char *blosumname = NULL;
     blosum_t b;
-    int open = 0;
-    int extend = 0;
+    int open = 10;
+    int extend = 1;
 
     while ((c = getopt(argc, argv, "a:b:f:m:n:o:e:")) != -1) {
         switch (c) {
@@ -867,9 +868,9 @@ int main(int argc, char **argv)
     printf("gap extend: %d\n", extend);
     printf("seq pair %lu,%lu\n", seqA_index, seqB_index);
 
-    printf("%-15s %8s %6s %4s %5s %5s %8s %8s %8s %8s %5s %8s %8s %8s\n",
+    printf("%-15s %8s %6s %4s %5s %5s %8s %8s %8s %8s %8s %5s %8s %8s %8s\n",
             "name", "type", "isa", "bits", "width", "elem",
-            "score", "matches", "length",
+            "score", "matches", "similar", "length",
             "avg", "imp", "stddev", "min", "max");
 
     stats_clear(&stats_rdtsc);
@@ -903,6 +904,7 @@ int main(int argc, char **argv)
             stats_sample_value(&stats_rdtsc, timer_rdtsc_single);
             stats_sample_value(&stats_nsecs, timer_nsecs_single);
             score = result->score;
+            similar = result->similar;
             matches = result->matches;
             length = result->length;
             parasail_result_free(result);
@@ -954,6 +956,13 @@ int main(int argc, char **argv)
             if (f.is_stats) {
                 char filename[256] = {'\0'};
                 strcpy(filename, f.alg);
+                strcat(filename, "_sim");
+                strcat(filename, suffix);
+                print_array(filename, result->similar_table, seqA, lena, seqB, lenb);
+            }
+            if (f.is_stats) {
+                char filename[256] = {'\0'};
+                strcpy(filename, f.alg);
                 strcat(filename, "_len");
                 strcat(filename, suffix);
                 print_array(filename, result->length_table, seqA, lena, seqB, lenb);
@@ -964,17 +973,17 @@ int main(int argc, char **argv)
             strcat(name, "_table");
         }
 #if USE_TIMER_REAL
-        printf("%-15s %8s %6s %4s %5s %5d %8d %8d %8d %8.2f %5.2f %8.2f %8.2f %8.2f %8.7f %5.7f %8.7f %8.7f %8.7f\n",
+        printf("%-15s %8s %6s %4s %5s %5d %8d %8d %8d %8d %8.2f %5.2f %8.2f %8.2f %8.2f %8.7f %5.7f %8.7f %8.7f %8.7f\n",
                 name, f.type, f.isa, f.bits, f.width, elem(f),
-                score, matches, length,
+                score, matches, similar, length,
                 stats_rdtsc._mean, pctf(timer_rdtsc_ref_mean, stats_rdtsc._mean),
                 stats_stddev(&stats_rdtsc), stats_rdtsc._min, stats_rdtsc._max,
                 stats_nsecs._mean, pctf(timer_nsecs_ref_mean, stats_nsecs._mean),
                 stats_stddev(&stats_nsecs), stats_nsecs._min, stats_nsecs._max);
 #else
-        printf("%-15s %8s %6s %4s %5s %5d %8d %8d %8d %8.2f %5.2f %8.2f %8.2f %8.2f\n",
+        printf("%-15s %8s %6s %4s %5s %5d %8d %8d %8d %8d %8.2f %5.2f %8.2f %8.2f %8.2f\n",
                 name, f.type, f.isa, f.bits, f.width, elem(f),
-                score, matches, length,
+                score, matches, similar, length,
                 stats_rdtsc._mean, pctf(timer_rdtsc_ref_mean, stats_rdtsc._mean),
                 stats_stddev(&stats_rdtsc), stats_rdtsc._min, stats_rdtsc._max);
 #endif

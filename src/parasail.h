@@ -18,9 +18,11 @@ typedef struct parasail_result {
     int saturated;
     int score;
     int matches;
+    int similar;
     int length;
     int * restrict score_table;
     int * restrict matches_table;
+    int * restrict similar_table;
     int * restrict length_table;
 } parasail_result_t;
 

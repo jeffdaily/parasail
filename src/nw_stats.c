@@ -40,6 +40,7 @@ parasail_result_t* ENAME(
     int * const restrict tbl_pr = parasail_memalign_int(16, s2Len+1);
     int * const restrict del_pr = parasail_memalign_int(16, s2Len+1);
     int * const restrict mch_pr = parasail_memalign_int(16, s2Len+1);
+    int * const restrict sim_pr = parasail_memalign_int(16, s2Len+1);
     int * const restrict len_pr = parasail_memalign_int(16, s2Len+1);
     int i = 0;
     int j = 0;
@@ -55,6 +56,7 @@ parasail_result_t* ENAME(
     tbl_pr[0] = 0;
     del_pr[0] = NEG_INF_32;
     mch_pr[0] = 0;
+    sim_pr[0] = 0;
     len_pr[0] = 0;
     
     /* first row */
@@ -62,6 +64,7 @@ parasail_result_t* ENAME(
         tbl_pr[j] = -open -(j-1)*gap;
         del_pr[j] = NEG_INF_32;
         mch_pr[j] = 0;
+        sim_pr[j] = 0;
         len_pr[j] = 0;
     }
 
@@ -71,43 +74,53 @@ parasail_result_t* ENAME(
         /* init first column */
         int Nscore = tbl_pr[0];
         int Nmatches = mch_pr[0];
+        int Nsimilar = sim_pr[0];
         int Nlength = len_pr[0];
         int Wscore = -open - (i-1)*gap;
         int Wmatches = 0;
+        int Wsimilar = 0;
         int Wlength = 0;
         int ins_cr = NEG_INF_32;
         tbl_pr[0] = Wscore;
         mch_pr[0] = Wmatches;
+        sim_pr[0] = Wsimilar;
         len_pr[0] = Wlength;
         for (j=1; j<=s2Len; ++j) {
             int NWscore = Nscore;
             int NWmatches = Nmatches;
+            int NWsimilar = Nsimilar;
             int NWlength = Nlength;
             Nscore = tbl_pr[j];
             Nmatches = mch_pr[j];
+            Nsimilar = sim_pr[j];
             Nlength = len_pr[j];
             del_pr[j] = MAX(Nscore - open, del_pr[j] - gap);
             ins_cr    = MAX(Wscore - open, ins_cr    - gap);
             tbl_pr[j] = NWscore + matrow[s2[j-1]];
             if ((tbl_pr[j] >= del_pr[j]) && (tbl_pr[j] >= ins_cr)) {
                 Wscore = tbl_pr[j];
-                Wmatches  = NWmatches + (s1[i-1] == s2[j-1]);
-                Wlength  = NWlength + 1;
+                Wmatches = NWmatches + (s1[i-1] == s2[j-1]);
+                Wsimilar = NWsimilar + (matrow[s2[j-1]] > 0);
+                Wlength = NWlength + 1;
             } else if (del_pr[j] >= ins_cr) {
                 Wscore = del_pr[j];
-                Wmatches  = Nmatches;
-                Wlength  = Nlength + 1;
+                Wmatches = Nmatches;
+                Wsimilar = Nsimilar;
+                Wlength = Nlength + 1;
             } else {
                 Wscore = ins_cr;
-                /*Wmatches  = Wmatches;*/
-                Wlength  = Wlength + 1;
+                /*Wmatches = Wmatches;*/
+                /*Wsimilar = Wsimilar;*/
+                Wlength = Wlength + 1;
             }
             tbl_pr[j] = Wscore;
             mch_pr[j] = Wmatches;
+            sim_pr[j] = Wsimilar;
             len_pr[j] = Wlength;
 #ifdef PARASAIL_TABLE
             result->score_table[(i-1)*s2Len + (j-1)] = Wscore;
             result->matches_table[(i-1)*s2Len + (j-1)] = Wmatches;
+            result->similar_table[(i-1)*s2Len + (j-1)] = Wsimilar;
             result->length_table[(i-1)*s2Len + (j-1)] = Wlength;
 #endif
         }
@@ -115,9 +128,11 @@ parasail_result_t* ENAME(
 
     result->score = tbl_pr[s2Len];
     result->matches = mch_pr[s2Len];
+    result->similar = sim_pr[s2Len];
     result->length = len_pr[s2Len];
 
     parasail_free(len_pr);
+    parasail_free(sim_pr);
     parasail_free(mch_pr);
     parasail_free(del_pr);
     parasail_free(tbl_pr);

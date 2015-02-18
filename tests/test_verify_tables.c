@@ -658,6 +658,19 @@ static inline void check_functions(
                                     blosums[blosum_index].name);
                         }
                     }
+                    if (reference_result->similar_table
+                            && diff_array(
+                                sizes[a], sizes[b],
+                                reference_result->similar_table,
+                                result->similar_table)) {
+#pragma omp critical(printer)
+                        {
+                            printf("%s(%lu,%lu,%d,%d,%s) bad similar table\n",
+                                    functions[function_index].name,
+                                    a, b, open, extend,
+                                    blosums[blosum_index].name);
+                        }
+                    }
                     if (reference_result->length_table
                             && diff_array(
                                 sizes[a], sizes[b],

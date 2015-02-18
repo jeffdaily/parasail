@@ -104,7 +104,7 @@ parasail_result_t* ENAME(
             if ((tbl_pr[j] >= del_pr[j]) && (tbl_pr[j] >= ins_cr)) {
                 Wscore = tbl_pr[j];
                 Wmatches  = NWmatches + (s1[i-1] == s2[j-1]);
-                Wsimilar  = NWsimilar + (s1[i-1] == s2[j-1]);
+                Wsimilar  = NWsimilar + (matrow[s2[j-1]] > 0);
                 Wlength  = NWlength + 1;
             } else if (del_pr[j] >= ins_cr) {
                 Wscore = del_pr[j];

@@ -661,12 +661,20 @@ int main(int argc, char **argv)
         int tid = omp_get_thread_num();
         unsigned long a=0;
         unsigned long b=1;
+        double timer_local = 0.0;
 #pragma omp for schedule(dynamic)
         for (i=0; i<limit; ++i) {
             parasail_result_t *result = NULL;
             k_combination2(i, &a, &b);
+            timer_local = timer_real();
             result = function(sequences[a], sizes[a], sequences[b], sizes[b],
                     gap_open, gap_extend, blosum);
+            timer_local = timer_real() - timer_local;
+#pragma omp critical
+            printf("%lu\t%lu\t%d\t%d\t%d\t%d\t%lu\t%f\n",
+                    a, b, result->score,
+                    result->matches, result->similar, result->length,
+                    sizes[a]*sizes[b], timer_local);
 #pragma omp atomic
             saturated += result->saturated;
             parasail_result_free(result);

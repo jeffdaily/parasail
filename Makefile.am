@@ -434,12 +434,11 @@ endif
 check_PROGRAMS += tests/test_align
 check_PROGRAMS += tests/test_gcups
 check_PROGRAMS += tests/test_isa
+check_PROGRAMS += tests/test_openmp
+check_PROGRAMS += tests/test_scatter
 check_PROGRAMS += tests/test_sw_dispatch
 check_PROGRAMS += tests/test_verify
 check_PROGRAMS += tests/test_verify_tables
-if HAVE_OPENMP
-check_PROGRAMS += tests/test_openmp
-endif
 
 tests_test_align_SOURCES = tests/test_align.c
 tests_test_align_LDADD   =
@@ -455,8 +454,6 @@ tests_test_gcups_LDADD   += $(Z_LIBS)
 
 tests_test_isa_SOURCES = tests/test_isa.c
 
-tests_test_sw_dispatch_SOURCES = tests/test_sw_dispatch.c
-
 tests_test_openmp_SOURCES = tests/test_openmp.c
 tests_test_openmp_CFLAGS  = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_test_openmp_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
@@ -468,6 +465,20 @@ tests_test_openmp_LDADD   += $(Z_LIBS)
 if HAVE_SSE2
 tests_test_openmp_LDADD   += tests/libssw.la
 endif
+
+tests_test_scatter_SOURCES = tests/test_scatter.c
+tests_test_scatter_CFLAGS  = $(AM_CFLAGS) $(OPENMP_CFLAGS)
+tests_test_scatter_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
+tests_test_scatter_LDADD   =
+tests_test_scatter_LDADD   += $(LDADD)
+tests_test_scatter_LDADD   += $(CLOCK_LIBS)
+tests_test_scatter_LDADD   += $(MATH_LIBS)
+tests_test_scatter_LDADD   += $(Z_LIBS)
+if HAVE_SSE2
+tests_test_scatter_LDADD   += tests/libssw.la
+endif
+
+tests_test_sw_dispatch_SOURCES = tests/test_sw_dispatch.c
 
 tests_test_verify_SOURCES = tests/test_verify.c
 tests_test_verify_CFLAGS  = $(AM_CFLAGS) $(OPENMP_CFLAGS)

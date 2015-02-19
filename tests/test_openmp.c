@@ -646,6 +646,7 @@ int main(int argc, char **argv)
     timer_init();
     printf("%s timer\n", timer_name());
 
+#if defined(_OPENMP)
 #pragma omp parallel
     {
 #pragma omp single
@@ -654,11 +655,16 @@ int main(int argc, char **argv)
             printf("omp_get_max_threads()=%d\n", N);
         }
     }
+#endif
 
     timer_clock = timer_real();
 #pragma omp parallel
     {
+#if defined(_OPENMP)
         int tid = omp_get_thread_num();
+#else
+        int tid = 0;
+#endif
         unsigned long a=0;
         unsigned long b=1;
 #pragma omp for schedule(dynamic)

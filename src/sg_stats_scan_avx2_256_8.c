@@ -177,14 +177,17 @@ parasail_result_t* FNAME(
     const int32_t position = (segWidth - 1) - (s1Len - 1) / segLen;
     __m256i* const restrict pvP  = parasail_memalign_m256i(32, n * segLen);
     __m256i* const restrict pvPm = parasail_memalign_m256i(32, n * segLen);
+    __m256i* const restrict pvPs = parasail_memalign_m256i(32, n * segLen);
     __m256i* const restrict pvE  = parasail_memalign_m256i(32, segLen);
     __m256i* const restrict pvHt = parasail_memalign_m256i(32, segLen);
     __m256i* const restrict pvFt = parasail_memalign_m256i(32, segLen);
     __m256i* const restrict pvMt = parasail_memalign_m256i(32, segLen);
+    __m256i* const restrict pvSt = parasail_memalign_m256i(32, segLen);
     __m256i* const restrict pvLt = parasail_memalign_m256i(32, segLen);
     __m256i* const restrict pvEx = parasail_memalign_m256i(32, segLen);
     __m256i* const restrict pvH  = parasail_memalign_m256i(32, segLen);
     __m256i* const restrict pvM  = parasail_memalign_m256i(32, segLen);
+    __m256i* const restrict pvS  = parasail_memalign_m256i(32, segLen);
     __m256i* const restrict pvL  = parasail_memalign_m256i(32, segLen);
     __m256i vGapO = _mm256_set1_epi8(open);
     __m256i vGapE = _mm256_set1_epi8(gap);
@@ -199,9 +202,11 @@ parasail_result_t* FNAME(
     __m256i vPosLimit = _mm256_set1_epi8(INT8_MAX);
     int8_t score = NEG_INF_8;
     int8_t matches = 0;
+    int8_t similar = 0;
     int8_t length = 0;
     __m256i vMaxH = vNegInf;
     __m256i vMaxM = vZero;
+    __m256i vMaxS = vZero;
     __m256i vMaxL = vZero;
     __m256i segLenXgap_reset = _mm256_set_epi8(
             NEG_INF_8, NEG_INF_8, NEG_INF_8, NEG_INF_8,
@@ -222,6 +227,7 @@ parasail_result_t* FNAME(
 #endif
 
     parasail_memset_m256i(pvM, vNegBias, segLen);
+    parasail_memset_m256i(pvS, vNegBias, segLen);
     parasail_memset_m256i(pvL, vNegBias, segLen);
 
     /* Generate query profile and match profile.
@@ -231,16 +237,19 @@ parasail_result_t* FNAME(
         int32_t index = 0;
         for (k=0; k<n; ++k) {
             for (i=0; i<segLen; ++i) {
-                __m256i_8_t t;
+                __m256i_8_t p;
+                __m256i_8_t m;
                 __m256i_8_t s;
                 j = i;
                 for (segNum=0; segNum<segWidth; ++segNum) {
-                    t.v[segNum] = j >= s1Len ? 0 : matrix[k][MAP_BLOSUM_[(unsigned char)s1[j]]];
-                    s.v[segNum] = j >= s1Len ? 0 : (k == MAP_BLOSUM_[(unsigned char)s1[j]]);
+                    p.v[segNum] = j >= s1Len ? 0 : matrix[k][MAP_BLOSUM_[(unsigned char)s1[j]]];
+                    m.v[segNum] = j >= s1Len ? 0 : (k == MAP_BLOSUM_[(unsigned char)s1[j]]);
+                    s.v[segNum] = p.v[segNum] > 0;
                     j += segLen;
                 }
-                _mm256_store_si256(&pvP[index], t.m);
-                _mm256_store_si256(&pvPm[index], s.m);
+                _mm256_store_si256(&pvP[index], p.m);
+                _mm256_store_si256(&pvPm[index], m.m);
+                _mm256_store_si256(&pvPs[index], s.m);
                 ++index;
             }
         }
@@ -271,10 +280,15 @@ parasail_result_t* FNAME(
         __m256i *pvW;
         __m256i vW;
         __m256i *pvC;
+        __m256i *pvD;
         __m256i vC;
+        __m256i vD;
         __m256i vM;
         __m256i vMp;
         __m256i vMt;
+        __m256i vS;
+        __m256i vSp;
+        __m256i vSt;
         __m256i vL;
         __m256i vLp;
         __m256i vLt;
@@ -294,11 +308,14 @@ parasail_result_t* FNAME(
         vH = shift(_mm256_load_si256(pvH+(segLen-1)));
         vMp= shift(_mm256_load_si256(pvM+(segLen-1)));
         vMp= _mm256_insert_epi8(vMp, -bias, 0);
+        vSp= shift(_mm256_load_si256(pvS+(segLen-1)));
+        vSp= _mm256_insert_epi8(vSp, -bias, 0);
         vLp= shift(_mm256_load_si256(pvL+(segLen-1)));
         vLp= _mm256_insert_epi8(vLp, -bias, 0);
         vLp= _mm256_adds_epi8(vLp, vOne);
         pvW = pvP + MAP_BLOSUM_[(unsigned char)s2[j]]*segLen;
         pvC = pvPm+ MAP_BLOSUM_[(unsigned char)s2[j]]*segLen;
+        pvD = pvPs+ MAP_BLOSUM_[(unsigned char)s2[j]]*segLen;
         for (i=0; i<segLen; ++i) {
             /* load values we need */
             vE = _mm256_load_si256(pvE+i);
@@ -308,21 +325,27 @@ parasail_result_t* FNAME(
             vHt = _mm256_max_epi8(vH, vE);
             /* statistics */
             vC = _mm256_load_si256(pvC+i);
+            vD = _mm256_load_si256(pvD+i);
             vMp = _mm256_adds_epi8(vMp, vC);
+            vSp = _mm256_adds_epi8(vSp, vD);
             vEx = _mm256_cmpgt_epi8(vE, vH);
             vM = _mm256_load_si256(pvM+i);
+            vS = _mm256_load_si256(pvS+i);
             vL = _mm256_load_si256(pvL+i);
             vL = _mm256_adds_epi8(vL, vOne);
             vMt = _mm256_blendv_epi8(vMp, vM, vEx);
+            vSt = _mm256_blendv_epi8(vSp, vS, vEx);
             vLt = _mm256_blendv_epi8(vLp, vL, vEx);
             /* store results */
             _mm256_store_si256(pvHt+i, vHt);
             _mm256_store_si256(pvEx+i, vEx);
             _mm256_store_si256(pvMt+i, vMt);
+            _mm256_store_si256(pvSt+i, vSt);
             _mm256_store_si256(pvLt+i, vLt);
             /* prep for next iteration */
             vH = _mm256_load_si256(pvH+i);
             vMp = vM;
+            vSp = vS;
             vLp = vL;
         }
 
@@ -396,6 +419,7 @@ parasail_result_t* FNAME(
 
         /* calculate H,M,L */
         vMp = vNegBias;
+        vSp = vNegBias;
         vLp = _mm256_adds_epi8(vNegBias, vOne);
         vC = _mm256_cmpeq_epi8(vZero, vZero); /* check if prefix sum is needed */
         vC = rshift(vC); /* zero out last value */
@@ -409,13 +433,16 @@ parasail_result_t* FNAME(
             /* statistics */
             vEx = _mm256_load_si256(pvEx+i);
             vMt = _mm256_load_si256(pvMt+i);
+            vSt = _mm256_load_si256(pvSt+i);
             vLt = _mm256_load_si256(pvLt+i);
             vEx = _mm256_or_si256(
                     _mm256_and_si256(vEx, _mm256_cmpeq_epi8(vHt, vFt)),
                     _mm256_cmplt_epi8(vHt, vFt));
             vM = _mm256_blendv_epi8(vMt, vMp, vEx);
+            vS = _mm256_blendv_epi8(vSt, vSp, vEx);
             vL = _mm256_blendv_epi8(vLt, vLp, vEx);
             vMp = vM;
+            vSp = vS;
             vLp = _mm256_adds_epi8(vL, vOne);
             vC = _mm256_and_si256(vC, vEx);
             /* store results */
@@ -435,7 +462,7 @@ parasail_result_t* FNAME(
         {
             vLp = _mm256_subs_epi8(vLp, vOne);
             {
-                __m256i_8_t uMp, uLp, uC;
+                __m256i_8_t uMp, uSp, uLp, uC;
                 uC.m = vC;
                 uMp.m = vMp;
                 uMp.v[ 1] = uC.v[ 1] ? uMp.v[ 0] : uMp.v[ 1];
@@ -470,6 +497,39 @@ parasail_result_t* FNAME(
                 uMp.v[30] = uC.v[30] ? uMp.v[29] : uMp.v[30];
                 uMp.v[31] = uC.v[31] ? uMp.v[30] : uMp.v[31];
                 vMp = uMp.m;
+                uSp.m = vSp;
+                uSp.v[ 1] = uC.v[ 1] ? uSp.v[ 0] : uSp.v[ 1];
+                uSp.v[ 2] = uC.v[ 2] ? uSp.v[ 1] : uSp.v[ 2];
+                uSp.v[ 3] = uC.v[ 3] ? uSp.v[ 2] : uSp.v[ 3];
+                uSp.v[ 4] = uC.v[ 4] ? uSp.v[ 3] : uSp.v[ 4];
+                uSp.v[ 5] = uC.v[ 5] ? uSp.v[ 4] : uSp.v[ 5];
+                uSp.v[ 6] = uC.v[ 6] ? uSp.v[ 5] : uSp.v[ 6];
+                uSp.v[ 7] = uC.v[ 7] ? uSp.v[ 6] : uSp.v[ 7];
+                uSp.v[ 8] = uC.v[ 8] ? uSp.v[ 7] : uSp.v[ 8];
+                uSp.v[ 9] = uC.v[ 9] ? uSp.v[ 8] : uSp.v[ 9];
+                uSp.v[10] = uC.v[10] ? uSp.v[ 9] : uSp.v[10];
+                uSp.v[11] = uC.v[11] ? uSp.v[10] : uSp.v[11];
+                uSp.v[12] = uC.v[12] ? uSp.v[11] : uSp.v[12];
+                uSp.v[13] = uC.v[13] ? uSp.v[12] : uSp.v[13];
+                uSp.v[14] = uC.v[14] ? uSp.v[13] : uSp.v[14];
+                uSp.v[15] = uC.v[15] ? uSp.v[14] : uSp.v[15];
+                uSp.v[16] = uC.v[16] ? uSp.v[15] : uSp.v[16];
+                uSp.v[17] = uC.v[17] ? uSp.v[16] : uSp.v[17];
+                uSp.v[18] = uC.v[18] ? uSp.v[17] : uSp.v[18];
+                uSp.v[19] = uC.v[19] ? uSp.v[18] : uSp.v[19];
+                uSp.v[20] = uC.v[20] ? uSp.v[19] : uSp.v[20];
+                uSp.v[21] = uC.v[21] ? uSp.v[20] : uSp.v[21];
+                uSp.v[22] = uC.v[22] ? uSp.v[21] : uSp.v[22];
+                uSp.v[23] = uC.v[23] ? uSp.v[22] : uSp.v[23];
+                uSp.v[24] = uC.v[24] ? uSp.v[23] : uSp.v[24];
+                uSp.v[25] = uC.v[25] ? uSp.v[24] : uSp.v[25];
+                uSp.v[26] = uC.v[26] ? uSp.v[25] : uSp.v[26];
+                uSp.v[27] = uC.v[27] ? uSp.v[26] : uSp.v[27];
+                uSp.v[28] = uC.v[28] ? uSp.v[27] : uSp.v[28];
+                uSp.v[29] = uC.v[29] ? uSp.v[28] : uSp.v[29];
+                uSp.v[30] = uC.v[30] ? uSp.v[29] : uSp.v[30];
+                uSp.v[31] = uC.v[31] ? uSp.v[30] : uSp.v[31];
+                vSp = uSp.m;
                 uLp.m = vLp;
                 uLp.v[ 1] = uC.v[ 1] ? ibias + uLp.v[ 1] + uLp.v[ 0] : uLp.v[ 1];
                 uLp.v[ 2] = uC.v[ 2] ? ibias + uLp.v[ 2] + uLp.v[ 1] : uLp.v[ 2];
@@ -509,29 +569,38 @@ parasail_result_t* FNAME(
         /* final pass for M,L */
         vMp = shift(vMp);
         vMp = _mm256_insert_epi8(vMp, -bias, 0);
+        vSp = shift(vSp);
+        vSp = _mm256_insert_epi8(vSp, -bias, 0);
         vLp = shift(vLp);
         vLp = _mm256_insert_epi8(vLp, -bias, 0);
         for (i=0; i<segLen; ++i) {
             /* statistics */
             vEx = _mm256_load_si256(pvEx+i);
             vMt = _mm256_load_si256(pvMt+i);
+            vSt = _mm256_load_si256(pvSt+i);
             vLt = _mm256_load_si256(pvLt+i);
             vM = _mm256_blendv_epi8(vMt, vMp, vEx);
+            vS = _mm256_blendv_epi8(vSt, vSp, vEx);
             vL = _mm256_blendv_epi8(vLt, vLp, vEx);
             vMp = vM;
+            vSp = vS;
             vLp = _mm256_adds_epi8(vL, vOne);
             /* store results */
             _mm256_store_si256(pvM+i, vM);
+            _mm256_store_si256(pvS+i, vS);
             _mm256_store_si256(pvL+i, vL);
             /* check for saturation */
             {
                 vSaturationCheck = _mm256_or_si256(vSaturationCheck,
                         _mm256_or_si256(
                             _mm256_cmpeq_epi8(vM, vPosLimit),
-                            _mm256_cmpeq_epi8(vL, vPosLimit)));
+                            _mm256_or_si256(
+                                _mm256_cmpeq_epi8(vS, vPosLimit),
+                                _mm256_cmpeq_epi8(vL, vPosLimit))));
             }
 #ifdef PARASAIL_TABLE
             arr_store_si256_bias(result->matches_table, vM, i, segLen, j, s2Len, bias);
+            arr_store_si256_bias(result->similar_table, vS, i, segLen, j, s2Len, bias);
             arr_store_si256_bias(result->length_table, vL, i, segLen, j, s2Len, bias);
 #endif
         }
@@ -541,10 +610,12 @@ parasail_result_t* FNAME(
             __m256i cond_max;
             vH = _mm256_load_si256(pvH + offset);
             vM = _mm256_load_si256(pvM + offset);
+            vS = _mm256_load_si256(pvS + offset);
             vL = _mm256_load_si256(pvL + offset);
             cond_max = _mm256_cmpgt_epi8(vH, vMaxH);
             vMaxH = _mm256_blendv_epi8(vMaxH, vH, cond_max);
             vMaxM = _mm256_blendv_epi8(vMaxM, vM, cond_max);
+            vMaxS = _mm256_blendv_epi8(vMaxS, vS, cond_max);
             vMaxL = _mm256_blendv_epi8(vMaxL, vL, cond_max);
         }
     }
@@ -555,12 +626,14 @@ parasail_result_t* FNAME(
         for (k=0; k<position; ++k) {
             vMaxH = shift(vMaxH);
             vMaxM = shift(vMaxM);
+            vMaxS = shift(vMaxS);
             vMaxL = shift(vMaxL);
         }
         value = (int8_t) _mm256_extract_epi8(vMaxH, 31);
         if (value > score) {
             score = value;
             matches = ibias + (int)((int8_t)_mm256_extract_epi8(vMaxM, 31));
+            similar = ibias + (int)((int8_t)_mm256_extract_epi8(vMaxS, 31));
             length = ibias + (int)((int8_t)_mm256_extract_epi8(vMaxL, 31));
         }
     }
@@ -569,15 +642,18 @@ parasail_result_t* FNAME(
     {
         vMaxH = vNegInf;
         vMaxM = vZero;
+        vMaxS = vZero;
         vMaxL = vZero;
 
         for (i=0; i<segLen; ++i) {
             __m256i vH = _mm256_load_si256(pvH + i);
             __m256i vM = _mm256_load_si256(pvM + i);
+            __m256i vS = _mm256_load_si256(pvS + i);
             __m256i vL = _mm256_load_si256(pvL + i);
             __m256i cond_max = _mm256_cmpgt_epi8(vH, vMaxH);
             vMaxH = _mm256_blendv_epi8(vMaxH, vH, cond_max);
             vMaxM = _mm256_blendv_epi8(vMaxM, vM, cond_max);
+            vMaxS = _mm256_blendv_epi8(vMaxS, vS, cond_max);
             vMaxL = _mm256_blendv_epi8(vMaxL, vL, cond_max);
         }
 
@@ -587,10 +663,12 @@ parasail_result_t* FNAME(
             if (value > score) {
                 score = value;
                 matches = ibias + (int)((int8_t)_mm256_extract_epi8(vMaxM, 31));
+                similar = ibias + (int)((int8_t)_mm256_extract_epi8(vMaxS, 31));
                 length = ibias + (int)((int8_t)_mm256_extract_epi8(vMaxL, 31));
             }
             vMaxH = shift(vMaxH);
             vMaxM = shift(vMaxM);
+            vMaxS = shift(vMaxS);
             vMaxL = shift(vMaxL);
         }
     }
@@ -599,22 +677,27 @@ parasail_result_t* FNAME(
         result->saturated = 1;
         score = INT8_MAX;
         matches = 0;
+        similar = 0;
         length = 0;
     }
 
     result->score = score;
     result->matches = matches;
+    result->similar = similar;
     result->length = length;
 
     parasail_free(pvL);
+    parasail_free(pvS);
     parasail_free(pvM);
     parasail_free(pvH);
     parasail_free(pvEx);
     parasail_free(pvLt);
+    parasail_free(pvSt);
     parasail_free(pvMt);
     parasail_free(pvFt);
     parasail_free(pvHt);
     parasail_free(pvE);
+    parasail_free(pvPs);
     parasail_free(pvPm);
     parasail_free(pvP);
 

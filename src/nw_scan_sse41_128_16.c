@@ -158,7 +158,7 @@ parasail_result_t* FNAME(
         }
 
         /* calculate Ft */
-        vHt = _mm_slli_si128(_mm_load_si128(pvHt+(segLen-1)), 2);
+        vHt = _mm_slli_si128(vHt, 2);
         vHt = _mm_insert_epi16(vHt, boundary[j+1], 0);
         vFt = _mm_set1_epi16(NEG_INF_16);
         for (i=0; i<segLen; ++i) {
@@ -193,7 +193,7 @@ parasail_result_t* FNAME(
             vFt = _mm_blendv_epi8(vFt_save, vFt, insert);
         }
 #endif
-        vHt = _mm_slli_si128(_mm_load_si128(pvHt+(segLen-1)), 2);
+        vHt = _mm_slli_si128(vHt, 2);
         vHt = _mm_insert_epi16(vHt, boundary[j+1], 0);
         vFt = _mm_slli_si128(vFt, 2);
         vFt = _mm_insert_epi16(vFt, NEG_INF_16, 0);

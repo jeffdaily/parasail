@@ -514,8 +514,11 @@ int main(int argc, char **argv)
     int gap_extend = 1;
     int N = 1;
     int saturated = 0;
+    int smallest_first = 0;
+    int biggest_first = 0;
+    int truncate = 0;
 
-    while ((c = getopt(argc, argv, "a:b:f:n:o:e:")) != -1) {
+    while ((c = getopt(argc, argv, "a:b:f:n:o:e:slt:")) != -1) {
         switch (c) {
             case 'a':
                 funcname = optarg;
@@ -550,6 +553,20 @@ int main(int argc, char **argv)
                     exit(1);
                 }
                 break;
+            case 's':
+                smallest_first = 1;
+                break;
+            case 'l':
+                biggest_first = 1;
+                break;
+            case 't':
+                errno = 0;
+                truncate = strtol(optarg, &endptr, 10);
+                if (errno) {
+                    perror("strtol");
+                    exit(1);
+                }
+                break;
             case '?':
                 if (optopt == 'f' || optopt == 'n') {
                     fprintf(stderr,
@@ -572,6 +589,11 @@ int main(int argc, char **argv)
         }
     }
 
+    if (smallest_first && biggest_first) {
+        fprintf(stderr, "cannot choose both smallest and biggest first\n");
+        exit(1);
+    }
+
     /* select the function */
     if (funcname) {
         int index = 0;
@@ -580,7 +602,7 @@ int main(int argc, char **argv)
         while (f.f) {
             if (0 == strcmp(funcname, f.name)) {
                 function = f.f;
-                printf("function: %s\n", funcname);
+                //printf("function: %s\n", funcname);
                 break;
             }
             f = functions[index++];
@@ -603,7 +625,7 @@ int main(int argc, char **argv)
         while (b.blosum) {
             if (0 == strcmp(blosumname, b.name)) {
                 blosum = b.blosum;
-                printf("blosum: %s\n", blosumname);
+                //printf("blosum: %s\n", blosumname);
                 break;
             }
             b = blosums[index++];
@@ -641,10 +663,10 @@ int main(int argc, char **argv)
     }
 
     limit = binomial_coefficient(seq_count, 2);
-    printf("%lu choose 2 is %lu\n", seq_count, limit);
+    //printf("%lu choose 2 is %lu\n", seq_count, limit);
 
     timer_init();
-    printf("%s timer\n", timer_name());
+    //printf("%s timer\n", timer_name());
 
 #if defined(_OPENMP)
 #pragma omp parallel
@@ -652,7 +674,7 @@ int main(int argc, char **argv)
 #pragma omp single
         {
             N = omp_get_max_threads();
-            printf("omp_get_max_threads()=%d\n", N);
+            //printf("omp_get_max_threads()=%d\n", N);
         }
     }
 #endif
@@ -667,11 +689,33 @@ int main(int argc, char **argv)
 #endif
         unsigned long a=0;
         unsigned long b=1;
+        unsigned long swap=0;
 #pragma omp for schedule(dynamic)
         for (i=0; i<limit; ++i) {
             parasail_result_t *result = NULL;
+            unsigned long query_size;
             k_combination2(i, &a, &b);
-            result = function(sequences[a], sizes[a], sequences[b], sizes[b],
+            if (smallest_first) {
+                if (sizes[a] > sizes[b]) {
+                    swap = a;
+                    a = b;
+                    b = swap;
+                }
+            }
+            else if (biggest_first) {
+                if (sizes[a] < sizes[b]) {
+                    swap = a;
+                    a = b;
+                    b = swap;
+                }
+            }
+            query_size = sizes[a];
+            if (truncate > 0) {
+                if (query_size > truncate) {
+                    query_size = truncate;
+                }
+            }
+            result = function(sequences[a], query_size, sequences[b], sizes[b],
                     gap_open, gap_extend, blosum);
 #pragma omp atomic
             saturated += result->saturated;
@@ -679,7 +723,8 @@ int main(int argc, char **argv)
         }
     }
     timer_clock = timer_real() - timer_clock;
-    printf("%s\t%s\t%d\t%d\t%f\n", funcname, blosumname, N, saturated, timer_clock);
+    printf("%s\t%s\t%d\t%d\t%f\n",
+            funcname, blosumname, N, saturated, timer_clock);
 
     return 0;
 }

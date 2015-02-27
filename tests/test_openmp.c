@@ -30,6 +30,7 @@ KSEQ_INIT(int, read)
 #include "blosum/blosum75.h"
 #include "blosum/blosum80.h"
 #include "blosum/blosum90.h"
+#include "stats.h"
 #include "timer.h"
 #include "timer_real.h"
 
@@ -517,8 +518,13 @@ int main(int argc, char **argv)
     int smallest_first = 0;
     int biggest_first = 0;
     int truncate = 0;
+    int iterations = 1;
+    int iter = 0;
+    stats_t stats_time;
 
-    while ((c = getopt(argc, argv, "a:b:f:n:o:e:slt:")) != -1) {
+    stats_clear(&stats_time);
+
+    while ((c = getopt(argc, argv, "a:b:f:n:o:e:slt:i:")) != -1) {
         switch (c) {
             case 'a':
                 funcname = optarg;
@@ -528,6 +534,14 @@ int main(int argc, char **argv)
                 break;
             case 'f':
                 filename = optarg;
+                break;
+            case 'i':
+                errno = 0;
+                iterations = strtol(optarg, &endptr, 10);
+                if (errno) {
+                    perror("strtol");
+                    exit(1);
+                }
                 break;
             case 'n':
                 errno = 0;
@@ -679,52 +693,57 @@ int main(int argc, char **argv)
     }
 #endif
 
-    timer_clock = timer_real();
+    for (iter=0; iter<iterations; ++iter) {
+        timer_clock = timer_real();
 #pragma omp parallel
-    {
+        {
 #if defined(_OPENMP)
-        int tid = omp_get_thread_num();
+            int tid = omp_get_thread_num();
 #else
-        int tid = 0;
+            int tid = 0;
 #endif
-        unsigned long a=0;
-        unsigned long b=1;
-        unsigned long swap=0;
+            unsigned long a=0;
+            unsigned long b=1;
+            unsigned long swap=0;
 #pragma omp for schedule(dynamic)
-        for (i=0; i<limit; ++i) {
-            parasail_result_t *result = NULL;
-            unsigned long query_size;
-            k_combination2(i, &a, &b);
-            if (smallest_first) {
-                if (sizes[a] > sizes[b]) {
-                    swap = a;
-                    a = b;
-                    b = swap;
+            for (i=0; i<limit; ++i) {
+                parasail_result_t *result = NULL;
+                unsigned long query_size;
+                k_combination2(i, &a, &b);
+                if (smallest_first) {
+                    if (sizes[a] > sizes[b]) {
+                        swap = a;
+                        a = b;
+                        b = swap;
+                    }
                 }
-            }
-            else if (biggest_first) {
-                if (sizes[a] < sizes[b]) {
-                    swap = a;
-                    a = b;
-                    b = swap;
+                else if (biggest_first) {
+                    if (sizes[a] < sizes[b]) {
+                        swap = a;
+                        a = b;
+                        b = swap;
+                    }
                 }
-            }
-            query_size = sizes[a];
-            if (truncate > 0) {
-                if (query_size > truncate) {
-                    query_size = truncate;
+                query_size = sizes[a];
+                if (truncate > 0) {
+                    if (query_size > truncate) {
+                        query_size = truncate;
+                    }
                 }
-            }
-            result = function(sequences[a], query_size, sequences[b], sizes[b],
-                    gap_open, gap_extend, blosum);
+                result = function(sequences[a], query_size, sequences[b], sizes[b],
+                        gap_open, gap_extend, blosum);
 #pragma omp atomic
-            saturated += result->saturated;
-            parasail_result_free(result);
+                saturated += result->saturated;
+                parasail_result_free(result);
+            }
         }
+        timer_clock = timer_real() - timer_clock;
+        stats_sample_value(&stats_time, timer_clock);
     }
-    timer_clock = timer_real() - timer_clock;
-    printf("%s\t%s\t%d\t%d\t%f\n",
-            funcname, blosumname, N, saturated, timer_clock);
+    printf("%s\t%s\t%d\t%d\t%f\t%f\t%f\t%f\n",
+            funcname, blosumname, N, saturated,
+            stats_time._mean, stats_stddev(&stats_time),
+            stats_time._min, stats_time._max);
 
     return 0;
 }

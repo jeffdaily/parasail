@@ -680,11 +680,10 @@ int main(int argc, char **argv)
                     gap_open, gap_extend, blosum);
             timer_local = timer_real() - timer_local;
 #pragma omp critical
-            printf("%lu\t%lu\t%lu\t%lu\t%lu\t%d\t%d\t%d\t%d\t%d\t%lu\t%f\n",
+            printf("%lu\t%lu\t%lu\t%lu\t%lu\t%d\t%d\t%d\t%d\t%lu\t%f\n",
                     a, b, sizes[a], (sizes[a]+lanes-1)/lanes, sizes[b],
                     result->score, result->matches,
                     result->similar, result->length,
-                    result->corrections,
                     sizes[a]*sizes[b], timer_local);
 #pragma omp atomic
             saturated += result->saturated;

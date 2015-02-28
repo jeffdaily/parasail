@@ -83,7 +83,8 @@ parasail_result_t* FNAME(
     __m128i vPosLimit = _mm_set1_epi8(INT8_MAX);
     int8_t score = NEG_INF_8;
     __m128i vMaxH = vNegInf;
-    __m128i segLenXgap_reset = _mm_set_epi8(
+    __m128i vSegLenXgap1 = _mm_set1_epi8((segLen-1)*gap);
+    __m128i vSegLenXgap_reset = _mm_set_epi8(
             NEG_INF_8, NEG_INF_8, NEG_INF_8, NEG_INF_8,
             NEG_INF_8, NEG_INF_8, NEG_INF_8, NEG_INF_8,
             NEG_INF_8, NEG_INF_8, NEG_INF_8, NEG_INF_8,
@@ -142,8 +143,7 @@ parasail_result_t* FNAME(
         __m128i *pvW;
         __m128i vW;
 
-#define LOOP_FUSION 1
-#if LOOP_FUSION
+#if 1
         /* calculate E */
         /* calculate Ht */
         vHp = _mm_slli_si128(_mm_load_si128(pvH+(segLen-1)), 1);
@@ -162,33 +162,9 @@ parasail_result_t* FNAME(
             _mm_store_si128(pvHt+i, vHt);
             vHp = vH;
         }
-#else
-        /* calculate E */
-        for (i=0; i<segLen; ++i) {
-            vH = _mm_load_si128(pvH+i);
-            vE = _mm_load_si128(pvE+i);
-            vE = _mm_max_epi8(
-                    _mm_subs_epi8(vE, vGapE),
-                    _mm_subs_epi8(vH, vGapO));
-            _mm_store_si128(pvE+i, vE);
-        }
-
-        /* calculate Ht */
-        vH = _mm_slli_si128(_mm_load_si128(pvH+(segLen-1)), 1);
-        pvW = pvP + MAP_BLOSUM_[(unsigned char)s2[j]]*segLen;
-        for (i=0; i<segLen; ++i) {
-            vE = _mm_load_si128(pvE+i);
-            vW = _mm_load_si128(pvW+i);
-            vHt = _mm_max_epi8(
-                    _mm_adds_epi8(vH, vW),
-                    vE);
-            vH = _mm_load_si128(pvH+i);
-            _mm_store_si128(pvHt+i, vHt);
-        }
-#endif
 
         /* calculate Ft */
-        vHt = _mm_slli_si128(_mm_load_si128(pvHt+(segLen-1)), 1);
+        vHt = _mm_slli_si128(vHt, 1);
         vFt = _mm_set1_epi8(NEG_INF_8);
         for (i=0; i<segLen; ++i) {
             vFt = _mm_max_epi8(
@@ -196,6 +172,36 @@ parasail_result_t* FNAME(
                     vHt);
             vHt = _mm_load_si128(pvHt+i);
         }
+        vHt = _mm_slli_si128(vHt, 1);
+#else
+        /* THIS DIDN'T WORK, POSSIBLY DUE TO OVERFLOW */
+        /* calculate E */
+        /* calculate Ht */
+        vHp = _mm_slli_si128(_mm_load_si128(pvH+(segLen-1)), 1);
+        pvW = pvP + MAP_BLOSUM_[(unsigned char)s2[j]]*segLen;
+        for (i=0; i<segLen; ++i) {
+            vH = _mm_load_si128(pvH+i);
+            vE = _mm_load_si128(pvE+i);
+            vW = _mm_load_si128(pvW+i);
+            vE = _mm_max_epi8(
+                    _mm_subs_epi8(vE, vGapE),
+                    _mm_subs_epi8(vH, vGapO));
+            vFt = _mm_max_epi8(
+                    _mm_subs_epi8(vFt, vGapE),
+                    vHt);
+            vHt = _mm_max_epi8(
+                    _mm_adds_epi8(vHp, vW),
+                    vE);
+            _mm_store_si128(pvE+i, vE);
+            _mm_store_si128(pvHt+i, vHt);
+            vHp = vH;
+        }
+
+        /* calculate Ft */
+        vHt = _mm_slli_si128(vHt, 1);
+        vFt = _mm_max_epi8(vFt,
+                _mm_subs_epi8(vHt, vSegLenXgap1));
+#endif
 #if 1
         {
             __m128i_8_t tmp;
@@ -220,17 +226,16 @@ parasail_result_t* FNAME(
 #else
         {
             __m128i vFt_save = vFt;
-            __m128i segLenXgap = segLenXgap_reset;
+            __m128i vSegLenXgap = vSegLenXgap_reset;
             for (i=0; i<segWidth-1; ++i) {
                 __m128i vFtt = _mm_slli_si128(vFt, 1);
-                segLenXgap = _mm_shuffle_epi8(segLenXgap, rotate);
-                vFtt = _mm_adds_epi8(vFtt, segLenXgap);
+                vSegLenXgap = _mm_shuffle_epi8(vSegLenXgap, rotate);
+                vFtt = _mm_adds_epi8(vFtt, vSegLenXgap);
                 vFt = _mm_max_epi8(vFt, vFtt);
             }
             vFt = _mm_blendv_epi8(vFt_save, vFt, insert);
         }
 #endif
-        vHt = _mm_slli_si128(_mm_load_si128(pvHt+(segLen-1)), 1);
         vFt = _mm_slli_si128(vFt, 1);
         vFt = _mm_insert_epi8(vFt, NEG_INF_8, 0);
         for (i=0; i<segLen; ++i) {

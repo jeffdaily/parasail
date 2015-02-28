@@ -99,12 +99,13 @@ parasail_result_t* FNAME(
     __m256i vZero = _mm256_setzero_si256();
     __m256i vNegInf = _mm256_set1_epi16(NEG_INF_16);
     int16_t score = NEG_INF_16;
-    __m256i segLenXgap1 = _mm256_set1_epi16((segLen-1)*gap);
-    __m256i segLenXgap = _mm256_set_epi16(
-            NEG_INF_16,  -segLen*gap, -segLen*gap, -segLen*gap,
-            -segLen*gap, -segLen*gap, -segLen*gap, -segLen*gap,
-            -segLen*gap, -segLen*gap, -segLen*gap, -segLen*gap,
-            -segLen*gap, -segLen*gap, -segLen*gap, -segLen*gap);
+    const int16_t segLenXgap = -segLen*gap;
+    __m256i vSegLenXgap1 = _mm256_set1_epi16((segLen-1)*gap);
+    __m256i vSegLenXgap = _mm256_set_epi16(
+            NEG_INF_16, segLenXgap, segLenXgap, segLenXgap,
+            segLenXgap, segLenXgap, segLenXgap, segLenXgap,
+            segLenXgap, segLenXgap, segLenXgap, segLenXgap,
+            segLenXgap, segLenXgap, segLenXgap, segLenXgap);
     __m256i insert_mask = _mm256_cmpeq_epi16(vZero,
             _mm256_set_epi16(1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0));
 #ifdef PARASAIL_TABLE
@@ -188,12 +189,12 @@ parasail_result_t* FNAME(
         /* adjust Ft before local prefix scan */
         vHt = shift(vHt);
         vFt = _mm256_max_epi16(vFt,
-                _mm256_sub_epi16(vHt, segLenXgap1));
+                _mm256_sub_epi16(vHt, vSegLenXgap1));
         /* local prefix scan */
         vFt = _mm256_blendv_epi8(vNegInf, vFt, insert_mask);
         for (i=0; i<segWidth-1; ++i) {
             __m256i vFtt = lrotate16(vFt);
-            vFtt = _mm256_add_epi16(vFtt, segLenXgap);
+            vFtt = _mm256_add_epi16(vFtt, vSegLenXgap);
             vFt = _mm256_max_epi16(vFt, vFtt);
         }
         vFt = lrotate16(vFt);

@@ -71,7 +71,9 @@ parasail_result_t* FNAME(
     int16_t* const restrict boundary = parasail_memalign_int16_t(16, s2Len+1);
     __m128i vGapO = _mm_set1_epi16(open);
     __m128i vGapE = _mm_set1_epi16(gap);
+    __m128i vNegInf = _mm_set1_epi16(NEG_INF_16);
     int16_t score = 0;
+    __m128i vSegLenXgap1 = _mm_set1_epi16((segLen-1)*gap);
     __m128i segLenXgap_reset = _mm_set_epi16(
             NEG_INF_16, NEG_INF_16, NEG_INF_16, NEG_INF_16,
             NEG_INF_16, NEG_INF_16, NEG_INF_16, -segLen*gap);
@@ -139,9 +141,12 @@ parasail_result_t* FNAME(
 
         /* calculate E */
         /* calculate Ht */
+        /* calculate Ft */
         vHp = _mm_slli_si128(_mm_load_si128(pvH+(segLen-1)), 2);
         vHp = _mm_insert_epi16(vHp, boundary[j], 0);
         pvW = pvP + MAP_BLOSUM_[(unsigned char)s2[j]]*segLen;
+        vHt = vNegInf;
+        vFt = vNegInf;
         for (i=0; i<segLen; ++i) {
             vH = _mm_load_si128(pvH+i);
             vE = _mm_load_si128(pvE+i);
@@ -149,6 +154,9 @@ parasail_result_t* FNAME(
             vE = _mm_max_epi16(
                     _mm_sub_epi16(vE, vGapE),
                     _mm_sub_epi16(vH, vGapO));
+            vFt = _mm_max_epi16(
+                    _mm_sub_epi16(vFt, vGapE),
+                    vHt);
             vHt = _mm_max_epi16(
                     _mm_add_epi16(vHp, vW),
                     vE);
@@ -157,16 +165,11 @@ parasail_result_t* FNAME(
             vHp = vH;
         }
 
-        /* calculate Ft */
+        /* adjust Ft before local prefix scan */
         vHt = _mm_slli_si128(vHt, 2);
         vHt = _mm_insert_epi16(vHt, boundary[j+1], 0);
-        vFt = _mm_set1_epi16(NEG_INF_16);
-        for (i=0; i<segLen; ++i) {
-            vFt = _mm_max_epi16(
-                    _mm_sub_epi16(vFt, vGapE),
-                    vHt);
-            vHt = _mm_load_si128(pvHt+i);
-        }
+        vFt = _mm_max_epi16(vFt,
+                _mm_sub_epi16(vHt, vSegLenXgap1));
 #if 0
         {
             __m128i_16_t tmp;
@@ -193,8 +196,6 @@ parasail_result_t* FNAME(
             vFt = _mm_blendv_epi8(vFt_save, vFt, insert);
         }
 #endif
-        vHt = _mm_slli_si128(vHt, 2);
-        vHt = _mm_insert_epi16(vHt, boundary[j+1], 0);
         vFt = _mm_slli_si128(vFt, 2);
         vFt = _mm_insert_epi16(vFt, NEG_INF_16, 0);
         for (i=0; i<segLen; ++i) {

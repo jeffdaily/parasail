@@ -170,7 +170,8 @@ parasail_result_t* FNAME(
         vFt = _mm_max_epi16(vFt,
                 _mm_sub_epi16(vHt, vSegLenXgap1));
         /* local prefix scan */
-#if 1
+#if 0
+        /* THIS WAS SLIGHTLY SLOWER THAN THE OTHER */
         vFt = _mm_blendv_epi8(vNegInf, vFt, insert_back);
         for (i=0; i<segWidth-1; ++i) {
             __m128i vFtt = lrotate16(vFt);

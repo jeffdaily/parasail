@@ -139,6 +139,7 @@ parasail_result_t* FNAME(
         __m128i *pvW;
         __m128i vW;
 
+#if 1
         /* calculate E */
         /* calculate Ht */
         vHp = _mm_slli_si128(_mm_load_si128(pvH+(segLen-1)), 1);
@@ -169,6 +170,40 @@ parasail_result_t* FNAME(
                     vHt);
             vHt = _mm_load_si128(pvHt+i);
         }
+#else
+        /* THIS DIDN'T WORK, POSSIBLY DUE TO BIAS */
+        /* calculate E */
+        /* calculate Ht */
+        /* calculate Ft */
+        vHp = _mm_slli_si128(_mm_load_si128(pvH+(segLen-1)), 1);
+        vHp = _mm_insert_epi8(vHp, bias, 0);
+        pvW = pvP + MAP_BLOSUM_[(unsigned char)s2[j]]*segLen;
+        vHt = vNegInf;
+        vFt = vNegInf;
+        for (i=0; i<segLen; ++i) {
+            vH = _mm_load_si128(pvH+i);
+            vE = _mm_load_si128(pvE+i);
+            vW = _mm_load_si128(pvW+i);
+            vE = _mm_max_epi8(
+                    _mm_subs_epi8(vE, vGapE),
+                    _mm_subs_epi8(vH, vGapO));
+            vFt = _mm_max_epi8(
+                    _mm_subs_epi8(vFt, vGapE),
+                    vHt);
+            vHt = _mm_max_epi8(
+                    _mm_adds_epi8(vHp, vW),
+                    vE);
+            _mm_store_si128(pvE+i, vE);
+            _mm_store_si128(pvHt+i, vHt);
+            vHp = vH;
+        }
+
+        /* adjust Ft before local prefix scan */
+        vHt = _mm_slli_si128(vHt, 1);
+        vHt = _mm_insert_epi8(vHt, bias, 0);
+        vFt = _mm_max_epi8(vFt,
+                _mm_subs_epi8(vHt, vSegLenXgap1));
+#endif
 #if 1
         {
             __m128i_8_t tmp;

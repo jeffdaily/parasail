@@ -23,6 +23,10 @@
 #define NEG_INF_32 (INT32_MIN/(int32_t)(2))
 #define MAX(a,b) ((a)>(b)?(a):(b))
 
+static inline __m128i lrotate32(__m128i a) {
+    return _mm_alignr_epi8(a, a, 12);
+}
+
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si128(
         int *array,
@@ -66,11 +70,12 @@ parasail_result_t* FNAME(
     __m128i vNegInf = _mm_set1_epi32(NEG_INF_32);
     __m128i vZero = _mm_setzero_si128();
     int32_t score = NEG_INF_32;
+    const int32_t segLenXgap = -segLen*gap;
     __m128i vSegLenXgap1 = _mm_set1_epi32((segLen-1)*gap);
-    __m128i vSegLenXgap_reset = _mm_set_epi32(
-            NEG_INF_32, NEG_INF_32, NEG_INF_32, -segLen*gap);
+    __m128i vSegLenXgap = _mm_set_epi32(
+            NEG_INF_32, segLenXgap, segLenXgap, segLenXgap);
     __m128i insert = _mm_cmpeq_epi32(_mm_setzero_si128(),
-            _mm_set_epi32(0,0,0,1));
+            _mm_set_epi32(1,0,0,0));
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
@@ -152,31 +157,17 @@ parasail_result_t* FNAME(
         vHt = _mm_slli_si128(vHt, 4);
         vFt = _mm_max_epi32(vFt,
                 _mm_sub_epi32(vHt, vSegLenXgap1));
+        vFt = _mm_blendv_epi8(vNegInf, vFt, insert);
         /* local prefix scan */
-#if 0
-        {
-            __m128i_32_t tmp;
-            tmp.m = vFt;
-            tmp.v[1] = MAX(tmp.v[0]-segLen*gap, tmp.v[1]);
-            tmp.v[2] = MAX(tmp.v[1]-segLen*gap, tmp.v[2]);
-            tmp.v[3] = MAX(tmp.v[2]-segLen*gap, tmp.v[3]);
-            vFt = tmp.m;
+        for (i=0; i<segWidth-1; ++i) {
+            __m128i vFtt = lrotate32(vFt);
+            vFtt = _mm_add_epi32(vFtt, vSegLenXgap);
+            vFt = _mm_max_epi32(vFt, vFtt);
         }
-#else
-        {
-            __m128i vFt_save = vFt;
-            __m128i vSegLenXgap = vSegLenXgap_reset;
-            for (i=0; i<segWidth-1; ++i) {
-                __m128i vFtt = _mm_slli_si128(vFt, 4);
-                vSegLenXgap = _mm_shuffle_epi32(vSegLenXgap, 0x93);
-                vFtt = _mm_add_epi32(vFtt, vSegLenXgap);
-                vFt = _mm_max_epi32(vFt, vFtt);
-            }
-            vFt = _mm_blendv_epi8(vFt_save, vFt, insert);
-        }
-#endif
-        vFt = _mm_slli_si128(vFt, 4);
-        vFt = _mm_insert_epi32(vFt, NEG_INF_32, 0);
+        vFt = lrotate32(vFt);
+
+        /* second Ft pass */
+        /* calculate vH */
         for (i=0; i<segLen; ++i) {
             vFt = _mm_max_epi32(
                     _mm_sub_epi32(vFt, vGapE),

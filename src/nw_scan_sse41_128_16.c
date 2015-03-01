@@ -24,6 +24,10 @@
 #define NEG_INF_16 (INT16_MIN/(int16_t)(2))
 #define MAX(a,b) ((a)>(b)?(a):(b))
 
+static inline __m128i lrotate16(__m128i a) {
+    return _mm_alignr_epi8(a, a, 14);
+}
+
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si128(
         int *array,
@@ -73,13 +77,13 @@ parasail_result_t* FNAME(
     __m128i vGapE = _mm_set1_epi16(gap);
     __m128i vNegInf = _mm_set1_epi16(NEG_INF_16);
     int16_t score = 0;
+    const int16_t segLenXgap = -segLen*gap;
     __m128i vSegLenXgap1 = _mm_set1_epi16((segLen-1)*gap);
-    __m128i segLenXgap_reset = _mm_set_epi16(
-            NEG_INF_16, NEG_INF_16, NEG_INF_16, NEG_INF_16,
-            NEG_INF_16, NEG_INF_16, NEG_INF_16, -segLen*gap);
-    __m128i rotate = _mm_set_epi8(13,12,11,10,9,8,7,6,5,4,3,2,1,0,15,14);
+    __m128i vSegLenXgap = _mm_set_epi16(
+            NEG_INF_16, segLenXgap, segLenXgap, segLenXgap,
+            segLenXgap, segLenXgap, segLenXgap, segLenXgap);
     __m128i insert = _mm_cmpeq_epi16(_mm_setzero_si128(),
-            _mm_set_epi16(0,0,0,0,0,0,0,1));
+            _mm_set_epi16(1,0,0,0,0,0,0,0));
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
@@ -170,34 +174,15 @@ parasail_result_t* FNAME(
         vHt = _mm_insert_epi16(vHt, boundary[j+1], 0);
         vFt = _mm_max_epi16(vFt,
                 _mm_sub_epi16(vHt, vSegLenXgap1));
-#if 0
-        {
-            __m128i_16_t tmp;
-            tmp.m = vFt;
-            tmp.v[1] = MAX(tmp.v[0]-segLen*gap, tmp.v[1]);
-            tmp.v[2] = MAX(tmp.v[1]-segLen*gap, tmp.v[2]);
-            tmp.v[3] = MAX(tmp.v[2]-segLen*gap, tmp.v[3]);
-            tmp.v[4] = MAX(tmp.v[3]-segLen*gap, tmp.v[4]);
-            tmp.v[5] = MAX(tmp.v[4]-segLen*gap, tmp.v[5]);
-            tmp.v[6] = MAX(tmp.v[5]-segLen*gap, tmp.v[6]);
-            tmp.v[7] = MAX(tmp.v[6]-segLen*gap, tmp.v[7]);
-            vFt = tmp.m;
+        /* local prefix  scan */
+        vFt = _mm_blendv_epi8(vNegInf, vFt, insert);
+        for (i=0; i<segWidth-1; ++i) {
+            __m128i vFtt = lrotate16(vFt);
+            vFtt = _mm_add_epi16(vFtt, vSegLenXgap);
+            vFt = _mm_max_epi16(vFt, vFtt);
         }
-#else
-        {
-            __m128i vFt_save = vFt;
-            __m128i segLenXgap = segLenXgap_reset;
-            for (i=0; i<segWidth-1; ++i) {
-                __m128i vFtt = _mm_slli_si128(vFt, 2);
-                segLenXgap = _mm_shuffle_epi8(segLenXgap, rotate);
-                vFtt = _mm_add_epi16(vFtt, segLenXgap);
-                vFt = _mm_max_epi16(vFt, vFtt);
-            }
-            vFt = _mm_blendv_epi8(vFt_save, vFt, insert);
-        }
-#endif
-        vFt = _mm_slli_si128(vFt, 2);
-        vFt = _mm_insert_epi16(vFt, NEG_INF_16, 0);
+        vFt = lrotate16(vFt);
+
         for (i=0; i<segLen; ++i) {
             vFt = _mm_max_epi16(
                     _mm_sub_epi16(vFt, vGapE),

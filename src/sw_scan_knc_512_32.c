@@ -98,11 +98,13 @@ parasail_result_t* FNAME(
     __m512i vMaxH = vNegInf;
     __m512i permute_idx = _mm512_set_16to16_pi(14,13,12,11,10,9,8,7,6,5,4,3,2,1,0,15);
     __mmask16 permute_mask = _mm512_cmplt_epi32_mask(permute_idx, vSegLimit);
-    __m512i segLenXgap_reset = _mm512_set_16to16_pi(
-            NEG_INF_32, NEG_INF_32, NEG_INF_32, NEG_INF_32,
-            NEG_INF_32, NEG_INF_32, NEG_INF_32, NEG_INF_32,
-            NEG_INF_32, NEG_INF_32, NEG_INF_32, NEG_INF_32,
-            NEG_INF_32, NEG_INF_32, NEG_INF_32, -segLen*gap);
+    __m512i vSegLenXgap1 = _mm512_set1_epi32((segLen-1)*gap);
+    const int32_t segLenXgap = -segLen*gap;
+    __m512i vSegLenXgap = _mm512_set_16to16_pi(
+            NEG_INF_32, segLenXgap, segLenXgap, segLenXgap,
+            segLenXgap, segLenXgap, segLenXgap, segLenXgap,
+            segLenXgap, segLenXgap, segLenXgap, segLenXgap,
+            segLenXgap, segLenXgap, segLenXgap, segLenXgap);
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
@@ -156,10 +158,13 @@ parasail_result_t* FNAME(
 
         /* calculate E */
         /* calculate Ht */
+        /* calculate Ft first pass */
         vHp = _mm512_load_epi32(pvH+(segLen-1));
         vHp = _mm512_mask_permutevar_epi32(
                 vZero, permute_mask, permute_idx, vHp);
         pvW = pvP + MAP_BLOSUM_[(unsigned char)s2[j]]*segLen;
+        vHt = vNegInf;
+        vFt = vNegInf;
         for (i=0; i<segLen; ++i) {
             vH = _mm512_load_epi32(pvH+i);
             vE = _mm512_load_epi32(pvE+i);
@@ -167,6 +172,8 @@ parasail_result_t* FNAME(
             vE = _mm512_max_epi32(
                     _mm512_sub_epi32(vE, vGapE),
                     _mm512_sub_epi32(vH, vGapO));
+            vFt = _mm512_sub_epi32(vFt, vGapE);
+            vFt = _mm512_max_epi32(vFt, vHt);
             vHt = _mm512_max_epi32(
                     _mm512_add_epi32(vHp, vW),
                     vE);
@@ -175,57 +182,23 @@ parasail_result_t* FNAME(
             vHp = vH;
         }
 
-        /* calculate Ft */
-        vHt = _mm512_load_epi32(pvHt+(segLen-1));
+        /* adjust Ft before local prefix scan */
         vHt = _mm512_mask_permutevar_epi32(
                 vZero, permute_mask, permute_idx, vHt);
-        vFt = vNegInf;
-        for (i=0; i<segLen; ++i) {
-            vFt = _mm512_sub_epi32(vFt, vGapE);
-            vFt = _mm512_max_epi32(vFt, vHt);
-            vHt = _mm512_load_epi32(pvHt+i);
+        vFt = _mm512_max_epi32(vFt,
+                _mm512_sub_epi32(vHt, vSegLenXgap1));
+        /* local prefix scan */
+        for (i=0; i<segWidth-1; ++i) {
+            __m512i vFtt = _mm512_mask_permutevar_epi32(
+                    vNegInf, permute_mask, permute_idx, vFt);
+            vFtt = _mm512_add_epi32(vFtt, vSegLenXgap);
+            vFt = _mm512_max_epi32(vFt, vFtt);
         }
-#if 1
-        {
-            __m512i_32_t tmp;
-            tmp.m = vFt;
-            tmp.v[ 1] = MAX(tmp.v[ 0]-segLen*gap, tmp.v[ 1]);
-            tmp.v[ 2] = MAX(tmp.v[ 1]-segLen*gap, tmp.v[ 2]);
-            tmp.v[ 3] = MAX(tmp.v[ 2]-segLen*gap, tmp.v[ 3]);
-            tmp.v[ 4] = MAX(tmp.v[ 3]-segLen*gap, tmp.v[ 4]);
-            tmp.v[ 5] = MAX(tmp.v[ 4]-segLen*gap, tmp.v[ 5]);
-            tmp.v[ 6] = MAX(tmp.v[ 5]-segLen*gap, tmp.v[ 6]);
-            tmp.v[ 7] = MAX(tmp.v[ 6]-segLen*gap, tmp.v[ 7]);
-            tmp.v[ 8] = MAX(tmp.v[ 7]-segLen*gap, tmp.v[ 8]);
-            tmp.v[ 9] = MAX(tmp.v[ 8]-segLen*gap, tmp.v[ 9]);
-            tmp.v[10] = MAX(tmp.v[ 9]-segLen*gap, tmp.v[10]);
-            tmp.v[11] = MAX(tmp.v[10]-segLen*gap, tmp.v[11]);
-            tmp.v[12] = MAX(tmp.v[11]-segLen*gap, tmp.v[12]);
-            tmp.v[13] = MAX(tmp.v[12]-segLen*gap, tmp.v[13]);
-            tmp.v[14] = MAX(tmp.v[13]-segLen*gap, tmp.v[14]);
-            tmp.v[15] = MAX(tmp.v[14]-segLen*gap, tmp.v[15]);
-            vFt = tmp.m;
-        }
-#else
-        {
-            __m512i vFt_save = vFt;
-            __m512i segLenXgap = segLenXgap_reset;
-            for (i=0; i<segWidth-1; ++i) {
-                __m512i vFtt = _mm512_mask_permutevar_epi32(
-                        vNegInf, permute_mask, permute_idx, vFt);
-                segLenXgap = _mm512_permutevar_epi32(permute_idx, segLenXgap);
-                vFtt = _mm512_add_epi32(vFtt, segLenXgap);
-                vFt = _mm512_max_epi32(vFt, vFtt);
-            }
-            //vFt = _mm512_blendv_epi8(vFt_save, vFt, insert_mask);
-        }
-#endif
-        vHt = _mm512_load_epi32(pvHt+(segLen-1));
-        vHt = _mm512_mask_permutevar_epi32(
-                vZero, permute_mask, permute_idx, vHt);
         vFt = _mm512_mask_permutevar_epi32(
                 vNegInf, permute_mask, permute_idx, vFt);
-        //vFt = _mm512_blendv_epi8(vNegInf, vFt, insert_mask);
+
+        /* second Ft pass */
+        /* calculate vH */
         for (i=0; i<segLen; ++i) {
             vFt = _mm512_sub_epi32(vFt, vGapE);
             vFt = _mm512_max_epi32(vFt, vHt);

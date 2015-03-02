@@ -27,6 +27,8 @@ AC_MSG_NOTICE
 AC_MSG_NOTICE([C compiler])
 AC_MSG_NOTICE
 
+AC_PROG_CC
+
 # Checks for header files.
 AC_CHECK_HEADERS([limits.h])
 AC_CHECK_HEADERS([malloc.h])
@@ -336,6 +338,28 @@ AC_SUBST([Z_LIBS])
 AM_CONDITIONAL([HAVE_ZLIB], [test "x$ac_cv_search_gzopen" != xno && test "x$ac_cv_header_zlib_h" = xyes])
 
 ###############################################################################
+# C++ compiler
+###############################################################################
+AC_MSG_NOTICE
+AC_MSG_NOTICE([C++ compiler])
+AC_MSG_NOTICE
+AC_LANG_PUSH([C++])
+
+AC_PROG_CXX
+
+# Checks for libraries.
+
+# Checks for header files.
+
+# Checks for typedefs, structures, and compiler characteristics.
+AX_OPENMP
+AC_SUBST([OPENMP_CXXFLAGS])
+
+# Checks for library functions.
+
+AC_LANG_POP([C++])
+
+###############################################################################
 # Libtool setup -- no compiler/linker tests after this
 ###############################################################################
 AC_MSG_NOTICE
@@ -362,6 +386,8 @@ AC_MSG_NOTICE([                CFLAGS=$CFLAGS])
 AC_MSG_NOTICE([           SSE2_CFLAGS=$SSE2_CFLAGS])
 AC_MSG_NOTICE([          SSE41_CFLAGS=$SSE41_CFLAGS])
 AC_MSG_NOTICE([           AVX2_CFLAGS=$AVX2_CFLAGS])
+AC_MSG_NOTICE([                   CXX=$CXX])
+AC_MSG_NOTICE([              CXXFLAGS=$CXXFLAGS])
 AC_MSG_NOTICE([                   CPP=$CPP])
 AC_MSG_NOTICE([              CPPFLAGS=$CPPFLAGS])
 AC_MSG_NOTICE([               LDFLAGS=$LDFLAGS])

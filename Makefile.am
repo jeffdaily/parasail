@@ -6,9 +6,13 @@ noinst_LTLIBRARIES =
 check_PROGRAMS =
 check_LTLIBRARIES = 
 AM_CFLAGS =
-AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_srcdir)/contrib
+AM_CPPFLAGS =
 AM_LDFLAGS =
 LDADD = libparasail.la
+
+AM_CPPFLAGS += -I$(top_srcdir)/src
+AM_CPPFLAGS += -I$(top_srcdir)/contrib
+AM_CPPFLAGS += -I$(top_srcdir)/contrib/sais-lite-lcp
 
 noinst_LTLIBRARIES += libparasail_novec.la
 noinst_LTLIBRARIES += libparasail_novec_table.la
@@ -431,10 +435,16 @@ tests_libssw_la_SOURCES += contrib/ssw.c
 tests_libssw_la_SOURCES += contrib/ssw.h
 endif
 
+check_LTLIBRARIES += tests/libsais.la
+tests_libsais_la_SOURCES =
+tests_libsais_la_SOURCES += contrib/sais-lite-lcp/sais.c
+tests_libsais_la_SOURCES += contrib/sais-lite-lcp/sais.h
+
 check_PROGRAMS += tests/test_align
 check_PROGRAMS += tests/test_gcups
 check_PROGRAMS += tests/test_isa
 check_PROGRAMS += tests/test_openmp
+check_PROGRAMS += tests/test_openmp_sais
 check_PROGRAMS += tests/test_scatter
 check_PROGRAMS += tests/test_sw_dispatch
 check_PROGRAMS += tests/test_verify
@@ -465,6 +475,14 @@ tests_test_openmp_LDADD   += $(Z_LIBS)
 if HAVE_SSE2
 tests_test_openmp_LDADD   += tests/libssw.la
 endif
+
+tests_test_openmp_sais_SOURCES  = tests/test_openmp_sais.cpp
+tests_test_openmp_sais_CXXFLAGS = $(AM_CXXFLAGS) $(OPENMP_CXXFLAGS)
+tests_test_openmp_sais_LDFLAGS  = $(AM_LDFLAGS) $(OPENMP_CXXFLAGS)
+tests_test_openmp_sais_LDADD    =
+tests_test_openmp_sais_LDADD    += $(LDADD)
+tests_test_openmp_sais_LDADD    += $(CLOCK_LIBS)
+tests_test_openmp_sais_LDADD    += tests/libsais.la
 
 tests_test_scatter_SOURCES = tests/test_scatter.c
 tests_test_scatter_CFLAGS  = $(AM_CFLAGS) $(OPENMP_CFLAGS)

@@ -81,8 +81,9 @@ build_triplet = @build@
 host_triplet = @host@
 check_PROGRAMS = tests/test_align$(EXEEXT) tests/test_gcups$(EXEEXT) \
 	tests/test_isa$(EXEEXT) tests/test_openmp$(EXEEXT) \
-	tests/test_scatter$(EXEEXT) tests/test_sw_dispatch$(EXEEXT) \
-	tests/test_verify$(EXEEXT) tests/test_verify_tables$(EXEEXT)
+	tests/test_openmp_sais$(EXEEXT) tests/test_scatter$(EXEEXT) \
+	tests/test_sw_dispatch$(EXEEXT) tests/test_verify$(EXEEXT) \
+	tests/test_verify_tables$(EXEEXT)
 @HAVE_SSE_TRUE@am__append_1 = libparasail_sse_memory.la
 @HAVE_SSE2_TRUE@am__append_2 = libparasail_sse2.la \
 @HAVE_SSE2_TRUE@	libparasail_sse2_table.la
@@ -669,6 +670,9 @@ libparasail_sse_memory_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(libparasail_sse_memory_la_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
 @HAVE_SSE_TRUE@am_libparasail_sse_memory_la_rpath =
+tests_libsais_la_LIBADD =
+am_tests_libsais_la_OBJECTS = contrib/sais-lite-lcp/sais.lo
+tests_libsais_la_OBJECTS = $(am_tests_libsais_la_OBJECTS)
 tests_libssw_la_LIBADD =
 am__tests_libssw_la_SOURCES_DIST = contrib/ssw.c contrib/ssw.h
 @HAVE_SSE2_TRUE@am_tests_libssw_la_OBJECTS = contrib/ssw.lo
@@ -695,6 +699,15 @@ tests_test_openmp_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(tests_test_openmp_CFLAGS) $(CFLAGS) \
 	$(tests_test_openmp_LDFLAGS) $(LDFLAGS) -o $@
+am_tests_test_openmp_sais_OBJECTS =  \
+	tests/tests_test_openmp_sais-test_openmp_sais.$(OBJEXT)
+tests_test_openmp_sais_OBJECTS = $(am_tests_test_openmp_sais_OBJECTS)
+tests_test_openmp_sais_DEPENDENCIES = $(LDADD) $(am__DEPENDENCIES_1) \
+	tests/libsais.la
+tests_test_openmp_sais_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(tests_test_openmp_sais_CXXFLAGS) $(CXXFLAGS) \
+	$(tests_test_openmp_sais_LDFLAGS) $(LDFLAGS) -o $@
 am_tests_test_scatter_OBJECTS =  \
 	tests/tests_test_scatter-test_scatter.$(OBJEXT)
 tests_test_scatter_OBJECTS = $(am_tests_test_scatter_OBJECTS)
@@ -761,6 +774,24 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
+CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
+	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+LTCXXCOMPILE = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) \
+	$(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) \
+	$(AM_CXXFLAGS) $(CXXFLAGS)
+AM_V_CXX = $(am__v_CXX_@AM_V@)
+am__v_CXX_ = $(am__v_CXX_@AM_DEFAULT_V@)
+am__v_CXX_0 = @echo "  CXX     " $@;
+am__v_CXX_1 = 
+CXXLD = $(CXX)
+CXXLINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
+	$(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+AM_V_CXXLD = $(am__v_CXXLD_@AM_V@)
+am__v_CXXLD_ = $(am__v_CXXLD_@AM_DEFAULT_V@)
+am__v_CXXLD_0 = @echo "  CXXLD   " $@;
+am__v_CXXLD_1 = 
 SOURCES = $(libparasail_la_SOURCES) $(libparasail_avx2_la_SOURCES) \
 	$(libparasail_avx2_memory_la_SOURCES) \
 	$(libparasail_avx2_table_la_SOURCES) \
@@ -774,9 +805,11 @@ SOURCES = $(libparasail_la_SOURCES) $(libparasail_avx2_la_SOURCES) \
 	$(libparasail_sse41_la_SOURCES) \
 	$(libparasail_sse41_table_la_SOURCES) \
 	$(libparasail_sse_memory_la_SOURCES) \
-	$(tests_libssw_la_SOURCES) $(tests_test_align_SOURCES) \
-	$(tests_test_gcups_SOURCES) $(tests_test_isa_SOURCES) \
-	$(tests_test_openmp_SOURCES) $(tests_test_scatter_SOURCES) \
+	$(tests_libsais_la_SOURCES) $(tests_libssw_la_SOURCES) \
+	$(tests_test_align_SOURCES) $(tests_test_gcups_SOURCES) \
+	$(tests_test_isa_SOURCES) $(tests_test_openmp_SOURCES) \
+	$(tests_test_openmp_sais_SOURCES) \
+	$(tests_test_scatter_SOURCES) \
 	$(tests_test_sw_dispatch_SOURCES) $(tests_test_verify_SOURCES) \
 	$(tests_test_verify_tables_SOURCES)
 DIST_SOURCES = $(libparasail_la_SOURCES) \
@@ -793,9 +826,11 @@ DIST_SOURCES = $(libparasail_la_SOURCES) \
 	$(libparasail_sse41_la_SOURCES) \
 	$(libparasail_sse41_table_la_SOURCES) \
 	$(libparasail_sse_memory_la_SOURCES) \
+	$(tests_libsais_la_SOURCES) \
 	$(am__tests_libssw_la_SOURCES_DIST) \
 	$(tests_test_align_SOURCES) $(tests_test_gcups_SOURCES) \
 	$(tests_test_isa_SOURCES) $(tests_test_openmp_SOURCES) \
+	$(tests_test_openmp_sais_SOURCES) \
 	$(tests_test_scatter_SOURCES) \
 	$(tests_test_sw_dispatch_SOURCES) $(tests_test_verify_SOURCES) \
 	$(tests_test_verify_tables_SOURCES)
@@ -859,6 +894,10 @@ CFLAGS = @CFLAGS@
 CLOCK_LIBS = @CLOCK_LIBS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
+CXX = @CXX@
+CXXCPP = @CXXCPP@
+CXXDEPMODE = @CXXDEPMODE@
+CXXFLAGS = @CXXFLAGS@
 CYGPATH_W = @CYGPATH_W@
 DEFS = @DEFS@
 DEPDIR = @DEPDIR@
@@ -895,6 +934,7 @@ NMEDIT = @NMEDIT@
 OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
 OPENMP_CFLAGS = @OPENMP_CFLAGS@
+OPENMP_CXXFLAGS = @OPENMP_CXXFLAGS@
 OTOOL = @OTOOL@
 OTOOL64 = @OTOOL64@
 PACKAGE = @PACKAGE@
@@ -920,6 +960,7 @@ abs_top_builddir = @abs_top_builddir@
 abs_top_srcdir = @abs_top_srcdir@
 ac_ct_AR = @ac_ct_AR@
 ac_ct_CC = @ac_ct_CC@
+ac_ct_CXX = @ac_ct_CXX@
 ac_ct_DUMPBIN = @ac_ct_DUMPBIN@
 am__include = @am__include@
 am__leading_dot = @am__leading_dot@
@@ -972,9 +1013,10 @@ lib_LTLIBRARIES = libparasail.la
 noinst_LTLIBRARIES = libparasail_novec.la libparasail_novec_table.la \
 	$(am__append_1) $(am__append_2) $(am__append_3) \
 	$(am__append_4) $(am__append_5)
-check_LTLIBRARIES = $(am__append_11)
+check_LTLIBRARIES = $(am__append_11) tests/libsais.la
 AM_CFLAGS = 
-AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_srcdir)/contrib
+AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_srcdir)/contrib \
+	-I$(top_srcdir)/contrib/sais-lite-lcp
 AM_LDFLAGS = 
 LDADD = libparasail.la
 
@@ -1183,6 +1225,8 @@ libparasail_la_LIBADD = libparasail_novec.la \
 	libparasail_novec_table.la $(am__append_6) $(am__append_7) \
 	$(am__append_8) $(am__append_9) $(am__append_10)
 @HAVE_SSE2_TRUE@tests_libssw_la_SOURCES = contrib/ssw.c contrib/ssw.h
+tests_libsais_la_SOURCES = contrib/sais-lite-lcp/sais.c \
+	contrib/sais-lite-lcp/sais.h
 tests_test_align_SOURCES = tests/test_align.c
 tests_test_align_LDADD = $(LDADD) $(CLOCK_LIBS) $(MATH_LIBS) $(Z_LIBS)
 tests_test_gcups_SOURCES = tests/test_gcups.c
@@ -1193,6 +1237,10 @@ tests_test_openmp_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_test_openmp_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
 tests_test_openmp_LDADD = $(LDADD) $(CLOCK_LIBS) $(MATH_LIBS) \
 	$(Z_LIBS) $(am__append_12)
+tests_test_openmp_sais_SOURCES = tests/test_openmp_sais.cpp
+tests_test_openmp_sais_CXXFLAGS = $(AM_CXXFLAGS) $(OPENMP_CXXFLAGS)
+tests_test_openmp_sais_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CXXFLAGS)
+tests_test_openmp_sais_LDADD = $(LDADD) $(CLOCK_LIBS) tests/libsais.la
 tests_test_scatter_SOURCES = tests/test_scatter.c
 tests_test_scatter_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_test_scatter_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
@@ -1209,7 +1257,7 @@ all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
 .SUFFIXES:
-.SUFFIXES: .c .lo .o .obj
+.SUFFIXES: .c .cpp .lo .o .obj
 am--refresh: Makefile
 	@:
 $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am  $(am__configure_deps)
@@ -2143,6 +2191,20 @@ src/libparasail_sse_memory_la-memory_sse.lo: src/$(am__dirstamp) \
 
 libparasail_sse_memory.la: $(libparasail_sse_memory_la_OBJECTS) $(libparasail_sse_memory_la_DEPENDENCIES) $(EXTRA_libparasail_sse_memory_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(libparasail_sse_memory_la_LINK) $(am_libparasail_sse_memory_la_rpath) $(libparasail_sse_memory_la_OBJECTS) $(libparasail_sse_memory_la_LIBADD) $(LIBS)
+contrib/sais-lite-lcp/$(am__dirstamp):
+	@$(MKDIR_P) contrib/sais-lite-lcp
+	@: > contrib/sais-lite-lcp/$(am__dirstamp)
+contrib/sais-lite-lcp/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) contrib/sais-lite-lcp/$(DEPDIR)
+	@: > contrib/sais-lite-lcp/$(DEPDIR)/$(am__dirstamp)
+contrib/sais-lite-lcp/sais.lo: contrib/sais-lite-lcp/$(am__dirstamp) \
+	contrib/sais-lite-lcp/$(DEPDIR)/$(am__dirstamp)
+tests/$(am__dirstamp):
+	@$(MKDIR_P) tests
+	@: > tests/$(am__dirstamp)
+
+tests/libsais.la: $(tests_libsais_la_OBJECTS) $(tests_libsais_la_DEPENDENCIES) $(EXTRA_tests_libsais_la_DEPENDENCIES) tests/$(am__dirstamp)
+	$(AM_V_CCLD)$(LINK)  $(tests_libsais_la_OBJECTS) $(tests_libsais_la_LIBADD) $(LIBS)
 contrib/$(am__dirstamp):
 	@$(MKDIR_P) contrib
 	@: > contrib/$(am__dirstamp)
@@ -2151,9 +2213,6 @@ contrib/$(DEPDIR)/$(am__dirstamp):
 	@: > contrib/$(DEPDIR)/$(am__dirstamp)
 contrib/ssw.lo: contrib/$(am__dirstamp) \
 	contrib/$(DEPDIR)/$(am__dirstamp)
-tests/$(am__dirstamp):
-	@$(MKDIR_P) tests
-	@: > tests/$(am__dirstamp)
 
 tests/libssw.la: $(tests_libssw_la_OBJECTS) $(tests_libssw_la_DEPENDENCIES) $(EXTRA_tests_libssw_la_DEPENDENCIES) tests/$(am__dirstamp)
 	$(AM_V_CCLD)$(LINK) $(am_tests_libssw_la_rpath) $(tests_libssw_la_OBJECTS) $(tests_libssw_la_LIBADD) $(LIBS)
@@ -2193,6 +2252,12 @@ tests/tests_test_openmp-test_openmp.$(OBJEXT): tests/$(am__dirstamp) \
 tests/test_openmp$(EXEEXT): $(tests_test_openmp_OBJECTS) $(tests_test_openmp_DEPENDENCIES) $(EXTRA_tests_test_openmp_DEPENDENCIES) tests/$(am__dirstamp)
 	@rm -f tests/test_openmp$(EXEEXT)
 	$(AM_V_CCLD)$(tests_test_openmp_LINK) $(tests_test_openmp_OBJECTS) $(tests_test_openmp_LDADD) $(LIBS)
+tests/tests_test_openmp_sais-test_openmp_sais.$(OBJEXT):  \
+	tests/$(am__dirstamp) tests/$(DEPDIR)/$(am__dirstamp)
+
+tests/test_openmp_sais$(EXEEXT): $(tests_test_openmp_sais_OBJECTS) $(tests_test_openmp_sais_DEPENDENCIES) $(EXTRA_tests_test_openmp_sais_DEPENDENCIES) tests/$(am__dirstamp)
+	@rm -f tests/test_openmp_sais$(EXEEXT)
+	$(AM_V_CXXLD)$(tests_test_openmp_sais_LINK) $(tests_test_openmp_sais_OBJECTS) $(tests_test_openmp_sais_LDADD) $(LIBS)
 tests/tests_test_scatter-test_scatter.$(OBJEXT):  \
 	tests/$(am__dirstamp) tests/$(DEPDIR)/$(am__dirstamp)
 
@@ -2222,6 +2287,8 @@ mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
 	-rm -f contrib/*.$(OBJEXT)
 	-rm -f contrib/*.lo
+	-rm -f contrib/sais-lite-lcp/*.$(OBJEXT)
+	-rm -f contrib/sais-lite-lcp/*.lo
 	-rm -f src/*.$(OBJEXT)
 	-rm -f src/*.lo
 	-rm -f tests/*.$(OBJEXT)
@@ -2230,6 +2297,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@contrib/$(DEPDIR)/ssw.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@contrib/sais-lite-lcp/$(DEPDIR)/sais.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/cpuid.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_avx2_la-nw_diag_avx2_256_16.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_avx2_la-nw_diag_avx2_256_32.Plo@am__quote@
@@ -2627,6 +2695,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_isa.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_sw_dispatch.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/tests_test_openmp-test_openmp.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/tests_test_openmp_sais-test_openmp_sais.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/tests_test_scatter-test_scatter.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/tests_test_verify-test_verify.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/tests_test_verify_tables-test_verify_tables.Po@am__quote@
@@ -5420,12 +5489,51 @@ tests/tests_test_verify_tables-test_verify_tables.obj: tests/test_verify_tables.
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_test_verify_tables_CFLAGS) $(CFLAGS) -c -o tests/tests_test_verify_tables-test_verify_tables.obj `if test -f 'tests/test_verify_tables.c'; then $(CYGPATH_W) 'tests/test_verify_tables.c'; else $(CYGPATH_W) '$(srcdir)/tests/test_verify_tables.c'; fi`
 
+.cpp.o:
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
+@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ $<
+
+.cpp.obj:
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.obj$$||'`;\
+@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ `$(CYGPATH_W) '$<'` &&\
+@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+
+.cpp.lo:
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.lo$$||'`;\
+@am__fastdepCXX_TRUE@	$(LTCXXCOMPILE) -MT $@ -MD -MP -MF $$depbase.Tpo -c -o $@ $< &&\
+@am__fastdepCXX_TRUE@	$(am__mv) $$depbase.Tpo $$depbase.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LTCXXCOMPILE) -c -o $@ $<
+
+tests/tests_test_openmp_sais-test_openmp_sais.o: tests/test_openmp_sais.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_test_openmp_sais_CXXFLAGS) $(CXXFLAGS) -MT tests/tests_test_openmp_sais-test_openmp_sais.o -MD -MP -MF tests/$(DEPDIR)/tests_test_openmp_sais-test_openmp_sais.Tpo -c -o tests/tests_test_openmp_sais-test_openmp_sais.o `test -f 'tests/test_openmp_sais.cpp' || echo '$(srcdir)/'`tests/test_openmp_sais.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) tests/$(DEPDIR)/tests_test_openmp_sais-test_openmp_sais.Tpo tests/$(DEPDIR)/tests_test_openmp_sais-test_openmp_sais.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='tests/test_openmp_sais.cpp' object='tests/tests_test_openmp_sais-test_openmp_sais.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_test_openmp_sais_CXXFLAGS) $(CXXFLAGS) -c -o tests/tests_test_openmp_sais-test_openmp_sais.o `test -f 'tests/test_openmp_sais.cpp' || echo '$(srcdir)/'`tests/test_openmp_sais.cpp
+
+tests/tests_test_openmp_sais-test_openmp_sais.obj: tests/test_openmp_sais.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_test_openmp_sais_CXXFLAGS) $(CXXFLAGS) -MT tests/tests_test_openmp_sais-test_openmp_sais.obj -MD -MP -MF tests/$(DEPDIR)/tests_test_openmp_sais-test_openmp_sais.Tpo -c -o tests/tests_test_openmp_sais-test_openmp_sais.obj `if test -f 'tests/test_openmp_sais.cpp'; then $(CYGPATH_W) 'tests/test_openmp_sais.cpp'; else $(CYGPATH_W) '$(srcdir)/tests/test_openmp_sais.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) tests/$(DEPDIR)/tests_test_openmp_sais-test_openmp_sais.Tpo tests/$(DEPDIR)/tests_test_openmp_sais-test_openmp_sais.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='tests/test_openmp_sais.cpp' object='tests/tests_test_openmp_sais-test_openmp_sais.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_test_openmp_sais_CXXFLAGS) $(CXXFLAGS) -c -o tests/tests_test_openmp_sais-test_openmp_sais.obj `if test -f 'tests/test_openmp_sais.cpp'; then $(CYGPATH_W) 'tests/test_openmp_sais.cpp'; else $(CYGPATH_W) '$(srcdir)/tests/test_openmp_sais.cpp'; fi`
+
 mostlyclean-libtool:
 	-rm -f *.lo
 
 clean-libtool:
 	-rm -rf .libs _libs
 	-rm -rf contrib/.libs contrib/_libs
+	-rm -rf contrib/sais-lite-lcp/.libs contrib/sais-lite-lcp/_libs
 	-rm -rf src/.libs src/_libs
 	-rm -rf tests/.libs tests/_libs
 
@@ -5704,6 +5812,8 @@ distclean-generic:
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
 	-rm -f contrib/$(DEPDIR)/$(am__dirstamp)
 	-rm -f contrib/$(am__dirstamp)
+	-rm -f contrib/sais-lite-lcp/$(DEPDIR)/$(am__dirstamp)
+	-rm -f contrib/sais-lite-lcp/$(am__dirstamp)
 	-rm -f src/$(DEPDIR)/$(am__dirstamp)
 	-rm -f src/$(am__dirstamp)
 	-rm -f tests/$(DEPDIR)/$(am__dirstamp)
@@ -5720,7 +5830,7 @@ clean-am: clean-checkLTLIBRARIES clean-checkPROGRAMS clean-generic \
 
 distclean: distclean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-	-rm -rf contrib/$(DEPDIR) src/$(DEPDIR) tests/$(DEPDIR)
+	-rm -rf contrib/$(DEPDIR) contrib/sais-lite-lcp/$(DEPDIR) src/$(DEPDIR) tests/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-hdr distclean-libtool distclean-tags
@@ -5768,7 +5878,7 @@ installcheck-am:
 maintainer-clean: maintainer-clean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
-	-rm -rf contrib/$(DEPDIR) src/$(DEPDIR) tests/$(DEPDIR)
+	-rm -rf contrib/$(DEPDIR) contrib/sais-lite-lcp/$(DEPDIR) src/$(DEPDIR) tests/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 

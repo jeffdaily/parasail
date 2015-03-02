@@ -740,8 +740,8 @@ int main(int argc, char **argv)
         timer_clock = timer_real() - timer_clock;
         stats_sample_value(&stats_time, timer_clock);
     }
-    printf("%s\t%s\t%d\t%d\t%f\t%f\t%f\t%f\n",
-            funcname, blosumname, N, saturated,
+    printf("%s\t %s\t %d\t %d\t %d\t %d\t %f\t %f\t %f\t %f\n",
+            funcname, blosumname, gap_open, gap_extend, N, saturated,
             stats_time._mean, stats_stddev(&stats_time),
             stats_time._min, stats_time._max);
 

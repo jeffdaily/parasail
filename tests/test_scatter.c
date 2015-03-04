@@ -33,363 +33,19 @@ KSEQ_INIT(int, read)
 #include "timer.h"
 #include "timer_real.h"
 
-typedef parasail_result_t* (*pf)(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap,
-        const int matrix[24][24]);
+#include "blosum_lookup.h"
+#include "function_lookup.h"
 
-#if HAVE_SSE2
-parasail_result_t* parasail_ssw_(
-        const char * const restrict s1, const int s1_len,
-        const char * const restrict s2, const int s2_len,
-        const int open, const int gap, const int matrix[24][24],
-        int score_size)
-{
-    parasail_result_t *result = parasail_result_new();
-    s_profile *profile = NULL;
-    int8_t *s1_num = (int8_t*)malloc(sizeof(int8_t) * s1_len);
-    int8_t *s2_num = (int8_t*)malloc(sizeof(int8_t) * s2_len);
-    s_align *ssw_result = NULL;
-    size_t m = 0;
-
-    /* This table is used to transform amino acid letters into numbers. */
-    static const int8_t table[128] = {
-        23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,
-        23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,
-        23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,
-        23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,
-        23, 0,  20, 4,  3,  6,  13, 7,  8,  9,  23, 11, 10, 12, 2,  23,
-        14, 5,  1,  15, 16, 23, 19, 17, 22, 18, 21, 23, 23, 23, 23, 23,
-        23, 0,  20, 4,  3,  6,  13, 7,  8,  9,  23, 11, 10, 12, 2,  23,
-        14, 5,  1,  15, 16, 23, 19, 17, 22, 18, 21, 23, 23, 23, 23, 23
-    };
-
-    /* initialize score matrix */
-    for (m = 0; m < s1_len; ++m) s1_num[m] = table[(int)s1[m]];
-    for (m = 0; m < s2_len; ++m) s2_num[m] = table[(int)s2[m]];
-    profile = ssw_init(s1_num, s1_len, blosum62__, 24, score_size);
-    ssw_result = ssw_align(profile, s2_num, s2_len, -open, -gap, 2, 0, 0, s1_len/2);
-    result->score = ssw_result->score1;
-    result->saturated = ssw_result->saturated;
-    align_destroy(ssw_result);
-    init_destroy(profile);
-
-    return result;
-}
-
-parasail_result_t* parasail_ssw(
-        const char * const restrict s1, const int s1_len,
-        const char * const restrict s2, const int s2_len,
-        const int open, const int gap, const int matrix[24][24])
-{
-    return parasail_ssw_(s1, s1_len, s2, s2_len, open, gap, matrix, 2);
-}
-
-parasail_result_t* parasail_ssw_16(
-        const char * const restrict s1, const int s1_len,
-        const char * const restrict s2, const int s2_len,
-        const int open, const int gap, const int matrix[24][24])
-{
-    return parasail_ssw_(s1, s1_len, s2, s2_len, open, gap, matrix, 1);
-}
-#endif
-
-parasail_result_t* parasail_sw(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24])
-{
-    int saturated = 0;
-    parasail_result_t *result;
-
-    result = parasail_sw_scan_8(s1, s1Len, s2, s2Len, open, gap, matrix);
-    if (result->saturated) {
-        saturated = 1;
-        parasail_result_free(result);
-        result = parasail_sw_scan_16(s1, s1Len, s2, s2Len, open, gap, matrix);
-    }
-    if (result->saturated) {
-        parasail_result_free(result);
-        result = parasail_sw_scan_32(s1, s1Len, s2, s2Len, open, gap, matrix);
-    }
-    result->saturated = saturated;
-
-    return result;
-}
-
-typedef struct blosum {
-    const char * name;
-    const int (*blosum)[24];
-} blosum_t;
-
-blosum_t blosums[] = {
-    {"blosum40",blosum40},
-    {"blosum45",blosum45},
-    {"blosum50",blosum50},
-    {"blosum62",blosum62},
-    {"blosum75",blosum75},
-    {"blosum80",blosum80},
-    {"blosum90",blosum90},
-    {"NULL",NULL},
-};
-
-typedef struct func {
-    const char * name;
-    pf f;
-    int lanes;
-} func_t;
-
-func_t functions[] = {
-    {"nw",                           nw,                         1},
-    {"nw_scan",                      nw_scan,                    1},
-#if HAVE_SSE2
-    {"nw_scan_sse2_128_32",          nw_scan_sse2_128_32,        4},
-    {"nw_scan_sse2_128_16",          nw_scan_sse2_128_16,        8},
-    {"nw_scan_sse2_128_8",           nw_scan_sse2_128_8,        16},
-    {"nw_diag_sse2_128_32",          nw_diag_sse2_128_32,        4},
-    {"nw_diag_sse2_128_16",          nw_diag_sse2_128_16,        8},
-    {"nw_diag_sse2_128_8",           nw_diag_sse2_128_8,        16},
-    {"nw_striped_sse2_128_32",       nw_striped_sse2_128_32,     4},
-    {"nw_striped_sse2_128_16",       nw_striped_sse2_128_16,     8},
-    {"nw_striped_sse2_128_8",        nw_striped_sse2_128_8,     16},
-#endif
-#if HAVE_SSE41
-    {"nw_scan_sse41_128_32",         nw_scan_sse41_128_32,       4},
-    {"nw_scan_sse41_128_16",         nw_scan_sse41_128_16,       8},
-    {"nw_scan_sse41_128_8",          nw_scan_sse41_128_8,       16},
-    {"nw_diag_sse41_128_32",         nw_diag_sse41_128_32,       4},
-    {"nw_diag_sse41_128_16",         nw_diag_sse41_128_16,       8},
-    {"nw_diag_sse41_128_8",          nw_diag_sse41_128_8,       16},
-    {"nw_striped_sse41_128_32",      nw_striped_sse41_128_32,    4},
-    {"nw_striped_sse41_128_16",      nw_striped_sse41_128_16,    8},
-    {"nw_striped_sse41_128_8",       nw_striped_sse41_128_8,    16},
-#endif
-#if HAVE_AVX2
-    {"nw_scan_avx2_256_32",          nw_scan_avx2_256_32,        8},
-    {"nw_scan_avx2_256_16",          nw_scan_avx2_256_16,       16},
-    {"nw_scan_avx2_256_8",           nw_scan_avx2_256_8,        32},
-    {"nw_diag_avx2_256_32",          nw_diag_avx2_256_32,        8},
-    {"nw_diag_avx2_256_16",          nw_diag_avx2_256_16,       16},
-    {"nw_diag_avx2_256_8",           nw_diag_avx2_256_8,        32},
-    {"nw_striped_avx2_256_32",       nw_striped_avx2_256_32,     8},
-    {"nw_striped_avx2_256_16",       nw_striped_avx2_256_16,    16},
-    {"nw_striped_avx2_256_8",        nw_striped_avx2_256_8,     32},
-#endif
-#if HAVE_KNC
-    {"nw_scan_knc_512_32",           nw_scan_knc_512_32,        16},
-    {"nw_diag_knc_512_32",           nw_diag_knc_512_32,        16},
-    {"nw_striped_knc_512_32",        nw_striped_knc_512_32,     16},
-#endif
-
-    {"sg",                           sg,                         1},
-    {"sg_scan",                      sg_scan,                    1},
-#if HAVE_SSE2
-    {"sg_scan_sse2_128_32",          sg_scan_sse2_128_32,        4},
-    {"sg_scan_sse2_128_16",          sg_scan_sse2_128_16,        8},
-    {"sg_scan_sse2_128_8",           sg_scan_sse2_128_8,        16},
-    {"sg_diag_sse2_128_32",          sg_diag_sse2_128_32,        4},
-    {"sg_diag_sse2_128_16",          sg_diag_sse2_128_16,        8},
-    {"sg_diag_sse2_128_8",           sg_diag_sse2_128_8,        16},
-    {"sg_striped_sse2_128_32",       sg_striped_sse2_128_32,     4},
-    {"sg_striped_sse2_128_16",       sg_striped_sse2_128_16,     8},
-    {"sg_striped_sse2_128_8",        sg_striped_sse2_128_8,     16},
-#endif
-#if HAVE_SSE41
-    {"sg_scan_sse41_128_32",         sg_scan_sse41_128_32,       4},
-    {"sg_scan_sse41_128_16",         sg_scan_sse41_128_16,       8},
-    {"sg_scan_sse41_128_8",          sg_scan_sse41_128_8,       16},
-    {"sg_diag_sse41_128_32",         sg_diag_sse41_128_32,       4},
-    {"sg_diag_sse41_128_16",         sg_diag_sse41_128_16,       8},
-    {"sg_diag_sse41_128_8",          sg_diag_sse41_128_8,       16},
-    {"sg_striped_sse41_128_32",      sg_striped_sse41_128_32,    4},
-    {"sg_striped_sse41_128_16",      sg_striped_sse41_128_16,    8},
-    {"sg_striped_sse41_128_8",       sg_striped_sse41_128_8,    16},
-#endif
-#if HAVE_AVX2
-    {"sg_scan_avx2_256_32",          sg_scan_avx2_256_32,        8},
-    {"sg_scan_avx2_256_16",          sg_scan_avx2_256_16,       16},
-    {"sg_scan_avx2_256_8",           sg_scan_avx2_256_8,        32},
-    {"sg_diag_avx2_256_32",          sg_diag_avx2_256_32,        8},
-    {"sg_diag_avx2_256_16",          sg_diag_avx2_256_16,       16},
-    {"sg_diag_avx2_256_8",           sg_diag_avx2_256_8,        32},
-    {"sg_striped_avx2_256_32",       sg_striped_avx2_256_32,     8},
-    {"sg_striped_avx2_256_16",       sg_striped_avx2_256_16,    16},
-    {"sg_striped_avx2_256_8",        sg_striped_avx2_256_8,     32},
-#endif
-#if HAVE_KNC
-    {"sg_scan_knc_512_32",           sg_scan_knc_512_32,        16},
-    {"sg_diag_knc_512_32",           sg_diag_knc_512_32,        16},
-    {"sg_striped_knc_512_32",        sg_striped_knc_512_32,     16},
-#endif
-
-    {"sw",                           sw,                         1},
-    {"sw_scan",                      sw_scan,                    1},
-#if HAVE_SSE2
-    {"sw_scan_sse2_128_32",          sw_scan_sse2_128_32,        4},
-    {"sw_scan_sse2_128_16",          sw_scan_sse2_128_16,        8},
-    {"sw_scan_sse2_128_8",           sw_scan_sse2_128_8,        16},
-    {"sw_diag_sse2_128_32",          sw_diag_sse2_128_32,        4},
-    {"sw_diag_sse2_128_16",          sw_diag_sse2_128_16,        8},
-    {"sw_diag_sse2_128_8",           sw_diag_sse2_128_8,        16},
-    {"sw_striped_sse2_128_32",       sw_striped_sse2_128_32,     4},
-    {"sw_striped_sse2_128_16",       sw_striped_sse2_128_16,     8},
-    {"sw_striped_sse2_128_8",        sw_striped_sse2_128_8,     16},
-    {"ssw_16",                       parasail_ssw_16,            8},
-    {"ssw_8",                        parasail_ssw,              16},
-#endif
-#if HAVE_SSE41
-    {"sw_scan_sse41_128_32",         sw_scan_sse41_128_32,       4},
-    {"sw_scan_sse41_128_16",         sw_scan_sse41_128_16,       8},
-    {"sw_scan_sse41_128_8",          sw_scan_sse41_128_8,       16},
-    {"sw_diag_sse41_128_32",         sw_diag_sse41_128_32,       4},
-    {"sw_diag_sse41_128_16",         sw_diag_sse41_128_16,       8},
-    {"sw_diag_sse41_128_8",          sw_diag_sse41_128_8,       16},
-    {"sw_striped_sse41_128_32",      sw_striped_sse41_128_32,    4},
-    {"sw_striped_sse41_128_16",      sw_striped_sse41_128_16,    8},
-    {"sw_striped_sse41_128_8",       sw_striped_sse41_128_8,    16},
-#endif
-#if HAVE_AVX2
-    {"sw_scan_avx2_256_32",          sw_scan_avx2_256_32,        8},
-    {"sw_scan_avx2_256_16",          sw_scan_avx2_256_16,       16},
-    {"sw_scan_avx2_256_8",           sw_scan_avx2_256_8,        32},
-    {"sw_diag_avx2_256_32",          sw_diag_avx2_256_32,        8},
-    {"sw_diag_avx2_256_16",          sw_diag_avx2_256_16,       16},
-    {"sw_diag_avx2_256_8",           sw_diag_avx2_256_8,        32},
-    {"sw_striped_avx2_256_32",       sw_striped_avx2_256_32,     8},
-    {"sw_striped_avx2_256_16",       sw_striped_avx2_256_16,    16},
-    {"sw_striped_avx2_256_8",        sw_striped_avx2_256_8,     32},
-#endif
-#if HAVE_KNC
-    {"sw_scan_knc_512_32",           sw_scan_knc_512_32,        16},
-    {"sw_diag_knc_512_32",           sw_diag_knc_512_32,        16},
-    {"sw_striped_knc_512_32",        sw_striped_knc_512_32,     16},
-#endif
-
-
-    {"nw_stats",                     nw_stats,                      1},
-    {"nw_stats_scan",                nw_stats_scan,                 1},
-#if HAVE_SSE2
-    {"nw_stats_scan_sse2_128_32",    nw_stats_scan_sse2_128_32,     4},
-    {"nw_stats_scan_sse2_128_16",    nw_stats_scan_sse2_128_16,     8},
-    {"nw_stats_scan_sse2_128_8",     nw_stats_scan_sse2_128_8,     16},
-    {"nw_stats_diag_sse2_128_32",    nw_stats_diag_sse2_128_32,     4},
-    {"nw_stats_diag_sse2_128_16",    nw_stats_diag_sse2_128_16,     8},
-    {"nw_stats_diag_sse2_128_8",     nw_stats_diag_sse2_128_8,     16},
-    {"nw_stats_striped_sse2_128_32", nw_stats_striped_sse2_128_32,  4},
-    {"nw_stats_striped_sse2_128_16", nw_stats_striped_sse2_128_16,  8},
-    {"nw_stats_striped_sse2_128_8",  nw_stats_striped_sse2_128_8,  16},
-#endif
-#if HAVE_SSE41
-    {"nw_stats_scan_sse41_128_32",   nw_stats_scan_sse41_128_32,    4},
-    {"nw_stats_scan_sse41_128_16",   nw_stats_scan_sse41_128_16,    8},
-    {"nw_stats_scan_sse41_128_8",    nw_stats_scan_sse41_128_8,    16},
-    {"nw_stats_diag_sse41_128_32",   nw_stats_diag_sse41_128_32,    4},
-    {"nw_stats_diag_sse41_128_16",   nw_stats_diag_sse41_128_16,    8},
-    {"nw_stats_diag_sse41_128_8",    nw_stats_diag_sse41_128_8,    16},
-    {"nw_stats_striped_sse41_128_32",nw_stats_striped_sse41_128_32, 4},
-    {"nw_stats_striped_sse41_128_16",nw_stats_striped_sse41_128_16, 8},
-    {"nw_stats_striped_sse41_128_8", nw_stats_striped_sse41_128_8, 16},
-#endif
-#if HAVE_AVX2
-    {"nw_stats_scan_avx2_256_32",    nw_stats_scan_avx2_256_32,     8},
-    {"nw_stats_scan_avx2_256_16",    nw_stats_scan_avx2_256_16,    16},
-    {"nw_stats_scan_avx2_256_8",     nw_stats_scan_avx2_256_8,     32},
-    {"nw_stats_diag_avx2_256_32",    nw_stats_diag_avx2_256_32,     8},
-    {"nw_stats_diag_avx2_256_16",    nw_stats_diag_avx2_256_16,    16},
-    {"nw_stats_diag_avx2_256_8",     nw_stats_diag_avx2_256_8,     32},
-    {"nw_stats_striped_avx2_256_32", nw_stats_striped_avx2_256_32,  8},
-    {"nw_stats_striped_avx2_256_16", nw_stats_striped_avx2_256_16, 16},
-    {"nw_stats_striped_avx2_256_8",  nw_stats_striped_avx2_256_8,  32},
-#endif
-#if HAVE_KNC
-    {"nw_stats_scan_knc_512_32",     nw_stats_scan_knc_512_32,     16},
-    {"nw_stats_diag_knc_512_32",     nw_stats_diag_knc_512_32,     16},
-    {"nw_stats_striped_knc_512_32",  nw_stats_striped_knc_512_32,  16},
-#endif
-
-    {"sg_stats",                     sg_stats,                      1},
-    {"sg_stats_scan",                sg_stats_scan,                 1},
-#if HAVE_SSE2
-    {"sg_stats_scan_sse2_128_32",    sg_stats_scan_sse2_128_32,     4},
-    {"sg_stats_scan_sse2_128_16",    sg_stats_scan_sse2_128_16,     8},
-    {"sg_stats_scan_sse2_128_8",     sg_stats_scan_sse2_128_8,     16},
-    {"sg_stats_diag_sse2_128_32",    sg_stats_diag_sse2_128_32,     4},
-    {"sg_stats_diag_sse2_128_16",    sg_stats_diag_sse2_128_16,     8},
-    {"sg_stats_diag_sse2_128_8",     sg_stats_diag_sse2_128_8,     16},
-    {"sg_stats_striped_sse2_128_32", sg_stats_striped_sse2_128_32,  4},
-    {"sg_stats_striped_sse2_128_16", sg_stats_striped_sse2_128_16,  8},
-    {"sg_stats_striped_sse2_128_8",  sg_stats_striped_sse2_128_8,  16},
-#endif
-#if HAVE_SSE41
-    {"sg_stats_scan_sse41_128_32",   sg_stats_scan_sse41_128_32,    4},
-    {"sg_stats_scan_sse41_128_16",   sg_stats_scan_sse41_128_16,    8},
-    {"sg_stats_scan_sse41_128_8",    sg_stats_scan_sse41_128_8,    16},
-    {"sg_stats_diag_sse41_128_32",   sg_stats_diag_sse41_128_32,    4},
-    {"sg_stats_diag_sse41_128_16",   sg_stats_diag_sse41_128_16,    8},
-    {"sg_stats_diag_sse41_128_8",    sg_stats_diag_sse41_128_8,    16},
-    {"sg_stats_striped_sse41_128_32",sg_stats_striped_sse41_128_32, 4},
-    {"sg_stats_striped_sse41_128_16",sg_stats_striped_sse41_128_16, 8},
-    {"sg_stats_striped_sse41_128_8", sg_stats_striped_sse41_128_8, 16},
-#endif
-#if HAVE_AVX2
-    {"sg_stats_scan_avx2_256_32",    sg_stats_scan_avx2_256_32,     8},
-    {"sg_stats_scan_avx2_256_16",    sg_stats_scan_avx2_256_16,    16},
-    {"sg_stats_scan_avx2_256_8",     sg_stats_scan_avx2_256_8,     32},
-    {"sg_stats_diag_avx2_256_32",    sg_stats_diag_avx2_256_32,     8},
-    {"sg_stats_diag_avx2_256_16",    sg_stats_diag_avx2_256_16,    16},
-    {"sg_stats_diag_avx2_256_8",     sg_stats_diag_avx2_256_8,     32},
-    {"sg_stats_striped_avx2_256_32", sg_stats_striped_avx2_256_32,  8},
-    {"sg_stats_striped_avx2_256_16", sg_stats_striped_avx2_256_16, 16},
-    {"sg_stats_striped_avx2_256_8",  sg_stats_striped_avx2_256_8,  32},
-#endif
-#if HAVE_KNC
-    {"sg_stats_scan_knc_512_32",     sg_stats_scan_knc_512_32,     16},
-    {"sg_stats_diag_knc_512_32",     sg_stats_diag_knc_512_32,     16},
-    {"sg_stats_striped_knc_512_32",  sg_stats_striped_knc_512_32,  16},
-#endif
-
-    {"sw_stats",                     sw_stats,                      1},
-    {"sw_stats_scan",                sw_stats_scan,                 1},
-#if HAVE_SSE2
-    {"sw_stats_scan_sse2_128_32",    sw_stats_scan_sse2_128_32,     4},
-    {"sw_stats_scan_sse2_128_16",    sw_stats_scan_sse2_128_16,     8},
-    {"sw_stats_scan_sse2_128_8",     sw_stats_scan_sse2_128_8,     16},
-    {"sw_stats_diag_sse2_128_32",    sw_stats_diag_sse2_128_32,     4},
-    {"sw_stats_diag_sse2_128_16",    sw_stats_diag_sse2_128_16,     8},
-    {"sw_stats_diag_sse2_128_8",     sw_stats_diag_sse2_128_8,     16},
-    {"sw_stats_striped_sse2_128_32", sw_stats_striped_sse2_128_32,  4},
-    {"sw_stats_striped_sse2_128_16", sw_stats_striped_sse2_128_16,  8},
-    {"sw_stats_striped_sse2_128_8",  sw_stats_striped_sse2_128_8,  16},
-#endif
-#if HAVE_SSE41
-    {"sw_stats_scan_sse41_128_32",   sw_stats_scan_sse41_128_32,    4},
-    {"sw_stats_scan_sse41_128_16",   sw_stats_scan_sse41_128_16,    8},
-    {"sw_stats_scan_sse41_128_8",    sw_stats_scan_sse41_128_8,    16},
-    {"sw_stats_diag_sse41_128_32",   sw_stats_diag_sse41_128_32,    4},
-    {"sw_stats_diag_sse41_128_16",   sw_stats_diag_sse41_128_16,    8},
-    {"sw_stats_diag_sse41_128_8",    sw_stats_diag_sse41_128_8,    16},
-    {"sw_stats_striped_sse41_128_32",sw_stats_striped_sse41_128_32, 4},
-    {"sw_stats_striped_sse41_128_16",sw_stats_striped_sse41_128_16, 8},
-    {"sw_stats_striped_sse41_128_8", sw_stats_striped_sse41_128_8, 16},
-#endif
-#if HAVE_AVX2
-    {"sw_stats_scan_avx2_256_32",    sw_stats_scan_avx2_256_32,     8},
-    {"sw_stats_scan_avx2_256_16",    sw_stats_scan_avx2_256_16,    16},
-    {"sw_stats_scan_avx2_256_8",     sw_stats_scan_avx2_256_8,     32},
-    {"sw_stats_diag_avx2_256_32",    sw_stats_diag_avx2_256_32,     8},
-    {"sw_stats_diag_avx2_256_16",    sw_stats_diag_avx2_256_16,    16},
-    {"sw_stats_diag_avx2_256_8",     sw_stats_diag_avx2_256_8,     32},
-    {"sw_stats_striped_avx2_256_32", sw_stats_striped_avx2_256_32,  8},
-    {"sw_stats_striped_avx2_256_16", sw_stats_striped_avx2_256_16, 16},
-    {"sw_stats_striped_avx2_256_8",  sw_stats_striped_avx2_256_8,  32},
-#endif
-#if HAVE_KNC
-    {"sw_stats_scan_knc_512_32",     sw_stats_scan_knc_512_32,     16},
-    {"sw_stats_diag_knc_512_32",     sw_stats_diag_knc_512_32,     16},
-    {"sw_stats_striped_knc_512_32",  sw_stats_striped_knc_512_32,  16},
-#endif
-    {"NULL", NULL, 0}
+/* This table is used to transform amino acid letters into numbers. */
+static const int8_t table[128] = {
+    23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,
+    23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,
+    23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,
+    23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,
+    23, 0,  20, 4,  3,  6,  13, 7,  8,  9,  23, 11, 10, 12, 2,  23,
+    14, 5,  1,  15, 16, 23, 19, 17, 22, 18, 21, 23, 23, 23, 23, 23,
+    23, 0,  20, 4,  3,  6,  13, 7,  8,  9,  23, 11, 10, 12, 2,  23,
+    14, 5,  1,  15, 16, 23, 19, 17, 22, 18, 21, 23, 23, 23, 23, 23
 };
 
 static inline void parse_sequences(
@@ -506,7 +162,7 @@ int main(int argc, char **argv)
     size_t *sizes = NULL;
     char *endptr = NULL;
     char *funcname = NULL;
-    pf function = NULL;
+    parasail_function_t function = NULL;
     int lanes = 1;
     char *filename = NULL;
     int c = 0;
@@ -579,11 +235,10 @@ int main(int argc, char **argv)
         int index = 0;
         func_t f;
         f = functions[index++];
-        while (f.f) {
+        while (f.pointer) {
             if (0 == strcmp(funcname, f.name)) {
-                function = f.f;
+                function = f.pointer;
                 lanes = f.lanes;
-                printf("function: %s\n", funcname);
                 break;
             }
             f = functions[index++];
@@ -603,15 +258,14 @@ int main(int argc, char **argv)
         int index = 0;
         blosum_t b;
         b = blosums[index++];
-        while (b.blosum) {
+        while (b.pointer) {
             if (0 == strcmp(blosumname, b.name)) {
-                blosum = b.blosum;
-                printf("blosum: %s\n", blosumname);
+                blosum = b.pointer;
                 break;
             }
             b = blosums[index++];
         }
-        if (NULL == b.blosum) {
+        if (NULL == b.pointer) {
             fprintf(stderr, "Specified blosum matrix not found.\n");
             fprintf(stderr, "Choices are {"
                     "blosum40,"
@@ -638,16 +292,11 @@ int main(int argc, char **argv)
             longest = sizes[i] > longest ? sizes[i] : longest;
             sequences[i] = rand_string(sizes[i]);
         }
-        printf("done generating %lu random srings, "
-                "shortest is %d, longest is %d\n",
-                seq_count, shortest, longest);
     }
 
     limit = binomial_coefficient(seq_count, 2);
-    printf("%lu choose 2 is %lu\n", seq_count, limit);
 
     timer_init();
-    printf("%s timer\n", timer_name());
 
 #if defined(_OPENMP)
 #pragma omp parallel
@@ -655,10 +304,13 @@ int main(int argc, char **argv)
 #pragma omp single
         {
             N = omp_get_max_threads();
-            printf("omp_get_max_threads()=%d\n", N);
         }
     }
 #endif
+    printf("size_A,segLen,size_B,score,matches,similar,length,corrections,cells,time,");
+    printf("A_a,R_a,N_a,D_a,C_a,Q_a,E_a,G_a,H_a,I_a,L_a,K_a,M_a,F_a,P_a,S_a,T_a,W_a,Y_a,V_a,B_a,Z_a,X_a,NA_a,");
+    printf("A_b,R_b,N_b,D_b,C_b,Q_b,E_b,G_b,H_b,I_b,L_b,K_b,M_b,F_b,P_b,S_b,T_b,W_b,Y_b,V_b,B_b,Z_b,X_b,NA_b,");
+    printf("CUPS\n");
 
     timer_clock = timer_real();
 #pragma omp parallel
@@ -671,6 +323,9 @@ int main(int argc, char **argv)
         unsigned long a=0;
         unsigned long b=1;
         double timer_local = 0.0;
+        unsigned long a_counts[24];
+        unsigned long b_counts[24];
+        int j;
 #pragma omp for schedule(dynamic)
         for (i=0; i<limit; ++i) {
             parasail_result_t *result = NULL;
@@ -679,19 +334,38 @@ int main(int argc, char **argv)
             result = function(sequences[a], sizes[a], sequences[b], sizes[b],
                     gap_open, gap_extend, blosum);
             timer_local = timer_real() - timer_local;
+            for (j=0; j<24; ++j) {
+                a_counts[j] = 0;
+                b_counts[j] = 0;
+            }
+            for (j=0; j<sizes[a]; ++j) {
+                a_counts[table[sequences[a][j]]] += 1;
+            }
+            for (j=0; j<sizes[b]; ++j) {
+                b_counts[table[sequences[b][j]]] += 1;
+            }
 #pragma omp critical
-            printf("%lu\t%lu\t%lu\t%lu\t%lu\t%d\t%d\t%d\t%d\t%lu\t%f\n",
-                    a, b, sizes[a], (sizes[a]+lanes-1)/lanes, sizes[b],
+            printf("%lu,%lu,%lu,%d,%d,%d,%d,%llu,%lu,%f",
+                    sizes[a], (sizes[a]+lanes-1)/lanes, sizes[b],
                     result->score, result->matches,
                     result->similar, result->length,
+                    result->corrections,
                     sizes[a]*sizes[b], timer_local);
+            for (j=0; j<24; ++j) {
+                //printf(",%lu", a_counts[j]);
+                printf(",%f", (double)(a_counts[j])/sizes[a]);
+            }
+            for (j=0; j<24; ++j) {
+                //printf(",%lu", b_counts[j]);
+                printf(",%f", (double)(b_counts[j])/sizes[b]);
+            }
+            printf(",%f\n", sizes[a]*sizes[b]/timer_local);
 #pragma omp atomic
             saturated += result->saturated;
             parasail_result_free(result);
         }
     }
     timer_clock = timer_real() - timer_clock;
-    printf("%s\t%s\t%d\t%d\t%f\n", funcname, blosumname, N, saturated, timer_clock);
 
     return 0;
 }

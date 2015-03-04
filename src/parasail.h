@@ -20,6 +20,7 @@ typedef struct parasail_result {
     int matches;
     int similar;
     int length;
+    unsigned long long corrections;
     int * restrict score_table;
     int * restrict matches_table;
     int * restrict similar_table;

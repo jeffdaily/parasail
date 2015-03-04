@@ -34,11 +34,8 @@ KSEQ_INIT(int, read)
 #include "timer.h"
 #include "timer_real.h"
 
-typedef parasail_result_t* (*pf)(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap,
-        const int matrix[24][24]);
+#include "blosum_lookup.h"
+#include "function_lookup.h"
 
 #if HAVE_SSE2
 parasail_result_t* parasail_ssw_(
@@ -118,279 +115,6 @@ parasail_result_t* parasail_sw(
 
     return result;
 }
-
-typedef struct blosum {
-    const char * name;
-    const int (*blosum)[24];
-} blosum_t;
-
-blosum_t blosums[] = {
-    {"blosum40",blosum40},
-    {"blosum45",blosum45},
-    {"blosum50",blosum50},
-    {"blosum62",blosum62},
-    {"blosum75",blosum75},
-    {"blosum80",blosum80},
-    {"blosum90",blosum90},
-    {"NULL",NULL},
-};
-
-typedef struct func {
-    const char * name;
-    pf f;
-} func_t;
-
-func_t functions[] = {
-    {"nw",                           nw,                        },
-    {"nw_scan",                      nw_scan,                   },
-#if HAVE_SSE2
-    {"nw_scan_sse2_128_32",          nw_scan_sse2_128_32,       },
-    {"nw_scan_sse2_128_16",          nw_scan_sse2_128_16,       },
-    {"nw_scan_sse2_128_8",           nw_scan_sse2_128_8,        },
-    {"nw_diag_sse2_128_32",          nw_diag_sse2_128_32,       },
-    {"nw_diag_sse2_128_16",          nw_diag_sse2_128_16,       },
-    {"nw_diag_sse2_128_8",           nw_diag_sse2_128_8,        },
-    {"nw_striped_sse2_128_32",       nw_striped_sse2_128_32,    },
-    {"nw_striped_sse2_128_16",       nw_striped_sse2_128_16,    },
-    {"nw_striped_sse2_128_8",        nw_striped_sse2_128_8,     },
-#endif
-#if HAVE_SSE41
-    {"nw_scan_sse41_128_32",         nw_scan_sse41_128_32,      },
-    {"nw_scan_sse41_128_16",         nw_scan_sse41_128_16,      },
-    {"nw_scan_sse41_128_8",          nw_scan_sse41_128_8,       },
-    {"nw_diag_sse41_128_32",         nw_diag_sse41_128_32,      },
-    {"nw_diag_sse41_128_16",         nw_diag_sse41_128_16,      },
-    {"nw_diag_sse41_128_8",          nw_diag_sse41_128_8,       },
-    {"nw_striped_sse41_128_32",      nw_striped_sse41_128_32,   },
-    {"nw_striped_sse41_128_16",      nw_striped_sse41_128_16,   },
-    {"nw_striped_sse41_128_8",       nw_striped_sse41_128_8,    },
-#endif
-#if HAVE_AVX2
-    {"nw_scan_avx2_256_32",          nw_scan_avx2_256_32,       },
-    {"nw_scan_avx2_256_16",          nw_scan_avx2_256_16,       },
-    {"nw_scan_avx2_256_8",           nw_scan_avx2_256_8,        },
-    {"nw_diag_avx2_256_32",          nw_diag_avx2_256_32,       },
-    {"nw_diag_avx2_256_16",          nw_diag_avx2_256_16,       },
-    {"nw_diag_avx2_256_8",           nw_diag_avx2_256_8,        },
-    {"nw_striped_avx2_256_32",       nw_striped_avx2_256_32,    },
-    {"nw_striped_avx2_256_16",       nw_striped_avx2_256_16,    },
-    {"nw_striped_avx2_256_8",        nw_striped_avx2_256_8,     },
-#endif
-#if HAVE_KNC
-    {"nw_scan_knc_512_32",           nw_scan_knc_512_32,        },
-    {"nw_diag_knc_512_32",           nw_diag_knc_512_32,        },
-    {"nw_striped_knc_512_32",        nw_striped_knc_512_32,     },
-#endif
-
-    {"sg",                           sg,                        },
-    {"sg_scan",                      sg_scan,                   },
-#if HAVE_SSE2
-    {"sg_scan_sse2_128_32",          sg_scan_sse2_128_32,       },
-    {"sg_scan_sse2_128_16",          sg_scan_sse2_128_16,       },
-    {"sg_scan_sse2_128_8",           sg_scan_sse2_128_8,        },
-    {"sg_diag_sse2_128_32",          sg_diag_sse2_128_32,       },
-    {"sg_diag_sse2_128_16",          sg_diag_sse2_128_16,       },
-    {"sg_diag_sse2_128_8",           sg_diag_sse2_128_8,        },
-    {"sg_striped_sse2_128_32",       sg_striped_sse2_128_32,    },
-    {"sg_striped_sse2_128_16",       sg_striped_sse2_128_16,    },
-    {"sg_striped_sse2_128_8",        sg_striped_sse2_128_8,     },
-#endif
-#if HAVE_SSE41
-    {"sg_scan_sse41_128_32",         sg_scan_sse41_128_32,      },
-    {"sg_scan_sse41_128_16",         sg_scan_sse41_128_16,      },
-    {"sg_scan_sse41_128_8",          sg_scan_sse41_128_8,       },
-    {"sg_diag_sse41_128_32",         sg_diag_sse41_128_32,      },
-    {"sg_diag_sse41_128_16",         sg_diag_sse41_128_16,      },
-    {"sg_diag_sse41_128_8",          sg_diag_sse41_128_8,       },
-    {"sg_striped_sse41_128_32",      sg_striped_sse41_128_32,   },
-    {"sg_striped_sse41_128_16",      sg_striped_sse41_128_16,   },
-    {"sg_striped_sse41_128_8",       sg_striped_sse41_128_8,    },
-#endif
-#if HAVE_AVX2
-    {"sg_scan_avx2_256_32",          sg_scan_avx2_256_32,       },
-    {"sg_scan_avx2_256_16",          sg_scan_avx2_256_16,       },
-    {"sg_scan_avx2_256_8",           sg_scan_avx2_256_8,        },
-    {"sg_diag_avx2_256_32",          sg_diag_avx2_256_32,       },
-    {"sg_diag_avx2_256_16",          sg_diag_avx2_256_16,       },
-    {"sg_diag_avx2_256_8",           sg_diag_avx2_256_8,        },
-    {"sg_striped_avx2_256_32",       sg_striped_avx2_256_32,    },
-    {"sg_striped_avx2_256_16",       sg_striped_avx2_256_16,    },
-    {"sg_striped_avx2_256_8",        sg_striped_avx2_256_8,     },
-#endif
-#if HAVE_KNC
-    {"sg_scan_knc_512_32",           sg_scan_knc_512_32,        },
-    {"sg_diag_knc_512_32",           sg_diag_knc_512_32,        },
-    {"sg_striped_knc_512_32",        sg_striped_knc_512_32,     },
-#endif
-
-    {"sw",                           sw,                        },
-    {"sw_scan",                      sw_scan,                   },
-#if HAVE_SSE2
-    {"sw_scan_sse2_128_32",          sw_scan_sse2_128_32,       },
-    {"sw_scan_sse2_128_16",          sw_scan_sse2_128_16,       },
-    {"sw_scan_sse2_128_8",           sw_scan_sse2_128_8,        },
-    {"sw_diag_sse2_128_32",          sw_diag_sse2_128_32,       },
-    {"sw_diag_sse2_128_16",          sw_diag_sse2_128_16,       },
-    {"sw_diag_sse2_128_8",           sw_diag_sse2_128_8,        },
-    {"sw_striped_sse2_128_32",       sw_striped_sse2_128_32,    },
-    {"sw_striped_sse2_128_16",       sw_striped_sse2_128_16,    },
-    {"sw_striped_sse2_128_8",        sw_striped_sse2_128_8,     },
-    {"ssw_16",                       parasail_ssw_16,           },
-    {"ssw_8",                        parasail_ssw,              },
-#endif
-#if HAVE_SSE41
-    {"sw_scan_sse41_128_32",         sw_scan_sse41_128_32,      },
-    {"sw_scan_sse41_128_16",         sw_scan_sse41_128_16,      },
-    {"sw_scan_sse41_128_8",          sw_scan_sse41_128_8,       },
-    {"sw_diag_sse41_128_32",         sw_diag_sse41_128_32,      },
-    {"sw_diag_sse41_128_16",         sw_diag_sse41_128_16,      },
-    {"sw_diag_sse41_128_8",          sw_diag_sse41_128_8,       },
-    {"sw_striped_sse41_128_32",      sw_striped_sse41_128_32,   },
-    {"sw_striped_sse41_128_16",      sw_striped_sse41_128_16,   },
-    {"sw_striped_sse41_128_8",       sw_striped_sse41_128_8,    },
-#endif
-#if HAVE_AVX2
-    {"sw_scan_avx2_256_32",          sw_scan_avx2_256_32,       },
-    {"sw_scan_avx2_256_16",          sw_scan_avx2_256_16,       },
-    {"sw_scan_avx2_256_8",           sw_scan_avx2_256_8,        },
-    {"sw_diag_avx2_256_32",          sw_diag_avx2_256_32,       },
-    {"sw_diag_avx2_256_16",          sw_diag_avx2_256_16,       },
-    {"sw_diag_avx2_256_8",           sw_diag_avx2_256_8,        },
-    {"sw_striped_avx2_256_32",       sw_striped_avx2_256_32,    },
-    {"sw_striped_avx2_256_16",       sw_striped_avx2_256_16,    },
-    {"sw_striped_avx2_256_8",        sw_striped_avx2_256_8,     },
-#endif
-#if HAVE_KNC
-    {"sw_scan_knc_512_32",           sw_scan_knc_512_32,        },
-    {"sw_diag_knc_512_32",           sw_diag_knc_512_32,        },
-    {"sw_striped_knc_512_32",        sw_striped_knc_512_32,     },
-#endif
-
-
-    {"nw_stats",                     nw_stats,                     },
-    {"nw_stats_scan",                nw_stats_scan,                },
-#if HAVE_SSE2
-    {"nw_stats_scan_sse2_128_32",    nw_stats_scan_sse2_128_32,    },
-    {"nw_stats_scan_sse2_128_16",    nw_stats_scan_sse2_128_16,    },
-    {"nw_stats_scan_sse2_128_8",     nw_stats_scan_sse2_128_8,     },
-    {"nw_stats_diag_sse2_128_32",    nw_stats_diag_sse2_128_32,    },
-    {"nw_stats_diag_sse2_128_16",    nw_stats_diag_sse2_128_16,    },
-    {"nw_stats_diag_sse2_128_8",     nw_stats_diag_sse2_128_8,     },
-    {"nw_stats_striped_sse2_128_32", nw_stats_striped_sse2_128_32, },
-    {"nw_stats_striped_sse2_128_16", nw_stats_striped_sse2_128_16, },
-    {"nw_stats_striped_sse2_128_8",  nw_stats_striped_sse2_128_8,  },
-#endif
-#if HAVE_SSE41
-    {"nw_stats_scan_sse41_128_32",   nw_stats_scan_sse41_128_32,   },
-    {"nw_stats_scan_sse41_128_16",   nw_stats_scan_sse41_128_16,   },
-    {"nw_stats_scan_sse41_128_8",    nw_stats_scan_sse41_128_8,    },
-    {"nw_stats_diag_sse41_128_32",   nw_stats_diag_sse41_128_32,   },
-    {"nw_stats_diag_sse41_128_16",   nw_stats_diag_sse41_128_16,   },
-    {"nw_stats_diag_sse41_128_8",    nw_stats_diag_sse41_128_8,    },
-    {"nw_stats_striped_sse41_128_32",nw_stats_striped_sse41_128_32,},
-    {"nw_stats_striped_sse41_128_16",nw_stats_striped_sse41_128_16,},
-    {"nw_stats_striped_sse41_128_8", nw_stats_striped_sse41_128_8, },
-#endif
-#if HAVE_AVX2
-    {"nw_stats_scan_avx2_256_32",    nw_stats_scan_avx2_256_32,    },
-    {"nw_stats_scan_avx2_256_16",    nw_stats_scan_avx2_256_16,    },
-    {"nw_stats_scan_avx2_256_8",     nw_stats_scan_avx2_256_8,     },
-    {"nw_stats_diag_avx2_256_32",    nw_stats_diag_avx2_256_32,    },
-    {"nw_stats_diag_avx2_256_16",    nw_stats_diag_avx2_256_16,    },
-    {"nw_stats_diag_avx2_256_8",     nw_stats_diag_avx2_256_8,     },
-    {"nw_stats_striped_avx2_256_32", nw_stats_striped_avx2_256_32, },
-    {"nw_stats_striped_avx2_256_16", nw_stats_striped_avx2_256_16, },
-    {"nw_stats_striped_avx2_256_8",  nw_stats_striped_avx2_256_8,  },
-#endif
-#if HAVE_KNC
-    {"nw_stats_scan_knc_512_32",     nw_stats_scan_knc_512_32,     },
-    {"nw_stats_diag_knc_512_32",     nw_stats_diag_knc_512_32,     },
-    {"nw_stats_striped_knc_512_32",  nw_stats_striped_knc_512_32,  },
-#endif
-
-    {"sg_stats",                     sg_stats,                     },
-    {"sg_stats_scan",                sg_stats_scan,                },
-#if HAVE_SSE2
-    {"sg_stats_scan_sse2_128_32",    sg_stats_scan_sse2_128_32,    },
-    {"sg_stats_scan_sse2_128_16",    sg_stats_scan_sse2_128_16,    },
-    {"sg_stats_scan_sse2_128_8",     sg_stats_scan_sse2_128_8,     },
-    {"sg_stats_diag_sse2_128_32",    sg_stats_diag_sse2_128_32,    },
-    {"sg_stats_diag_sse2_128_16",    sg_stats_diag_sse2_128_16,    },
-    {"sg_stats_diag_sse2_128_8",     sg_stats_diag_sse2_128_8,     },
-    {"sg_stats_striped_sse2_128_32", sg_stats_striped_sse2_128_32, },
-    {"sg_stats_striped_sse2_128_16", sg_stats_striped_sse2_128_16, },
-    {"sg_stats_striped_sse2_128_8",  sg_stats_striped_sse2_128_8,  },
-#endif
-#if HAVE_SSE41
-    {"sg_stats_scan_sse41_128_32",   sg_stats_scan_sse41_128_32,   },
-    {"sg_stats_scan_sse41_128_16",   sg_stats_scan_sse41_128_16,   },
-    {"sg_stats_scan_sse41_128_8",    sg_stats_scan_sse41_128_8,    },
-    {"sg_stats_diag_sse41_128_32",   sg_stats_diag_sse41_128_32,   },
-    {"sg_stats_diag_sse41_128_16",   sg_stats_diag_sse41_128_16,   },
-    {"sg_stats_diag_sse41_128_8",    sg_stats_diag_sse41_128_8,    },
-    {"sg_stats_striped_sse41_128_32",sg_stats_striped_sse41_128_32,},
-    {"sg_stats_striped_sse41_128_16",sg_stats_striped_sse41_128_16,},
-    {"sg_stats_striped_sse41_128_8", sg_stats_striped_sse41_128_8, },
-#endif
-#if HAVE_AVX2
-    {"sg_stats_scan_avx2_256_32",    sg_stats_scan_avx2_256_32,    },
-    {"sg_stats_scan_avx2_256_16",    sg_stats_scan_avx2_256_16,    },
-    {"sg_stats_scan_avx2_256_8",     sg_stats_scan_avx2_256_8,     },
-    {"sg_stats_diag_avx2_256_32",    sg_stats_diag_avx2_256_32,    },
-    {"sg_stats_diag_avx2_256_16",    sg_stats_diag_avx2_256_16,    },
-    {"sg_stats_diag_avx2_256_8",     sg_stats_diag_avx2_256_8,     },
-    {"sg_stats_striped_avx2_256_32", sg_stats_striped_avx2_256_32, },
-    {"sg_stats_striped_avx2_256_16", sg_stats_striped_avx2_256_16, },
-    {"sg_stats_striped_avx2_256_8",  sg_stats_striped_avx2_256_8,  },
-#endif
-#if HAVE_KNC
-    {"sg_stats_scan_knc_512_32",     sg_stats_scan_knc_512_32,     },
-    {"sg_stats_diag_knc_512_32",     sg_stats_diag_knc_512_32,     },
-    {"sg_stats_striped_knc_512_32",  sg_stats_striped_knc_512_32,  },
-#endif
-
-    {"sw_stats",                     sw_stats,                     },
-    {"sw_stats_scan",                sw_stats_scan,                },
-#if HAVE_SSE2
-    {"sw_stats_scan_sse2_128_32",    sw_stats_scan_sse2_128_32,    },
-    {"sw_stats_scan_sse2_128_16",    sw_stats_scan_sse2_128_16,    },
-    {"sw_stats_scan_sse2_128_8",     sw_stats_scan_sse2_128_8,     },
-    {"sw_stats_diag_sse2_128_32",    sw_stats_diag_sse2_128_32,    },
-    {"sw_stats_diag_sse2_128_16",    sw_stats_diag_sse2_128_16,    },
-    {"sw_stats_diag_sse2_128_8",     sw_stats_diag_sse2_128_8,     },
-    {"sw_stats_striped_sse2_128_32", sw_stats_striped_sse2_128_32, },
-    {"sw_stats_striped_sse2_128_16", sw_stats_striped_sse2_128_16, },
-    {"sw_stats_striped_sse2_128_8",  sw_stats_striped_sse2_128_8,  },
-#endif
-#if HAVE_SSE41
-    {"sw_stats_scan_sse41_128_32",   sw_stats_scan_sse41_128_32,   },
-    {"sw_stats_scan_sse41_128_16",   sw_stats_scan_sse41_128_16,   },
-    {"sw_stats_scan_sse41_128_8",    sw_stats_scan_sse41_128_8,    },
-    {"sw_stats_diag_sse41_128_32",   sw_stats_diag_sse41_128_32,   },
-    {"sw_stats_diag_sse41_128_16",   sw_stats_diag_sse41_128_16,   },
-    {"sw_stats_diag_sse41_128_8",    sw_stats_diag_sse41_128_8,    },
-    {"sw_stats_striped_sse41_128_32",sw_stats_striped_sse41_128_32,},
-    {"sw_stats_striped_sse41_128_16",sw_stats_striped_sse41_128_16,},
-    {"sw_stats_striped_sse41_128_8", sw_stats_striped_sse41_128_8, },
-#endif
-#if HAVE_AVX2
-    {"sw_stats_scan_avx2_256_32",    sw_stats_scan_avx2_256_32,    },
-    {"sw_stats_scan_avx2_256_16",    sw_stats_scan_avx2_256_16,    },
-    {"sw_stats_scan_avx2_256_8",     sw_stats_scan_avx2_256_8,     },
-    {"sw_stats_diag_avx2_256_32",    sw_stats_diag_avx2_256_32,    },
-    {"sw_stats_diag_avx2_256_16",    sw_stats_diag_avx2_256_16,    },
-    {"sw_stats_diag_avx2_256_8",     sw_stats_diag_avx2_256_8,     },
-    {"sw_stats_striped_avx2_256_32", sw_stats_striped_avx2_256_32, },
-    {"sw_stats_striped_avx2_256_16", sw_stats_striped_avx2_256_16, },
-    {"sw_stats_striped_avx2_256_8",  sw_stats_striped_avx2_256_8,  },
-#endif
-#if HAVE_KNC
-    {"sw_stats_scan_knc_512_32",     sw_stats_scan_knc_512_32,     },
-    {"sw_stats_diag_knc_512_32",     sw_stats_diag_knc_512_32,     },
-    {"sw_stats_striped_knc_512_32",  sw_stats_striped_knc_512_32,  },
-#endif
-    {"NULL", NULL}
-};
 
 static inline void parse_sequences(
         const char *filename, char ***strings_, size_t **sizes_, size_t *count_)
@@ -506,11 +230,11 @@ int main(int argc, char **argv)
     size_t *sizes = NULL;
     char *endptr = NULL;
     char *funcname = NULL;
-    pf function = NULL;
+    parasail_function_t function = NULL;
     char *filename = NULL;
     int c = 0;
     char *blosumname = NULL;
-    const int (*blosum)[24] = blosum62;
+    parasail_blosum_t blosum = blosum62;
     int gap_open = 10;
     int gap_extend = 1;
     int N = 1;
@@ -521,6 +245,7 @@ int main(int argc, char **argv)
     int iterations = 1;
     int iter = 0;
     stats_t stats_time;
+    unsigned long long corrections = 0;
 
     stats_clear(&stats_time);
 
@@ -582,7 +307,15 @@ int main(int argc, char **argv)
                 }
                 break;
             case '?':
-                if (optopt == 'f' || optopt == 'n') {
+                if (optopt == 'a'
+                        || optopt == 'b'
+                        || optopt == 'e'
+                        || optopt == 'f'
+                        || optopt == 'i'
+                        || optopt == 'n'
+                        || optopt == 'o'
+                        || optopt == 't')
+                {
                     fprintf(stderr,
                             "Option -%c requires an argument.\n",
                             optopt);
@@ -610,16 +343,14 @@ int main(int argc, char **argv)
 
     /* select the function */
     if (funcname) {
-        int index = 0;
-        func_t f;
-        f = functions[index++];
-        while (f.f) {
-            if (0 == strcmp(funcname, f.name)) {
-                function = f.f;
-                //printf("function: %s\n", funcname);
-                break;
+        function = lookup_function(funcname);
+        if (NULL == function) {
+            if (0 == strcmp(funcname, "ssw_16")) {
+                function = parasail_ssw_16;
             }
-            f = functions[index++];
+            else if (0 == strcmp(funcname, "ssw_8")) {
+                function = parasail_ssw;
+            }
         }
         if (NULL == function) {
             fprintf(stderr, "Specified function not found.\n");
@@ -633,18 +364,8 @@ int main(int argc, char **argv)
 
     /* select the blosum matrix */
     if (blosumname) {
-        int index = 0;
-        blosum_t b;
-        b = blosums[index++];
-        while (b.blosum) {
-            if (0 == strcmp(blosumname, b.name)) {
-                blosum = b.blosum;
-                //printf("blosum: %s\n", blosumname);
-                break;
-            }
-            b = blosums[index++];
-        }
-        if (NULL == b.blosum) {
+        blosum = lookup_blosum(blosumname);
+        if (NULL == blosum) {
             fprintf(stderr, "Specified blosum matrix not found.\n");
             fprintf(stderr, "Choices are {"
                     "blosum40,"
@@ -734,14 +455,17 @@ int main(int argc, char **argv)
                         gap_open, gap_extend, blosum);
 #pragma omp atomic
                 saturated += result->saturated;
+#pragma omp atomic
+                corrections += result->corrections;
                 parasail_result_free(result);
             }
         }
         timer_clock = timer_real() - timer_clock;
         stats_sample_value(&stats_time, timer_clock);
     }
-    printf("%s\t %s\t %d\t %d\t %d\t %d\t %f\t %f\t %f\t %f\n",
-            funcname, blosumname, gap_open, gap_extend, N, saturated,
+    printf("%s\t %s\t %d\t %d\t %d\t %d\t %llu\t %f\t %f\t %f\t %f\n",
+            funcname, blosumname, gap_open, gap_extend, N,
+            saturated, corrections,
             stats_time._mean, stats_stddev(&stats_time),
             stats_time._min, stats_time._max);
 

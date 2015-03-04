@@ -178,6 +178,7 @@ parasail_result_t* FNAME(
             vF = _mm_slli_si128(vF, 2);
             vF = _mm_insert_epi16(vF, boundary[j+1]-open, 0);
             for (i=0; i<segLen; ++i) {
+                result->corrections += 1;
                 vH = _mm_load_si128(pvHStore + i);
                 vH = _mm_max_epi16(vH,vF);
                 _mm_store_si128(pvHStore + i, vH);

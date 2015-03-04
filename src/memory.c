@@ -113,6 +113,7 @@ parasail_result_t* parasail_result_new()
     result->matches = 0;
     result->similar = 0;
     result->length = 0;
+    result->corrections = 0;
     result->score_table = NULL;
     result->matches_table = NULL;
     result->similar_table = NULL;

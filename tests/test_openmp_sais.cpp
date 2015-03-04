@@ -18,9 +18,11 @@
 #include "config.h"
 
 #include <sys/time.h>
+#include <unistd.h>
 
 #include <cassert>
 #include <cctype>
+#include <cfloat>
 #include <climits>
 #include <cstdio>
 #include <cstdlib>
@@ -47,6 +49,9 @@
 #include "stats.h"
 #include "timer.h"
 #include "timer_real.h"
+
+#include "blosum_lookup.h"
+#include "function_lookup.h"
 
 #include "sais.h"
 
@@ -98,11 +103,11 @@ inline static void process(
         const int &cutoff);
 
 static void print_help(const char *progname, int status) {
-    fprintf(stdout, "usage: %s [-c cutoff>=1] FILE\n\n", progname);
+    fprintf(stdout, "usage: %s [-c cutoff>=1] -f FILE\n\n", progname);
     exit(status);
 }
 
-int main(int argc, const char *argv[]) {
+int main(int argc, char **argv) {
     FILE *fp = NULL;
     const char *fname = NULL;
     unsigned char *T = NULL;
@@ -124,45 +129,88 @@ int main(int argc, const char *argv[]) {
     PairSet pairs;
     int count_generated = 0;
     unsigned long work = 0;
+    unsigned long long corrections = 0;
+    int c = 0;
+    char *funcname = NULL;
+    parasail_function_t function = NULL;
+    char *blosumname = NULL;
+    parasail_blosum_t blosum = blosum62;
+    int gap_open = 10;
+    int gap_extend = 1;
 
     /* Check arguments. */
-    i = 1;
-    while (i < argc) {
-        if ((strncmp(argv[i], "-h", 2) == 0)
-                || (strncmp(argv[i], "--help", 6) == 0)) {
-            fprintf(stdout, "help requested\n");
-            print_help(argv[0], EXIT_SUCCESS);
-        }
-        else if (strncmp(argv[i], "-c", 2) == 0) {
-            if (i+1 < argc) {
-                cutoff = atoi(argv[i+1]);
+    while ((c = getopt(argc, argv, "a:b:c:f:h")) != -1) {
+        switch (c) {
+            case 'a':
+                funcname = optarg;
+                break;
+            case 'b':
+                blosumname = optarg;
+                break;
+            case 'h':
+                print_help(argv[0], EXIT_FAILURE);
+                break;
+            case 'c':
+                cutoff = atoi(optarg);
                 if (cutoff <= 0) {
                     print_help(argv[0], EXIT_FAILURE);
                 }
-                ++i;
-            }
-            else {
-                if (i+1 >= argc) {
-                    fprintf(stdout, "-c takes a parameter\n");
+                break;
+            case 'f':
+                fname = optarg;
+                break;
+            case '?':
+                if (optopt == 'c' || optopt == 'f') {
+                    fprintf(stderr,
+                            "Option -%c requires an argument.\n",
+                            optopt);
+                }
+                else if (isprint(optopt)) {
+                    fprintf(stderr, "Unknown option `-%c'.\n",
+                            optopt);
                 }
                 else {
-                    fprintf(stdout, "bad argument to -c: %s\n", argv[i+1]);
+                    fprintf(stderr,
+                            "Unknown option character `\\x%x'.\n",
+                            optopt);
                 }
-                print_help(argv[0], EXIT_FAILURE);
-            }
+                exit(1);
+            default:
+                fprintf(stderr, "default case in getopt\n");
+                exit(1);
         }
-        else if (strncmp(argv[i], "-", 1) != 0) {
-            /* filename */
-            if (i+1 != argc) { /* last argument */
-                print_help(argv[0], EXIT_FAILURE);
-            }
-            fname = argv[i];
-        }
-        else {
-            print_help(argv[0], EXIT_FAILURE);
-        }
-        ++i;
     }
+
+    /* select the function */
+    if (funcname) {
+        function = lookup_function(funcname);
+        if (NULL == function) {
+            fprintf(stderr, "Specified function not found.\n");
+            exit(1);
+        }
+    }
+    else {
+        fprintf(stderr, "No alignment function specified.\n");
+        exit(1);
+    }
+
+    /* select the blosum matrix */
+    if (blosumname) {
+        blosum = lookup_blosum(blosumname);
+        if (NULL == blosum) {
+            fprintf(stderr, "Specified blosum matrix not found.\n");
+            fprintf(stderr, "Choices are {"
+                    "blosum40,"
+                    "blosum45,"
+                    "blosum50,"
+                    "blosum62,"
+                    "blosum75,"
+                    "blosum80,"
+                    "blosum90}\n");
+            exit(1);
+        }
+    }
+
     if (fname == NULL) {
         fprintf(stdout, "missing input file\n");
         print_help(argv[0], EXIT_FAILURE);
@@ -366,6 +414,10 @@ int main(int argc, const char *argv[]) {
 
     /* align pairs */
     start = timer_real();
+    stats_t length_a;
+    stats_t length_b;
+    stats_clear(&length_a);
+    stats_clear(&length_b);
 #pragma omp parallel
     {
         int thread_num = 0;
@@ -384,20 +436,36 @@ int main(int argc, const char *argv[]) {
             int j_len = j_end-j_beg;
             unsigned long local_work = i_len * j_len;
             double local_timer = timer_real();
-            parasail_result_t *result = sw_striped_sse41_128_16(
+#if 0
+            parasail_result_t *result = function(
                     (const char*)&T[i_beg], i_len,
                     (const char*)&T[j_beg], j_len,
-                    10, 1, blosum62);
+                    gap_open, gap_extend, blosum);
             local_timer = timer_real() - local_timer;
-            parasail_result_free(result);
-#pragma omp atomic
-            work += local_work;
+#endif
+#pragma omp critical
+            {
+                //corrections += result->corrections;
+                work += local_work;
+                stats_sample_value(&length_a, i_len);
+                stats_sample_value(&length_b, j_len);
+            }
+            //parasail_result_free(result);
         }
     }
     finish = timer_real();
     fprintf(stdout, "alignments: %.4f sec\n", finish-start);
     fprintf(stdout, "      work: %lu \n", work);
     fprintf(stdout, "     gcups: %.4f \n", double(work)/(finish-start));
+    fprintf(stdout, "correction: %llu \n", corrections);
+    fprintf(stdout, "a len mean: %f \n", length_a._mean);
+    fprintf(stdout, "a len stdv: %f \n", stats_stddev(&length_a));
+    fprintf(stdout, "a len min : %f \n", length_a._min);
+    fprintf(stdout, "a len max : %f \n", length_a._max);
+    fprintf(stdout, "b len mean: %f \n", length_b._mean);
+    fprintf(stdout, "b len stdv: %f \n", stats_stddev(&length_b));
+    fprintf(stdout, "b len min : %f \n", length_b._min);
+    fprintf(stdout, "b len max : %f \n", length_b._max);
 
     /* Done with input text. */
     free(T);

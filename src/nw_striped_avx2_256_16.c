@@ -211,6 +211,7 @@ parasail_result_t* FNAME(
             vF = shift(vF);
             vF = _mm256_insert_epi16(vF, boundary[j+1]-open, 0);
             for (i=0; i<segLen; ++i) {
+                result->corrections += 1;
                 vH = _mm256_load_si256(pvHStore + i);
                 vH = _mm256_max_epi16(vH,vF);
                 _mm256_store_si256(pvHStore + i, vH);

@@ -182,6 +182,7 @@ parasail_result_t* FNAME(
         for (k=0; k<segWidth; ++k) {
             vF = shift(vF);
             for (i=0; i<segLen; ++i) {
+                result->corrections += 1;
                 vH = _mm256_load_si256(pvHStore + i);
                 vH = _mm256_max_epi32(vH,vF);
                 _mm256_store_si256(pvHStore + i, vH);

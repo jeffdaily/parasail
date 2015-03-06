@@ -81,9 +81,9 @@ build_triplet = @build@
 host_triplet = @host@
 check_PROGRAMS = tests/test_align$(EXEEXT) tests/test_gcups$(EXEEXT) \
 	tests/test_isa$(EXEEXT) tests/test_openmp$(EXEEXT) \
-	tests/test_openmp_sais$(EXEEXT) tests/test_scatter$(EXEEXT) \
-	tests/test_sw_dispatch$(EXEEXT) tests/test_verify$(EXEEXT) \
-	tests/test_verify_tables$(EXEEXT)
+	tests/test_openmp_sais$(EXEEXT) tests/test_query$(EXEEXT) \
+	tests/test_scatter$(EXEEXT) tests/test_sw_dispatch$(EXEEXT) \
+	tests/test_verify$(EXEEXT) tests/test_verify_tables$(EXEEXT)
 @HAVE_SSE_TRUE@am__append_1 = libparasail_sse_memory.la
 @HAVE_SSE2_TRUE@am__append_2 = libparasail_sse2.la \
 @HAVE_SSE2_TRUE@	libparasail_sse2_table.la
@@ -708,6 +708,15 @@ tests_test_openmp_sais_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
 	$(tests_test_openmp_sais_CXXFLAGS) $(CXXFLAGS) \
 	$(tests_test_openmp_sais_LDFLAGS) $(LDFLAGS) -o $@
+am_tests_test_query_OBJECTS =  \
+	tests/tests_test_query-test_query.$(OBJEXT)
+tests_test_query_OBJECTS = $(am_tests_test_query_OBJECTS)
+tests_test_query_DEPENDENCIES = $(LDADD) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+tests_test_query_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(tests_test_query_CFLAGS) $(CFLAGS) \
+	$(tests_test_query_LDFLAGS) $(LDFLAGS) -o $@
 am_tests_test_scatter_OBJECTS =  \
 	tests/tests_test_scatter-test_scatter.$(OBJEXT)
 tests_test_scatter_OBJECTS = $(am_tests_test_scatter_OBJECTS)
@@ -808,7 +817,7 @@ SOURCES = $(libparasail_la_SOURCES) $(libparasail_avx2_la_SOURCES) \
 	$(tests_libsais_la_SOURCES) $(tests_libssw_la_SOURCES) \
 	$(tests_test_align_SOURCES) $(tests_test_gcups_SOURCES) \
 	$(tests_test_isa_SOURCES) $(tests_test_openmp_SOURCES) \
-	$(tests_test_openmp_sais_SOURCES) \
+	$(tests_test_openmp_sais_SOURCES) $(tests_test_query_SOURCES) \
 	$(tests_test_scatter_SOURCES) \
 	$(tests_test_sw_dispatch_SOURCES) $(tests_test_verify_SOURCES) \
 	$(tests_test_verify_tables_SOURCES)
@@ -830,7 +839,7 @@ DIST_SOURCES = $(libparasail_la_SOURCES) \
 	$(am__tests_libssw_la_SOURCES_DIST) \
 	$(tests_test_align_SOURCES) $(tests_test_gcups_SOURCES) \
 	$(tests_test_isa_SOURCES) $(tests_test_openmp_SOURCES) \
-	$(tests_test_openmp_sais_SOURCES) \
+	$(tests_test_openmp_sais_SOURCES) $(tests_test_query_SOURCES) \
 	$(tests_test_scatter_SOURCES) \
 	$(tests_test_sw_dispatch_SOURCES) $(tests_test_verify_SOURCES) \
 	$(tests_test_verify_tables_SOURCES)
@@ -1241,6 +1250,10 @@ tests_test_openmp_sais_SOURCES = tests/test_openmp_sais.cpp
 tests_test_openmp_sais_CXXFLAGS = $(AM_CXXFLAGS) $(OPENMP_CXXFLAGS)
 tests_test_openmp_sais_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CXXFLAGS)
 tests_test_openmp_sais_LDADD = $(LDADD) $(CLOCK_LIBS) tests/libsais.la
+tests_test_query_SOURCES = tests/test_query.c
+tests_test_query_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)
+tests_test_query_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
+tests_test_query_LDADD = $(LDADD) $(CLOCK_LIBS) $(MATH_LIBS) $(Z_LIBS)
 tests_test_scatter_SOURCES = tests/test_scatter.c
 tests_test_scatter_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_test_scatter_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
@@ -2258,6 +2271,12 @@ tests/tests_test_openmp_sais-test_openmp_sais.$(OBJEXT):  \
 tests/test_openmp_sais$(EXEEXT): $(tests_test_openmp_sais_OBJECTS) $(tests_test_openmp_sais_DEPENDENCIES) $(EXTRA_tests_test_openmp_sais_DEPENDENCIES) tests/$(am__dirstamp)
 	@rm -f tests/test_openmp_sais$(EXEEXT)
 	$(AM_V_CXXLD)$(tests_test_openmp_sais_LINK) $(tests_test_openmp_sais_OBJECTS) $(tests_test_openmp_sais_LDADD) $(LIBS)
+tests/tests_test_query-test_query.$(OBJEXT): tests/$(am__dirstamp) \
+	tests/$(DEPDIR)/$(am__dirstamp)
+
+tests/test_query$(EXEEXT): $(tests_test_query_OBJECTS) $(tests_test_query_DEPENDENCIES) $(EXTRA_tests_test_query_DEPENDENCIES) tests/$(am__dirstamp)
+	@rm -f tests/test_query$(EXEEXT)
+	$(AM_V_CCLD)$(tests_test_query_LINK) $(tests_test_query_OBJECTS) $(tests_test_query_LDADD) $(LIBS)
 tests/tests_test_scatter-test_scatter.$(OBJEXT):  \
 	tests/$(am__dirstamp) tests/$(DEPDIR)/$(am__dirstamp)
 
@@ -2696,6 +2715,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_sw_dispatch.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/tests_test_openmp-test_openmp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/tests_test_openmp_sais-test_openmp_sais.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/tests_test_query-test_query.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/tests_test_scatter-test_scatter.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/tests_test_verify-test_verify.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/tests_test_verify_tables-test_verify_tables.Po@am__quote@
@@ -5446,6 +5466,20 @@ tests/tests_test_openmp-test_openmp.obj: tests/test_openmp.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/test_openmp.c' object='tests/tests_test_openmp-test_openmp.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_test_openmp_CFLAGS) $(CFLAGS) -c -o tests/tests_test_openmp-test_openmp.obj `if test -f 'tests/test_openmp.c'; then $(CYGPATH_W) 'tests/test_openmp.c'; else $(CYGPATH_W) '$(srcdir)/tests/test_openmp.c'; fi`
+
+tests/tests_test_query-test_query.o: tests/test_query.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_test_query_CFLAGS) $(CFLAGS) -MT tests/tests_test_query-test_query.o -MD -MP -MF tests/$(DEPDIR)/tests_test_query-test_query.Tpo -c -o tests/tests_test_query-test_query.o `test -f 'tests/test_query.c' || echo '$(srcdir)/'`tests/test_query.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) tests/$(DEPDIR)/tests_test_query-test_query.Tpo tests/$(DEPDIR)/tests_test_query-test_query.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/test_query.c' object='tests/tests_test_query-test_query.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_test_query_CFLAGS) $(CFLAGS) -c -o tests/tests_test_query-test_query.o `test -f 'tests/test_query.c' || echo '$(srcdir)/'`tests/test_query.c
+
+tests/tests_test_query-test_query.obj: tests/test_query.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_test_query_CFLAGS) $(CFLAGS) -MT tests/tests_test_query-test_query.obj -MD -MP -MF tests/$(DEPDIR)/tests_test_query-test_query.Tpo -c -o tests/tests_test_query-test_query.obj `if test -f 'tests/test_query.c'; then $(CYGPATH_W) 'tests/test_query.c'; else $(CYGPATH_W) '$(srcdir)/tests/test_query.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) tests/$(DEPDIR)/tests_test_query-test_query.Tpo tests/$(DEPDIR)/tests_test_query-test_query.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/test_query.c' object='tests/tests_test_query-test_query.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_test_query_CFLAGS) $(CFLAGS) -c -o tests/tests_test_query-test_query.obj `if test -f 'tests/test_query.c'; then $(CYGPATH_W) 'tests/test_query.c'; else $(CYGPATH_W) '$(srcdir)/tests/test_query.c'; fi`
 
 tests/tests_test_scatter-test_scatter.o: tests/test_scatter.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_test_scatter_CFLAGS) $(CFLAGS) -MT tests/tests_test_scatter-test_scatter.o -MD -MP -MF tests/$(DEPDIR)/tests_test_scatter-test_scatter.Tpo -c -o tests/tests_test_scatter-test_scatter.o `test -f 'tests/test_scatter.c' || echo '$(srcdir)/'`tests/test_scatter.c

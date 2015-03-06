@@ -445,6 +445,7 @@ check_PROGRAMS += tests/test_gcups
 check_PROGRAMS += tests/test_isa
 check_PROGRAMS += tests/test_openmp
 check_PROGRAMS += tests/test_openmp_sais
+check_PROGRAMS += tests/test_query
 check_PROGRAMS += tests/test_scatter
 check_PROGRAMS += tests/test_sw_dispatch
 check_PROGRAMS += tests/test_verify
@@ -483,6 +484,15 @@ tests_test_openmp_sais_LDADD    =
 tests_test_openmp_sais_LDADD    += $(LDADD)
 tests_test_openmp_sais_LDADD    += $(CLOCK_LIBS)
 tests_test_openmp_sais_LDADD    += tests/libsais.la
+
+tests_test_query_SOURCES = tests/test_query.c
+tests_test_query_CFLAGS  = $(AM_CFLAGS) $(OPENMP_CFLAGS)
+tests_test_query_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
+tests_test_query_LDADD   =
+tests_test_query_LDADD   += $(LDADD)
+tests_test_query_LDADD   += $(CLOCK_LIBS)
+tests_test_query_LDADD   += $(MATH_LIBS)
+tests_test_query_LDADD   += $(Z_LIBS)
 
 tests_test_scatter_SOURCES = tests/test_scatter.c
 tests_test_scatter_CFLAGS  = $(AM_CFLAGS) $(OPENMP_CFLAGS)

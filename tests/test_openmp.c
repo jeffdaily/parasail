@@ -224,14 +224,19 @@ int main(int argc, char **argv)
     int longest = 0;
     double timer_clock = 0.0;
     unsigned long i = 0;
-    size_t seq_count = 10;
+    unsigned long j = 0;
     size_t limit = 0;
-    char **sequences = NULL;
-    size_t *sizes = NULL;
+    char *filename_database = NULL;
+    char **sequences_database = NULL;
+    size_t *sizes_database = NULL;
+    size_t seq_count_database = 0;
+    char *filename_queries = NULL;
+    char **sequences_queries = NULL;
+    size_t *sizes_queries = NULL;
+    size_t seq_count_queries = 0;
     char *endptr = NULL;
     char *funcname = NULL;
     parasail_function_t function = NULL;
-    char *filename = NULL;
     int c = 0;
     char *blosumname = NULL;
     parasail_blosum_t blosum = blosum62;
@@ -249,7 +254,7 @@ int main(int argc, char **argv)
 
     stats_clear(&stats_time);
 
-    while ((c = getopt(argc, argv, "a:b:f:n:o:e:slt:i:")) != -1) {
+    while ((c = getopt(argc, argv, "a:b:f:q:o:e:slt:i:")) != -1) {
         switch (c) {
             case 'a':
                 funcname = optarg;
@@ -258,19 +263,14 @@ int main(int argc, char **argv)
                 blosumname = optarg;
                 break;
             case 'f':
-                filename = optarg;
+                filename_database = optarg;
+                break;
+            case 'q':
+                filename_queries = optarg;
                 break;
             case 'i':
                 errno = 0;
                 iterations = strtol(optarg, &endptr, 10);
-                if (errno) {
-                    perror("strtol");
-                    exit(1);
-                }
-                break;
-            case 'n':
-                errno = 0;
-                seq_count = strtol(optarg, &endptr, 10);
                 if (errno) {
                     perror("strtol");
                     exit(1);
@@ -379,26 +379,16 @@ int main(int argc, char **argv)
         }
     }
 
-    if (filename) {
-        parse_sequences(filename, &sequences, &sizes, &seq_count);
+    if (filename_database) {
+        parse_sequences(filename_database, &sequences_database, &sizes_database, &seq_count_database);
     }
     else {
-        /* generate 'seq_count' number of random strings */
-        sequences = (char**)malloc(sizeof(char*)*seq_count);
-        sizes = (size_t*)malloc(sizeof(size_t)*seq_count);
-        for (i=0; i<seq_count; ++i) {
-            sizes[i] = (rand()%32767)+10;
-            shortest = sizes[i] < shortest ? sizes[i] : shortest;
-            longest = sizes[i] > longest ? sizes[i] : longest;
-            sequences[i] = rand_string(sizes[i]);
-        }
-        printf("done generating %lu random srings, "
-                "shortest is %d, longest is %d\n",
-                seq_count, shortest, longest);
+        fprintf(stderr, "missing database filename\n");
+        exit(1);
     }
 
-    limit = binomial_coefficient(seq_count, 2);
-    //printf("%lu choose 2 is %lu\n", seq_count, limit);
+    limit = binomial_coefficient(seq_count_database, 2);
+    //printf("%lu choose 2 is %lu\n", seq_count_database, limit);
 
     timer_init();
     //printf("%s timer\n", timer_name());
@@ -414,60 +404,86 @@ int main(int argc, char **argv)
     }
 #endif
 
-    for (iter=0; iter<iterations; ++iter) {
-        timer_clock = timer_real();
-#pragma omp parallel
-        {
-#if defined(_OPENMP)
-            int tid = omp_get_thread_num();
-#else
-            int tid = 0;
-#endif
-            unsigned long a=0;
-            unsigned long b=1;
-            unsigned long swap=0;
-#pragma omp for schedule(dynamic)
-            for (i=0; i<limit; ++i) {
-                parasail_result_t *result = NULL;
-                unsigned long query_size;
-                k_combination2(i, &a, &b);
-                if (smallest_first) {
-                    if (sizes[a] > sizes[b]) {
-                        swap = a;
-                        a = b;
-                        b = swap;
-                    }
-                }
-                else if (biggest_first) {
-                    if (sizes[a] < sizes[b]) {
-                        swap = a;
-                        a = b;
-                        b = swap;
-                    }
-                }
-                query_size = sizes[a];
-                if (truncate > 0) {
-                    if (query_size > truncate) {
-                        query_size = truncate;
-                    }
-                }
-                result = function(sequences[a], query_size, sequences[b], sizes[b],
+    if (filename_queries) {
+        parse_sequences(filename_queries,
+                &sequences_queries, &sizes_queries, &seq_count_queries);
+        for (i=0; i<seq_count_queries; ++i) {
+            int saturated_query = 0;
+            unsigned long long corrections_query = 0;
+            double local_timer = timer_real();
+            for (j=0; j<seq_count_database; ++j) {
+                parasail_result_t *result = function(
+                        sequences_queries[i], sizes_queries[i],
+                        sequences_database[j], sizes_database[j],
                         gap_open, gap_extend, blosum);
-#pragma omp atomic
-                saturated += result->saturated;
-#pragma omp atomic
-                corrections += result->corrections;
+                saturated_query += result->saturated;
+                corrections_query += result->corrections;
                 parasail_result_free(result);
             }
+            local_timer = timer_real() - local_timer;
+            printf("%d\t %lu\t %d\t %llu\t %f\n",
+                    i, sizes_queries[i],
+                    saturated_query, corrections_query, local_timer);
         }
-        timer_clock = timer_real() - timer_clock;
-        stats_sample_value(&stats_time, timer_clock);
     }
-    printf("%s\t %s\t %d\t %d\t %d\t %d\t %llu\t %f\t %f\t %f\t %f\n",
-            funcname, blosumname, gap_open, gap_extend, N,
-            saturated, corrections,
-            stats_time._mean, stats_stddev(&stats_time),
-            stats_time._min, stats_time._max);
+    else {
+        for (iter=0; iter<iterations; ++iter) {
+            timer_clock = timer_real();
+#pragma omp parallel
+            {
+#if defined(_OPENMP)
+                int tid = omp_get_thread_num();
+#else
+                int tid = 0;
+#endif
+                unsigned long a=0;
+                unsigned long b=1;
+                unsigned long swap=0;
+#pragma omp for schedule(dynamic)
+                for (i=0; i<limit; ++i) {
+                    parasail_result_t *result = NULL;
+                    unsigned long query_size;
+                    k_combination2(i, &a, &b);
+                    if (smallest_first) {
+                        if (sizes_database[a] > sizes_database[b]) {
+                            swap = a;
+                            a = b;
+                            b = swap;
+                        }
+                    }
+                    else if (biggest_first) {
+                        if (sizes_database[a] < sizes_database[b]) {
+                            swap = a;
+                            a = b;
+                            b = swap;
+                        }
+                    }
+                    query_size = sizes_database[a];
+                    if (truncate > 0) {
+                        if (query_size > truncate) {
+                            query_size = truncate;
+                        }
+                    }
+                    result = function(
+                            sequences_database[a], query_size,
+                            sequences_database[b], sizes_database[b],
+                            gap_open, gap_extend, blosum);
+#pragma omp atomic
+                    saturated += result->saturated;
+#pragma omp atomic
+                    corrections += result->corrections;
+                    parasail_result_free(result);
+                }
+            }
+            timer_clock = timer_real() - timer_clock;
+            stats_sample_value(&stats_time, timer_clock);
+        }
+        printf("%s\t %s\t %d\t %d\t %d\t %d\t %llu\t %f\t %f\t %f\t %f\n",
+                funcname, blosumname, gap_open, gap_extend, N,
+                saturated, corrections,
+                stats_time._mean, stats_stddev(&stats_time),
+                stats_time._min, stats_time._max);
+    }
 
     return 0;
 }

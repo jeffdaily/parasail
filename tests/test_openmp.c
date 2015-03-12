@@ -344,6 +344,7 @@ int main(int argc, char **argv)
     /* select the function */
     if (funcname) {
         function = lookup_function(funcname);
+#if HAVE_SSE2
         if (NULL == function) {
             if (0 == strcmp(funcname, "ssw_16")) {
                 function = parasail_ssw_16;
@@ -352,6 +353,7 @@ int main(int argc, char **argv)
                 function = parasail_ssw;
             }
         }
+#endif
         if (NULL == function) {
             fprintf(stderr, "Specified function not found.\n");
             exit(1);
@@ -421,7 +423,7 @@ int main(int argc, char **argv)
                 parasail_result_free(result);
             }
             local_timer = timer_real() - local_timer;
-            printf("%d\t %lu\t %d\t %llu\t %f\n",
+            printf("%lu\t %lu\t %d\t %llu\t %f\n",
                     i, sizes_queries[i],
                     saturated_query, corrections_query, local_timer);
         }

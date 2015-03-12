@@ -111,6 +111,10 @@ SRC_SSE2 += src/nw_scan_sse2_128_8.c
 SRC_SSE2 += src/sg_scan_sse2_128_8.c
 SRC_SSE2 += src/sw_scan_sse2_128_8.c
 
+SRC_SSE41 += src/nw_scan_sse41_128_64.c
+SRC_SSE41 += src/sg_scan_sse41_128_64.c
+SRC_SSE41 += src/sw_scan_sse41_128_64.c
+
 SRC_SSE41 += src/nw_scan_sse41_128_32.c
 SRC_SSE41 += src/sg_scan_sse41_128_32.c
 SRC_SSE41 += src/sw_scan_sse41_128_32.c

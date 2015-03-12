@@ -37,6 +37,7 @@ func_t functions[] = {
     {"nw_striped_sse2_128_8",        nw_striped_sse2_128_8,     16},
 #endif
 #if HAVE_SSE41
+    {"nw_scan_sse41_128_64",         nw_scan_sse41_128_32,       2},
     {"nw_scan_sse41_128_32",         nw_scan_sse41_128_32,       4},
     {"nw_scan_sse41_128_16",         nw_scan_sse41_128_16,       8},
     {"nw_scan_sse41_128_8",          nw_scan_sse41_128_8,       16},
@@ -78,6 +79,7 @@ func_t functions[] = {
     {"sg_striped_sse2_128_8",        sg_striped_sse2_128_8,     16},
 #endif
 #if HAVE_SSE41
+    {"sg_scan_sse41_128_64",         sg_scan_sse41_128_32,       2},
     {"sg_scan_sse41_128_32",         sg_scan_sse41_128_32,       4},
     {"sg_scan_sse41_128_16",         sg_scan_sse41_128_16,       8},
     {"sg_scan_sse41_128_8",          sg_scan_sse41_128_8,       16},
@@ -119,6 +121,7 @@ func_t functions[] = {
     {"sw_striped_sse2_128_8",        sw_striped_sse2_128_8,     16},
 #endif
 #if HAVE_SSE41
+    {"sw_scan_sse41_128_64",         sw_scan_sse41_128_32,       2},
     {"sw_scan_sse41_128_32",         sw_scan_sse41_128_32,       4},
     {"sw_scan_sse41_128_16",         sw_scan_sse41_128_16,       8},
     {"sw_scan_sse41_128_8",          sw_scan_sse41_128_8,       16},

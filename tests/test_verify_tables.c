@@ -91,6 +91,7 @@ funcs_t nw_sse2 = {"nw_table_sse2", nw_sse2_functions};
 func_t nw_sse41_functions[] = {
     {"nw_table",                           nw_table,                        },
     {"nw_table_scan",                      nw_table_scan,                   },
+    {"nw_table_scan_sse41_128_64",         nw_table_scan_sse41_128_64,      },
     {"nw_table_scan_sse41_128_32",         nw_table_scan_sse41_128_32,      },
     {"nw_table_scan_sse41_128_16",         nw_table_scan_sse41_128_16,      },
     {"nw_table_scan_sse41_128_8",          nw_table_scan_sse41_128_8,       },
@@ -157,6 +158,7 @@ funcs_t sg_sse2 = {"sg_table_sse2", sg_sse2_functions};
 func_t sg_sse41_functions[] = {
     {"sg_table",                           sg_table,                        },
     {"sg_table_scan",                      sg_table_scan,                   },
+    {"sg_table_scan_sse41_128_64",         sg_table_scan_sse41_128_64,      },
     {"sg_table_scan_sse41_128_32",         sg_table_scan_sse41_128_32,      },
     {"sg_table_scan_sse41_128_16",         sg_table_scan_sse41_128_16,      },
     {"sg_table_scan_sse41_128_8",          sg_table_scan_sse41_128_8,       },
@@ -223,6 +225,7 @@ funcs_t sw_sse2 = {"sw_table_sse2", sw_sse2_functions};
 func_t sw_sse41_functions[] = {
     {"sw_table",                           sw_table,                        },
     {"sw_table_scan",                      sw_table_scan,                   },
+    {"sw_table_scan_sse41_128_64",         sw_table_scan_sse41_128_64,      },
     {"sw_table_scan_sse41_128_32",         sw_table_scan_sse41_128_32,      },
     {"sw_table_scan_sse41_128_16",         sw_table_scan_sse41_128_16,      },
     {"sw_table_scan_sse41_128_8",          sw_table_scan_sse41_128_8,       },

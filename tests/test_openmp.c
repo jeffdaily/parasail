@@ -250,7 +250,9 @@ int main(int argc, char **argv)
     int iterations = 1;
     int iter = 0;
     stats_t stats_time;
+#if ENABLE_CORRECTION_STATS
     unsigned long long corrections = 0;
+#endif
 
     stats_clear(&stats_time);
 
@@ -419,7 +421,9 @@ int main(int argc, char **argv)
                         sequences_database[j], sizes_database[j],
                         gap_open, gap_extend, blosum);
                 saturated_query += result->saturated;
+#if ENABLE_CORRECTION_STATS
                 corrections_query += result->corrections;
+#endif
                 parasail_result_free(result);
             }
             local_timer = timer_real() - local_timer;
@@ -472,8 +476,10 @@ int main(int argc, char **argv)
                             gap_open, gap_extend, blosum);
 #pragma omp atomic
                     saturated += result->saturated;
+#if ENABLE_CORRECTION_STATS
 #pragma omp atomic
                     corrections += result->corrections;
+#endif
                     parasail_result_free(result);
                 }
             }
@@ -482,7 +488,12 @@ int main(int argc, char **argv)
         }
         printf("%s\t %s\t %d\t %d\t %d\t %d\t %llu\t %f\t %f\t %f\t %f\n",
                 funcname, blosumname, gap_open, gap_extend, N,
-                saturated, corrections,
+                saturated,
+#if ENABLE_CORRECTION_STATS
+                corrections,
+#else
+                0,
+#endif
                 stats_time._mean, stats_stddev(&stats_time),
                 stats_time._min, stats_time._max);
     }

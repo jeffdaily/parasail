@@ -349,7 +349,11 @@ int main(int argc, char **argv)
                     sizes[a], (sizes[a]+lanes-1)/lanes, sizes[b],
                     result->score, result->matches,
                     result->similar, result->length,
+#if ENABLE_CORRECTION_STATS
                     result->corrections,
+#else
+                    0,
+#endif
                     sizes[a]*sizes[b], timer_local);
             for (j=0; j<24; ++j) {
                 //printf(",%lu", a_counts[j]);

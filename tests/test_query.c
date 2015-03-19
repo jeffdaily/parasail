@@ -119,7 +119,9 @@ int main(int argc, char **argv)
     int truncate = 0;
     int iter = 0;
     stats_t stats_time;
+#if ENABLE_CORRECTION_STATS
     unsigned long long corrections = 0;
+#endif
     size_t biggest = 0;
 
     stats_clear(&stats_time);
@@ -241,7 +243,9 @@ int main(int argc, char **argv)
 
     for (i=0; i<seq_count_queries; ++i) {
         int saturated_query = 0;
+#if ENABLE_CORRECTION_STATS
         unsigned long long corrections_query = 0;
+#endif
         double local_timer = timer_real();
         if (seen[sizes_queries[i]]) {
             //printf("skipping %d\n", i);
@@ -256,13 +260,21 @@ int main(int argc, char **argv)
                     sequences_database[j], sizes_database[j],
                     gap_open, gap_extend, blosum);
             saturated_query += result->saturated;
+#if ENABLE_CORRECTION_STATS
             corrections_query += result->corrections;
+#endif
             parasail_result_free(result);
         }
         local_timer = timer_real() - local_timer;
         printf("%lu\t %lu\t %d\t %llu\t %f\n",
                 i, sizes_queries[i],
-                saturated_query, corrections_query, local_timer);
+                saturated_query,
+#if ENABLE_CORRECTION_STATS
+                corrections_query,
+#else
+                0,
+#endif
+                local_timer);
     }
 
     return 0;

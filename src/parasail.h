@@ -20,7 +20,9 @@ typedef struct parasail_result {
     int matches;
     int similar;
     int length;
+#if ENABLE_CORRECTION_STATS
     unsigned long long corrections;
+#endif
     int * restrict score_table;
     int * restrict matches_table;
     int * restrict similar_table;

@@ -260,7 +260,7 @@ int main(int argc, char **argv)
             parasail_result_free(result);
         }
         local_timer = timer_real() - local_timer;
-        printf("%d\t %lu\t %d\t %llu\t %f\n",
+        printf("%lu\t %lu\t %d\t %llu\t %f\n",
                 i, sizes_queries[i],
                 saturated_query, corrections_query, local_timer);
     }

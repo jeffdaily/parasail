@@ -8,13 +8,25 @@
 #include <errno.h>
 #include <unistd.h>
 
+#define USE_ZLIB 1
+
 #include "kseq.h"
+
+#if USE_ZLIB
+#include <zlib.h>
+KSEQ_INIT(gzFile, gzread)
+#else
 KSEQ_INIT(int, read)
+#endif
 
 static inline void parse_sequences(
         const char *filename, char ***strings_, size_t **sizes_, size_t *count_)
 {
+#if USE_ZLIB
+    gzFile fp;
+#else
     FILE *fp;
+#endif
     kseq_t *seq = NULL;
     int l = 0;
     char **strings = NULL;
@@ -23,14 +35,22 @@ static inline void parse_sequences(
     size_t memory = 1000;
     size_t i = 0;
 
+#if USE_ZLIB
+    fp = gzopen(filename, "r");
+#else
     fp = fopen(filename, "r");
     if(fp == NULL) {
         perror("fopen");
         exit(1);
     }
+#endif
     strings = malloc(sizeof(char*) * memory);
     sizes = malloc(sizeof(size_t) * memory);
+#if USE_ZLIB
+    seq = kseq_init(fp);
+#else
     seq = kseq_init(fileno(fp));
+#endif
     while ((l = kseq_read(seq)) >= 0) {
         strings[count] = strdup(seq->seq.s);
         if (NULL == strings[count]) {
@@ -58,7 +78,11 @@ static inline void parse_sequences(
         }
     }
     kseq_destroy(seq);
+#if USE_ZLIB
+    gzclose(fp);
+#else
     fclose(fp);
+#endif
 
     *strings_ = strings;
     *sizes_ = sizes;
@@ -107,9 +131,13 @@ int main(int argc, char **argv)
     size_t *sizes = NULL;
     char *filename = NULL;
     int c = 0;
+    int distribution = 0;
 
-    while ((c = getopt(argc, argv, "f:")) != -1) {
+    while ((c = getopt(argc, argv, "f:d")) != -1) {
         switch (c) {
+            case 'd':
+                distribution = 1;
+                break;
             case 'f':
                 filename = optarg;
                 break;
@@ -143,18 +171,28 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    limit = binomial_coefficient(seq_count, 2);
-    printf("%lu choose 2 is %lu\n", seq_count, limit);
-
-    {
-        unsigned long a=0;
-        unsigned long b=1;
-        unsigned long work=0;
-        for (i=0; i<limit; ++i) {
-            k_combination2(i, &a, &b);
-            work += sizes[a]*sizes[b];
+    if (distribution) {
+        for (i=0; i<seq_count; ++i) {
+            printf("%lu\n", sizes[i]);
         }
-        printf("%lu\n", work);
+    }
+    else {
+        limit = binomial_coefficient(seq_count, 2);
+        printf("%lu choose 2 is %lu\n", seq_count, limit);
+
+        {
+            unsigned long a=0;
+            unsigned long b=1;
+            unsigned long work=0;
+            unsigned long columns=0;
+            for (i=0; i<limit; ++i) {
+                k_combination2(i, &a, &b);
+                work += sizes[a]*sizes[b];
+                columns += sizes[b];
+            }
+            printf("work=%lu\n", work);
+            printf("columns=%lu\n", columns);
+        }
     }
 
     return 0;

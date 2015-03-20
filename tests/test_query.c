@@ -272,7 +272,7 @@ int main(int argc, char **argv)
 #if ENABLE_CORRECTION_STATS
                 corrections_query,
 #else
-                0,
+                0ULL,
 #endif
                 local_timer);
     }

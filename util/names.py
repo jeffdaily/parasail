@@ -30,10 +30,10 @@ for a in alg:
 alg = ["nw", "sg", "sw"]
 stats = ["", "_stats"]
 table = ["", "_table"]
-par = ["_scan", "_striped", "_diag"]
+par = ["_scan", "_striped", "_blocked", "_diag"]
 isa = [
     "_sse2_128_32", "_sse2_128_16", "_sse2_128_8",
-    "_sse41_128_32", "_sse41_128_16", "_sse41_128_8",
+    "_sse41_128_64", "_sse41_128_32", "_sse41_128_16", "_sse41_128_8",
     "_avx2_256_32", "_avx2_256_16", "_avx2_256_8",
     "_knc_512_32"
     ]

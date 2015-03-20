@@ -352,7 +352,7 @@ int main(int argc, char **argv)
 #if ENABLE_CORRECTION_STATS
                     result->corrections,
 #else
-                    0,
+                    0ULL,
 #endif
                     sizes[a]*sizes[b], timer_local);
             for (j=0; j<24; ++j) {

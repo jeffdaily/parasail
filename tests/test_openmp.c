@@ -492,7 +492,7 @@ int main(int argc, char **argv)
 #if ENABLE_CORRECTION_STATS
                 corrections,
 #else
-                0,
+                0ULL,
 #endif
                 stats_time._mean, stats_stddev(&stats_time),
                 stats_time._min, stats_time._max);

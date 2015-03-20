@@ -471,6 +471,8 @@ int main(int argc, char **argv)
         {sw_striped_sse41_128_32,   "sw", "striped", "sse41", "128", "32", 0, 0, 0},
         {sw_striped_sse41_128_16,   "sw", "striped", "sse41", "128", "16", 0, 0, 0},
         {sw_striped_sse41_128_8,    "sw", "striped", "sse41", "128", "8",  0, 0, 0},
+        {sw_blocked_sse41_128_32,   "sw", "blocked", "sse41", "128", "32", 0, 0, 0},
+        {sw_blocked_sse41_128_16,   "sw", "blocked", "sse41", "128", "16", 0, 0, 0},
 #endif
 #if HAVE_AVX2
         {sw_scan_avx2_256_32,       "sw", "scan",    "avx2",  "256", "32", 0, 0, 0},
@@ -594,6 +596,8 @@ int main(int argc, char **argv)
         {sw_table_striped_sse41_128_32, "sw", "striped", "sse41", "128", "32", 1, 0, 0},
         {sw_table_striped_sse41_128_16, "sw", "striped", "sse41", "128", "16", 1, 0, 0},
         {sw_table_striped_sse41_128_8,  "sw", "striped", "sse41", "128", "8",  1, 0, 0},
+        {sw_table_blocked_sse41_128_32, "sw", "blocked", "sse41", "128", "32", 1, 0, 0},
+        {sw_table_blocked_sse41_128_16, "sw", "blocked", "sse41", "128", "16", 1, 0, 0},
 #endif
 #if HAVE_AVX2
         {sw_table_scan_avx2_256_32,     "sw", "scan",    "avx2",  "256", "32", 1, 0, 0},

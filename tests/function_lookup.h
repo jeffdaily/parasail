@@ -131,6 +131,8 @@ func_t functions[] = {
     {"sw_striped_sse41_128_32",      sw_striped_sse41_128_32,    4},
     {"sw_striped_sse41_128_16",      sw_striped_sse41_128_16,    8},
     {"sw_striped_sse41_128_8",       sw_striped_sse41_128_8,    16},
+    {"sw_blocked_sse41_128_32",      sw_blocked_sse41_128_32,    4},
+    {"sw_blocked_sse41_128_16",      sw_blocked_sse41_128_16,    8},
 #endif
 #if HAVE_AVX2
     {"sw_scan_avx2_256_32",          sw_scan_avx2_256_32,        8},

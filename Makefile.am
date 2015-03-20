@@ -227,6 +227,48 @@ SRC_KNC += src/nw_striped_knc_512_32.c
 SRC_KNC += src/sg_striped_knc_512_32.c
 SRC_KNC += src/sw_striped_knc_512_32.c
 
+# parallel blocked methods
+
+#SRC_SSE2 += src/nw_blocked_sse2_128_32.c
+#SRC_SSE2 += src/sg_blocked_sse2_128_32.c
+#SRC_SSE2 += src/sw_blocked_sse2_128_32.c
+#
+#SRC_SSE2 += src/nw_blocked_sse2_128_16.c
+#SRC_SSE2 += src/sg_blocked_sse2_128_16.c
+#SRC_SSE2 += src/sw_blocked_sse2_128_16.c
+#
+#SRC_SSE2 += src/nw_blocked_sse2_128_8.c
+#SRC_SSE2 += src/sg_blocked_sse2_128_8.c
+#SRC_SSE2 += src/sw_blocked_sse2_128_8.c
+#
+#SRC_SSE41 += src/nw_blocked_sse41_128_32.c
+#SRC_SSE41 += src/sg_blocked_sse41_128_32.c
+SRC_SSE41 += src/sw_blocked_sse41_128_32.c
+#
+#SRC_SSE41 += src/nw_blocked_sse41_128_16.c
+#SRC_SSE41 += src/sg_blocked_sse41_128_16.c
+SRC_SSE41 += src/sw_blocked_sse41_128_16.c
+#
+#SRC_SSE41 += src/nw_blocked_sse41_128_8.c
+#SRC_SSE41 += src/sg_blocked_sse41_128_8.c
+#SRC_SSE41 += src/sw_blocked_sse41_128_8.c
+#
+#SRC_AVX2 += src/nw_blocked_avx2_256_32.c
+#SRC_AVX2 += src/sg_blocked_avx2_256_32.c
+#SRC_AVX2 += src/sw_blocked_avx2_256_32.c
+#
+#SRC_AVX2 += src/nw_blocked_avx2_256_16.c
+#SRC_AVX2 += src/sg_blocked_avx2_256_16.c
+#SRC_AVX2 += src/sw_blocked_avx2_256_16.c
+#
+#SRC_AVX2 += src/nw_blocked_avx2_256_8.c
+#SRC_AVX2 += src/sg_blocked_avx2_256_8.c
+#SRC_AVX2 += src/sw_blocked_avx2_256_8.c
+#
+#SRC_KNC += src/nw_blocked_knc_512_32.c
+#SRC_KNC += src/sg_blocked_knc_512_32.c
+#SRC_KNC += src/sw_blocked_knc_512_32.c
+
 #########################
 # parallel stats methods
 #########################

@@ -235,6 +235,8 @@ func_t sw_sse41_functions[] = {
     {"sw_table_striped_sse41_128_32",      sw_table_striped_sse41_128_32,   },
     {"sw_table_striped_sse41_128_16",      sw_table_striped_sse41_128_16,   },
     {"sw_table_striped_sse41_128_8",       sw_table_striped_sse41_128_8,    },
+    {"sw_table_blocked_sse41_128_32",      sw_table_blocked_sse41_128_32,   },
+    {"sw_table_blocked_sse41_128_16",      sw_table_blocked_sse41_128_16,   },
     {"NULL", NULL}
 };
 funcs_t sw_sse41 = {"sw_table_sse41", sw_sse41_functions};

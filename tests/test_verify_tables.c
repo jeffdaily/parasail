@@ -595,22 +595,21 @@ static inline void check_functions(
     for (blosum_index=0; NULL!=blosums[blosum_index].blosum; ++blosum_index) {
         //printf("\t%s\n", blosums[blosum_index].name);
         for (gap_index=0; INT_MIN!=gap_scores[gap_index].open; ++gap_index) {
-            //printf("\t\topen=%d extend=%d\n",
-            //        gap_scores[gap_index].open,
-            //        gap_scores[gap_index].extend);
+            int open = gap_scores[gap_index].open;
+            int extend = gap_scores[gap_index].extend;
+            //printf("\t\topen=%d extend=%d\n", open, extend);
             reference_function = functions[0].f;
             for (function_index=1;
                     NULL!=functions[function_index].f;
                     ++function_index) {
                 //printf("\t\t\t%s\n", functions[function_index].name);
+                unsigned long saturated = 0;
 #pragma omp parallel for
                 for (pair_index=0; pair_index<pair_limit; ++pair_index) {
                     parasail_result_t *reference_result = NULL;
                     parasail_result_t *result = NULL;
                     unsigned long a = 0;
                     unsigned long b = 1;
-                    int open = gap_scores[gap_index].open;
-                    int extend = gap_scores[gap_index].extend;
                     k_combination2(pair_index, &a, &b);
                     //printf("\t\t\t\tpair=%lu (%lu,%lu)\n", pair_index, a, b);
                     reference_result = reference_function(
@@ -627,6 +626,8 @@ static inline void check_functions(
                         /* no point in comparing a result that saturated */
                         parasail_result_free(reference_result);
                         parasail_result_free(result);
+#pragma omp atomic
+                        saturated += 1;
                         continue;
                     }
                     if (reference_result->score != result->score) {
@@ -691,6 +692,13 @@ static inline void check_functions(
                     }
                     parasail_result_free(reference_result);
                     parasail_result_free(result);
+                }
+                if (saturated) {
+                    printf("%s %d %d %s saturated %lu times\n",
+                            functions[function_index].name,
+                            open, extend,
+                            blosums[blosum_index].name,
+                            saturated);
                 }
             }
         }
@@ -758,7 +766,7 @@ int main(int argc, char **argv)
     printf("%lu choose 2 is %lu\n", seq_count, limit);
 
 
-#if HAVE_SSE2
+#if 0 && HAVE_SSE2
     if (parasail_can_use_sse2()) {
         check_functions(nw_sse2, sequences, sizes, seq_count, limit);
         check_functions(sg_sse2, sequences, sizes, seq_count, limit);
@@ -771,16 +779,16 @@ int main(int argc, char **argv)
 
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        check_functions(nw_sse41, sequences, sizes, seq_count, limit);
-        check_functions(sg_sse41, sequences, sizes, seq_count, limit);
+        //check_functions(nw_sse41, sequences, sizes, seq_count, limit);
+        //check_functions(sg_sse41, sequences, sizes, seq_count, limit);
         check_functions(sw_sse41, sequences, sizes, seq_count, limit);
-        check_functions(nw_stats_sse41, sequences, sizes, seq_count, limit);
-        check_functions(sg_stats_sse41, sequences, sizes, seq_count, limit);
-        check_functions(sw_stats_sse41, sequences, sizes, seq_count, limit);
+        //check_functions(nw_stats_sse41, sequences, sizes, seq_count, limit);
+        //check_functions(sg_stats_sse41, sequences, sizes, seq_count, limit);
+        //check_functions(sw_stats_sse41, sequences, sizes, seq_count, limit);
     }
 #endif
 
-#if HAVE_AVX2
+#if 0 && HAVE_AVX2
     if (parasail_can_use_avx2()) {
         check_functions(nw_avx2, sequences, sizes, seq_count, limit);
         check_functions(sg_avx2, sequences, sizes, seq_count, limit);
@@ -791,7 +799,7 @@ int main(int argc, char **argv)
     }
 #endif
 
-#if HAVE_KNC
+#if 0 && HAVE_KNC
     {
         check_functions(nw_knc, sequences, sizes, seq_count, limit);
         check_functions(sg_knc, sequences, sizes, seq_count, limit);

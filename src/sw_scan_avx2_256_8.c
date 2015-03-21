@@ -112,7 +112,6 @@ parasail_result_t* FNAME(
     __m256i* const restrict pvH = parasail_memalign_m256i(32, segLen);
     __m256i vGapO = _mm256_set1_epi8(open);
     __m256i vGapE = _mm256_set1_epi8(gap);
-    __m256i vSaturationCheck = _mm256_setzero_si256();
     __m256i vNegLimit = _mm256_set1_epi8(INT8_MIN);
     __m256i vPosLimit = _mm256_set1_epi8(INT8_MAX);
     __m256i vNegInf = _mm256_set1_epi8(NEG_INF_8);
@@ -235,13 +234,6 @@ parasail_result_t* FNAME(
                     _mm256_subs_epi8(vFt, vGapO));
             vH = _mm256_max_epi8(vH, vZero);
             _mm256_store_si256(pvH+i, vH);
-            /* check for saturation */
-            {
-                vSaturationCheck = _mm256_or_si256(vSaturationCheck,
-                        _mm256_or_si256(
-                            _mm256_cmpeq_epi8(vH, vNegLimit),
-                            _mm256_cmpeq_epi8(vH, vPosLimit)));
-            }
 #ifdef PARASAIL_TABLE
             arr_store_si256(result->score_table, vH, i, segLen, j, s2Len);
 #endif
@@ -261,9 +253,10 @@ parasail_result_t* FNAME(
         vMaxH = shift(vMaxH);
     }
 
-    if (_mm256_movemask_epi8(vSaturationCheck)) {
-        result->saturated = 1;
+    /* check for saturation */
+    if (score == INT8_MAX) {
         score = INT8_MAX;
+        result->saturated = 1;
     }
 
     result->score = score;

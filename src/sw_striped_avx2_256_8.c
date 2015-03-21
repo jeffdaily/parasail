@@ -220,6 +220,9 @@ parasail_result_t* FNAME(
             vF = shift(vF);
             vF = _mm256_insert_epi8(vF, bias, 0);
             for (i=0; i<segLen; ++i) {
+#if ENABLE_CORRECTION_STATS
+                result->corrections += 1;
+#endif
                 vH = _mm256_load_si256(pvHStore + i);
                 vH = _mm256_max_epi8(vH,vF);
                 _mm256_store_si256(pvHStore + i, vH);

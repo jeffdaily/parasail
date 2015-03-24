@@ -766,7 +766,7 @@ int main(int argc, char **argv)
     printf("%lu choose 2 is %lu\n", seq_count, limit);
 
 
-#if 0 && HAVE_SSE2
+#if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         check_functions(nw_sse2, sequences, sizes, seq_count, limit);
         check_functions(sg_sse2, sequences, sizes, seq_count, limit);
@@ -779,16 +779,16 @@ int main(int argc, char **argv)
 
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        //check_functions(nw_sse41, sequences, sizes, seq_count, limit);
-        //check_functions(sg_sse41, sequences, sizes, seq_count, limit);
+        check_functions(nw_sse41, sequences, sizes, seq_count, limit);
+        check_functions(sg_sse41, sequences, sizes, seq_count, limit);
         check_functions(sw_sse41, sequences, sizes, seq_count, limit);
-        //check_functions(nw_stats_sse41, sequences, sizes, seq_count, limit);
-        //check_functions(sg_stats_sse41, sequences, sizes, seq_count, limit);
-        //check_functions(sw_stats_sse41, sequences, sizes, seq_count, limit);
+        check_functions(nw_stats_sse41, sequences, sizes, seq_count, limit);
+        check_functions(sg_stats_sse41, sequences, sizes, seq_count, limit);
+        check_functions(sw_stats_sse41, sequences, sizes, seq_count, limit);
     }
 #endif
 
-#if 0 && HAVE_AVX2
+#if HAVE_AVX2
     if (parasail_can_use_avx2()) {
         check_functions(nw_avx2, sequences, sizes, seq_count, limit);
         check_functions(sg_avx2, sequences, sizes, seq_count, limit);
@@ -799,7 +799,7 @@ int main(int argc, char **argv)
     }
 #endif
 
-#if 0 && HAVE_KNC
+#if HAVE_KNC
     {
         check_functions(nw_knc, sequences, sizes, seq_count, limit);
         check_functions(sg_knc, sequences, sizes, seq_count, limit);

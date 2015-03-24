@@ -117,6 +117,7 @@ int main(int argc, char **argv)
     int N = 1;
     int saturated = 0;
     int truncate = 0;
+    int exact_length = 0;
     int iter = 0;
     stats_t stats_time;
 #if ENABLE_CORRECTION_STATS
@@ -126,7 +127,7 @@ int main(int argc, char **argv)
 
     stats_clear(&stats_time);
 
-    while ((c = getopt(argc, argv, "a:b:f:q:o:e:")) != -1) {
+    while ((c = getopt(argc, argv, "a:b:f:q:o:e:t:x:")) != -1) {
         switch (c) {
             case 'a':
                 funcname = optarg;
@@ -156,15 +157,31 @@ int main(int argc, char **argv)
                     exit(1);
                 }
                 break;
+            case 't':
+                errno = 0;
+                truncate = strtol(optarg, &endptr, 10);
+                if (errno) {
+                    perror("strtol");
+                    exit(1);
+                }
+                break;
+            case 'x':
+                errno = 0;
+                exact_length = strtol(optarg, &endptr, 10);
+                if (errno) {
+                    perror("strtol");
+                    exit(1);
+                }
+                break;
             case '?':
                 if (optopt == 'a'
                         || optopt == 'b'
-                        || optopt == 'e'
                         || optopt == 'f'
-                        || optopt == 'i'
-                        || optopt == 'n'
+                        || optopt == 'q'
                         || optopt == 'o'
-                        || optopt == 't')
+                        || optopt == 'e'
+                        || optopt == 't'
+                        || optopt == 'x')
                 {
                     fprintf(stderr,
                             "Option -%c requires an argument.\n",
@@ -247,6 +264,12 @@ int main(int argc, char **argv)
         unsigned long long corrections_query = 0;
 #endif
         double local_timer = timer_real();
+        if (truncate > 0 && sizes_queries[i] > truncate) {
+            continue;
+        }
+        if (exact_length != 0 && sizes_queries[i] != exact_length) {
+            continue;
+        }
         if (seen[sizes_queries[i]]) {
             //printf("skipping %d\n", i);
             continue;
@@ -275,6 +298,10 @@ int main(int argc, char **argv)
                 0ULL,
 #endif
                 local_timer);
+        if (exact_length != 0) {
+            /* if we got this far, we found our query, so break */
+            break;
+        }
     }
 
     return 0;

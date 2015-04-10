@@ -235,8 +235,10 @@ int main(int argc, char **argv)
     size_t *sizes_queries = NULL;
     size_t seq_count_queries = 0;
     char *endptr = NULL;
-    char *funcname = NULL;
-    parasail_function_t function = NULL;
+    char *funcname1 = NULL;
+    char *funcname2 = NULL;
+    parasail_function_t function1 = NULL;
+    parasail_function_t function2 = NULL;
     int c = 0;
     char *blosumname = NULL;
     parasail_blosum_t blosum = blosum62;
@@ -248,6 +250,7 @@ int main(int argc, char **argv)
     int biggest_first = 0;
     int truncate = 0;
     int iterations = 1;
+    int func_cutoff = 0;
     int iter = 0;
     stats_t stats_time;
 #if ENABLE_CORRECTION_STATS
@@ -257,13 +260,24 @@ int main(int argc, char **argv)
 
     stats_clear(&stats_time);
 
-    while ((c = getopt(argc, argv, "a:b:f:q:o:e:slt:i:")) != -1) {
+    while ((c = getopt(argc, argv, "a:A:c:b:f:q:o:e:slt:i:")) != -1) {
         switch (c) {
             case 'a':
-                funcname = optarg;
+                funcname1 = optarg;
+                break;
+            case 'A':
+                funcname2 = optarg;
                 break;
             case 'b':
                 blosumname = optarg;
+                break;
+            case 'c':
+                errno = 0;
+                func_cutoff = strtol(optarg, &endptr, 10);
+                if (errno) {
+                    perror("strtol");
+                    exit(1);
+                }
                 break;
             case 'f':
                 filename_database = optarg;
@@ -345,26 +359,34 @@ int main(int argc, char **argv)
     }
 
     /* select the function */
-    if (funcname) {
-        function = lookup_function(funcname);
+    if (funcname1) {
+        function1 = lookup_function(funcname1);
 #if HAVE_SSE2
-        if (NULL == function) {
-            if (0 == strcmp(funcname, "ssw_16")) {
-                function = parasail_ssw_16;
+        if (NULL == function1) {
+            if (0 == strcmp(funcname1, "ssw_16")) {
+                function1 = parasail_ssw_16;
             }
-            else if (0 == strcmp(funcname, "ssw_8")) {
-                function = parasail_ssw;
+            else if (0 == strcmp(funcname1, "ssw_8")) {
+                function1 = parasail_ssw;
             }
         }
 #endif
-        if (NULL == function) {
-            fprintf(stderr, "Specified function not found.\n");
+        if (NULL == function1) {
+            fprintf(stderr, "Specified function1 not found.\n");
             exit(1);
         }
     }
     else {
-        fprintf(stderr, "No alignment function specified.\n");
+        fprintf(stderr, "No alignment function1 specified.\n");
         exit(1);
+    }
+
+    if (funcname2) {
+        function2 = lookup_function(funcname2);
+        if (NULL == function2) {
+            fprintf(stderr, "Specified function2 not found.\n");
+            exit(1);
+        }
     }
 
     /* select the blosum matrix */
@@ -412,26 +434,51 @@ int main(int argc, char **argv)
     if (filename_queries) {
         parse_sequences(filename_queries,
                 &sequences_queries, &sizes_queries, &seq_count_queries);
+        double total_timer = 0.0;
         for (i=0; i<seq_count_queries; ++i) {
             int saturated_query = 0;
             unsigned long long corrections_query = 0;
-            double local_timer = timer_real();
-            for (j=0; j<seq_count_database; ++j) {
-                parasail_result_t *result = function(
-                        sequences_queries[i], sizes_queries[i],
-                        sequences_database[j], sizes_database[j],
-                        gap_open, gap_extend, blosum);
-                saturated_query += result->saturated;
-#if ENABLE_CORRECTION_STATS
-                corrections_query += result->corrections;
+            double local_timer = 0.0;
+            parasail_function_t function = function1;
+
+            if (func_cutoff > 0) {
+                if (sizes_queries[i] > func_cutoff) {
+                    function = function2;
+                }
+            }
+
+            local_timer = timer_real();
+#pragma omp parallel
+            {
+#if defined(_OPENMP)
+                int tid = omp_get_thread_num();
+#else
+                int tid = 0;
 #endif
-                parasail_result_free(result);
+#pragma omp for schedule(dynamic)
+                for (j=0; j<seq_count_database; ++j) {
+                    parasail_result_t *result = function(
+                            sequences_queries[i], sizes_queries[i],
+                            sequences_database[j], sizes_database[j],
+                            gap_open, gap_extend, blosum);
+#pragma omp atomic
+                    saturated_query += result->saturated;
+#if ENABLE_CORRECTION_STATS
+#pragma omp atomic
+                    corrections_query += result->corrections;
+#endif
+                    parasail_result_free(result);
+                }
             }
             local_timer = timer_real() - local_timer;
+            total_timer += local_timer;
             printf("%lu\t %lu\t %d\t %llu\t %f\n",
                     i, sizes_queries[i],
                     saturated_query, corrections_query, local_timer);
+            fflush(stdout);
         }
+        printf("total_time=%f\n", total_timer);
+        fflush(stdout);
     }
     else {
         for (iter=0; iter<iterations; ++iter) {
@@ -448,6 +495,7 @@ int main(int argc, char **argv)
                 unsigned long swap=0;
 #pragma omp for schedule(dynamic)
                 for (i=0; i<limit; ++i) {
+                    parasail_function_t function = function1;
                     parasail_result_t *result = NULL;
                     unsigned long query_size;
                     k_combination2(i, &a, &b);
@@ -469,6 +517,11 @@ int main(int argc, char **argv)
                     if (truncate > 0) {
                         if (query_size > truncate) {
                             query_size = truncate;
+                        }
+                    }
+                    if (func_cutoff > 0) {
+                        if (query_size > func_cutoff) {
+                            function = function2;
                         }
                     }
                     result = function(
@@ -494,7 +547,7 @@ int main(int argc, char **argv)
             stats_sample_value(&stats_time, timer_clock);
         }
         printf("%s\t %s\t %d\t %d\t %d\t %d\t %llu\t %llu\t %f\t %f\t %f\t %f\n",
-                funcname, blosumname, gap_open, gap_extend, N,
+                funcname1, blosumname, gap_open, gap_extend, N,
                 saturated,
 #if ENABLE_CORRECTION_STATS
                 corrections,
@@ -505,6 +558,7 @@ int main(int argc, char **argv)
 #endif
                 stats_time._mean, stats_stddev(&stats_time),
                 stats_time._min, stats_time._max);
+        fflush(stdout);
     }
 
     return 0;

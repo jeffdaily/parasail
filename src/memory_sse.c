@@ -14,12 +14,12 @@
 #include "parasail_internal.h"
 #include "parasail_internal_sse.h"
 
-__m128i * parasail_memalign_m128i(size_t alignment, size_t size)
+__m128i * parasail_memalign___m128i(size_t alignment, size_t size)
 {
     return (__m128i *) parasail_memalign(alignment, size*sizeof(__m128i));
 }
 
-void parasail_memset_m128i(__m128i *b, __m128i c, size_t len)
+void parasail_memset___m128i(__m128i *b, __m128i c, size_t len)
 {
     size_t i;
     for (i=0; i<len; ++i) {

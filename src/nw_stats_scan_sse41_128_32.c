@@ -59,20 +59,20 @@ parasail_result_t* FNAME(
     const int32_t segLen = (s1Len + segWidth - 1) / segWidth;
     const int32_t offset = (s1Len - 1) % segLen;
     const int32_t position = (segWidth - 1) - (s1Len - 1) / segLen;
-    __m128i* const restrict pvP  = parasail_memalign_m128i(16, n * segLen);
-    __m128i* const restrict pvPm = parasail_memalign_m128i(16, n * segLen);
-    __m128i* const restrict pvPs = parasail_memalign_m128i(16, n * segLen);
-    __m128i* const restrict pvE  = parasail_memalign_m128i(16, segLen);
-    __m128i* const restrict pvHt = parasail_memalign_m128i(16, segLen);
-    __m128i* const restrict pvFt = parasail_memalign_m128i(16, segLen);
-    __m128i* const restrict pvMt = parasail_memalign_m128i(16, segLen);
-    __m128i* const restrict pvSt = parasail_memalign_m128i(16, segLen);
-    __m128i* const restrict pvLt = parasail_memalign_m128i(16, segLen);
-    __m128i* const restrict pvEx = parasail_memalign_m128i(16, segLen);
-    __m128i* const restrict pvH  = parasail_memalign_m128i(16, segLen);
-    __m128i* const restrict pvM  = parasail_memalign_m128i(16, segLen);
-    __m128i* const restrict pvS  = parasail_memalign_m128i(16, segLen);
-    __m128i* const restrict pvL  = parasail_memalign_m128i(16, segLen);
+    __m128i* const restrict pvP  = parasail_memalign___m128i(16, n * segLen);
+    __m128i* const restrict pvPm = parasail_memalign___m128i(16, n * segLen);
+    __m128i* const restrict pvPs = parasail_memalign___m128i(16, n * segLen);
+    __m128i* const restrict pvE  = parasail_memalign___m128i(16, segLen);
+    __m128i* const restrict pvHt = parasail_memalign___m128i(16, segLen);
+    __m128i* const restrict pvFt = parasail_memalign___m128i(16, segLen);
+    __m128i* const restrict pvMt = parasail_memalign___m128i(16, segLen);
+    __m128i* const restrict pvSt = parasail_memalign___m128i(16, segLen);
+    __m128i* const restrict pvLt = parasail_memalign___m128i(16, segLen);
+    __m128i* const restrict pvEx = parasail_memalign___m128i(16, segLen);
+    __m128i* const restrict pvH  = parasail_memalign___m128i(16, segLen);
+    __m128i* const restrict pvM  = parasail_memalign___m128i(16, segLen);
+    __m128i* const restrict pvS  = parasail_memalign___m128i(16, segLen);
+    __m128i* const restrict pvL  = parasail_memalign___m128i(16, segLen);
     int32_t* const restrict boundary = parasail_memalign_int32_t(16, s2Len+1);
     __m128i vGapO = _mm_set1_epi32(open);
     __m128i vGapE = _mm_set1_epi32(gap);
@@ -88,9 +88,9 @@ parasail_result_t* FNAME(
     parasail_result_t *result = parasail_result_new();
 #endif
 
-    parasail_memset_m128i(pvM, vZero, segLen);
-    parasail_memset_m128i(pvS, vZero, segLen);
-    parasail_memset_m128i(pvL, vZero, segLen);
+    parasail_memset___m128i(pvM, vZero, segLen);
+    parasail_memset___m128i(pvS, vZero, segLen);
+    parasail_memset___m128i(pvL, vZero, segLen);
 
     /* Generate query profile and match profile.
      * Rearrange query sequence & calculate the weight of match/mismatch.

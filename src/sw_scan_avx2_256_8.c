@@ -106,10 +106,10 @@ parasail_result_t* FNAME(
     const int32_t segWidth = 32; /* number of values in vector unit */
     int32_t segNum = 0;
     const int32_t segLen = (s1Len + segWidth - 1) / segWidth;
-    __m256i* const restrict pvP = parasail_memalign_m256i(32, n * segLen);
-    __m256i* const restrict pvE = parasail_memalign_m256i(32, segLen);
-    __m256i* const restrict pvHt= parasail_memalign_m256i(32, segLen);
-    __m256i* const restrict pvH = parasail_memalign_m256i(32, segLen);
+    __m256i* const restrict pvP = parasail_memalign___m256i(32, n * segLen);
+    __m256i* const restrict pvE = parasail_memalign___m256i(32, segLen);
+    __m256i* const restrict pvHt= parasail_memalign___m256i(32, segLen);
+    __m256i* const restrict pvH = parasail_memalign___m256i(32, segLen);
     __m256i vGapO = _mm256_set1_epi8(open);
     __m256i vGapE = _mm256_set1_epi8(gap);
     __m256i vNegLimit = _mm256_set1_epi8(INT8_MIN);

@@ -116,22 +116,22 @@ parasail_result_t* FNAME(
     const int32_t segLen = (s1Len + segWidth - 1) / segWidth;
     const int32_t offset = (s1Len - 1) % segLen;
     const int32_t position = (segWidth - 1) - (s1Len - 1) / segLen;
-    __m256i* const restrict vProfile  = parasail_memalign_m256i(32, n * segLen);
-    __m256i* const restrict vProfileM = parasail_memalign_m256i(32, n * segLen);
-    __m256i* const restrict vProfileS = parasail_memalign_m256i(32, n * segLen);
-    __m256i* restrict pvHStore        = parasail_memalign_m256i(32, segLen);
-    __m256i* restrict pvHLoad         = parasail_memalign_m256i(32, segLen);
-    __m256i* restrict pvHMStore       = parasail_memalign_m256i(32, segLen);
-    __m256i* restrict pvHMLoad        = parasail_memalign_m256i(32, segLen);
-    __m256i* restrict pvHSStore       = parasail_memalign_m256i(32, segLen);
-    __m256i* restrict pvHSLoad        = parasail_memalign_m256i(32, segLen);
-    __m256i* restrict pvHLStore       = parasail_memalign_m256i(32, segLen);
-    __m256i* restrict pvHLLoad        = parasail_memalign_m256i(32, segLen);
-    __m256i* restrict pvEStore        = parasail_memalign_m256i(32, segLen);
-    __m256i* restrict pvELoad         = parasail_memalign_m256i(32, segLen);
-    __m256i* const restrict pvEM      = parasail_memalign_m256i(32, segLen);
-    __m256i* const restrict pvES      = parasail_memalign_m256i(32, segLen);
-    __m256i* const restrict pvEL      = parasail_memalign_m256i(32, segLen);
+    __m256i* const restrict vProfile  = parasail_memalign___m256i(32, n * segLen);
+    __m256i* const restrict vProfileM = parasail_memalign___m256i(32, n * segLen);
+    __m256i* const restrict vProfileS = parasail_memalign___m256i(32, n * segLen);
+    __m256i* restrict pvHStore        = parasail_memalign___m256i(32, segLen);
+    __m256i* restrict pvHLoad         = parasail_memalign___m256i(32, segLen);
+    __m256i* restrict pvHMStore       = parasail_memalign___m256i(32, segLen);
+    __m256i* restrict pvHMLoad        = parasail_memalign___m256i(32, segLen);
+    __m256i* restrict pvHSStore       = parasail_memalign___m256i(32, segLen);
+    __m256i* restrict pvHSLoad        = parasail_memalign___m256i(32, segLen);
+    __m256i* restrict pvHLStore       = parasail_memalign___m256i(32, segLen);
+    __m256i* restrict pvHLLoad        = parasail_memalign___m256i(32, segLen);
+    __m256i* restrict pvEStore        = parasail_memalign___m256i(32, segLen);
+    __m256i* restrict pvELoad         = parasail_memalign___m256i(32, segLen);
+    __m256i* const restrict pvEM      = parasail_memalign___m256i(32, segLen);
+    __m256i* const restrict pvES      = parasail_memalign___m256i(32, segLen);
+    __m256i* const restrict pvEL      = parasail_memalign___m256i(32, segLen);
     int8_t* const restrict boundary  = parasail_memalign_int8_t(32, s2Len+1);
     __m256i vGapO = _mm256_set1_epi8(open);
     __m256i vGapE = _mm256_set1_epi8(gap);
@@ -150,9 +150,9 @@ parasail_result_t* FNAME(
     parasail_result_t *result = parasail_result_new();
 #endif
 
-    parasail_memset_m256i(pvHMStore, vZero, segLen);
-    parasail_memset_m256i(pvHSStore, vZero, segLen);
-    parasail_memset_m256i(pvHLStore, vZero, segLen);
+    parasail_memset___m256i(pvHMStore, vZero, segLen);
+    parasail_memset___m256i(pvHSStore, vZero, segLen);
+    parasail_memset___m256i(pvHLStore, vZero, segLen);
 
     /* Generate query profile.
      * Rearrange query sequence & calculate the weight of match/mismatch.

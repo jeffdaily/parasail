@@ -294,15 +294,6 @@ int main(int argc, char **argv)
 
     limit = binomial_coefficient(seq_count, 2);
 
-#if defined(_OPENMP)
-#pragma omp parallel
-    {
-#pragma omp single
-        {
-            N = omp_get_max_threads();
-        }
-    }
-#endif
     printf("size_A,segLen,size_B,score,matches,similar,length,corrections,cells,time,");
     printf("A_a,R_a,N_a,D_a,C_a,Q_a,E_a,G_a,H_a,I_a,L_a,K_a,M_a,F_a,P_a,S_a,T_a,W_a,Y_a,V_a,B_a,Z_a,X_a,NA_a,");
     printf("A_b,R_b,N_b,D_b,C_b,Q_b,E_b,G_b,H_b,I_b,L_b,K_b,M_b,F_b,P_b,S_b,T_b,W_b,Y_b,V_b,B_b,Z_b,X_b,NA_b,");

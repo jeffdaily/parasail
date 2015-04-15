@@ -207,9 +207,9 @@ int main(int argc, char **argv)
     parasail_function_t function = NULL;
     char *filename = NULL;
     int c = 0;
+    int test_stats = 0;
 
-
-    while ((c = getopt(argc, argv, "f:n:")) != -1) {
+    while ((c = getopt(argc, argv, "f:n:s")) != -1) {
         switch (c) {
             case 'f':
                 filename = optarg;
@@ -221,6 +221,9 @@ int main(int argc, char **argv)
                     perror("strtol");
                     exit(1);
                 }
+                break;
+            case 's':
+                test_stats = 1;
                 break;
             case '?':
                 if (optopt == 'f' || optopt == 'n') {
@@ -261,9 +264,11 @@ int main(int argc, char **argv)
         check_functions(nw_sse2, sequences, sizes, seq_count, limit);
         check_functions(sg_sse2, sequences, sizes, seq_count, limit);
         check_functions(sw_sse2, sequences, sizes, seq_count, limit);
-        check_functions(nw_stats_sse2, sequences, sizes, seq_count, limit);
-        check_functions(sg_stats_sse2, sequences, sizes, seq_count, limit);
-        check_functions(sw_stats_sse2, sequences, sizes, seq_count, limit);
+        if (test_stats) {
+            check_functions(nw_stats_sse2, sequences, sizes, seq_count, limit);
+            check_functions(sg_stats_sse2, sequences, sizes, seq_count, limit);
+            check_functions(sw_stats_sse2, sequences, sizes, seq_count, limit);
+        }
     }
 #endif
 
@@ -272,9 +277,11 @@ int main(int argc, char **argv)
         check_functions(nw_sse41, sequences, sizes, seq_count, limit);
         check_functions(sg_sse41, sequences, sizes, seq_count, limit);
         check_functions(sw_sse41, sequences, sizes, seq_count, limit);
-        check_functions(nw_stats_sse41, sequences, sizes, seq_count, limit);
-        check_functions(sg_stats_sse41, sequences, sizes, seq_count, limit);
-        check_functions(sw_stats_sse41, sequences, sizes, seq_count, limit);
+        if (test_stats) {
+            check_functions(nw_stats_sse41, sequences, sizes, seq_count, limit);
+            check_functions(sg_stats_sse41, sequences, sizes, seq_count, limit);
+            check_functions(sw_stats_sse41, sequences, sizes, seq_count, limit);
+        }
     }
 #endif
 
@@ -283,9 +290,11 @@ int main(int argc, char **argv)
         check_functions(nw_avx2, sequences, sizes, seq_count, limit);
         check_functions(sg_avx2, sequences, sizes, seq_count, limit);
         check_functions(sw_avx2, sequences, sizes, seq_count, limit);
-        check_functions(nw_stats_avx2, sequences, sizes, seq_count, limit);
-        check_functions(sg_stats_avx2, sequences, sizes, seq_count, limit);
-        check_functions(sw_stats_avx2, sequences, sizes, seq_count, limit);
+        if (test_stats) {
+            check_functions(nw_stats_avx2, sequences, sizes, seq_count, limit);
+            check_functions(sg_stats_avx2, sequences, sizes, seq_count, limit);
+            check_functions(sw_stats_avx2, sequences, sizes, seq_count, limit);
+        }
     }
 #endif
 
@@ -294,9 +303,11 @@ int main(int argc, char **argv)
         check_functions(nw_knc, sequences, sizes, seq_count, limit);
         check_functions(sg_knc, sequences, sizes, seq_count, limit);
         check_functions(sw_knc, sequences, sizes, seq_count, limit);
-        check_functions(nw_stats_knc, sequences, sizes, seq_count, limit);
-        check_functions(sg_stats_knc, sequences, sizes, seq_count, limit);
-        check_functions(sw_stats_knc, sequences, sizes, seq_count, limit);
+        if (test_stats) {
+            check_functions(nw_stats_knc, sequences, sizes, seq_count, limit);
+            check_functions(sg_stats_knc, sequences, sizes, seq_count, limit);
+            check_functions(sw_stats_knc, sequences, sizes, seq_count, limit);
+        }
     }
 #endif
 

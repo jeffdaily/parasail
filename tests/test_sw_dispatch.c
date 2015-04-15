@@ -13,6 +13,8 @@
 #include "parasail.h"
 #include "blosum/blosum62.h"
 
+#define UNUSED(expr) do { (void)(expr); } while (0)
+
 int main(int argc, char **argv)
 {
     const char *seqA = "MEFYDVAVTVGMLCIIIYLLLVRQFRYWTERNVPQLNPHLLFGDVRDVNKTHHIGEKFRQLYNELKGKHPFGGIYMFTKPVALVTDLELVKNVFVKDFQYFHDRGTYYDEKHDPLSAHLFNLEGYKWKSLRNKITPTFTSGKMKMMFPTVAAAGKQFKDYLEDAIGEQEEFELKELLARYTTDVIGTCAFGIECNSMRNPNAEFRVMGKKIFGRSRSNLQLLLMNAFPSVAKLVGIKLILPEVSDFFMNAVRDTIKYRVENNVQRNDFMDILIRMRSDKETKSDDGTLTFHEIAAQAFVFFVAGFETSSSLMAFTLYELALDQDMQDKARKCVTDVLERHNGELTYEAAMEMDYLDCVLKGWVR"
@@ -22,6 +24,9 @@ int main(int argc, char **argv)
     size_t lena = strlen(seqA);
     size_t lenb = strlen(seqB);
     parasail_result_t * result = NULL;
+
+    UNUSED(argc);
+    UNUSED(argv);
 
     result = parasail_sw_scan(seqA, lena, seqB, lenb, 10, 1, blosum62);
     printf("score=%d\n", result->score);

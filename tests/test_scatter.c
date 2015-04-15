@@ -30,7 +30,7 @@ KSEQ_INIT(int, read)
 #include "blosum/blosum75.h"
 #include "blosum/blosum80.h"
 #include "blosum/blosum90.h"
-#include "timer.h"
+//#include "timer.h"
 #include "timer_real.h"
 
 #include "blosum_lookup.h"
@@ -58,7 +58,6 @@ static inline void parse_sequences(
     size_t *sizes = NULL;
     size_t count = 0;
     size_t memory = 1000;
-    size_t i = 0;
 
     fp = fopen(filename, "r");
     if(fp == NULL) {
@@ -152,8 +151,8 @@ static inline void k_combination2(unsigned long pos, unsigned long *a, unsigned 
 
 int main(int argc, char **argv)
 {
-    int shortest = INT_MAX;
-    int longest = 0;
+    unsigned long shortest = INT_MAX;
+    unsigned long longest = 0;
     double timer_clock = 0.0;
     unsigned long i = 0;
     size_t seq_count = 10;
@@ -170,7 +169,6 @@ int main(int argc, char **argv)
     const int (*blosum)[24] = blosum62;
     int gap_open = 10;
     int gap_extend = 1;
-    int N = 1;
     int saturated = 0;
 
     while ((c = getopt(argc, argv, "a:b:f:n:o:e:")) != -1) {
@@ -296,8 +294,6 @@ int main(int argc, char **argv)
 
     limit = binomial_coefficient(seq_count, 2);
 
-    timer_init();
-
 #if defined(_OPENMP)
 #pragma omp parallel
     {
@@ -315,17 +311,12 @@ int main(int argc, char **argv)
     timer_clock = timer_real();
 #pragma omp parallel
     {
-#if defined(_OPENMP)
-        int tid = omp_get_thread_num();
-#else
-        int tid = 0;
-#endif
         unsigned long a=0;
         unsigned long b=1;
         double timer_local = 0.0;
         unsigned long a_counts[24];
         unsigned long b_counts[24];
-        int j;
+        unsigned long j;
 #pragma omp for schedule(dynamic)
         for (i=0; i<limit; ++i) {
             parasail_result_t *result = NULL;
@@ -339,10 +330,10 @@ int main(int argc, char **argv)
                 b_counts[j] = 0;
             }
             for (j=0; j<sizes[a]; ++j) {
-                a_counts[table[sequences[a][j]]] += 1;
+                a_counts[table[(unsigned)sequences[a][j]]] += 1;
             }
             for (j=0; j<sizes[b]; ++j) {
-                b_counts[table[sequences[b][j]]] += 1;
+                b_counts[table[(unsigned)sequences[b][j]]] += 1;
             }
 #pragma omp critical
             printf("%lu,%lu,%lu,%d,%d,%d,%d,%llu,%lu,%f",

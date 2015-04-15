@@ -31,11 +31,13 @@ KSEQ_INIT(int, read)
 #include "blosum/blosum80.h"
 #include "blosum/blosum90.h"
 #include "stats.h"
-#include "timer.h"
+//#include "timer.h"
 #include "timer_real.h"
 
 #include "blosum_lookup.h"
 #include "function_lookup.h"
+
+#define UNUSED(expr) do { (void)(expr); } while (0)
 
 #if HAVE_SSE2
 parasail_result_t* parasail_ssw_(
@@ -49,7 +51,9 @@ parasail_result_t* parasail_ssw_(
     int8_t *s1_num = (int8_t*)malloc(sizeof(int8_t) * s1_len);
     int8_t *s2_num = (int8_t*)malloc(sizeof(int8_t) * s2_len);
     s_align *ssw_result = NULL;
-    size_t m = 0;
+    int m = 0;
+
+    UNUSED(matrix);
 
     /* This table is used to transform amino acid letters into numbers. */
     static const int8_t table[128] = {
@@ -126,7 +130,6 @@ static inline void parse_sequences(
     size_t *sizes = NULL;
     size_t count = 0;
     size_t memory = 1000;
-    size_t i = 0;
 
     fp = fopen(filename, "r");
     if(fp == NULL) {
@@ -170,23 +173,6 @@ static inline void parse_sequences(
     *count_ = count;
 }
 
-static inline char* rand_string(size_t size)
-{
-    char *str = NULL;
-    const char charset[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    if (size) {
-        size_t n;
-        --size;
-        str = malloc(size + 1);
-        for (n = 0; n < size; n++) {
-            int key = rand() % (int) (sizeof charset - 1);
-            str[n] = charset[key];
-        }
-        str[size] = '\0';
-    }
-    return str;
-}
-
 static inline unsigned long binomial_coefficient(unsigned long n, unsigned long k)
 {
     /* from http://blog.plover.com/math/choose.html */
@@ -220,8 +206,6 @@ static inline void k_combination2(unsigned long pos, unsigned long *a, unsigned 
 
 int main(int argc, char **argv)
 {
-    int shortest = INT_MAX;
-    int longest = 0;
     double timer_clock = 0.0;
     unsigned long i = 0;
     unsigned long j = 0;
@@ -417,9 +401,6 @@ int main(int argc, char **argv)
     limit = binomial_coefficient(seq_count_database, 2);
     //printf("%lu choose 2 is %lu\n", seq_count_database, limit);
 
-    timer_init();
-    //printf("%s timer\n", timer_name());
-
 #if defined(_OPENMP)
 #pragma omp parallel
     {
@@ -442,7 +423,7 @@ int main(int argc, char **argv)
             parasail_function_t function = function1;
 
             if (func_cutoff > 0) {
-                if (sizes_queries[i] > func_cutoff) {
+                if (sizes_queries[i] > (unsigned long)func_cutoff) {
                     function = function2;
                 }
             }
@@ -450,11 +431,6 @@ int main(int argc, char **argv)
             local_timer = timer_real();
 #pragma omp parallel
             {
-#if defined(_OPENMP)
-                int tid = omp_get_thread_num();
-#else
-                int tid = 0;
-#endif
 #pragma omp for schedule(dynamic)
                 for (j=0; j<seq_count_database; ++j) {
                     parasail_result_t *result = function(
@@ -485,11 +461,6 @@ int main(int argc, char **argv)
             timer_clock = timer_real();
 #pragma omp parallel
             {
-#if defined(_OPENMP)
-                int tid = omp_get_thread_num();
-#else
-                int tid = 0;
-#endif
                 unsigned long a=0;
                 unsigned long b=1;
                 unsigned long swap=0;
@@ -515,12 +486,12 @@ int main(int argc, char **argv)
                     }
                     query_size = sizes_database[a];
                     if (truncate > 0) {
-                        if (query_size > truncate) {
+                        if (query_size > (unsigned long)truncate) {
                             query_size = truncate;
                         }
                     }
                     if (func_cutoff > 0) {
-                        if (query_size > func_cutoff) {
+                        if (query_size > (unsigned long)func_cutoff) {
                             function = function2;
                         }
                     }

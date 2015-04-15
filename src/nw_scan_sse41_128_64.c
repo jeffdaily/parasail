@@ -78,7 +78,6 @@ parasail_result_t* FNAME(
     __m128i vGapE = _mm_set1_epi64x(gap);
     __m128i vNegInf = _mm_set1_epi64x(NEG_INF);
     int64_t score = NEG_INF;
-    __m128i vMaxH = vNegInf;
     const int64_t segLenXgap = -segLen*gap;
     __m128i insert_mask = _mm_cmpeq_epi64(_mm_setzero_si128(),
             _mm_set_epi64x(1,0));

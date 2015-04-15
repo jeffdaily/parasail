@@ -27,9 +27,14 @@
 
 /* Last Modified: 12APR2009 */
 
+/* Modified by Jeff Daily <jeff.daily@pnnl.gov>.
+ * Added assert to silence comparison of different signs.
+ * Removed unused function kseq_rewind. */
+
 #ifndef AC_KSEQ_H
 #define AC_KSEQ_H
 
+#include <assert.h>
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
@@ -115,7 +120,8 @@ typedef struct __kstring_t {
 				for (i = ks->begin; i < ks->end; ++i)					\
 					if (isspace(ks->buf[i]) && ks->buf[i] != ' ') break; \
 			} else i = 0; /* never come to here! */						\
-			if (str->m - str->l < i - ks->begin + 1) {					\
+            assert(i - ks->begin + 1 >= 0);                             \
+			if (str->m - str->l < (unsigned long)(i - ks->begin + 1)) { \
 				str->m = str->l + (i - ks->begin) + 1;					\
 				kroundup32(str->m);										\
 				str->s = (char*)realloc(str->s, str->m);				\
@@ -148,11 +154,6 @@ typedef struct __kstring_t {
 		kseq_t *s = (kseq_t*)calloc(1, sizeof(kseq_t));					\
 		s->f = ks_init(fd);												\
 		return s;														\
-	}																	\
-	static inline void kseq_rewind(kseq_t *ks)							\
-	{																	\
-		ks->last_char = 0;												\
-		ks->f->is_eof = ks->f->begin = ks->f->end = 0;					\
 	}																	\
 	static inline void kseq_destroy(kseq_t *ks)							\
 	{																	\

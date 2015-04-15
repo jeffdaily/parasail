@@ -33,7 +33,6 @@ static inline void parse_sequences(
     size_t *sizes = NULL;
     size_t count = 0;
     size_t memory = 1000;
-    size_t i = 0;
 
 #if USE_ZLIB
     fp = gzopen(filename, "r");
@@ -122,8 +121,6 @@ static inline void k_combination2(unsigned long pos, unsigned long *a, unsigned 
 
 int main(int argc, char **argv)
 {
-    int shortest = INT_MAX;
-    int longest = 0;
     unsigned long i = 0;
     size_t seq_count = 10;
     size_t limit = 0;

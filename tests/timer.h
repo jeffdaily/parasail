@@ -77,11 +77,14 @@ static unsigned long long timer_start()
 #endif
 }
 
+/*
 static unsigned long long timer_end(unsigned long long begin)
 {
     return timer_start() - begin;
 }
+*/
 
+/*
 static void timer_init()
 {
 #if defined(HAVE_RDTSC)
@@ -91,7 +94,9 @@ static void timer_init()
 #else
 #endif
 }
+*/
 
+/*
 static const char *timer_name()
 {
 #if defined(HAVE_RDTSC)
@@ -104,5 +109,6 @@ static const char *timer_name()
     return "no timers";
 #endif
 }
+*/
 
 #endif /* __TIMER_H__ */

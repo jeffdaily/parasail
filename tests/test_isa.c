@@ -4,8 +4,13 @@
 
 #include "parasail_cpuid.h"
 
+#define UNUSED(expr) do { (void)(expr); } while (0)
+
 int main(int argc, char **argv)
 {
+    UNUSED(argc);
+    UNUSED(argv);
+
     if (parasail_can_use_sse2()) {
         printf("sse2 supported\n");
     }

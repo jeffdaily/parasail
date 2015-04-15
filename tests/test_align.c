@@ -120,7 +120,6 @@ static inline void parse_sequences(
     unsigned long *sizes = NULL;
     unsigned long count = 0;
     unsigned long memory = 1000;
-    unsigned long i = 0;
 
     errno = 0;
     fp = fopen(filename, "r");
@@ -337,12 +336,12 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    if (seqA_index >= seq_count) {
+    if ((unsigned long)seqA_index >= seq_count) {
         fprintf(stderr, "seqA index out of bounds\n");
         exit(1);
     }
 
-    if (seqB_index >= seq_count) {
+    if ((unsigned long)seqB_index >= seq_count) {
         fprintf(stderr, "seqB index out of bounds\n");
         exit(1);
     }
@@ -352,8 +351,6 @@ int main(int argc, char **argv)
     lena = strlen(seqA);
     lenb = strlen(seqB);
 
-    timer_init();
-    printf("%s timer\n", timer_name());
     printf("file: %s\n", filename);
     printf("blosum: %s\n", blosumname);
     printf("gap open: %d\n", open);
@@ -391,7 +388,7 @@ int main(int argc, char **argv)
             timer_rdtsc_single = timer_start();
             timer_nsecs_single = timer_real();
             result = f.pointer(seqA, lena, seqB, lenb, open, extend, b.blosum);
-            timer_rdtsc_single = timer_end(timer_rdtsc_single);
+            timer_rdtsc_single = timer_start()-(timer_rdtsc_single);
             timer_nsecs_single = timer_real() - timer_nsecs_single;
             stats_sample_value(&stats_rdtsc, timer_rdtsc_single);
             stats_sample_value(&stats_nsecs, timer_nsecs_single);
@@ -401,7 +398,7 @@ int main(int argc, char **argv)
             length = result->length;
             parasail_result_free(result);
         }
-        timer_rdtsc = timer_end(timer_rdtsc);
+        timer_rdtsc = timer_start()-(timer_rdtsc);
         timer_nsecs = timer_real() - timer_nsecs;
         if (f.is_ref) {
             timer_rdtsc_ref_mean = stats_rdtsc._mean;

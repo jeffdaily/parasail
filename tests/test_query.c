@@ -27,7 +27,7 @@ KSEQ_INIT(int, read)
 #include "blosum/blosum80.h"
 #include "blosum/blosum90.h"
 #include "stats.h"
-#include "timer.h"
+//#include "timer.h"
 #include "timer_real.h"
 
 #include "blosum_lookup.h"
@@ -43,7 +43,6 @@ static inline size_t parse_sequences(
     size_t *sizes = NULL;
     size_t count = 0;
     size_t memory = 1000;
-    size_t i = 0;
     size_t biggest = 0;
 
     fp = fopen(filename, "r");
@@ -93,9 +92,6 @@ static inline size_t parse_sequences(
 
 int main(int argc, char **argv)
 {
-    int shortest = INT_MAX;
-    int longest = 0;
-    double timer_clock = 0.0;
     unsigned long i = 0;
     unsigned long j = 0;
     char *filename_database = NULL;
@@ -114,11 +110,8 @@ int main(int argc, char **argv)
     parasail_blosum_t blosum = blosum62;
     int gap_open = 10;
     int gap_extend = 1;
-    int N = 1;
-    int saturated = 0;
     int truncate = 0;
     int exact_length = 0;
-    int iter = 0;
     stats_t stats_time;
 #if ENABLE_CORRECTION_STATS
     unsigned long long corrections = 0;
@@ -250,9 +243,6 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    timer_init();
-    //printf("%s timer\n", timer_name());
-
     char *seen = malloc(sizeof(char)*biggest);
     for (i=0; i<biggest; ++i) {
         seen[i] = 0;
@@ -264,10 +254,10 @@ int main(int argc, char **argv)
         unsigned long long corrections_query = 0;
 #endif
         double local_timer = timer_real();
-        if (truncate > 0 && sizes_queries[i] > truncate) {
+        if (truncate > 0 && sizes_queries[i] > (unsigned long)truncate) {
             continue;
         }
-        if (exact_length != 0 && sizes_queries[i] != exact_length) {
+        if (exact_length > 0 && sizes_queries[i] != (unsigned long)exact_length) {
             continue;
         }
         if (seen[sizes_queries[i]]) {

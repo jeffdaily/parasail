@@ -32,7 +32,7 @@ if not os.path.exists(output_dir):
 
 def generate_printer(params):
     text = ""
-    if "striped" in params["NAME"]:
+    if "striped" in params["NAME"] or "scan" in params["NAME"]:
         for lane in range(params["LANES"]):
             new_params = params
             params["LANE"] = lane
@@ -124,6 +124,7 @@ def generated_params(params):
     params["LAST_POS"] = params["LANES"]-1
     params["INT"] = "int%(WIDTH)s_t" % params
     params["NEG_INF"] = "(INT%(WIDTH)s_MIN/(%(INT)s)(2))" % params
+    params["INSERT_MASK"] = "1"+",0"*(params["LANES"]-1)
     # select appropriate vector functions for given width
     suffix = "x%s" % width
     for key in keys:

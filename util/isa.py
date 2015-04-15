@@ -41,11 +41,16 @@ sse2 = {
     "VMINx64"     : "_mm_min_epi64_rpl",
     "VMOVEMASK"   : "_mm_movemask_epi8",
     "VOR"         : "_mm_or_si128",
+    "VROTATE"     : "_mm_rlli_si128_rpl",
     "VSET0"       : "_mm_setzero_si128",
     "VSET1x8"     : "_mm_set1_epi8",
     "VSET1x16"    : "_mm_set1_epi16",
     "VSET1x32"    : "_mm_set1_epi32",
     "VSET1x64"    : "_mm_set1_epi64x",
+    "VSETx8"      : "_mm_set_epi8",
+    "VSETx16"     : "_mm_set_epi16",
+    "VSETx32"     : "_mm_set_epi32",
+    "VSETx64"     : "_mm_set_epi64x",
     "VSHIFT"      : "_mm_slli_si128",
     "VSTORE"      : "_mm_store_si128",
     "VSUBx8"      : "_mm_sub_epi8",
@@ -182,6 +187,9 @@ static inline __m128i _mm_min_epi64_rpl(__m128i a, __m128i b) {
     return A.m;
 }
 """,
+    "_mm_rlli_si128_rpl" : """
+#define _mm_rlli_si128_rpl(a,imm) _mm_or_si128(_mm_slli_si128(a,imm),_mm_srli_si128(a,16-imm))
+""",
     }
 
 
@@ -225,11 +233,16 @@ sse41 = {
     "VMINx64"     : "_mm_min_epi64_rpl",
     "VMOVEMASK"   : "_mm_movemask_epi8",
     "VOR"         : "_mm_or_si128",
+    "VROTATE"     : "_mm_rlli_si128_rpl",
     "VSET0"       : "_mm_setzero_si128",
     "VSET1x8"     : "_mm_set1_epi8",
     "VSET1x16"    : "_mm_set1_epi16",
     "VSET1x32"    : "_mm_set1_epi32",
     "VSET1x64"    : "_mm_set1_epi64x",
+    "VSETx8"      : "_mm_set_epi8",
+    "VSETx16"     : "_mm_set_epi16",
+    "VSETx32"     : "_mm_set_epi32",
+    "VSETx64"     : "_mm_set_epi64x",
     "VSHIFT"      : "_mm_slli_si128",
     "VSTORE"      : "_mm_store_si128",
     "VSUBx8"      : "_mm_sub_epi8",
@@ -270,6 +283,9 @@ static inline __m128i _mm_min_epi64_rpl(__m128i a, __m128i b) {
     A.v[1] = (A.v[1]<B.v[1]) ? A.v[1] : B.v[1];
     return A.m;
 }
+""",
+    "_mm_rlli_si128_rpl" : """
+#define _mm_rlli_si128_rpl(a,imm) _mm_alignr_epi8(a, a, 16-imm)
 """,
 }
 
@@ -314,11 +330,16 @@ avx2 = {
     "VMINx64"     : "_mm256_min_epi64_rpl",
     "VMOVEMASK"   : "_mm256_movemask_epi8",
     "VOR"         : "_mm256_or_si256",
+    "VROTATE"     : "_mm256_rlli_si256_rpl",
     "VSET0"       : "_mm256_setzero_si256",
     "VSET1x8"     : "_mm256_set1_epi8",
     "VSET1x16"    : "_mm256_set1_epi16",
     "VSET1x32"    : "_mm256_set1_epi32",
     "VSET1x64"    : "_mm256_set1_epi64x",
+    "VSETx8"      : "_mm256_set_epi8",
+    "VSETx16"     : "_mm256_set_epi16",
+    "VSETx32"     : "_mm256_set_epi32",
+    "VSETx64"     : "_mm256_set_epi64x",
     "VSHIFT"      : "_mm256_slli_si256_rpl",
     "VSTORE"      : "_mm256_store_si256",
     "VSUBx8"      : "_mm256_sub_epi8",
@@ -355,6 +376,9 @@ static inline __m256i _mm256_min_epi64_rpl(__m256i a, __m256i b) {
 """,
     "_mm256_slli_si256_rpl" : """
 #define _mm256_slli_si256_rpl(a,imm) _mm256_alignr_epi8(a, _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,3,0)), 16-imm)
+""",
+    "_mm256_rlli_si256_rpl" : """
+#define _mm256_rlli_si256_rpl(a,imm) _mm256_alignr_epi8(a, _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,0,1)), 16-imm)
 """,
 }
 

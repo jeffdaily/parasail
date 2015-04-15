@@ -31,6 +31,12 @@ typedef struct func {
     char is_stats;
     char is_ref;
 } func_t;
+
+typedef struct funcs {
+    const char * name;
+    func_t *fs;
+} funcs_t;
+
 """
 
 
@@ -73,7 +79,6 @@ for table in ["", "_table"]:
             if stats:
                 is_stats = 1
             pre = alg+stats+table
-            
             print_fmt(pre,         pre,         alg+stats, "orig", "NA", "32", "32", 1, is_table, is_stats, 1)
             print_fmt(pre+"_scan", pre+"_scan", alg+stats, "scan", "NA", "32", "32", 1, is_table, is_stats, 0)
             for isa in ["sse2", "sse41", "avx2"]:
@@ -101,60 +106,45 @@ print_null()
 
 print "};"
 
-#print "func_t stats_functions[] = {"
-#
-#for alg in ["nw_stats", "sg_stats", "sw_stats"]:
-#    print_fmt(alg,         alg,         alg, "orig", "NA", "32", "32", 1, 0, 1, 1)
-#    print_fmt(alg+"_scan", alg+"_scan", alg, "scan", "NA", "32", "32", 1, 0, 1, 0)
-#    for isa in ["sse2", "sse41", "avx2"]:
-#        print "#if HAVE_%s" % isa.upper()
-#        bits = isa_to_bits[isa]
-#        for par in ["scan", "striped", "diag"]:
-#            #for width in [64, 32, 16, 8]:
-#            for width in [32, 16, 8]:
-#                name = "%s_%s_%s_%s_%s" % (alg, par, isa, bits, width)
-#                print_fmt(name, name, alg, par, isa, bits, width, bits/width, 0, 1, 0)
-#        print "#endif"
-#    for isa in ["knc"]:
-#        print "#if HAVE_%s" % isa.upper()
-#        bits = isa_to_bits[isa]
-#        for par in ["scan", "striped", "diag"]:
-#            for width in [32]:
-#                name = "%s_%s_%s_%s_%s" % (alg, par, isa, bits, width)
-#                print_fmt(name, name, alg, par, isa, bits, width, bits/width, 0, 1, 0)
-#        print "#endif"
-#print_null()
-#
-#print "};"
-#
-#for alg in ["nw", "sg", "sw"]:
-#    for isa in ["sse2", "sse41", "avx2"]:
-#        print "#if HAVE_%s" % isa.upper()
-#        print "func_t %s_%s_functions[] = {" % (alg, isa)
-#        print_fmt(alg,         alg,         alg, "orig", "NA", "32", "32", 1, 0, 0, 1)
-#        print_fmt(alg+"_scan", alg+"_scan", alg, "scan", "NA", "32", "32", 1, 0, 0, 0)
-#        bits = isa_to_bits[isa]
-#        for par in ["scan", "striped", "diag"]:
-#            #for width in [64, 32, 16, 8]:
-#            for width in [32, 16, 8]:
-#                name = "%s_%s_%s_%s_%s" % (alg, par, isa, bits, width)
-#                print_fmt(name, name, alg, par, isa, bits, width, bits/width, 0, 0, 0)
-#        print_null()
-#        print "};"
-#        print "#endif"
-#    for isa in ["knc"]:
-#        print "#if HAVE_%s" % isa.upper()
-#        print "func_t %s_%s_functions[] = {" % (alg, isa)
-#        print_fmt(alg,         alg,         alg, "orig", "NA", "32", "32", 1, 0, 0, 1)
-#        print_fmt(alg+"_scan", alg+"_scan", alg, "scan", "NA", "32", "32", 1, 0, 0, 0)
-#        bits = isa_to_bits[isa]
-#        for par in ["scan", "striped", "diag"]:
-#            for width in [32]:
-#                name = "%s_%s_%s_%s_%s" % (alg, par, isa, bits, width)
-#                print_fmt(name, name, alg, par, isa, bits, width, bits/width, 0, 0, 0)
-#        print_null()
-#        print "};"
-#        print "#endif"
+for table in ["", "_table"]:
+    for stats in ["", "_stats"]:
+        for alg in ["nw", "sg", "sw"]:
+            is_table = 0
+            if table:
+                is_table = 1
+            is_stats = 0
+            if stats:
+                is_stats = 1
+            pre = alg+stats+table
+            for isa in ["sse2", "sse41", "avx2"]:
+                print "#if HAVE_%s" % isa.upper()
+                print "func_t %s_%s_functions[] = {" % (pre, isa)
+                print_fmt(pre,         pre,         alg+stats, "orig", "NA", "32", "32", 1, is_table, is_stats, 1)
+                print_fmt(pre+"_scan", pre+"_scan", alg+stats, "scan", "NA", "32", "32", 1, is_table, is_stats, 0)
+                bits = isa_to_bits[isa]
+                for par in ["scan", "striped", "diag"]:
+                    #for width in [64, 32, 16, 8]:
+                    for width in [32, 16, 8]:
+                        name = "%s_%s_%s_%s_%s" % (pre, par, isa, bits, width)
+                        print_fmt(name, name, alg+stats, par, isa, bits, width, bits/width, is_table, is_stats, 0)
+                print_null()
+                print "};"
+                print 'funcs_t %s_%s = {"%s_%s", %s_%s_functions};' % ((pre, isa)*3)
+                print "#endif"
+            for isa in ["knc"]:
+                print "#if HAVE_%s" % isa.upper()
+                print "func_t %s_%s_functions[] = {" % (pre, isa)
+                print_fmt(pre,         pre,         alg+stats, "orig", "NA", "32", "32", 1, is_table, is_stats, 1)
+                print_fmt(pre+"_scan", pre+"_scan", alg+stats, "scan", "NA", "32", "32", 1, is_table, is_stats, 0)
+                bits = isa_to_bits[isa]
+                for par in ["scan", "striped", "diag"]:
+                    for width in [32]:
+                        name = "%s_%s_%s_%s_%s" % (pre, par, isa, bits, width)
+                        print_fmt(name, name, alg+stats, par, isa, bits, width, bits/width, is_table, is_stats, 0)
+                print_null()
+                print "};"
+                print 'funcs_t %s_%s = {"%s_%s", %s_%s_functions};' % ((pre, isa)*3)
+                print "#endif"
 
 print """
 parasail_function_t lookup_function(const char *funcname)

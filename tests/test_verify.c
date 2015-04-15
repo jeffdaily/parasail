@@ -16,35 +16,9 @@ KSEQ_INIT(int, read)
 #include "parasail.h"
 #include "parasail_internal.h"
 #include "parasail_cpuid.h"
-#include "blosum/blosum40.h"
-#include "blosum/blosum45.h"
-#include "blosum/blosum50.h"
-#include "blosum/blosum62.h"
-#include "blosum/blosum75.h"
-#include "blosum/blosum80.h"
-#include "blosum/blosum90.h"
 
-typedef parasail_result_t* (*pf)(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap,
-        const int matrix[24][24]);
-
-typedef struct blosum {
-    const char * name;
-    const int (*blosum)[24];
-} blosum_t;
-
-blosum_t blosums[] = {
-    {"blosum40",blosum40},
-    {"blosum45",blosum45},
-    {"blosum50",blosum50},
-    {"blosum62",blosum62},
-    {"blosum75",blosum75},
-    {"blosum80",blosum80},
-    {"blosum90",blosum90},
-    {"NULL",NULL},
-};
+#include "blosum_lookup.h"
+#include "function_lookup.h"
 
 typedef struct gap_score {
     int open;
@@ -58,412 +32,6 @@ gap_score_t gap_scores[] = {
     {40,2},
     {INT_MIN,INT_MIN}
 };
-
-typedef struct func {
-    const char * name;
-    pf f;
-} func_t;
-
-typedef struct funcs {
-    const char * name;
-    func_t *fs;
-} funcs_t;
-
-#if HAVE_SSE2
-func_t nw_sse2_functions[] = {
-    {"nw",                           nw,                        },
-    {"nw_scan",                      nw_scan,                   },
-    {"nw_scan_sse2_128_32",          nw_scan_sse2_128_32,       },
-    {"nw_scan_sse2_128_16",          nw_scan_sse2_128_16,       },
-    {"nw_scan_sse2_128_8",           nw_scan_sse2_128_8,        },
-    {"nw_diag_sse2_128_32",          nw_diag_sse2_128_32,       },
-    {"nw_diag_sse2_128_16",          nw_diag_sse2_128_16,       },
-    {"nw_diag_sse2_128_8",           nw_diag_sse2_128_8,        },
-    {"nw_striped_sse2_128_32",       nw_striped_sse2_128_32,    },
-    {"nw_striped_sse2_128_16",       nw_striped_sse2_128_16,    },
-    {"nw_striped_sse2_128_8",        nw_striped_sse2_128_8,     },
-    {"NULL", NULL}
-};
-funcs_t nw_sse2 = {"nw_sse2", nw_sse2_functions};
-#endif
-
-#if HAVE_SSE41
-func_t nw_sse41_functions[] = {
-    {"nw",                           nw,                        },
-    {"nw_scan",                      nw_scan,                   },
-    {"nw_scan_sse41_128_32",         nw_scan_sse41_128_32,      },
-    {"nw_scan_sse41_128_16",         nw_scan_sse41_128_16,      },
-    {"nw_scan_sse41_128_8",          nw_scan_sse41_128_8,       },
-    {"nw_diag_sse41_128_32",         nw_diag_sse41_128_32,      },
-    {"nw_diag_sse41_128_16",         nw_diag_sse41_128_16,      },
-    {"nw_diag_sse41_128_8",          nw_diag_sse41_128_8,       },
-    {"nw_striped_sse41_128_32",      nw_striped_sse41_128_32,   },
-    {"nw_striped_sse41_128_16",      nw_striped_sse41_128_16,   },
-    {"nw_striped_sse41_128_8",       nw_striped_sse41_128_8,    },
-    {"NULL", NULL}
-};
-funcs_t nw_sse41 = {"nw_sse41", nw_sse41_functions};
-#endif
-
-#if HAVE_AVX2
-func_t nw_avx2_functions[] = {
-    {"nw",                           nw,                        },
-    {"nw_scan",                      nw_scan,                   },
-    {"nw_scan_avx2_256_32",          nw_scan_avx2_256_32,       },
-    {"nw_scan_avx2_256_16",          nw_scan_avx2_256_16,       },
-    {"nw_scan_avx2_256_8",           nw_scan_avx2_256_8,        },
-    {"nw_diag_avx2_256_32",          nw_diag_avx2_256_32,       },
-    {"nw_diag_avx2_256_16",          nw_diag_avx2_256_16,       },
-    {"nw_diag_avx2_256_8",           nw_diag_avx2_256_8,        },
-    {"nw_striped_avx2_256_32",       nw_striped_avx2_256_32,    },
-    {"nw_striped_avx2_256_16",       nw_striped_avx2_256_16,    },
-    {"nw_striped_avx2_256_8",        nw_striped_avx2_256_8,     },
-    {"NULL", NULL}
-};
-funcs_t nw_avx2 = {"nw_avx2", nw_avx2_functions};
-#endif
-
-#if HAVE_KNC
-func_t nw_knc_functions[] = {
-    {"nw",                           nw,                        },
-    {"nw_scan",                      nw_scan,                   },
-    {"nw_scan_knc_512_32",           nw_scan_knc_512_32,        },
-    {"nw_diag_knc_512_32",           nw_diag_knc_512_32,        },
-    {"nw_striped_knc_512_32",        nw_striped_knc_512_32,     },
-    {"NULL", NULL}
-};
-funcs_t nw_knc = {"nw_knc", nw_knc_functions};
-#endif
-
-#if HAVE_SSE2
-func_t sg_sse2_functions[] = {
-    {"sg",                           sg,                        },
-    {"sg_scan",                      sg_scan,                   },
-    {"sg_scan_sse2_128_32",          sg_scan_sse2_128_32,       },
-    {"sg_scan_sse2_128_16",          sg_scan_sse2_128_16,       },
-    {"sg_scan_sse2_128_8",           sg_scan_sse2_128_8,        },
-    {"sg_diag_sse2_128_32",          sg_diag_sse2_128_32,       },
-    {"sg_diag_sse2_128_16",          sg_diag_sse2_128_16,       },
-    {"sg_diag_sse2_128_8",           sg_diag_sse2_128_8,        },
-    {"sg_striped_sse2_128_32",       sg_striped_sse2_128_32,    },
-    {"sg_striped_sse2_128_16",       sg_striped_sse2_128_16,    },
-    {"sg_striped_sse2_128_8",        sg_striped_sse2_128_8,     },
-    {"NULL", NULL}
-};
-funcs_t sg_sse2 = {"sg_sse2", sg_sse2_functions};
-#endif
-
-#if HAVE_SSE41
-func_t sg_sse41_functions[] = {
-    {"sg",                           sg,                        },
-    {"sg_scan",                      sg_scan,                   },
-    {"sg_scan_sse41_128_32",         sg_scan_sse41_128_32,      },
-    {"sg_scan_sse41_128_16",         sg_scan_sse41_128_16,      },
-    {"sg_scan_sse41_128_8",          sg_scan_sse41_128_8,       },
-    {"sg_diag_sse41_128_32",         sg_diag_sse41_128_32,      },
-    {"sg_diag_sse41_128_16",         sg_diag_sse41_128_16,      },
-    {"sg_diag_sse41_128_8",          sg_diag_sse41_128_8,       },
-    {"sg_striped_sse41_128_32",      sg_striped_sse41_128_32,   },
-    {"sg_striped_sse41_128_16",      sg_striped_sse41_128_16,   },
-    {"sg_striped_sse41_128_8",       sg_striped_sse41_128_8,    },
-    {"NULL", NULL}
-};
-funcs_t sg_sse41 = {"sg_sse41", sg_sse41_functions};
-#endif
-
-#if HAVE_AVX2
-func_t sg_avx2_functions[] = {
-    {"sg",                           sg,                        },
-    {"sg_scan",                      sg_scan,                   },
-    {"sg_scan_avx2_256_32",          sg_scan_avx2_256_32,       },
-    {"sg_scan_avx2_256_16",          sg_scan_avx2_256_16,       },
-    {"sg_scan_avx2_256_8",           sg_scan_avx2_256_8,        },
-    {"sg_diag_avx2_256_32",          sg_diag_avx2_256_32,       },
-    {"sg_diag_avx2_256_16",          sg_diag_avx2_256_16,       },
-    {"sg_diag_avx2_256_8",           sg_diag_avx2_256_8,        },
-    {"sg_striped_avx2_256_32",       sg_striped_avx2_256_32,    },
-    {"sg_striped_avx2_256_16",       sg_striped_avx2_256_16,    },
-    {"sg_striped_avx2_256_8",        sg_striped_avx2_256_8,     },
-    {"NULL", NULL}
-};
-funcs_t sg_avx2 = {"sg_avx2", sg_avx2_functions};
-#endif
-
-#if HAVE_KNC
-func_t sg_knc_functions[] = {
-    {"sg",                           sg,                        },
-    {"sg_scan",                      sg_scan,                   },
-    {"sg_scan_knc_512_32",           sg_scan_knc_512_32,        },
-    {"sg_diag_knc_512_32",           sg_diag_knc_512_32,        },
-    {"sg_striped_knc_512_32",        sg_striped_knc_512_32,     },
-    {"NULL", NULL}
-};
-funcs_t sg_knc = {"sg_knc", sg_knc_functions};
-#endif
-
-#if HAVE_SSE2
-func_t sw_sse2_functions[] = {
-    {"sw",                           sw,                        },
-    {"sw_scan",                      sw_scan,                   },
-    {"sw_scan_sse2_128_32",          sw_scan_sse2_128_32,       },
-    {"sw_scan_sse2_128_16",          sw_scan_sse2_128_16,       },
-    {"sw_scan_sse2_128_8",           sw_scan_sse2_128_8,        },
-    {"sw_diag_sse2_128_32",          sw_diag_sse2_128_32,       },
-    {"sw_diag_sse2_128_16",          sw_diag_sse2_128_16,       },
-    {"sw_diag_sse2_128_8",           sw_diag_sse2_128_8,        },
-    {"sw_striped_sse2_128_32",       sw_striped_sse2_128_32,    },
-    {"sw_striped_sse2_128_16",       sw_striped_sse2_128_16,    },
-    {"sw_striped_sse2_128_8",        sw_striped_sse2_128_8,     },
-    {"NULL", NULL}
-};
-funcs_t sw_sse2 = {"sw_sse2", sw_sse2_functions};
-#endif
-
-#if HAVE_SSE41
-func_t sw_sse41_functions[] = {
-    {"sw",                           sw,                        },
-    {"sw_scan",                      sw_scan,                   },
-    {"sw_scan_sse41_128_32",         sw_scan_sse41_128_32,      },
-    {"sw_scan_sse41_128_16",         sw_scan_sse41_128_16,      },
-    {"sw_scan_sse41_128_8",          sw_scan_sse41_128_8,       },
-    {"sw_diag_sse41_128_32",         sw_diag_sse41_128_32,      },
-    {"sw_diag_sse41_128_16",         sw_diag_sse41_128_16,      },
-    {"sw_diag_sse41_128_8",          sw_diag_sse41_128_8,       },
-    {"sw_striped_sse41_128_32",      sw_striped_sse41_128_32,   },
-    {"sw_striped_sse41_128_16",      sw_striped_sse41_128_16,   },
-    {"sw_striped_sse41_128_8",       sw_striped_sse41_128_8,    },
-    {"NULL", NULL}
-};
-funcs_t sw_sse41 = {"sw_sse41", sw_sse41_functions};
-#endif
-
-#if HAVE_AVX2
-func_t sw_avx2_functions[] = {
-    {"sw",                           sw,                        },
-    {"sw_scan",                      sw_scan,                   },
-    {"sw_scan_avx2_256_32",          sw_scan_avx2_256_32,       },
-    {"sw_scan_avx2_256_16",          sw_scan_avx2_256_16,       },
-    {"sw_scan_avx2_256_8",           sw_scan_avx2_256_8,        },
-    {"sw_diag_avx2_256_32",          sw_diag_avx2_256_32,       },
-    {"sw_diag_avx2_256_16",          sw_diag_avx2_256_16,       },
-    {"sw_diag_avx2_256_8",           sw_diag_avx2_256_8,        },
-    {"sw_striped_avx2_256_32",       sw_striped_avx2_256_32,    },
-    {"sw_striped_avx2_256_16",       sw_striped_avx2_256_16,    },
-    {"sw_striped_avx2_256_8",        sw_striped_avx2_256_8,     },
-    {"NULL", NULL}
-};
-funcs_t sw_avx2 = {"sw_avx2", sw_avx2_functions};
-#endif
-
-#if HAVE_KNC
-func_t sw_knc_functions[] = {
-    {"sw",                           sw,                        },
-    {"sw_scan",                      sw_scan,                   },
-    {"sw_scan_knc_512_32",           sw_scan_knc_512_32,        },
-    {"sw_diag_knc_512_32",           sw_diag_knc_512_32,        },
-    {"sw_striped_knc_512_32",        sw_striped_knc_512_32,     },
-    {"NULL", NULL}
-};
-funcs_t sw_knc = {"sw_knc", sw_knc_functions};
-#endif
-
-#if HAVE_SSE2
-func_t nw_stats_sse2_functions[] = {
-    {"nw_stats",                     nw_stats,                     },
-    {"nw_stats_scan",                nw_stats_scan,                },
-    {"nw_stats_scan_sse2_128_32",    nw_stats_scan_sse2_128_32,    },
-    {"nw_stats_scan_sse2_128_16",    nw_stats_scan_sse2_128_16,    },
-    {"nw_stats_scan_sse2_128_8",     nw_stats_scan_sse2_128_8,     },
-    {"nw_stats_diag_sse2_128_32",    nw_stats_diag_sse2_128_32,    },
-    {"nw_stats_diag_sse2_128_16",    nw_stats_diag_sse2_128_16,    },
-    {"nw_stats_diag_sse2_128_8",     nw_stats_diag_sse2_128_8,     },
-    {"nw_stats_striped_sse2_128_32", nw_stats_striped_sse2_128_32, },
-    {"nw_stats_striped_sse2_128_16", nw_stats_striped_sse2_128_16, },
-    {"nw_stats_striped_sse2_128_8",  nw_stats_striped_sse2_128_8,  },
-    {"NULL", NULL}
-};
-funcs_t nw_stats_sse2 = {"nw_stats_sse2", nw_stats_sse2_functions};
-#endif
-
-#if HAVE_SSE41
-func_t nw_stats_sse41_functions[] = {
-    {"nw_stats",                     nw_stats,                     },
-    {"nw_stats_scan",                nw_stats_scan,                },
-    {"nw_stats_scan_sse41_128_32",   nw_stats_scan_sse41_128_32,   },
-    {"nw_stats_scan_sse41_128_16",   nw_stats_scan_sse41_128_16,   },
-    {"nw_stats_scan_sse41_128_8",    nw_stats_scan_sse41_128_8,    },
-    {"nw_stats_diag_sse41_128_32",   nw_stats_diag_sse41_128_32,   },
-    {"nw_stats_diag_sse41_128_16",   nw_stats_diag_sse41_128_16,   },
-    {"nw_stats_diag_sse41_128_8",    nw_stats_diag_sse41_128_8,    },
-    {"nw_stats_striped_sse41_128_32",nw_stats_striped_sse41_128_32,},
-    {"nw_stats_striped_sse41_128_16",nw_stats_striped_sse41_128_16,},
-    {"nw_stats_striped_sse41_128_8", nw_stats_striped_sse41_128_8, },
-    {"NULL", NULL}
-};
-funcs_t nw_stats_sse41 = {"nw_stats_sse41", nw_stats_sse41_functions};
-#endif
-
-#if HAVE_AVX2
-func_t nw_stats_avx2_functions[] = {
-    {"nw_stats",                     nw_stats,                     },
-    {"nw_stats_scan",                nw_stats_scan,                },
-    {"nw_stats_scan_avx2_256_32",    nw_stats_scan_avx2_256_32,    },
-    {"nw_stats_scan_avx2_256_16",    nw_stats_scan_avx2_256_16,    },
-    {"nw_stats_scan_avx2_256_8",     nw_stats_scan_avx2_256_8,     },
-    {"nw_stats_diag_avx2_256_32",    nw_stats_diag_avx2_256_32,    },
-    {"nw_stats_diag_avx2_256_16",    nw_stats_diag_avx2_256_16,    },
-    {"nw_stats_diag_avx2_256_8",     nw_stats_diag_avx2_256_8,     },
-    {"nw_stats_striped_avx2_256_32", nw_stats_striped_avx2_256_32, },
-    {"nw_stats_striped_avx2_256_16", nw_stats_striped_avx2_256_16, },
-    {"nw_stats_striped_avx2_256_8",  nw_stats_striped_avx2_256_8,  },
-    {"NULL", NULL}
-};
-funcs_t nw_stats_avx2 = {"nw_stats_avx2", nw_stats_avx2_functions};
-#endif
-
-#if HAVE_KNC
-func_t nw_stats_knc_functions[] = {
-    {"nw_stats",                     nw_stats,                     },
-    {"nw_stats_scan",                nw_stats_scan,                },
-    {"nw_stats_scan_knc_512_32",     nw_stats_scan_knc_512_32,     },
-    {"nw_stats_diag_knc_512_32",     nw_stats_diag_knc_512_32,     },
-    {"nw_stats_striped_knc_512_32",  nw_stats_striped_knc_512_32,  },
-    {"NULL", NULL}
-};
-funcs_t nw_stats_knc = {"nw_stats_knc", nw_stats_knc_functions};
-#endif
-
-#if HAVE_SSE2
-func_t sg_stats_sse2_functions[] = {
-    {"sg_stats",                     sg_stats,                     },
-    {"sg_stats_scan",                sg_stats_scan,                },
-    {"sg_stats_scan_sse2_128_32",    sg_stats_scan_sse2_128_32,    },
-    {"sg_stats_scan_sse2_128_16",    sg_stats_scan_sse2_128_16,    },
-    {"sg_stats_scan_sse2_128_8",     sg_stats_scan_sse2_128_8,     },
-    {"sg_stats_diag_sse2_128_32",    sg_stats_diag_sse2_128_32,    },
-    {"sg_stats_diag_sse2_128_16",    sg_stats_diag_sse2_128_16,    },
-    {"sg_stats_diag_sse2_128_8",     sg_stats_diag_sse2_128_8,     },
-    {"sg_stats_striped_sse2_128_32", sg_stats_striped_sse2_128_32, },
-    {"sg_stats_striped_sse2_128_16", sg_stats_striped_sse2_128_16, },
-    {"sg_stats_striped_sse2_128_8",  sg_stats_striped_sse2_128_8,  },
-    {"NULL", NULL}
-};
-funcs_t sg_stats_sse2 = {"sg_stats_sse2", sg_stats_sse2_functions};
-#endif
-
-#if HAVE_SSE41
-func_t sg_stats_sse41_functions[] = {
-    {"sg_stats",                     sg_stats,                     },
-    {"sg_stats_scan",                sg_stats_scan,                },
-    {"sg_stats_scan_sse41_128_32",   sg_stats_scan_sse41_128_32,   },
-    {"sg_stats_scan_sse41_128_16",   sg_stats_scan_sse41_128_16,   },
-    {"sg_stats_scan_sse41_128_8",    sg_stats_scan_sse41_128_8,    },
-    {"sg_stats_diag_sse41_128_32",   sg_stats_diag_sse41_128_32,   },
-    {"sg_stats_diag_sse41_128_16",   sg_stats_diag_sse41_128_16,   },
-    {"sg_stats_diag_sse41_128_8",    sg_stats_diag_sse41_128_8,    },
-    {"sg_stats_striped_sse41_128_32",sg_stats_striped_sse41_128_32,},
-    {"sg_stats_striped_sse41_128_16",sg_stats_striped_sse41_128_16,},
-    {"sg_stats_striped_sse41_128_8", sg_stats_striped_sse41_128_8, },
-    {"NULL", NULL}
-};
-funcs_t sg_stats_sse41 = {"sg_stats_sse41", sg_stats_sse41_functions};
-#endif
-
-#if HAVE_AVX2
-func_t sg_stats_avx2_functions[] = {
-    {"sg_stats",                     sg_stats,                     },
-    {"sg_stats_scan",                sg_stats_scan,                },
-    {"sg_stats_scan_avx2_256_32",    sg_stats_scan_avx2_256_32,    },
-    {"sg_stats_scan_avx2_256_16",    sg_stats_scan_avx2_256_16,    },
-    {"sg_stats_scan_avx2_256_8",     sg_stats_scan_avx2_256_8,     },
-    {"sg_stats_diag_avx2_256_32",    sg_stats_diag_avx2_256_32,    },
-    {"sg_stats_diag_avx2_256_16",    sg_stats_diag_avx2_256_16,    },
-    {"sg_stats_diag_avx2_256_8",     sg_stats_diag_avx2_256_8,     },
-    {"sg_stats_striped_avx2_256_32", sg_stats_striped_avx2_256_32, },
-    {"sg_stats_striped_avx2_256_16", sg_stats_striped_avx2_256_16, },
-    {"sg_stats_striped_avx2_256_8",  sg_stats_striped_avx2_256_8,  },
-    {"NULL", NULL}
-};
-funcs_t sg_stats_avx2 = {"sg_stats_avx2", sg_stats_avx2_functions};
-#endif
-
-#if HAVE_KNC
-func_t sg_stats_knc_functions[] = {
-    {"sg_stats",                     sg_stats,                     },
-    {"sg_stats_scan",                sg_stats_scan,                },
-    {"sg_stats_scan_knc_512_32",     sg_stats_scan_knc_512_32,     },
-    {"sg_stats_diag_knc_512_32",     sg_stats_diag_knc_512_32,     },
-    {"sg_stats_striped_knc_512_32",  sg_stats_striped_knc_512_32,  },
-    {"NULL", NULL}
-};
-funcs_t sg_stats_knc = {"sg_stats_knc", sg_stats_knc_functions};
-#endif
-
-#if HAVE_SSE2
-func_t sw_stats_sse2_functions[] = {
-    {"sw_stats",                     sw_stats,                     },
-    {"sw_stats_scan",                sw_stats_scan,                },
-    {"sw_stats_scan_sse2_128_32",    sw_stats_scan_sse2_128_32,    },
-    {"sw_stats_scan_sse2_128_16",    sw_stats_scan_sse2_128_16,    },
-    {"sw_stats_scan_sse2_128_8",     sw_stats_scan_sse2_128_8,     },
-    {"sw_stats_diag_sse2_128_32",    sw_stats_diag_sse2_128_32,    },
-    {"sw_stats_diag_sse2_128_16",    sw_stats_diag_sse2_128_16,    },
-    {"sw_stats_diag_sse2_128_8",     sw_stats_diag_sse2_128_8,     },
-    {"sw_stats_striped_sse2_128_32", sw_stats_striped_sse2_128_32, },
-    {"sw_stats_striped_sse2_128_16", sw_stats_striped_sse2_128_16, },
-    {"sw_stats_striped_sse2_128_8",  sw_stats_striped_sse2_128_8,  },
-    {"NULL", NULL}
-};
-funcs_t sw_stats_sse2 = {"sw_stats_sse2", sw_stats_sse2_functions};
-#endif
-
-#if HAVE_SSE41
-func_t sw_stats_sse41_functions[] = {
-    {"sw_stats",                     sw_stats,                     },
-    {"sw_stats_scan",                sw_stats_scan,                },
-    {"sw_stats_scan_sse41_128_32",   sw_stats_scan_sse41_128_32,   },
-    {"sw_stats_scan_sse41_128_16",   sw_stats_scan_sse41_128_16,   },
-    {"sw_stats_scan_sse41_128_8",    sw_stats_scan_sse41_128_8,    },
-    {"sw_stats_diag_sse41_128_32",   sw_stats_diag_sse41_128_32,   },
-    {"sw_stats_diag_sse41_128_16",   sw_stats_diag_sse41_128_16,   },
-    {"sw_stats_diag_sse41_128_8",    sw_stats_diag_sse41_128_8,    },
-    {"sw_stats_striped_sse41_128_32",sw_stats_striped_sse41_128_32,},
-    {"sw_stats_striped_sse41_128_16",sw_stats_striped_sse41_128_16,},
-    {"sw_stats_striped_sse41_128_8", sw_stats_striped_sse41_128_8, },
-    {"NULL", NULL}
-};
-funcs_t sw_stats_sse41 = {"sw_stats_sse41", sw_stats_sse41_functions};
-#endif
-
-#if HAVE_AVX2
-func_t sw_stats_avx2_functions[] = {
-    {"sw_stats",                     sw_stats,                     },
-    {"sw_stats_scan",                sw_stats_scan,                },
-    {"sw_stats_scan_avx2_256_32",    sw_stats_scan_avx2_256_32,    },
-    {"sw_stats_scan_avx2_256_16",    sw_stats_scan_avx2_256_16,    },
-    {"sw_stats_scan_avx2_256_8",     sw_stats_scan_avx2_256_8,     },
-    {"sw_stats_diag_avx2_256_32",    sw_stats_diag_avx2_256_32,    },
-    {"sw_stats_diag_avx2_256_16",    sw_stats_diag_avx2_256_16,    },
-    {"sw_stats_diag_avx2_256_8",     sw_stats_diag_avx2_256_8,     },
-    {"sw_stats_striped_avx2_256_32", sw_stats_striped_avx2_256_32, },
-    {"sw_stats_striped_avx2_256_16", sw_stats_striped_avx2_256_16, },
-    {"sw_stats_striped_avx2_256_8",  sw_stats_striped_avx2_256_8,  },
-    {"NULL", NULL}
-};
-funcs_t sw_stats_avx2 = {"sw_stats_avx2", sw_stats_avx2_functions};
-#endif
-
-#if HAVE_KNC
-func_t sw_stats_knc_functions[] = {
-    {"sw_stats",                     sw_stats,                     },
-    {"sw_stats_scan",                sw_stats_scan,                },
-    {"sw_stats_scan_knc_512_32",     sw_stats_scan_knc_512_32,     },
-    {"sw_stats_diag_knc_512_32",     sw_stats_diag_knc_512_32,     },
-    {"sw_stats_striped_knc_512_32",  sw_stats_striped_knc_512_32,  },
-    {"NULL", NULL}
-};
-funcs_t sw_stats_knc = {"sw_stats_knc", sw_stats_knc_functions};
-#endif
 
 static inline void parse_sequences(
         const char *filename,
@@ -570,18 +138,18 @@ static inline void check_functions(
     unsigned long gap_index = 0;
     unsigned long function_index = 0;
     unsigned long pair_index = 0;
-    pf reference_function = NULL;
+    parasail_function_t reference_function = NULL;
 
     printf("checking %s functions\n", f.name);
-    for (blosum_index=0; NULL!=blosums[blosum_index].blosum; ++blosum_index) {
+    for (blosum_index=0; NULL!=blosums[blosum_index].pointer; ++blosum_index) {
         //printf("\t%s\n", blosums[blosum_index].name);
         for (gap_index=0; INT_MIN!=gap_scores[gap_index].open; ++gap_index) {
             //printf("\t\topen=%d extend=%d\n",
             //        gap_scores[gap_index].open,
             //        gap_scores[gap_index].extend);
-            reference_function = functions[0].f;
+            reference_function = functions[0].pointer;
             for (function_index=1;
-                    NULL!=functions[function_index].f;
+                    NULL!=functions[function_index].pointer;
                     ++function_index) {
                 //printf("\t\t\t%s\n", functions[function_index].name);
 #pragma omp parallel for
@@ -598,12 +166,12 @@ static inline void check_functions(
                             sequences[a], sizes[a],
                             sequences[b], sizes[b],
                             open, extend,
-                            blosums[blosum_index].blosum);
-                    result = functions[function_index].f(
+                            blosums[blosum_index].pointer);
+                    result = functions[function_index].pointer(
                             sequences[a], sizes[a],
                             sequences[b], sizes[b],
                             open, extend,
-                            blosums[blosum_index].blosum);
+                            blosums[blosum_index].pointer);
                     if (result->saturated) {
                         /* no point in comparing a result that saturated */
                         parasail_result_free(reference_result);
@@ -636,7 +204,7 @@ int main(int argc, char **argv)
     unsigned long *sizes = NULL;
     char *endptr = NULL;
     char *funcname = NULL;
-    pf function = NULL;
+    parasail_function_t function = NULL;
     char *filename = NULL;
     int c = 0;
 

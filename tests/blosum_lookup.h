@@ -10,6 +10,14 @@
 #ifndef _PARASAIL_BLOSUM_LOOKUP_H_
 #define _PARASAIL_BLOSUM_LOOKUP_H_
 
+#include "blosum/blosum40.h"
+#include "blosum/blosum45.h"
+#include "blosum/blosum50.h"
+#include "blosum/blosum62.h"
+#include "blosum/blosum75.h"
+#include "blosum/blosum80.h"
+#include "blosum/blosum90.h"
+
 typedef const int (*parasail_blosum_t)[24];
 
 typedef struct blosum {

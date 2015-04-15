@@ -187,6 +187,10 @@ SRC_KNC += src/sw_diag_knc_512_32.c
 
 # parallel striped methods
 
+SRC_SSE2 += src/nw_striped_sse2_128_64.c
+SRC_SSE2 += src/sg_striped_sse2_128_64.c
+SRC_SSE2 += src/sw_striped_sse2_128_64.c
+
 SRC_SSE2 += src/nw_striped_sse2_128_32.c
 SRC_SSE2 += src/sg_striped_sse2_128_32.c
 SRC_SSE2 += src/sw_striped_sse2_128_32.c
@@ -199,6 +203,10 @@ SRC_SSE2 += src/nw_striped_sse2_128_8.c
 SRC_SSE2 += src/sg_striped_sse2_128_8.c
 SRC_SSE2 += src/sw_striped_sse2_128_8.c
 
+SRC_SSE41 += src/nw_striped_sse41_128_64.c
+SRC_SSE41 += src/sg_striped_sse41_128_64.c
+SRC_SSE41 += src/sw_striped_sse41_128_64.c
+
 SRC_SSE41 += src/nw_striped_sse41_128_32.c
 SRC_SSE41 += src/sg_striped_sse41_128_32.c
 SRC_SSE41 += src/sw_striped_sse41_128_32.c
@@ -210,6 +218,10 @@ SRC_SSE41 += src/sw_striped_sse41_128_16.c
 SRC_SSE41 += src/nw_striped_sse41_128_8.c
 SRC_SSE41 += src/sg_striped_sse41_128_8.c
 SRC_SSE41 += src/sw_striped_sse41_128_8.c
+
+SRC_AVX2 += src/nw_striped_avx2_256_64.c
+SRC_AVX2 += src/sg_striped_avx2_256_64.c
+SRC_AVX2 += src/sw_striped_avx2_256_64.c
 
 SRC_AVX2 += src/nw_striped_avx2_256_32.c
 SRC_AVX2 += src/sg_striped_avx2_256_32.c

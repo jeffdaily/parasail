@@ -59,11 +59,11 @@ parasail_result_t* FNAME(
     %(VTYPE)s* restrict pvHStore = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
     %(VTYPE)s* restrict pvHLoad =  parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
     %(VTYPE)s* const restrict pvE = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
+    %(INT)s* const restrict boundary = parasail_memalign_%(INT)s(%(ALIGNMENT)s, s2Len+1);
     %(VTYPE)s vGapO = %(VSET1)s(open);
     %(VTYPE)s vGapE = %(VSET1)s(gap);
     %(VTYPE)s vNegInf = %(VSET1)s(NEG_INF);
     %(INT)s score = NEG_INF;
-    %(VTYPE)s vMaxH = vNegInf;
     %(SATURATION_CHECK_INIT)s
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
@@ -97,12 +97,23 @@ parasail_result_t* FNAME(
             %(VTYPE)s_%(WIDTH)s_t h;
             %(VTYPE)s_%(WIDTH)s_t e;
             for (segNum=0; segNum<segWidth; ++segNum) {
-                h.v[segNum] = 0;
-                e.v[segNum] = -open;
+                int64_t tmp = -open-gap*(segNum*segLen+i);
+                h.v[segNum] = tmp < INT%(WIDTH)s_MIN ? INT%(WIDTH)s_MIN : tmp;
+                tmp = tmp - open;
+                e.v[segNum] = tmp < INT%(WIDTH)s_MIN ? INT%(WIDTH)s_MIN : tmp;
             }
             %(VSTORE)s(&pvHStore[index], h.m);
             %(VSTORE)s(&pvE[index], e.m);
             ++index;
+        }
+    }
+
+    /* initialize uppder boundary */
+    {
+        boundary[0] = 0;
+        for (i=1; i<=s2Len; ++i) {
+            int64_t tmp = -open-gap*(i-1);
+            boundary[i] = tmp < INT%(WIDTH)s_MIN ? INT%(WIDTH)s_MIN : tmp;
         }
     }
 
@@ -115,6 +126,9 @@ parasail_result_t* FNAME(
 
         /* load final segment of pvHStore and shift left by 2 bytes */
         %(VTYPE)s vH = %(VSHIFT)s(pvHStore[segLen - 1], %(BYTES)s);
+
+        /* insert upper boundary condition */
+        vH = %(VINSERT)s(vH, boundary[j], 0);
 
         /* Correct part of the vProfile */
         const %(VTYPE)s* vP = vProfile + MAP_BLOSUM_[(unsigned char)s2[j]] * segLen;
@@ -156,8 +170,10 @@ parasail_result_t* FNAME(
         /* Lazy_F loop: has been revised to disallow adjecent insertion and
          * then deletion, so don't update E(i, i), learn from SWPS3 */
         for (k=0; k<segWidth; ++k) {
+            int64_t tmp = boundary[j+1]-open;
+            %(INT)s tmp2 = tmp < INT%(WIDTH)s_MIN ? INT%(WIDTH)s_MIN : tmp;
             vF = %(VSHIFT)s(vF, %(BYTES)s);
-            vF = %(VINSERT)s(vF, -open, 0);
+            vF = %(VINSERT)s(vF, tmp2, 0);
             for (i=0; i<segLen; ++i) {
 #if ENABLE_CORRECTION_STATS
                 result->corrections += 1;
@@ -177,47 +193,23 @@ parasail_result_t* FNAME(
         }
 end:
         {
-            /* extract vector containing last value from the column */
-            vH = %(VLOAD)s(pvHStore + offset);
-            vMaxH = %(VMAX)s(vH, vMaxH);
         }
     }
 
-    /* max last value from all columns */
+    /* extract last value from the last column */
     {
-        %(INT)s value;
+        %(VTYPE)s vH = %(VLOAD)s(pvHStore + offset);
         for (k=0; k<position; ++k) {
-            vMaxH = %(VSHIFT)s(vMaxH, %(BYTES)s);
+            vH = %(VSHIFT)s (vH, %(BYTES)s);
         }
-        value = (%(INT)s) %(VEXTRACT)s(vMaxH, %(LAST_POS)s);
-        if (value > score) {
-            score = value;
-        }
-    }
-
-    /* max of last column */
-    {
-        vMaxH = vNegInf;
-
-        for (i=0; i<segLen; ++i) {
-            %(VTYPE)s vH = %(VLOAD)s(pvHStore + i);
-            vMaxH = %(VMAX)s(vH, vMaxH);
-        }
-
-        /* max in vec */
-        for (j=0; j<segWidth; ++j) {
-            %(INT)s value = (%(INT)s) %(VEXTRACT)s(vMaxH, %(LAST_POS)s);
-            if (value > score) {
-                score = value;
-            }
-            vMaxH = %(VSHIFT)s(vMaxH, %(BYTES)s);
-        }
+        score = (%(INT)s) %(VEXTRACT)s (vH, %(LAST_POS)s);
     }
 
     %(SATURATION_CHECK_FINAL)s
 
     result->score = score;
 
+    parasail_free(boundary);
     parasail_free(pvE);
     parasail_free(pvHLoad);
     parasail_free(pvHStore);

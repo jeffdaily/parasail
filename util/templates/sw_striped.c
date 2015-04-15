@@ -53,14 +53,13 @@ parasail_result_t* FNAME(
     const %(INDEX)s n = 24; /* number of amino acids in table */
     const %(INDEX)s segWidth = %(LANES)s; /* number of values in vector unit */
     const %(INDEX)s segLen = (s1Len + segWidth - 1) / segWidth;
-    const %(INDEX)s offset = (s1Len - 1) %% segLen;
-    const %(INDEX)s position = (segWidth - 1) - (s1Len - 1) / segLen;
     %(VTYPE)s* const restrict vProfile = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, n * segLen);
     %(VTYPE)s* restrict pvHStore = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
     %(VTYPE)s* restrict pvHLoad =  parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
     %(VTYPE)s* const restrict pvE = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
     %(VTYPE)s vGapO = %(VSET1)s(open);
     %(VTYPE)s vGapE = %(VSET1)s(gap);
+    %(VTYPE)s vZero = %(VSET0)s();
     %(VTYPE)s vNegInf = %(VSET1)s(NEG_INF);
     %(INT)s score = NEG_INF;
     %(VTYPE)s vMaxH = vNegInf;
@@ -109,9 +108,9 @@ parasail_result_t* FNAME(
     /* outer loop over database sequence */
     for (j=0; j<s2Len; ++j) {
         %(VTYPE)s vE;
-        /* Initialize F value to -inf.  Any errors to vH values will be
+        /* Initialize F value to 0.  Any errors to vH values will be
          * corrected in the Lazy_F loop.  */
-        %(VTYPE)s vF = vNegInf;
+        %(VTYPE)s vF = vZero;
 
         /* load final segment of pvHStore and shift left by 2 bytes */
         %(VTYPE)s vH = %(VSHIFT)s(pvHStore[segLen - 1], %(BYTES)s);
@@ -132,12 +131,14 @@ parasail_result_t* FNAME(
             /* Get max from vH, vE and vF. */
             vH = %(VMAX)s(vH, vE);
             vH = %(VMAX)s(vH, vF);
+            vH = %(VMAX)s(vH, vZero);
             /* Save vH values. */
             %(VSTORE)s(pvHStore + i, vH);
             %(SATURATION_CHECK_MID)s
 #ifdef PARASAIL_TABLE
             arr_store_si%(BITS)s(result->score_table, vH, i, segLen, j, s2Len);
 #endif
+            vMaxH = %(VMAX)s(vH, vMaxH);
 
             /* Update vE value. */
             vH = %(VSUB)s(vH, vGapO);
@@ -157,7 +158,6 @@ parasail_result_t* FNAME(
          * then deletion, so don't update E(i, i), learn from SWPS3 */
         for (k=0; k<segWidth; ++k) {
             vF = %(VSHIFT)s(vF, %(BYTES)s);
-            vF = %(VINSERT)s(vF, -open, 0);
             for (i=0; i<segLen; ++i) {
 #if ENABLE_CORRECTION_STATS
                 result->corrections += 1;
@@ -169,6 +169,7 @@ parasail_result_t* FNAME(
 #ifdef PARASAIL_TABLE
                 arr_store_si%(BITS)s(result->score_table, vH, i, segLen, j, s2Len);
 #endif
+                vMaxH = %(VMAX)s(vH, vMaxH);
                 vH = %(VSUB)s(vH, vGapO);
                 vF = %(VSUB)s(vF, vGapE);
                 if (! %(VMOVEMASK)s(%(VCMPGT)s(vF, vH))) goto end;
@@ -177,41 +178,16 @@ parasail_result_t* FNAME(
         }
 end:
         {
-            /* extract vector containing last value from the column */
-            vH = %(VLOAD)s(pvHStore + offset);
-            vMaxH = %(VMAX)s(vH, vMaxH);
         }
     }
 
-    /* max last value from all columns */
-    {
-        %(INT)s value;
-        for (k=0; k<position; ++k) {
-            vMaxH = %(VSHIFT)s(vMaxH, %(BYTES)s);
-        }
-        value = (%(INT)s) %(VEXTRACT)s(vMaxH, %(LAST_POS)s);
+    /* max in vec */
+    for (j=0; j<segWidth; ++j) {
+        %(INT)s value = (%(INT)s) %(VEXTRACT)s(vMaxH, %(LAST_POS)s);
         if (value > score) {
             score = value;
         }
-    }
-
-    /* max of last column */
-    {
-        vMaxH = vNegInf;
-
-        for (i=0; i<segLen; ++i) {
-            %(VTYPE)s vH = %(VLOAD)s(pvHStore + i);
-            vMaxH = %(VMAX)s(vH, vMaxH);
-        }
-
-        /* max in vec */
-        for (j=0; j<segWidth; ++j) {
-            %(INT)s value = (%(INT)s) %(VEXTRACT)s(vMaxH, %(LAST_POS)s);
-            if (value > score) {
-                score = value;
-            }
-            vMaxH = %(VSHIFT)s(vMaxH, %(BYTES)s);
-        }
+        vMaxH = %(VSHIFT)s(vMaxH, %(BYTES)s);
     }
 
     %(SATURATION_CHECK_FINAL)s

@@ -19,33 +19,10 @@
 #include "parasail_internal_avx.h"
 #include "blosum/blosum_map.h"
 
-#define NEG_INF_16 (INT16_MIN/(int16_t)(2))
+#define NEG_INF (INT16_MIN/(int16_t)(2))
 
-#if HAVE_AVX2_MM256_INSERT_EPI16
-#else
-static inline __m256i _mm256_insert_epi16(__m256i a, int16_t b, int imm) {
-    __m256i_16_t tmp;
-    tmp.m = a;
-    tmp.v[imm] = b;
-    return tmp.m;
-}
-#endif
+#define _mm256_slli_si256_rpl(a,imm) _mm256_alignr_epi8(a, _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,3,0)), 16-imm)
 
-#if HAVE_AVX2_MM256_EXTRACT_EPI16
-#else
-static inline int16_t _mm256_extract_epi16(__m256i a, int imm) {
-    __m256i_16_t tmp;
-    tmp.m = a;
-    return tmp.v[imm];
-}
-#endif
-
-/* avx2 _mm256_slli_si256 does not shift across 128-bit lanes, emulate it */
-static inline __m256i shift(__m256i a) {
-    return _mm256_alignr_epi8(a,
-            _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,3,0)),
-            14);
-}
 
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si256(
@@ -99,10 +76,12 @@ parasail_result_t* FNAME(
     __m256i* restrict pvHStore = parasail_memalign___m256i(32, segLen);
     __m256i* restrict pvHLoad =  parasail_memalign___m256i(32, segLen);
     __m256i* const restrict pvE = parasail_memalign___m256i(32, segLen);
-    int32_t* const restrict boundary = parasail_memalign_int32_t(32, s2Len+1);
-    int score;
+    int16_t* const restrict boundary = parasail_memalign_int16_t(32, s2Len+1);
     __m256i vGapO = _mm256_set1_epi16(open);
     __m256i vGapE = _mm256_set1_epi16(gap);
+    __m256i vNegInf = _mm256_set1_epi16(NEG_INF);
+    int16_t score = NEG_INF;
+    
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
@@ -135,8 +114,10 @@ parasail_result_t* FNAME(
             __m256i_16_t h;
             __m256i_16_t e;
             for (segNum=0; segNum<segWidth; ++segNum) {
-                h.v[segNum] = -open-gap*(segNum*segLen+i);
-                e.v[segNum] = NEG_INF_16;
+                int64_t tmp = -open-gap*(segNum*segLen+i);
+                h.v[segNum] = tmp < INT16_MIN ? INT16_MIN : tmp;
+                tmp = tmp - open;
+                e.v[segNum] = tmp < INT16_MIN ? INT16_MIN : tmp;
             }
             _mm256_store_si256(&pvHStore[index], h.m);
             _mm256_store_si256(&pvE[index], e.m);
@@ -148,39 +129,35 @@ parasail_result_t* FNAME(
     {
         boundary[0] = 0;
         for (i=1; i<=s2Len; ++i) {
-            boundary[i] = -open-gap*(i-1);
+            int64_t tmp = -open-gap*(i-1);
+            boundary[i] = tmp < INT16_MIN ? INT16_MIN : tmp;
         }
     }
 
     /* outer loop over database sequence */
     for (j=0; j<s2Len; ++j) {
         __m256i vE;
-        __m256i vF;
-        __m256i vH;
-        const __m256i* vP = NULL;
-        __m256i* pv = NULL;
-
-        /* Initialize F value to neg inf.  Any errors to vH values will
-         * be corrected in the Lazy_F loop.  */
-        vF = _mm256_set1_epi16(NEG_INF_16);
+        /* Initialize F value to -inf.  Any errors to vH values will be
+         * corrected in the Lazy_F loop.  */
+        __m256i vF = vNegInf;
 
         /* load final segment of pvHStore and shift left by 2 bytes */
-        vH = shift(pvHStore[segLen - 1]);
+        __m256i vH = _mm256_slli_si256_rpl(pvHStore[segLen - 1], 2);
 
         /* insert upper boundary condition */
         vH = _mm256_insert_epi16(vH, boundary[j], 0);
 
         /* Correct part of the vProfile */
-        vP = vProfile + MAP_BLOSUM_[(unsigned char)s2[j]] * segLen;
+        const __m256i* vP = vProfile + MAP_BLOSUM_[(unsigned char)s2[j]] * segLen;
 
         /* Swap the 2 H buffers. */
-        pv = pvHLoad;
+        __m256i* pv = pvHLoad;
         pvHLoad = pvHStore;
         pvHStore = pv;
 
         /* inner loop to process the query sequence */
         for (i=0; i<segLen; ++i) {
-            vH = _mm256_adds_epi16(vH, _mm256_load_si256(vP + i));
+            vH = _mm256_add_epi16(vH, _mm256_load_si256(vP + i));
             vE = _mm256_load_si256(pvE + i);
 
             /* Get max from vH, vE and vF. */
@@ -188,17 +165,19 @@ parasail_result_t* FNAME(
             vH = _mm256_max_epi16(vH, vF);
             /* Save vH values. */
             _mm256_store_si256(pvHStore + i, vH);
+            
 #ifdef PARASAIL_TABLE
             arr_store_si256(result->score_table, vH, i, segLen, j, s2Len);
 #endif
+
             /* Update vE value. */
-            vH = _mm256_subs_epi16(vH, vGapO);
-            vE = _mm256_subs_epi16(vE, vGapE);
+            vH = _mm256_sub_epi16(vH, vGapO);
+            vE = _mm256_sub_epi16(vE, vGapE);
             vE = _mm256_max_epi16(vE, vH);
             _mm256_store_si256(pvE + i, vE);
 
             /* Update vF value. */
-            vF = _mm256_subs_epi16(vF, vGapE);
+            vF = _mm256_sub_epi16(vF, vGapE);
             vF = _mm256_max_epi16(vF, vH);
 
             /* Load the next vH. */
@@ -208,8 +187,10 @@ parasail_result_t* FNAME(
         /* Lazy_F loop: has been revised to disallow adjecent insertion and
          * then deletion, so don't update E(i, i), learn from SWPS3 */
         for (k=0; k<segWidth; ++k) {
-            vF = shift(vF);
-            vF = _mm256_insert_epi16(vF, boundary[j+1]-open, 0);
+            int64_t tmp = boundary[j+1]-open;
+            int16_t tmp2 = tmp < INT16_MIN ? INT16_MIN : tmp;
+            vF = _mm256_slli_si256_rpl(vF, 2);
+            vF = _mm256_insert_epi16(vF, tmp2, 0);
             for (i=0; i<segLen; ++i) {
 #if ENABLE_CORRECTION_STATS
                 result->corrections += 1;
@@ -217,11 +198,12 @@ parasail_result_t* FNAME(
                 vH = _mm256_load_si256(pvHStore + i);
                 vH = _mm256_max_epi16(vH,vF);
                 _mm256_store_si256(pvHStore + i, vH);
+                
 #ifdef PARASAIL_TABLE
                 arr_store_si256(result->score_table, vH, i, segLen, j, s2Len);
 #endif
-                vH = _mm256_subs_epi16(vH, vGapO);
-                vF = _mm256_subs_epi16(vF, vGapE);
+                vH = _mm256_sub_epi16(vH, vGapO);
+                vF = _mm256_sub_epi16(vF, vGapE);
                 if (! _mm256_movemask_epi8(_mm256_cmpgt_epi16(vF, vH))) goto end;
                 /*vF = _mm256_max_epi16(vF, vH);*/
             }
@@ -235,10 +217,12 @@ end:
     {
         __m256i vH = _mm256_load_si256(pvHStore + offset);
         for (k=0; k<position; ++k) {
-            vH = shift(vH);
+            vH = _mm256_slli_si256_rpl (vH, 2);
         }
-        score = (int16_t) _mm256_extract_epi16(vH, 15);
+        score = (int16_t) _mm256_extract_epi16 (vH, 15);
     }
+
+    
 
     result->score = score;
 

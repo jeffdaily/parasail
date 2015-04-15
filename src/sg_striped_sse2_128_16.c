@@ -19,7 +19,8 @@
 #include "parasail_internal_sse.h"
 #include "blosum/blosum_map.h"
 
-#define NEG_INF_16 (INT16_MIN/(int16_t)(2))
+#define NEG_INF (INT16_MIN/(int16_t)(2))
+
 
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si128(
@@ -67,9 +68,10 @@ parasail_result_t* FNAME(
     __m128i* const restrict pvE = parasail_memalign___m128i(16, segLen);
     __m128i vGapO = _mm_set1_epi16(open);
     __m128i vGapE = _mm_set1_epi16(gap);
-    __m128i vNegInf = _mm_set1_epi16(NEG_INF_16);
-    int score = NEG_INF_16;
+    __m128i vNegInf = _mm_set1_epi16(NEG_INF);
+    int16_t score = NEG_INF;
     __m128i vMaxH = vNegInf;
+    
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
@@ -114,8 +116,8 @@ parasail_result_t* FNAME(
     /* outer loop over database sequence */
     for (j=0; j<s2Len; ++j) {
         __m128i vE;
-        /* Initialize F value to neg inf.  Any errors to vH values will
-         * be corrected in the Lazy_F loop.  */
+        /* Initialize F value to -inf.  Any errors to vH values will be
+         * corrected in the Lazy_F loop.  */
         __m128i vF = vNegInf;
 
         /* load final segment of pvHStore and shift left by 2 bytes */
@@ -131,7 +133,7 @@ parasail_result_t* FNAME(
 
         /* inner loop to process the query sequence */
         for (i=0; i<segLen; ++i) {
-            vH = _mm_adds_epi16(vH, _mm_load_si128(vP + i));
+            vH = _mm_add_epi16(vH, _mm_load_si128(vP + i));
             vE = _mm_load_si128(pvE + i);
 
             /* Get max from vH, vE and vF. */
@@ -139,18 +141,19 @@ parasail_result_t* FNAME(
             vH = _mm_max_epi16(vH, vF);
             /* Save vH values. */
             _mm_store_si128(pvHStore + i, vH);
+            
 #ifdef PARASAIL_TABLE
             arr_store_si128(result->score_table, vH, i, segLen, j, s2Len);
 #endif
 
             /* Update vE value. */
-            vH = _mm_subs_epi16(vH, vGapO);
-            vE = _mm_subs_epi16(vE, vGapE);
+            vH = _mm_sub_epi16(vH, vGapO);
+            vE = _mm_sub_epi16(vE, vGapE);
             vE = _mm_max_epi16(vE, vH);
             _mm_store_si128(pvE + i, vE);
 
             /* Update vF value. */
-            vF = _mm_subs_epi16(vF, vGapE);
+            vF = _mm_sub_epi16(vF, vGapE);
             vF = _mm_max_epi16(vF, vH);
 
             /* Load the next vH. */
@@ -163,14 +166,18 @@ parasail_result_t* FNAME(
             vF = _mm_slli_si128(vF, 2);
             vF = _mm_insert_epi16(vF, -open, 0);
             for (i=0; i<segLen; ++i) {
+#if ENABLE_CORRECTION_STATS
+                result->corrections += 1;
+#endif
                 vH = _mm_load_si128(pvHStore + i);
                 vH = _mm_max_epi16(vH,vF);
                 _mm_store_si128(pvHStore + i, vH);
+                
 #ifdef PARASAIL_TABLE
                 arr_store_si128(result->score_table, vH, i, segLen, j, s2Len);
 #endif
-                vH = _mm_subs_epi16(vH, vGapO);
-                vF = _mm_subs_epi16(vF, vGapE);
+                vH = _mm_sub_epi16(vH, vGapO);
+                vF = _mm_sub_epi16(vF, vGapE);
                 if (! _mm_movemask_epi8(_mm_cmpgt_epi16(vF, vH))) goto end;
                 /*vF = _mm_max_epi16(vF, vH);*/
             }
@@ -183,7 +190,7 @@ end:
         }
     }
 
-    /* extract last value from column */
+    /* max last value from all columns */
     {
         int16_t value;
         for (k=0; k<position; ++k) {
@@ -213,6 +220,8 @@ end:
             vMaxH = _mm_slli_si128(vMaxH, 2);
         }
     }
+
+    
 
     result->score = score;
 

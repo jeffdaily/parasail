@@ -19,23 +19,10 @@
 #include "parasail_internal_avx.h"
 #include "blosum/blosum_map.h"
 
-#define NEG_INF_32 (INT32_MIN/(int32_t)(2))
+#define NEG_INF (INT32_MIN/(int32_t)(2))
 
-#if HAVE_AVX2_MM256_EXTRACT_EPI32
-#else
-static inline int32_t _mm256_extract_epi32(__m256i a, int imm) {
-    __m256i_32_t tmp;
-    tmp.m = a;
-    return tmp.v[imm];
-}
-#endif
+#define _mm256_slli_si256_rpl(a,imm) _mm256_alignr_epi8(a, _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,3,0)), 16-imm)
 
-/* avx2 _mm256_slli_si256 does not shift across 128-bit lanes, emulate it */
-static inline __m256i shift(__m256i a) {
-    return _mm256_alignr_epi8(a,
-            _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,3,0)),
-            12);
-}
 
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si256(
@@ -79,11 +66,13 @@ parasail_result_t* FNAME(
     __m256i* restrict pvHStore = parasail_memalign___m256i(32, segLen);
     __m256i* restrict pvHLoad =  parasail_memalign___m256i(32, segLen);
     __m256i* const restrict pvE = parasail_memalign___m256i(32, segLen);
-    int score = NEG_INF_32;
     __m256i vGapO = _mm256_set1_epi32(open);
     __m256i vGapE = _mm256_set1_epi32(gap);
     __m256i vZero = _mm256_setzero_si256();
-    __m256i vMaxH = vZero;
+    __m256i vNegInf = _mm256_set1_epi32(NEG_INF);
+    int32_t score = NEG_INF;
+    __m256i vMaxH = vNegInf;
+    
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
@@ -117,7 +106,7 @@ parasail_result_t* FNAME(
             __m256i_32_t e;
             for (segNum=0; segNum<segWidth; ++segNum) {
                 h.v[segNum] = 0;
-                e.v[segNum] = NEG_INF_32;
+                e.v[segNum] = -open;
             }
             _mm256_store_si256(&pvHStore[index], h.m);
             _mm256_store_si256(&pvE[index], e.m);
@@ -128,12 +117,12 @@ parasail_result_t* FNAME(
     /* outer loop over database sequence */
     for (j=0; j<s2Len; ++j) {
         __m256i vE;
-        /* Initialize F value to 0.  Any errors to vH values will be corrected
-         * in the Lazy_F loop.  */
+        /* Initialize F value to 0.  Any errors to vH values will be
+         * corrected in the Lazy_F loop.  */
         __m256i vF = vZero;
 
         /* load final segment of pvHStore and shift left by 2 bytes */
-        __m256i vH = shift(pvHStore[segLen - 1]);
+        __m256i vH = _mm256_slli_si256_rpl(pvHStore[segLen - 1], 4);
 
         /* Correct part of the vProfile */
         const __m256i* vP = vProfile + MAP_BLOSUM_[(unsigned char)s2[j]] * segLen;
@@ -154,14 +143,11 @@ parasail_result_t* FNAME(
             vH = _mm256_max_epi32(vH, vZero);
             /* Save vH values. */
             _mm256_store_si256(pvHStore + i, vH);
+            
 #ifdef PARASAIL_TABLE
             arr_store_si256(result->score_table, vH, i, segLen, j, s2Len);
 #endif
-
-            /* update max vector seen so far */
-            {
-                vMaxH = _mm256_max_epi32(vH, vMaxH);
-            }
+            vMaxH = _mm256_max_epi32(vH, vMaxH);
 
             /* Update vE value. */
             vH = _mm256_sub_epi32(vH, vGapO);
@@ -180,7 +166,7 @@ parasail_result_t* FNAME(
         /* Lazy_F loop: has been revised to disallow adjecent insertion and
          * then deletion, so don't update E(i, i), learn from SWPS3 */
         for (k=0; k<segWidth; ++k) {
-            vF = shift(vF);
+            vF = _mm256_slli_si256_rpl(vF, 4);
             for (i=0; i<segLen; ++i) {
 #if ENABLE_CORRECTION_STATS
                 result->corrections += 1;
@@ -188,9 +174,11 @@ parasail_result_t* FNAME(
                 vH = _mm256_load_si256(pvHStore + i);
                 vH = _mm256_max_epi32(vH,vF);
                 _mm256_store_si256(pvHStore + i, vH);
+                
 #ifdef PARASAIL_TABLE
                 arr_store_si256(result->score_table, vH, i, segLen, j, s2Len);
 #endif
+                vMaxH = _mm256_max_epi32(vH, vMaxH);
                 vH = _mm256_sub_epi32(vH, vGapO);
                 vF = _mm256_sub_epi32(vF, vGapE);
                 if (! _mm256_movemask_epi8(_mm256_cmpgt_epi32(vF, vH))) goto end;
@@ -208,8 +196,10 @@ end:
         if (value > score) {
             score = value;
         }
-        vMaxH = shift(vMaxH);
+        vMaxH = _mm256_slli_si256_rpl(vMaxH, 4);
     }
+
+    
 
     result->score = score;
 

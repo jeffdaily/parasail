@@ -19,7 +19,8 @@
 #include "parasail_internal_sse.h"
 #include "blosum/blosum_map.h"
 
-#define NEG_INF_16 (INT16_MIN/(int16_t)(2))
+#define NEG_INF (INT16_MIN/(int16_t)(2))
+
 
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si128(
@@ -66,9 +67,11 @@ parasail_result_t* FNAME(
     __m128i* restrict pvHLoad =  parasail_memalign___m128i(16, segLen);
     __m128i* const restrict pvE = parasail_memalign___m128i(16, segLen);
     int16_t* const restrict boundary = parasail_memalign_int16_t(16, s2Len+1);
-    int score;
     __m128i vGapO = _mm_set1_epi16(open);
     __m128i vGapE = _mm_set1_epi16(gap);
+    __m128i vNegInf = _mm_set1_epi16(NEG_INF);
+    int16_t score = NEG_INF;
+    
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
@@ -101,8 +104,10 @@ parasail_result_t* FNAME(
             __m128i_16_t h;
             __m128i_16_t e;
             for (segNum=0; segNum<segWidth; ++segNum) {
-                h.v[segNum] = -open-gap*(segNum*segLen+i);
-                e.v[segNum] = NEG_INF_16;
+                int64_t tmp = -open-gap*(segNum*segLen+i);
+                h.v[segNum] = tmp < INT16_MIN ? INT16_MIN : tmp;
+                tmp = tmp - open;
+                e.v[segNum] = tmp < INT16_MIN ? INT16_MIN : tmp;
             }
             _mm_store_si128(&pvHStore[index], h.m);
             _mm_store_si128(&pvE[index], e.m);
@@ -114,39 +119,35 @@ parasail_result_t* FNAME(
     {
         boundary[0] = 0;
         for (i=1; i<=s2Len; ++i) {
-            boundary[i] = -open-gap*(i-1);
+            int64_t tmp = -open-gap*(i-1);
+            boundary[i] = tmp < INT16_MIN ? INT16_MIN : tmp;
         }
     }
 
     /* outer loop over database sequence */
     for (j=0; j<s2Len; ++j) {
         __m128i vE;
-        __m128i vF;
-        __m128i vH;
-        const __m128i* vP = NULL;
-        __m128i* pv = NULL;
-
-        /* Initialize F value to neg inf.  Any errors to vH values will
-         * be corrected in the Lazy_F loop.  */
-        vF = _mm_set1_epi16(INT16_MIN);
+        /* Initialize F value to -inf.  Any errors to vH values will be
+         * corrected in the Lazy_F loop.  */
+        __m128i vF = vNegInf;
 
         /* load final segment of pvHStore and shift left by 2 bytes */
-        vH = _mm_slli_si128(pvHStore[segLen - 1], 2);
+        __m128i vH = _mm_slli_si128(pvHStore[segLen - 1], 2);
 
         /* insert upper boundary condition */
         vH = _mm_insert_epi16(vH, boundary[j], 0);
 
         /* Correct part of the vProfile */
-        vP = vProfile + MAP_BLOSUM_[(unsigned char)s2[j]] * segLen;
+        const __m128i* vP = vProfile + MAP_BLOSUM_[(unsigned char)s2[j]] * segLen;
 
         /* Swap the 2 H buffers. */
-        pv = pvHLoad;
+        __m128i* pv = pvHLoad;
         pvHLoad = pvHStore;
         pvHStore = pv;
 
         /* inner loop to process the query sequence */
         for (i=0; i<segLen; ++i) {
-            vH = _mm_adds_epi16(vH, _mm_load_si128(vP + i));
+            vH = _mm_add_epi16(vH, _mm_load_si128(vP + i));
             vE = _mm_load_si128(pvE + i);
 
             /* Get max from vH, vE and vF. */
@@ -154,17 +155,19 @@ parasail_result_t* FNAME(
             vH = _mm_max_epi16(vH, vF);
             /* Save vH values. */
             _mm_store_si128(pvHStore + i, vH);
+            
 #ifdef PARASAIL_TABLE
             arr_store_si128(result->score_table, vH, i, segLen, j, s2Len);
 #endif
+
             /* Update vE value. */
-            vH = _mm_subs_epi16(vH, vGapO);
-            vE = _mm_subs_epi16(vE, vGapE);
+            vH = _mm_sub_epi16(vH, vGapO);
+            vE = _mm_sub_epi16(vE, vGapE);
             vE = _mm_max_epi16(vE, vH);
             _mm_store_si128(pvE + i, vE);
 
             /* Update vF value. */
-            vF = _mm_subs_epi16(vF, vGapE);
+            vF = _mm_sub_epi16(vF, vGapE);
             vF = _mm_max_epi16(vF, vH);
 
             /* Load the next vH. */
@@ -174,17 +177,23 @@ parasail_result_t* FNAME(
         /* Lazy_F loop: has been revised to disallow adjecent insertion and
          * then deletion, so don't update E(i, i), learn from SWPS3 */
         for (k=0; k<segWidth; ++k) {
+            int64_t tmp = boundary[j+1]-open;
+            int16_t tmp2 = tmp < INT16_MIN ? INT16_MIN : tmp;
             vF = _mm_slli_si128(vF, 2);
-            vF = _mm_insert_epi16(vF, boundary[j+1]-open, 0);
+            vF = _mm_insert_epi16(vF, tmp2, 0);
             for (i=0; i<segLen; ++i) {
+#if ENABLE_CORRECTION_STATS
+                result->corrections += 1;
+#endif
                 vH = _mm_load_si128(pvHStore + i);
                 vH = _mm_max_epi16(vH,vF);
                 _mm_store_si128(pvHStore + i, vH);
+                
 #ifdef PARASAIL_TABLE
                 arr_store_si128(result->score_table, vH, i, segLen, j, s2Len);
 #endif
-                vH = _mm_subs_epi16(vH, vGapO);
-                vF = _mm_subs_epi16(vF, vGapE);
+                vH = _mm_sub_epi16(vH, vGapO);
+                vF = _mm_sub_epi16(vF, vGapE);
                 if (! _mm_movemask_epi8(_mm_cmpgt_epi16(vF, vH))) goto end;
                 /*vF = _mm_max_epi16(vF, vH);*/
             }
@@ -202,6 +211,8 @@ end:
         }
         score = (int16_t) _mm_extract_epi16 (vH, 7);
     }
+
+    
 
     result->score = score;
 

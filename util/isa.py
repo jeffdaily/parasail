@@ -35,6 +35,10 @@ sse2 = {
     "VMAXx16"     : "_mm_max_epi16",
     "VMAXx32"     : "_mm_max_epi32_rpl",
     "VMAXx64"     : "_mm_max_epi64_rpl",
+    "VMINx8"      : "_mm_min_epi8_rpl",
+    "VMINx16"     : "_mm_min_epi16",
+    "VMINx32"     : "_mm_min_epi32_rpl",
+    "VMINx64"     : "_mm_min_epi64_rpl",
     "VMOVEMASK"   : "_mm_movemask_epi8",
     "VOR"         : "_mm_or_si128",
     "VSET0"       : "_mm_setzero_si128",
@@ -59,50 +63,50 @@ static inline __m128i _mm_blendv_epi8_rpl(__m128i a, __m128i b, __m128i mask) {
 """,
     "_mm_cmpeq_epi64_rpl" : """
 static inline __m128i _mm_cmpeq_epi64_rpl(__m128i a, __m128i b) {
-    __m128_64_t A;
-    __m128_64_t B;
+    __m128i_64_t A;
+    __m128i_64_t B;
     A.m = a;
     B.m = b;
     A.v[0] = (A.v[0]==B.v[0]) ? 0xFFFFFFFFFFFFFFFF : 0;
     A.v[1] = (A.v[1]==B.v[1]) ? 0xFFFFFFFFFFFFFFFF : 0;
-    return A.i;
+    return A.m;
 }
 """,
     "_mm_cmpgt_epi64_rpl" : """
 static inline __m128i _mm_cmpgt_epi64_rpl(__m128i a, __m128i b) {
-    __m128_64_t A;
-    __m128_64_t B;
+    __m128i_64_t A;
+    __m128i_64_t B;
     A.m = a;
     B.m = b;
     A.v[0] = (A.v[0]>B.v[0]) ? 0xFFFFFFFFFFFFFFFF : 0;
     A.v[1] = (A.v[1]>B.v[1]) ? 0xFFFFFFFFFFFFFFFF : 0;
-    return A.i;
+    return A.m;
 }
 """,
     "_mm_extract_epi8_rpl" : """
 static inline int8_t _mm_extract_epi8_rpl(__m128i a, const int imm) {
-    __m128_8_t A;
+    __m128i_8_t A;
     A.m = a;
     return A.v[imm];
 }
 """,
     "_mm_extract_epi32_rpl" : """
 static inline int32_t _mm_extract_epi32_rpl(__m128i a, const int imm) {
-    __m128_32_t A;
+    __m128i_32_t A;
     A.m = a;
     return A.v[imm];
 }
 """,
     "_mm_extract_epi64_rpl" : """
 static inline int64_t _mm_extract_epi64_rpl(__m128i a, const int imm) {
-    __m128_64_t A;
+    __m128i_64_t A;
     A.m = a;
     return A.v[imm];
 }
 """,
     "_mm_insert_epi8_rpl" : """
 static inline __m128i _mm_insert_epi8_rpl(__m128i a, int8_t i, const int imm) {
-    __m128_8_t A;
+    __m128i_8_t A;
     A.m = a;
     A.v[imm] = i;
     return A.m;
@@ -110,7 +114,7 @@ static inline __m128i _mm_insert_epi8_rpl(__m128i a, int8_t i, const int imm) {
 """,
     "_mm_insert_epi32_rpl" : """
 static inline __m128i _mm_insert_epi32_rpl(__m128i a, int32_t i, const int imm) {
-    __m128_32_t A;
+    __m128i_32_t A;
     A.m = a;
     A.v[imm] = i;
     return A.m;
@@ -118,7 +122,7 @@ static inline __m128i _mm_insert_epi32_rpl(__m128i a, int32_t i, const int imm) 
 """,
     "_mm_insert_epi64_rpl" : """
 static inline __m128i _mm_insert_epi64_rpl(__m128i a, int64_t i, const int imm) {
-    __m128_64_t A;
+    __m128i_64_t A;
     A.m = a;
     A.v[imm] = i;
     return A.m;
@@ -128,7 +132,7 @@ static inline __m128i _mm_insert_epi64_rpl(__m128i a, int64_t i, const int imm) 
 static inline __m128i _mm_max_epi8_rpl(__m128i a, __m128i b) {
     __m128i mask = _mm_cmpgt_epi8(a, b);
     a = _mm_and_si128(a, mask);
-    b = _mm_andnot_si128(b, mask);
+    b = _mm_andnot_si128(mask, b);
     return _mm_or_si128(a, b);
 }
 """,
@@ -136,19 +140,46 @@ static inline __m128i _mm_max_epi8_rpl(__m128i a, __m128i b) {
 static inline __m128i _mm_max_epi32_rpl(__m128i a, __m128i b) {
     __m128i mask = _mm_cmpgt_epi32(a, b);
     a = _mm_and_si128(a, mask);
-    b = _mm_andnot_si128(b, mask);
+    b = _mm_andnot_si128(mask, b);
     return _mm_or_si128(a, b);
 }
 """,
     "_mm_max_epi64_rpl" : """
 static inline __m128i _mm_max_epi64_rpl(__m128i a, __m128i b) {
-    __m128_64_t A;
-    __m128_64_t B;
+    __m128i_64_t A;
+    __m128i_64_t B;
     A.m = a;
     B.m = b;
     A.v[0] = (A.v[0]>B.v[0]) ? A.v[0] : B.v[0];
     A.v[1] = (A.v[1]>B.v[1]) ? A.v[1] : B.v[1];
-    return A.i;
+    return A.m;
+}
+""",
+    "_mm_min_epi8_rpl" : """
+static inline __m128i _mm_min_epi8_rpl(__m128i a, __m128i b) {
+    __m128i mask = _mm_cmpgt_epi8(b, a);
+    a = _mm_and_si128(a, mask);
+    b = _mm_andnot_si128(mask, b);
+    return _mm_or_si128(a, b);
+}
+""",
+    "_mm_min_epi32_rpl" : """
+static inline __m128i _mm_min_epi32_rpl(__m128i a, __m128i b) {
+    __m128i mask = _mm_cmpgt_epi32(b, a);
+    a = _mm_and_si128(a, mask);
+    b = _mm_andnot_si128(mask, b);
+    return _mm_or_si128(a, b);
+}
+""",
+    "_mm_min_epi64_rpl" : """
+static inline __m128i _mm_min_epi64_rpl(__m128i a, __m128i b) {
+    __m128i_64_t A;
+    __m128i_64_t B;
+    A.m = a;
+    B.m = b;
+    A.v[0] = (A.v[0]<B.v[0]) ? A.v[0] : B.v[0];
+    A.v[1] = (A.v[1]<B.v[1]) ? A.v[1] : B.v[1];
+    return A.m;
 }
 """,
     }
@@ -188,6 +219,10 @@ sse41 = {
     "VMAXx16"     : "_mm_max_epi16",
     "VMAXx32"     : "_mm_max_epi32",
     "VMAXx64"     : "_mm_max_epi64_rpl",
+    "VMINx8"      : "_mm_min_epi8",
+    "VMINx16"     : "_mm_min_epi16",
+    "VMINx32"     : "_mm_min_epi32",
+    "VMINx64"     : "_mm_min_epi64_rpl",
     "VMOVEMASK"   : "_mm_movemask_epi8",
     "VOR"         : "_mm_or_si128",
     "VSET0"       : "_mm_setzero_si128",
@@ -205,8 +240,8 @@ sse41 = {
     "VSUBSx16"    : "_mm_subs_epi16",
     "_mm_cmpgt_epi64_rpl" : """
 static inline __m128i _mm_cmpgt_epi64_rpl(__m128i a, __m128i b) {
-    __m128_64_t A;
-    __m128_64_t B;
+    __m128i_64_t A;
+    __m128i_64_t B;
     A.m = a;
     B.m = b;
     A.v[0] = (A.v[0]>B.v[0]) ? 0xFFFFFFFFFFFFFFFF : 0;
@@ -216,12 +251,23 @@ static inline __m128i _mm_cmpgt_epi64_rpl(__m128i a, __m128i b) {
 """,
     "_mm_max_epi64_rpl" : """
 static inline __m128i _mm_max_epi64_rpl(__m128i a, __m128i b) {
-    __m128_64_t A;
-    __m128_64_t B;
+    __m128i_64_t A;
+    __m128i_64_t B;
     A.m = a;
     B.m = b;
     A.v[0] = (A.v[0]>B.v[0]) ? A.v[0] : B.v[0];
     A.v[1] = (A.v[1]>B.v[1]) ? A.v[1] : B.v[1];
+    return A.m;
+}
+""",
+    "_mm_min_epi64_rpl" : """
+static inline __m128i _mm_min_epi64_rpl(__m128i a, __m128i b) {
+    __m128i_64_t A;
+    __m128i_64_t B;
+    A.m = a;
+    B.m = b;
+    A.v[0] = (A.v[0]<B.v[0]) ? A.v[0] : B.v[0];
+    A.v[1] = (A.v[1]<B.v[1]) ? A.v[1] : B.v[1];
     return A.m;
 }
 """,
@@ -262,6 +308,10 @@ avx2 = {
     "VMAXx16"     : "_mm256_max_epi16",
     "VMAXx32"     : "_mm256_max_epi32",
     "VMAXx64"     : "_mm256_max_epi64_rpl",
+    "VMINx8"      : "_mm256_min_epi8",
+    "VMINx16"     : "_mm256_min_epi16",
+    "VMINx32"     : "_mm256_min_epi32",
+    "VMINx64"     : "_mm256_min_epi64_rpl",
     "VMOVEMASK"   : "_mm256_movemask_epi8",
     "VOR"         : "_mm256_or_si256",
     "VSET0"       : "_mm256_setzero_si256",
@@ -278,15 +328,28 @@ avx2 = {
     "VSUBSx8"     : "_mm256_subs_epi8",
     "VSUBSx16"    : "_mm256_subs_epi16",
     "_mm256_max_epi64_rpl" : """
-static inline __m128i _mm256_max_epi64_rpl(__m128i a, __m128i b) {
-    __m128_64_t A;
-    __m128_64_t B;
+static inline __m256i _mm256_max_epi64_rpl(__m256i a, __m256i b) {
+    __m256i_64_t A;
+    __m256i_64_t B;
     A.m = a;
     B.m = b;
     A.v[0] = (A.v[0]>B.v[0]) ? A.v[0] : B.v[0];
     A.v[1] = (A.v[1]>B.v[1]) ? A.v[1] : B.v[1];
     A.v[2] = (A.v[2]>B.v[2]) ? A.v[2] : B.v[2];
     A.v[3] = (A.v[3]>B.v[3]) ? A.v[3] : B.v[3];
+    return A.m;
+}
+""",
+    "_mm256_min_epi64_rpl" : """
+static inline __m256i _mm256_min_epi64_rpl(__m256i a, __m256i b) {
+    __m256i_64_t A;
+    __m256i_64_t B;
+    A.m = a;
+    B.m = b;
+    A.v[0] = (A.v[0]<B.v[0]) ? A.v[0] : B.v[0];
+    A.v[1] = (A.v[1]<B.v[1]) ? A.v[1] : B.v[1];
+    A.v[2] = (A.v[2]<B.v[2]) ? A.v[2] : B.v[2];
+    A.v[3] = (A.v[3]<B.v[3]) ? A.v[3] : B.v[3];
     return A.m;
 }
 """,

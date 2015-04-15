@@ -63,6 +63,11 @@ int32_t * parasail_memalign_int32_t(size_t alignment, size_t size)
     return (int32_t *) parasail_memalign(alignment, size*sizeof(int32_t));
 }
 
+int64_t * parasail_memalign_int64_t(size_t alignment, size_t size)
+{
+    return (int64_t *) parasail_memalign(alignment, size*sizeof(int64_t));
+}
+
 void parasail_memset(void *b, int c, size_t len)
 {
     (void)memset(b, c, len);
@@ -93,6 +98,14 @@ void parasail_memset_int16_t(int16_t *b, int16_t c, size_t len)
 }
 
 void parasail_memset_int32_t(int32_t *b, int32_t c, size_t len)
+{
+    size_t i;
+    for (i=0; i<len; ++i) {
+        b[i] = c;
+    }
+}
+
+void parasail_memset_int64_t(int64_t *b, int64_t c, size_t len)
 {
     size_t i;
     for (i=0; i<len; ++i) {

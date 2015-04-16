@@ -153,6 +153,10 @@ SRC_KNC += src/sw_scan_knc_512_32.c
 
 # parallel diag methods
 
+SRC_SSE2 += src/nw_diag_sse2_128_64.c
+SRC_SSE2 += src/sg_diag_sse2_128_64.c
+SRC_SSE2 += src/sw_diag_sse2_128_64.c
+
 SRC_SSE2 += src/nw_diag_sse2_128_32.c
 SRC_SSE2 += src/sg_diag_sse2_128_32.c
 SRC_SSE2 += src/sw_diag_sse2_128_32.c
@@ -165,6 +169,10 @@ SRC_SSE2 += src/nw_diag_sse2_128_8.c
 SRC_SSE2 += src/sg_diag_sse2_128_8.c
 SRC_SSE2 += src/sw_diag_sse2_128_8.c
 
+SRC_SSE41 += src/nw_diag_sse41_128_64.c
+SRC_SSE41 += src/sg_diag_sse41_128_64.c
+SRC_SSE41 += src/sw_diag_sse41_128_64.c
+
 SRC_SSE41 += src/nw_diag_sse41_128_32.c
 SRC_SSE41 += src/sg_diag_sse41_128_32.c
 SRC_SSE41 += src/sw_diag_sse41_128_32.c
@@ -176,6 +184,10 @@ SRC_SSE41 += src/sw_diag_sse41_128_16.c
 SRC_SSE41 += src/nw_diag_sse41_128_8.c
 SRC_SSE41 += src/sg_diag_sse41_128_8.c
 SRC_SSE41 += src/sw_diag_sse41_128_8.c
+
+SRC_AVX2 += src/nw_diag_avx2_256_64.c
+SRC_AVX2 += src/sg_diag_avx2_256_64.c
+SRC_AVX2 += src/sw_diag_avx2_256_64.c
 
 SRC_AVX2 += src/nw_diag_avx2_256_32.c
 SRC_AVX2 += src/sg_diag_avx2_256_32.c

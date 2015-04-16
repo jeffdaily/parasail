@@ -34,13 +34,20 @@ def generate_printer(params):
     text = ""
     if "striped" in params["NAME"] or "scan" in params["NAME"]:
         for lane in range(params["LANES"]):
-            new_params = params
             params["LANE"] = lane
             if params["LANES"] / 10:
                 text += "    array[(%(LANE)2d*seglen+t)*dlen + d] = (%(INT)s)%(VEXTRACT)s(vH, %(LANE)2d);\n" % params
             else:
                 text += "    array[(%(LANE)s*seglen+t)*dlen + d] = (%(INT)s)%(VEXTRACT)s(vH, %(LANE)s);\n" % params
         del params["LANE"]
+    elif "diag" in params["NAME"]:
+        for lane in range(params["LANES"]):
+            params["LANE"] = lane
+            params["LANE_END"] = params["LANES"]-lane-1
+            text += """
+    if (0 <= i+%(LANE)s && i+%(LANE)s < s1Len && 0 <= j-%(LANE)s && j-%(LANE)s < s2Len) {
+        array[(i+%(LANE)s)*s2Len + (j-%(LANE)s)] = (%(INT)s)%(VEXTRACT)s(vWscore, %(LANE_END)s);
+    }\n"""[1:] % params
     else:
         print "bad printer name"
         sys.exit(1)
@@ -86,7 +93,15 @@ def generate_saturation_check(params):
     %(VTYPE)s vPosLimit = %(VSET1)s(INT8_MAX);
     %(VTYPE)s vSaturationCheckMin = vPosLimit;
     %(VTYPE)s vSaturationCheckMax = vNegLimit;""".strip() % params
-        params["SATURATION_CHECK_MID"] = """
+        if "diag" in params["NAME"]:
+            params["SATURATION_CHECK_MID"] = """
+            /* check for saturation */
+            {
+                vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vWscore);
+                vSaturationCheckMin = %(VMIN)s(vSaturationCheckMin, vWscore);
+            }""".strip() % params
+        else:
+            params["SATURATION_CHECK_MID"] = """
             /* check for saturation */
             {
                 vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vH);
@@ -125,6 +140,17 @@ def generated_params(params):
     params["INT"] = "int%(WIDTH)s_t" % params
     params["NEG_INF"] = "(INT%(WIDTH)s_MIN/(%(INT)s)(2))" % params
     params["INSERT_MASK"] = "1"+",0"*(params["LANES"]-1)
+    params["DIAG_I"] = ",".join(["%d"%i for i in range(params["LANES"])])
+    params["DIAG_J"] = ",".join(["%d"%-i for i in range(params["LANES"])])
+    params["DIAG_IBoundary"] = "           ".join(
+            ["-open-%d*gap,\n"%(i)
+                for i in range(params["LANES"])])[:-2]
+    params["DIAG_MATROW_DECL"] = "        ".join(
+            ["const int * const restrict matrow%d = matrix[s1[i+%d]];\n"%(i,i)
+                for i in range(params["LANES"])])[:-1]
+    params["DIAG_MATROW_USE"] = "                    ".join(
+            ["matrow%d[s2[j-%d]],\n"%(i,i)
+                for i in range(params["LANES"])])[:-2]
     # select appropriate vector functions for given width
     suffix = "x%s" % width
     for key in keys:

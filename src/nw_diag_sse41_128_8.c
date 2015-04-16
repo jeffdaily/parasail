@@ -19,24 +19,17 @@
 #include "parasail_internal_sse.h"
 #include "blosum/blosum_map.h"
 
-#define NEG_INF_8 (INT8_MIN)
+#define NEG_INF INT8_MIN
 
-/* shift given vector v, insert val, return shifted val */
-static inline __m128i vshift8(const __m128i v, const int val)
-{
-    __m128i ret = _mm_srli_si128(v, 1);
-    ret = _mm_insert_epi8(ret, val, 15);
-    return ret;
-}
 
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si128(
         int *array,
         __m128i vWscore,
-        int i,
-        int s1Len,
-        int j,
-        int s2Len)
+        int32_t i,
+        int32_t s1Len,
+        int32_t j,
+        int32_t s2Len)
 {
     if (0 <= i+0 && i+0 < s1Len && 0 <= j-0 && j-0 < s2Len) {
         array[(i+0)*s2Len + (j-0)] = (int8_t)_mm_extract_epi8(vWscore, 15);
@@ -100,31 +93,27 @@ parasail_result_t* FNAME(
         const char * const restrict _s2, const int s2Len,
         const int open, const int gap, const int matrix[24][24])
 {
-    const int N = 16; /* number of values in vector */
-    const int PAD = N-1; /* N 8-bit values in vector, so N - 1 */
-    const int PAD2 = PAD*2;
-    int * const restrict s1 = parasail_memalign_int(16, s1Len+PAD);
-    int * const restrict s2B= parasail_memalign_int(16, s2Len+PAD2);
-    int * const restrict _tbl_pr = parasail_memalign_int(16, s2Len+PAD2);
-    int * const restrict _del_pr = parasail_memalign_int(16, s2Len+PAD2);
-    int * const restrict s2 = s2B+PAD; /* will allow later for negative indices */
-    int * const restrict tbl_pr = _tbl_pr+PAD;
-    int * const restrict del_pr = _del_pr+PAD;
+    const int32_t N = 16; /* number of values in vector */
+    const int32_t PAD = N-1;
+    const int32_t PAD2 = PAD*2;
+    int8_t * const restrict s1 = parasail_memalign_int8_t(16, s1Len+PAD);
+    int8_t * const restrict s2B= parasail_memalign_int8_t(16, s2Len+PAD2);
+    int8_t * const restrict _tbl_pr = parasail_memalign_int8_t(16, s2Len+PAD2);
+    int8_t * const restrict _del_pr = parasail_memalign_int8_t(16, s2Len+PAD2);
+    int8_t * const restrict s2 = s2B+PAD; /* will allow later for negative indices */
+    int8_t * const restrict tbl_pr = _tbl_pr+PAD;
+    int8_t * const restrict del_pr = _del_pr+PAD;
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(s1Len, s2Len);
 #else
     parasail_result_t *result = parasail_result_new();
 #endif
-    int i = 0;
-    int j = 0;
-    int score = NEG_INF_8;
-    __m128i vSaturationCheck = _mm_setzero_si128();
-    __m128i vNegLimit = _mm_set1_epi8(INT8_MIN);
-    __m128i vPosLimit = _mm_set1_epi8(INT8_MAX);
-    __m128i vNegInf = _mm_set1_epi8(NEG_INF_8);
+    int32_t i = 0;
+    int32_t j = 0;
+    int8_t score = NEG_INF;
+    __m128i vNegInf = _mm_set1_epi8(NEG_INF);
     __m128i vOpen = _mm_set1_epi8(open);
     __m128i vGap  = _mm_set1_epi8(gap);
-    __m128i vZero = _mm_set1_epi8(0);
     __m128i vOne = _mm_set1_epi8(1);
     __m128i vN = _mm_set1_epi8(N);
     __m128i vGapN = _mm_set1_epi8(gap*N);
@@ -138,21 +127,26 @@ parasail_result_t* FNAME(
     __m128i vJLimit1 = _mm_subs_epi8(vJLimit, vOne);
     __m128i vIBoundary = _mm_set_epi8(
             -open-0*gap,
-            -open-1*gap,
-            -open-2*gap,
-            -open-3*gap,
-            -open-4*gap,
-            -open-5*gap,
-            -open-6*gap,
-            -open-7*gap,
-            -open-8*gap,
-            -open-9*gap,
-            -open-10*gap,
-            -open-11*gap,
-            -open-12*gap,
-            -open-13*gap,
-            -open-14*gap,
-            -open-15*gap);
+           -open-1*gap,
+           -open-2*gap,
+           -open-3*gap,
+           -open-4*gap,
+           -open-5*gap,
+           -open-6*gap,
+           -open-7*gap,
+           -open-8*gap,
+           -open-9*gap,
+           -open-10*gap,
+           -open-11*gap,
+           -open-12*gap,
+           -open-13*gap,
+           -open-14*gap,
+           -open-15*gap
+            );
+    __m128i vNegLimit = _mm_set1_epi8(INT8_MIN);
+    __m128i vPosLimit = _mm_set1_epi8(INT8_MAX);
+    __m128i vSaturationCheckMin = vPosLimit;
+    __m128i vSaturationCheckMax = vNegLimit;
 
     /* convert _s1 from char to int in range 0-23 */
     for (i=0; i<s1Len; ++i) {
@@ -178,26 +172,25 @@ parasail_result_t* FNAME(
 
     /* set initial values for stored row */
     for (j=0; j<s2Len; ++j) {
-        int32_t tmp = -open - j*gap;
-        tbl_pr[j] = tmp < INT8_MIN ? INT8_MIN : tmp;
-        del_pr[j] = NEG_INF_8;
+        tbl_pr[j] = -open - j*gap;
+        del_pr[j] = NEG_INF;
     }
     /* pad front of stored row values */
     for (j=-PAD; j<0; ++j) {
-        tbl_pr[j] = NEG_INF_8;
-        del_pr[j] = NEG_INF_8;
+        tbl_pr[j] = NEG_INF;
+        del_pr[j] = NEG_INF;
     }
     /* pad back of stored row values */
     for (j=s2Len; j<s2Len+PAD; ++j) {
-        tbl_pr[j] = NEG_INF_8;
-        del_pr[j] = NEG_INF_8;
+        tbl_pr[j] = NEG_INF;
+        del_pr[j] = NEG_INF;
     }
     tbl_pr[-1] = 0; /* upper left corner */
 
     /* iterate over query sequence */
     for (i=0; i<s1Len; i+=N) {
         __m128i vNscore = vNegInf;
-        __m128i vWscore = vZero;
+        __m128i vWscore = vNegInf;
         __m128i vIns = vNegInf;
         __m128i vDel = vNegInf;
         __m128i vJ = vJreset;
@@ -217,19 +210,19 @@ parasail_result_t* FNAME(
         const int * const restrict matrow13 = matrix[s1[i+13]];
         const int * const restrict matrow14 = matrix[s1[i+14]];
         const int * const restrict matrow15 = matrix[s1[i+15]];
-        int32_t tmp;
-        vNscore = vshift8(vNscore, tbl_pr[-1]);
-        tmp = -open - i*gap;
-        tmp = tmp < INT8_MIN ? INT8_MIN : tmp;
-        vWscore = vshift8(vWscore, tmp);
-        tmp = -open - (i+N)*gap;
-        tbl_pr[-1] = tmp < INT8_MIN ? INT8_MIN : tmp;
+        vNscore = _mm_srli_si128(vNscore, 1);
+        vNscore = _mm_insert_epi8(vNscore, tbl_pr[-1], 15);
+        vWscore = _mm_srli_si128(vWscore, 1);
+        vWscore = _mm_insert_epi8(vWscore, -open - i*gap, 15);
+        tbl_pr[-1] = -open - (i+N)*gap;
         /* iterate over database sequence */
         for (j=0; j<s2Len+PAD; ++j) {
             __m128i vMat;
             __m128i vNWscore = vNscore;
-            vNscore = vshift8(vWscore, tbl_pr[j]);
-            vDel = vshift8(vDel, del_pr[j]);
+            vNscore = _mm_srli_si128(vWscore, 1);
+            vNscore = _mm_insert_epi8(vWscore, tbl_pr[j], 15);
+            vDel = _mm_srli_si128(vDel, 1);
+            vDel = _mm_insert_epi8(vDel, del_pr[j], 15);
             vDel = _mm_max_epi8(
                     _mm_subs_epi8(vNscore, vOpen),
                     _mm_subs_epi8(vDel, vGap));
@@ -267,10 +260,8 @@ parasail_result_t* FNAME(
             }
             /* check for saturation */
             {
-                vSaturationCheck = _mm_or_si128(vSaturationCheck,
-                        _mm_or_si128(
-                            _mm_cmpeq_epi8(vWscore, vNegLimit),
-                            _mm_cmpeq_epi8(vWscore, vPosLimit)));
+                vSaturationCheckMax = _mm_max_epi8(vSaturationCheckMax, vWscore);
+                vSaturationCheckMin = _mm_min_epi8(vSaturationCheckMin, vWscore);
             }
 #ifdef PARASAIL_TABLE
             arr_store_si128(result->score_table, vWscore, i, s1Len, j, s2Len);
@@ -300,7 +291,10 @@ parasail_result_t* FNAME(
         }
         vMax = _mm_slli_si128(vMax, 1);
     }
-    if (_mm_movemask_epi8(vSaturationCheck)) {
+
+    if (_mm_movemask_epi8(_mm_or_si128(
+            _mm_cmpeq_epi8(vSaturationCheckMin, vNegLimit),
+            _mm_cmpeq_epi8(vSaturationCheckMax, vPosLimit)))) {
         result->saturated = 1;
         score = INT8_MAX;
     }
@@ -314,4 +308,5 @@ parasail_result_t* FNAME(
 
     return result;
 }
+
 

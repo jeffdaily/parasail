@@ -19,24 +19,17 @@
 #include "parasail_internal_sse.h"
 #include "blosum/blosum_map.h"
 
-#define NEG_INF_8 (INT8_MIN)
+#define NEG_INF INT8_MIN
 
-/* shift given vector v, insert val, return shifted val */
-static inline __m128i vshift8(const __m128i v, const int val)
-{
-    __m128i ret = _mm_srli_si128(v, 1);
-    ret = _mm_insert_epi8(ret, val, 15);
-    return ret;
-}
 
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si128(
         int *array,
         __m128i vWscore,
-        int i,
-        int s1Len,
-        int j,
-        int s2Len)
+        int32_t i,
+        int32_t s1Len,
+        int32_t j,
+        int32_t s2Len)
 {
     if (0 <= i+0 && i+0 < s1Len && 0 <= j-0 && j-0 < s2Len) {
         array[(i+0)*s2Len + (j-0)] = (int8_t)_mm_extract_epi8(vWscore, 15);
@@ -89,6 +82,7 @@ static inline void arr_store_si128(
 }
 #endif
 
+
 #ifdef PARASAIL_TABLE
 #define FNAME sg_table_diag_sse41_128_8
 #else
@@ -100,44 +94,42 @@ parasail_result_t* FNAME(
         const char * const restrict _s2, const int s2Len,
         const int open, const int gap, const int matrix[24][24])
 {
-    const int N = 16; /* number of values in vector */
-    const int PAD = N-1; /* N 8-bit values in vector, so N - 1 */
-    const int PAD2 = PAD*2;
-    int * const restrict s1 = parasail_memalign_int(16, s1Len+PAD);
-    int * const restrict s2B= parasail_memalign_int(16, s2Len+PAD2);
-    int * const restrict _tbl_pr = parasail_memalign_int(16, s2Len+PAD2);
-    int * const restrict _del_pr = parasail_memalign_int(16, s2Len+PAD2);
-    int * const restrict s2 = s2B+PAD; /* will allow later for negative indices */
-    int * const restrict tbl_pr = _tbl_pr+PAD;
-    int * const restrict del_pr = _del_pr+PAD;
+    const int32_t N = 16; /* number of values in vector */
+    const int32_t PAD = N-1;
+    const int32_t PAD2 = PAD*2;
+    int8_t * const restrict s1 = parasail_memalign_int8_t(16, s1Len+PAD);
+    int8_t * const restrict s2B= parasail_memalign_int8_t(16, s2Len+PAD2);
+    int8_t * const restrict _tbl_pr = parasail_memalign_int8_t(16, s2Len+PAD2);
+    int8_t * const restrict _del_pr = parasail_memalign_int8_t(16, s2Len+PAD2);
+    int8_t * const restrict s2 = s2B+PAD; /* will allow later for negative indices */
+    int8_t * const restrict tbl_pr = _tbl_pr+PAD;
+    int8_t * const restrict del_pr = _del_pr+PAD;
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(s1Len, s2Len);
 #else
     parasail_result_t *result = parasail_result_new();
 #endif
-    int i = 0;
-    int j = 0;
-    int score = NEG_INF_8;
-    __m128i vSaturationCheck = _mm_setzero_si128();
-    __m128i vNegLimit = _mm_set1_epi8(INT8_MIN);
-    __m128i vPosLimit = _mm_set1_epi8(INT8_MAX);
-    __m128i vNegInf = _mm_set1_epi8(NEG_INF_8);
+    int32_t i = 0;
+    int32_t j = 0;
+    int8_t score = NEG_INF;
+    __m128i vNegInf = _mm_set1_epi8(NEG_INF);
     __m128i vNegInf0 = _mm_srli_si128(vNegInf, 1); /* shift in a 0 */
     __m128i vOpen = _mm_set1_epi8(open);
     __m128i vGap  = _mm_set1_epi8(gap);
-    __m128i vZero = _mm_set1_epi8(0);
-    __m128i vOne16 = _mm_set1_epi16(1);
-    __m128i vN16 = _mm_set1_epi16(N);
-    __m128i vNegOne16 = _mm_set1_epi16(-1);
-    __m128i vILo16 = _mm_set_epi16(8,9,10,11,12,13,14,15);
-    __m128i vIHi16 = _mm_set_epi16(0,1,2,3,4,5,6,7);
-    __m128i vJresetLo16 = _mm_set_epi16(-8,-9,-10,-11,-12,-13,-14,-15);
-    __m128i vJresetHi16 = _mm_set_epi16(0,-1,-2,-3,-4,-5,-6,-7);
-    __m128i vMax = vNegInf;
-    __m128i vILimit16 = _mm_set1_epi16(s1Len);
-    __m128i vILimit116 = _mm_sub_epi16(vILimit16, vOne16);
-    __m128i vJLimit16 = _mm_set1_epi16(s2Len);
-    __m128i vJLimit116 = _mm_sub_epi16(vJLimit16, vOne16);
+    __m128i vOne = _mm_set1_epi8(1);
+    __m128i vN = _mm_set1_epi8(N);
+    __m128i vNegOne = _mm_set1_epi8(-1);
+    __m128i vI = _mm_set_epi8(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15);
+    __m128i vJreset = _mm_set_epi8(0,-1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11,-12,-13,-14,-15);
+    __m128i vMaxScore = vNegInf;
+    __m128i vILimit = _mm_set1_epi8(s1Len);
+    __m128i vILimit1 = _mm_subs_epi8(vILimit, vOne);
+    __m128i vJLimit = _mm_set1_epi8(s2Len);
+    __m128i vJLimit1 = _mm_subs_epi8(vJLimit, vOne);
+    __m128i vNegLimit = _mm_set1_epi8(INT8_MIN);
+    __m128i vPosLimit = _mm_set1_epi8(INT8_MAX);
+    __m128i vSaturationCheckMin = vPosLimit;
+    __m128i vSaturationCheckMax = vNegLimit;
 
     /* convert _s1 from char to int in range 0-23 */
     for (i=0; i<s1Len; ++i) {
@@ -164,27 +156,26 @@ parasail_result_t* FNAME(
     /* set initial values for stored row */
     for (j=0; j<s2Len; ++j) {
         tbl_pr[j] = 0;
-        del_pr[j] = NEG_INF_8;
+        del_pr[j] = NEG_INF;
     }
     /* pad front of stored row values */
     for (j=-PAD; j<0; ++j) {
-        tbl_pr[j] = NEG_INF_8;
-        del_pr[j] = NEG_INF_8;
+        tbl_pr[j] = NEG_INF;
+        del_pr[j] = NEG_INF;
     }
     /* pad back of stored row values */
     for (j=s2Len; j<s2Len+PAD; ++j) {
-        tbl_pr[j] = NEG_INF_8;
-        del_pr[j] = NEG_INF_8;
+        tbl_pr[j] = NEG_INF;
+        del_pr[j] = NEG_INF;
     }
 
     /* iterate over query sequence */
     for (i=0; i<s1Len; i+=N) {
         __m128i vNscore = vNegInf0;
-        __m128i vWscore = vZero;
+        __m128i vWscore = vNegInf0;
         __m128i vIns = vNegInf;
         __m128i vDel = vNegInf;
-        __m128i vJLo16 = vJresetLo16;
-        __m128i vJHi16 = vJresetHi16;
+        __m128i vJ = vJreset;
         const int * const restrict matrow0 = matrix[s1[i+0]];
         const int * const restrict matrow1 = matrix[s1[i+1]];
         const int * const restrict matrow2 = matrix[s1[i+2]];
@@ -201,18 +192,16 @@ parasail_result_t* FNAME(
         const int * const restrict matrow13 = matrix[s1[i+13]];
         const int * const restrict matrow14 = matrix[s1[i+14]];
         const int * const restrict matrow15 = matrix[s1[i+15]];
-        __m128i vIltLimit = _mm_packs_epi16(
-                _mm_cmplt_epi16(vILo16, vILimit16),
-                _mm_cmplt_epi16(vIHi16, vILimit16));
-        __m128i vIeqLimit1 = _mm_packs_epi16(
-                _mm_cmpeq_epi16(vILo16, vILimit116),
-                _mm_cmpeq_epi16(vIHi16, vILimit116));
+        __m128i vIltLimit = _mm_cmplt_epi8(vI, vILimit);
+        __m128i vIeqLimit1 = _mm_cmpeq_epi8(vI, vILimit1);
         /* iterate over database sequence */
         for (j=0; j<s2Len+PAD; ++j) {
             __m128i vMat;
             __m128i vNWscore = vNscore;
-            vNscore = vshift8(vWscore, tbl_pr[j]);
-            vDel = vshift8(vDel, del_pr[j]);
+            vNscore = _mm_srli_si128(vWscore, 1);
+            vNscore = _mm_insert_epi8(vNscore, tbl_pr[j], 15);
+            vDel = _mm_srli_si128(vDel, 1);
+            vDel = _mm_insert_epi8(vDel, del_pr[j], 15);
             vDel = _mm_max_epi8(
                     _mm_subs_epi8(vNscore, vOpen),
                     _mm_subs_epi8(vDel, vGap));
@@ -243,19 +232,15 @@ parasail_result_t* FNAME(
             /* as minor diagonal vector passes across the j=-1 boundary,
              * assign the appropriate boundary conditions */
             {
-                __m128i cond = _mm_packs_epi16(
-                        _mm_cmpeq_epi16(vJLo16,vNegOne16),
-                        _mm_cmpeq_epi16(vJHi16,vNegOne16));
+                __m128i cond = _mm_cmpeq_epi8(vJ,vNegOne);
                 vWscore = _mm_andnot_si128(cond, vWscore);
                 vDel = _mm_blendv_epi8(vDel, vNegInf, cond);
                 vIns = _mm_blendv_epi8(vIns, vNegInf, cond);
             }
             /* check for saturation */
             {
-                vSaturationCheck = _mm_or_si128(vSaturationCheck,
-                        _mm_or_si128(
-                            _mm_cmpeq_epi8(vWscore, vNegLimit),
-                            _mm_cmpeq_epi8(vWscore, vPosLimit)));
+                vSaturationCheckMax = _mm_max_epi8(vSaturationCheckMax, vWscore);
+                vSaturationCheckMin = _mm_min_epi8(vSaturationCheckMin, vWscore);
             }
 #ifdef PARASAIL_TABLE
             arr_store_si128(result->score_table, vWscore, i, s1Len, j, s2Len);
@@ -265,40 +250,35 @@ parasail_result_t* FNAME(
             /* as minor diagonal vector passes across the i or j limit
              * boundary, extract the last value of the column or row */
             {
-                __m128i vJeqLimit1 = _mm_packs_epi16(
-                        _mm_cmpeq_epi16(vJLo16, vJLimit116),
-                        _mm_cmpeq_epi16(vJHi16, vJLimit116));
-                __m128i vJgtNegOne = _mm_packs_epi16(
-                        _mm_cmpgt_epi16(vJLo16, vNegOne16),
-                        _mm_cmpgt_epi16(vJHi16, vNegOne16));
-                __m128i vJltLimit = _mm_packs_epi16(
-                        _mm_cmplt_epi16(vJLo16, vJLimit16),
-                        _mm_cmplt_epi16(vJHi16, vJLimit16));
+                __m128i vJeqLimit1 = _mm_cmpeq_epi8(vJ, vJLimit1);
+                __m128i vJgtNegOne = _mm_cmpgt_epi8(vJ, vNegOne);
+                __m128i vJltLimit = _mm_cmplt_epi8(vJ, vJLimit);
                 __m128i cond_j = _mm_and_si128(vIltLimit, vJeqLimit1);
                 __m128i cond_i = _mm_and_si128(vIeqLimit1,
                         _mm_and_si128(vJgtNegOne, vJltLimit));
-                __m128i cond_max = _mm_cmpgt_epi8(vWscore, vMax);
+                __m128i cond_max = _mm_cmpgt_epi8(vWscore, vMaxScore);
                 __m128i cond_all = _mm_and_si128(cond_max,
                         _mm_or_si128(cond_i, cond_j));
-                vMax = _mm_blendv_epi8(vMax, vWscore, cond_all);
+                vMaxScore = _mm_blendv_epi8(vMaxScore, vWscore, cond_all);
             }
-            vJLo16 = _mm_adds_epi16(vJLo16, vOne16);
-            vJHi16 = _mm_adds_epi16(vJHi16, vOne16);
+            vJ = _mm_adds_epi8(vJ, vOne);
         }
-        vILo16 = _mm_adds_epi16(vILo16, vN16);
-        vIHi16 = _mm_adds_epi16(vIHi16, vN16);
+        vI = _mm_adds_epi8(vI, vN);
     }
 
-    /* max in vMax */
+    /* max in vMaxScore */
     for (i=0; i<N; ++i) {
         int8_t value;
-        value = (int8_t) _mm_extract_epi8(vMax, 15);
+        value = (int8_t) _mm_extract_epi8(vMaxScore, 15);
         if (value > score) {
             score = value;
         }
-        vMax = _mm_slli_si128(vMax, 1);
+        vMaxScore = _mm_slli_si128(vMaxScore, 1);
     }
-    if (_mm_movemask_epi8(vSaturationCheck)) {
+
+    if (_mm_movemask_epi8(_mm_or_si128(
+            _mm_cmpeq_epi8(vSaturationCheckMin, vNegLimit),
+            _mm_cmpeq_epi8(vSaturationCheckMax, vPosLimit)))) {
         result->saturated = 1;
         score = INT8_MAX;
     }
@@ -312,4 +292,5 @@ parasail_result_t* FNAME(
 
     return result;
 }
+
 

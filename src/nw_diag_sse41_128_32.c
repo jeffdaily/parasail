@@ -157,7 +157,7 @@ parasail_result_t* FNAME(
             __m128i vMat;
             __m128i vNWscore = vNscore;
             vNscore = _mm_srli_si128(vWscore, 4);
-            vNscore = _mm_insert_epi32(vWscore, tbl_pr[j], 3);
+            vNscore = _mm_insert_epi32(vNscore, tbl_pr[j], 3);
             vDel = _mm_srli_si128(vDel, 4);
             vDel = _mm_insert_epi32(vDel, del_pr[j], 3);
             vDel = _mm_max_epi32(

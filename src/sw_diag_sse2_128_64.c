@@ -59,6 +59,16 @@ static inline int64_t _mm_extract_epi64_rpl(__m128i a, const int imm) {
     return A.v[imm];
 }
 
+static inline __m128i _mm_cmplt_epi64_rpl(__m128i a, __m128i b) {
+    __m128i_64_t A;
+    __m128i_64_t B;
+    A.m = a;
+    B.m = b;
+    A.v[0] = (A.v[0]<B.v[0]) ? 0xFFFFFFFFFFFFFFFF : 0;
+    A.v[1] = (A.v[1]<B.v[1]) ? 0xFFFFFFFFFFFFFFFF : 0;
+    return A.m;
+}
+
 static inline __m128i _mm_cmpeq_epi64_rpl(__m128i a, __m128i b) {
     __m128i_64_t A;
     __m128i_64_t B;
@@ -128,8 +138,8 @@ parasail_result_t* FNAME(
     __m128i vI = _mm_set_epi64x(0,1);
     __m128i vJreset = _mm_set_epi64x(0,-1);
     __m128i vMax = vNegInf;
-    __m128i vILimit1 = _mm_set1_epi64x(s1Len-1);
-    __m128i vJLimit1 = _mm_set1_epi64x(s2Len-1);
+    __m128i vILimit = _mm_set1_epi64x(s1Len);
+    __m128i vJLimit = _mm_set1_epi64x(s2Len);
     
 
     /* convert _s1 from char to int in range 0-23 */
@@ -179,7 +189,7 @@ parasail_result_t* FNAME(
         __m128i vJ = vJreset;
         const int * const restrict matrow0 = matrix[s1[i+0]];
         const int * const restrict matrow1 = matrix[s1[i+1]];
-        __m128i vIgtLimit1 = _mm_cmpgt_epi64_rpl(vI, vILimit1);
+        __m128i vIltLimit = _mm_cmplt_epi64_rpl(vI, vILimit);
         /* iterate over database sequence */
         for (j=0; j<s2Len+PAD; ++j) {
             __m128i vMat;
@@ -214,17 +224,17 @@ parasail_result_t* FNAME(
 #ifdef PARASAIL_TABLE
             arr_store_si128(result->score_table, vWscore, i, s1Len, j, s2Len);
 #endif
-            tbl_pr[j-1] = (int16_t)_mm_extract_epi64_rpl(vWscore,0);
-            del_pr[j-1] = (int16_t)_mm_extract_epi64_rpl(vDel,0);
+            tbl_pr[j-1] = (int64_t)_mm_extract_epi64_rpl(vWscore,0);
+            del_pr[j-1] = (int64_t)_mm_extract_epi64_rpl(vDel,0);
             /* as minor diagonal vector passes across table, extract
              * max values within the i,j bounds */
             {
-                __m128i cond_valid_J = _mm_andnot_si128(
-                        _mm_cmpgt_epi64_rpl(vJ, vJLimit1),
-                        _mm_cmpgt_epi64_rpl(vJ, vNegOne));
+                __m128i cond_valid_J = _mm_and_si128(
+                        _mm_cmpgt_epi64_rpl(vJ, vNegOne),
+                        _mm_cmplt_epi64_rpl(vJ, vJLimit));
                 __m128i cond_max = _mm_cmpgt_epi64_rpl(vWscore, vMax);
                 __m128i cond_all = _mm_and_si128(cond_max,
-                        _mm_andnot_si128(vIgtLimit1, cond_valid_J));
+                        _mm_and_si128(vIltLimit, cond_valid_J));
                 vMax = _mm_blendv_epi8_rpl(vMax, vWscore, cond_all);
             }
             vJ = _mm_add_epi64(vJ, vOne);
@@ -234,8 +244,8 @@ parasail_result_t* FNAME(
 
     /* max in vMax */
     for (i=0; i<N; ++i) {
-        int16_t value;
-        value = (int16_t) _mm_extract_epi64_rpl(vMax, 1);
+        int64_t value;
+        value = (int64_t) _mm_extract_epi64_rpl(vMax, 1);
         if (value > score) {
             score = value;
         }

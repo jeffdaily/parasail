@@ -74,8 +74,8 @@ parasail_result_t* FNAME(
     %(VTYPE)s vI = %(VSET)s(%(DIAG_I)s);
     %(VTYPE)s vJreset = %(VSET)s(%(DIAG_J)s);
     %(VTYPE)s vMax = vNegInf;
-    %(VTYPE)s vILimit1 = %(VSET1)s(s1Len-1);
-    %(VTYPE)s vJLimit1 = %(VSET1)s(s2Len-1);
+    %(VTYPE)s vILimit = %(VSET1)s(s1Len);
+    %(VTYPE)s vJLimit = %(VSET1)s(s2Len);
     %(SATURATION_CHECK_INIT)s
 
     /* convert _s1 from char to int in range 0-23 */
@@ -124,7 +124,7 @@ parasail_result_t* FNAME(
         %(VTYPE)s vDel = vNegInf;
         %(VTYPE)s vJ = vJreset;
         %(DIAG_MATROW_DECL)s
-        %(VTYPE)s vIgtLimit1 = %(VCMPGT)s(vI, vILimit1);
+        %(VTYPE)s vIltLimit = %(VCMPLT)s(vI, vILimit);
         /* iterate over database sequence */
         for (j=0; j<s2Len+PAD; ++j) {
             %(VTYPE)s vMat;
@@ -158,17 +158,17 @@ parasail_result_t* FNAME(
 #ifdef PARASAIL_TABLE
             arr_store_si%(BITS)s(result->score_table, vWscore, i, s1Len, j, s2Len);
 #endif
-            tbl_pr[j-%(LAST_POS)s] = (int16_t)%(VEXTRACT)s(vWscore,0);
-            del_pr[j-%(LAST_POS)s] = (int16_t)%(VEXTRACT)s(vDel,0);
+            tbl_pr[j-%(LAST_POS)s] = (%(INT)s)%(VEXTRACT)s(vWscore,0);
+            del_pr[j-%(LAST_POS)s] = (%(INT)s)%(VEXTRACT)s(vDel,0);
             /* as minor diagonal vector passes across table, extract
              * max values within the i,j bounds */
             {
-                %(VTYPE)s cond_valid_J = %(VANDNOT)s(
-                        %(VCMPGT)s(vJ, vJLimit1),
-                        %(VCMPGT)s(vJ, vNegOne));
+                %(VTYPE)s cond_valid_J = %(VAND)s(
+                        %(VCMPGT)s(vJ, vNegOne),
+                        %(VCMPLT)s(vJ, vJLimit));
                 %(VTYPE)s cond_max = %(VCMPGT)s(vWscore, vMax);
                 %(VTYPE)s cond_all = %(VAND)s(cond_max,
-                        %(VANDNOT)s(vIgtLimit1, cond_valid_J));
+                        %(VAND)s(vIltLimit, cond_valid_J));
                 vMax = %(VBLEND)s(vMax, vWscore, cond_all);
             }
             vJ = %(VADD)s(vJ, vOne);
@@ -178,8 +178,8 @@ parasail_result_t* FNAME(
 
     /* max in vMax */
     for (i=0; i<N; ++i) {
-        int16_t value;
-        value = (int16_t) %(VEXTRACT)s(vMax, %(LAST_POS)s);
+        %(INT)s value;
+        value = (%(INT)s) %(VEXTRACT)s(vMax, %(LAST_POS)s);
         if (value > score) {
             score = value;
         }

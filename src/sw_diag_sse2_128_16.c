@@ -103,8 +103,8 @@ parasail_result_t* FNAME(
     __m128i vI = _mm_set_epi16(0,1,2,3,4,5,6,7);
     __m128i vJreset = _mm_set_epi16(0,-1,-2,-3,-4,-5,-6,-7);
     __m128i vMax = vNegInf;
-    __m128i vILimit1 = _mm_set1_epi16(s1Len-1);
-    __m128i vJLimit1 = _mm_set1_epi16(s2Len-1);
+    __m128i vILimit = _mm_set1_epi16(s1Len);
+    __m128i vJLimit = _mm_set1_epi16(s2Len);
     
 
     /* convert _s1 from char to int in range 0-23 */
@@ -160,7 +160,7 @@ parasail_result_t* FNAME(
         const int * const restrict matrow5 = matrix[s1[i+5]];
         const int * const restrict matrow6 = matrix[s1[i+6]];
         const int * const restrict matrow7 = matrix[s1[i+7]];
-        __m128i vIgtLimit1 = _mm_cmpgt_epi16(vI, vILimit1);
+        __m128i vIltLimit = _mm_cmplt_epi16(vI, vILimit);
         /* iterate over database sequence */
         for (j=0; j<s2Len+PAD; ++j) {
             __m128i vMat;
@@ -206,12 +206,12 @@ parasail_result_t* FNAME(
             /* as minor diagonal vector passes across table, extract
              * max values within the i,j bounds */
             {
-                __m128i cond_valid_J = _mm_andnot_si128(
-                        _mm_cmpgt_epi16(vJ, vJLimit1),
-                        _mm_cmpgt_epi16(vJ, vNegOne));
+                __m128i cond_valid_J = _mm_and_si128(
+                        _mm_cmpgt_epi16(vJ, vNegOne),
+                        _mm_cmplt_epi16(vJ, vJLimit));
                 __m128i cond_max = _mm_cmpgt_epi16(vWscore, vMax);
                 __m128i cond_all = _mm_and_si128(cond_max,
-                        _mm_andnot_si128(vIgtLimit1, cond_valid_J));
+                        _mm_and_si128(vIltLimit, cond_valid_J));
                 vMax = _mm_blendv_epi8_rpl(vMax, vWscore, cond_all);
             }
             vJ = _mm_add_epi16(vJ, vOne);

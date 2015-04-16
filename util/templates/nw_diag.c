@@ -139,7 +139,7 @@ parasail_result_t* FNAME(
             %(VTYPE)s vMat;
             %(VTYPE)s vNWscore = vNscore;
             vNscore = %(VRSHIFT)s(vWscore, %(BYTES)s);
-            vNscore = %(VINSERT)s(vWscore, tbl_pr[j], %(LAST_POS)s);
+            vNscore = %(VINSERT)s(vNscore, tbl_pr[j], %(LAST_POS)s);
             vDel = %(VRSHIFT)s(vDel, %(BYTES)s);
             vDel = %(VINSERT)s(vDel, del_pr[j], %(LAST_POS)s);
             vDel = %(VMAX)s(

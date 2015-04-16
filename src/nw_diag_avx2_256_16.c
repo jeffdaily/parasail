@@ -220,7 +220,7 @@ parasail_result_t* FNAME(
             __m256i vMat;
             __m256i vNWscore = vNscore;
             vNscore = _mm256_srli_si256_rpl(vWscore, 2);
-            vNscore = _mm256_insert_epi16(vWscore, tbl_pr[j], 15);
+            vNscore = _mm256_insert_epi16(vNscore, tbl_pr[j], 15);
             vDel = _mm256_srli_si256_rpl(vDel, 2);
             vDel = _mm256_insert_epi16(vDel, del_pr[j], 15);
             vDel = _mm256_max_epi16(

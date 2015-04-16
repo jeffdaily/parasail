@@ -85,8 +85,11 @@ for table in ["", "_table"]:
                 print "#if HAVE_%s" % isa.upper()
                 bits = isa_to_bits[isa]
                 for par in ["scan", "striped", "diag"]:
-                    #for width in [64, 32, 16, 8]:
-                    for width in [32, 16, 8]:
+                    widths = [64, 32, 16, 8]
+                    # temporary hack until stats codegen catches up
+                    if stats:
+                        widths = [32, 16, 8]
+                    for width in widths:
                         name = "%s_%s_%s_%s_%s" % (pre, par, isa, bits, width)
                         print_fmt(name, name, alg+stats, par, isa, bits, width, bits/width, is_table, is_stats, 0)
                 print "#endif"
@@ -123,8 +126,11 @@ for table in ["", "_table"]:
                 print_fmt(pre+"_scan", pre+"_scan", alg+stats, "scan", "NA", "32", "32", 1, is_table, is_stats, 0)
                 bits = isa_to_bits[isa]
                 for par in ["scan", "striped", "diag"]:
-                    #for width in [64, 32, 16, 8]:
-                    for width in [32, 16, 8]:
+                    widths = [64, 32, 16, 8]
+                    # temporary hack until stats codegen catches up
+                    if stats:
+                        widths = [32, 16, 8]
+                    for width in widths:
                         name = "%s_%s_%s_%s_%s" % (pre, par, isa, bits, width)
                         print_fmt(name, name, alg+stats, par, isa, bits, width, bits/width, is_table, is_stats, 0)
                 print_null()

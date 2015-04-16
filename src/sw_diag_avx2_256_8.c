@@ -20,6 +20,8 @@
 
 #define NEG_INF INT8_MIN
 
+#define _mm256_cmplt_epi8_rpl(a,b) _mm256_cmpgt_epi8(b,a)
+
 #define _mm256_srli_si256_rpl(a,imm) _mm256_or_si256(_mm256_slli_si256(_mm256_permute2x128_si256(a, a, _MM_SHUFFLE(3,0,0,1)), 16-imm), _mm256_srli_si256(a, imm))
 
 #define _mm256_slli_si256_rpl(a,imm) _mm256_alignr_epi8(a, _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,3,0)), 16-imm)
@@ -173,8 +175,8 @@ parasail_result_t* FNAME(
     __m256i vI = _mm256_set_epi8(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31);
     __m256i vJreset = _mm256_set_epi8(0,-1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11,-12,-13,-14,-15,-16,-17,-18,-19,-20,-21,-22,-23,-24,-25,-26,-27,-28,-29,-30,-31);
     __m256i vMax = vNegInf;
-    __m256i vILimit1 = _mm256_set1_epi8(s1Len-1);
-    __m256i vJLimit1 = _mm256_set1_epi8(s2Len-1);
+    __m256i vILimit = _mm256_set1_epi8(s1Len);
+    __m256i vJLimit = _mm256_set1_epi8(s2Len);
     __m256i vNegLimit = _mm256_set1_epi8(INT8_MIN);
     __m256i vPosLimit = _mm256_set1_epi8(INT8_MAX);
     __m256i vSaturationCheckMin = vPosLimit;
@@ -257,7 +259,7 @@ parasail_result_t* FNAME(
         const int * const restrict matrow29 = matrix[s1[i+29]];
         const int * const restrict matrow30 = matrix[s1[i+30]];
         const int * const restrict matrow31 = matrix[s1[i+31]];
-        __m256i vIgtLimit1 = _mm256_cmpgt_epi8(vI, vILimit1);
+        __m256i vIltLimit = _mm256_cmplt_epi8_rpl(vI, vILimit);
         /* iterate over database sequence */
         for (j=0; j<s2Len+PAD; ++j) {
             __m256i vMat;
@@ -326,17 +328,17 @@ parasail_result_t* FNAME(
 #ifdef PARASAIL_TABLE
             arr_store_si256(result->score_table, vWscore, i, s1Len, j, s2Len);
 #endif
-            tbl_pr[j-31] = (int16_t)_mm256_extract_epi8(vWscore,0);
-            del_pr[j-31] = (int16_t)_mm256_extract_epi8(vDel,0);
+            tbl_pr[j-31] = (int8_t)_mm256_extract_epi8(vWscore,0);
+            del_pr[j-31] = (int8_t)_mm256_extract_epi8(vDel,0);
             /* as minor diagonal vector passes across table, extract
              * max values within the i,j bounds */
             {
-                __m256i cond_valid_J = _mm256_andnot_si256(
-                        _mm256_cmpgt_epi8(vJ, vJLimit1),
-                        _mm256_cmpgt_epi8(vJ, vNegOne));
+                __m256i cond_valid_J = _mm256_and_si256(
+                        _mm256_cmpgt_epi8(vJ, vNegOne),
+                        _mm256_cmplt_epi8_rpl(vJ, vJLimit));
                 __m256i cond_max = _mm256_cmpgt_epi8(vWscore, vMax);
                 __m256i cond_all = _mm256_and_si256(cond_max,
-                        _mm256_andnot_si256(vIgtLimit1, cond_valid_J));
+                        _mm256_and_si256(vIltLimit, cond_valid_J));
                 vMax = _mm256_blendv_epi8(vMax, vWscore, cond_all);
             }
             vJ = _mm256_adds_epi8(vJ, vOne);
@@ -346,8 +348,8 @@ parasail_result_t* FNAME(
 
     /* max in vMax */
     for (i=0; i<N; ++i) {
-        int16_t value;
-        value = (int16_t) _mm256_extract_epi8(vMax, 31);
+        int8_t value;
+        value = (int8_t) _mm256_extract_epi8(vMax, 31);
         if (value > score) {
             score = value;
         }

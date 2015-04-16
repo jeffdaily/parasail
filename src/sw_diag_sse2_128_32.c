@@ -111,8 +111,8 @@ parasail_result_t* FNAME(
     __m128i vI = _mm_set_epi32(0,1,2,3);
     __m128i vJreset = _mm_set_epi32(0,-1,-2,-3);
     __m128i vMax = vNegInf;
-    __m128i vILimit1 = _mm_set1_epi32(s1Len-1);
-    __m128i vJLimit1 = _mm_set1_epi32(s2Len-1);
+    __m128i vILimit = _mm_set1_epi32(s1Len);
+    __m128i vJLimit = _mm_set1_epi32(s2Len);
     
 
     /* convert _s1 from char to int in range 0-23 */
@@ -164,7 +164,7 @@ parasail_result_t* FNAME(
         const int * const restrict matrow1 = matrix[s1[i+1]];
         const int * const restrict matrow2 = matrix[s1[i+2]];
         const int * const restrict matrow3 = matrix[s1[i+3]];
-        __m128i vIgtLimit1 = _mm_cmpgt_epi32(vI, vILimit1);
+        __m128i vIltLimit = _mm_cmplt_epi32(vI, vILimit);
         /* iterate over database sequence */
         for (j=0; j<s2Len+PAD; ++j) {
             __m128i vMat;
@@ -201,17 +201,17 @@ parasail_result_t* FNAME(
 #ifdef PARASAIL_TABLE
             arr_store_si128(result->score_table, vWscore, i, s1Len, j, s2Len);
 #endif
-            tbl_pr[j-3] = (int16_t)_mm_extract_epi32_rpl(vWscore,0);
-            del_pr[j-3] = (int16_t)_mm_extract_epi32_rpl(vDel,0);
+            tbl_pr[j-3] = (int32_t)_mm_extract_epi32_rpl(vWscore,0);
+            del_pr[j-3] = (int32_t)_mm_extract_epi32_rpl(vDel,0);
             /* as minor diagonal vector passes across table, extract
              * max values within the i,j bounds */
             {
-                __m128i cond_valid_J = _mm_andnot_si128(
-                        _mm_cmpgt_epi32(vJ, vJLimit1),
-                        _mm_cmpgt_epi32(vJ, vNegOne));
+                __m128i cond_valid_J = _mm_and_si128(
+                        _mm_cmpgt_epi32(vJ, vNegOne),
+                        _mm_cmplt_epi32(vJ, vJLimit));
                 __m128i cond_max = _mm_cmpgt_epi32(vWscore, vMax);
                 __m128i cond_all = _mm_and_si128(cond_max,
-                        _mm_andnot_si128(vIgtLimit1, cond_valid_J));
+                        _mm_and_si128(vIltLimit, cond_valid_J));
                 vMax = _mm_blendv_epi8_rpl(vMax, vWscore, cond_all);
             }
             vJ = _mm_add_epi32(vJ, vOne);
@@ -221,8 +221,8 @@ parasail_result_t* FNAME(
 
     /* max in vMax */
     for (i=0; i<N; ++i) {
-        int16_t value;
-        value = (int16_t) _mm_extract_epi32_rpl(vMax, 3);
+        int32_t value;
+        value = (int32_t) _mm_extract_epi32_rpl(vMax, 3);
         if (value > score) {
             score = value;
         }

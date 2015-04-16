@@ -44,6 +44,7 @@ sse2 = {
     "VMINx32"     : "_mm_min_epi32_rpl",
     "VMINx64"     : "_mm_min_epi64_rpl",
     "VMOVEMASK"   : "_mm_movemask_epi8",
+    "VPACKS"      : "_mm_packs_epi16",
     "VAND"        : "_mm_and_si128",
     "VANDNOT"     : "_mm_andnot_si128",
     "VOR"         : "_mm_or_si128",
@@ -254,6 +255,7 @@ sse41 = {
     "VMINx32"     : "_mm_min_epi32",
     "VMINx64"     : "_mm_min_epi64_rpl",
     "VMOVEMASK"   : "_mm_movemask_epi8",
+    "VPACKS"      : "_mm_packs_epi16",
     "VAND"        : "_mm_and_si128",
     "VANDNOT"     : "_mm_andnot_si128",
     "VOR"         : "_mm_or_si128",
@@ -369,6 +371,7 @@ avx2 = {
     "VMINx32"     : "_mm256_min_epi32",
     "VMINx64"     : "_mm256_min_epi64_rpl",
     "VMOVEMASK"   : "_mm256_movemask_epi8",
+    "VPACKS"      : "_mm256_packs_epi16_rpl",
     "VAND"        : "_mm256_and_si256",
     "VANDNOT"     : "_mm256_andnot_si256",
     "VOR"         : "_mm256_or_si256",
@@ -427,6 +430,13 @@ static inline __m256i _mm256_min_epi64_rpl(__m256i a, __m256i b) {
     A.v[2] = (A.v[2]<B.v[2]) ? A.v[2] : B.v[2];
     A.v[3] = (A.v[3]<B.v[3]) ? A.v[3] : B.v[3];
     return A.m;
+}
+""",
+    "_mm256_packs_epi16_rpl" : """
+static inline __m256i _mm256_packs_epi16_rpl(__m256i a, __m256i b) {
+    return _mm256_permute4x64_epi64(
+            _mm256_packs_epi16(a, b),
+            _MM_SHUFFLE(3,1,2,0));
 }
 """,
     "_mm256_srli_si256_rpl" : """

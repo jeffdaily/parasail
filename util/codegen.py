@@ -22,8 +22,25 @@ keys = sse2.keys()
 
 # gather templates
 template_dir = "templates/"
-template_filenames = [name for name in os.listdir(template_dir)
-                      if name[-2:] == ".c"]
+#template_filenames = [name for name in os.listdir(template_dir)
+#                      if name[-2:] == ".c"]
+template_filenames = [
+"nw_diag.c",
+"nw_scan.c",
+"nw_striped.c",
+"sg_diag.c",
+"sg_scan.c",
+"sg_striped.c",
+"sw_diag.c",
+"sw_scan.c",
+"sw_striped.c",
+]
+
+special_templates = [
+"sg_diag_8.c",
+"sw_diag_8.c",
+]
+
 
 output_dir = "generated/"
 if not os.path.exists(output_dir):
@@ -128,6 +145,35 @@ def generate_saturation_check(params):
     return params
 
 
+def generated_params_diag(params):
+    lanes = params["LANES"]
+    params["DIAG_I"] = ",".join(["%d"%i for i in range(lanes)])
+    params["DIAG_ILO"] = ",".join(["%d"%i for i in range(lanes/2,lanes)])
+    params["DIAG_IHI"] = ",".join(["%d"%i for i in range(lanes/2)])
+    params["DIAG_J"] = ",".join(["%d"%-i for i in range(lanes)])
+    params["DIAG_JLO"] = ",".join(["%d"%-i for i in range(lanes/2,lanes)])
+    params["DIAG_JHI"] = ",".join(["%d"%-i for i in range(lanes/2)])
+    params["DIAG_IBoundary"] = "           ".join(
+            ["-open-%d*gap,\n"%(i)
+                for i in range(lanes)])[:-2]
+    params["DIAG_MATROW_DECL"] = "        ".join(
+            ["const int * const restrict matrow%d = matrix[s1[i+%d]];\n"%(i,i)
+                for i in range(lanes)])[:-1]
+    params["DIAG_MATROW_USE"] = "                    ".join(
+            ["matrow%d[s2[j-%d]],\n"%(i,i)
+                for i in range(lanes)])[:-2]
+    return params
+
+
+def generated_params_striped(params):
+    return params
+
+
+def generated_params_scan(params):
+    params["SCAN_INSERT_MASK"] = "1"+",0"*(params["LANES"]-1)
+    return params
+
+
 def generated_params(params):
     # some params are generated from given params
     bits = params["BITS"]
@@ -139,18 +185,12 @@ def generated_params(params):
     params["LAST_POS"] = params["LANES"]-1
     params["INT"] = "int%(WIDTH)s_t" % params
     params["NEG_INF"] = "(INT%(WIDTH)s_MIN/(%(INT)s)(2))" % params
-    params["INSERT_MASK"] = "1"+",0"*(params["LANES"]-1)
-    params["DIAG_I"] = ",".join(["%d"%i for i in range(params["LANES"])])
-    params["DIAG_J"] = ",".join(["%d"%-i for i in range(params["LANES"])])
-    params["DIAG_IBoundary"] = "           ".join(
-            ["-open-%d*gap,\n"%(i)
-                for i in range(params["LANES"])])[:-2]
-    params["DIAG_MATROW_DECL"] = "        ".join(
-            ["const int * const restrict matrow%d = matrix[s1[i+%d]];\n"%(i,i)
-                for i in range(params["LANES"])])[:-1]
-    params["DIAG_MATROW_USE"] = "                    ".join(
-            ["matrow%d[s2[j-%d]],\n"%(i,i)
-                for i in range(params["LANES"])])[:-2]
+    if "diag" in params["NAME"]:
+        params = generated_params_diag(params)
+    elif "striped" in params["NAME"]:
+        params = generated_params_striped(params)
+    elif "scan" in params["NAME"]:
+        params = generated_params_scan(params)
     # select appropriate vector functions for given width
     suffix = "x%s" % width
     for key in keys:
@@ -186,3 +226,27 @@ for template_filename in template_filenames:
             writer.write(template % params)
             writer.write("\n")
             writer.close()
+
+
+# some templates have specializations for certain bit widths, e.g., 8
+for template_filename in special_templates:
+    template = open(template_dir+template_filename).read()
+    parts = template_filename[:-2].split('_')
+    width = int(parts[-1])
+    template_filename = "_".join(parts[:-1])+".c"
+    for isa in [sse2,sse41,avx2]:
+        params = copy.deepcopy(isa)
+        params["WIDTH"] = width
+        function_name = "%s_%s%s_%s_%s" % (template_filename[:-2],
+                isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
+        function_table_name = "%s_table_%s" % (
+                function_name[:2], function_name[3:])
+        params["NAME"] = function_name
+        params["NAME_TABLE"] = function_table_name
+        params = generated_params(params)
+        output_filename = "%s%s.c" % (output_dir, function_name)
+        result = template % params
+        writer = open(output_filename, "w")
+        writer.write(template % params)
+        writer.write("\n")
+        writer.close()

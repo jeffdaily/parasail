@@ -65,7 +65,7 @@ parasail_result_t* FNAME(
     %(VTYPE)s vMaxH = vNegInf;
     const %(INT)s segLenXgap = -segLen*gap;
     %(VTYPE)s insert_mask = %(VCMPEQ)s(vZero,
-            %(VSET)s(%(INSERT_MASK)s));
+            %(VSET)s(%(SCAN_INSERT_MASK)s));
     %(VTYPE)s vSegLenXgap1 = %(VSET1)s((segLen-1)*gap);
     %(VTYPE)s vSegLenXgap = %(VBLEND)s(vNegInf,
             %(VSET1)s(segLenXgap),

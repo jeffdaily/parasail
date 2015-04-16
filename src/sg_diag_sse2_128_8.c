@@ -148,16 +148,18 @@ parasail_result_t* FNAME(
     __m128i vNegInf0 = _mm_srli_si128(vNegInf, 1); /* shift in a 0 */
     __m128i vOpen = _mm_set1_epi8(open);
     __m128i vGap  = _mm_set1_epi8(gap);
-    __m128i vOne = _mm_set1_epi8(1);
-    __m128i vN = _mm_set1_epi8(N);
-    __m128i vNegOne = _mm_set1_epi8(-1);
-    __m128i vI = _mm_set_epi8(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15);
-    __m128i vJreset = _mm_set_epi8(0,-1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11,-12,-13,-14,-15);
+    __m128i vOne16 = _mm_set1_epi16(1);
+    __m128i vN16 = _mm_set1_epi16(N);
+    __m128i vNegOne16 = _mm_set1_epi16(-1);
+    __m128i vILo16 = _mm_set_epi16(8,9,10,11,12,13,14,15);
+    __m128i vIHi16 = _mm_set_epi16(0,1,2,3,4,5,6,7);
+    __m128i vJresetLo16 = _mm_set_epi16(-8,-9,-10,-11,-12,-13,-14,-15);
+    __m128i vJresetHi16 = _mm_set_epi16(0,-1,-2,-3,-4,-5,-6,-7);
     __m128i vMaxScore = vNegInf;
-    __m128i vILimit = _mm_set1_epi8(s1Len);
-    __m128i vILimit1 = _mm_subs_epi8(vILimit, vOne);
-    __m128i vJLimit = _mm_set1_epi8(s2Len);
-    __m128i vJLimit1 = _mm_subs_epi8(vJLimit, vOne);
+    __m128i vILimit16 = _mm_set1_epi16(s1Len);
+    __m128i vILimit116 = _mm_sub_epi16(vILimit16, vOne16);
+    __m128i vJLimit16 = _mm_set1_epi16(s2Len);
+    __m128i vJLimit116 = _mm_sub_epi16(vJLimit16, vOne16);
     __m128i vNegLimit = _mm_set1_epi8(INT8_MIN);
     __m128i vPosLimit = _mm_set1_epi8(INT8_MAX);
     __m128i vSaturationCheckMin = vPosLimit;
@@ -207,7 +209,8 @@ parasail_result_t* FNAME(
         __m128i vWscore = vNegInf0;
         __m128i vIns = vNegInf;
         __m128i vDel = vNegInf;
-        __m128i vJ = vJreset;
+        __m128i vJLo16 = vJresetLo16;
+        __m128i vJHi16 = vJresetHi16;
         const int * const restrict matrow0 = matrix[s1[i+0]];
         const int * const restrict matrow1 = matrix[s1[i+1]];
         const int * const restrict matrow2 = matrix[s1[i+2]];
@@ -224,8 +227,12 @@ parasail_result_t* FNAME(
         const int * const restrict matrow13 = matrix[s1[i+13]];
         const int * const restrict matrow14 = matrix[s1[i+14]];
         const int * const restrict matrow15 = matrix[s1[i+15]];
-        __m128i vIltLimit = _mm_cmplt_epi8(vI, vILimit);
-        __m128i vIeqLimit1 = _mm_cmpeq_epi8(vI, vILimit1);
+        __m128i vIltLimit = _mm_packs_epi16(
+                _mm_cmplt_epi16(vILo16, vILimit16),
+                _mm_cmplt_epi16(vIHi16, vILimit16));
+        __m128i vIeqLimit1 = _mm_packs_epi16(
+                _mm_cmpeq_epi16(vILo16, vILimit116),
+                _mm_cmpeq_epi16(vIHi16, vILimit116));
         /* iterate over database sequence */
         for (j=0; j<s2Len+PAD; ++j) {
             __m128i vMat;
@@ -264,7 +271,9 @@ parasail_result_t* FNAME(
             /* as minor diagonal vector passes across the j=-1 boundary,
              * assign the appropriate boundary conditions */
             {
-                __m128i cond = _mm_cmpeq_epi8(vJ,vNegOne);
+                __m128i cond = _mm_packs_epi16(
+                        _mm_cmpeq_epi16(vJLo16,vNegOne16),
+                        _mm_cmpeq_epi16(vJHi16,vNegOne16));
                 vWscore = _mm_andnot_si128(cond, vWscore);
                 vDel = _mm_blendv_epi8_rpl(vDel, vNegInf, cond);
                 vIns = _mm_blendv_epi8_rpl(vIns, vNegInf, cond);
@@ -282,9 +291,15 @@ parasail_result_t* FNAME(
             /* as minor diagonal vector passes across the i or j limit
              * boundary, extract the last value of the column or row */
             {
-                __m128i vJeqLimit1 = _mm_cmpeq_epi8(vJ, vJLimit1);
-                __m128i vJgtNegOne = _mm_cmpgt_epi8(vJ, vNegOne);
-                __m128i vJltLimit = _mm_cmplt_epi8(vJ, vJLimit);
+                __m128i vJeqLimit1 = _mm_packs_epi16(
+                        _mm_cmpeq_epi16(vJLo16, vJLimit116),
+                        _mm_cmpeq_epi16(vJHi16, vJLimit116));
+                __m128i vJgtNegOne = _mm_packs_epi16(
+                        _mm_cmpgt_epi16(vJLo16, vNegOne16),
+                        _mm_cmpgt_epi16(vJHi16, vNegOne16));
+                __m128i vJltLimit = _mm_packs_epi16(
+                        _mm_cmplt_epi16(vJLo16, vJLimit16),
+                        _mm_cmplt_epi16(vJHi16, vJLimit16));
                 __m128i cond_j = _mm_and_si128(vIltLimit, vJeqLimit1);
                 __m128i cond_i = _mm_and_si128(vIeqLimit1,
                         _mm_and_si128(vJgtNegOne, vJltLimit));
@@ -293,9 +308,11 @@ parasail_result_t* FNAME(
                         _mm_or_si128(cond_i, cond_j));
                 vMaxScore = _mm_blendv_epi8_rpl(vMaxScore, vWscore, cond_all);
             }
-            vJ = _mm_adds_epi8(vJ, vOne);
+            vJLo16 = _mm_add_epi16(vJLo16, vOne16);
+            vJHi16 = _mm_add_epi16(vJHi16, vOne16);
         }
-        vI = _mm_adds_epi8(vI, vN);
+        vILo16 = _mm_add_epi16(vILo16, vN16);
+        vIHi16 = _mm_add_epi16(vIHi16, vN16);
     }
 
     /* max in vMaxScore */

@@ -20,7 +20,8 @@
 #include "parasail_internal_sse.h"
 #include "blosum/blosum_map.h"
 
-#define NEG_INF_32 (INT32_MIN/(int32_t)(2))
+#define NEG_INF (INT32_MIN/(int32_t)(2))
+
 
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si128(
@@ -69,22 +70,22 @@ parasail_result_t* FNAME(
     __m128i* restrict pvHLLoad        = parasail_memalign___m128i(16, segLen);
     __m128i* restrict pvEStore        = parasail_memalign___m128i(16, segLen);
     __m128i* restrict pvELoad         = parasail_memalign___m128i(16, segLen);
-    __m128i* restrict pvEM            = parasail_memalign___m128i(16, segLen);
-    __m128i* restrict pvES            = parasail_memalign___m128i(16, segLen);
-    __m128i* restrict pvEL            = parasail_memalign___m128i(16, segLen);
+    __m128i* const restrict pvEM      = parasail_memalign___m128i(16, segLen);
+    __m128i* const restrict pvES      = parasail_memalign___m128i(16, segLen);
+    __m128i* const restrict pvEL      = parasail_memalign___m128i(16, segLen);
     __m128i vGapO = _mm_set1_epi32(open);
     __m128i vGapE = _mm_set1_epi32(gap);
     __m128i vZero = _mm_setzero_si128();
     __m128i vOne = _mm_set1_epi32(1);
-    int32_t score = NEG_INF_32;
-    int32_t matches = NEG_INF_32;
-    int32_t similar = NEG_INF_32;
-    int32_t length = NEG_INF_32;
-    /* Trace the highest score of the whole SW matrix. */
+    int32_t score = NEG_INF;
+    int32_t matches = NEG_INF;
+    int32_t similar = NEG_INF;
+    int32_t length = NEG_INF;
+    
     __m128i vMaxH = vZero;
-    __m128i vMaxM = vZero;
-    __m128i vMaxS = vZero;
-    __m128i vMaxL = vZero;
+    __m128i vMaxHM = vZero;
+    __m128i vMaxHS = vZero;
+    __m128i vMaxHL = vZero;
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table3(segLen*segWidth, s2Len);
 #else
@@ -197,6 +198,7 @@ parasail_result_t* FNAME(
             __m128i case2;
             __m128i case3;
             __m128i cond_zero;
+
             vH = _mm_add_epi32(vH, _mm_load_si128(vP + i));
             vE = _mm_load_si128(pvELoad + i);
 
@@ -248,7 +250,7 @@ parasail_result_t* FNAME(
                     case1not);
             vHL = _mm_andnot_si128(cond_zero, vHL);
             _mm_store_si128(pvHLStore + i, vHL);
-
+            
 #ifdef PARASAIL_TABLE
             arr_store_si128(result->matches_table, vHM, i, segLen, j, s2Len);
             arr_store_si128(result->similar_table, vHS, i, segLen, j, s2Len);
@@ -257,11 +259,11 @@ parasail_result_t* FNAME(
 #endif
             /* update max vector seen so far */
             {
-                __m128i cond_max = _mm_cmpgt_epi32(vH,vMaxH);
+                __m128i cond_max = _mm_cmpgt_epi32(vH, vMaxH);
                 vMaxH = _mm_blendv_epi8(vMaxH, vH,  cond_max);
-                vMaxM = _mm_blendv_epi8(vMaxM, vHM, cond_max);
-                vMaxS = _mm_blendv_epi8(vMaxS, vHS, cond_max);
-                vMaxL = _mm_blendv_epi8(vMaxL, vHL, cond_max);
+                vMaxHM = _mm_blendv_epi8(vMaxHM, vHM, cond_max);
+                vMaxHS = _mm_blendv_epi8(vMaxHS, vHS, cond_max);
+                vMaxHL = _mm_blendv_epi8(vMaxHL, vHL, cond_max);
             }
 
             /* Update vE value. */
@@ -300,6 +302,7 @@ parasail_result_t* FNAME(
                 __m128i case2not;
                 __m128i case2;
                 __m128i cond_zero;
+
                 /* need to know where match and length come from so
                  * recompute the cases as in the main loop */
                 vHp = _mm_add_epi32(vHp, _mm_load_si128(vP + i));
@@ -358,15 +361,17 @@ end:
         int32_t value = (int32_t) _mm_extract_epi32(vMaxH, 3);
         if (value > score) {
             score = value;
-            matches = (int32_t) _mm_extract_epi32(vMaxM, 3);
-            similar = (int32_t) _mm_extract_epi32(vMaxS, 3);
-            length = (int32_t) _mm_extract_epi32(vMaxL, 3);
+            matches = (int32_t)_mm_extract_epi32(vMaxHM, 3);
+            similar = (int32_t)_mm_extract_epi32(vMaxHS, 3);
+            length = (int32_t)_mm_extract_epi32(vMaxHL, 3);
         }
         vMaxH = _mm_slli_si128(vMaxH, 4);
-        vMaxM = _mm_slli_si128(vMaxM, 4);
-        vMaxS = _mm_slli_si128(vMaxS, 4);
-        vMaxL = _mm_slli_si128(vMaxL, 4);
+        vMaxHM = _mm_slli_si128(vMaxHM, 4);
+        vMaxHS = _mm_slli_si128(vMaxHS, 4);
+        vMaxHL = _mm_slli_si128(vMaxHL, 4);
     }
+
+    
 
     result->score = score;
     result->matches = matches;
@@ -392,4 +397,5 @@ end:
 
     return result;
 }
+
 

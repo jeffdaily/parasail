@@ -26,10 +26,10 @@
 static inline void arr_store_si%(BITS)s(
         int *array,
         %(VTYPE)s vH,
-        int32_t t,
-        int32_t seglen,
-        int32_t d,
-        int32_t dlen)
+        %(INDEX)s t,
+        %(INDEX)s seglen,
+        %(INDEX)s d,
+        %(INDEX)s dlen)
 {
 %(PRINTER)s
 }
@@ -46,15 +46,15 @@ parasail_result_t* FNAME(
         const char * const restrict s2, const int s2Len,
         const int open, const int gap, const int matrix[24][24])
 {
-    int32_t i = 0;
-    int32_t j = 0;
-    int32_t k = 0;
-    int32_t segNum = 0;
-    const int32_t n = 24; /* number of amino acids in table */
-    const int32_t segWidth = %(LANES)s; /* number of values in vector unit */
-    const int32_t segLen = (s1Len + segWidth - 1) / segWidth;
-    const int32_t offset = (s1Len - 1) %% segLen;
-    const int32_t position = (segWidth - 1) - (s1Len - 1) / segLen;
+    %(INDEX)s i = 0;
+    %(INDEX)s j = 0;
+    %(INDEX)s k = 0;
+    %(INDEX)s segNum = 0;
+    const %(INDEX)s n = 24; /* number of amino acids in table */
+    const %(INDEX)s segWidth = %(LANES)s; /* number of values in vector unit */
+    const %(INDEX)s segLen = (s1Len + segWidth - 1) / segWidth;
+    const %(INDEX)s offset = (s1Len - 1) %% segLen;
+    const %(INDEX)s position = (segWidth - 1) - (s1Len - 1) / segLen;
     %(VTYPE)s* const restrict vProfile  = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, n * segLen);
     %(VTYPE)s* const restrict vProfileM = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, n * segLen);
     %(VTYPE)s* const restrict vProfileS = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, n * segLen);
@@ -99,7 +99,7 @@ parasail_result_t* FNAME(
      * Rearrange query sequence & calculate the weight of match/mismatch.
      * Don't alias. */
     {
-        int32_t index = 0;
+        %(INDEX)s index = 0;
         for (k=0; k<n; ++k) {
             for (i=0; i<segLen; ++i) {
                 %(VTYPE)s_%(WIDTH)s_t p;
@@ -122,7 +122,7 @@ parasail_result_t* FNAME(
 
     /* initialize H and E */
     {
-        int32_t index = 0;
+        %(INDEX)s index = 0;
         for (i=0; i<segLen; ++i) {
             %(VTYPE)s_%(WIDTH)s_t h;
             %(VTYPE)s_%(WIDTH)s_t e;

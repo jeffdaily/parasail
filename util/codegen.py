@@ -37,6 +37,9 @@ template_filenames = [
 "nw_stats_diag.c",
 "sg_stats_diag.c",
 "sw_stats_diag.c",
+#"nw_stats_scan.c",
+"sg_stats_scan.c",
+#"sw_stats_scan.c",
 "nw_stats_striped.c",
 "sg_stats_striped.c",
 "sw_stats_striped.c",
@@ -151,6 +154,13 @@ def generate_saturation_check(params):
                 vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vWscore);
                 vSaturationCheckMin = %(VMIN)s(vSaturationCheckMin, vWscore);
             }""".strip() % params
+        elif "scan" in params["NAME"]:
+            params["SATURATION_CHECK_MID"] = """
+            /* check for saturation */
+            {
+                vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vH);
+                vSaturationCheckMin = %(VMIN)s(vSaturationCheckMin, vH);
+            }""".strip() % params
         else:
             params["SATURATION_CHECK_MID"] = """
             /* check for saturation */
@@ -181,6 +191,16 @@ def generate_saturation_check(params):
                 vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vWmatch);
                 vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vWsimilar);
                 vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vWlength);
+            }""".strip() % params
+        elif "scan" in params["NAME"]:
+            params["STATS_SATURATION_CHECK_MID"] = """
+            /* check for saturation */
+            {
+                vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vH);
+                vSaturationCheckMin = %(VMIN)s(vSaturationCheckMin, vH);
+                vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vM);
+                vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vS);
+                vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vL);
             }""".strip() % params
         else:
             params["STATS_SATURATION_CHECK_MID"] = """
@@ -249,6 +269,30 @@ def generated_params_striped(params):
 
 
 def generated_params_scan(params):
+    lanes = params["LANES"]
+    if params["LANES"] / 10:
+        params["STATS_SCAN_UMP"] = ("    "*4).join(
+                ["uMp.v[%2d] = uC.v[%2d] ? uMp.v[%2d] : uMp.v[%2d];\n"%(i,i,i-1,i)
+                    for i in range(1,lanes)])[:-1]
+        params["STATS_SCAN_USP"] = ("    "*4).join(
+                ["uSp.v[%2d] = uC.v[%2d] ? uSp.v[%2d] : uSp.v[%2d];\n"%(i,i,i-1,i)
+                    for i in range(1,lanes)])[:-1]
+        params["STATS_SCAN_ULP"] = ("    "*4).join(
+                ["uLp.v[%2d] = uC.v[%2d] ? uLp.v[%2d] + uLp.v[%2d] : uLp.v[%2d];\n"%(
+                    i,i,i,i-1,i)
+                    for i in range(1,lanes)])[:-1]
+    else:
+        params["STATS_SCAN_UMP"] = ("    "*4).join(
+                ["uMp.v[%d] = uC.v[%d] ? uMp.v[%d] : uMp.v[%d];\n"%(i,i,i-1,i)
+                    for i in range(1,lanes)])[:-1]
+        params["STATS_SCAN_USP"] = ("    "*4).join(
+                ["uSp.v[%d] = uC.v[%d] ? uSp.v[%d] : uSp.v[%d];\n"%(i,i,i-1,i)
+                    for i in range(1,lanes)])[:-1]
+        params["STATS_SCAN_ULP"] = ("    "*4).join(
+                ["uLp.v[%d] = uC.v[%d] ? uLp.v[%d] + uLp.v[%d] : uLp.v[%d];\n"%(
+                    i,i,i,i-1,i)
+                    for i in range(1,lanes)])[:-1]
+    params["STATS_SCAN_INSERT_MASK"] = "0,"*(params["LANES"]-1)+"1"
     params["SCAN_INSERT_MASK"] = "1"+",0"*(params["LANES"]-1)
     return params
 

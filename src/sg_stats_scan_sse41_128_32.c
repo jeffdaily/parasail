@@ -20,8 +20,11 @@
 #include "parasail_internal_sse.h"
 #include "blosum/blosum_map.h"
 
-#define NEG_INF_32 (INT32_MIN/(int32_t)(2))
+#define NEG_INF (INT32_MIN/(int32_t)(2))
 #define MAX(a,b) ((a)>(b)?(a):(b))
+
+#define _mm_rlli_si128_rpl(a,imm) _mm_alignr_epi8(a, a, 16-imm)
+
 
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si128(
@@ -53,9 +56,9 @@ parasail_result_t* FNAME(
     int32_t i = 0;
     int32_t j = 0;
     int32_t k = 0;
-    const int32_t n = 24; /* number of amino acids in table */
-    const int32_t segWidth = 4; /* number of values in vector unit */
     int32_t segNum = 0;
+    const int32_t n = 24; /* number of amino acids in table */
+    const int32_t segWidth = 4;
     const int32_t segLen = (s1Len + segWidth - 1) / segWidth;
     const int32_t offset = (s1Len - 1) % segLen;
     const int32_t position = (segWidth - 1) - (s1Len - 1) / segLen;
@@ -77,8 +80,8 @@ parasail_result_t* FNAME(
     __m128i vGapE = _mm_set1_epi32(gap);
     __m128i vZero = _mm_setzero_si128();
     __m128i vOne = _mm_set1_epi32(1);
-    __m128i vNegInf = _mm_set1_epi32(NEG_INF_32);
-    int32_t score = NEG_INF_32;
+    __m128i vNegInf = _mm_set1_epi32(NEG_INF);
+    int32_t score = NEG_INF;
     int32_t matches = 0;
     int32_t similar = 0;
     int32_t length = 0;
@@ -86,14 +89,21 @@ parasail_result_t* FNAME(
     __m128i vMaxM = vZero;
     __m128i vMaxS = vZero;
     __m128i vMaxL = vZero;
+    const int32_t segLenXgap = -segLen*gap;
+    __m128i insert_mask = _mm_cmpeq_epi32(_mm_setzero_si128(),
+            _mm_set_epi32(0,0,0,1));
+    __m128i vSegLenXgap_reset = _mm_blendv_epi8(vNegInf,
+            _mm_set1_epi32(segLenXgap),
+            insert_mask);
+    
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table3(segLen*segWidth, s2Len);
 #else
     parasail_result_t *result = parasail_result_new();
 #endif
 
-    parasail_memset___m128i(pvS, vZero, segLen);
     parasail_memset___m128i(pvM, vZero, segLen);
+    parasail_memset___m128i(pvS, vZero, segLen);
     parasail_memset___m128i(pvL, vZero, segLen);
 
     /* Generate query profile and match profile.
@@ -129,7 +139,7 @@ parasail_result_t* FNAME(
             __m128i_32_t e;
             for (segNum=0; segNum<segWidth; ++segNum) {
                 h.v[segNum] = 0;
-                e.v[segNum] = NEG_INF_32;
+                e.v[segNum] = NEG_INF;
             }
             _mm_store_si128(&pvH[index], h.m);
             _mm_store_si128(&pvE[index], e.m);
@@ -221,16 +231,19 @@ parasail_result_t* FNAME(
             vHt = _mm_load_si128(pvHt+i);
         }
         {
-            __m128i_32_t tmp;
-            tmp.m = vFt;
-            tmp.v[1] = MAX(tmp.v[0]-segLen*gap, tmp.v[1]);
-            tmp.v[2] = MAX(tmp.v[1]-segLen*gap, tmp.v[2]);
-            tmp.v[3] = MAX(tmp.v[2]-segLen*gap, tmp.v[3]);
-            vFt = tmp.m;
+            __m128i vFt_save = vFt;
+            __m128i segLenXgap = vSegLenXgap_reset;
+            for (i=0; i<segWidth-1; ++i) {
+                __m128i vFtt = _mm_slli_si128(vFt, 4);
+                segLenXgap = _mm_rlli_si128_rpl(segLenXgap, 4);
+                vFtt = _mm_add_epi32(vFtt, segLenXgap);
+                vFt = _mm_max_epi32(vFt, vFtt);
+            }
+            vFt = _mm_blendv_epi8(vFt_save, vFt, insert_mask);
         }
         vHt = _mm_slli_si128(_mm_load_si128(pvHt+(segLen-1)), 4);
         vFt = _mm_slli_si128(vFt, 4);
-        vFt = _mm_insert_epi32(vFt, NEG_INF_32, 0);
+        vFt = _mm_insert_epi32(vFt, NEG_INF, 0);
         for (i=0; i<segLen; ++i) {
             vFt = _mm_sub_epi32(vFt, vGapE);
             vFt = _mm_max_epi32(vFt, vHt);
@@ -316,6 +329,7 @@ parasail_result_t* FNAME(
             _mm_store_si128(pvM+i, vM);
             _mm_store_si128(pvS+i, vS);
             _mm_store_si128(pvL+i, vL);
+            
 #ifdef PARASAIL_TABLE
             arr_store_si128(result->matches_table, vM, i, segLen, j, s2Len);
             arr_store_si128(result->similar_table, vS, i, segLen, j, s2Len);
@@ -338,7 +352,7 @@ parasail_result_t* FNAME(
         }
     }
 
-    /* extract last value from column */
+    /* max last value from all columns */
     {
         int32_t value;
         for (k=0; k<position; ++k) {
@@ -391,6 +405,8 @@ parasail_result_t* FNAME(
         }
     }
 
+    
+
     result->score = score;
     result->matches = matches;
     result->similar = similar;
@@ -413,4 +429,5 @@ parasail_result_t* FNAME(
 
     return result;
 }
+
 

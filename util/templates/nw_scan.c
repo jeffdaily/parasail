@@ -82,7 +82,7 @@ parasail_result_t* FNAME(
      * Rearrange query sequence & calculate the weight of match/mismatch.
      * Don't alias. */
     {
-        int32_t index = 0;
+        %(INDEX)s index = 0;
         for (k=0; k<n; ++k) {
             for (i=0; i<segLen; ++i) {
                 %(VTYPE)s_%(WIDTH)s_t t;
@@ -99,7 +99,7 @@ parasail_result_t* FNAME(
 
     /* initialize H and E */
     {
-        int32_t index = 0;
+        %(INDEX)s index = 0;
         for (i=0; i<segLen; ++i) {
             %(VTYPE)s_%(WIDTH)s_t h;
             %(VTYPE)s_%(WIDTH)s_t e;

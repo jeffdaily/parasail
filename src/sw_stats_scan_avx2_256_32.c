@@ -19,54 +19,17 @@
 #include "parasail_internal_avx.h"
 #include "blosum/blosum_map.h"
 
-#define NEG_INF_32 (INT32_MIN/(int32_t)(2))
+#define NEG_INF (INT32_MIN/(int32_t)(2))
 #define MAX(a,b) ((a)>(b)?(a):(b))
 
-/* avx2 does not have _mm256_cmplt_epi32, emulate it */
-static inline __m256i _mm256_cmplt_epi32(__m256i a, __m256i b) {
-    return _mm256_cmpgt_epi32(b,a);
-}
+#define _mm256_cmplt_epi32_rpl(a,b) _mm256_cmpgt_epi32(b,a)
 
-#if HAVE_AVX2_MM256_INSERT_EPI32
-#else
-static inline __m256i _mm256_insert_epi32(__m256i a, int32_t b, int imm) {
-    __m256i_32_t tmp;
-    tmp.m = a;
-    tmp.v[imm] = b;
-    return tmp.m;
-}
-#endif
+#define _mm256_rlli_si256_rpl(a,imm) _mm256_alignr_epi8(a, _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,0,1)), 16-imm)
 
-#if HAVE_AVX2_MM256_EXTRACT_EPI32
-#else
-static inline int32_t _mm256_extract_epi32(__m256i a, int imm) {
-    __m256i_32_t tmp;
-    tmp.m = a;
-    return tmp.v[imm];
-}
-#endif
+#define _mm256_srli_si256_rpl(a,imm) _mm256_or_si256(_mm256_slli_si256(_mm256_permute2x128_si256(a, a, _MM_SHUFFLE(3,0,0,1)), 16-imm), _mm256_srli_si256(a, imm))
 
-/* avx2 _mm256_slli_si256 does not shift across 128-bit lanes, emulate it */
-static inline __m256i shift(__m256i a) {
-    return _mm256_alignr_epi8(a,
-            _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,3,0)),
-            12);
-}
+#define _mm256_slli_si256_rpl(a,imm) _mm256_alignr_epi8(a, _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,3,0)), 16-imm)
 
-/* avx2 _mm256_srli_si256 does not shift across 128-bit lanes, emulate it */
-static inline __m256i rshift(__m256i a) {
-    return _mm256_or_si256(
-            _mm256_slli_si256(
-                _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(3,0,0,1)),
-                12),
-            _mm256_srli_si256(a, 4));
-}
-
-static inline __m256i lrotate32(__m256i a) {
-    return _mm256_alignr_epi8(a,
-            _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,0,1)),
-            12);
-}
 
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si256(
@@ -88,7 +51,6 @@ static inline void arr_store_si256(
 }
 #endif
 
-
 #ifdef PARASAIL_TABLE
 #define FNAME sw_stats_table_scan_avx2_256_32
 #else
@@ -103,9 +65,9 @@ parasail_result_t* FNAME(
     int32_t i = 0;
     int32_t j = 0;
     int32_t k = 0;
-    const int32_t n = 24; /* number of amino acids in table */
-    const int32_t segWidth = 8; /* number of values in vector unit */
     int32_t segNum = 0;
+    const int32_t n = 24; /* number of amino acids in table */
+    const int32_t segWidth = 8;
     const int32_t segLen = (s1Len + segWidth - 1) / segWidth;
     __m256i* const restrict pvP  = parasail_memalign___m256i(32, n * segLen);
     __m256i* const restrict pvPm = parasail_memalign___m256i(32, n * segLen);
@@ -125,7 +87,8 @@ parasail_result_t* FNAME(
     __m256i vGapE = _mm256_set1_epi32(gap);
     __m256i vZero = _mm256_setzero_si256();
     __m256i vOne = _mm256_set1_epi32(1);
-    int32_t score = 0;
+    __m256i vNegInf = _mm256_set1_epi32(NEG_INF);
+    int32_t score = NEG_INF;
     int32_t matches = 0;
     int32_t similar = 0;
     int32_t length = 0;
@@ -133,9 +96,13 @@ parasail_result_t* FNAME(
     __m256i vMaxM = vZero;
     __m256i vMaxS = vZero;
     __m256i vMaxL = vZero;
-    __m256i segLenXgap_reset = _mm256_set_epi32(
-            NEG_INF_32, NEG_INF_32, NEG_INF_32, NEG_INF_32,
-            NEG_INF_32, NEG_INF_32, NEG_INF_32, -segLen*gap);
+    const int32_t segLenXgap = -segLen*gap;
+    __m256i insert_mask = _mm256_cmpeq_epi32(_mm256_setzero_si256(),
+            _mm256_set_epi32(0,0,0,0,0,0,0,1));
+    __m256i vSegLenXgap_reset = _mm256_blendv_epi8(vNegInf,
+            _mm256_set1_epi32(segLenXgap),
+            insert_mask);
+    
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table3(segLen*segWidth, s2Len);
 #else
@@ -179,7 +146,7 @@ parasail_result_t* FNAME(
             __m256i_32_t e;
             for (segNum=0; segNum<segWidth; ++segNum) {
                 h.v[segNum] = 0;
-                e.v[segNum] = NEG_INF_32;
+                e.v[segNum] = NEG_INF;
             }
             _mm256_store_si256(&pvH[index], h.m);
             _mm256_store_si256(&pvE[index], e.m);
@@ -221,10 +188,10 @@ parasail_result_t* FNAME(
         }
 
         /* calculate Ht */
-        vH = shift(_mm256_load_si256(pvH+(segLen-1)));
-        vMp= shift(_mm256_load_si256(pvM+(segLen-1)));
-        vSp= shift(_mm256_load_si256(pvS+(segLen-1)));
-        vLp= shift(_mm256_load_si256(pvL+(segLen-1)));
+        vH = _mm256_slli_si256_rpl(_mm256_load_si256(pvH+(segLen-1)), 4);
+        vMp= _mm256_slli_si256_rpl(_mm256_load_si256(pvM+(segLen-1)), 4);
+        vSp= _mm256_slli_si256_rpl(_mm256_load_si256(pvS+(segLen-1)), 4);
+        vLp= _mm256_slli_si256_rpl(_mm256_load_si256(pvL+(segLen-1)), 4);
         vLp= _mm256_add_epi32(vLp, vOne);
         pvW = pvP + MAP_BLOSUM_[(unsigned char)s2[j]]*segLen;
         pvC = pvPm+ MAP_BLOSUM_[(unsigned char)s2[j]]*segLen;
@@ -270,42 +237,27 @@ parasail_result_t* FNAME(
         }
 
         /* calculate Ft */
-        vHt = shift(_mm256_load_si256(pvHt+(segLen-1)));
-        vFt = _mm256_set1_epi32(NEG_INF_32);
+        vHt = _mm256_slli_si256_rpl(_mm256_load_si256(pvHt+(segLen-1)), 4);
+        vFt = vNegInf;
         for (i=0; i<segLen; ++i) {
             vFt = _mm256_sub_epi32(vFt, vGapE);
             vFt = _mm256_max_epi32(vFt, vHt);
             vHt = _mm256_load_si256(pvHt+i);
         }
-#if 0
-        {
-            __m256i_32_t tmp;
-            tmp.m = vFt;
-            tmp.v[1] = MAX(tmp.v[0]-segLen*gap, tmp.v[1]);
-            tmp.v[2] = MAX(tmp.v[1]-segLen*gap, tmp.v[2]);
-            tmp.v[3] = MAX(tmp.v[2]-segLen*gap, tmp.v[3]);
-            tmp.v[4] = MAX(tmp.v[3]-segLen*gap, tmp.v[4]);
-            tmp.v[5] = MAX(tmp.v[4]-segLen*gap, tmp.v[5]);
-            tmp.v[6] = MAX(tmp.v[5]-segLen*gap, tmp.v[6]);
-            tmp.v[7] = MAX(tmp.v[6]-segLen*gap, tmp.v[7]);
-            vFt = tmp.m;
-        }
-#else
         {
             __m256i vFt_save = vFt;
-            __m256i segLenXgap = segLenXgap_reset;
+            __m256i segLenXgap = vSegLenXgap_reset;
             for (i=0; i<segWidth-1; ++i) {
-                __m256i vFtt = shift(vFt);
-                segLenXgap = lrotate32(segLenXgap);
+                __m256i vFtt = _mm256_slli_si256_rpl(vFt, 4);
+                segLenXgap = _mm256_rlli_si256_rpl(segLenXgap, 4);
                 vFtt = _mm256_add_epi32(vFtt, segLenXgap);
                 vFt = _mm256_max_epi32(vFt, vFtt);
             }
-            vFt = _mm256_blend_epi32(vFt_save, vFt, 0xFE);
+            vFt = _mm256_blendv_epi8(vFt_save, vFt, insert_mask);
         }
-#endif
-            vHt = shift(_mm256_load_si256(pvHt+(segLen-1)));
-        vFt = shift(vFt);
-        vFt = _mm256_insert_epi32(vFt, NEG_INF_32, 0);
+        vHt = _mm256_slli_si256_rpl(_mm256_load_si256(pvHt+(segLen-1)), 4);
+        vFt = _mm256_slli_si256_rpl(vFt, 4);
+        vFt = _mm256_insert_epi32(vFt, NEG_INF, 0);
         for (i=0; i<segLen; ++i) {
             vFt = _mm256_sub_epi32(vFt, vGapE);
             vFt = _mm256_max_epi32(vFt, vHt);
@@ -318,7 +270,7 @@ parasail_result_t* FNAME(
         vSp = vZero;
         vLp = vOne;
         vC = _mm256_cmpeq_epi32(vZero, vZero); /* check if prefix sum is needed */
-        vC = rshift(vC); /* zero out last value */
+        vC = _mm256_srli_si256_rpl(vC, 4); /* zero out last value */
         for (i=0; i<segLen; ++i) {
             /* load values we need */
             vHt = _mm256_load_si256(pvHt+i);
@@ -333,7 +285,7 @@ parasail_result_t* FNAME(
             vLt = _mm256_load_si256(pvLt+i);
             vEx = _mm256_or_si256(
                     _mm256_and_si256(vEx, _mm256_cmpeq_epi32(vHt, vFt)),
-                    _mm256_cmplt_epi32(vHt, vFt));
+                    _mm256_cmplt_epi32_rpl(vHt, vFt));
             vM = _mm256_blendv_epi8(vMt, vMp, vEx);
             vS = _mm256_blendv_epi8(vSt, vSp, vEx);
             vL = _mm256_blendv_epi8(vLt, vLp, vEx);
@@ -384,9 +336,9 @@ parasail_result_t* FNAME(
             vLp = _mm256_add_epi32(vLp, vOne);
         }
         /* final pass for M,L */
-        vMp = shift(vMp);
-        vSp = shift(vSp);
-        vLp = shift(vLp);
+        vMp = _mm256_slli_si256_rpl(vMp, 4);
+        vSp = _mm256_slli_si256_rpl(vSp, 4);
+        vLp = _mm256_slli_si256_rpl(vLp, 4);
         for (i=0; i<segLen; ++i) {
             /* load values we need */
             vH = _mm256_load_si256(pvH+i);
@@ -405,6 +357,7 @@ parasail_result_t* FNAME(
             _mm256_store_si256(pvM+i, vM);
             _mm256_store_si256(pvS+i, vS);
             _mm256_store_si256(pvL+i, vL);
+            
 #ifdef PARASAIL_TABLE
             arr_store_si256(result->matches_table, vM, i, segLen, j, s2Len);
             arr_store_si256(result->similar_table, vS, i, segLen, j, s2Len);
@@ -425,16 +378,18 @@ parasail_result_t* FNAME(
     for (j=0; j<segWidth; ++j) {
         int32_t value = (int32_t) _mm256_extract_epi32(vMaxH, 7);
         if (value > score) {
+            score = value;
             matches = (int32_t) _mm256_extract_epi32(vMaxM, 7);
             similar = (int32_t) _mm256_extract_epi32(vMaxS, 7);
             length = (int32_t) _mm256_extract_epi32(vMaxL, 7);
-            score = value;
         }
-        vMaxH = shift(vMaxH);
-        vMaxM = shift(vMaxM);
-        vMaxS = shift(vMaxS);
-        vMaxL = shift(vMaxL);
+        vMaxH = _mm256_slli_si256_rpl(vMaxH, 4);
+        vMaxM = _mm256_slli_si256_rpl(vMaxM, 4);
+        vMaxS = _mm256_slli_si256_rpl(vMaxS, 4);
+        vMaxL = _mm256_slli_si256_rpl(vMaxL, 4);
     }
+
+    
 
     result->score = score;
     result->matches = matches;
@@ -458,3 +413,5 @@ parasail_result_t* FNAME(
 
     return result;
 }
+
+

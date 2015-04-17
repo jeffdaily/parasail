@@ -39,7 +39,7 @@ template_filenames = [
 "sw_stats_diag.c",
 #"nw_stats_scan.c",
 "sg_stats_scan.c",
-#"sw_stats_scan.c",
+"sw_stats_scan.c",
 "nw_stats_striped.c",
 "sg_stats_striped.c",
 "sw_stats_striped.c",

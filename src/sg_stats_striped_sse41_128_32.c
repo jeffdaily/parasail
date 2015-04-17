@@ -20,7 +20,8 @@
 #include "parasail_internal_sse.h"
 #include "blosum/blosum_map.h"
 
-#define NEG_INF_32 (INT32_MIN/(int32_t)(2))
+#define NEG_INF (INT32_MIN/(int32_t)(2))
+
 
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si128(
@@ -76,13 +77,14 @@ parasail_result_t* FNAME(
     __m128i* const restrict pvEL      = parasail_memalign___m128i(16, segLen);
     __m128i vGapO = _mm_set1_epi32(open);
     __m128i vGapE = _mm_set1_epi32(gap);
+    __m128i vNegInf = _mm_set1_epi32(NEG_INF);
     __m128i vZero = _mm_setzero_si128();
     __m128i vOne = _mm_set1_epi32(1);
-    int32_t score = NEG_INF_32;
-    int32_t matches = NEG_INF_32;
-    int32_t similar = NEG_INF_32;
-    int32_t length = NEG_INF_32;
-    __m128i vNegInf = _mm_set1_epi32(NEG_INF_32);
+    int32_t score = NEG_INF;
+    int32_t matches = NEG_INF;
+    int32_t similar = NEG_INF;
+    int32_t length = NEG_INF;
+    
     __m128i vMaxH = vNegInf;
     __m128i vMaxHM = vNegInf;
     __m128i vMaxHS = vNegInf;
@@ -245,7 +247,7 @@ parasail_result_t* FNAME(
                         _mm_and_si128(case3, _mm_add_epi32(vEL, vOne))),
                     case1not);
             _mm_store_si128(pvHLStore + i, vHL);
-
+            
 #ifdef PARASAIL_TABLE
             arr_store_si128(result->matches_table, vHM, i, segLen, j, s2Len);
             arr_store_si128(result->similar_table, vHS, i, segLen, j, s2Len);
@@ -369,11 +371,10 @@ end:
 
     /* max of last column */
     {
-        __m128i vNegInf = _mm_set1_epi32(NEG_INF_32);
-        __m128i vMaxH = vNegInf;
-        __m128i vMaxHM = vNegInf;
-        __m128i vMaxHS = vNegInf;
-        __m128i vMaxHL = vNegInf;
+        vMaxH = vNegInf;
+        vMaxHM = vNegInf;
+        vMaxHS = vNegInf;
+        vMaxHL = vNegInf;
 
         for (i=0; i<segLen; ++i) {
             /* load the last stored values */
@@ -404,6 +405,8 @@ end:
         }
     }
 
+    
+
     result->score = score;
     result->matches = matches;
     result->similar = similar;
@@ -428,4 +431,5 @@ end:
 
     return result;
 }
+
 

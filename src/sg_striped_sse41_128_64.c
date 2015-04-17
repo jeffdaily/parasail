@@ -22,16 +22,6 @@
 
 #define NEG_INF (INT64_MIN/(int64_t)(2))
 
-static inline __m128i _mm_max_epi64_rpl(__m128i a, __m128i b) {
-    __m128i_64_t A;
-    __m128i_64_t B;
-    A.m = a;
-    B.m = b;
-    A.v[0] = (A.v[0]>B.v[0]) ? A.v[0] : B.v[0];
-    A.v[1] = (A.v[1]>B.v[1]) ? A.v[1] : B.v[1];
-    return A.m;
-}
-
 static inline __m128i _mm_cmpgt_epi64_rpl(__m128i a, __m128i b) {
     __m128i_64_t A;
     __m128i_64_t B;
@@ -39,6 +29,16 @@ static inline __m128i _mm_cmpgt_epi64_rpl(__m128i a, __m128i b) {
     B.m = b;
     A.v[0] = (A.v[0]>B.v[0]) ? 0xFFFFFFFFFFFFFFFF : 0;
     A.v[1] = (A.v[1]>B.v[1]) ? 0xFFFFFFFFFFFFFFFF : 0;
+    return A.m;
+}
+
+static inline __m128i _mm_max_epi64_rpl(__m128i a, __m128i b) {
+    __m128i_64_t A;
+    __m128i_64_t B;
+    A.m = a;
+    B.m = b;
+    A.v[0] = (A.v[0]>B.v[0]) ? A.v[0] : B.v[0];
+    A.v[1] = (A.v[1]>B.v[1]) ? A.v[1] : B.v[1];
     return A.m;
 }
 

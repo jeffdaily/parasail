@@ -18,25 +18,31 @@
 #include "parasail_internal_sse.h"
 #include "blosum/blosum_map.h"
 
-#define NEG_INF_16 (INT16_MIN/(int16_t)(2))
+#define NEG_INF (INT16_MIN/(int16_t)(2))
+
+static inline __m128i _mm_blendv_epi8_rpl(__m128i a, __m128i b, __m128i mask) {
+    a = _mm_andnot_si128(mask, a);
+    a = _mm_or_si128(a, _mm_and_si128(mask, b));
+    return a;
+}
+
 
 /* shift given vector v, insert val, return shifted val */
-static inline __m128i vshift16(const __m128i v, const int val)
+static inline __m128i vshift(const __m128i v, const int val)
 {
     __m128i ret = _mm_srli_si128(v, 2);
     ret = _mm_insert_epi16(ret, val, 7);
     return ret;
 }
 
-
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si128(
         int *array,
         __m128i vWscore,
-        int i,
-        int s1Len,
-        int j,
-        int s2Len)
+        int32_t i,
+        int32_t s1Len,
+        int32_t j,
+        int32_t s2Len)
 {
     if (0 <= i+0 && i+0 < s1Len && 0 <= j-0 && j-0 < s2Len) {
         array[(i+0)*s2Len + (j-0)] = (int16_t)_mm_extract_epi16(vWscore, 7);
@@ -77,31 +83,35 @@ parasail_result_t* FNAME(
         const char * const restrict _s2, const int s2Len,
         const int open, const int gap, const int matrix[24][24])
 {
-    const int N = 8; /* number of values in vector */
-    const int PAD = N-1; /* N 16-byte values in vector, so N - 1 */
-    const int PAD2 = PAD*2;
-    int * const restrict s1      = parasail_memalign_int(16, s1Len+PAD);
-    int * const restrict s2B     = parasail_memalign_int(16, s2Len+PAD2);
-    int * const restrict _tbl_pr = parasail_memalign_int(16, s2Len+PAD2);
-    int * const restrict _del_pr = parasail_memalign_int(16, s2Len+PAD2);
-    int * const restrict _mch_pr = parasail_memalign_int(16, s2Len+PAD2);
-    int * const restrict _len_pr = parasail_memalign_int(16, s2Len+PAD2);
-    int * const restrict s2 = s2B+PAD; /* will allow later for negative indices */
-    int * const restrict tbl_pr = _tbl_pr+PAD;
-    int * const restrict del_pr = _del_pr+PAD;
-    int * const restrict mch_pr = _mch_pr+PAD;
-    int * const restrict len_pr = _len_pr+PAD;
+    const int32_t N = 8; /* number of values in vector */
+    const int32_t PAD = N-1;
+    const int32_t PAD2 = PAD*2;
+    int16_t * const restrict s1      = parasail_memalign_int16_t(16, s1Len+PAD);
+    int16_t * const restrict s2B     = parasail_memalign_int16_t(16, s2Len+PAD2);
+    int16_t * const restrict _tbl_pr = parasail_memalign_int16_t(16, s2Len+PAD2);
+    int16_t * const restrict _del_pr = parasail_memalign_int16_t(16, s2Len+PAD2);
+    int16_t * const restrict _mch_pr = parasail_memalign_int16_t(16, s2Len+PAD2);
+    int16_t * const restrict _sim_pr = parasail_memalign_int16_t(16, s2Len+PAD2);
+    int16_t * const restrict _len_pr = parasail_memalign_int16_t(16, s2Len+PAD2);
+    int16_t * const restrict s2 = s2B+PAD; /* will allow later for negative indices */
+    int16_t * const restrict tbl_pr = _tbl_pr+PAD;
+    int16_t * const restrict del_pr = _del_pr+PAD;
+    int16_t * const restrict mch_pr = _mch_pr+PAD;
+    int16_t * const restrict sim_pr = _sim_pr+PAD;
+    int16_t * const restrict len_pr = _len_pr+PAD;
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table3(s1Len, s2Len);
 #else
     parasail_result_t *result = parasail_result_new();
 #endif
-    int i = 0;
-    int j = 0;
-    int score = NEG_INF_16;
-    int matches = NEG_INF_16;
-    int length = NEG_INF_16;
-    __m128i vNegInf = _mm_set1_epi16(NEG_INF_16);
+    int32_t i = 0;
+    int32_t j = 0;
+    int16_t score = NEG_INF;
+    int16_t matches = NEG_INF;
+    int16_t similar = NEG_INF;
+    int16_t length = NEG_INF;
+    
+    __m128i vNegInf = _mm_set1_epi16(NEG_INF);
     __m128i vNegInf0 = _mm_srli_si128(vNegInf, 2); /* shift in a 0 */
     __m128i vOpen = _mm_set1_epi16(open);
     __m128i vGap  = _mm_set1_epi16(gap);
@@ -113,6 +123,7 @@ parasail_result_t* FNAME(
     __m128i vJreset = _mm_set_epi16(0,-1,-2,-3,-4,-5,-6,-7);
     __m128i vMaxScore = vNegInf;
     __m128i vMaxMatch = vNegInf;
+    __m128i vMaxSimilar = vNegInf;
     __m128i vMaxLength = vNegInf;
     __m128i vILimit = _mm_set1_epi16(s1Len);
     __m128i vILimit1 = _mm_sub_epi16(vILimit, vOne);
@@ -144,32 +155,38 @@ parasail_result_t* FNAME(
     /* set initial values for stored row */
     for (j=0; j<s2Len; ++j) {
         tbl_pr[j] = 0;
-        del_pr[j] = NEG_INF_16;
+        del_pr[j] = NEG_INF;
         mch_pr[j] = 0;
+        sim_pr[j] = 0;
         len_pr[j] = 0;
     }
     /* pad front of stored row values */
     for (j=-PAD; j<0; ++j) {
-        tbl_pr[j] = NEG_INF_16;
-        del_pr[j] = NEG_INF_16;
+        tbl_pr[j] = NEG_INF;
+        del_pr[j] = NEG_INF;
         mch_pr[j] = 0;
+        sim_pr[j] = 0;
         len_pr[j] = 0;
     }
     /* pad back of stored row values */
     for (j=s2Len; j<s2Len+PAD; ++j) {
-        tbl_pr[j] = NEG_INF_16;
-        del_pr[j] = NEG_INF_16;
+        tbl_pr[j] = NEG_INF;
+        del_pr[j] = NEG_INF;
         mch_pr[j] = 0;
+        sim_pr[j] = 0;
         len_pr[j] = 0;
     }
+    tbl_pr[-1] = 0; /* upper left corner */
 
     /* iterate over query sequence */
     for (i=0; i<s1Len; i+=N) {
         __m128i vNscore = vNegInf0;
         __m128i vNmatch = vZero;
+        __m128i vNsimilar = vZero;
         __m128i vNlength = vZero;
         __m128i vWscore = vNegInf0;
         __m128i vWmatch = vZero;
+        __m128i vWsimilar = vZero;
         __m128i vWlength = vZero;
         __m128i vIns = vNegInf;
         __m128i vDel = vNegInf;
@@ -199,18 +216,20 @@ parasail_result_t* FNAME(
             __m128i vMat;
             __m128i vNWscore = vNscore;
             __m128i vNWmatch = vNmatch;
+            __m128i vNWsimilar = vNsimilar;
             __m128i vNWlength = vNlength;
-            vNscore = vshift16(vWscore, tbl_pr[j]);
-            vNmatch = vshift16(vWmatch, mch_pr[j]);
-            vNlength = vshift16(vWlength, len_pr[j]);
-            vDel = vshift16(vDel, del_pr[j]);
+            vNscore = vshift(vWscore, tbl_pr[j]);
+            vNmatch = vshift(vWmatch, mch_pr[j]);
+            vNsimilar = vshift(vWsimilar, sim_pr[j]);
+            vNlength = vshift(vWlength, len_pr[j]);
+            vDel = vshift(vDel, del_pr[j]);
             vDel = _mm_max_epi16(
                     _mm_sub_epi16(vNscore, vOpen),
                     _mm_sub_epi16(vDel, vGap));
             vIns = _mm_max_epi16(
                     _mm_sub_epi16(vWscore, vOpen),
                     _mm_sub_epi16(vIns, vGap));
-            vs2 = vshift16(vs2, s2[j]);
+            vs2 = vshift(vs2, s2[j]);
             vMat = _mm_set_epi16(
                     matrow0[s2[j-0]],
                     matrow1[s2[j-1]],
@@ -231,6 +250,7 @@ parasail_result_t* FNAME(
                 __m128i case2;
                 __m128i case3;
                 __m128i vCmatch;
+                __m128i vCsimilar;
                 __m128i vClength;
                 case1not = _mm_or_si128(
                         _mm_cmplt_epi16(vNWscore,vDel),
@@ -241,36 +261,45 @@ parasail_result_t* FNAME(
                 vCmatch = _mm_andnot_si128(case1not,
                         _mm_add_epi16(vNWmatch, _mm_and_si128(
                                 _mm_cmpeq_epi16(vs1,vs2),vOne)));
+                vCmatch = _mm_or_si128(vCmatch, _mm_and_si128(case2, vNmatch));
+                vCmatch = _mm_or_si128(vCmatch, _mm_and_si128(case3, vWmatch));
+                vCsimilar = _mm_andnot_si128(case1not,
+                        _mm_add_epi16(vNWsimilar, _mm_and_si128(
+                                _mm_cmpgt_epi16(vMat,vZero),vOne)));
+                vCsimilar = _mm_or_si128(vCsimilar, _mm_and_si128(case2, vNsimilar));
+                vCsimilar = _mm_or_si128(vCsimilar, _mm_and_si128(case3, vWsimilar));
                 vClength= _mm_andnot_si128(case1not,
                         _mm_add_epi16(vNWlength, vOne));
-                vCmatch = _mm_or_si128(vCmatch, _mm_and_si128(case2, vNmatch));
                 vClength= _mm_or_si128(vClength,_mm_and_si128(case2,
                             _mm_add_epi16(vNlength, vOne)));
-                vCmatch = _mm_or_si128(vCmatch, _mm_and_si128(case3, vWmatch));
                 vClength= _mm_or_si128(vClength,_mm_and_si128(case3,
                             _mm_add_epi16(vWlength, vOne)));
                 vWmatch = vCmatch;
+                vWsimilar = vCsimilar;
                 vWlength = vClength;
             }
+
             /* as minor diagonal vector passes across the j=-1 boundary,
              * assign the appropriate boundary conditions */
             {
                 __m128i cond = _mm_cmpeq_epi16(vJ,vNegOne);
                 vWscore = _mm_andnot_si128(cond, vWscore);
                 vWmatch = _mm_andnot_si128(cond, vWmatch);
+                vWsimilar = _mm_andnot_si128(cond, vWsimilar);
                 vWlength = _mm_andnot_si128(cond, vWlength);
-                vDel = _mm_andnot_si128(cond, vDel);
-                vDel = _mm_or_si128(vDel, _mm_and_si128(cond, vNegInf));
-                vIns = _mm_andnot_si128(cond, vIns);
-                vIns = _mm_or_si128(vIns, _mm_and_si128(cond, vNegInf));
+                vDel = _mm_blendv_epi8_rpl(vDel, vNegInf, cond);
+                vIns = _mm_blendv_epi8_rpl(vIns, vNegInf, cond);
             }
+            
 #ifdef PARASAIL_TABLE
             arr_store_si128(result->score_table, vWscore, i, s1Len, j, s2Len);
             arr_store_si128(result->matches_table, vWmatch, i, s1Len, j, s2Len);
+            arr_store_si128(result->similar_table, vWsimilar, i, s1Len, j, s2Len);
             arr_store_si128(result->length_table, vWlength, i, s1Len, j, s2Len);
 #endif
             tbl_pr[j-7] = (int16_t)_mm_extract_epi16(vWscore,0);
             mch_pr[j-7] = (int16_t)_mm_extract_epi16(vWmatch,0);
+            sim_pr[j-7] = (int16_t)_mm_extract_epi16(vWsimilar,0);
             len_pr[j-7] = (int16_t)_mm_extract_epi16(vWlength,0);
             del_pr[j-7] = (int16_t)_mm_extract_epi16(vDel,0);
             /* as minor diagonal vector passes across the i or j limit
@@ -285,15 +314,10 @@ parasail_result_t* FNAME(
                 __m128i cond_max = _mm_cmpgt_epi16(vWscore, vMaxScore);
                 __m128i cond_all = _mm_and_si128(cond_max,
                         _mm_or_si128(cond_i, cond_j));
-                vMaxScore = _mm_andnot_si128(cond_all, vMaxScore);
-                vMaxScore = _mm_or_si128(vMaxScore,
-                        _mm_and_si128(cond_all, vWscore));
-                vMaxMatch = _mm_andnot_si128(cond_all, vMaxMatch);
-                vMaxMatch = _mm_or_si128(vMaxMatch,
-                        _mm_and_si128(cond_all, vWmatch));
-                vMaxLength = _mm_andnot_si128(cond_all, vMaxLength);
-                vMaxLength = _mm_or_si128(vMaxLength,
-                        _mm_and_si128(cond_all, vWlength));
+                vMaxScore = _mm_blendv_epi8_rpl(vMaxScore, vWscore, cond_all);
+                vMaxMatch = _mm_blendv_epi8_rpl(vMaxMatch, vWmatch, cond_all);
+                vMaxSimilar = _mm_blendv_epi8_rpl(vMaxSimilar, vWsimilar, cond_all);
+                vMaxLength = _mm_blendv_epi8_rpl(vMaxLength, vWlength, cond_all);
             }
             vJ = _mm_add_epi16(vJ, vOne);
         }
@@ -307,18 +331,24 @@ parasail_result_t* FNAME(
         if (value > score) {
             score = value;
             matches = (int16_t) _mm_extract_epi16(vMaxMatch, 7);
-            length= (int16_t) _mm_extract_epi16(vMaxLength,7);
+            similar = (int16_t) _mm_extract_epi16(vMaxSimilar, 7);
+            length= (int16_t) _mm_extract_epi16(vMaxLength, 7);
         }
         vMaxScore = _mm_slli_si128(vMaxScore, 2);
         vMaxMatch = _mm_slli_si128(vMaxMatch, 2);
+        vMaxSimilar = _mm_slli_si128(vMaxSimilar, 2);
         vMaxLength = _mm_slli_si128(vMaxLength, 2);
     }
 
+    
+
     result->score = score;
     result->matches = matches;
+    result->similar = similar;
     result->length = length;
 
     parasail_free(_len_pr);
+    parasail_free(_sim_pr);
     parasail_free(_mch_pr);
     parasail_free(_del_pr);
     parasail_free(_tbl_pr);
@@ -327,4 +357,5 @@ parasail_result_t* FNAME(
 
     return result;
 }
+
 

@@ -123,7 +123,7 @@ parasail_result_t* FNAME(
     __m128i vJLimit1 = _mm_sub_epi64(vJLimit, vOne);
     __m128i vIBoundary = _mm_set_epi64x(
             -open-0*gap,
-           -open-1*gap
+            -open-1*gap
             );
     
 

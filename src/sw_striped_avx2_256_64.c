@@ -21,8 +21,6 @@
 
 #define NEG_INF (INT64_MIN/(int64_t)(2))
 
-#define _mm256_slli_si256_rpl(a,imm) _mm256_alignr_epi8(a, _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,3,0)), 16-imm)
-
 static inline __m256i _mm256_max_epi64_rpl(__m256i a, __m256i b) {
     __m256i_64_t A;
     __m256i_64_t B;
@@ -34,6 +32,8 @@ static inline __m256i _mm256_max_epi64_rpl(__m256i a, __m256i b) {
     A.v[3] = (A.v[3]>B.v[3]) ? A.v[3] : B.v[3];
     return A.m;
 }
+
+#define _mm256_slli_si256_rpl(a,imm) _mm256_alignr_epi8(a, _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,3,0)), 16-imm)
 
 
 #ifdef PARASAIL_TABLE

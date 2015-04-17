@@ -106,9 +106,9 @@ parasail_result_t* FNAME(
     __m256i vJLimit1 = _mm256_sub_epi64(vJLimit, vOne);
     __m256i vIBoundary = _mm256_set_epi64x(
             -open-0*gap,
-           -open-1*gap,
-           -open-2*gap,
-           -open-3*gap
+            -open-1*gap,
+            -open-2*gap,
+            -open-3*gap
             );
     
 

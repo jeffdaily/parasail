@@ -278,9 +278,10 @@ int main(int argc, char **argv)
     char *endptr = NULL;
     char *filename = NULL;
     int c = 0;
+    int test_scores = 1;
     int test_stats = 0;
 
-    while ((c = getopt(argc, argv, "f:n:vs")) != -1) {
+    while ((c = getopt(argc, argv, "f:n:vsS")) != -1) {
         switch (c) {
             case 'f':
                 filename = optarg;
@@ -298,6 +299,9 @@ int main(int argc, char **argv)
                 break;
             case 's':
                 test_stats = 1;
+                break;
+            case 'S':
+                test_scores = 0;
                 break;
             case '?':
                 if (optopt == 'f' || optopt == 'n') {
@@ -335,9 +339,11 @@ int main(int argc, char **argv)
 
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        check_functions(nw_table_sse2, sequences, sizes, limit);
-        check_functions(sg_table_sse2, sequences, sizes, limit);
-        check_functions(sw_table_sse2, sequences, sizes, limit);
+        if (test_scores) {
+            check_functions(nw_table_sse2, sequences, sizes, limit);
+            check_functions(sg_table_sse2, sequences, sizes, limit);
+            check_functions(sw_table_sse2, sequences, sizes, limit);
+        }
         if (test_stats) {
             check_functions(nw_stats_table_sse2, sequences, sizes, limit);
             check_functions(sg_stats_table_sse2, sequences, sizes, limit);
@@ -348,9 +354,11 @@ int main(int argc, char **argv)
 
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        check_functions(nw_table_sse41, sequences, sizes, limit);
-        check_functions(sg_table_sse41, sequences, sizes, limit);
-        check_functions(sw_table_sse41, sequences, sizes, limit);
+        if (test_scores) {
+            check_functions(nw_table_sse41, sequences, sizes, limit);
+            check_functions(sg_table_sse41, sequences, sizes, limit);
+            check_functions(sw_table_sse41, sequences, sizes, limit);
+        }
         if (test_stats) {
             check_functions(nw_stats_table_sse41, sequences, sizes, limit);
             check_functions(sg_stats_table_sse41, sequences, sizes, limit);
@@ -361,9 +369,11 @@ int main(int argc, char **argv)
 
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        check_functions(nw_table_avx2, sequences, sizes, limit);
-        check_functions(sg_table_avx2, sequences, sizes, limit);
-        check_functions(sw_table_avx2, sequences, sizes, limit);
+        if (test_scores) {
+            check_functions(nw_table_avx2, sequences, sizes, limit);
+            check_functions(sg_table_avx2, sequences, sizes, limit);
+            check_functions(sw_table_avx2, sequences, sizes, limit);
+        }
         if (test_stats) {
             check_functions(nw_stats_table_avx2, sequences, sizes, limit);
             check_functions(sg_stats_table_avx2, sequences, sizes, limit);
@@ -374,9 +384,11 @@ int main(int argc, char **argv)
 
 #if HAVE_KNC
     {
-        check_functions(nw_table_knc, sequences, sizes, limit);
-        check_functions(sg_table_knc, sequences, sizes, limit);
-        check_functions(sw_table_knc, sequences, sizes, limit);
+        if (test_scores) {
+            check_functions(nw_table_knc, sequences, sizes, limit);
+            check_functions(sg_table_knc, sequences, sizes, limit);
+            check_functions(sw_table_knc, sequences, sizes, limit);
+        }
         if (test_stats) {
             check_functions(nw_stats_table_knc, sequences, sizes, limit);
             check_functions(sg_stats_table_knc, sequences, sizes, limit);

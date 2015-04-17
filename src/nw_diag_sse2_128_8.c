@@ -159,21 +159,21 @@ parasail_result_t* FNAME(
     __m128i vJLimit1 = _mm_subs_epi8(vJLimit, vOne);
     __m128i vIBoundary = _mm_set_epi8(
             -open-0*gap,
-           -open-1*gap,
-           -open-2*gap,
-           -open-3*gap,
-           -open-4*gap,
-           -open-5*gap,
-           -open-6*gap,
-           -open-7*gap,
-           -open-8*gap,
-           -open-9*gap,
-           -open-10*gap,
-           -open-11*gap,
-           -open-12*gap,
-           -open-13*gap,
-           -open-14*gap,
-           -open-15*gap
+            -open-1*gap,
+            -open-2*gap,
+            -open-3*gap,
+            -open-4*gap,
+            -open-5*gap,
+            -open-6*gap,
+            -open-7*gap,
+            -open-8*gap,
+            -open-9*gap,
+            -open-10*gap,
+            -open-11*gap,
+            -open-12*gap,
+            -open-13*gap,
+            -open-14*gap,
+            -open-15*gap
             );
     __m128i vNegLimit = _mm_set1_epi8(INT8_MIN);
     __m128i vPosLimit = _mm_set1_epi8(INT8_MAX);

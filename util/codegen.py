@@ -34,11 +34,17 @@ template_filenames = [
 "sw_diag.c",
 "sw_scan.c",
 "sw_striped.c",
+
+"nw_stats_diag.c",
+"sg_stats_diag.c",
+"sw_stats_diag.c",
+"sg_stats_striped.c",
 ]
 
 special_templates = [
 "sg_diag_8.c",
 "sw_diag_8.c",
+"sw_stats_diag_8.c",
 ]
 
 
@@ -75,10 +81,12 @@ def generate_printer(params):
 def generate_saturation_check_old(params):
     width = params["WIDTH"]
     if width == 8:
+        
         params["SATURATION_CHECK_INIT"] = """
     %(VTYPE)s vSaturationCheck = %(VSET0)s();
     %(VTYPE)s vNegLimit = %(VSET1)s(INT8_MIN);
     %(VTYPE)s vPosLimit = %(VSET1)s(INT8_MAX);""".strip() % params
+
         params["SATURATION_CHECK_MID"] = """
             /* check for saturation */
             {
@@ -87,11 +95,33 @@ def generate_saturation_check_old(params):
                             %(VCMPEQ)s(vH, vNegLimit),
                             %(VCMPEQ)s(vH, vPosLimit)));
             }""".strip() % params
+            
         params["SATURATION_CHECK_FINAL"] = """
     if (%(VMOVEMASK)s(vSaturationCheck)) {
         result->saturated = 1;
         score = INT8_MAX;
     }""".strip() % params
+
+        params["STATS_SATURATION_CHECK_INIT"] = """
+    %(VTYPE)s vSaturationCheck = %(VSET0)s();
+    %(VTYPE)s vNegLimit = %(VSET1)s(INT8_MIN);
+    %(VTYPE)s vPosLimit = %(VSET1)s(INT8_MAX);""".strip() % params
+
+        params["STATS_SATURATION_CHECK_MID"] = """
+            /* check for saturation */
+            {
+                vSaturationCheck = %(VOR)s(vSaturationCheck,
+                        %(VOR)s(
+                            %(VCMPEQ)s(vH, vNegLimit),
+                            %(VCMPEQ)s(vH, vPosLimit)));
+            }""".strip() % params
+
+        params["STATS_SATURATION_CHECK_FINAL"] = """
+    if (%(VMOVEMASK)s(vSaturationCheck)) {
+        result->saturated = 1;
+        score = INT8_MAX;
+    }""".strip() % params
+
         params["NEG_INF"] = "INT8_MIN"
         params["VADD"] = params["VADDSx8"]
         params["VSUB"] = params["VSUBSx8"]
@@ -99,6 +129,9 @@ def generate_saturation_check_old(params):
         params["SATURATION_CHECK_INIT"] = ""
         params["SATURATION_CHECK_MID"] = ""
         params["SATURATION_CHECK_FINAL"] = ""
+        params["STATS_SATURATION_CHECK_INIT"] = ""
+        params["STATS_SATURATION_CHECK_MID"] = ""
+        params["STATS_SATURATION_CHECK_FINAL"] = ""
     return params
 
 
@@ -124,6 +157,7 @@ def generate_saturation_check(params):
                 vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vH);
                 vSaturationCheckMin = %(VMIN)s(vSaturationCheckMin, vH);
             }""".strip() % params
+
         params["SATURATION_CHECK_FINAL"] = """
     if (%(VMOVEMASK)s(%(VOR)s(
             %(VCMPEQ)s(vSaturationCheckMin, vNegLimit),
@@ -131,6 +165,44 @@ def generate_saturation_check(params):
         result->saturated = 1;
         score = INT8_MAX;
     }""".strip() % params
+
+        params["STATS_SATURATION_CHECK_INIT"] = """
+    %(VTYPE)s vNegLimit = %(VSET1)s(INT8_MIN);
+    %(VTYPE)s vPosLimit = %(VSET1)s(INT8_MAX);
+    %(VTYPE)s vSaturationCheckMin = vPosLimit;
+    %(VTYPE)s vSaturationCheckMax = vNegLimit;""".strip() % params
+        if "diag" in params["NAME"]:
+            params["STATS_SATURATION_CHECK_MID"] = """
+            /* check for saturation */
+            {
+                vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vWscore);
+                vSaturationCheckMin = %(VMIN)s(vSaturationCheckMin, vWscore);
+                vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vWmatch);
+                vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vWsimilar);
+                vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vWlength);
+            }""".strip() % params
+        else:
+            params["STATS_SATURATION_CHECK_MID"] = """
+            /* check for saturation */
+            {
+                vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vH);
+                vSaturationCheckMin = %(VMIN)s(vSaturationCheckMin, vH);
+                vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vHM);
+                vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vHS);
+                vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vHL);
+            }""".strip() % params
+
+        params["STATS_SATURATION_CHECK_FINAL"] = """
+    if (%(VMOVEMASK)s(%(VOR)s(
+            %(VCMPEQ)s(vSaturationCheckMin, vNegLimit),
+            %(VCMPEQ)s(vSaturationCheckMax, vPosLimit)))) {
+        result->saturated = 1;
+        score = INT8_MAX;
+        matches = 0;
+        similar = 0;
+        length = 0;
+    }""".strip() % params
+
         params["NEG_INF"] = "INT8_MIN"
         params["VADD"] = params["VADDSx8"]
         params["VSUB"] = params["VSUBSx8"]
@@ -142,6 +214,9 @@ def generate_saturation_check(params):
         params["SATURATION_CHECK_INIT"] = ""
         params["SATURATION_CHECK_MID"] = ""
         params["SATURATION_CHECK_FINAL"] = ""
+        params["STATS_SATURATION_CHECK_INIT"] = ""
+        params["STATS_SATURATION_CHECK_MID"] = ""
+        params["STATS_SATURATION_CHECK_FINAL"] = ""
     return params
 
 
@@ -153,8 +228,11 @@ def generated_params_diag(params):
     params["DIAG_J"] = ",".join(["%d"%-i for i in range(lanes)])
     params["DIAG_JLO"] = ",".join(["%d"%-i for i in range(lanes/2,lanes)])
     params["DIAG_JHI"] = ",".join(["%d"%-i for i in range(lanes/2)])
-    params["DIAG_IBoundary"] = "           ".join(
+    params["DIAG_IBoundary"] = "            ".join(
             ["-open-%d*gap,\n"%(i)
+                for i in range(lanes)])[:-2]
+    params["DIAG_VS1"] = "                ".join(
+            ["s1[i+%d],\n"%i
                 for i in range(lanes)])[:-2]
     params["DIAG_MATROW_DECL"] = "        ".join(
             ["const int * const restrict matrow%d = matrix[s1[i+%d]];\n"%(i,i)
@@ -213,10 +291,17 @@ for template_filename in template_filenames:
         for isa in [sse2,sse41,avx2]:
             params = copy.deepcopy(isa)
             params["WIDTH"] = width
-            function_name = "%s_%s%s_%s_%s" % (template_filename[:-2],
+            prefix = template_filename[:-2]
+            parts = prefix.split('_')
+            table_prefix = ""
+            if len(parts) == 2:
+                table_prefix = "%s_table_%s" % (parts[0], parts[1])
+            if len(parts) == 3:
+                table_prefix = "%s_%s_table_%s" % (parts[0], parts[1], parts[2])
+            function_name = "%s_%s%s_%s_%s" % (prefix,
                     isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
-            function_table_name = "%s_table_%s" % (
-                    function_name[:2], function_name[3:])
+            function_table_name = "%s_%s%s_%s_%s" % (table_prefix,
+                    isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
             params["NAME"] = function_name
             params["NAME_TABLE"] = function_table_name
             params = generated_params(params)
@@ -231,16 +316,23 @@ for template_filename in template_filenames:
 # some templates have specializations for certain bit widths, e.g., 8
 for template_filename in special_templates:
     template = open(template_dir+template_filename).read()
-    parts = template_filename[:-2].split('_')
+    prefix = template_filename[:-2]
+    parts = prefix.split('_')
     width = int(parts[-1])
-    template_filename = "_".join(parts[:-1])+".c"
+    parts = parts[:-1]
+    prefix = "_".join(parts)
+    table_prefix = ""
+    if len(parts) == 2:
+        table_prefix = "%s_table_%s" % (parts[0], parts[1])
+    if len(parts) == 3:
+        table_prefix = "%s_%s_table_%s" % (parts[0], parts[1], parts[2])
     for isa in [sse2,sse41,avx2]:
         params = copy.deepcopy(isa)
         params["WIDTH"] = width
-        function_name = "%s_%s%s_%s_%s" % (template_filename[:-2],
+        function_name = "%s_%s%s_%s_%s" % (prefix,
                 isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
-        function_table_name = "%s_table_%s" % (
-                function_name[:2], function_name[3:])
+        function_table_name = "%s_%s%s_%s_%s" % (table_prefix,
+                isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
         params["NAME"] = function_name
         params["NAME_TABLE"] = function_table_name
         params = generated_params(params)

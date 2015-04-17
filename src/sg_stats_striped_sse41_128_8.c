@@ -20,7 +20,8 @@
 #include "parasail_internal_sse.h"
 #include "blosum/blosum_map.h"
 
-#define NEG_INF_8 (INT8_MIN)
+#define NEG_INF INT8_MIN
+
 
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si128(
@@ -88,20 +89,21 @@ parasail_result_t* FNAME(
     __m128i* const restrict pvEL      = parasail_memalign___m128i(16, segLen);
     __m128i vGapO = _mm_set1_epi8(open);
     __m128i vGapE = _mm_set1_epi8(gap);
-    __m128i vNegInf = _mm_set1_epi8(NEG_INF_8);
+    __m128i vNegInf = _mm_set1_epi8(NEG_INF);
     __m128i vZero = _mm_setzero_si128();
     __m128i vOne = _mm_set1_epi8(1);
-    int8_t score = NEG_INF_8;
-    int8_t matches = NEG_INF_8;
-    int8_t similar = NEG_INF_8;
-    int8_t length = NEG_INF_8;
+    int8_t score = NEG_INF;
+    int8_t matches = NEG_INF;
+    int8_t similar = NEG_INF;
+    int8_t length = NEG_INF;
+    __m128i vNegLimit = _mm_set1_epi8(INT8_MIN);
+    __m128i vPosLimit = _mm_set1_epi8(INT8_MAX);
+    __m128i vSaturationCheckMin = vPosLimit;
+    __m128i vSaturationCheckMax = vNegLimit;
     __m128i vMaxH = vNegInf;
     __m128i vMaxHM = vNegInf;
     __m128i vMaxHS = vNegInf;
     __m128i vMaxHL = vNegInf;
-    __m128i vSaturationCheck = _mm_setzero_si128();
-    __m128i vNegLimit = _mm_set1_epi8(INT8_MIN);
-    __m128i vPosLimit = _mm_set1_epi8(INT8_MAX);
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table3(segLen*segWidth, s2Len);
 #else
@@ -260,19 +262,13 @@ parasail_result_t* FNAME(
                         _mm_and_si128(case3, _mm_adds_epi8(vEL, vOne))),
                     case1not);
             _mm_store_si128(pvHLStore + i, vHL);
-
             /* check for saturation */
             {
-                vSaturationCheck = _mm_or_si128(vSaturationCheck,
-                        _mm_or_si128(
-                            _mm_or_si128(
-                                _mm_cmpeq_epi8(vH, vNegLimit),
-                                _mm_cmpeq_epi8(vH, vPosLimit)),
-                            _mm_or_si128(
-                                _mm_cmpeq_epi8(vHM, vPosLimit),
-                                _mm_or_si128(
-                                    _mm_cmpeq_epi8(vHS, vPosLimit),
-                                    _mm_cmpeq_epi8(vHL, vPosLimit)))));
+                vSaturationCheckMax = _mm_max_epi8(vSaturationCheckMax, vH);
+                vSaturationCheckMin = _mm_min_epi8(vSaturationCheckMin, vH);
+                vSaturationCheckMax = _mm_max_epi8(vSaturationCheckMax, vHM);
+                vSaturationCheckMax = _mm_max_epi8(vSaturationCheckMax, vHS);
+                vSaturationCheckMax = _mm_max_epi8(vSaturationCheckMax, vHL);
             }
 #ifdef PARASAIL_TABLE
             arr_store_si128(result->matches_table, vHM, i, segLen, j, s2Len);
@@ -345,19 +341,6 @@ parasail_result_t* FNAME(
                 vH = _mm_load_si128(pvHStore + i);
                 vH = _mm_max_epi8(vH,vF);
                 _mm_store_si128(pvHStore + i, vH);
-                /* check for saturation */
-                {
-                    vSaturationCheck = _mm_or_si128(vSaturationCheck,
-                            _mm_or_si128(
-                                _mm_or_si128(
-                                    _mm_cmpeq_epi8(vH, vNegLimit),
-                                    _mm_cmpeq_epi8(vH, vPosLimit)),
-                                _mm_or_si128(
-                                    _mm_cmpeq_epi8(vHM, vPosLimit),
-                                    _mm_or_si128(
-                                        _mm_cmpeq_epi8(vHS, vPosLimit),
-                                        _mm_cmpeq_epi8(vHL, vPosLimit)))));
-                }
 #ifdef PARASAIL_TABLE
                 arr_store_si128(result->matches_table, vHM, i, segLen, j, s2Len);
                 arr_store_si128(result->similar_table, vHS, i, segLen, j, s2Len);
@@ -444,7 +427,9 @@ end:
         }
     }
 
-    if (_mm_movemask_epi8(vSaturationCheck)) {
+    if (_mm_movemask_epi8(_mm_or_si128(
+            _mm_cmpeq_epi8(vSaturationCheckMin, vNegLimit),
+            _mm_cmpeq_epi8(vSaturationCheckMax, vPosLimit)))) {
         result->saturated = 1;
         score = INT8_MAX;
         matches = 0;
@@ -476,4 +461,5 @@ end:
 
     return result;
 }
+
 

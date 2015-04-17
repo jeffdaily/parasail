@@ -103,13 +103,13 @@ parasail_result_t* FNAME(
     __m128i vJLimit1 = _mm_sub_epi16(vJLimit, vOne);
     __m128i vIBoundary = _mm_set_epi16(
             -open-0*gap,
-           -open-1*gap,
-           -open-2*gap,
-           -open-3*gap,
-           -open-4*gap,
-           -open-5*gap,
-           -open-6*gap,
-           -open-7*gap
+            -open-1*gap,
+            -open-2*gap,
+            -open-3*gap,
+            -open-4*gap,
+            -open-5*gap,
+            -open-6*gap,
+            -open-7*gap
             );
     
 

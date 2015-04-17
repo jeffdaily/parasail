@@ -20,7 +20,8 @@
 #include "parasail_internal_sse.h"
 #include "blosum/blosum_map.h"
 
-#define NEG_INF_16 (INT16_MIN/(int16_t)(2))
+#define NEG_INF (INT16_MIN/(int16_t)(2))
+
 
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si128(
@@ -81,12 +82,14 @@ parasail_result_t* FNAME(
     int16_t* const restrict boundary  = parasail_memalign_int16_t(16, s2Len+1);
     __m128i vGapO = _mm_set1_epi16(open);
     __m128i vGapE = _mm_set1_epi16(gap);
+    __m128i vNegInf = _mm_set1_epi16(NEG_INF);
     __m128i vZero = _mm_setzero_si128();
     __m128i vOne = _mm_set1_epi16(1);
-    int16_t score;
-    int16_t matches;
-    int16_t similar;
-    int16_t length;
+    int16_t score = NEG_INF;
+    int16_t matches = NEG_INF;
+    int16_t similar = NEG_INF;
+    int16_t length = NEG_INF;
+    
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table3(segLen*segWidth, s2Len);
 #else
@@ -129,8 +132,10 @@ parasail_result_t* FNAME(
             __m128i_16_t h;
             __m128i_16_t e;
             for (segNum=0; segNum<segWidth; ++segNum) {
-                h.v[segNum] = -open-gap*(segNum*segLen+i);
-                e.v[segNum] = NEG_INF_16;
+                int64_t tmp = -open-gap*(segNum*segLen+i);
+                h.v[segNum] = tmp < INT16_MIN ? INT16_MIN : tmp;
+                tmp = tmp - open;
+                e.v[segNum] = tmp < INT16_MIN ? INT16_MIN : tmp;
             }
             _mm_store_si128(&pvHStore[index], h.m);
             _mm_store_si128(&pvEStore[index], e.m);
@@ -142,7 +147,8 @@ parasail_result_t* FNAME(
     {
         boundary[0] = 0;
         for (i=1; i<=s2Len; ++i) {
-            boundary[i] = -open-gap*(i-1);
+            int64_t tmp = -open-gap*(i-1);
+            boundary[i] = tmp < INT16_MIN ? INT16_MIN : tmp;
         }
     }
 
@@ -167,7 +173,7 @@ parasail_result_t* FNAME(
 
         /* Initialize F value to neg inf.  Any errors to vH values will
          * be corrected in the Lazy_F loop.  */
-        vF = _mm_set1_epi16(NEG_INF_16);
+        vF = vNegInf;
         vFM = vZero;
         vFS = vZero;
         vFL = vZero;
@@ -210,7 +216,7 @@ parasail_result_t* FNAME(
             __m128i case2;
             __m128i case3;
 
-            vH = _mm_adds_epi16(vH, _mm_load_si128(vP + i));
+            vH = _mm_add_epi16(vH, _mm_load_si128(vP + i));
             vE = _mm_load_si128(pvELoad + i);
 
             /* determine which direction of length and match to
@@ -256,7 +262,7 @@ parasail_result_t* FNAME(
                         _mm_and_si128(case3, _mm_add_epi16(vEL, vOne))),
                     case1not);
             _mm_store_si128(pvHLStore + i, vHL);
-
+            
 #ifdef PARASAIL_TABLE
             arr_store_si128(result->matches_table, vHM, i, segLen, j, s2Len);
             arr_store_si128(result->similar_table, vHS, i, segLen, j, s2Len);
@@ -265,8 +271,8 @@ parasail_result_t* FNAME(
 #endif
 
             /* Update vE value. */
-            vH = _mm_subs_epi16(vH, vGapO);
-            vE = _mm_subs_epi16(vE, vGapE);
+            vH = _mm_sub_epi16(vH, vGapO);
+            vE = _mm_sub_epi16(vE, vGapE);
             vE = _mm_max_epi16(vE, vH);
             _mm_store_si128(pvEStore + i, vE);
             _mm_store_si128(pvEM + i, vHM);
@@ -274,7 +280,7 @@ parasail_result_t* FNAME(
             _mm_store_si128(pvEL + i, vHL);
 
             /* Update vF value. */
-            vF = _mm_subs_epi16(vF, vGapE);
+            vF = _mm_sub_epi16(vF, vGapE);
             vF = _mm_max_epi16(vF, vH);
             vFM = vHM;
             vFS = vHS;
@@ -291,9 +297,10 @@ parasail_result_t* FNAME(
          * then deletion, so don't update E(i, i), learn from SWPS3 */
         for (k=0; k<segWidth; ++k) {
             __m128i vHp = _mm_slli_si128(pvHLoad[segLen - 1], 2);
-            vHp = _mm_insert_epi16(vHp, boundary[j], 0);
+            int64_t tmp = boundary[j+1]-open;
+            int16_t tmp2 = tmp < INT16_MIN ? INT16_MIN : tmp;
             vF = _mm_slli_si128(vF, 2);
-            vF = _mm_insert_epi16(vF, boundary[j+1]-open, 0);
+            vF = _mm_insert_epi16(vF, tmp2, 0);
             vFM = _mm_slli_si128(vFM, 2);
             vFS = _mm_slli_si128(vFS, 2);
             vFL = _mm_slli_si128(vFL, 2);
@@ -304,7 +311,7 @@ parasail_result_t* FNAME(
 
                 /* need to know where match and length come from so
                  * recompute the cases as in the main loop */
-                vHp = _mm_adds_epi16(vHp, _mm_load_si128(vP + i));
+                vHp = _mm_add_epi16(vHp, _mm_load_si128(vP + i));
                 vE = _mm_load_si128(pvELoad + i);
                 case1not = _mm_or_si128(
                         _mm_cmplt_epi16(vHp,vF),_mm_cmplt_epi16(vHp,vE));
@@ -329,14 +336,15 @@ parasail_result_t* FNAME(
                 vH = _mm_load_si128(pvHStore + i);
                 vH = _mm_max_epi16(vH,vF);
                 _mm_store_si128(pvHStore + i, vH);
+                
 #ifdef PARASAIL_TABLE
                 arr_store_si128(result->matches_table, vHM, i, segLen, j, s2Len);
                 arr_store_si128(result->similar_table, vHS, i, segLen, j, s2Len);
                 arr_store_si128(result->length_table, vHL, i, segLen, j, s2Len);
                 arr_store_si128(result->score_table, vH, i, segLen, j, s2Len);
 #endif
-                vH = _mm_subs_epi16(vH, vGapO);
-                vF = _mm_subs_epi16(vF, vGapE);
+                vH = _mm_sub_epi16(vH, vGapO);
+                vF = _mm_sub_epi16(vF, vGapE);
                 if (! _mm_movemask_epi8(_mm_cmpgt_epi16(vF, vH))) goto end;
                 /*vF = _mm_max_epi16(vF, vH);*/
                 vFM = vHM;
@@ -368,6 +376,8 @@ end:
         length = (int16_t) _mm_extract_epi16 (vHL, 7);
     }
 
+    
+
     result->score = score;
     result->matches = matches;
     result->similar = similar;
@@ -393,4 +403,5 @@ end:
 
     return result;
 }
+
 

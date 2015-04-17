@@ -20,7 +20,8 @@
 #include "parasail_internal_sse.h"
 #include "blosum/blosum_map.h"
 
-#define NEG_INF_8 (INT8_MIN)
+#define NEG_INF INT8_MIN
+
 
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si128(
@@ -89,15 +90,17 @@ parasail_result_t* FNAME(
     int8_t* const restrict boundary  = parasail_memalign_int8_t(16, s2Len+1);
     __m128i vGapO = _mm_set1_epi8(open);
     __m128i vGapE = _mm_set1_epi8(gap);
+    __m128i vNegInf = _mm_set1_epi8(NEG_INF);
     __m128i vZero = _mm_setzero_si128();
     __m128i vOne = _mm_set1_epi8(1);
-    int8_t score;
-    int8_t matches;
-    int8_t similar;
-    int8_t length;
-    __m128i vSaturationCheck = _mm_setzero_si128();
+    int8_t score = NEG_INF;
+    int8_t matches = NEG_INF;
+    int8_t similar = NEG_INF;
+    int8_t length = NEG_INF;
     __m128i vNegLimit = _mm_set1_epi8(INT8_MIN);
     __m128i vPosLimit = _mm_set1_epi8(INT8_MAX);
+    __m128i vSaturationCheckMin = vPosLimit;
+    __m128i vSaturationCheckMax = vNegLimit;
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table3(segLen*segWidth, s2Len);
 #else
@@ -140,9 +143,10 @@ parasail_result_t* FNAME(
             __m128i_8_t h;
             __m128i_8_t e;
             for (segNum=0; segNum<segWidth; ++segNum) {
-                int32_t tmp = -open-gap*(segNum*segLen+i);
+                int64_t tmp = -open-gap*(segNum*segLen+i);
                 h.v[segNum] = tmp < INT8_MIN ? INT8_MIN : tmp;
-                e.v[segNum] = NEG_INF_8;
+                tmp = tmp - open;
+                e.v[segNum] = tmp < INT8_MIN ? INT8_MIN : tmp;
             }
             _mm_store_si128(&pvHStore[index], h.m);
             _mm_store_si128(&pvEStore[index], e.m);
@@ -154,7 +158,7 @@ parasail_result_t* FNAME(
     {
         boundary[0] = 0;
         for (i=1; i<=s2Len; ++i) {
-            int32_t tmp = -open-gap*(i-1);
+            int64_t tmp = -open-gap*(i-1);
             boundary[i] = tmp < INT8_MIN ? INT8_MIN : tmp;
         }
     }
@@ -180,7 +184,7 @@ parasail_result_t* FNAME(
 
         /* Initialize F value to neg inf.  Any errors to vH values will
          * be corrected in the Lazy_F loop.  */
-        vF = _mm_set1_epi8(NEG_INF_8);
+        vF = vNegInf;
         vFM = vZero;
         vFS = vZero;
         vFL = vZero;
@@ -229,8 +233,7 @@ parasail_result_t* FNAME(
             /* determine which direction of length and match to
              * propagate, before vH is finished calculating */
             case1not = _mm_or_si128(
-                    _mm_cmplt_epi8(vH,vF),
-                    _mm_cmplt_epi8(vH,vE));
+                    _mm_cmplt_epi8(vH,vF),_mm_cmplt_epi8(vH,vE));
             case2not = _mm_cmplt_epi8(vF,vE);
             case2 = _mm_andnot_si128(case2not,case1not);
             case3 = _mm_and_si128(case1not,case2not);
@@ -270,19 +273,13 @@ parasail_result_t* FNAME(
                         _mm_and_si128(case3, _mm_adds_epi8(vEL, vOne))),
                     case1not);
             _mm_store_si128(pvHLStore + i, vHL);
-
             /* check for saturation */
             {
-                vSaturationCheck = _mm_or_si128(vSaturationCheck,
-                        _mm_or_si128(
-                            _mm_or_si128(
-                                _mm_cmpeq_epi8(vH, vNegLimit),
-                                _mm_cmpeq_epi8(vH, vPosLimit)),
-                            _mm_or_si128(
-                                _mm_cmpeq_epi8(vHM, vPosLimit),
-                                _mm_or_si128(
-                                    _mm_cmpeq_epi8(vHS, vPosLimit),
-                                    _mm_cmpeq_epi8(vHL, vPosLimit)))));
+                vSaturationCheckMax = _mm_max_epi8(vSaturationCheckMax, vH);
+                vSaturationCheckMin = _mm_min_epi8(vSaturationCheckMin, vH);
+                vSaturationCheckMax = _mm_max_epi8(vSaturationCheckMax, vHM);
+                vSaturationCheckMax = _mm_max_epi8(vSaturationCheckMax, vHS);
+                vSaturationCheckMax = _mm_max_epi8(vSaturationCheckMax, vHL);
             }
 #ifdef PARASAIL_TABLE
             arr_store_si128(result->matches_table, vHM, i, segLen, j, s2Len);
@@ -318,9 +315,10 @@ parasail_result_t* FNAME(
          * then deletion, so don't update E(i, i), learn from SWPS3 */
         for (k=0; k<segWidth; ++k) {
             __m128i vHp = _mm_slli_si128(pvHLoad[segLen - 1], 1);
-            vHp = _mm_insert_epi8(vHp, boundary[j], 0);
+            int64_t tmp = boundary[j+1]-open;
+            int8_t tmp2 = tmp < INT8_MIN ? INT8_MIN : tmp;
             vF = _mm_slli_si128(vF, 1);
-            vF = _mm_insert_epi8(vF, boundary[j+1]-open, 0);
+            vF = _mm_insert_epi8(vF, tmp2, 0);
             vFM = _mm_slli_si128(vFM, 1);
             vFS = _mm_slli_si128(vFS, 1);
             vFL = _mm_slli_si128(vFL, 1);
@@ -357,18 +355,13 @@ parasail_result_t* FNAME(
                 vH = _mm_max_epi8(vH,vF);
                 _mm_store_si128(pvHStore + i, vH);
                 /* check for saturation */
-                {
-                    vSaturationCheck = _mm_or_si128(vSaturationCheck,
-                            _mm_or_si128(
-                                _mm_or_si128(
-                                    _mm_cmpeq_epi8(vH, vNegLimit),
-                                    _mm_cmpeq_epi8(vH, vPosLimit)),
-                                _mm_or_si128(
-                                    _mm_cmpeq_epi8(vHM, vPosLimit),
-                                    _mm_or_si128(
-                                        _mm_cmpeq_epi8(vHS, vPosLimit),
-                                        _mm_cmpeq_epi8(vHL, vPosLimit)))));
-                }
+            {
+                vSaturationCheckMax = _mm_max_epi8(vSaturationCheckMax, vH);
+                vSaturationCheckMin = _mm_min_epi8(vSaturationCheckMin, vH);
+                vSaturationCheckMax = _mm_max_epi8(vSaturationCheckMax, vHM);
+                vSaturationCheckMax = _mm_max_epi8(vSaturationCheckMax, vHS);
+                vSaturationCheckMax = _mm_max_epi8(vSaturationCheckMax, vHL);
+            }
 #ifdef PARASAIL_TABLE
                 arr_store_si128(result->matches_table, vHM, i, segLen, j, s2Len);
                 arr_store_si128(result->similar_table, vHS, i, segLen, j, s2Len);
@@ -408,7 +401,9 @@ end:
         length = (int8_t) _mm_extract_epi8 (vHL, 15);
     }
 
-    if (_mm_movemask_epi8(vSaturationCheck)) {
+    if (_mm_movemask_epi8(_mm_or_si128(
+            _mm_cmpeq_epi8(vSaturationCheckMin, vNegLimit),
+            _mm_cmpeq_epi8(vSaturationCheckMax, vPosLimit)))) {
         result->saturated = 1;
         score = INT8_MAX;
         matches = 0;
@@ -441,4 +436,5 @@ end:
 
     return result;
 }
+
 

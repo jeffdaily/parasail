@@ -22,8 +22,7 @@ keys = sse2.keys()
 
 # gather templates
 template_dir = "templates/"
-#template_filenames = [name for name in os.listdir(template_dir)
-#                      if name[-2:] == ".c"]
+
 template_filenames = [
 "nw_diag.c",
 "nw_scan.c",
@@ -38,7 +37,9 @@ template_filenames = [
 "nw_stats_diag.c",
 "sg_stats_diag.c",
 "sw_stats_diag.c",
+"nw_stats_striped.c",
 "sg_stats_striped.c",
+"sw_stats_striped.c",
 ]
 
 special_templates = [

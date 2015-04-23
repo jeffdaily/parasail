@@ -19,31 +19,35 @@
 #include "parasail_internal_sse.h"
 #include "blosum/blosum_map.h"
 
-#define NEG_INF_32 (INT32_MIN/(int32_t)(2))
+#define NEG_INF (INT32_MIN/(int32_t)(2))
 #define MAX(a,b) ((a)>(b)?(a):(b))
 
-/* sse2 does not have _mm_insert_epi32, emulate it */
-static inline __m128i _mm_insert_epi32(__m128i a, int32_t i, int imm) {
-    __m128i_32_t tmp;
-    tmp.m = a;
-    tmp.v[imm] = i;
-    return tmp.m;
+static inline __m128i _mm_blendv_epi8_rpl(__m128i a, __m128i b, __m128i mask) {
+    a = _mm_andnot_si128(mask, a);
+    a = _mm_or_si128(a, _mm_and_si128(mask, b));
+    return a;
 }
 
-/* sse2 does not have _mm_extract_epi32, emulate it */
-static inline int32_t _mm_extract_epi32(__m128i a, int imm) {
-    __m128i_32_t tmp;
-    tmp.m = a;
-    return tmp.v[imm];
+static inline __m128i _mm_insert_epi32_rpl(__m128i a, int32_t i, const int imm) {
+    __m128i_32_t A;
+    A.m = a;
+    A.v[imm] = i;
+    return A.m;
 }
 
-/* sse2 does not have _mm_max_epi32, emulate it */
-static inline __m128i _mm_max_epi32(__m128i a, __m128i b) {
-    __m128i mask = _mm_cmpgt_epi32(a,b);
-    a = _mm_and_si128(a,mask);
-    b = _mm_andnot_si128(mask,b);
-    return _mm_or_si128(a,b);
+static inline __m128i _mm_max_epi32_rpl(__m128i a, __m128i b) {
+    __m128i mask = _mm_cmpgt_epi32(a, b);
+    a = _mm_and_si128(a, mask);
+    b = _mm_andnot_si128(mask, b);
+    return _mm_or_si128(a, b);
 }
+
+static inline int32_t _mm_extract_epi32_rpl(__m128i a, const int imm) {
+    __m128i_32_t A;
+    A.m = a;
+    return A.v[imm];
+}
+
 
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si128(
@@ -54,10 +58,10 @@ static inline void arr_store_si128(
         int32_t d,
         int32_t dlen)
 {
-    array[(0*seglen+t)*dlen + d] = (int32_t)_mm_extract_epi32(vH, 0);
-    array[(1*seglen+t)*dlen + d] = (int32_t)_mm_extract_epi32(vH, 1);
-    array[(2*seglen+t)*dlen + d] = (int32_t)_mm_extract_epi32(vH, 2);
-    array[(3*seglen+t)*dlen + d] = (int32_t)_mm_extract_epi32(vH, 3);
+    array[(0*seglen+t)*dlen + d] = (int32_t)_mm_extract_epi32_rpl(vH, 0);
+    array[(1*seglen+t)*dlen + d] = (int32_t)_mm_extract_epi32_rpl(vH, 1);
+    array[(2*seglen+t)*dlen + d] = (int32_t)_mm_extract_epi32_rpl(vH, 2);
+    array[(3*seglen+t)*dlen + d] = (int32_t)_mm_extract_epi32_rpl(vH, 3);
 }
 #endif
 
@@ -75,9 +79,9 @@ parasail_result_t* FNAME(
     int32_t i = 0;
     int32_t j = 0;
     int32_t k = 0;
-    const int32_t n = 24; /* number of amino acids in table */
-    const int32_t segWidth = 4; /* number of values in vector unit */
     int32_t segNum = 0;
+    const int32_t n = 24; /* number of amino acids in table */
+    const int32_t segWidth = 4;
     const int32_t segLen = (s1Len + segWidth - 1) / segWidth;
     const int32_t offset = (s1Len - 1) % segLen;
     const int32_t position = (segWidth - 1) - (s1Len - 1) / segLen;
@@ -100,10 +104,12 @@ parasail_result_t* FNAME(
     __m128i vGapE = _mm_set1_epi32(gap);
     __m128i vZero = _mm_setzero_si128();
     __m128i vOne = _mm_set1_epi32(1);
-    int32_t score = 0;
+    __m128i vNegInf = _mm_set1_epi32(NEG_INF);
+    int32_t score = NEG_INF;
     int32_t matches = 0;
     int32_t similar = 0;
     int32_t length = 0;
+    
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table3(segLen*segWidth, s2Len);
 #else
@@ -128,7 +134,7 @@ parasail_result_t* FNAME(
                 for (segNum=0; segNum<segWidth; ++segNum) {
                     p.v[segNum] = j >= s1Len ? 0 : matrix[k][MAP_BLOSUM_[(unsigned char)s1[j]]];
                     m.v[segNum] = j >= s1Len ? 0 : (k == MAP_BLOSUM_[(unsigned char)s1[j]]);
-                    s.v[segNum] = (p.v[segNum] > 0);
+                    s.v[segNum] = p.v[segNum] > 0;
                     j += segLen;
                 }
                 _mm_store_si128(&pvP[index], p.m);
@@ -146,8 +152,9 @@ parasail_result_t* FNAME(
             __m128i_32_t h;
             __m128i_32_t e;
             for (segNum=0; segNum<segWidth; ++segNum) {
-                h.v[segNum] = -open-gap*(segNum*segLen+i);
-                e.v[segNum] = NEG_INF_32;
+                int64_t tmp = -open-gap*(segNum*segLen+i);
+                h.v[segNum] = tmp < INT32_MIN ? INT32_MIN : tmp;
+                e.v[segNum] = NEG_INF;
             }
             _mm_store_si128(&pvH[index], h.m);
             _mm_store_si128(&pvE[index], e.m);
@@ -159,7 +166,8 @@ parasail_result_t* FNAME(
     {
         boundary[0] = 0;
         for (i=1; i<=s2Len; ++i) {
-            boundary[i] = -open-gap*(i-1);
+            int64_t tmp = -open-gap*(i-1);
+            boundary[i] = tmp < INT32_MIN ? INT32_MIN : tmp;
         }
     }
 
@@ -190,7 +198,7 @@ parasail_result_t* FNAME(
         for (i=0; i<segLen; ++i) {
             vH = _mm_load_si128(pvH+i);
             vE = _mm_load_si128(pvE+i);
-            vE = _mm_max_epi32(
+            vE = _mm_max_epi32_rpl(
                     _mm_sub_epi32(vE, vGapE),
                     _mm_sub_epi32(vH, vGapO));
             _mm_store_si128(pvE+i, vE);
@@ -198,7 +206,7 @@ parasail_result_t* FNAME(
 
         /* calculate Ht */
         vH = _mm_slli_si128(_mm_load_si128(pvH+(segLen-1)), 4);
-        vH = _mm_insert_epi32(vH, boundary[j], 0);
+        vH = _mm_insert_epi32_rpl(vH, boundary[j], 0);
         vMp= _mm_slli_si128(_mm_load_si128(pvM+(segLen-1)), 4);
         vSp= _mm_slli_si128(_mm_load_si128(pvS+(segLen-1)), 4);
         vLp= _mm_slli_si128(_mm_load_si128(pvL+(segLen-1)), 4);
@@ -212,7 +220,7 @@ parasail_result_t* FNAME(
             vW = _mm_load_si128(pvW+i);
             /* compute */
             vH = _mm_add_epi32(vH, vW);
-            vHt = _mm_max_epi32(vH, vE);
+            vHt = _mm_max_epi32_rpl(vH, vE);
             /* statistics */
             vC = _mm_load_si128(pvC+i);
             vD = _mm_load_si128(pvD+i);
@@ -223,12 +231,9 @@ parasail_result_t* FNAME(
             vS = _mm_load_si128(pvS+i);
             vL = _mm_load_si128(pvL+i);
             vL = _mm_add_epi32(vL, vOne);
-            vMt = _mm_and_si128(vEx, vM);
-            vMt = _mm_or_si128(vMt, _mm_andnot_si128(vEx, vMp));
-            vSt = _mm_and_si128(vEx, vS);
-            vSt = _mm_or_si128(vSt, _mm_andnot_si128(vEx, vSp));
-            vLt = _mm_and_si128(vEx, vL);
-            vLt = _mm_or_si128(vLt, _mm_andnot_si128(vEx, vLp));
+            vMt = _mm_blendv_epi8_rpl(vMp, vM, vEx);
+            vSt = _mm_blendv_epi8_rpl(vSp, vS, vEx);
+            vLt = _mm_blendv_epi8_rpl(vLp, vL, vEx);
             /* store results */
             _mm_store_si128(pvHt+i, vHt);
             _mm_store_si128(pvEx+i, vEx);
@@ -244,11 +249,11 @@ parasail_result_t* FNAME(
 
         /* calculate Ft */
         vHt = _mm_slli_si128(_mm_load_si128(pvHt+(segLen-1)), 4);
-        vHt = _mm_insert_epi32(vHt, boundary[j+1], 0);
-        vFt = _mm_set1_epi32(NEG_INF_32);
+        vHt = _mm_insert_epi32_rpl(vHt, boundary[j+1], 0);
+        vFt = vNegInf;
         for (i=0; i<segLen; ++i) {
-            vFt = _mm_sub_epi32(vFt, vGapE),
-            vFt = _mm_max_epi32(vFt, vHt);
+            vFt = _mm_sub_epi32(vFt, vGapE);
+            vFt = _mm_max_epi32_rpl(vFt, vHt);
             vHt = _mm_load_si128(pvHt+i);
         }
         {
@@ -260,12 +265,12 @@ parasail_result_t* FNAME(
             vFt = tmp.m;
         }
         vHt = _mm_slli_si128(_mm_load_si128(pvHt+(segLen-1)), 4);
-        vHt = _mm_insert_epi32(vHt, boundary[j+1], 0);
+        vHt = _mm_insert_epi32_rpl(vHt, boundary[j+1], 0);
         vFt = _mm_slli_si128(vFt, 4);
-        vFt = _mm_insert_epi32(vFt, NEG_INF_32, 0);
+        vFt = _mm_insert_epi32_rpl(vFt, NEG_INF, 0);
         for (i=0; i<segLen; ++i) {
-            vFt = _mm_sub_epi32(vFt, vGapE),
-            vFt = _mm_max_epi32(vFt, vHt);
+            vFt = _mm_sub_epi32(vFt, vGapE);
+            vFt = _mm_max_epi32_rpl(vFt, vHt);
             vHt = _mm_load_si128(pvHt+i);
             _mm_store_si128(pvFt+i, vFt);
         }
@@ -282,7 +287,7 @@ parasail_result_t* FNAME(
             vFt = _mm_load_si128(pvFt+i);
             /* compute */
             vFt = _mm_sub_epi32(vFt, vGapO);
-            vH = _mm_max_epi32(vHt, vFt);
+            vH = _mm_max_epi32_rpl(vHt, vFt);
             /* statistics */
             vEx = _mm_load_si128(pvEx+i);
             vMt = _mm_load_si128(pvMt+i);
@@ -291,19 +296,17 @@ parasail_result_t* FNAME(
             vEx = _mm_or_si128(
                     _mm_and_si128(vEx, _mm_cmpeq_epi32(vHt, vFt)),
                     _mm_cmplt_epi32(vHt, vFt));
-            vM = _mm_and_si128(vEx, vMp);
-            vM = _mm_or_si128(vM, _mm_andnot_si128(vEx, vMt));
+            vM = _mm_blendv_epi8_rpl(vMt, vMp, vEx);
+            vS = _mm_blendv_epi8_rpl(vSt, vSp, vEx);
+            vL = _mm_blendv_epi8_rpl(vLt, vLp, vEx);
             vMp = vM;
-            vS = _mm_and_si128(vEx, vSp);
-            vS = _mm_or_si128(vS, _mm_andnot_si128(vEx, vSt));
             vSp = vS;
-            vL = _mm_and_si128(vEx, vLp);
-            vL = _mm_or_si128(vL, _mm_andnot_si128(vEx, vLt));
             vLp = _mm_add_epi32(vL, vOne);
             vC = _mm_and_si128(vC, vEx);
             /* store results */
             _mm_store_si128(pvH+i, vH);
             _mm_store_si128(pvEx+i, vEx);
+            
 #ifdef PARASAIL_TABLE
             arr_store_si128(result->score_table, vH, i, segLen, j, s2Len);
 #endif
@@ -341,19 +344,17 @@ parasail_result_t* FNAME(
             vMt = _mm_load_si128(pvMt+i);
             vSt = _mm_load_si128(pvSt+i);
             vLt = _mm_load_si128(pvLt+i);
-            vM = _mm_and_si128(vEx, vMp);
-            vM = _mm_or_si128(vM, _mm_andnot_si128(vEx, vMt));
+            vM = _mm_blendv_epi8_rpl(vMt, vMp, vEx);
+            vS = _mm_blendv_epi8_rpl(vSt, vSp, vEx);
+            vL = _mm_blendv_epi8_rpl(vLt, vLp, vEx);
             vMp = vM;
-            vS = _mm_and_si128(vEx, vSp);
-            vS = _mm_or_si128(vS, _mm_andnot_si128(vEx, vSt));
             vSp = vS;
-            vL = _mm_and_si128(vEx, vLp);
-            vL = _mm_or_si128(vL, _mm_andnot_si128(vEx, vLt));
             vLp = _mm_add_epi32(vL, vOne);
             /* store results */
             _mm_store_si128(pvM+i, vM);
             _mm_store_si128(pvS+i, vS);
             _mm_store_si128(pvL+i, vL);
+            
 #ifdef PARASAIL_TABLE
             arr_store_si128(result->matches_table, vM, i, segLen, j, s2Len);
             arr_store_si128(result->similar_table, vS, i, segLen, j, s2Len);
@@ -374,11 +375,13 @@ parasail_result_t* FNAME(
             vS = _mm_slli_si128(vS, 4);
             vL = _mm_slli_si128(vL, 4);
         }
-        score = (int32_t) _mm_extract_epi32 (vH, 3);
-        matches = (int32_t) _mm_extract_epi32 (vM, 3);
-        similar = (int32_t) _mm_extract_epi32 (vS, 3);
-        length = (int32_t) _mm_extract_epi32 (vL, 3);
+        score = (int32_t) _mm_extract_epi32_rpl (vH, 3);
+        matches = (int32_t) _mm_extract_epi32_rpl (vM, 3);
+        similar = (int32_t) _mm_extract_epi32_rpl (vS, 3);
+        length = (int32_t) _mm_extract_epi32_rpl (vL, 3);
     }
+
+    
 
     result->score = score;
     result->matches = matches;
@@ -403,4 +406,5 @@ parasail_result_t* FNAME(
 
     return result;
 }
+
 

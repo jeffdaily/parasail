@@ -291,6 +291,7 @@ parasail_result_t* FNAME(
             /* store results */
             _mm256_store_si256(pvH+i, vH);
             _mm256_store_si256(pvEx+i, vEx);
+            
 #ifdef PARASAIL_TABLE
             arr_store_si256(result->score_table, vH, i, segLen, j, s2Len);
 #endif

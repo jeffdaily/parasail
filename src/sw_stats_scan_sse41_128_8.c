@@ -302,6 +302,11 @@ parasail_result_t* FNAME(
             /* store results */
             _mm_store_si128(pvH+i, vH);
             _mm_store_si128(pvEx+i, vEx);
+            /* check for saturation */
+            {
+                vSaturationCheckMax = _mm_max_epi8(vSaturationCheckMax, vH);
+                vSaturationCheckMin = _mm_min_epi8(vSaturationCheckMin, vH);
+            }
 #ifdef PARASAIL_TABLE
             arr_store_si128(result->score_table, vH, i, segLen, j, s2Len);
 #endif
@@ -389,8 +394,6 @@ parasail_result_t* FNAME(
             _mm_store_si128(pvL+i, vL);
             /* check for saturation */
             {
-                vSaturationCheckMax = _mm_max_epi8(vSaturationCheckMax, vH);
-                vSaturationCheckMin = _mm_min_epi8(vSaturationCheckMin, vH);
                 vSaturationCheckMax = _mm_max_epi8(vSaturationCheckMax, vM);
                 vSaturationCheckMax = _mm_max_epi8(vSaturationCheckMax, vS);
                 vSaturationCheckMax = _mm_max_epi8(vSaturationCheckMax, vL);

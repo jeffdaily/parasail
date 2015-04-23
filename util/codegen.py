@@ -35,13 +35,13 @@ template_filenames = [
 "sw_striped.c",
 
 "nw_stats_diag.c",
-"sg_stats_diag.c",
-"sw_stats_diag.c",
-#"nw_stats_scan.c",
-"sg_stats_scan.c",
-"sw_stats_scan.c",
+"nw_stats_scan.c",
 "nw_stats_striped.c",
+"sg_stats_diag.c",
+"sg_stats_scan.c",
 "sg_stats_striped.c",
+"sw_stats_diag.c",
+"sw_stats_scan.c",
 "sw_stats_striped.c",
 ]
 
@@ -193,11 +193,15 @@ def generate_saturation_check(params):
                 vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vWlength);
             }""".strip() % params
         elif "scan" in params["NAME"]:
-            params["STATS_SATURATION_CHECK_MID"] = """
+            params["STATS_SATURATION_CHECK_MID1"] = """
             /* check for saturation */
             {
                 vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vH);
                 vSaturationCheckMin = %(VMIN)s(vSaturationCheckMin, vH);
+            }""".strip() % params
+            params["STATS_SATURATION_CHECK_MID2"] = """
+            /* check for saturation */
+            {
                 vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vM);
                 vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vS);
                 vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vL);
@@ -237,6 +241,8 @@ def generate_saturation_check(params):
         params["SATURATION_CHECK_FINAL"] = ""
         params["STATS_SATURATION_CHECK_INIT"] = ""
         params["STATS_SATURATION_CHECK_MID"] = ""
+        params["STATS_SATURATION_CHECK_MID1"] = ""
+        params["STATS_SATURATION_CHECK_MID2"] = ""
         params["STATS_SATURATION_CHECK_FINAL"] = ""
     return params
 
@@ -271,6 +277,9 @@ def generated_params_striped(params):
 def generated_params_scan(params):
     lanes = params["LANES"]
     if params["LANES"] / 10:
+        params["STATS_SCAN_VFT"] = ("    "*3).join(
+                ["tmp.v[%2d] = MAX(tmp.v[%2d]-segLen*gap, tmp.v[%2d]);\n"%(i,i-1,i)
+                    for i in range(1,lanes)])[:-1]
         params["STATS_SCAN_UMP"] = ("    "*4).join(
                 ["uMp.v[%2d] = uC.v[%2d] ? uMp.v[%2d] : uMp.v[%2d];\n"%(i,i,i-1,i)
                     for i in range(1,lanes)])[:-1]
@@ -282,6 +291,9 @@ def generated_params_scan(params):
                     i,i,i,i-1,i)
                     for i in range(1,lanes)])[:-1]
     else:
+        params["STATS_SCAN_VFT"] = ("    "*3).join(
+                ["tmp.v[%d] = MAX(tmp.v[%d]-segLen*gap, tmp.v[%d]);\n"%(i,i-1,i)
+                    for i in range(1,lanes)])[:-1]
         params["STATS_SCAN_UMP"] = ("    "*4).join(
                 ["uMp.v[%d] = uC.v[%d] ? uMp.v[%d] : uMp.v[%d];\n"%(i,i,i-1,i)
                     for i in range(1,lanes)])[:-1]

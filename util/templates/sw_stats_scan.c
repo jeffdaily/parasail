@@ -281,6 +281,7 @@ parasail_result_t* FNAME(
             /* store results */
             %(VSTORE)s(pvH+i, vH);
             %(VSTORE)s(pvEx+i, vEx);
+            %(STATS_SATURATION_CHECK_MID1)s
 #ifdef PARASAIL_TABLE
             arr_store_si%(BITS)s(result->score_table, vH, i, segLen, j, s2Len);
 #endif
@@ -324,7 +325,7 @@ parasail_result_t* FNAME(
             %(VSTORE)s(pvM+i, vM);
             %(VSTORE)s(pvS+i, vS);
             %(VSTORE)s(pvL+i, vL);
-            %(STATS_SATURATION_CHECK_MID)s
+            %(STATS_SATURATION_CHECK_MID2)s
 #ifdef PARASAIL_TABLE
             arr_store_si%(BITS)s(result->matches_table, vM, i, segLen, j, s2Len);
             arr_store_si%(BITS)s(result->similar_table, vS, i, segLen, j, s2Len);

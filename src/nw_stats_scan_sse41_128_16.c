@@ -20,8 +20,9 @@
 #include "parasail_internal_sse.h"
 #include "blosum/blosum_map.h"
 
-#define NEG_INF_16 (INT16_MIN/(int16_t)(2))
+#define NEG_INF (INT16_MIN/(int16_t)(2))
 #define MAX(a,b) ((a)>(b)?(a):(b))
+
 
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si128(
@@ -57,9 +58,9 @@ parasail_result_t* FNAME(
     int32_t i = 0;
     int32_t j = 0;
     int32_t k = 0;
-    const int32_t n = 24; /* number of amino acids in table */
-    const int32_t segWidth = 8; /* number of values in vector unit */
     int32_t segNum = 0;
+    const int32_t n = 24; /* number of amino acids in table */
+    const int32_t segWidth = 8;
     const int32_t segLen = (s1Len + segWidth - 1) / segWidth;
     const int32_t offset = (s1Len - 1) % segLen;
     const int32_t position = (segWidth - 1) - (s1Len - 1) / segLen;
@@ -82,10 +83,12 @@ parasail_result_t* FNAME(
     __m128i vGapE = _mm_set1_epi16(gap);
     __m128i vZero = _mm_setzero_si128();
     __m128i vOne = _mm_set1_epi16(1);
-    int16_t score = 0;
+    __m128i vNegInf = _mm_set1_epi16(NEG_INF);
+    int16_t score = NEG_INF;
     int16_t matches = 0;
     int16_t similar = 0;
     int16_t length = 0;
+    
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table3(segLen*segWidth, s2Len);
 #else
@@ -128,8 +131,9 @@ parasail_result_t* FNAME(
             __m128i_16_t h;
             __m128i_16_t e;
             for (segNum=0; segNum<segWidth; ++segNum) {
-                h.v[segNum] = -open-gap*(segNum*segLen+i);
-                e.v[segNum] = NEG_INF_16;
+                int64_t tmp = -open-gap*(segNum*segLen+i);
+                h.v[segNum] = tmp < INT16_MIN ? INT16_MIN : tmp;
+                e.v[segNum] = NEG_INF;
             }
             _mm_store_si128(&pvH[index], h.m);
             _mm_store_si128(&pvE[index], e.m);
@@ -141,7 +145,8 @@ parasail_result_t* FNAME(
     {
         boundary[0] = 0;
         for (i=1; i<=s2Len; ++i) {
-            boundary[i] = -open-gap*(i-1);
+            int64_t tmp = -open-gap*(i-1);
+            boundary[i] = tmp < INT16_MIN ? INT16_MIN : tmp;
         }
     }
 
@@ -224,9 +229,9 @@ parasail_result_t* FNAME(
         /* calculate Ft */
         vHt = _mm_slli_si128(_mm_load_si128(pvHt+(segLen-1)), 2);
         vHt = _mm_insert_epi16(vHt, boundary[j+1], 0);
-        vFt = _mm_set1_epi16(NEG_INF_16);
+        vFt = vNegInf;
         for (i=0; i<segLen; ++i) {
-            vFt = _mm_sub_epi16(vFt, vGapE),
+            vFt = _mm_sub_epi16(vFt, vGapE);
             vFt = _mm_max_epi16(vFt, vHt);
             vHt = _mm_load_si128(pvHt+i);
         }
@@ -245,9 +250,9 @@ parasail_result_t* FNAME(
         vHt = _mm_slli_si128(_mm_load_si128(pvHt+(segLen-1)), 2);
         vHt = _mm_insert_epi16(vHt, boundary[j+1], 0);
         vFt = _mm_slli_si128(vFt, 2);
-        vFt = _mm_insert_epi16(vFt, NEG_INF_16, 0);
+        vFt = _mm_insert_epi16(vFt, NEG_INF, 0);
         for (i=0; i<segLen; ++i) {
-            vFt = _mm_sub_epi16(vFt, vGapE),
+            vFt = _mm_sub_epi16(vFt, vGapE);
             vFt = _mm_max_epi16(vFt, vHt);
             vHt = _mm_load_si128(pvHt+i);
             _mm_store_si128(pvFt+i, vFt);
@@ -284,6 +289,7 @@ parasail_result_t* FNAME(
             /* store results */
             _mm_store_si128(pvH+i, vH);
             _mm_store_si128(pvEx+i, vEx);
+            
 #ifdef PARASAIL_TABLE
             arr_store_si128(result->score_table, vH, i, segLen, j, s2Len);
 #endif
@@ -343,6 +349,7 @@ parasail_result_t* FNAME(
             _mm_store_si128(pvM+i, vM);
             _mm_store_si128(pvS+i, vS);
             _mm_store_si128(pvL+i, vL);
+            
 #ifdef PARASAIL_TABLE
             arr_store_si128(result->matches_table, vM, i, segLen, j, s2Len);
             arr_store_si128(result->similar_table, vS, i, segLen, j, s2Len);
@@ -369,6 +376,8 @@ parasail_result_t* FNAME(
         length = (int16_t) _mm_extract_epi16 (vL, 7);
     }
 
+    
+
     result->score = score;
     result->matches = matches;
     result->similar = similar;
@@ -392,4 +401,5 @@ parasail_result_t* FNAME(
 
     return result;
 }
+
 

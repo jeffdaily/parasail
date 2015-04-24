@@ -245,10 +245,13 @@ def generate_saturation_check(params):
         params["NEG_INF"] = "INT8_MIN"
         params["VADD"] = params["VADDSx8"]
         params["VSUB"] = params["VSUBSx8"]
-        for p in ["VMAX", "VMIN"]:
-            if (params[p].endswith("_rpl")
-                    and params[p] not in params["FIXES"]):
-                params["FIXES"] += params[params[p]]
+        if "sw" in params["NAME"] and "striped" in params["NAME"]:
+            pass
+        else:
+            for p in ["VMAX", "VMIN"]:
+                if (params[p].endswith("_rpl")
+                        and params[p] not in params["FIXES"]):
+                    params["FIXES"] += params[params[p]]
     else:
         params["SATURATION_CHECK_INIT"] = ""
         params["SATURATION_CHECK_MID"] = ""

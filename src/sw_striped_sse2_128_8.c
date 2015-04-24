@@ -41,13 +41,6 @@ static inline int8_t _mm_extract_epi8_rpl(__m128i a, const int imm) {
     return A.v[imm];
 }
 
-static inline __m128i _mm_min_epi8_rpl(__m128i a, __m128i b) {
-    __m128i mask = _mm_cmpgt_epi8(b, a);
-    a = _mm_and_si128(a, mask);
-    b = _mm_andnot_si128(mask, b);
-    return _mm_or_si128(a, b);
-}
-
 
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si128(
@@ -102,9 +95,9 @@ parasail_result_t* FNAME(
     __m128i* const restrict pvE = parasail_memalign___m128i(16, segLen);
     __m128i vGapO = _mm_set1_epi8(open);
     __m128i vGapE = _mm_set1_epi8(gap);
-    int8_t score = INT8_MIN;
     int8_t bias = INT8_MIN;
-    __m128i vBias = _mm_set1_epi8(INT8_MIN);
+    int8_t score = bias;
+    __m128i vBias = _mm_set1_epi8(bias);
     __m128i vMaxH = vBias;
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);

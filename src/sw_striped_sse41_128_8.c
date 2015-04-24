@@ -76,9 +76,9 @@ parasail_result_t* FNAME(
     __m128i* const restrict pvE = parasail_memalign___m128i(16, segLen);
     __m128i vGapO = _mm_set1_epi8(open);
     __m128i vGapE = _mm_set1_epi8(gap);
-    int8_t score = INT8_MIN;
     int8_t bias = INT8_MIN;
-    __m128i vBias = _mm_set1_epi8(INT8_MIN);
+    int8_t score = bias;
+    __m128i vBias = _mm_set1_epi8(bias);
     __m128i vMaxH = vBias;
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);

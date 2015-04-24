@@ -1,7 +1,9 @@
 #!/usr/bin/python
 #
-# This file contains a C template for striped. The template is filled
-# in as appropriate for various instruction sets and integer precisions.
+# This file uses the C templates located in ./templates and fills them
+# in based on the infomation and script contained in this file.
+# The template is filled in as appropriate for various instruction sets
+# and integer precisions.
 #
 # author jeff.daily@pnnl.gov
 #

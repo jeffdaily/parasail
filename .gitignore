@@ -2,3 +2,6 @@ autom4te.cache/*
 bld*
 *~
 *.swp
+*.pyc
+util/generated/
+util/matrices/generated/

@@ -196,10 +196,11 @@ static void check_functions(
                     if (reference_result->score != result->score) {
 #pragma omp critical(printer)
                         {
-                            printf("%s(%lu,%lu,%d,%d,%s) wrong score\n",
+                            printf("%s(%lu,%lu,%d,%d,%s) wrong score (%d!=%d)\n",
                                     functions[function_index].name,
                                     a, b, open, extend,
-                                    blosums[blosum_index].name);
+                                    blosums[blosum_index].name,
+                                    reference_result->score, result->score);
                         }
                     }
                     if (diff_array(

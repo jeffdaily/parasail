@@ -60,9 +60,9 @@ parasail_result_t* FNAME(
     %(VTYPE)s* const restrict pvE = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
     %(VTYPE)s vGapO = %(VSET1)s(open);
     %(VTYPE)s vGapE = %(VSET1)s(gap);
-    %(INT)s score = INT%(WIDTH)s_MIN;
     %(INT)s bias = INT%(WIDTH)s_MIN;
-    %(VTYPE)s vBias = %(VSET1)s(INT%(WIDTH)s_MIN);
+    %(INT)s score = bias;
+    %(VTYPE)s vBias = %(VSET1)s(bias);
     %(VTYPE)s vMaxH = vBias;
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);

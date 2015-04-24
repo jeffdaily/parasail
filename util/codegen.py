@@ -53,6 +53,7 @@ special_templates = [
 
 bias_templates = [
 "sw_striped_bias.c",
+"sw_stats_striped_bias.c",
 ]
 
 

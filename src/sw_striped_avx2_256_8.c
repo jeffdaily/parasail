@@ -31,40 +31,41 @@ static inline void arr_store_si256(
         int32_t t,
         int32_t seglen,
         int32_t d,
-        int32_t dlen)
+        int32_t dlen,
+        int32_t bias)
 {
-    array[( 0*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH,  0);
-    array[( 1*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH,  1);
-    array[( 2*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH,  2);
-    array[( 3*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH,  3);
-    array[( 4*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH,  4);
-    array[( 5*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH,  5);
-    array[( 6*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH,  6);
-    array[( 7*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH,  7);
-    array[( 8*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH,  8);
-    array[( 9*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH,  9);
-    array[(10*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH, 10);
-    array[(11*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH, 11);
-    array[(12*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH, 12);
-    array[(13*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH, 13);
-    array[(14*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH, 14);
-    array[(15*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH, 15);
-    array[(16*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH, 16);
-    array[(17*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH, 17);
-    array[(18*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH, 18);
-    array[(19*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH, 19);
-    array[(20*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH, 20);
-    array[(21*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH, 21);
-    array[(22*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH, 22);
-    array[(23*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH, 23);
-    array[(24*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH, 24);
-    array[(25*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH, 25);
-    array[(26*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH, 26);
-    array[(27*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH, 27);
-    array[(28*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH, 28);
-    array[(29*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH, 29);
-    array[(30*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH, 30);
-    array[(31*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH, 31);
+    array[( 0*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH,  0) - bias;
+    array[( 1*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH,  1) - bias;
+    array[( 2*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH,  2) - bias;
+    array[( 3*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH,  3) - bias;
+    array[( 4*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH,  4) - bias;
+    array[( 5*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH,  5) - bias;
+    array[( 6*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH,  6) - bias;
+    array[( 7*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH,  7) - bias;
+    array[( 8*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH,  8) - bias;
+    array[( 9*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH,  9) - bias;
+    array[(10*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH, 10) - bias;
+    array[(11*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH, 11) - bias;
+    array[(12*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH, 12) - bias;
+    array[(13*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH, 13) - bias;
+    array[(14*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH, 14) - bias;
+    array[(15*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH, 15) - bias;
+    array[(16*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH, 16) - bias;
+    array[(17*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH, 17) - bias;
+    array[(18*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH, 18) - bias;
+    array[(19*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH, 19) - bias;
+    array[(20*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH, 20) - bias;
+    array[(21*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH, 21) - bias;
+    array[(22*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH, 22) - bias;
+    array[(23*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH, 23) - bias;
+    array[(24*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH, 24) - bias;
+    array[(25*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH, 25) - bias;
+    array[(26*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH, 26) - bias;
+    array[(27*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH, 27) - bias;
+    array[(28*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH, 28) - bias;
+    array[(29*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH, 29) - bias;
+    array[(30*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH, 30) - bias;
+    array[(31*seglen+t)*dlen + d] = (int8_t)_mm256_extract_epi8(vH, 31) - bias;
 }
 #endif
 
@@ -92,14 +93,10 @@ parasail_result_t* FNAME(
     __m256i* const restrict pvE = parasail_memalign___m256i(32, segLen);
     __m256i vGapO = _mm256_set1_epi8(open);
     __m256i vGapE = _mm256_set1_epi8(gap);
-    __m256i vZero = _mm256_setzero_si256();
-    __m256i vNegInf = _mm256_set1_epi8(NEG_INF);
-    int8_t score = NEG_INF;
-    __m256i vMaxH = vNegInf;
-    __m256i vNegLimit = _mm256_set1_epi8(INT8_MIN);
-    __m256i vPosLimit = _mm256_set1_epi8(INT8_MAX);
-    __m256i vSaturationCheckMin = vPosLimit;
-    __m256i vSaturationCheckMax = vNegLimit;
+    int8_t score = INT8_MIN;
+    int8_t bias = INT8_MIN;
+    __m256i vBias = _mm256_set1_epi8(INT8_MIN);
+    __m256i vMaxH = vBias;
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
@@ -132,8 +129,8 @@ parasail_result_t* FNAME(
             __m256i_8_t h;
             __m256i_8_t e;
             for (segNum=0; segNum<segWidth; ++segNum) {
-                h.v[segNum] = 0;
-                e.v[segNum] = -open;
+                h.v[segNum] = bias;
+                e.v[segNum] = bias;
             }
             _mm256_store_si256(&pvHStore[index], h.m);
             _mm256_store_si256(&pvE[index], e.m);
@@ -146,10 +143,11 @@ parasail_result_t* FNAME(
         __m256i vE;
         /* Initialize F value to 0.  Any errors to vH values will be
          * corrected in the Lazy_F loop.  */
-        __m256i vF = vZero;
+        __m256i vF = vBias;
 
         /* load final segment of pvHStore and shift left by 2 bytes */
         __m256i vH = _mm256_slli_si256_rpl(pvHStore[segLen - 1], 1);
+        vH = _mm256_insert_epi8(vH, bias, 0);
 
         /* Correct part of the vProfile */
         const __m256i* vP = vProfile + MAP_BLOSUM_[(unsigned char)s2[j]] * segLen;
@@ -167,16 +165,10 @@ parasail_result_t* FNAME(
             /* Get max from vH, vE and vF. */
             vH = _mm256_max_epi8(vH, vE);
             vH = _mm256_max_epi8(vH, vF);
-            vH = _mm256_max_epi8(vH, vZero);
             /* Save vH values. */
             _mm256_store_si256(pvHStore + i, vH);
-            /* check for saturation */
-            {
-                vSaturationCheckMax = _mm256_max_epi8(vSaturationCheckMax, vH);
-                vSaturationCheckMin = _mm256_min_epi8(vSaturationCheckMin, vH);
-            }
 #ifdef PARASAIL_TABLE
-            arr_store_si256(result->score_table, vH, i, segLen, j, s2Len);
+            arr_store_si256(result->score_table, vH, i, segLen, j, s2Len, bias);
 #endif
             vMaxH = _mm256_max_epi8(vH, vMaxH);
 
@@ -198,6 +190,7 @@ parasail_result_t* FNAME(
          * then deletion, so don't update E(i, i), learn from SWPS3 */
         for (k=0; k<segWidth; ++k) {
             vF = _mm256_slli_si256_rpl(vF, 1);
+            vF = _mm256_insert_epi8(vF, bias, 0);
             for (i=0; i<segLen; ++i) {
 #if ENABLE_CORRECTION_STATS
                 result->corrections += 1;
@@ -205,13 +198,8 @@ parasail_result_t* FNAME(
                 vH = _mm256_load_si256(pvHStore + i);
                 vH = _mm256_max_epi8(vH,vF);
                 _mm256_store_si256(pvHStore + i, vH);
-                /* check for saturation */
-            {
-                vSaturationCheckMax = _mm256_max_epi8(vSaturationCheckMax, vH);
-                vSaturationCheckMin = _mm256_min_epi8(vSaturationCheckMin, vH);
-            }
 #ifdef PARASAIL_TABLE
-                arr_store_si256(result->score_table, vH, i, segLen, j, s2Len);
+                arr_store_si256(result->score_table, vH, i, segLen, j, s2Len, bias);
 #endif
                 vMaxH = _mm256_max_epi8(vH, vMaxH);
                 vH = _mm256_subs_epi8(vH, vGapO);
@@ -234,14 +222,12 @@ end:
         vMaxH = _mm256_slli_si256_rpl(vMaxH, 1);
     }
 
-    if (_mm256_movemask_epi8(_mm256_or_si256(
-            _mm256_cmpeq_epi8(vSaturationCheckMin, vNegLimit),
-            _mm256_cmpeq_epi8(vSaturationCheckMax, vPosLimit)))) {
+    if (score == INT8_MAX) {
         result->saturated = 1;
         score = INT8_MAX;
     }
 
-    result->score = score;
+    result->score = score - bias;
 
     parasail_free(pvE);
     parasail_free(pvHLoad);

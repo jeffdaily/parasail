@@ -51,6 +51,10 @@ special_templates = [
 "sw_stats_diag_8.c",
 ]
 
+bias_templates = [
+"sw_striped_bias.c",
+]
+
 
 output_dir = "generated/"
 if not os.path.exists(output_dir):
@@ -59,6 +63,7 @@ if not os.path.exists(output_dir):
 
 def generate_printer(params):
     text = ""
+    bias = ""
     if "striped" in params["NAME"] or "scan" in params["NAME"]:
         for lane in range(params["LANES"]):
             params["LANE"] = lane
@@ -66,7 +71,12 @@ def generate_printer(params):
                 text += "    array[(%(LANE)2d*seglen+t)*dlen + d] = (%(INT)s)%(VEXTRACT)s(vH, %(LANE)2d);\n" % params
             else:
                 text += "    array[(%(LANE)s*seglen+t)*dlen + d] = (%(INT)s)%(VEXTRACT)s(vH, %(LANE)s);\n" % params
-        del params["LANE"]
+        for lane in range(params["LANES"]):
+            params["LANE"] = lane
+            if params["LANES"] / 10:
+                bias += "    array[(%(LANE)2d*seglen+t)*dlen + d] = (%(INT)s)%(VEXTRACT)s(vH, %(LANE)2d) - bias;\n" % params
+            else:
+                bias += "    array[(%(LANE)s*seglen+t)*dlen + d] = (%(INT)s)%(VEXTRACT)s(vH, %(LANE)s) - bias;\n" % params
     elif "diag" in params["NAME"]:
         for lane in range(params["LANES"]):
             params["LANE"] = lane
@@ -79,6 +89,7 @@ def generate_printer(params):
         print "bad printer name"
         sys.exit(1)
     params["PRINTER"] = text[:-1] # remove last newline
+    params["PRINTER_BIAS"] = bias[:-1] # remove last newline
     return params
 
 
@@ -399,3 +410,36 @@ for template_filename in special_templates:
         writer.write(template % params)
         writer.write("\n")
         writer.close()
+
+# some templates have specializations for using bias
+for template_filename in bias_templates:
+    template = open(template_dir+template_filename).read()
+    prefix = template_filename[:-2]
+    parts = prefix.split('_')
+    parts = parts[:-1]
+    prefix = "_".join(parts)
+    table_prefix = ""
+    if len(parts) == 2:
+        table_prefix = "%s_table_%s" % (parts[0], parts[1])
+    if len(parts) == 3:
+        table_prefix = "%s_%s_table_%s" % (parts[0], parts[1], parts[2])
+    for width in [16,8]:
+        for isa in [sse2,sse41,avx2]:
+            params = copy.deepcopy(isa)
+            params["WIDTH"] = width
+            function_name = "%s_%s%s_%s_%s" % (prefix,
+                    isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
+            function_table_name = "%s_%s%s_%s_%s" % (table_prefix,
+                    isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
+            params["NAME"] = function_name
+            params["NAME_TABLE"] = function_table_name
+            params = generated_params(params)
+            params["VADD"] = params["VADDSx%d"%width]
+            params["VSUB"] = params["VSUBSx%d"%width]
+            output_filename = "%s%s.c" % (output_dir, function_name)
+            result = template % params
+            writer = open(output_filename, "w")
+            writer.write(template % params)
+            writer.write("\n")
+            writer.close()
+

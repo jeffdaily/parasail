@@ -10,11 +10,13 @@
 #ifndef _PARASAIL_INTERNAL_H_
 #define _PARASAIL_INTERNAL_H_
 
-#include "config.h"
-
 #include <stdint.h>
 
 #include "parasail.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 void * parasail_memalign(size_t alignment, size_t size);
 int * parasail_memalign_int(size_t alignment, size_t size);
@@ -35,5 +37,9 @@ void parasail_memset_int64_t(int64_t *b, int64_t c, size_t len);
 parasail_result_t* parasail_result_new();
 parasail_result_t* parasail_result_new_table1(const int a, const int b);
 parasail_result_t* parasail_result_new_table3(const int a, const int b);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _PARASAIL_INTERNAL_H_ */

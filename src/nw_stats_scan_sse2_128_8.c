@@ -15,9 +15,9 @@
 #include <emmintrin.h>
 
 #include "parasail.h"
-#include "parasail_internal.h"
-#include "parasail_internal_sse.h"
-#include "blosum/blosum_map.h"
+#include "parasail/memory.h"
+#include "parasail/internal_sse.h"
+#include "parasail/matrices/blosum_map.h"
 
 #define NEG_INF INT8_MIN
 #define MAX(a,b) ((a)>(b)?(a):(b))
@@ -154,8 +154,8 @@ parasail_result_t* FNAME(
                 __m128i_8_t s;
                 j = i;
                 for (segNum=0; segNum<segWidth; ++segNum) {
-                    p.v[segNum] = j >= s1Len ? 0 : matrix[k][MAP_BLOSUM_[(unsigned char)s1[j]]];
-                    m.v[segNum] = j >= s1Len ? 0 : (k == MAP_BLOSUM_[(unsigned char)s1[j]]);
+                    p.v[segNum] = j >= s1Len ? 0 : matrix[k][parasail_blosum_map[(unsigned char)s1[j]]];
+                    m.v[segNum] = j >= s1Len ? 0 : (k == parasail_blosum_map[(unsigned char)s1[j]]);
                     s.v[segNum] = p.v[segNum] > 0;
                     j += segLen;
                 }
@@ -233,9 +233,9 @@ parasail_result_t* FNAME(
         vSp= _mm_slli_si128(_mm_load_si128(pvS+(segLen-1)), 1);
         vLp= _mm_slli_si128(_mm_load_si128(pvL+(segLen-1)), 1);
         vLp= _mm_adds_epi8(vLp, vOne);
-        pvW = pvP + MAP_BLOSUM_[(unsigned char)s2[j]]*segLen;
-        pvC = pvPm+ MAP_BLOSUM_[(unsigned char)s2[j]]*segLen;
-        pvD = pvPs+ MAP_BLOSUM_[(unsigned char)s2[j]]*segLen;
+        pvW = pvP + parasail_blosum_map[(unsigned char)s2[j]]*segLen;
+        pvC = pvPm+ parasail_blosum_map[(unsigned char)s2[j]]*segLen;
+        pvD = pvPs+ parasail_blosum_map[(unsigned char)s2[j]]*segLen;
         for (i=0; i<segLen; ++i) {
             /* load values we need */
             vE = _mm_load_si128(pvE+i);

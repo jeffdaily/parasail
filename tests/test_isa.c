@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 
-#include "parasail_cpuid.h"
+#include "parasail/cpuid.h"
 
 #define UNUSED(expr) do { (void)(expr); } while (0)
 

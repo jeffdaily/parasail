@@ -15,9 +15,9 @@
 #include <immintrin.h>
 
 #include "parasail.h"
-#include "parasail_internal.h"
-#include "parasail_internal_avx.h"
-#include "blosum/blosum_map.h"
+#include "parasail/memory.h"
+#include "parasail/internal_avx.h"
+#include "parasail/matrices/blosum_map.h"
 
 #define NEG_INF INT8_MIN
 
@@ -113,7 +113,7 @@ parasail_result_t* FNAME(
                 __m256i_8_t t;
                 j = i;
                 for (segNum=0; segNum<segWidth; ++segNum) {
-                    t.v[segNum] = j >= s1Len ? 0 : matrix[k][MAP_BLOSUM_[(unsigned char)s1[j]]];
+                    t.v[segNum] = j >= s1Len ? 0 : matrix[k][parasail_blosum_map[(unsigned char)s1[j]]];
                     j += segLen;
                 }
                 _mm256_store_si256(&vProfile[index], t.m);
@@ -150,7 +150,7 @@ parasail_result_t* FNAME(
         vH = _mm256_insert_epi8(vH, bias, 0);
 
         /* Correct part of the vProfile */
-        const __m256i* vP = vProfile + MAP_BLOSUM_[(unsigned char)s2[j]] * segLen;
+        const __m256i* vP = vProfile + parasail_blosum_map[(unsigned char)s2[j]] * segLen;
 
         /* Swap the 2 H buffers. */
         __m256i* pv = pvHLoad;

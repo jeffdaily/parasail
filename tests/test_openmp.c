@@ -22,19 +22,12 @@ KSEQ_INIT(int, read)
 #endif
 
 #include "parasail.h"
-#include "parasail_internal.h"
-#include "blosum/blosum40.h"
-#include "blosum/blosum45.h"
-#include "blosum/blosum50.h"
-#include "blosum/blosum62.h"
-#include "blosum/blosum75.h"
-#include "blosum/blosum80.h"
-#include "blosum/blosum90.h"
+#include "parasail/memory.h"
+#include "parasail/matrix_lookup.h"
 #include "stats.h"
 //#include "timer.h"
 #include "timer_real.h"
 
-#include "blosum_lookup.h"
 #include "function_lookup.h"
 
 #define UNUSED(expr) do { (void)(expr); } while (0)
@@ -70,7 +63,7 @@ parasail_result_t* parasail_ssw_(
     /* initialize score matrix */
     for (m = 0; m < s1_len; ++m) s1_num[m] = table[(int)s1[m]];
     for (m = 0; m < s2_len; ++m) s2_num[m] = table[(int)s2[m]];
-    profile = ssw_init(s1_num, s1_len, blosum62__, 24, score_size);
+    profile = ssw_init(s1_num, s1_len, parasail_blosum62, 24, score_size);
     ssw_result = ssw_align(profile, s2_num, s2_len, -open, -gap, 2, 0, 0, s1_len/2);
     result->score = ssw_result->score1;
     result->saturated = ssw_result->saturated;
@@ -224,8 +217,8 @@ int main(int argc, char **argv)
     parasail_function_t function1 = NULL;
     parasail_function_t function2 = NULL;
     int c = 0;
-    char *blosumname = NULL;
-    parasail_blosum_t blosum = blosum62;
+    char *matrixname = "blosum62";
+    parasail_matrix_t *matrix = NULL;
     int gap_open = 10;
     int gap_extend = 1;
     int N = 1;
@@ -253,7 +246,7 @@ int main(int argc, char **argv)
                 funcname2 = optarg;
                 break;
             case 'b':
-                blosumname = optarg;
+                matrixname = optarg;
                 break;
             case 'c':
                 errno = 0;
@@ -373,19 +366,11 @@ int main(int argc, char **argv)
         }
     }
 
-    /* select the blosum matrix */
-    if (blosumname) {
-        blosum = lookup_blosum(blosumname);
-        if (NULL == blosum) {
-            fprintf(stderr, "Specified blosum matrix not found.\n");
-            fprintf(stderr, "Choices are {"
-                    "blosum40,"
-                    "blosum45,"
-                    "blosum50,"
-                    "blosum62,"
-                    "blosum75,"
-                    "blosum80,"
-                    "blosum90}\n");
+    /* select the substitution matrix */
+    if (matrixname) {
+        matrix = parasail_matrix_lookup(matrixname);
+        if (NULL == matrix) {
+            fprintf(stderr, "Specified substitution matrix not found.\n");
             exit(1);
         }
     }
@@ -436,7 +421,7 @@ int main(int argc, char **argv)
                     parasail_result_t *result = function(
                             sequences_queries[i], sizes_queries[i],
                             sequences_database[j], sizes_database[j],
-                            gap_open, gap_extend, blosum);
+                            gap_open, gap_extend, matrix->matrix_);
 #pragma omp atomic
                     saturated_query += result->saturated;
 #if ENABLE_CORRECTION_STATS
@@ -498,7 +483,7 @@ int main(int argc, char **argv)
                     result = function(
                             sequences_database[a], query_size,
                             sequences_database[b], sizes_database[b],
-                            gap_open, gap_extend, blosum);
+                            gap_open, gap_extend, matrix->matrix_);
 #pragma omp atomic
                     saturated += result->saturated;
 #if ENABLE_CORRECTION_STATS
@@ -518,7 +503,7 @@ int main(int argc, char **argv)
             stats_sample_value(&stats_time, timer_clock);
         }
         printf("%s\t %s\t %d\t %d\t %d\t %d\t %llu\t %llu\t %f\t %f\t %f\t %f\n",
-                funcname1, blosumname, gap_open, gap_extend, N,
+                funcname1, matrixname, gap_open, gap_extend, N,
                 saturated,
 #if ENABLE_CORRECTION_STATS
                 corrections,

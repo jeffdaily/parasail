@@ -13,7 +13,7 @@
  */
 #include "config.h"
 
-#include "parasail_cpuid.h"
+#include "parasail/cpuid.h"
 
 #include <stdint.h>
 #if defined(_MSC_VER)

@@ -18,19 +18,12 @@
 KSEQ_INIT(int, read)
 
 #include "parasail.h"
-#include "parasail_internal.h"
-#include "blosum/blosum40.h"
-#include "blosum/blosum45.h"
-#include "blosum/blosum50.h"
-#include "blosum/blosum62.h"
-#include "blosum/blosum75.h"
-#include "blosum/blosum80.h"
-#include "blosum/blosum90.h"
+#include "parasail/memory.h"
+#include "parasail/matrix_lookup.h"
 #include "stats.h"
 //#include "timer.h"
 #include "timer_real.h"
 
-#include "blosum_lookup.h"
 #include "function_lookup.h"
 
 static inline size_t parse_sequences(
@@ -106,8 +99,8 @@ int main(int argc, char **argv)
     char *funcname = NULL;
     parasail_function_t function = NULL;
     int c = 0;
-    char *blosumname = NULL;
-    parasail_blosum_t blosum = blosum62;
+    const char *matrixname = "blosum62";
+    parasail_matrix_t *matrix = NULL;
     int gap_open = 10;
     int gap_extend = 1;
     int truncate = 0;
@@ -126,7 +119,7 @@ int main(int argc, char **argv)
                 funcname = optarg;
                 break;
             case 'b':
-                blosumname = optarg;
+                matrixname = optarg;
                 break;
             case 'f':
                 filename_database = optarg;
@@ -209,19 +202,11 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    /* select the blosum matrix */
-    if (blosumname) {
-        blosum = lookup_blosum(blosumname);
-        if (NULL == blosum) {
-            fprintf(stderr, "Specified blosum matrix not found.\n");
-            fprintf(stderr, "Choices are {"
-                    "blosum40,"
-                    "blosum45,"
-                    "blosum50,"
-                    "blosum62,"
-                    "blosum75,"
-                    "blosum80,"
-                    "blosum90}\n");
+    /* select the substitution matrix */
+    if (matrixname) {
+        matrix = parasail_matrix_lookup(matrixname);
+        if (NULL == matrix) {
+            fprintf(stderr, "Specified substitution matrix not found.\n");
             exit(1);
         }
     }
@@ -271,7 +256,7 @@ int main(int argc, char **argv)
             parasail_result_t *result = function(
                     sequences_queries[i], sizes_queries[i],
                     sequences_database[j], sizes_database[j],
-                    gap_open, gap_extend, blosum);
+                    gap_open, gap_extend, matrix->matrix_);
             saturated_query += result->saturated;
 #if ENABLE_CORRECTION_STATS
             corrections_query += result->corrections;

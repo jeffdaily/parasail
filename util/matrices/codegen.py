@@ -88,7 +88,7 @@ for filename in filenames:
     count = len(the_lines)-1
     # write out the mat[] form
     writer.write("\n")
-    writer.write("static const int8_t %s[] = {\n" % filename_lower)
+    writer.write("static const int8_t parasail_%s[] = {\n" % filename_lower)
     writer.write("/*     " + ("%4s"*24) % tuple(the_lines[0].split()) + " */\n")
     text = ""
     for line in the_lines[1:]:
@@ -100,7 +100,7 @@ for filename in filenames:
     writer.write("\n};\n")
     # write out the mat[][] form
     writer.write("\n")
-    writer.write("static const int8_t %s_[%d][%d] = {\n" % (
+    writer.write("static const int parasail_%s_[%d][%d] = {\n" % (
         filename_lower, count, count))
     writer.write("/*     " + ("%4s"*24) % tuple(the_lines[0].split()) + " */\n")
     text = ""
@@ -141,33 +141,36 @@ text = """/**
 #define _PARASAIL_MATRIX_LOOKUP_H_
 
 %(HEADERS)s
+#include "parasail/matrices/blosum_map.h"
+#include "parasail/matrices/pam_map.h"
 
 typedef struct parasail_matrix {
     const char * name;
-    int8_t *matrix;
-    int *mapper;
+    const int8_t *matrix;
+    const int (*matrix_)[24];
+    const int *mapper;
     int size;
 } parasail_matrix_t;
 
 parasail_matrix_t parasail_matrices[] = {
 %(MATRICES)s
-    {"NULL",NULL,NULL,0}
+    {"NULL",NULL,NULL,NULL,0}
 };
 
-parasail_matrix_t parasail_matrix_lookup(const char *matrixname)
+parasail_matrix_t* parasail_matrix_lookup(const char *matrixname)
 {
-    parasail_matrix_t matrix = NULL;
+    parasail_matrix_t *matrix = NULL;
 
     if (matrixname) {
         int index = 0;
-        matrix_t current;
-        current = parasail_matrices[index++];
-        while (current.matrix) {
-            if (0 == strcmp(matrixname, current.name)) {
-                matrix = current.matrix;
+        parasail_matrix_t *current;
+        current = &parasail_matrices[index++];
+        while (current->matrix) {
+            if (0 == strcmp(matrixname, current->name)) {
+                matrix = current;
                 break;
             }
-            current = parasail_matrices[index++];
+            current = &parasail_matrices[index++];
         }
     }
 
@@ -186,9 +189,9 @@ for name in filenames:
     elif "PAM" in name:
         base = "pam"
     headers += '#include "parasail/matrices/%s.h"\n' % name
-    matrices += '    {"%s",parasail_%s,parasail_%s_map,24},\n' % (
-            name.lower(),name.lower(),base,)
-output_filename = output_dir + "parasail_matrix_lookup.h"
+    matrices += '    {"%s",parasail_%s,parasail_%s_,parasail_%s_map,24},\n' % (
+            name.lower(),name.lower(),name.lower(),base,)
+output_filename = output_dir + "matrix_lookup.h"
 writer = open(output_filename, "w")
 writer.write(text % {"MATRICES":matrices[:-1], "HEADERS":headers[:-1]})
 writer.write("\n")

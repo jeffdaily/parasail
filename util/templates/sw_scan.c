@@ -15,9 +15,9 @@
 %(HEADER)s
 
 #include "parasail.h"
-#include "parasail_internal.h"
-#include "parasail_internal_%(ISA)s.h"
-#include "blosum/blosum_map.h"
+#include "parasail/memory.h"
+#include "parasail/internal_%(ISA)s.h"
+#include "parasail/matrices/blosum_map.h"
 
 #define NEG_INF %(NEG_INF)s
 %(FIXES)s
@@ -87,7 +87,7 @@ parasail_result_t* FNAME(
                 %(VTYPE)s_%(WIDTH)s_t t;
                 j = i;
                 for (segNum=0; segNum<segWidth; ++segNum) {
-                    t.v[segNum] = j >= s1Len ? 0 : matrix[k][MAP_BLOSUM_[(unsigned char)s1[j]]];
+                    t.v[segNum] = j >= s1Len ? 0 : matrix[k][parasail_blosum_map[(unsigned char)s1[j]]];
                     j += segLen;
                 }
                 %(VSTORE)s(&pvP[index], t.m);
@@ -127,7 +127,7 @@ parasail_result_t* FNAME(
         /* calculate Ft first pass */
         vHp = %(VLOAD)s(pvH+(segLen-1));
         vHp = %(VSHIFT)s(vHp, %(BYTES)s);
-        pvW = pvP + MAP_BLOSUM_[(unsigned char)s2[j]]*segLen;
+        pvW = pvP + parasail_blosum_map[(unsigned char)s2[j]]*segLen;
         vHt = vNegInf;
         vFt = vNegInf;
         for (i=0; i<segLen; ++i) {

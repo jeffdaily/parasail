@@ -16,15 +16,9 @@
 KSEQ_INIT(int, read)
 
 #include "parasail.h"
-#include "parasail_internal.h"
-#include "parasail_cpuid.h"
-#include "blosum/blosum40.h"
-#include "blosum/blosum45.h"
-#include "blosum/blosum50.h"
-#include "blosum/blosum62.h"
-#include "blosum/blosum75.h"
-#include "blosum/blosum80.h"
-#include "blosum/blosum90.h"
+#include "parasail/memory.h"
+#include "parasail/cpuid.h"
+#include "parasail/matrix_lookup.h"
 #include "stats.h"
 #include "timer.h"
 #include "timer_real.h"
@@ -32,22 +26,6 @@ KSEQ_INIT(int, read)
 #include "function_lookup.h"
 
 #define USE_TIMER_REAL 0
-
-typedef struct blosum {
-    const char * name;
-    const int (*blosum)[24];
-} blosum_t;
-
-blosum_t blosums[] = {
-    {"blosum40",blosum40},
-    {"blosum45",blosum45},
-    {"blosum50",blosum50},
-    {"blosum62",blosum62},
-    {"blosum75",blosum75},
-    {"blosum80",blosum80},
-    {"blosum90",blosum90},
-    {"NULL",NULL},
-};
 
 static double pctf(double orig, double new)
 {
@@ -209,8 +187,8 @@ int main(int argc, char **argv)
     unsigned long seq_count = 0;
     unsigned long s = 0;
     char *endptr = NULL;
-    char *blosumname = NULL;
-    blosum_t b;
+    char *matrixname = NULL;
+    parasail_matrix_t *matrix = NULL;
     int open = 10;
     int extend = 1;
 
@@ -238,7 +216,7 @@ int main(int argc, char **argv)
                 filename = optarg;
                 break;
             case 'm':
-                blosumname = optarg;
+                matrixname = optarg;
                 break;
             case 'n':
                 errno = 0;
@@ -297,32 +275,16 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    /* select the blosum matrix */
-    if (blosumname) {
-        int index = 0;
-        b = blosums[index++];
-        while (b.blosum) {
-            if (0 == strcmp(blosumname, b.name)) {
-                break;
-            }
-            b = blosums[index++];
-        }
-        if (NULL == b.blosum) {
-            fprintf(stderr, "Specified blosum matrix not found.\n");
-            fprintf(stderr, "Choices are {"
-                    "blosum62,"
-                    "blosum40,"
-                    "blosum45,"
-                    "blosum50,"
-                    "blosum62,"
-                    "blosum75,"
-                    "blosum80,"
-                    "blosum90}\n");
+    /* select the matrix */
+    if (matrixname) {
+        matrix = parasail_matrix_lookup(matrixname);
+        if (NULL == matrix) {
+            fprintf(stderr, "Specified substitution matrix not found.\n");
             exit(1);
         }
     }
     else {
-        fprintf(stderr, "No blosum matrix specified.\n");
+        fprintf(stderr, "No substitution matrix specified.\n");
         exit(1);
     }
 
@@ -352,7 +314,7 @@ int main(int argc, char **argv)
     lenb = strlen(seqB);
 
     printf("file: %s\n", filename);
-    printf("blosum: %s\n", blosumname);
+    printf("matrix: %s\n", matrixname);
     printf("gap open: %d\n", open);
     printf("gap extend: %d\n", extend);
     printf("seq pair %lu,%lu\n", seqA_index, seqB_index);
@@ -387,7 +349,7 @@ int main(int argc, char **argv)
         for (i=0; i<new_limit; ++i) {
             timer_rdtsc_single = timer_start();
             timer_nsecs_single = timer_real();
-            result = f.pointer(seqA, lena, seqB, lenb, open, extend, b.blosum);
+            result = f.pointer(seqA, lena, seqB, lenb, open, extend, matrix->matrix_);
             timer_rdtsc_single = timer_start()-(timer_rdtsc_single);
             timer_nsecs_single = timer_real() - timer_nsecs_single;
             stats_sample_value(&stats_rdtsc, timer_rdtsc_single);
@@ -427,7 +389,7 @@ int main(int argc, char **argv)
                 strcat(suffix, f.width);
             }
             strcat(suffix, ".txt");
-            result = f.pointer(seqA, lena, seqB, lenb, open, extend, b.blosum);
+            result = f.pointer(seqA, lena, seqB, lenb, open, extend, matrix->matrix_);
             {
                 char filename[256] = {'\0'};
                 strcpy(filename, f.alg);

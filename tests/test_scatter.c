@@ -22,18 +22,11 @@ KSEQ_INIT(int, read)
 #endif
 
 #include "parasail.h"
-#include "parasail_internal.h"
-#include "blosum/blosum40.h"
-#include "blosum/blosum45.h"
-#include "blosum/blosum50.h"
-#include "blosum/blosum62.h"
-#include "blosum/blosum75.h"
-#include "blosum/blosum80.h"
-#include "blosum/blosum90.h"
+#include "parasail/memory.h"
+#include "parasail/matrix_lookup.h"
 //#include "timer.h"
 #include "timer_real.h"
 
-#include "blosum_lookup.h"
 #include "function_lookup.h"
 
 /* This table is used to transform amino acid letters into numbers. */
@@ -165,8 +158,8 @@ int main(int argc, char **argv)
     int lanes = 1;
     char *filename = NULL;
     int c = 0;
-    char *blosumname = NULL;
-    const int (*blosum)[24] = blosum62;
+    const char *matrixname = "blosum62";
+    parasail_matrix_t *matrix = NULL;
     int gap_open = 10;
     int gap_extend = 1;
     int saturated = 0;
@@ -177,7 +170,7 @@ int main(int argc, char **argv)
                 funcname = optarg;
                 break;
             case 'b':
-                blosumname = optarg;
+                matrixname = optarg;
                 break;
             case 'f':
                 filename = optarg;
@@ -251,28 +244,11 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    /* select the blosum matrix */
-    if (blosumname) {
-        int index = 0;
-        blosum_t b;
-        b = blosums[index++];
-        while (b.pointer) {
-            if (0 == strcmp(blosumname, b.name)) {
-                blosum = b.pointer;
-                break;
-            }
-            b = blosums[index++];
-        }
-        if (NULL == b.pointer) {
-            fprintf(stderr, "Specified blosum matrix not found.\n");
-            fprintf(stderr, "Choices are {"
-                    "blosum40,"
-                    "blosum45,"
-                    "blosum50,"
-                    "blosum62,"
-                    "blosum75,"
-                    "blosum80,"
-                    "blosum90}\n");
+    /* select the substitution matrix */
+    if (matrixname) {
+        matrix = parasail_matrix_lookup(matrixname);
+        if (NULL == matrix) {
+            fprintf(stderr, "Specified substitution matrix not found.\n");
             exit(1);
         }
     }
@@ -314,7 +290,7 @@ int main(int argc, char **argv)
             k_combination2(i, &a, &b);
             timer_local = timer_real();
             result = function(sequences[a], sizes[a], sequences[b], sizes[b],
-                    gap_open, gap_extend, blosum);
+                    gap_open, gap_extend, matrix->matrix_);
             timer_local = timer_real() - timer_local;
             for (j=0; j<24; ++j) {
                 a_counts[j] = 0;

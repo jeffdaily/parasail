@@ -15,9 +15,9 @@
 #include <immintrin.h>
 
 #include "parasail.h"
-#include "parasail_internal.h"
-#include "parasail_internal_knc.h"
-#include "blosum/blosum_map.h"
+#include "parasail/memory.h"
+#include "parasail/internal_knc.h"
+#include "parasail/matrices/blosum_map.h"
 
 #define NEG_INF_32 (INT32_MIN/(int32_t)(2))
 
@@ -128,8 +128,8 @@ parasail_result_t* FNAME(
                 __m512i_32_t s;
                 j = i;
                 for (segNum=0; segNum<segWidth; ++segNum) {
-                    t.v[segNum] = j >= s1Len ? 0 : matrix[k][MAP_BLOSUM_[(unsigned char)s1[j]]];
-                    s.v[segNum] = j >= s1Len ? 0 : (k == MAP_BLOSUM_[(unsigned char)s1[j]]);
+                    t.v[segNum] = j >= s1Len ? 0 : matrix[k][parasail_blosum_map[(unsigned char)s1[j]]];
+                    s.v[segNum] = j >= s1Len ? 0 : (k == parasail_blosum_map[(unsigned char)s1[j]]);
                     j += segLen;
                 }
                 _mm512_store_epi32(&vProfile[index], t.m);
@@ -182,8 +182,8 @@ parasail_result_t* FNAME(
         vHL = _mm512_mask_permutevar_epi32(vZero, permute_mask, permute_idx, _mm512_load_epi32(&pvHLStore[segLen - 1]));
 
         /* Correct part of the vProfile */
-        vP = vProfile + MAP_BLOSUM_[(unsigned char)s2[j]] * segLen;
-        vPS = vProfileS + MAP_BLOSUM_[(unsigned char)s2[j]] * segLen;
+        vP = vProfile + parasail_blosum_map[(unsigned char)s2[j]] * segLen;
+        vPS = vProfileS + parasail_blosum_map[(unsigned char)s2[j]] * segLen;
 
         /* Swap the 2 H buffers. */
         pv = pvHLoad;

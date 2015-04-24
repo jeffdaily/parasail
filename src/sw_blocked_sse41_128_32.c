@@ -16,9 +16,9 @@
 #include <smmintrin.h>
 
 #include "parasail.h"
-#include "parasail_internal.h"
-#include "parasail_internal_sse.h"
-#include "blosum/blosum_map.h"
+#include "parasail/memory.h"
+#include "parasail/internal_sse.h"
+#include "parasail/matrices/blosum_map.h"
 
 #define NEG_INF_32 (INT32_MIN/(int32_t)(2))
 
@@ -81,7 +81,7 @@ parasail_result_t* FNAME(
                 __m128i_32_t t;
                 j = i*segWidth;
                 for (segNum=0; segNum<segWidth; ++segNum) {
-                    t.v[segNum] = j >= s1Len ? 0 : matrix[k][MAP_BLOSUM_[(unsigned char)s1[j]]];
+                    t.v[segNum] = j >= s1Len ? 0 : matrix[k][parasail_blosum_map[(unsigned char)s1[j]]];
                     j += 1;
                 }
                 _mm_store_si128(&vProfile[index], t.m);
@@ -110,7 +110,7 @@ parasail_result_t* FNAME(
     for (j=0; j<s2Len; ++j) {
         __m128i vX = vZero;
         __m128i vF = vNegInf;
-        const __m128i* pvP = vProfile + MAP_BLOSUM_[(unsigned char)s2[j]] * segLen;
+        const __m128i* pvP = vProfile + parasail_blosum_map[(unsigned char)s2[j]] * segLen;
         for (i=0; i<segLen; ++i) {
             __m128i vP;
             __m128i vH;

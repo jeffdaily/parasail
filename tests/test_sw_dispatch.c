@@ -11,7 +11,7 @@
 #include <pwd.h>
 
 #include "parasail.h"
-#include "blosum/blosum62.h"
+#include "parasail/matrices/blosum62.h"
 
 #define UNUSED(expr) do { (void)(expr); } while (0)
 
@@ -28,19 +28,19 @@ int main(int argc, char **argv)
     UNUSED(argc);
     UNUSED(argv);
 
-    result = parasail_sw_scan(seqA, lena, seqB, lenb, 10, 1, blosum62);
+    result = parasail_sw_scan(seqA, lena, seqB, lenb, 10, 1, parasail_blosum62_);
     printf("score=%d\n", result->score);
     parasail_result_free(result);
 
-    result = parasail_sw_scan_32(seqA, lena, seqB, lenb, 10, 1, blosum62);
+    result = parasail_sw_scan_32(seqA, lena, seqB, lenb, 10, 1, parasail_blosum62_);
     printf("score32=%d\n", result->score);
     parasail_result_free(result);
 
-    result = parasail_sw_scan_16(seqA, lena, seqB, lenb, 10, 1, blosum62);
+    result = parasail_sw_scan_16(seqA, lena, seqB, lenb, 10, 1, parasail_blosum62_);
     printf("score16=%d\n", result->score);
     parasail_result_free(result);
 
-    result = parasail_sw_scan_8(seqA, lena, seqB, lenb, 10, 1, blosum62);
+    result = parasail_sw_scan_8(seqA, lena, seqB, lenb, 10, 1, parasail_blosum62_);
     printf("score8=%d\n", result->score);
     parasail_result_free(result);
 

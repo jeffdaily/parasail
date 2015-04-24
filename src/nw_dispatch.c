@@ -13,8 +13,8 @@
 #include <stdlib.h>
 
 #include "parasail.h"
-#include "parasail_cpuid.h"
-#include "parasail_internal.h"
+#include "parasail/cpuid.h"
+#include "parasail/memory.h"
 
 /* typedef for the nw function */
 typedef parasail_result_t* parasail_func(

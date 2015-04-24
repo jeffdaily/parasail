@@ -19,7 +19,7 @@
 #include <string.h>
 
 #include "parasail.h"
-#include "parasail_internal.h"
+#include "parasail/memory.h"
 
 void* parasail_memalign(size_t alignment, size_t size)
 {

@@ -11,8 +11,8 @@
 
 #include <immintrin.h>
 
-#include "parasail_internal.h"
-#include "parasail_internal_knc.h"
+#include "parasail/memory.h"
+#include "parasail/internal_knc.h"
 
 __m512i * parasail_memalign_m512i(size_t alignment, size_t size)
 {

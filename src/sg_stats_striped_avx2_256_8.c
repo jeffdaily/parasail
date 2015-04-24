@@ -15,9 +15,9 @@
 #include <immintrin.h>
 
 #include "parasail.h"
-#include "parasail_internal.h"
-#include "parasail_internal_avx.h"
-#include "blosum/blosum_map.h"
+#include "parasail/memory.h"
+#include "parasail/internal_avx.h"
+#include "parasail/matrices/blosum_map.h"
 
 #define NEG_INF INT8_MIN
 
@@ -145,8 +145,8 @@ parasail_result_t* FNAME(
                 __m256i_8_t s;
                 j = i;
                 for (segNum=0; segNum<segWidth; ++segNum) {
-                    p.v[segNum] = j >= s1Len ? 0 : matrix[k][MAP_BLOSUM_[(unsigned char)s1[j]]];
-                    m.v[segNum] = j >= s1Len ? 0 : (k == MAP_BLOSUM_[(unsigned char)s1[j]]);
+                    p.v[segNum] = j >= s1Len ? 0 : matrix[k][parasail_blosum_map[(unsigned char)s1[j]]];
+                    m.v[segNum] = j >= s1Len ? 0 : (k == parasail_blosum_map[(unsigned char)s1[j]]);
                     s.v[segNum] = p.v[segNum] > 0;
                     j += segLen;
                 }
@@ -207,9 +207,9 @@ parasail_result_t* FNAME(
         vHL = _mm256_slli_si256_rpl(pvHLStore[segLen - 1], 1);
 
         /* Correct part of the vProfile */
-        vP = vProfile + MAP_BLOSUM_[(unsigned char)s2[j]] * segLen;
-        vPM = vProfileM + MAP_BLOSUM_[(unsigned char)s2[j]] * segLen;
-        vPS = vProfileS + MAP_BLOSUM_[(unsigned char)s2[j]] * segLen;
+        vP = vProfile + parasail_blosum_map[(unsigned char)s2[j]] * segLen;
+        vPM = vProfileM + parasail_blosum_map[(unsigned char)s2[j]] * segLen;
+        vPS = vProfileS + parasail_blosum_map[(unsigned char)s2[j]] * segLen;
 
         /* Swap the 2 H buffers. */
         pv = pvHLoad;

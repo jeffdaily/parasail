@@ -106,9 +106,6 @@ int main(int argc, char **argv)
     int truncate = 0;
     int exact_length = 0;
     stats_t stats_time;
-#if ENABLE_CORRECTION_STATS
-    unsigned long long corrections = 0;
-#endif
     size_t biggest = 0;
 
     stats_clear(&stats_time);
@@ -235,9 +232,6 @@ int main(int argc, char **argv)
 
     for (i=0; i<seq_count_queries; ++i) {
         int saturated_query = 0;
-#if ENABLE_CORRECTION_STATS
-        unsigned long long corrections_query = 0;
-#endif
         double local_timer = timer_real();
         if (truncate > 0 && sizes_queries[i] > (unsigned long)truncate) {
             continue;
@@ -258,20 +252,12 @@ int main(int argc, char **argv)
                     sequences_database[j], sizes_database[j],
                     gap_open, gap_extend, matrix->matrix_);
             saturated_query += result->saturated;
-#if ENABLE_CORRECTION_STATS
-            corrections_query += result->corrections;
-#endif
             parasail_result_free(result);
         }
         local_timer = timer_real() - local_timer;
-        printf("%lu\t %lu\t %d\t %llu\t %f\n",
+        printf("%lu\t %lu\t %d\t %f\n",
                 i, sizes_queries[i],
                 saturated_query,
-#if ENABLE_CORRECTION_STATS
-                corrections_query,
-#else
-                0ULL,
-#endif
                 local_timer);
         if (exact_length != 0) {
             /* if we got this far, we found our query, so break */

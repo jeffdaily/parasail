@@ -303,15 +303,10 @@ int main(int argc, char **argv)
                 b_counts[table[(unsigned)sequences[b][j]]] += 1;
             }
 #pragma omp critical
-            printf("%lu,%lu,%lu,%d,%d,%d,%d,%llu,%lu,%f",
+            printf("%lu,%lu,%lu,%d,%d,%d,%d,%lu,%f",
                     sizes[a], (sizes[a]+lanes-1)/lanes, sizes[b],
                     result->score, result->matches,
                     result->similar, result->length,
-#if ENABLE_CORRECTION_STATS
-                    result->corrections,
-#else
-                    0ULL,
-#endif
                     sizes[a]*sizes[b], timer_local);
             for (j=0; j<24; ++j) {
                 //printf(",%lu", a_counts[j]);

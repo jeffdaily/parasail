@@ -230,10 +230,6 @@ int main(int argc, char **argv)
     int func_cutoff = 0;
     int iter = 0;
     stats_t stats_time;
-#if ENABLE_CORRECTION_STATS
-    unsigned long long corrections = 0;
-    unsigned long long corrections_saturated = 0;
-#endif
 
     stats_clear(&stats_time);
 
@@ -424,10 +420,6 @@ int main(int argc, char **argv)
                             gap_open, gap_extend, matrix->matrix_);
 #pragma omp atomic
                     saturated_query += result->saturated;
-#if ENABLE_CORRECTION_STATS
-#pragma omp atomic
-                    corrections_query += result->corrections;
-#endif
                     parasail_result_free(result);
                 }
             }
@@ -486,32 +478,15 @@ int main(int argc, char **argv)
                             gap_open, gap_extend, matrix->matrix_);
 #pragma omp atomic
                     saturated += result->saturated;
-#if ENABLE_CORRECTION_STATS
-                    if (result->saturated) {
-#pragma omp atomic
-                        corrections_saturated += result->corrections;
-                    }
-                    else {
-#pragma omp atomic
-                        corrections += result->corrections;
-                    }
-#endif
                     parasail_result_free(result);
                 }
             }
             timer_clock = timer_real() - timer_clock;
             stats_sample_value(&stats_time, timer_clock);
         }
-        printf("%s\t %s\t %d\t %d\t %d\t %d\t %llu\t %llu\t %f\t %f\t %f\t %f\n",
+        printf("%s\t %s\t %d\t %d\t %d\t %d\t %f\t %f\t %f\t %f\n",
                 funcname1, matrixname, gap_open, gap_extend, N,
                 saturated,
-#if ENABLE_CORRECTION_STATS
-                corrections,
-                corrections_saturated,
-#else
-                0ULL,
-                0ULL,
-#endif
                 stats_time._mean, stats_stddev(&stats_time),
                 stats_time._min, stats_time._max);
         fflush(stdout);

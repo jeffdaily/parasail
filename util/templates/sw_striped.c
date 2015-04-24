@@ -159,9 +159,6 @@ parasail_result_t* FNAME(
         for (k=0; k<segWidth; ++k) {
             vF = %(VSHIFT)s(vF, %(BYTES)s);
             for (i=0; i<segLen; ++i) {
-#if ENABLE_CORRECTION_STATS
-                result->corrections += 1;
-#endif
                 vH = %(VLOAD)s(pvHStore + i);
                 vH = %(VMAX)s(vH,vF);
                 %(VSTORE)s(pvHStore + i, vH);

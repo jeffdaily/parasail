@@ -122,9 +122,6 @@ int main(int argc, char **argv) {
     PairSet pairs;
     int count_generated = 0;
     unsigned long work = 0;
-#if ENABLE_CORRECTION_STATS
-    unsigned long long corrections = 0;
-#endif
     int c = 0;
     char *funcname = NULL;
     parasail_function_t function = NULL;
@@ -432,9 +429,6 @@ int main(int argc, char **argv) {
 #endif
 #pragma omp critical
             {
-#if ENABLE_CORRECTION_STATS
-                //corrections += result->corrections;
-#endif
                 work += local_work;
                 stats_sample_value(&length_a, i_len);
                 stats_sample_value(&length_b, j_len);
@@ -446,9 +440,6 @@ int main(int argc, char **argv) {
     fprintf(stdout, "alignments: %.4f sec\n", finish-start);
     fprintf(stdout, "      work: %lu \n", work);
     fprintf(stdout, "     gcups: %.4f \n", double(work)/(finish-start));
-#if ENABLE_CORRECTION_STATS
-    fprintf(stdout, "correction: %llu \n", corrections);
-#endif
     fprintf(stdout, "a len mean: %f \n", length_a._mean);
     fprintf(stdout, "a len stdv: %f \n", stats_stddev(&length_a));
     fprintf(stdout, "a len min : %f \n", length_a._min);

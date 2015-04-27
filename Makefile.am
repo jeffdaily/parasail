@@ -12,6 +12,7 @@ AM_LDFLAGS =
 LDADD = libparasail.la
 
 nobase_include_HEADERS += parasail/cpuid.h
+nobase_include_HEADERS += parasail/function_lookup.h
 nobase_include_HEADERS += parasail/matrix_lookup.h
 nobase_include_HEADERS += parasail/memory.h
 
@@ -83,7 +84,6 @@ nobase_include_HEADERS += parasail/matrices/pam80.h
 nobase_include_HEADERS += parasail/matrices/pam90.h
 nobase_include_HEADERS += parasail/matrices/pam_map.h
 
-AM_CPPFLAGS += -I$(top_srcdir)/src
 AM_CPPFLAGS += -I$(top_srcdir)/contrib
 AM_CPPFLAGS += -I$(top_srcdir)/contrib/sais-lite-lcp
 

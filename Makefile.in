@@ -1077,48 +1077,49 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I m4
 include_HEADERS = parasail.h
-nobase_include_HEADERS = parasail/cpuid.h parasail/matrix_lookup.h \
-	parasail/memory.h parasail/matrices/blosum100.h \
-	parasail/matrices/blosum30.h parasail/matrices/blosum35.h \
-	parasail/matrices/blosum40.h parasail/matrices/blosum45.h \
-	parasail/matrices/blosum50.h parasail/matrices/blosum55.h \
-	parasail/matrices/blosum60.h parasail/matrices/blosum62.h \
-	parasail/matrices/blosum65.h parasail/matrices/blosum70.h \
-	parasail/matrices/blosum75.h parasail/matrices/blosum80.h \
-	parasail/matrices/blosum85.h parasail/matrices/blosum90.h \
-	parasail/matrices/blosum_map.h parasail/matrices/pam10.h \
-	parasail/matrices/pam100.h parasail/matrices/pam110.h \
-	parasail/matrices/pam120.h parasail/matrices/pam130.h \
-	parasail/matrices/pam140.h parasail/matrices/pam150.h \
-	parasail/matrices/pam160.h parasail/matrices/pam170.h \
-	parasail/matrices/pam180.h parasail/matrices/pam190.h \
-	parasail/matrices/pam20.h parasail/matrices/pam200.h \
-	parasail/matrices/pam210.h parasail/matrices/pam220.h \
-	parasail/matrices/pam230.h parasail/matrices/pam240.h \
-	parasail/matrices/pam250.h parasail/matrices/pam260.h \
-	parasail/matrices/pam270.h parasail/matrices/pam280.h \
-	parasail/matrices/pam290.h parasail/matrices/pam30.h \
-	parasail/matrices/pam300.h parasail/matrices/pam310.h \
-	parasail/matrices/pam320.h parasail/matrices/pam330.h \
-	parasail/matrices/pam340.h parasail/matrices/pam350.h \
-	parasail/matrices/pam360.h parasail/matrices/pam370.h \
-	parasail/matrices/pam380.h parasail/matrices/pam390.h \
-	parasail/matrices/pam40.h parasail/matrices/pam400.h \
-	parasail/matrices/pam410.h parasail/matrices/pam420.h \
-	parasail/matrices/pam430.h parasail/matrices/pam440.h \
-	parasail/matrices/pam450.h parasail/matrices/pam460.h \
-	parasail/matrices/pam470.h parasail/matrices/pam480.h \
-	parasail/matrices/pam490.h parasail/matrices/pam50.h \
-	parasail/matrices/pam500.h parasail/matrices/pam60.h \
-	parasail/matrices/pam70.h parasail/matrices/pam80.h \
-	parasail/matrices/pam90.h parasail/matrices/pam_map.h
+nobase_include_HEADERS = parasail/cpuid.h parasail/function_lookup.h \
+	parasail/matrix_lookup.h parasail/memory.h \
+	parasail/matrices/blosum100.h parasail/matrices/blosum30.h \
+	parasail/matrices/blosum35.h parasail/matrices/blosum40.h \
+	parasail/matrices/blosum45.h parasail/matrices/blosum50.h \
+	parasail/matrices/blosum55.h parasail/matrices/blosum60.h \
+	parasail/matrices/blosum62.h parasail/matrices/blosum65.h \
+	parasail/matrices/blosum70.h parasail/matrices/blosum75.h \
+	parasail/matrices/blosum80.h parasail/matrices/blosum85.h \
+	parasail/matrices/blosum90.h parasail/matrices/blosum_map.h \
+	parasail/matrices/pam10.h parasail/matrices/pam100.h \
+	parasail/matrices/pam110.h parasail/matrices/pam120.h \
+	parasail/matrices/pam130.h parasail/matrices/pam140.h \
+	parasail/matrices/pam150.h parasail/matrices/pam160.h \
+	parasail/matrices/pam170.h parasail/matrices/pam180.h \
+	parasail/matrices/pam190.h parasail/matrices/pam20.h \
+	parasail/matrices/pam200.h parasail/matrices/pam210.h \
+	parasail/matrices/pam220.h parasail/matrices/pam230.h \
+	parasail/matrices/pam240.h parasail/matrices/pam250.h \
+	parasail/matrices/pam260.h parasail/matrices/pam270.h \
+	parasail/matrices/pam280.h parasail/matrices/pam290.h \
+	parasail/matrices/pam30.h parasail/matrices/pam300.h \
+	parasail/matrices/pam310.h parasail/matrices/pam320.h \
+	parasail/matrices/pam330.h parasail/matrices/pam340.h \
+	parasail/matrices/pam350.h parasail/matrices/pam360.h \
+	parasail/matrices/pam370.h parasail/matrices/pam380.h \
+	parasail/matrices/pam390.h parasail/matrices/pam40.h \
+	parasail/matrices/pam400.h parasail/matrices/pam410.h \
+	parasail/matrices/pam420.h parasail/matrices/pam430.h \
+	parasail/matrices/pam440.h parasail/matrices/pam450.h \
+	parasail/matrices/pam460.h parasail/matrices/pam470.h \
+	parasail/matrices/pam480.h parasail/matrices/pam490.h \
+	parasail/matrices/pam50.h parasail/matrices/pam500.h \
+	parasail/matrices/pam60.h parasail/matrices/pam70.h \
+	parasail/matrices/pam80.h parasail/matrices/pam90.h \
+	parasail/matrices/pam_map.h
 lib_LTLIBRARIES = libparasail.la
 noinst_LTLIBRARIES = libparasail_novec.la libparasail_novec_table.la \
 	$(am__append_1) $(am__append_2) $(am__append_3) \
 	$(am__append_4) $(am__append_5)
 check_LTLIBRARIES = $(am__append_11) tests/libsais.la
 AM_CFLAGS = 
-AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_srcdir)/contrib \
+AM_CPPFLAGS = -I$(top_srcdir)/contrib \
 	-I$(top_srcdir)/contrib/sais-lite-lcp
 AM_LDFLAGS = 
 LDADD = libparasail.la

@@ -23,11 +23,10 @@ KSEQ_INIT(int, read)
 
 #include "parasail.h"
 #include "parasail/memory.h"
+#include "parasail/function_lookup.h"
 #include "parasail/matrix_lookup.h"
 //#include "timer.h"
 #include "timer_real.h"
-
-#include "function_lookup.h"
 
 /* This table is used to transform amino acid letters into numbers. */
 static const int8_t table[128] = {

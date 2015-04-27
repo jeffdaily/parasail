@@ -28,8 +28,8 @@ int main(int argc, char **argv)
     UNUSED(argc);
     UNUSED(argv);
 
-    result = parasail_sw_scan(seqA, lena, seqB, lenb, 10, 1, &parasail_blosum62);
-    printf("score=%d\n", result->score);
+    result = parasail_sw_scan_64(seqA, lena, seqB, lenb, 10, 1, &parasail_blosum62);
+    printf("score64=%d\n", result->score);
     parasail_result_free(result);
 
     result = parasail_sw_scan_32(seqA, lena, seqB, lenb, 10, 1, &parasail_blosum62);

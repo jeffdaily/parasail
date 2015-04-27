@@ -74,17 +74,19 @@ for a in alg:
 # dispatching implementations (3x2x3x4 = 72 impl)
 alg = ["nw", "sg", "sw"]
 stats = ["", "_stats"]
+table = ["", "_table"]
 par = ["_scan", "_striped", "_diag"]
 width = ["", "_64", "_32", "_16", "_8"]
 
 for a in alg:
     for s in stats:
-        for p in par:
-            for w in width:
-                print ""
-                print "parasail_result_t* parasail_"+a+s+p+w+'('
-                print " "*8+"const char * const restrict s1, const int s1Len,"
-                print " "*8+"const char * const restrict s2, const int s2Len,"
-                print " "*8+"const int open, const int gap,"
-                print " "*8+"const parasail_matrix_t* matrix);"
+        for t in table:
+            for p in par:
+                for w in width:
+                    print ""
+                    print "parasail_result_t* parasail_"+a+s+t+p+w+'('
+                    print " "*8+"const char * const restrict s1, const int s1Len,"
+                    print " "*8+"const char * const restrict s2, const int s2Len,"
+                    print " "*8+"const int open, const int gap,"
+                    print " "*8+"const parasail_matrix_t* matrix);"
 

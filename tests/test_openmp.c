@@ -36,7 +36,7 @@ KSEQ_INIT(int, read)
 parasail_result_t* parasail_ssw_(
         const char * const restrict s1, const int s1_len,
         const char * const restrict s2, const int s2_len,
-        const int open, const int gap, const int matrix[24][24],
+        const int open, const int gap, const parasail_matrix_t * matrix,
         int score_size)
 {
     parasail_result_t *result = parasail_result_new();
@@ -63,7 +63,7 @@ parasail_result_t* parasail_ssw_(
     /* initialize score matrix */
     for (m = 0; m < s1_len; ++m) s1_num[m] = table[(int)s1[m]];
     for (m = 0; m < s2_len; ++m) s2_num[m] = table[(int)s2[m]];
-    profile = ssw_init(s1_num, s1_len, parasail_blosum62, 24, score_size);
+    profile = ssw_init(s1_num, s1_len, parasail_blosum62_, 24, score_size);
     ssw_result = ssw_align(profile, s2_num, s2_len, -open, -gap, 2, 0, 0, s1_len/2);
     result->score = ssw_result->score1;
     result->saturated = ssw_result->saturated;
@@ -76,7 +76,7 @@ parasail_result_t* parasail_ssw_(
 parasail_result_t* parasail_ssw(
         const char * const restrict s1, const int s1_len,
         const char * const restrict s2, const int s2_len,
-        const int open, const int gap, const int matrix[24][24])
+        const int open, const int gap, const parasail_matrix_t *matrix)
 {
     return parasail_ssw_(s1, s1_len, s2, s2_len, open, gap, matrix, 2);
 }
@@ -84,7 +84,7 @@ parasail_result_t* parasail_ssw(
 parasail_result_t* parasail_ssw_16(
         const char * const restrict s1, const int s1_len,
         const char * const restrict s2, const int s2_len,
-        const int open, const int gap, const int matrix[24][24])
+        const int open, const int gap, const parasail_matrix_t *matrix)
 {
     return parasail_ssw_(s1, s1_len, s2, s2_len, open, gap, matrix, 1);
 }
@@ -93,7 +93,7 @@ parasail_result_t* parasail_ssw_16(
 parasail_result_t* parasail_sw(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24])
+        const int open, const int gap, const parasail_matrix_t *matrix)
 {
     int saturated = 0;
     parasail_result_t *result;
@@ -214,8 +214,8 @@ int main(int argc, char **argv)
     char *endptr = NULL;
     char *funcname1 = NULL;
     char *funcname2 = NULL;
-    parasail_function_t function1 = NULL;
-    parasail_function_t function2 = NULL;
+    parasail_function_t *function1 = NULL;
+    parasail_function_t *function2 = NULL;
     int c = 0;
     char *matrixname = "blosum62";
     parasail_matrix_t *matrix = NULL;
@@ -401,7 +401,7 @@ int main(int argc, char **argv)
             int saturated_query = 0;
             unsigned long long corrections_query = 0;
             double local_timer = 0.0;
-            parasail_function_t function = function1;
+            parasail_function_t *function = function1;
 
             if (func_cutoff > 0) {
                 if (sizes_queries[i] > (unsigned long)func_cutoff) {
@@ -417,7 +417,7 @@ int main(int argc, char **argv)
                     parasail_result_t *result = function(
                             sequences_queries[i], sizes_queries[i],
                             sequences_database[j], sizes_database[j],
-                            gap_open, gap_extend, matrix->matrix_);
+                            gap_open, gap_extend, matrix);
 #pragma omp atomic
                     saturated_query += result->saturated;
                     parasail_result_free(result);
@@ -443,7 +443,7 @@ int main(int argc, char **argv)
                 unsigned long swap=0;
 #pragma omp for schedule(dynamic)
                 for (i=0; i<limit; ++i) {
-                    parasail_function_t function = function1;
+                    parasail_function_t *function = function1;
                     parasail_result_t *result = NULL;
                     unsigned long query_size;
                     k_combination2(i, &a, &b);
@@ -475,7 +475,7 @@ int main(int argc, char **argv)
                     result = function(
                             sequences_database[a], query_size,
                             sequences_database[b], sizes_database[b],
-                            gap_open, gap_extend, matrix->matrix_);
+                            gap_open, gap_extend, matrix);
 #pragma omp atomic
                     saturated += result->saturated;
                     parasail_result_free(result);

@@ -81,7 +81,7 @@ static inline void arr_store_si128(
 parasail_result_t* FNAME(
         const char * const restrict _s1, const int s1Len,
         const char * const restrict _s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24])
+        const int open, const int gap, const parasail_matrix_t *matrix)
 {
     const int32_t N = 4; /* number of values in vector */
     const int32_t PAD = N-1;
@@ -162,10 +162,10 @@ parasail_result_t* FNAME(
         __m128i vIns = vNegInf;
         __m128i vDel = vNegInf;
         __m128i vJ = vJreset;
-        const int * const restrict matrow0 = matrix[s1[i+0]];
-        const int * const restrict matrow1 = matrix[s1[i+1]];
-        const int * const restrict matrow2 = matrix[s1[i+2]];
-        const int * const restrict matrow3 = matrix[s1[i+3]];
+        const int8_t * const restrict matrow0 = &matrix->matrix[matrix->size*s1[i+0]];
+        const int8_t * const restrict matrow1 = &matrix->matrix[matrix->size*s1[i+1]];
+        const int8_t * const restrict matrow2 = &matrix->matrix[matrix->size*s1[i+2]];
+        const int8_t * const restrict matrow3 = &matrix->matrix[matrix->size*s1[i+3]];
         __m128i vIltLimit = _mm_cmplt_epi32(vI, vILimit);
         __m128i vIeqLimit1 = _mm_cmpeq_epi32(vI, vILimit1);
         /* iterate over database sequence */

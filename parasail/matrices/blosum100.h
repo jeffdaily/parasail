@@ -14,6 +14,9 @@
 #ifndef _PARASAIL_BLOSUM100_H_
 #define _PARASAIL_BLOSUM100_H_
 
+#include "parasail.h"
+#include "blosum_map.h"
+
 /* #  Matrix made by matblas from blosum100_3.iij */
 /* #  * column uses minimum score */
 /* #  BLOSUM Clustered Scoring Matrix in 1/3 Bit Units */
@@ -21,7 +24,7 @@
 /* #  Cluster Percentage: >= 100 */
 /* #  Entropy =   1.4516, Expected =  -1.0948 */
 
-static const int8_t parasail_blosum100[] = {
+static const int8_t parasail_blosum100_[] = {
 /*        A   R   N   D   C   Q   E   G   H   I   L   K   M   F   P   S   T   W   Y   V   B   Z   X   * */
 /* A */   8, -3, -4, -5, -2, -2, -3, -1, -4, -4, -4, -2, -3, -5, -2,  1, -1, -6, -5, -2, -4, -2, -2,-10,
 /* R */  -3, 10, -2, -5, -8,  0, -2, -6, -1, -7, -6,  3, -4, -6, -5, -3, -3, -7, -5, -6, -4, -1, -3,-10,
@@ -49,7 +52,7 @@ static const int8_t parasail_blosum100[] = {
 /* * */ -10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,  1
 };
 
-static const int parasail_blosum100_[24][24] = {
+static const int parasail_blosum100__[24][24] = {
 /*        A   R   N   D   C   Q   E   G   H   I   L   K   M   F   P   S   T   W   Y   V   B   Z   X   * */
 /* A */{  8, -3, -4, -5, -2, -2, -3, -1, -4, -4, -4, -2, -3, -5, -2,  1, -1, -6, -5, -2, -4, -2, -2,-10},
 /* R */{ -3, 10, -2, -5, -8,  0, -2, -6, -1, -7, -6,  3, -4, -6, -5, -3, -3, -7, -5, -6, -4, -1, -3,-10},
@@ -75,6 +78,17 @@ static const int parasail_blosum100_[24][24] = {
 /* Z */{ -2, -1, -2,  0, -8,  5,  7, -5, -1, -7, -6,  0, -4, -7, -4, -2, -3, -7, -6, -5,  0,  6, -2,-10},
 /* X */{ -2, -3, -3, -4, -5, -2, -3, -4, -4, -3, -3, -3, -3, -4, -4, -2, -2, -6, -4, -3, -4, -2, -3,-10},
 /* * */{-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,-10,  1}
+};
+
+#define PARASAIL_MATRIX_BLOSUM100 \
+    "blosum100", \
+    parasail_blosum100_, \
+    parasail_blosum100__, \
+    parasail_blosum_map, \
+    24
+
+static const parasail_matrix_t parasail_blosum100 = {
+PARASAIL_MATRIX_BLOSUM100
 };
 
 #endif /* _PARASAIL_BLOSUM100_H_ */

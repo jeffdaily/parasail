@@ -154,7 +154,7 @@ int main(int argc, char **argv)
     size_t *sizes = NULL;
     char *endptr = NULL;
     char *funcname = NULL;
-    parasail_function_t function = NULL;
+    parasail_function_t *function = NULL;
     int lanes = 1;
     char *filename = NULL;
     int c = 0;
@@ -290,7 +290,7 @@ int main(int argc, char **argv)
             k_combination2(i, &a, &b);
             timer_local = timer_real();
             result = function(sequences[a], sizes[a], sequences[b], sizes[b],
-                    gap_open, gap_extend, matrix->matrix_);
+                    gap_open, gap_extend, matrix);
             timer_local = timer_real() - timer_local;
             for (j=0; j<24; ++j) {
                 a_counts[j] = 0;

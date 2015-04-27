@@ -43,7 +43,7 @@ static inline void arr_store_si%(BITS)s(
 parasail_result_t* FNAME(
         const char * const restrict _s1, const int s1Len,
         const char * const restrict _s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24])
+        const int open, const int gap, const parasail_matrix_t *matrix)
 {
     const %(INDEX)s N = %(LANES)s; /* number of values in vector */
     const %(INDEX)s PAD = N-1;

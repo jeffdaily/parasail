@@ -14,6 +14,9 @@
 #ifndef _PARASAIL_PAM150_H_
 #define _PARASAIL_PAM150_H_
 
+#include "parasail.h"
+#include "pam_map.h"
+
 /* # */
 /* # This matrix was produced by "pam" Version 1.0.6 [28-Jul-93] */
 /* # */
@@ -24,7 +27,7 @@
 /* # Lowest score = -7, Highest score = 12 */
 /* # */
 
-static const int8_t parasail_pam150[] = {
+static const int8_t parasail_pam150_[] = {
 /*        A   R   N   D   C   Q   E   G   H   I   L   K   M   F   P   S   T   W   Y   V   B   Z   X   * */
 /* A */   3, -2,  0,  0, -2, -1,  0,  1, -2, -1, -2, -2, -1, -4,  1,  1,  1, -6, -3,  0,  0,  0, -1, -7,
 /* R */  -2,  6, -1, -2, -4,  1, -2, -3,  1, -2, -3,  3, -1, -4, -1, -1, -2,  1, -4, -3, -2,  0, -1, -7,
@@ -52,7 +55,7 @@ static const int8_t parasail_pam150[] = {
 /* * */  -7, -7, -7, -7, -7, -7, -7, -7, -7, -7, -7, -7, -7, -7, -7, -7, -7, -7, -7, -7, -7, -7, -7,  1
 };
 
-static const int parasail_pam150_[24][24] = {
+static const int parasail_pam150__[24][24] = {
 /*        A   R   N   D   C   Q   E   G   H   I   L   K   M   F   P   S   T   W   Y   V   B   Z   X   * */
 /* A */{  3, -2,  0,  0, -2, -1,  0,  1, -2, -1, -2, -2, -1, -4,  1,  1,  1, -6, -3,  0,  0,  0, -1, -7},
 /* R */{ -2,  6, -1, -2, -4,  1, -2, -3,  1, -2, -3,  3, -1, -4, -1, -1, -2,  1, -4, -3, -2,  0, -1, -7},
@@ -78,6 +81,17 @@ static const int parasail_pam150_[24][24] = {
 /* Z */{  0,  0,  1,  2, -6,  4,  4, -1,  1, -2, -3,  0, -2, -5, -1, -1, -1, -6, -4, -2,  2,  4, -1, -7},
 /* X */{ -1, -1, -1, -1, -3, -1, -1, -1, -1, -1, -2, -1, -1, -3, -1,  0, -1, -4, -3, -1, -1, -1, -1, -7},
 /* * */{ -7, -7, -7, -7, -7, -7, -7, -7, -7, -7, -7, -7, -7, -7, -7, -7, -7, -7, -7, -7, -7, -7, -7,  1}
+};
+
+#define PARASAIL_MATRIX_PAM150 \
+    "pam150", \
+    parasail_pam150_, \
+    parasail_pam150__, \
+    parasail_pam_map, \
+    24
+
+static const parasail_matrix_t parasail_pam150 = {
+PARASAIL_MATRIX_PAM150
 };
 
 #endif /* _PARASAIL_PAM150_H_ */

@@ -28,7 +28,7 @@
 parasail_result_t* ENAME(
         const char * const restrict _s1, const int s1Len,
         const char * const restrict _s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24])
+        const int open, const int gap, const parasail_matrix_t *matrix)
 {
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table3(s1Len, s2Len);
@@ -70,7 +70,7 @@ parasail_result_t* ENAME(
 
     /* iter over first sequence */
     for (i=1; i<=s1Len; ++i) {
-        const int * const restrict matrow = matrix[s1[i-1]];
+        const int * const restrict matrow = matrix->matrix_[s1[i-1]];
         /* init first column */
         int Nscore = tbl_pr[0];
         int Nmatches = mch_pr[0];

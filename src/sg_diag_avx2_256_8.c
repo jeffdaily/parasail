@@ -153,7 +153,7 @@ static inline void arr_store_si128(
 parasail_result_t* FNAME(
         const char * const restrict _s1, const int s1Len,
         const char * const restrict _s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24])
+        const int open, const int gap, const parasail_matrix_t *matrix)
 {
     const int32_t N = 32; /* number of values in vector */
     const int32_t PAD = N-1;
@@ -240,38 +240,38 @@ parasail_result_t* FNAME(
         __m256i vDel = vNegInf;
         __m256i vJLo16 = vJresetLo16;
         __m256i vJHi16 = vJresetHi16;
-        const int * const restrict matrow0 = matrix[s1[i+0]];
-        const int * const restrict matrow1 = matrix[s1[i+1]];
-        const int * const restrict matrow2 = matrix[s1[i+2]];
-        const int * const restrict matrow3 = matrix[s1[i+3]];
-        const int * const restrict matrow4 = matrix[s1[i+4]];
-        const int * const restrict matrow5 = matrix[s1[i+5]];
-        const int * const restrict matrow6 = matrix[s1[i+6]];
-        const int * const restrict matrow7 = matrix[s1[i+7]];
-        const int * const restrict matrow8 = matrix[s1[i+8]];
-        const int * const restrict matrow9 = matrix[s1[i+9]];
-        const int * const restrict matrow10 = matrix[s1[i+10]];
-        const int * const restrict matrow11 = matrix[s1[i+11]];
-        const int * const restrict matrow12 = matrix[s1[i+12]];
-        const int * const restrict matrow13 = matrix[s1[i+13]];
-        const int * const restrict matrow14 = matrix[s1[i+14]];
-        const int * const restrict matrow15 = matrix[s1[i+15]];
-        const int * const restrict matrow16 = matrix[s1[i+16]];
-        const int * const restrict matrow17 = matrix[s1[i+17]];
-        const int * const restrict matrow18 = matrix[s1[i+18]];
-        const int * const restrict matrow19 = matrix[s1[i+19]];
-        const int * const restrict matrow20 = matrix[s1[i+20]];
-        const int * const restrict matrow21 = matrix[s1[i+21]];
-        const int * const restrict matrow22 = matrix[s1[i+22]];
-        const int * const restrict matrow23 = matrix[s1[i+23]];
-        const int * const restrict matrow24 = matrix[s1[i+24]];
-        const int * const restrict matrow25 = matrix[s1[i+25]];
-        const int * const restrict matrow26 = matrix[s1[i+26]];
-        const int * const restrict matrow27 = matrix[s1[i+27]];
-        const int * const restrict matrow28 = matrix[s1[i+28]];
-        const int * const restrict matrow29 = matrix[s1[i+29]];
-        const int * const restrict matrow30 = matrix[s1[i+30]];
-        const int * const restrict matrow31 = matrix[s1[i+31]];
+        const int8_t * const restrict matrow0 = &matrix->matrix[matrix->size*s1[i+0]];
+        const int8_t * const restrict matrow1 = &matrix->matrix[matrix->size*s1[i+1]];
+        const int8_t * const restrict matrow2 = &matrix->matrix[matrix->size*s1[i+2]];
+        const int8_t * const restrict matrow3 = &matrix->matrix[matrix->size*s1[i+3]];
+        const int8_t * const restrict matrow4 = &matrix->matrix[matrix->size*s1[i+4]];
+        const int8_t * const restrict matrow5 = &matrix->matrix[matrix->size*s1[i+5]];
+        const int8_t * const restrict matrow6 = &matrix->matrix[matrix->size*s1[i+6]];
+        const int8_t * const restrict matrow7 = &matrix->matrix[matrix->size*s1[i+7]];
+        const int8_t * const restrict matrow8 = &matrix->matrix[matrix->size*s1[i+8]];
+        const int8_t * const restrict matrow9 = &matrix->matrix[matrix->size*s1[i+9]];
+        const int8_t * const restrict matrow10 = &matrix->matrix[matrix->size*s1[i+10]];
+        const int8_t * const restrict matrow11 = &matrix->matrix[matrix->size*s1[i+11]];
+        const int8_t * const restrict matrow12 = &matrix->matrix[matrix->size*s1[i+12]];
+        const int8_t * const restrict matrow13 = &matrix->matrix[matrix->size*s1[i+13]];
+        const int8_t * const restrict matrow14 = &matrix->matrix[matrix->size*s1[i+14]];
+        const int8_t * const restrict matrow15 = &matrix->matrix[matrix->size*s1[i+15]];
+        const int8_t * const restrict matrow16 = &matrix->matrix[matrix->size*s1[i+16]];
+        const int8_t * const restrict matrow17 = &matrix->matrix[matrix->size*s1[i+17]];
+        const int8_t * const restrict matrow18 = &matrix->matrix[matrix->size*s1[i+18]];
+        const int8_t * const restrict matrow19 = &matrix->matrix[matrix->size*s1[i+19]];
+        const int8_t * const restrict matrow20 = &matrix->matrix[matrix->size*s1[i+20]];
+        const int8_t * const restrict matrow21 = &matrix->matrix[matrix->size*s1[i+21]];
+        const int8_t * const restrict matrow22 = &matrix->matrix[matrix->size*s1[i+22]];
+        const int8_t * const restrict matrow23 = &matrix->matrix[matrix->size*s1[i+23]];
+        const int8_t * const restrict matrow24 = &matrix->matrix[matrix->size*s1[i+24]];
+        const int8_t * const restrict matrow25 = &matrix->matrix[matrix->size*s1[i+25]];
+        const int8_t * const restrict matrow26 = &matrix->matrix[matrix->size*s1[i+26]];
+        const int8_t * const restrict matrow27 = &matrix->matrix[matrix->size*s1[i+27]];
+        const int8_t * const restrict matrow28 = &matrix->matrix[matrix->size*s1[i+28]];
+        const int8_t * const restrict matrow29 = &matrix->matrix[matrix->size*s1[i+29]];
+        const int8_t * const restrict matrow30 = &matrix->matrix[matrix->size*s1[i+30]];
+        const int8_t * const restrict matrow31 = &matrix->matrix[matrix->size*s1[i+31]];
         __m256i vIltLimit = _mm256_packs_epi16_rpl(
                 _mm256_cmplt_epi16_rpl(vILo16, vILimit16),
                 _mm256_cmplt_epi16_rpl(vIHi16, vILimit16));

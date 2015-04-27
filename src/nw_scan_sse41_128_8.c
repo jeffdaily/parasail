@@ -62,7 +62,7 @@ static inline void arr_store_si128(
 parasail_result_t* FNAME(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24])
+        const int open, const int gap, const parasail_matrix_t *matrix)
 {
     int32_t i = 0;
     int32_t j = 0;
@@ -109,7 +109,7 @@ parasail_result_t* FNAME(
                 __m128i_8_t t;
                 j = i;
                 for (segNum=0; segNum<segWidth; ++segNum) {
-                    t.v[segNum] = j >= s1Len ? 0 : matrix[k][parasail_blosum_map[(unsigned char)s1[j]]];
+                    t.v[segNum] = j >= s1Len ? 0 : matrix->matrix[matrix->size*k+parasail_blosum_map[(unsigned char)s1[j]]];
                     j += segLen;
                 }
                 _mm_store_si128(&pvP[index], t.m);

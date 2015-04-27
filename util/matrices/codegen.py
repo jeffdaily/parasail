@@ -23,6 +23,9 @@ header = """/**
 #ifndef _PARASAIL_%(FILENAME)s_H_
 #define _PARASAIL_%(FILENAME)s_H_
 
+#include "parasail.h"
+#include "%(BASE)s_map.h"
+
 """
 
 footer = "#endif /* _PARASAIL_%s_H_ */"
@@ -36,7 +39,17 @@ filenames.extend(glob.glob("BLOSUM*"))
 filenames.extend(glob.glob("PAM*"))
 filenames = sorted(filenames)
 
+def get_base(name):
+    base = ""
+    if "BLOSUM" in name:
+        base = "blosum"
+    elif "PAM" in name:
+        base = "pam"
+    assert base
+    return base
+
 def generate_mapper(name, line):
+    base = get_base(name)
     text = """/**
  * @file
  *
@@ -74,10 +87,11 @@ static const int parasail_%s_map[256] = {
     return text
 
 for filename in filenames:
+    base = get_base(filename)
     filename_lower = filename.lower()
     output_filename = output_dir + filename_lower + ".h"
     writer = open(output_filename, "w")
-    writer.write(header % {"FILENAME":filename})
+    writer.write(header % {"FILENAME":filename, "BASE":base})
     the_lines = []
     for line in open(filename):
         line = line.strip()
@@ -88,7 +102,7 @@ for filename in filenames:
     count = len(the_lines)-1
     # write out the mat[] form
     writer.write("\n")
-    writer.write("static const int8_t parasail_%s[] = {\n" % filename_lower)
+    writer.write("static const int8_t parasail_%s_[] = {\n" % filename_lower)
     writer.write("/*     " + ("%4s"*24) % tuple(the_lines[0].split()) + " */\n")
     text = ""
     for line in the_lines[1:]:
@@ -100,7 +114,7 @@ for filename in filenames:
     writer.write("\n};\n")
     # write out the mat[][] form
     writer.write("\n")
-    writer.write("static const int parasail_%s_[%d][%d] = {\n" % (
+    writer.write("static const int parasail_%s__[%d][%d] = {\n" % (
         filename_lower, count, count))
     writer.write("/*     " + ("%4s"*24) % tuple(the_lines[0].split()) + " */\n")
     text = ""
@@ -111,7 +125,20 @@ for filename in filenames:
         text += "\n"
     writer.write(text[:-2])
     writer.write("\n};\n")
-    writer.write("\n")
+    writer.write("""
+#define PARASAIL_MATRIX_%s \\
+    "%s", \\
+    parasail_%s_, \\
+    parasail_%s__, \\
+    parasail_%s_map, \\
+    %d
+
+static const parasail_matrix_t parasail_%s = {
+PARASAIL_MATRIX_%s
+};
+
+""" % (filename, filename_lower, filename_lower, filename_lower,
+    base, count, filename_lower, filename))
     writer.write(footer % filename)
     writer.write("\n")
     writer.close()
@@ -144,14 +171,6 @@ text = """/**
 #include "parasail/matrices/blosum_map.h"
 #include "parasail/matrices/pam_map.h"
 
-typedef struct parasail_matrix {
-    const char * name;
-    const int8_t *matrix;
-    const int (*matrix_)[24];
-    const int *mapper;
-    int size;
-} parasail_matrix_t;
-
 parasail_matrix_t parasail_matrices[] = {
 %(MATRICES)s
     {"NULL",NULL,NULL,NULL,0}
@@ -183,14 +202,9 @@ parasail_matrix_t* parasail_matrix_lookup(const char *matrixname)
 headers = ""
 matrices = ""
 for name in filenames:
-    base = ""
-    if "BLOSUM" in name:
-        base = "blosum"
-    elif "PAM" in name:
-        base = "pam"
-    headers += '#include "parasail/matrices/%s.h"\n' % name
-    matrices += '    {"%s",parasail_%s,parasail_%s_,parasail_%s_map,24},\n' % (
-            name.lower(),name.lower(),name.lower(),base,)
+    base = get_base(name)
+    headers += '#include "parasail/matrices/%s.h"\n' % name.lower()
+    matrices += '    {PARASAIL_MATRIX_%s},\n' % name
 output_filename = output_dir + "matrix_lookup.h"
 writer = open(output_filename, "w")
 writer.write(text % {"MATRICES":matrices[:-1], "HEADERS":headers[:-1]})

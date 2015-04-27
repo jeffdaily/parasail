@@ -112,7 +112,7 @@ static inline void arr_store_si512(
 parasail_result_t* FNAME(
         const char * const restrict _s1, const int s1Len,
         const char * const restrict _s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24])
+        const int open, const int gap, const parasail_matrix_t *matrix)
 {
     const int N = 16; /* number of values in vector */
     const int PAD = N-1; /* N 8-bit values in vector, so N - 1 */

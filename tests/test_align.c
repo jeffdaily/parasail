@@ -349,7 +349,7 @@ int main(int argc, char **argv)
         for (i=0; i<new_limit; ++i) {
             timer_rdtsc_single = timer_start();
             timer_nsecs_single = timer_real();
-            result = f.pointer(seqA, lena, seqB, lenb, open, extend, matrix->matrix_);
+            result = f.pointer(seqA, lena, seqB, lenb, open, extend, matrix);
             timer_rdtsc_single = timer_start()-(timer_rdtsc_single);
             timer_nsecs_single = timer_real() - timer_nsecs_single;
             stats_sample_value(&stats_rdtsc, timer_rdtsc_single);
@@ -389,7 +389,7 @@ int main(int argc, char **argv)
                 strcat(suffix, f.width);
             }
             strcat(suffix, ".txt");
-            result = f.pointer(seqA, lena, seqB, lenb, open, extend, matrix->matrix_);
+            result = f.pointer(seqA, lena, seqB, lenb, open, extend, matrix);
             {
                 char filename[256] = {'\0'};
                 strcpy(filename, f.alg);

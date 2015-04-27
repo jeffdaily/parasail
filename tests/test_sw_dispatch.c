@@ -28,19 +28,19 @@ int main(int argc, char **argv)
     UNUSED(argc);
     UNUSED(argv);
 
-    result = parasail_sw_scan(seqA, lena, seqB, lenb, 10, 1, parasail_blosum62_);
+    result = parasail_sw_scan(seqA, lena, seqB, lenb, 10, 1, &parasail_blosum62);
     printf("score=%d\n", result->score);
     parasail_result_free(result);
 
-    result = parasail_sw_scan_32(seqA, lena, seqB, lenb, 10, 1, parasail_blosum62_);
+    result = parasail_sw_scan_32(seqA, lena, seqB, lenb, 10, 1, &parasail_blosum62);
     printf("score32=%d\n", result->score);
     parasail_result_free(result);
 
-    result = parasail_sw_scan_16(seqA, lena, seqB, lenb, 10, 1, parasail_blosum62_);
+    result = parasail_sw_scan_16(seqA, lena, seqB, lenb, 10, 1, &parasail_blosum62);
     printf("score16=%d\n", result->score);
     parasail_result_free(result);
 
-    result = parasail_sw_scan_8(seqA, lena, seqB, lenb, 10, 1, parasail_blosum62_);
+    result = parasail_sw_scan_8(seqA, lena, seqB, lenb, 10, 1, &parasail_blosum62);
     printf("score8=%d\n", result->score);
     parasail_result_free(result);
 

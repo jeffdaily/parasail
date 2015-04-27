@@ -14,6 +14,9 @@
 #ifndef _PARASAIL_BLOSUM80_H_
 #define _PARASAIL_BLOSUM80_H_
 
+#include "parasail.h"
+#include "blosum_map.h"
+
 /* #  Matrix made by matblas from blosum80_3.iij */
 /* #  * column uses minimum score */
 /* #  BLOSUM Clustered Scoring Matrix in 1/3 Bit Units */
@@ -21,7 +24,7 @@
 /* #  Cluster Percentage: >= 80 */
 /* #  Entropy =   0.9868, Expected =  -0.7442 */
 
-static const int8_t parasail_blosum80[] = {
+static const int8_t parasail_blosum80_[] = {
 /*        A   R   N   D   C   Q   E   G   H   I   L   K   M   F   P   S   T   W   Y   V   B   Z   X   * */
 /* A */   7, -3, -3, -3, -1, -2, -2,  0, -3, -3, -3, -1, -2, -4, -1,  2,  0, -5, -4, -1, -3, -2, -1, -8,
 /* R */  -3,  9, -1, -3, -6,  1, -1, -4,  0, -5, -4,  3, -3, -5, -3, -2, -2, -5, -4, -4, -2,  0, -2, -8,
@@ -49,7 +52,7 @@ static const int8_t parasail_blosum80[] = {
 /* * */  -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8,  1
 };
 
-static const int parasail_blosum80_[24][24] = {
+static const int parasail_blosum80__[24][24] = {
 /*        A   R   N   D   C   Q   E   G   H   I   L   K   M   F   P   S   T   W   Y   V   B   Z   X   * */
 /* A */{  7, -3, -3, -3, -1, -2, -2,  0, -3, -3, -3, -1, -2, -4, -1,  2,  0, -5, -4, -1, -3, -2, -1, -8},
 /* R */{ -3,  9, -1, -3, -6,  1, -1, -4,  0, -5, -4,  3, -3, -5, -3, -2, -2, -5, -4, -4, -2,  0, -2, -8},
@@ -75,6 +78,17 @@ static const int parasail_blosum80_[24][24] = {
 /* Z */{ -2,  0, -1,  1, -7,  5,  6, -4,  0, -6, -5,  1, -3, -6, -2, -1, -2, -5, -4, -4,  0,  6, -1, -8},
 /* X */{ -1, -2, -2, -3, -4, -2, -2, -3, -2, -2, -2, -2, -2, -3, -3, -1, -1, -5, -3, -2, -3, -1, -2, -8},
 /* * */{ -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8,  1}
+};
+
+#define PARASAIL_MATRIX_BLOSUM80 \
+    "blosum80", \
+    parasail_blosum80_, \
+    parasail_blosum80__, \
+    parasail_blosum_map, \
+    24
+
+static const parasail_matrix_t parasail_blosum80 = {
+PARASAIL_MATRIX_BLOSUM80
 };
 
 #endif /* _PARASAIL_BLOSUM80_H_ */

@@ -81,7 +81,7 @@ static inline void arr_store_si256(
 parasail_result_t* FNAME(
         const char * const restrict _s1, const int s1Len,
         const char * const restrict _s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24])
+        const int open, const int gap, const parasail_matrix_t *matrix)
 {
     const int32_t N = 8; /* number of values in vector */
     const int32_t PAD = N-1;
@@ -199,14 +199,14 @@ parasail_result_t* FNAME(
                 s1[i+6],
                 s1[i+7]);
         __m256i vs2 = vNegInf;
-        const int * const restrict matrow0 = matrix[s1[i+0]];
-        const int * const restrict matrow1 = matrix[s1[i+1]];
-        const int * const restrict matrow2 = matrix[s1[i+2]];
-        const int * const restrict matrow3 = matrix[s1[i+3]];
-        const int * const restrict matrow4 = matrix[s1[i+4]];
-        const int * const restrict matrow5 = matrix[s1[i+5]];
-        const int * const restrict matrow6 = matrix[s1[i+6]];
-        const int * const restrict matrow7 = matrix[s1[i+7]];
+        const int8_t * const restrict matrow0 = &matrix->matrix[matrix->size*s1[i+0]];
+        const int8_t * const restrict matrow1 = &matrix->matrix[matrix->size*s1[i+1]];
+        const int8_t * const restrict matrow2 = &matrix->matrix[matrix->size*s1[i+2]];
+        const int8_t * const restrict matrow3 = &matrix->matrix[matrix->size*s1[i+3]];
+        const int8_t * const restrict matrow4 = &matrix->matrix[matrix->size*s1[i+4]];
+        const int8_t * const restrict matrow5 = &matrix->matrix[matrix->size*s1[i+5]];
+        const int8_t * const restrict matrow6 = &matrix->matrix[matrix->size*s1[i+6]];
+        const int8_t * const restrict matrow7 = &matrix->matrix[matrix->size*s1[i+7]];
         __m256i vIltLimit = _mm256_cmplt_epi32_rpl(vI, vILimit);
         /* iterate over database sequence */
         for (j=0; j<s2Len+PAD; ++j) {

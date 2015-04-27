@@ -124,7 +124,7 @@ int main(int argc, char **argv) {
     unsigned long work = 0;
     int c = 0;
     char *funcname = NULL;
-    parasail_function_t function = NULL;
+    parasail_function_t *function = NULL;
     const char *matrixname = "blosum62";
     parasail_matrix_t *matrix = NULL;
     int gap_open = 10;

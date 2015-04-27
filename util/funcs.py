@@ -12,14 +12,10 @@ print """/**
 #ifndef _PARASAIL_FUNCTION_TYPE_H_
 #define _PARASAIL_FUNCTION_TYPE_H_
 
-typedef parasail_result_t* (*parasail_function_t)(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap,
-        const int matrix[24][24]);
+#include "parasail.h"
 
 typedef struct func {
-    parasail_function_t pointer;
+    parasail_function_t * pointer;
     const char * name;
     const char * alg;
     const char * type;
@@ -153,9 +149,9 @@ for table in ["", "_table"]:
                 print "#endif"
 
 print """
-parasail_function_t lookup_function(const char *funcname)
+parasail_function_t * lookup_function(const char *funcname)
 {
-    parasail_function_t function = NULL;
+    parasail_function_t * function = NULL;
 
     if (funcname) {
         int index = 0;

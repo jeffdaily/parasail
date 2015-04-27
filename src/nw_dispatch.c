@@ -16,39 +16,34 @@
 #include "parasail/cpuid.h"
 #include "parasail/memory.h"
 
-/* typedef for the nw function */
-typedef parasail_result_t* parasail_func(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24]);
-
 /* forward declare the dispatcher function */
-parasail_func parasail_nw_scan_32_dispatcher;
-parasail_func parasail_nw_scan_16_dispatcher;
-parasail_func parasail_nw_scan_8_dispatcher;
-parasail_func parasail_nw_striped_32_dispatcher;
-parasail_func parasail_nw_striped_16_dispatcher;
-parasail_func parasail_nw_striped_8_dispatcher;
-parasail_func parasail_nw_diag_32_dispatcher;
-parasail_func parasail_nw_diag_16_dispatcher;
-parasail_func parasail_nw_diag_8_dispatcher;
+parasail_function_t parasail_nw_scan_32_dispatcher;
+parasail_function_t parasail_nw_scan_16_dispatcher;
+parasail_function_t parasail_nw_scan_8_dispatcher;
+parasail_function_t parasail_nw_striped_32_dispatcher;
+parasail_function_t parasail_nw_striped_16_dispatcher;
+parasail_function_t parasail_nw_striped_8_dispatcher;
+parasail_function_t parasail_nw_diag_32_dispatcher;
+parasail_function_t parasail_nw_diag_16_dispatcher;
+parasail_function_t parasail_nw_diag_8_dispatcher;
 
 /* declare and initialize the nw pointer to the dispatcher function */
-parasail_func * parasail_nw_scan_32_pointer = &parasail_nw_scan_32_dispatcher;
-parasail_func * parasail_nw_scan_16_pointer = &parasail_nw_scan_16_dispatcher;
-parasail_func * parasail_nw_scan_8_pointer  = &parasail_nw_scan_8_dispatcher;
-parasail_func * parasail_nw_striped_32_pointer = &parasail_nw_striped_32_dispatcher;
-parasail_func * parasail_nw_striped_16_pointer = &parasail_nw_striped_16_dispatcher;
-parasail_func * parasail_nw_striped_8_pointer  = &parasail_nw_striped_8_dispatcher;
-parasail_func * parasail_nw_diag_32_pointer = &parasail_nw_diag_32_dispatcher;
-parasail_func * parasail_nw_diag_16_pointer = &parasail_nw_diag_16_dispatcher;
-parasail_func * parasail_nw_diag_8_pointer  = &parasail_nw_diag_8_dispatcher;
+parasail_function_t * parasail_nw_scan_32_pointer = &parasail_nw_scan_32_dispatcher;
+parasail_function_t * parasail_nw_scan_16_pointer = &parasail_nw_scan_16_dispatcher;
+parasail_function_t * parasail_nw_scan_8_pointer  = &parasail_nw_scan_8_dispatcher;
+parasail_function_t * parasail_nw_striped_32_pointer = &parasail_nw_striped_32_dispatcher;
+parasail_function_t * parasail_nw_striped_16_pointer = &parasail_nw_striped_16_dispatcher;
+parasail_function_t * parasail_nw_striped_8_pointer  = &parasail_nw_striped_8_dispatcher;
+parasail_function_t * parasail_nw_diag_32_pointer = &parasail_nw_diag_32_dispatcher;
+parasail_function_t * parasail_nw_diag_16_pointer = &parasail_nw_diag_16_dispatcher;
+parasail_function_t * parasail_nw_diag_8_pointer  = &parasail_nw_diag_8_dispatcher;
 
 /* dispatcher function implementation */
 parasail_result_t* parasail_nw_scan_32_dispatcher(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24])
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
     parasail_nw_scan_32_pointer = nw_scan_knc_512_32;
@@ -81,7 +76,8 @@ parasail_result_t* parasail_nw_scan_32_dispatcher(
 parasail_result_t* parasail_nw_scan_16_dispatcher(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24])
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
     parasail_nw_scan_16_pointer = nw_scan_knc_512_32;
@@ -114,7 +110,8 @@ parasail_result_t* parasail_nw_scan_16_dispatcher(
 parasail_result_t* parasail_nw_scan_8_dispatcher(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24])
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
     parasail_nw_scan_8_pointer = nw_scan_knc_512_32;
@@ -147,7 +144,8 @@ parasail_result_t* parasail_nw_scan_8_dispatcher(
 parasail_result_t* parasail_nw_scan(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24])
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
 {
     parasail_result_t *result;
 
@@ -169,7 +167,8 @@ parasail_result_t* parasail_nw_scan(
 parasail_result_t* parasail_nw_scan_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24])
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
 {
     return parasail_nw_scan_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -179,7 +178,8 @@ parasail_result_t* parasail_nw_scan_32(
 parasail_result_t* parasail_nw_scan_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24])
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
 {
     return parasail_nw_scan_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -189,7 +189,8 @@ parasail_result_t* parasail_nw_scan_16(
 parasail_result_t* parasail_nw_scan_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24])
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
 {
     return parasail_nw_scan_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -198,7 +199,8 @@ parasail_result_t* parasail_nw_scan_8(
 parasail_result_t* parasail_nw_striped_32_dispatcher(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24])
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
     parasail_nw_striped_32_pointer = nw_striped_knc_512_32;
@@ -231,7 +233,8 @@ parasail_result_t* parasail_nw_striped_32_dispatcher(
 parasail_result_t* parasail_nw_striped_16_dispatcher(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24])
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
     parasail_nw_striped_16_pointer = nw_striped_knc_512_32;
@@ -264,7 +267,8 @@ parasail_result_t* parasail_nw_striped_16_dispatcher(
 parasail_result_t* parasail_nw_striped_8_dispatcher(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24])
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
     parasail_nw_striped_8_pointer = nw_striped_knc_512_32;
@@ -297,7 +301,8 @@ parasail_result_t* parasail_nw_striped_8_dispatcher(
 parasail_result_t* parasail_nw_striped(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24])
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
 {
     parasail_result_t *result;
 
@@ -319,7 +324,8 @@ parasail_result_t* parasail_nw_striped(
 parasail_result_t* parasail_nw_striped_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24])
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
 {
     return parasail_nw_striped_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -329,7 +335,8 @@ parasail_result_t* parasail_nw_striped_32(
 parasail_result_t* parasail_nw_striped_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24])
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
 {
     return parasail_nw_striped_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -339,7 +346,8 @@ parasail_result_t* parasail_nw_striped_16(
 parasail_result_t* parasail_nw_striped_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24])
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
 {
     return parasail_nw_striped_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -348,7 +356,8 @@ parasail_result_t* parasail_nw_striped_8(
 parasail_result_t* parasail_nw_diag_32_dispatcher(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24])
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
     parasail_nw_diag_32_pointer = nw_diag_knc_512_32;
@@ -381,7 +390,8 @@ parasail_result_t* parasail_nw_diag_32_dispatcher(
 parasail_result_t* parasail_nw_diag_16_dispatcher(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24])
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
     parasail_nw_diag_16_pointer = nw_diag_knc_512_32;
@@ -414,7 +424,8 @@ parasail_result_t* parasail_nw_diag_16_dispatcher(
 parasail_result_t* parasail_nw_diag_8_dispatcher(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24])
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
     parasail_nw_diag_8_pointer = nw_diag_knc_512_32;
@@ -447,7 +458,8 @@ parasail_result_t* parasail_nw_diag_8_dispatcher(
 parasail_result_t* parasail_nw_diag(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24])
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
 {
     parasail_result_t *result;
 
@@ -469,7 +481,8 @@ parasail_result_t* parasail_nw_diag(
 parasail_result_t* parasail_nw_diag_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24])
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
 {
     return parasail_nw_diag_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -479,7 +492,8 @@ parasail_result_t* parasail_nw_diag_32(
 parasail_result_t* parasail_nw_diag_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24])
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
 {
     return parasail_nw_diag_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -489,7 +503,8 @@ parasail_result_t* parasail_nw_diag_16(
 parasail_result_t* parasail_nw_diag_8(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24])
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
 {
     return parasail_nw_diag_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }

@@ -97,7 +97,7 @@ int main(int argc, char **argv)
     size_t seq_count_queries = 0;
     char *endptr = NULL;
     char *funcname = NULL;
-    parasail_function_t function = NULL;
+    parasail_function_t *function = NULL;
     int c = 0;
     const char *matrixname = "blosum62";
     parasail_matrix_t *matrix = NULL;
@@ -250,7 +250,7 @@ int main(int argc, char **argv)
             parasail_result_t *result = function(
                     sequences_queries[i], sizes_queries[i],
                     sequences_database[j], sizes_database[j],
-                    gap_open, gap_extend, matrix->matrix_);
+                    gap_open, gap_extend, matrix);
             saturated_query += result->saturated;
             parasail_result_free(result);
         }

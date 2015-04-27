@@ -14,6 +14,9 @@
 #ifndef _PARASAIL_BLOSUM35_H_
 #define _PARASAIL_BLOSUM35_H_
 
+#include "parasail.h"
+#include "blosum_map.h"
+
 /* #  Matrix made by matblas from blosum35.iij */
 /* #  * column uses minimum score */
 /* #  BLOSUM Clustered Scoring Matrix in 1/4 Bit Units */
@@ -21,7 +24,7 @@
 /* #  Cluster Percentage: >= 35 */
 /* #  Entropy =   0.2111, Expected =  -0.1550 */
 
-static const int8_t parasail_blosum35[] = {
+static const int8_t parasail_blosum35_[] = {
 /*        A   R   N   D   C   Q   E   G   H   I   L   K   M   F   P   S   T   W   Y   V   B   Z   X   * */
 /* A */   5, -1, -1, -1, -2,  0, -1,  0, -2, -1, -2,  0,  0, -2, -2,  1,  0, -2, -1,  0, -1, -1,  0, -5,
 /* R */  -1,  8, -1, -1, -3,  2, -1, -2, -1, -3, -2,  2,  0, -1, -2, -1, -2,  0,  0, -1, -1,  0, -1, -5,
@@ -49,7 +52,7 @@ static const int8_t parasail_blosum35[] = {
 /* * */  -5, -5, -5, -5, -5, -5, -5, -5, -5, -5, -5, -5, -5, -5, -5, -5, -5, -5, -5, -5, -5, -5, -5,  1
 };
 
-static const int parasail_blosum35_[24][24] = {
+static const int parasail_blosum35__[24][24] = {
 /*        A   R   N   D   C   Q   E   G   H   I   L   K   M   F   P   S   T   W   Y   V   B   Z   X   * */
 /* A */{  5, -1, -1, -1, -2,  0, -1,  0, -2, -1, -2,  0,  0, -2, -2,  1,  0, -2, -1,  0, -1, -1,  0, -5},
 /* R */{ -1,  8, -1, -1, -3,  2, -1, -2, -1, -3, -2,  2,  0, -1, -2, -1, -2,  0,  0, -1, -1,  0, -1, -5},
@@ -75,6 +78,17 @@ static const int parasail_blosum35_[24][24] = {
 /* Z */{ -1,  0,  0,  1, -2,  4,  5, -2, -1, -3, -2,  1, -2, -3,  0,  0, -1, -1, -1, -2,  0,  4,  0, -5},
 /* X */{  0, -1,  0, -1, -2, -1, -1, -1, -1,  0,  0,  0,  0, -1, -1,  0,  0, -1, -1,  0, -1,  0, -1, -5},
 /* * */{ -5, -5, -5, -5, -5, -5, -5, -5, -5, -5, -5, -5, -5, -5, -5, -5, -5, -5, -5, -5, -5, -5, -5,  1}
+};
+
+#define PARASAIL_MATRIX_BLOSUM35 \
+    "blosum35", \
+    parasail_blosum35_, \
+    parasail_blosum35__, \
+    parasail_blosum_map, \
+    24
+
+static const parasail_matrix_t parasail_blosum35 = {
+PARASAIL_MATRIX_BLOSUM35
 };
 
 #endif /* _PARASAIL_BLOSUM35_H_ */

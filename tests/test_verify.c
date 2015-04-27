@@ -136,7 +136,7 @@ static inline void check_functions(
     unsigned long gap_index = 0;
     unsigned long function_index = 0;
     unsigned long pair_index = 0;
-    parasail_function_t reference_function = NULL;
+    parasail_function_t *reference_function = NULL;
 
     printf("checking %s functions\n", f.name);
     for (matrix_index=0; NULL!=parasail_matrices[matrix_index].matrix_; ++matrix_index) {
@@ -164,12 +164,12 @@ static inline void check_functions(
                             sequences[a], sizes[a],
                             sequences[b], sizes[b],
                             open, extend,
-                            parasail_matrices[matrix_index].matrix_);
+                            &parasail_matrices[matrix_index]);
                     result = functions[function_index].pointer(
                             sequences[a], sizes[a],
                             sequences[b], sizes[b],
                             open, extend,
-                            parasail_matrices[matrix_index].matrix_);
+                            &parasail_matrices[matrix_index]);
                     if (result->saturated) {
                         /* no point in comparing a result that saturated */
                         parasail_result_free(reference_result);

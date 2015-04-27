@@ -11,7 +11,8 @@ for a in alg:
             print "parasail_result_t* "+a+s+t+'('
             print " "*8+"const char * const restrict s1, const int s1Len,"
             print " "*8+"const char * const restrict s2, const int s2Len,"
-            print " "*8+"const int open, const int gap, const int matrix[24][24]);"
+            print " "*8+"const int open, const int gap,"
+            print " "*8+"const parasail_matrix_t* matrix);"
 
 # serial scan reference implementations (3x2x2x2 = 24 impl)
 alg = ["nw", "sg", "sw"]
@@ -24,7 +25,8 @@ for a in alg:
             print "parasail_result_t* "+a+s+t+'_scan('
             print " "*8+"const char * const restrict s1, const int s1Len,"
             print " "*8+"const char * const restrict s2, const int s2Len,"
-            print " "*8+"const int open, const int gap, const int matrix[24][24]);"
+            print " "*8+"const int open, const int gap,"
+            print " "*8+"const parasail_matrix_t* matrix);"
 
 # vectorized implementations (3x2x2x3x13 = 468 impl)
 alg = ["nw", "sg", "sw"]
@@ -47,7 +49,8 @@ for a in alg:
                     print "parasail_result_t* "+a+s+t+p+i+'('
                     print " "*8+"const char * const restrict s1, const int s1Len,"
                     print " "*8+"const char * const restrict s2, const int s2Len,"
-                    print " "*8+"const int open, const int gap, const int matrix[24][24]);"
+                    print " "*8+"const int open, const int gap,"
+                    print " "*8+"const parasail_matrix_t* matrix);"
 
 # vectorized implementations of blocked (just a couple)
 alg = ["sw"]
@@ -65,7 +68,8 @@ for a in alg:
                     print "parasail_result_t* "+a+s+t+p+i+'('
                     print " "*8+"const char * const restrict s1, const int s1Len,"
                     print " "*8+"const char * const restrict s2, const int s2Len,"
-                    print " "*8+"const int open, const int gap, const int matrix[24][24]);"
+                    print " "*8+"const int open, const int gap,"
+                    print " "*8+"const parasail_matrix_t* matrix);"
 
 # dispatching implementations (3x2x3x4 = 72 impl)
 alg = ["nw", "sg", "sw"]
@@ -81,5 +85,6 @@ for a in alg:
                 print "parasail_result_t* parasail_"+a+s+p+w+'('
                 print " "*8+"const char * const restrict s1, const int s1Len,"
                 print " "*8+"const char * const restrict s2, const int s2Len,"
-                print " "*8+"const int open, const int gap, const int matrix[24][24]);"
+                print " "*8+"const int open, const int gap,"
+                print " "*8+"const parasail_matrix_t* matrix);"
 

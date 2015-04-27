@@ -28,7 +28,7 @@
 parasail_result_t* ENAME(
         const char * const restrict _s1, const int s1Len,
         const char * const restrict _s2, const int s2Len,
-        const int open, const int gap, const int matrix[24][24])
+        const int open, const int gap, const parasail_matrix_t *matrix)
 {
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table3(s1Len, s2Len);
@@ -96,7 +96,7 @@ parasail_result_t* ENAME(
 
     /* iterate over database */
     for (j=0; j<s2Len; ++j) {
-        const int * const restrict matcol = matrix[s2[j]];
+        const int * const restrict matcol = matrix->matrix_[s2[j]];
         int FM = 0;
         int FS = 0;
         int FL = 0;

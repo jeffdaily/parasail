@@ -131,8 +131,8 @@ parasail_result_t* FNAME(
                 __m128i_8_t s;
                 j = i;
                 for (segNum=0; segNum<segWidth; ++segNum) {
-                    p.v[segNum] = j >= s1Len ? 0 : matrix->matrix[matrix->size*k+parasail_blosum_map[(unsigned char)s1[j]]];
-                    m.v[segNum] = j >= s1Len ? 0 : (k == parasail_blosum_map[(unsigned char)s1[j]]);
+                    p.v[segNum] = j >= s1Len ? 0 : matrix->matrix[matrix->size*k+matrix->mapper[(unsigned char)s1[j]]];
+                    m.v[segNum] = j >= s1Len ? 0 : (k == matrix->mapper[(unsigned char)s1[j]]);
                     s.v[segNum] = p.v[segNum] > 0;
                     j += segLen;
                 }
@@ -199,9 +199,9 @@ parasail_result_t* FNAME(
         vSp= _mm_slli_si128(_mm_load_si128(pvS+(segLen-1)), 1);
         vLp= _mm_slli_si128(_mm_load_si128(pvL+(segLen-1)), 1);
         vLp= _mm_adds_epi8(vLp, vOne);
-        pvW = pvP + parasail_blosum_map[(unsigned char)s2[j]]*segLen;
-        pvC = pvPm+ parasail_blosum_map[(unsigned char)s2[j]]*segLen;
-        pvD = pvPs+ parasail_blosum_map[(unsigned char)s2[j]]*segLen;
+        pvW = pvP + matrix->mapper[(unsigned char)s2[j]]*segLen;
+        pvC = pvPm+ matrix->mapper[(unsigned char)s2[j]]*segLen;
+        pvD = pvPs+ matrix->mapper[(unsigned char)s2[j]]*segLen;
         for (i=0; i<segLen; ++i) {
             __m128i cond_max;
             /* load values we need */

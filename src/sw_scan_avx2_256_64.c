@@ -106,7 +106,7 @@ parasail_result_t* FNAME(
                 __m256i_64_t t;
                 j = i;
                 for (segNum=0; segNum<segWidth; ++segNum) {
-                    t.v[segNum] = j >= s1Len ? 0 : matrix->matrix[matrix->size*k+parasail_blosum_map[(unsigned char)s1[j]]];
+                    t.v[segNum] = j >= s1Len ? 0 : matrix->matrix[matrix->size*k+matrix->mapper[(unsigned char)s1[j]]];
                     j += segLen;
                 }
                 _mm256_store_si256(&pvP[index], t.m);
@@ -146,7 +146,7 @@ parasail_result_t* FNAME(
         /* calculate Ft first pass */
         vHp = _mm256_load_si256(pvH+(segLen-1));
         vHp = _mm256_slli_si256_rpl(vHp, 8);
-        pvW = pvP + parasail_blosum_map[(unsigned char)s2[j]]*segLen;
+        pvW = pvP + matrix->mapper[(unsigned char)s2[j]]*segLen;
         vHt = vNegInf;
         vFt = vNegInf;
         for (i=0; i<segLen; ++i) {

@@ -173,7 +173,7 @@ parasail_result_t* FNAME(
 
     /* convert _s1 from char to int in range 0-23 */
     for (i=0; i<s1Len; ++i) {
-        s1[i] = parasail_blosum_map[(unsigned char)_s1[i]];
+        s1[i] = matrix->mapper[(unsigned char)_s1[i]];
     }
     /* pad back of s1 with dummy values */
     for (i=s1Len; i<s1Len+PAD; ++i) {
@@ -182,7 +182,7 @@ parasail_result_t* FNAME(
 
     /* convert _s2 from char to int in range 0-23 */
     for (j=0; j<s2Len; ++j) {
-        s2[j] = parasail_blosum_map[(unsigned char)_s2[j]];
+        s2[j] = matrix->mapper[(unsigned char)_s2[j]];
     }
     /* pad front of s2 with dummy values */
     for (j=-PAD; j<0; ++j) {

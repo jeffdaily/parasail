@@ -124,8 +124,8 @@ parasail_result_t* FNAME(
                 __m256i_16_t s;
                 j = i;
                 for (segNum=0; segNum<segWidth; ++segNum) {
-                    p.v[segNum] = j >= s1Len ? 0 : matrix->matrix[matrix->size*k+parasail_blosum_map[(unsigned char)s1[j]]];
-                    m.v[segNum] = j >= s1Len ? 0 : (k == parasail_blosum_map[(unsigned char)s1[j]]);
+                    p.v[segNum] = j >= s1Len ? 0 : matrix->matrix[matrix->size*k+matrix->mapper[(unsigned char)s1[j]]];
+                    m.v[segNum] = j >= s1Len ? 0 : (k == matrix->mapper[(unsigned char)s1[j]]);
                     s.v[segNum] = p.v[segNum] > 0;
                     j += segLen;
                 }
@@ -203,9 +203,9 @@ parasail_result_t* FNAME(
         vSp= _mm256_slli_si256_rpl(_mm256_load_si256(pvS+(segLen-1)), 2);
         vLp= _mm256_slli_si256_rpl(_mm256_load_si256(pvL+(segLen-1)), 2);
         vLp= _mm256_add_epi16(vLp, vOne);
-        pvW = pvP + parasail_blosum_map[(unsigned char)s2[j]]*segLen;
-        pvC = pvPm+ parasail_blosum_map[(unsigned char)s2[j]]*segLen;
-        pvD = pvPs+ parasail_blosum_map[(unsigned char)s2[j]]*segLen;
+        pvW = pvP + matrix->mapper[(unsigned char)s2[j]]*segLen;
+        pvC = pvPm+ matrix->mapper[(unsigned char)s2[j]]*segLen;
+        pvD = pvPs+ matrix->mapper[(unsigned char)s2[j]]*segLen;
         for (i=0; i<segLen; ++i) {
             /* load values we need */
             vE = _mm256_load_si256(pvE+i);

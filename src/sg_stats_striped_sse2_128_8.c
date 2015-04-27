@@ -158,8 +158,8 @@ parasail_result_t* FNAME(
                 __m128i_8_t s;
                 j = i;
                 for (segNum=0; segNum<segWidth; ++segNum) {
-                    p.v[segNum] = j >= s1Len ? 0 : matrix->matrix[matrix->size*k+parasail_blosum_map[(unsigned char)s1[j]]];
-                    m.v[segNum] = j >= s1Len ? 0 : (k == parasail_blosum_map[(unsigned char)s1[j]]);
+                    p.v[segNum] = j >= s1Len ? 0 : matrix->matrix[matrix->size*k+matrix->mapper[(unsigned char)s1[j]]];
+                    m.v[segNum] = j >= s1Len ? 0 : (k == matrix->mapper[(unsigned char)s1[j]]);
                     s.v[segNum] = p.v[segNum] > 0;
                     j += segLen;
                 }
@@ -220,9 +220,9 @@ parasail_result_t* FNAME(
         vHL = _mm_slli_si128(pvHLStore[segLen - 1], 1);
 
         /* Correct part of the vProfile */
-        vP = vProfile + parasail_blosum_map[(unsigned char)s2[j]] * segLen;
-        vPM = vProfileM + parasail_blosum_map[(unsigned char)s2[j]] * segLen;
-        vPS = vProfileS + parasail_blosum_map[(unsigned char)s2[j]] * segLen;
+        vP = vProfile + matrix->mapper[(unsigned char)s2[j]] * segLen;
+        vPM = vProfileM + matrix->mapper[(unsigned char)s2[j]] * segLen;
+        vPS = vProfileS + matrix->mapper[(unsigned char)s2[j]] * segLen;
 
         /* Swap the 2 H buffers. */
         pv = pvHLoad;

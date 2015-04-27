@@ -102,7 +102,7 @@ parasail_result_t* FNAME(
                 __m128i_64_t t;
                 j = i;
                 for (segNum=0; segNum<segWidth; ++segNum) {
-                    t.v[segNum] = j >= s1Len ? 0 : matrix->matrix[matrix->size*k+parasail_blosum_map[(unsigned char)s1[j]]];
+                    t.v[segNum] = j >= s1Len ? 0 : matrix->matrix[matrix->size*k+matrix->mapper[(unsigned char)s1[j]]];
                     j += segLen;
                 }
                 _mm_store_si128(&pvP[index], t.m);
@@ -154,7 +154,7 @@ parasail_result_t* FNAME(
         vHp = _mm_load_si128(pvH+(segLen-1));
         vHp = _mm_slli_si128(vHp, 8);
         vHp = _mm_insert_epi64(vHp, boundary[j], 0);
-        pvW = pvP + parasail_blosum_map[(unsigned char)s2[j]]*segLen;
+        pvW = pvP + matrix->mapper[(unsigned char)s2[j]]*segLen;
         vHt = vNegInf;
         vFt = vNegInf;
         for (i=0; i<segLen; ++i) {

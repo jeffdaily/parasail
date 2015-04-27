@@ -5,3 +5,4 @@ bld*
 *.pyc
 util/generated/
 util/matrices/generated/
+bindings/python/build

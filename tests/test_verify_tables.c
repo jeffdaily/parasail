@@ -155,8 +155,8 @@ static void check_functions(
     parasail_function_t *reference_function = NULL;
 
     printf("checking %s functions\n", f.name);
-    for (matrix_index=0; NULL!=parasail_matrices[matrix_index].matrix_; ++matrix_index) {
-        //printf("\t%s\n", parasail_matrices[matrix_index].name);
+    for (matrix_index=0; NULL!=parasail_matrices[matrix_index]; ++matrix_index) {
+        //printf("\t%s\n", parasail_matrices[matrix_index]->name);
         for (gap_index=0; INT_MIN!=gap_scores[gap_index].open; ++gap_index) {
             int open = gap_scores[gap_index].open;
             int extend = gap_scores[gap_index].extend;
@@ -179,12 +179,12 @@ static void check_functions(
                             sequences[a], sizes[a],
                             sequences[b], sizes[b],
                             open, extend,
-                            &parasail_matrices[matrix_index]);
+                            parasail_matrices[matrix_index]);
                     result = functions[function_index].pointer(
                             sequences[a], sizes[a],
                             sequences[b], sizes[b],
                             open, extend,
-                            &parasail_matrices[matrix_index]);
+                            parasail_matrices[matrix_index]);
                     if (result->saturated) {
                         /* no point in comparing a result that saturated */
                         parasail_result_free(reference_result);
@@ -199,7 +199,7 @@ static void check_functions(
                             printf("%s(%lu,%lu,%d,%d,%s) wrong score (%d!=%d)\n",
                                     functions[function_index].name,
                                     a, b, open, extend,
-                                    parasail_matrices[matrix_index].name,
+                                    parasail_matrices[matrix_index]->name,
                                     reference_result->score, result->score);
                         }
                     }
@@ -212,7 +212,7 @@ static void check_functions(
                             printf("%s(%lu,%lu,%d,%d,%s) bad score table\n",
                                     functions[function_index].name,
                                     a, b, open, extend,
-                                    parasail_matrices[matrix_index].name);
+                                    parasail_matrices[matrix_index]->name);
                         }
                     }
                     if (reference_result->matches_table
@@ -225,7 +225,7 @@ static void check_functions(
                             printf("%s(%lu,%lu,%d,%d,%s) bad matches table\n",
                                     functions[function_index].name,
                                     a, b, open, extend,
-                                    parasail_matrices[matrix_index].name);
+                                    parasail_matrices[matrix_index]->name);
                         }
                     }
                     if (reference_result->similar_table
@@ -238,7 +238,7 @@ static void check_functions(
                             printf("%s(%lu,%lu,%d,%d,%s) bad similar table\n",
                                     functions[function_index].name,
                                     a, b, open, extend,
-                                    parasail_matrices[matrix_index].name);
+                                    parasail_matrices[matrix_index]->name);
                         }
                     }
                     if (reference_result->length_table
@@ -251,7 +251,7 @@ static void check_functions(
                             printf("%s(%lu,%lu,%d,%d,%s) bad length table\n",
                                     functions[function_index].name,
                                     a, b, open, extend,
-                                    parasail_matrices[matrix_index].name);
+                                    parasail_matrices[matrix_index]->name);
                         }
                     }
                     parasail_result_free(reference_result);
@@ -261,7 +261,7 @@ static void check_functions(
                     printf("%s %d %d %s saturated %lu times\n",
                             functions[function_index].name,
                             open, extend,
-                            parasail_matrices[matrix_index].name,
+                            parasail_matrices[matrix_index]->name,
                             saturated);
                 }
             }

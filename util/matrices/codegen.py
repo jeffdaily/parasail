@@ -126,19 +126,16 @@ for filename in filenames:
     writer.write(text[:-2])
     writer.write("\n};\n")
     writer.write("""
-#define PARASAIL_MATRIX_%s \\
-    "%s", \\
-    parasail_%s_, \\
-    parasail_%s__, \\
-    parasail_%s_map, \\
-    %d
-
 static const parasail_matrix_t parasail_%s = {
-PARASAIL_MATRIX_%s
+    "%s",
+    parasail_%s_,
+    parasail_%s__,
+    parasail_%s_map,
+    %d
 };
 
-""" % (filename, filename_lower, filename_lower, filename_lower,
-    base, count, filename_lower, filename))
+""" % (filename_lower, filename_lower, filename_lower, filename_lower,
+    base, count))
     writer.write(footer % filename)
     writer.write("\n")
     writer.close()
@@ -171,25 +168,24 @@ text = """/**
 #include "parasail/matrices/blosum_map.h"
 #include "parasail/matrices/pam_map.h"
 
-parasail_matrix_t parasail_matrices[] = {
+const parasail_matrix_t * parasail_matrices[] = {
 %(MATRICES)s
-    {"NULL",NULL,NULL,NULL,0}
+    NULL
 };
 
-parasail_matrix_t* parasail_matrix_lookup(const char *matrixname)
+const parasail_matrix_t* parasail_matrix_lookup(const char *matrixname)
 {
-    parasail_matrix_t *matrix = NULL;
+    const parasail_matrix_t *matrix = NULL;
 
     if (matrixname) {
         int index = 0;
-        parasail_matrix_t *current;
-        current = &parasail_matrices[index++];
-        while (current->matrix) {
+        const parasail_matrix_t *current = parasail_matrices[index++];
+        while (current) {
             if (0 == strcmp(matrixname, current->name)) {
                 matrix = current;
                 break;
             }
-            current = &parasail_matrices[index++];
+            current = parasail_matrices[index++];
         }
     }
 
@@ -204,7 +200,7 @@ matrices = ""
 for name in filenames:
     base = get_base(name)
     headers += '#include "parasail/matrices/%s.h"\n' % name.lower()
-    matrices += '    {PARASAIL_MATRIX_%s},\n' % name
+    matrices += '    &parasail_%s,\n' % name.lower()
 output_filename = output_dir + "matrix_lookup.h"
 writer = open(output_filename, "w")
 writer.write(text % {"MATRICES":matrices[:-1], "HEADERS":headers[:-1]})

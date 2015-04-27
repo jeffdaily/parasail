@@ -188,7 +188,7 @@ int main(int argc, char **argv)
     unsigned long s = 0;
     char *endptr = NULL;
     char *matrixname = NULL;
-    parasail_matrix_t *matrix = NULL;
+    const parasail_matrix_t *matrix = NULL;
     int open = 10;
     int extend = 1;
 

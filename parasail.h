@@ -31,7 +31,7 @@ typedef struct parasail_matrix {
     const int8_t *matrix;
     const int (*matrix_)[24];
     const int *mapper;
-    int size;
+    const int size;
 } parasail_matrix_t;
 
 typedef parasail_result_t* parasail_function_t(

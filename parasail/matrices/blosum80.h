@@ -80,15 +80,12 @@ static const int parasail_blosum80__[24][24] = {
 /* * */{ -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8, -8,  1}
 };
 
-#define PARASAIL_MATRIX_BLOSUM80 \
-    "blosum80", \
-    parasail_blosum80_, \
-    parasail_blosum80__, \
-    parasail_blosum_map, \
-    24
-
 static const parasail_matrix_t parasail_blosum80 = {
-PARASAIL_MATRIX_BLOSUM80
+    "blosum80",
+    parasail_blosum80_,
+    parasail_blosum80__,
+    parasail_blosum_map,
+    24
 };
 
 #endif /* _PARASAIL_BLOSUM80_H_ */

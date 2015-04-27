@@ -83,15 +83,12 @@ static const int parasail_pam150__[24][24] = {
 /* * */{ -7, -7, -7, -7, -7, -7, -7, -7, -7, -7, -7, -7, -7, -7, -7, -7, -7, -7, -7, -7, -7, -7, -7,  1}
 };
 
-#define PARASAIL_MATRIX_PAM150 \
-    "pam150", \
-    parasail_pam150_, \
-    parasail_pam150__, \
-    parasail_pam_map, \
-    24
-
 static const parasail_matrix_t parasail_pam150 = {
-PARASAIL_MATRIX_PAM150
+    "pam150",
+    parasail_pam150_,
+    parasail_pam150__,
+    parasail_pam_map,
+    24
 };
 
 #endif /* _PARASAIL_PAM150_H_ */

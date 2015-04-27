@@ -78,89 +78,88 @@
 #include "parasail/matrices/blosum_map.h"
 #include "parasail/matrices/pam_map.h"
 
-parasail_matrix_t parasail_matrices[] = {
-    {PARASAIL_MATRIX_BLOSUM100},
-    {PARASAIL_MATRIX_BLOSUM30},
-    {PARASAIL_MATRIX_BLOSUM35},
-    {PARASAIL_MATRIX_BLOSUM40},
-    {PARASAIL_MATRIX_BLOSUM45},
-    {PARASAIL_MATRIX_BLOSUM50},
-    {PARASAIL_MATRIX_BLOSUM55},
-    {PARASAIL_MATRIX_BLOSUM60},
-    {PARASAIL_MATRIX_BLOSUM62},
-    {PARASAIL_MATRIX_BLOSUM65},
-    {PARASAIL_MATRIX_BLOSUM70},
-    {PARASAIL_MATRIX_BLOSUM75},
-    {PARASAIL_MATRIX_BLOSUM80},
-    {PARASAIL_MATRIX_BLOSUM85},
-    {PARASAIL_MATRIX_BLOSUM90},
-    {PARASAIL_MATRIX_PAM10},
-    {PARASAIL_MATRIX_PAM100},
-    {PARASAIL_MATRIX_PAM110},
-    {PARASAIL_MATRIX_PAM120},
-    {PARASAIL_MATRIX_PAM130},
-    {PARASAIL_MATRIX_PAM140},
-    {PARASAIL_MATRIX_PAM150},
-    {PARASAIL_MATRIX_PAM160},
-    {PARASAIL_MATRIX_PAM170},
-    {PARASAIL_MATRIX_PAM180},
-    {PARASAIL_MATRIX_PAM190},
-    {PARASAIL_MATRIX_PAM20},
-    {PARASAIL_MATRIX_PAM200},
-    {PARASAIL_MATRIX_PAM210},
-    {PARASAIL_MATRIX_PAM220},
-    {PARASAIL_MATRIX_PAM230},
-    {PARASAIL_MATRIX_PAM240},
-    {PARASAIL_MATRIX_PAM250},
-    {PARASAIL_MATRIX_PAM260},
-    {PARASAIL_MATRIX_PAM270},
-    {PARASAIL_MATRIX_PAM280},
-    {PARASAIL_MATRIX_PAM290},
-    {PARASAIL_MATRIX_PAM30},
-    {PARASAIL_MATRIX_PAM300},
-    {PARASAIL_MATRIX_PAM310},
-    {PARASAIL_MATRIX_PAM320},
-    {PARASAIL_MATRIX_PAM330},
-    {PARASAIL_MATRIX_PAM340},
-    {PARASAIL_MATRIX_PAM350},
-    {PARASAIL_MATRIX_PAM360},
-    {PARASAIL_MATRIX_PAM370},
-    {PARASAIL_MATRIX_PAM380},
-    {PARASAIL_MATRIX_PAM390},
-    {PARASAIL_MATRIX_PAM40},
-    {PARASAIL_MATRIX_PAM400},
-    {PARASAIL_MATRIX_PAM410},
-    {PARASAIL_MATRIX_PAM420},
-    {PARASAIL_MATRIX_PAM430},
-    {PARASAIL_MATRIX_PAM440},
-    {PARASAIL_MATRIX_PAM450},
-    {PARASAIL_MATRIX_PAM460},
-    {PARASAIL_MATRIX_PAM470},
-    {PARASAIL_MATRIX_PAM480},
-    {PARASAIL_MATRIX_PAM490},
-    {PARASAIL_MATRIX_PAM50},
-    {PARASAIL_MATRIX_PAM500},
-    {PARASAIL_MATRIX_PAM60},
-    {PARASAIL_MATRIX_PAM70},
-    {PARASAIL_MATRIX_PAM80},
-    {PARASAIL_MATRIX_PAM90},
-    {"NULL",NULL,NULL,NULL,0}
+const parasail_matrix_t * parasail_matrices[] = {
+    &parasail_blosum100,
+    &parasail_blosum30,
+    &parasail_blosum35,
+    &parasail_blosum40,
+    &parasail_blosum45,
+    &parasail_blosum50,
+    &parasail_blosum55,
+    &parasail_blosum60,
+    &parasail_blosum62,
+    &parasail_blosum65,
+    &parasail_blosum70,
+    &parasail_blosum75,
+    &parasail_blosum80,
+    &parasail_blosum85,
+    &parasail_blosum90,
+    &parasail_pam10,
+    &parasail_pam100,
+    &parasail_pam110,
+    &parasail_pam120,
+    &parasail_pam130,
+    &parasail_pam140,
+    &parasail_pam150,
+    &parasail_pam160,
+    &parasail_pam170,
+    &parasail_pam180,
+    &parasail_pam190,
+    &parasail_pam20,
+    &parasail_pam200,
+    &parasail_pam210,
+    &parasail_pam220,
+    &parasail_pam230,
+    &parasail_pam240,
+    &parasail_pam250,
+    &parasail_pam260,
+    &parasail_pam270,
+    &parasail_pam280,
+    &parasail_pam290,
+    &parasail_pam30,
+    &parasail_pam300,
+    &parasail_pam310,
+    &parasail_pam320,
+    &parasail_pam330,
+    &parasail_pam340,
+    &parasail_pam350,
+    &parasail_pam360,
+    &parasail_pam370,
+    &parasail_pam380,
+    &parasail_pam390,
+    &parasail_pam40,
+    &parasail_pam400,
+    &parasail_pam410,
+    &parasail_pam420,
+    &parasail_pam430,
+    &parasail_pam440,
+    &parasail_pam450,
+    &parasail_pam460,
+    &parasail_pam470,
+    &parasail_pam480,
+    &parasail_pam490,
+    &parasail_pam50,
+    &parasail_pam500,
+    &parasail_pam60,
+    &parasail_pam70,
+    &parasail_pam80,
+    &parasail_pam90,
+    NULL
 };
 
-parasail_matrix_t* parasail_matrix_lookup(const char *matrixname)
+const parasail_matrix_t* parasail_matrix_lookup(const char *matrixname)
 {
-    parasail_matrix_t *matrix = NULL;
+    const parasail_matrix_t *matrix = NULL;
 
     if (matrixname) {
         int index = 0;
-        parasail_matrix_t *current;
-        current = &parasail_matrices[index++];
-        while (current->matrix) {
+        const parasail_matrix_t *current = parasail_matrices[index++];
+        while (current) {
             if (0 == strcmp(matrixname, current->name)) {
                 matrix = current;
                 break;
             }
-            current = &parasail_matrices[index++];
+            current = parasail_matrices[index++];
         }
     }
 

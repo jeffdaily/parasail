@@ -126,7 +126,7 @@ int main(int argc, char **argv) {
     char *funcname = NULL;
     parasail_function_t *function = NULL;
     const char *matrixname = "blosum62";
-    parasail_matrix_t *matrix = NULL;
+    const parasail_matrix_t *matrix = NULL;
     int gap_open = 10;
     int gap_extend = 1;
 

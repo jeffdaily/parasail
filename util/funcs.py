@@ -97,11 +97,13 @@ for table in ["", "_table"]:
                         name = "%s_%s_%s_%s_%s" % (pre, par, isa, bits, width)
                         print_fmt(name, name, alg+stats, par, isa, bits, width, bits/width, is_table, is_stats, 0)
                 print "#endif"
+print "#if HAVE_SSE41"
 print_fmt("sw_blocked_sse41_128_32", "sw_blocked_sse41_128_32", "sw", "blocked", "sse41", "128", "32", 4, 0, 0, 0)
 print_fmt("sw_blocked_sse41_128_16", "sw_blocked_sse41_128_16", "sw", "blocked", "sse41", "128", "16", 8, 0, 0, 0)
 print_fmt("sw_table_blocked_sse41_128_32", "sw_blocked_sse41_128_32", "sw", "blocked", "sse41", "128", "32", 4, 1, 0, 0)
 print_fmt("sw_table_blocked_sse41_128_16", "sw_blocked_sse41_128_16", "sw", "blocked", "sse41", "128", "16", 8, 1, 0, 0)
 print_null()
+print "#endif"
 
 print "};"
 

@@ -567,11 +567,13 @@ parasail_function_info_t functions[] = {
 {sw_stats_table_striped_knc_512_32,   "sw_stats_table_striped_knc_512_32",   "sw_stats", "striped", "knc",   "512", "32", 16, 1, 1, 0},
 {sw_stats_table_diag_knc_512_32,      "sw_stats_table_diag_knc_512_32",      "sw_stats",    "diag", "knc",   "512", "32", 16, 1, 1, 0},
 #endif
+#if HAVE_SSE41
 {sw_blocked_sse41_128_32,             "sw_blocked_sse41_128_32",             "sw", "blocked", "sse41", "128", "32",  4, 0, 0, 0},
 {sw_blocked_sse41_128_16,             "sw_blocked_sse41_128_16",             "sw", "blocked", "sse41", "128", "16",  8, 0, 0, 0},
 {sw_table_blocked_sse41_128_32,       "sw_blocked_sse41_128_32",             "sw", "blocked", "sse41", "128", "32",  4, 1, 0, 0},
 {sw_table_blocked_sse41_128_16,       "sw_blocked_sse41_128_16",             "sw", "blocked", "sse41", "128", "16",  8, 1, 0, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
+#endif
 };
 #if HAVE_SSE2
 parasail_function_info_t nw_sse2_functions[] = {

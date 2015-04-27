@@ -187,3 +187,10 @@ void parasail_result_free(parasail_result_t *result)
     free(result);
 }
 
+void zmq_version(int *major, int *minor, int *patch)
+{
+    *major = PARASAIL_VERSION_MAJOR;
+    *minor = PARASAIL_VERSION_MINOR;
+    *patch = PARASAIL_VERSION_PATCH;
+}
+

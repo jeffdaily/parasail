@@ -6,11 +6,31 @@
 ###############################################################################
 AC_PREREQ([2.68])
 AC_INIT([Pairwise Sequence Alignment Library],
-        [0.1], [jeff.daily@pnnl.gov], parasail)
+        [m4_esyscmd([./version.sh])],
+        [jeff.daily@pnnl.gov],
+        [parasail])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_HEADER([config.h])
 AC_CONFIG_MACRO_DIR([m4])
-AC_CONFIG_SRCDIR([src/parasail.h])
+AC_CONFIG_SRCDIR([parasail.h])
+m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
+
+# This lets us use PACKAGE_VERSION in Makefiles
+AC_SUBST([PACKAGE_VERSION])
+
+# Libtool -version-info (ABI version)
+#
+# Don't change this unless you know exactly what you're doing and have read and
+# understand:
+# http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
+#
+# Changes:
+#
+# parasail version 1 use 0:0:0 (undefined/first)
+#
+# libparasail -version-info current:revision:age
+LTVER="0:0:0"
+AC_SUBST([LTVER])
 
 ###############################################################################
 # Init automake
@@ -366,7 +386,7 @@ AC_MSG_NOTICE
 AC_MSG_NOTICE([Libtool setup])
 AC_MSG_NOTICE
 
-LT_INIT([disable-shared])
+LT_INIT
 
 ###############################################################################
 # The End

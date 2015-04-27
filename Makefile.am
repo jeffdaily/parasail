@@ -10,6 +10,7 @@ AM_CFLAGS =
 AM_CPPFLAGS =
 AM_LDFLAGS =
 LDADD = libparasail.la
+libparasail_la_LDFLAGS = $(AM_LDFLAGS) -version-info @LTVER@
 
 nobase_include_HEADERS += parasail/cpuid.h
 nobase_include_HEADERS += parasail/function_lookup.h

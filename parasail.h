@@ -14,6 +14,19 @@
 extern "C" {
 #endif
 
+/* Version macros for compile-time API version detection */
+#define PARASAIL_VERSION_MAJOR 1
+#define PARASAIL_VERSION_MINOR 0
+#define PARASAIL_VERSION_PATCH 0
+
+#define PARASAIL_MAKE_VERSION(major, minor, patch) \
+    ((major) * 10000 + (minor) * 100 + (patch))
+#define PARASAIL_VERSION \
+    PARASAIL_MAKE_VERSION(PARASAIL_VERSION_MAJOR, PARASAIL_VERSION_MINOR, PARASAIL_VERSION_PATCH)
+
+/* Run-time API version detection */
+void parasail_version(int *major, int *minor, int *patch);
+
 typedef struct parasail_result {
     int saturated;
     int score;

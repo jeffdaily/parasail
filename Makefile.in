@@ -174,6 +174,10 @@ AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
 am__v_lt_0 = --silent
 am__v_lt_1 = 
+libparasail_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(AM_CFLAGS) $(CFLAGS) $(libparasail_la_LDFLAGS) $(LDFLAGS) -o \
+	$@
 libparasail_avx2_la_LIBADD =
 am__objects_2 = src/libparasail_avx2_la-nw_scan_avx2_256_64.lo \
 	src/libparasail_avx2_la-sg_scan_avx2_256_64.lo \
@@ -992,6 +996,7 @@ LIBTOOL = @LIBTOOL@
 LIPO = @LIPO@
 LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
+LTVER = @LTVER@
 MAINT = @MAINT@
 MAKEINFO = @MAKEINFO@
 MANIFEST_TOOL = @MANIFEST_TOOL@
@@ -1123,6 +1128,7 @@ AM_CPPFLAGS = -I$(top_srcdir)/contrib \
 	-I$(top_srcdir)/contrib/sais-lite-lcp
 AM_LDFLAGS = 
 LDADD = libparasail.la
+libparasail_la_LDFLAGS = $(AM_LDFLAGS) -version-info @LTVER@
 
 #################
 # core sources
@@ -1541,7 +1547,7 @@ src/sg_dispatch.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/sw_dispatch.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 
 libparasail.la: $(libparasail_la_OBJECTS) $(libparasail_la_DEPENDENCIES) $(EXTRA_libparasail_la_DEPENDENCIES) 
-	$(AM_V_CCLD)$(LINK) -rpath $(libdir) $(libparasail_la_OBJECTS) $(libparasail_la_LIBADD) $(LIBS)
+	$(AM_V_CCLD)$(libparasail_la_LINK) -rpath $(libdir) $(libparasail_la_OBJECTS) $(libparasail_la_LIBADD) $(LIBS)
 src/libparasail_avx2_la-nw_scan_avx2_256_64.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/libparasail_avx2_la-sg_scan_avx2_256_64.lo: src/$(am__dirstamp) \

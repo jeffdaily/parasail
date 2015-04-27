@@ -145,7 +145,7 @@ static inline void parse_sequences(
 }
 
 
-static inline int elem(func_t f) {
+static inline int elem(parasail_function_info_t f) {
     int i_bits = atoi(f.bits);
     int i_width = atoi(f.width);
     return i_bits / i_width;
@@ -175,7 +175,7 @@ int main(int argc, char **argv)
     int limit = 2;
     int i = 0;
     int index = 0;
-    func_t f;
+    parasail_function_info_t f;
     parasail_result_t *result = NULL;
     stats_t stats_rdtsc;
     stats_t stats_nsecs;

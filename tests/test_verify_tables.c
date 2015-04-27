@@ -141,12 +141,12 @@ static inline int diff_array(
 }
 
 static void check_functions(
-        funcs_t f,
+        parasail_function_group_t f,
         char **sequences,
         unsigned long *sizes,
         unsigned long pair_limit)
 {
-    func_t *functions = f.fs;
+    parasail_function_info_t *functions = f.fs;
     unsigned long matrix_index = 0;
     unsigned long gap_index = 0;
     unsigned long function_index = 0;

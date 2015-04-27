@@ -223,7 +223,7 @@ int main(int argc, char **argv)
     /* select the function */
     if (funcname) {
         int index = 0;
-        func_t f;
+        parasail_function_info_t f;
         f = functions[index++];
         while (f.pointer) {
             if (0 == strcmp(funcname, f.name)) {

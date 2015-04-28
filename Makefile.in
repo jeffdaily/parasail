@@ -743,21 +743,27 @@ tests_libssw_la_OBJECTS = $(am_tests_libssw_la_OBJECTS)
 @HAVE_SSE2_TRUE@am_tests_libssw_la_rpath =
 am_tests_test_align_OBJECTS = tests/test_align.$(OBJEXT)
 tests_test_align_OBJECTS = $(am_tests_test_align_OBJECTS)
+tests_test_align_LDADD = $(LDADD)
 am__DEPENDENCIES_1 =
-tests_test_align_DEPENDENCIES = $(LDADD) $(am__DEPENDENCIES_1) \
+tests_test_align_DEPENDENCIES = libparasail.la $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 am_tests_test_gcups_OBJECTS = tests/test_gcups.$(OBJEXT)
 tests_test_gcups_OBJECTS = $(am_tests_test_gcups_OBJECTS)
-tests_test_gcups_DEPENDENCIES = $(LDADD) $(am__DEPENDENCIES_1)
+tests_test_gcups_LDADD = $(LDADD)
+tests_test_gcups_DEPENDENCIES = libparasail.la $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 am_tests_test_isa_OBJECTS = tests/test_isa.$(OBJEXT)
 tests_test_isa_OBJECTS = $(am_tests_test_isa_OBJECTS)
 tests_test_isa_LDADD = $(LDADD)
-tests_test_isa_DEPENDENCIES = libparasail.la
+tests_test_isa_DEPENDENCIES = libparasail.la $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 am_tests_test_openmp_OBJECTS =  \
 	tests/tests_test_openmp-test_openmp.$(OBJEXT)
 tests_test_openmp_OBJECTS = $(am_tests_test_openmp_OBJECTS)
-tests_test_openmp_DEPENDENCIES = $(LDADD) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) $(am__append_12)
+am__DEPENDENCIES_2 = libparasail.la $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+tests_test_openmp_DEPENDENCIES = $(am__DEPENDENCIES_2) \
+	$(am__append_12)
 tests_test_openmp_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(tests_test_openmp_CFLAGS) $(CFLAGS) \
@@ -765,7 +771,7 @@ tests_test_openmp_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 am_tests_test_openmp_sais_OBJECTS =  \
 	tests/tests_test_openmp_sais-test_openmp_sais.$(OBJEXT)
 tests_test_openmp_sais_OBJECTS = $(am_tests_test_openmp_sais_OBJECTS)
-tests_test_openmp_sais_DEPENDENCIES = $(LDADD) $(am__DEPENDENCIES_1) \
+tests_test_openmp_sais_DEPENDENCIES = $(am__DEPENDENCIES_2) \
 	tests/libsais.la
 tests_test_openmp_sais_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
@@ -774,7 +780,8 @@ tests_test_openmp_sais_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
 am_tests_test_query_OBJECTS =  \
 	tests/tests_test_query-test_query.$(OBJEXT)
 tests_test_query_OBJECTS = $(am_tests_test_query_OBJECTS)
-tests_test_query_DEPENDENCIES = $(LDADD) $(am__DEPENDENCIES_1) \
+tests_test_query_LDADD = $(LDADD)
+tests_test_query_DEPENDENCIES = libparasail.la $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 tests_test_query_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
@@ -783,8 +790,8 @@ tests_test_query_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 am_tests_test_scatter_OBJECTS =  \
 	tests/tests_test_scatter-test_scatter.$(OBJEXT)
 tests_test_scatter_OBJECTS = $(am_tests_test_scatter_OBJECTS)
-tests_test_scatter_DEPENDENCIES = $(LDADD) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) $(am__append_13)
+tests_test_scatter_DEPENDENCIES = $(am__DEPENDENCIES_2) \
+	$(am__append_13)
 tests_test_scatter_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(tests_test_scatter_CFLAGS) $(CFLAGS) \
@@ -792,12 +799,15 @@ tests_test_scatter_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 am_tests_test_sw_dispatch_OBJECTS = tests/test_sw_dispatch.$(OBJEXT)
 tests_test_sw_dispatch_OBJECTS = $(am_tests_test_sw_dispatch_OBJECTS)
 tests_test_sw_dispatch_LDADD = $(LDADD)
-tests_test_sw_dispatch_DEPENDENCIES = libparasail.la
+tests_test_sw_dispatch_DEPENDENCIES = libparasail.la \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
 am_tests_test_verify_OBJECTS =  \
 	tests/tests_test_verify-test_verify.$(OBJEXT)
 tests_test_verify_OBJECTS = $(am_tests_test_verify_OBJECTS)
 tests_test_verify_LDADD = $(LDADD)
-tests_test_verify_DEPENDENCIES = libparasail.la
+tests_test_verify_DEPENDENCIES = libparasail.la $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 tests_test_verify_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(tests_test_verify_CFLAGS) $(CFLAGS) \
@@ -807,7 +817,9 @@ am_tests_test_verify_tables_OBJECTS =  \
 tests_test_verify_tables_OBJECTS =  \
 	$(am_tests_test_verify_tables_OBJECTS)
 tests_test_verify_tables_LDADD = $(LDADD)
-tests_test_verify_tables_DEPENDENCIES = libparasail.la
+tests_test_verify_tables_DEPENDENCIES = libparasail.la \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
 tests_test_verify_tables_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(tests_test_verify_tables_CFLAGS) $(CFLAGS) \
@@ -1127,7 +1139,7 @@ AM_CFLAGS =
 AM_CPPFLAGS = -I$(top_srcdir)/contrib \
 	-I$(top_srcdir)/contrib/sais-lite-lcp
 AM_LDFLAGS = 
-LDADD = libparasail.la
+LDADD = libparasail.la $(CLOCK_LIBS) $(MATH_LIBS) $(Z_LIBS)
 libparasail_la_LDFLAGS = $(AM_LDFLAGS) -version-info @LTVER@
 
 #################
@@ -1394,28 +1406,23 @@ libparasail_la_LIBADD = libparasail_novec.la \
 tests_libsais_la_SOURCES = contrib/sais-lite-lcp/sais.c \
 	contrib/sais-lite-lcp/sais.h
 tests_test_align_SOURCES = tests/test_align.c
-tests_test_align_LDADD = $(LDADD) $(CLOCK_LIBS) $(MATH_LIBS) $(Z_LIBS)
 tests_test_gcups_SOURCES = tests/test_gcups.c
-tests_test_gcups_LDADD = $(LDADD) $(Z_LIBS)
 tests_test_isa_SOURCES = tests/test_isa.c
 tests_test_openmp_SOURCES = tests/test_openmp.c
 tests_test_openmp_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_test_openmp_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
-tests_test_openmp_LDADD = $(LDADD) $(CLOCK_LIBS) $(MATH_LIBS) \
-	$(Z_LIBS) $(am__append_12)
+tests_test_openmp_LDADD = $(LDADD) $(am__append_12)
 tests_test_openmp_sais_SOURCES = tests/test_openmp_sais.cpp
 tests_test_openmp_sais_CXXFLAGS = $(AM_CXXFLAGS) $(OPENMP_CXXFLAGS)
 tests_test_openmp_sais_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CXXFLAGS)
-tests_test_openmp_sais_LDADD = $(LDADD) $(CLOCK_LIBS) tests/libsais.la
+tests_test_openmp_sais_LDADD = $(LDADD) tests/libsais.la
 tests_test_query_SOURCES = tests/test_query.c
 tests_test_query_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_test_query_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
-tests_test_query_LDADD = $(LDADD) $(CLOCK_LIBS) $(MATH_LIBS) $(Z_LIBS)
 tests_test_scatter_SOURCES = tests/test_scatter.c
 tests_test_scatter_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_test_scatter_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
-tests_test_scatter_LDADD = $(LDADD) $(CLOCK_LIBS) $(MATH_LIBS) \
-	$(Z_LIBS) $(am__append_13)
+tests_test_scatter_LDADD = $(LDADD) $(am__append_13)
 tests_test_sw_dispatch_SOURCES = tests/test_sw_dispatch.c
 tests_test_verify_SOURCES = tests/test_verify.c
 tests_test_verify_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)

@@ -12,6 +12,10 @@ AM_LDFLAGS =
 LDADD = libparasail.la
 libparasail_la_LDFLAGS = $(AM_LDFLAGS) -version-info @LTVER@
 
+LDADD += $(CLOCK_LIBS)
+LDADD += $(MATH_LIBS)
+LDADD += $(Z_LIBS)
+
 nobase_include_HEADERS += parasail/cpuid.h
 nobase_include_HEADERS += parasail/function_lookup.h
 nobase_include_HEADERS += parasail/matrix_lookup.h
@@ -604,16 +608,8 @@ check_PROGRAMS += tests/test_verify
 check_PROGRAMS += tests/test_verify_tables
 
 tests_test_align_SOURCES = tests/test_align.c
-tests_test_align_LDADD   =
-tests_test_align_LDADD   += $(LDADD)
-tests_test_align_LDADD   += $(CLOCK_LIBS)
-tests_test_align_LDADD   += $(MATH_LIBS)
-tests_test_align_LDADD   += $(Z_LIBS)
 
 tests_test_gcups_SOURCES = tests/test_gcups.c
-tests_test_gcups_LDADD   =
-tests_test_gcups_LDADD   += $(LDADD)
-tests_test_gcups_LDADD   += $(Z_LIBS)
 
 tests_test_isa_SOURCES = tests/test_isa.c
 
@@ -622,9 +618,6 @@ tests_test_openmp_CFLAGS  = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_test_openmp_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
 tests_test_openmp_LDADD   =
 tests_test_openmp_LDADD   += $(LDADD)
-tests_test_openmp_LDADD   += $(CLOCK_LIBS)
-tests_test_openmp_LDADD   += $(MATH_LIBS)
-tests_test_openmp_LDADD   += $(Z_LIBS)
 if HAVE_SSE2
 tests_test_openmp_LDADD   += tests/libssw.la
 endif
@@ -634,26 +627,17 @@ tests_test_openmp_sais_CXXFLAGS = $(AM_CXXFLAGS) $(OPENMP_CXXFLAGS)
 tests_test_openmp_sais_LDFLAGS  = $(AM_LDFLAGS) $(OPENMP_CXXFLAGS)
 tests_test_openmp_sais_LDADD    =
 tests_test_openmp_sais_LDADD    += $(LDADD)
-tests_test_openmp_sais_LDADD    += $(CLOCK_LIBS)
 tests_test_openmp_sais_LDADD    += tests/libsais.la
 
 tests_test_query_SOURCES = tests/test_query.c
 tests_test_query_CFLAGS  = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_test_query_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
-tests_test_query_LDADD   =
-tests_test_query_LDADD   += $(LDADD)
-tests_test_query_LDADD   += $(CLOCK_LIBS)
-tests_test_query_LDADD   += $(MATH_LIBS)
-tests_test_query_LDADD   += $(Z_LIBS)
 
 tests_test_scatter_SOURCES = tests/test_scatter.c
 tests_test_scatter_CFLAGS  = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_test_scatter_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
 tests_test_scatter_LDADD   =
 tests_test_scatter_LDADD   += $(LDADD)
-tests_test_scatter_LDADD   += $(CLOCK_LIBS)
-tests_test_scatter_LDADD   += $(MATH_LIBS)
-tests_test_scatter_LDADD   += $(Z_LIBS)
 if HAVE_SSE2
 tests_test_scatter_LDADD   += tests/libssw.la
 endif

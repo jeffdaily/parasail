@@ -20,9 +20,9 @@
 #define MAX(a,b) ((a)>(b)?(a):(b))
 
 #ifdef PARASAIL_TABLE
-#define ENAME sg_stats_table
+#define ENAME parasail_sg_stats_table
 #else
-#define ENAME sg_stats
+#define ENAME parasail_sg_stats
 #endif
 
 parasail_result_t* ENAME(

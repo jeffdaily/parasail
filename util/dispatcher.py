@@ -76,25 +76,25 @@ parasail_result_t* %(PREFIX)s_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        %(PREFIX)s_pointer = %(ALG)s_%(PAR)s_avx2_256_%(WIDTH)s;
+        %(PREFIX)s_pointer = parasail_%(ALG)s_%(PAR)s_avx2_256_%(WIDTH)s;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        %(PREFIX)s_pointer = %(ALG)s_%(PAR)s_sse41_128_%(WIDTH)s;
+        %(PREFIX)s_pointer = parasail_%(ALG)s_%(PAR)s_sse41_128_%(WIDTH)s;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        %(PREFIX)s_pointer = %(ALG)s_%(PAR)s_sse2_128_%(WIDTH)s;
+        %(PREFIX)s_pointer = parasail_%(ALG)s_%(PAR)s_sse2_128_%(WIDTH)s;
     }
     else
 #endif
 #endif
     {
-        %(PREFIX)s_pointer = %(BASE)s;
+        %(PREFIX)s_pointer = parasail_%(BASE)s;
     }
     return %(PREFIX)s_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }

@@ -126,12 +126,8 @@ SRC_KNC =
 # core sources
 #################
 
-SRC_CORE += src/parasail_cpuid.h
-SRC_CORE += src/parasail_internal.h
-SRC_CORE += src/parasail_internal_sse.h
-SRC_CORE += src/parasail_internal_avx.h
-SRC_CORE += src/parasail_internal_knc.h
 SRC_CORE += src/cpuid.c
+SRC_CORE += src/function_lookup.c
 SRC_CORE += src/memory.c
 SRC_CORE += src/nw_dispatch.c
 SRC_CORE += src/sg_dispatch.c

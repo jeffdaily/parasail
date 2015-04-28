@@ -332,7 +332,7 @@ int main(int argc, char **argv)
 
     /* select the function */
     if (funcname1) {
-        function1 = lookup_function(funcname1);
+        function1 = parasail_lookup_function(funcname1);
 #if HAVE_SSE2
         if (NULL == function1) {
             if (0 == strcmp(funcname1, "ssw_16")) {
@@ -354,7 +354,7 @@ int main(int argc, char **argv)
     }
 
     if (funcname2) {
-        function2 = lookup_function(funcname2);
+        function2 = parasail_lookup_function(funcname2);
         if (NULL == function2) {
             fprintf(stderr, "Specified function2 not found.\n");
             exit(1);

@@ -166,8 +166,8 @@ libparasail_la_DEPENDENCIES = libparasail_novec.la \
 	libparasail_novec_table.la $(am__append_6) $(am__append_7) \
 	$(am__append_8) $(am__append_9) $(am__append_10)
 am__dirstamp = $(am__leading_dot)dirstamp
-am__objects_1 = src/cpuid.lo src/memory.lo src/nw_dispatch.lo \
-	src/sg_dispatch.lo src/sw_dispatch.lo
+am__objects_1 = src/cpuid.lo src/function_lookup.lo src/memory.lo \
+	src/nw_dispatch.lo src/sg_dispatch.lo src/sw_dispatch.lo
 am_libparasail_la_OBJECTS = $(am__objects_1)
 libparasail_la_OBJECTS = $(am_libparasail_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -1145,9 +1145,7 @@ libparasail_la_LDFLAGS = $(AM_LDFLAGS) -version-info @LTVER@
 #################
 # core sources
 #################
-SRC_CORE = src/parasail_cpuid.h src/parasail_internal.h \
-	src/parasail_internal_sse.h src/parasail_internal_avx.h \
-	src/parasail_internal_knc.h src/cpuid.c src/memory.c \
+SRC_CORE = src/cpuid.c src/function_lookup.c src/memory.c \
 	src/nw_dispatch.c src/sg_dispatch.c src/sw_dispatch.c
 
 #################
@@ -1548,6 +1546,8 @@ src/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) src/$(DEPDIR)
 	@: > src/$(DEPDIR)/$(am__dirstamp)
 src/cpuid.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/function_lookup.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
 src/memory.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/nw_dispatch.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/sg_dispatch.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
@@ -2598,6 +2598,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@contrib/$(DEPDIR)/ssw.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@contrib/sais-lite-lcp/$(DEPDIR)/sais.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/cpuid.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/function_lookup.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_avx2_la-nw_diag_avx2_256_16.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_avx2_la-nw_diag_avx2_256_32.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_avx2_la-nw_diag_avx2_256_64.Plo@am__quote@

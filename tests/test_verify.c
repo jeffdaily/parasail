@@ -130,7 +130,7 @@ static inline void check_functions(
         unsigned long *sizes,
         unsigned long pair_limit)
 {
-    parasail_function_info_t *functions = f.fs;
+    const parasail_function_info_t *functions = f.fs;
     unsigned long matrix_index = 0;
     unsigned long gap_index = 0;
     unsigned long function_index = 0;
@@ -256,52 +256,52 @@ int main(int argc, char **argv)
 
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        check_functions(nw_sse2, sequences, sizes, limit);
-        check_functions(sg_sse2, sequences, sizes, limit);
-        check_functions(sw_sse2, sequences, sizes, limit);
+        check_functions(parasail_nw_sse2, sequences, sizes, limit);
+        check_functions(parasail_sg_sse2, sequences, sizes, limit);
+        check_functions(parasail_sw_sse2, sequences, sizes, limit);
         if (test_stats) {
-            check_functions(nw_stats_sse2, sequences, sizes, limit);
-            check_functions(sg_stats_sse2, sequences, sizes, limit);
-            check_functions(sw_stats_sse2, sequences, sizes, limit);
+            check_functions(parasail_nw_stats_sse2, sequences, sizes, limit);
+            check_functions(parasail_sg_stats_sse2, sequences, sizes, limit);
+            check_functions(parasail_sw_stats_sse2, sequences, sizes, limit);
         }
     }
 #endif
 
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        check_functions(nw_sse41, sequences, sizes, limit);
-        check_functions(sg_sse41, sequences, sizes, limit);
-        check_functions(sw_sse41, sequences, sizes, limit);
+        check_functions(parasail_nw_sse41, sequences, sizes, limit);
+        check_functions(parasail_sg_sse41, sequences, sizes, limit);
+        check_functions(parasail_sw_sse41, sequences, sizes, limit);
         if (test_stats) {
-            check_functions(nw_stats_sse41, sequences, sizes, limit);
-            check_functions(sg_stats_sse41, sequences, sizes, limit);
-            check_functions(sw_stats_sse41, sequences, sizes, limit);
+            check_functions(parasail_nw_stats_sse41, sequences, sizes, limit);
+            check_functions(parasail_sg_stats_sse41, sequences, sizes, limit);
+            check_functions(parasail_sw_stats_sse41, sequences, sizes, limit);
         }
     }
 #endif
 
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        check_functions(nw_avx2, sequences, sizes, limit);
-        check_functions(sg_avx2, sequences, sizes, limit);
-        check_functions(sw_avx2, sequences, sizes, limit);
+        check_functions(parasail_nw_avx2, sequences, sizes, limit);
+        check_functions(parasail_sg_avx2, sequences, sizes, limit);
+        check_functions(parasail_sw_avx2, sequences, sizes, limit);
         if (test_stats) {
-            check_functions(nw_stats_avx2, sequences, sizes, limit);
-            check_functions(sg_stats_avx2, sequences, sizes, limit);
-            check_functions(sw_stats_avx2, sequences, sizes, limit);
+            check_functions(parasail_nw_stats_avx2, sequences, sizes, limit);
+            check_functions(parasail_sg_stats_avx2, sequences, sizes, limit);
+            check_functions(parasail_sw_stats_avx2, sequences, sizes, limit);
         }
     }
 #endif
 
 #if HAVE_KNC
     {
-        check_functions(nw_knc, sequences, sizes, limit);
-        check_functions(sg_knc, sequences, sizes, limit);
-        check_functions(sw_knc, sequences, sizes, limit);
+        check_functions(parasail_nw_knc, sequences, sizes, limit);
+        check_functions(parasail_sg_knc, sequences, sizes, limit);
+        check_functions(parasail_sw_knc, sequences, sizes, limit);
         if (test_stats) {
-            check_functions(nw_stats_knc, sequences, sizes, limit);
-            check_functions(sg_stats_knc, sequences, sizes, limit);
-            check_functions(sw_stats_knc, sequences, sizes, limit);
+            check_functions(parasail_nw_stats_knc, sequences, sizes, limit);
+            check_functions(parasail_sg_stats_knc, sequences, sizes, limit);
+            check_functions(parasail_sw_stats_knc, sequences, sizes, limit);
         }
     }
 #endif

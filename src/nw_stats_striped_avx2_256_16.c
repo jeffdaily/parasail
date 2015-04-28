@@ -55,9 +55,9 @@ static inline void arr_store_si256(
 #endif
 
 #ifdef PARASAIL_TABLE
-#define FNAME nw_stats_table_striped_avx2_256_16
+#define FNAME parasail_nw_stats_table_striped_avx2_256_16
 #else
-#define FNAME nw_stats_striped_avx2_256_16
+#define FNAME parasail_nw_stats_striped_avx2_256_16
 #endif
 
 parasail_result_t* FNAME(

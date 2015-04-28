@@ -187,7 +187,7 @@ int main(int argc, char **argv)
 
     /* select the function */
     if (funcname) {
-        function = lookup_function(funcname);
+        function = parasail_lookup_function(funcname);
         if (NULL == function) {
             fprintf(stderr, "Specified function not found.\n");
             exit(1);

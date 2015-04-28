@@ -126,6 +126,7 @@ AC_CACHE_CHECK([for SSE4.1],
 int foo() {
     __m128i vOne = _mm_set1_epi8(1);
     __m128i result =  _mm_max_epi8(vOne,vOne);
+    __m128i result2 =  _mm_insert_epi64(vOne,0,0);
     return _mm_extract_epi8(result, 0);
 }
 int main(int argc, char **argv) { return foo(); }
@@ -148,6 +149,7 @@ AC_CACHE_CHECK([for AVX2],
 int foo() {
     __m256i vOne = _mm256_set1_epi8(1);
     __m256i result =  _mm256_add_epi8(vOne,vOne);
+    __m256i result2 =  _mm256_insert_epi64(vOne,0,0);
     return _mm_extract_epi16(_mm256_extracti128_si256(result,0),0);
 }
 int main(int argc, char **argv) { return foo(); }

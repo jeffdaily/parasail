@@ -65,9 +65,9 @@ static inline void arr_store_si128(
 
 
 #ifdef PARASAIL_TABLE
-#define FNAME sg_table_diag_avx2_256_32
+#define FNAME parasail_sg_table_diag_avx2_256_32
 #else
-#define FNAME sg_diag_avx2_256_32
+#define FNAME parasail_sg_diag_avx2_256_32
 #endif
 
 parasail_result_t* FNAME(

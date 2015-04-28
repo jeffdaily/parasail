@@ -128,25 +128,25 @@ parasail_result_t* parasail_sw_scan_64_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_scan_64_pointer = sw_scan_avx2_256_64;
+        parasail_sw_scan_64_pointer = parasail_sw_scan_avx2_256_64;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_scan_64_pointer = sw_scan_sse41_128_64;
+        parasail_sw_scan_64_pointer = parasail_sw_scan_sse41_128_64;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_scan_64_pointer = sw_scan_sse2_128_64;
+        parasail_sw_scan_64_pointer = parasail_sw_scan_sse2_128_64;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_scan_64_pointer = sw_scan;
+        parasail_sw_scan_64_pointer = parasail_sw_scan;
     }
     return parasail_sw_scan_64_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -162,25 +162,25 @@ parasail_result_t* parasail_sw_scan_32_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_scan_32_pointer = sw_scan_avx2_256_32;
+        parasail_sw_scan_32_pointer = parasail_sw_scan_avx2_256_32;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_scan_32_pointer = sw_scan_sse41_128_32;
+        parasail_sw_scan_32_pointer = parasail_sw_scan_sse41_128_32;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_scan_32_pointer = sw_scan_sse2_128_32;
+        parasail_sw_scan_32_pointer = parasail_sw_scan_sse2_128_32;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_scan_32_pointer = sw_scan;
+        parasail_sw_scan_32_pointer = parasail_sw_scan;
     }
     return parasail_sw_scan_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -196,25 +196,25 @@ parasail_result_t* parasail_sw_scan_16_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_scan_16_pointer = sw_scan_avx2_256_16;
+        parasail_sw_scan_16_pointer = parasail_sw_scan_avx2_256_16;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_scan_16_pointer = sw_scan_sse41_128_16;
+        parasail_sw_scan_16_pointer = parasail_sw_scan_sse41_128_16;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_scan_16_pointer = sw_scan_sse2_128_16;
+        parasail_sw_scan_16_pointer = parasail_sw_scan_sse2_128_16;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_scan_16_pointer = sw_scan;
+        parasail_sw_scan_16_pointer = parasail_sw_scan;
     }
     return parasail_sw_scan_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -230,25 +230,25 @@ parasail_result_t* parasail_sw_scan_8_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_scan_8_pointer = sw_scan_avx2_256_8;
+        parasail_sw_scan_8_pointer = parasail_sw_scan_avx2_256_8;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_scan_8_pointer = sw_scan_sse41_128_8;
+        parasail_sw_scan_8_pointer = parasail_sw_scan_sse41_128_8;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_scan_8_pointer = sw_scan_sse2_128_8;
+        parasail_sw_scan_8_pointer = parasail_sw_scan_sse2_128_8;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_scan_8_pointer = sw_scan;
+        parasail_sw_scan_8_pointer = parasail_sw_scan;
     }
     return parasail_sw_scan_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -264,25 +264,25 @@ parasail_result_t* parasail_sw_striped_64_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_striped_64_pointer = sw_striped_avx2_256_64;
+        parasail_sw_striped_64_pointer = parasail_sw_striped_avx2_256_64;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_striped_64_pointer = sw_striped_sse41_128_64;
+        parasail_sw_striped_64_pointer = parasail_sw_striped_sse41_128_64;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_striped_64_pointer = sw_striped_sse2_128_64;
+        parasail_sw_striped_64_pointer = parasail_sw_striped_sse2_128_64;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_striped_64_pointer = sw;
+        parasail_sw_striped_64_pointer = parasail_sw;
     }
     return parasail_sw_striped_64_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -298,25 +298,25 @@ parasail_result_t* parasail_sw_striped_32_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_striped_32_pointer = sw_striped_avx2_256_32;
+        parasail_sw_striped_32_pointer = parasail_sw_striped_avx2_256_32;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_striped_32_pointer = sw_striped_sse41_128_32;
+        parasail_sw_striped_32_pointer = parasail_sw_striped_sse41_128_32;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_striped_32_pointer = sw_striped_sse2_128_32;
+        parasail_sw_striped_32_pointer = parasail_sw_striped_sse2_128_32;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_striped_32_pointer = sw;
+        parasail_sw_striped_32_pointer = parasail_sw;
     }
     return parasail_sw_striped_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -332,25 +332,25 @@ parasail_result_t* parasail_sw_striped_16_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_striped_16_pointer = sw_striped_avx2_256_16;
+        parasail_sw_striped_16_pointer = parasail_sw_striped_avx2_256_16;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_striped_16_pointer = sw_striped_sse41_128_16;
+        parasail_sw_striped_16_pointer = parasail_sw_striped_sse41_128_16;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_striped_16_pointer = sw_striped_sse2_128_16;
+        parasail_sw_striped_16_pointer = parasail_sw_striped_sse2_128_16;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_striped_16_pointer = sw;
+        parasail_sw_striped_16_pointer = parasail_sw;
     }
     return parasail_sw_striped_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -366,25 +366,25 @@ parasail_result_t* parasail_sw_striped_8_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_striped_8_pointer = sw_striped_avx2_256_8;
+        parasail_sw_striped_8_pointer = parasail_sw_striped_avx2_256_8;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_striped_8_pointer = sw_striped_sse41_128_8;
+        parasail_sw_striped_8_pointer = parasail_sw_striped_sse41_128_8;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_striped_8_pointer = sw_striped_sse2_128_8;
+        parasail_sw_striped_8_pointer = parasail_sw_striped_sse2_128_8;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_striped_8_pointer = sw;
+        parasail_sw_striped_8_pointer = parasail_sw;
     }
     return parasail_sw_striped_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -400,25 +400,25 @@ parasail_result_t* parasail_sw_diag_64_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_diag_64_pointer = sw_diag_avx2_256_64;
+        parasail_sw_diag_64_pointer = parasail_sw_diag_avx2_256_64;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_diag_64_pointer = sw_diag_sse41_128_64;
+        parasail_sw_diag_64_pointer = parasail_sw_diag_sse41_128_64;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_diag_64_pointer = sw_diag_sse2_128_64;
+        parasail_sw_diag_64_pointer = parasail_sw_diag_sse2_128_64;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_diag_64_pointer = sw;
+        parasail_sw_diag_64_pointer = parasail_sw;
     }
     return parasail_sw_diag_64_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -434,25 +434,25 @@ parasail_result_t* parasail_sw_diag_32_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_diag_32_pointer = sw_diag_avx2_256_32;
+        parasail_sw_diag_32_pointer = parasail_sw_diag_avx2_256_32;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_diag_32_pointer = sw_diag_sse41_128_32;
+        parasail_sw_diag_32_pointer = parasail_sw_diag_sse41_128_32;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_diag_32_pointer = sw_diag_sse2_128_32;
+        parasail_sw_diag_32_pointer = parasail_sw_diag_sse2_128_32;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_diag_32_pointer = sw;
+        parasail_sw_diag_32_pointer = parasail_sw;
     }
     return parasail_sw_diag_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -468,25 +468,25 @@ parasail_result_t* parasail_sw_diag_16_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_diag_16_pointer = sw_diag_avx2_256_16;
+        parasail_sw_diag_16_pointer = parasail_sw_diag_avx2_256_16;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_diag_16_pointer = sw_diag_sse41_128_16;
+        parasail_sw_diag_16_pointer = parasail_sw_diag_sse41_128_16;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_diag_16_pointer = sw_diag_sse2_128_16;
+        parasail_sw_diag_16_pointer = parasail_sw_diag_sse2_128_16;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_diag_16_pointer = sw;
+        parasail_sw_diag_16_pointer = parasail_sw;
     }
     return parasail_sw_diag_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -502,25 +502,25 @@ parasail_result_t* parasail_sw_diag_8_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_diag_8_pointer = sw_diag_avx2_256_8;
+        parasail_sw_diag_8_pointer = parasail_sw_diag_avx2_256_8;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_diag_8_pointer = sw_diag_sse41_128_8;
+        parasail_sw_diag_8_pointer = parasail_sw_diag_sse41_128_8;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_diag_8_pointer = sw_diag_sse2_128_8;
+        parasail_sw_diag_8_pointer = parasail_sw_diag_sse2_128_8;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_diag_8_pointer = sw;
+        parasail_sw_diag_8_pointer = parasail_sw;
     }
     return parasail_sw_diag_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -536,25 +536,25 @@ parasail_result_t* parasail_sw_stats_scan_64_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_stats_scan_64_pointer = sw_scan_avx2_256_64;
+        parasail_sw_stats_scan_64_pointer = parasail_sw_scan_avx2_256_64;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_stats_scan_64_pointer = sw_scan_sse41_128_64;
+        parasail_sw_stats_scan_64_pointer = parasail_sw_scan_sse41_128_64;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_stats_scan_64_pointer = sw_scan_sse2_128_64;
+        parasail_sw_stats_scan_64_pointer = parasail_sw_scan_sse2_128_64;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_stats_scan_64_pointer = sw_scan;
+        parasail_sw_stats_scan_64_pointer = parasail_sw_scan;
     }
     return parasail_sw_stats_scan_64_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -570,25 +570,25 @@ parasail_result_t* parasail_sw_stats_scan_32_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_stats_scan_32_pointer = sw_scan_avx2_256_32;
+        parasail_sw_stats_scan_32_pointer = parasail_sw_scan_avx2_256_32;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_stats_scan_32_pointer = sw_scan_sse41_128_32;
+        parasail_sw_stats_scan_32_pointer = parasail_sw_scan_sse41_128_32;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_stats_scan_32_pointer = sw_scan_sse2_128_32;
+        parasail_sw_stats_scan_32_pointer = parasail_sw_scan_sse2_128_32;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_stats_scan_32_pointer = sw_scan;
+        parasail_sw_stats_scan_32_pointer = parasail_sw_scan;
     }
     return parasail_sw_stats_scan_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -604,25 +604,25 @@ parasail_result_t* parasail_sw_stats_scan_16_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_stats_scan_16_pointer = sw_scan_avx2_256_16;
+        parasail_sw_stats_scan_16_pointer = parasail_sw_scan_avx2_256_16;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_stats_scan_16_pointer = sw_scan_sse41_128_16;
+        parasail_sw_stats_scan_16_pointer = parasail_sw_scan_sse41_128_16;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_stats_scan_16_pointer = sw_scan_sse2_128_16;
+        parasail_sw_stats_scan_16_pointer = parasail_sw_scan_sse2_128_16;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_stats_scan_16_pointer = sw_scan;
+        parasail_sw_stats_scan_16_pointer = parasail_sw_scan;
     }
     return parasail_sw_stats_scan_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -638,25 +638,25 @@ parasail_result_t* parasail_sw_stats_scan_8_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_stats_scan_8_pointer = sw_scan_avx2_256_8;
+        parasail_sw_stats_scan_8_pointer = parasail_sw_scan_avx2_256_8;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_stats_scan_8_pointer = sw_scan_sse41_128_8;
+        parasail_sw_stats_scan_8_pointer = parasail_sw_scan_sse41_128_8;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_stats_scan_8_pointer = sw_scan_sse2_128_8;
+        parasail_sw_stats_scan_8_pointer = parasail_sw_scan_sse2_128_8;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_stats_scan_8_pointer = sw_scan;
+        parasail_sw_stats_scan_8_pointer = parasail_sw_scan;
     }
     return parasail_sw_stats_scan_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -672,25 +672,25 @@ parasail_result_t* parasail_sw_stats_striped_64_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_stats_striped_64_pointer = sw_striped_avx2_256_64;
+        parasail_sw_stats_striped_64_pointer = parasail_sw_striped_avx2_256_64;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_stats_striped_64_pointer = sw_striped_sse41_128_64;
+        parasail_sw_stats_striped_64_pointer = parasail_sw_striped_sse41_128_64;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_stats_striped_64_pointer = sw_striped_sse2_128_64;
+        parasail_sw_stats_striped_64_pointer = parasail_sw_striped_sse2_128_64;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_stats_striped_64_pointer = sw;
+        parasail_sw_stats_striped_64_pointer = parasail_sw;
     }
     return parasail_sw_stats_striped_64_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -706,25 +706,25 @@ parasail_result_t* parasail_sw_stats_striped_32_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_stats_striped_32_pointer = sw_striped_avx2_256_32;
+        parasail_sw_stats_striped_32_pointer = parasail_sw_striped_avx2_256_32;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_stats_striped_32_pointer = sw_striped_sse41_128_32;
+        parasail_sw_stats_striped_32_pointer = parasail_sw_striped_sse41_128_32;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_stats_striped_32_pointer = sw_striped_sse2_128_32;
+        parasail_sw_stats_striped_32_pointer = parasail_sw_striped_sse2_128_32;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_stats_striped_32_pointer = sw;
+        parasail_sw_stats_striped_32_pointer = parasail_sw;
     }
     return parasail_sw_stats_striped_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -740,25 +740,25 @@ parasail_result_t* parasail_sw_stats_striped_16_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_stats_striped_16_pointer = sw_striped_avx2_256_16;
+        parasail_sw_stats_striped_16_pointer = parasail_sw_striped_avx2_256_16;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_stats_striped_16_pointer = sw_striped_sse41_128_16;
+        parasail_sw_stats_striped_16_pointer = parasail_sw_striped_sse41_128_16;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_stats_striped_16_pointer = sw_striped_sse2_128_16;
+        parasail_sw_stats_striped_16_pointer = parasail_sw_striped_sse2_128_16;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_stats_striped_16_pointer = sw;
+        parasail_sw_stats_striped_16_pointer = parasail_sw;
     }
     return parasail_sw_stats_striped_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -774,25 +774,25 @@ parasail_result_t* parasail_sw_stats_striped_8_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_stats_striped_8_pointer = sw_striped_avx2_256_8;
+        parasail_sw_stats_striped_8_pointer = parasail_sw_striped_avx2_256_8;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_stats_striped_8_pointer = sw_striped_sse41_128_8;
+        parasail_sw_stats_striped_8_pointer = parasail_sw_striped_sse41_128_8;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_stats_striped_8_pointer = sw_striped_sse2_128_8;
+        parasail_sw_stats_striped_8_pointer = parasail_sw_striped_sse2_128_8;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_stats_striped_8_pointer = sw;
+        parasail_sw_stats_striped_8_pointer = parasail_sw;
     }
     return parasail_sw_stats_striped_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -808,25 +808,25 @@ parasail_result_t* parasail_sw_stats_diag_64_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_stats_diag_64_pointer = sw_diag_avx2_256_64;
+        parasail_sw_stats_diag_64_pointer = parasail_sw_diag_avx2_256_64;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_stats_diag_64_pointer = sw_diag_sse41_128_64;
+        parasail_sw_stats_diag_64_pointer = parasail_sw_diag_sse41_128_64;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_stats_diag_64_pointer = sw_diag_sse2_128_64;
+        parasail_sw_stats_diag_64_pointer = parasail_sw_diag_sse2_128_64;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_stats_diag_64_pointer = sw;
+        parasail_sw_stats_diag_64_pointer = parasail_sw;
     }
     return parasail_sw_stats_diag_64_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -842,25 +842,25 @@ parasail_result_t* parasail_sw_stats_diag_32_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_stats_diag_32_pointer = sw_diag_avx2_256_32;
+        parasail_sw_stats_diag_32_pointer = parasail_sw_diag_avx2_256_32;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_stats_diag_32_pointer = sw_diag_sse41_128_32;
+        parasail_sw_stats_diag_32_pointer = parasail_sw_diag_sse41_128_32;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_stats_diag_32_pointer = sw_diag_sse2_128_32;
+        parasail_sw_stats_diag_32_pointer = parasail_sw_diag_sse2_128_32;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_stats_diag_32_pointer = sw;
+        parasail_sw_stats_diag_32_pointer = parasail_sw;
     }
     return parasail_sw_stats_diag_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -876,25 +876,25 @@ parasail_result_t* parasail_sw_stats_diag_16_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_stats_diag_16_pointer = sw_diag_avx2_256_16;
+        parasail_sw_stats_diag_16_pointer = parasail_sw_diag_avx2_256_16;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_stats_diag_16_pointer = sw_diag_sse41_128_16;
+        parasail_sw_stats_diag_16_pointer = parasail_sw_diag_sse41_128_16;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_stats_diag_16_pointer = sw_diag_sse2_128_16;
+        parasail_sw_stats_diag_16_pointer = parasail_sw_diag_sse2_128_16;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_stats_diag_16_pointer = sw;
+        parasail_sw_stats_diag_16_pointer = parasail_sw;
     }
     return parasail_sw_stats_diag_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -910,25 +910,25 @@ parasail_result_t* parasail_sw_stats_diag_8_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_stats_diag_8_pointer = sw_diag_avx2_256_8;
+        parasail_sw_stats_diag_8_pointer = parasail_sw_diag_avx2_256_8;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_stats_diag_8_pointer = sw_diag_sse41_128_8;
+        parasail_sw_stats_diag_8_pointer = parasail_sw_diag_sse41_128_8;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_stats_diag_8_pointer = sw_diag_sse2_128_8;
+        parasail_sw_stats_diag_8_pointer = parasail_sw_diag_sse2_128_8;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_stats_diag_8_pointer = sw;
+        parasail_sw_stats_diag_8_pointer = parasail_sw;
     }
     return parasail_sw_stats_diag_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -944,25 +944,25 @@ parasail_result_t* parasail_sw_table_scan_64_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_table_scan_64_pointer = sw_scan_avx2_256_64;
+        parasail_sw_table_scan_64_pointer = parasail_sw_scan_avx2_256_64;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_table_scan_64_pointer = sw_scan_sse41_128_64;
+        parasail_sw_table_scan_64_pointer = parasail_sw_scan_sse41_128_64;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_table_scan_64_pointer = sw_scan_sse2_128_64;
+        parasail_sw_table_scan_64_pointer = parasail_sw_scan_sse2_128_64;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_table_scan_64_pointer = sw_scan;
+        parasail_sw_table_scan_64_pointer = parasail_sw_scan;
     }
     return parasail_sw_table_scan_64_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -978,25 +978,25 @@ parasail_result_t* parasail_sw_table_scan_32_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_table_scan_32_pointer = sw_scan_avx2_256_32;
+        parasail_sw_table_scan_32_pointer = parasail_sw_scan_avx2_256_32;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_table_scan_32_pointer = sw_scan_sse41_128_32;
+        parasail_sw_table_scan_32_pointer = parasail_sw_scan_sse41_128_32;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_table_scan_32_pointer = sw_scan_sse2_128_32;
+        parasail_sw_table_scan_32_pointer = parasail_sw_scan_sse2_128_32;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_table_scan_32_pointer = sw_scan;
+        parasail_sw_table_scan_32_pointer = parasail_sw_scan;
     }
     return parasail_sw_table_scan_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -1012,25 +1012,25 @@ parasail_result_t* parasail_sw_table_scan_16_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_table_scan_16_pointer = sw_scan_avx2_256_16;
+        parasail_sw_table_scan_16_pointer = parasail_sw_scan_avx2_256_16;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_table_scan_16_pointer = sw_scan_sse41_128_16;
+        parasail_sw_table_scan_16_pointer = parasail_sw_scan_sse41_128_16;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_table_scan_16_pointer = sw_scan_sse2_128_16;
+        parasail_sw_table_scan_16_pointer = parasail_sw_scan_sse2_128_16;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_table_scan_16_pointer = sw_scan;
+        parasail_sw_table_scan_16_pointer = parasail_sw_scan;
     }
     return parasail_sw_table_scan_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -1046,25 +1046,25 @@ parasail_result_t* parasail_sw_table_scan_8_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_table_scan_8_pointer = sw_scan_avx2_256_8;
+        parasail_sw_table_scan_8_pointer = parasail_sw_scan_avx2_256_8;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_table_scan_8_pointer = sw_scan_sse41_128_8;
+        parasail_sw_table_scan_8_pointer = parasail_sw_scan_sse41_128_8;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_table_scan_8_pointer = sw_scan_sse2_128_8;
+        parasail_sw_table_scan_8_pointer = parasail_sw_scan_sse2_128_8;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_table_scan_8_pointer = sw_scan;
+        parasail_sw_table_scan_8_pointer = parasail_sw_scan;
     }
     return parasail_sw_table_scan_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -1080,25 +1080,25 @@ parasail_result_t* parasail_sw_table_striped_64_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_table_striped_64_pointer = sw_striped_avx2_256_64;
+        parasail_sw_table_striped_64_pointer = parasail_sw_striped_avx2_256_64;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_table_striped_64_pointer = sw_striped_sse41_128_64;
+        parasail_sw_table_striped_64_pointer = parasail_sw_striped_sse41_128_64;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_table_striped_64_pointer = sw_striped_sse2_128_64;
+        parasail_sw_table_striped_64_pointer = parasail_sw_striped_sse2_128_64;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_table_striped_64_pointer = sw;
+        parasail_sw_table_striped_64_pointer = parasail_sw;
     }
     return parasail_sw_table_striped_64_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -1114,25 +1114,25 @@ parasail_result_t* parasail_sw_table_striped_32_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_table_striped_32_pointer = sw_striped_avx2_256_32;
+        parasail_sw_table_striped_32_pointer = parasail_sw_striped_avx2_256_32;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_table_striped_32_pointer = sw_striped_sse41_128_32;
+        parasail_sw_table_striped_32_pointer = parasail_sw_striped_sse41_128_32;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_table_striped_32_pointer = sw_striped_sse2_128_32;
+        parasail_sw_table_striped_32_pointer = parasail_sw_striped_sse2_128_32;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_table_striped_32_pointer = sw;
+        parasail_sw_table_striped_32_pointer = parasail_sw;
     }
     return parasail_sw_table_striped_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -1148,25 +1148,25 @@ parasail_result_t* parasail_sw_table_striped_16_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_table_striped_16_pointer = sw_striped_avx2_256_16;
+        parasail_sw_table_striped_16_pointer = parasail_sw_striped_avx2_256_16;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_table_striped_16_pointer = sw_striped_sse41_128_16;
+        parasail_sw_table_striped_16_pointer = parasail_sw_striped_sse41_128_16;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_table_striped_16_pointer = sw_striped_sse2_128_16;
+        parasail_sw_table_striped_16_pointer = parasail_sw_striped_sse2_128_16;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_table_striped_16_pointer = sw;
+        parasail_sw_table_striped_16_pointer = parasail_sw;
     }
     return parasail_sw_table_striped_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -1182,25 +1182,25 @@ parasail_result_t* parasail_sw_table_striped_8_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_table_striped_8_pointer = sw_striped_avx2_256_8;
+        parasail_sw_table_striped_8_pointer = parasail_sw_striped_avx2_256_8;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_table_striped_8_pointer = sw_striped_sse41_128_8;
+        parasail_sw_table_striped_8_pointer = parasail_sw_striped_sse41_128_8;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_table_striped_8_pointer = sw_striped_sse2_128_8;
+        parasail_sw_table_striped_8_pointer = parasail_sw_striped_sse2_128_8;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_table_striped_8_pointer = sw;
+        parasail_sw_table_striped_8_pointer = parasail_sw;
     }
     return parasail_sw_table_striped_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -1216,25 +1216,25 @@ parasail_result_t* parasail_sw_table_diag_64_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_table_diag_64_pointer = sw_diag_avx2_256_64;
+        parasail_sw_table_diag_64_pointer = parasail_sw_diag_avx2_256_64;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_table_diag_64_pointer = sw_diag_sse41_128_64;
+        parasail_sw_table_diag_64_pointer = parasail_sw_diag_sse41_128_64;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_table_diag_64_pointer = sw_diag_sse2_128_64;
+        parasail_sw_table_diag_64_pointer = parasail_sw_diag_sse2_128_64;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_table_diag_64_pointer = sw;
+        parasail_sw_table_diag_64_pointer = parasail_sw;
     }
     return parasail_sw_table_diag_64_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -1250,25 +1250,25 @@ parasail_result_t* parasail_sw_table_diag_32_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_table_diag_32_pointer = sw_diag_avx2_256_32;
+        parasail_sw_table_diag_32_pointer = parasail_sw_diag_avx2_256_32;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_table_diag_32_pointer = sw_diag_sse41_128_32;
+        parasail_sw_table_diag_32_pointer = parasail_sw_diag_sse41_128_32;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_table_diag_32_pointer = sw_diag_sse2_128_32;
+        parasail_sw_table_diag_32_pointer = parasail_sw_diag_sse2_128_32;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_table_diag_32_pointer = sw;
+        parasail_sw_table_diag_32_pointer = parasail_sw;
     }
     return parasail_sw_table_diag_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -1284,25 +1284,25 @@ parasail_result_t* parasail_sw_table_diag_16_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_table_diag_16_pointer = sw_diag_avx2_256_16;
+        parasail_sw_table_diag_16_pointer = parasail_sw_diag_avx2_256_16;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_table_diag_16_pointer = sw_diag_sse41_128_16;
+        parasail_sw_table_diag_16_pointer = parasail_sw_diag_sse41_128_16;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_table_diag_16_pointer = sw_diag_sse2_128_16;
+        parasail_sw_table_diag_16_pointer = parasail_sw_diag_sse2_128_16;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_table_diag_16_pointer = sw;
+        parasail_sw_table_diag_16_pointer = parasail_sw;
     }
     return parasail_sw_table_diag_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -1318,25 +1318,25 @@ parasail_result_t* parasail_sw_table_diag_8_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_table_diag_8_pointer = sw_diag_avx2_256_8;
+        parasail_sw_table_diag_8_pointer = parasail_sw_diag_avx2_256_8;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_table_diag_8_pointer = sw_diag_sse41_128_8;
+        parasail_sw_table_diag_8_pointer = parasail_sw_diag_sse41_128_8;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_table_diag_8_pointer = sw_diag_sse2_128_8;
+        parasail_sw_table_diag_8_pointer = parasail_sw_diag_sse2_128_8;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_table_diag_8_pointer = sw;
+        parasail_sw_table_diag_8_pointer = parasail_sw;
     }
     return parasail_sw_table_diag_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -1352,25 +1352,25 @@ parasail_result_t* parasail_sw_stats_table_scan_64_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_stats_table_scan_64_pointer = sw_scan_avx2_256_64;
+        parasail_sw_stats_table_scan_64_pointer = parasail_sw_scan_avx2_256_64;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_stats_table_scan_64_pointer = sw_scan_sse41_128_64;
+        parasail_sw_stats_table_scan_64_pointer = parasail_sw_scan_sse41_128_64;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_stats_table_scan_64_pointer = sw_scan_sse2_128_64;
+        parasail_sw_stats_table_scan_64_pointer = parasail_sw_scan_sse2_128_64;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_stats_table_scan_64_pointer = sw_scan;
+        parasail_sw_stats_table_scan_64_pointer = parasail_sw_scan;
     }
     return parasail_sw_stats_table_scan_64_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -1386,25 +1386,25 @@ parasail_result_t* parasail_sw_stats_table_scan_32_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_stats_table_scan_32_pointer = sw_scan_avx2_256_32;
+        parasail_sw_stats_table_scan_32_pointer = parasail_sw_scan_avx2_256_32;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_stats_table_scan_32_pointer = sw_scan_sse41_128_32;
+        parasail_sw_stats_table_scan_32_pointer = parasail_sw_scan_sse41_128_32;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_stats_table_scan_32_pointer = sw_scan_sse2_128_32;
+        parasail_sw_stats_table_scan_32_pointer = parasail_sw_scan_sse2_128_32;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_stats_table_scan_32_pointer = sw_scan;
+        parasail_sw_stats_table_scan_32_pointer = parasail_sw_scan;
     }
     return parasail_sw_stats_table_scan_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -1420,25 +1420,25 @@ parasail_result_t* parasail_sw_stats_table_scan_16_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_stats_table_scan_16_pointer = sw_scan_avx2_256_16;
+        parasail_sw_stats_table_scan_16_pointer = parasail_sw_scan_avx2_256_16;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_stats_table_scan_16_pointer = sw_scan_sse41_128_16;
+        parasail_sw_stats_table_scan_16_pointer = parasail_sw_scan_sse41_128_16;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_stats_table_scan_16_pointer = sw_scan_sse2_128_16;
+        parasail_sw_stats_table_scan_16_pointer = parasail_sw_scan_sse2_128_16;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_stats_table_scan_16_pointer = sw_scan;
+        parasail_sw_stats_table_scan_16_pointer = parasail_sw_scan;
     }
     return parasail_sw_stats_table_scan_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -1454,25 +1454,25 @@ parasail_result_t* parasail_sw_stats_table_scan_8_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_stats_table_scan_8_pointer = sw_scan_avx2_256_8;
+        parasail_sw_stats_table_scan_8_pointer = parasail_sw_scan_avx2_256_8;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_stats_table_scan_8_pointer = sw_scan_sse41_128_8;
+        parasail_sw_stats_table_scan_8_pointer = parasail_sw_scan_sse41_128_8;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_stats_table_scan_8_pointer = sw_scan_sse2_128_8;
+        parasail_sw_stats_table_scan_8_pointer = parasail_sw_scan_sse2_128_8;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_stats_table_scan_8_pointer = sw_scan;
+        parasail_sw_stats_table_scan_8_pointer = parasail_sw_scan;
     }
     return parasail_sw_stats_table_scan_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -1488,25 +1488,25 @@ parasail_result_t* parasail_sw_stats_table_striped_64_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_stats_table_striped_64_pointer = sw_striped_avx2_256_64;
+        parasail_sw_stats_table_striped_64_pointer = parasail_sw_striped_avx2_256_64;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_stats_table_striped_64_pointer = sw_striped_sse41_128_64;
+        parasail_sw_stats_table_striped_64_pointer = parasail_sw_striped_sse41_128_64;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_stats_table_striped_64_pointer = sw_striped_sse2_128_64;
+        parasail_sw_stats_table_striped_64_pointer = parasail_sw_striped_sse2_128_64;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_stats_table_striped_64_pointer = sw;
+        parasail_sw_stats_table_striped_64_pointer = parasail_sw;
     }
     return parasail_sw_stats_table_striped_64_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -1522,25 +1522,25 @@ parasail_result_t* parasail_sw_stats_table_striped_32_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_stats_table_striped_32_pointer = sw_striped_avx2_256_32;
+        parasail_sw_stats_table_striped_32_pointer = parasail_sw_striped_avx2_256_32;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_stats_table_striped_32_pointer = sw_striped_sse41_128_32;
+        parasail_sw_stats_table_striped_32_pointer = parasail_sw_striped_sse41_128_32;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_stats_table_striped_32_pointer = sw_striped_sse2_128_32;
+        parasail_sw_stats_table_striped_32_pointer = parasail_sw_striped_sse2_128_32;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_stats_table_striped_32_pointer = sw;
+        parasail_sw_stats_table_striped_32_pointer = parasail_sw;
     }
     return parasail_sw_stats_table_striped_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -1556,25 +1556,25 @@ parasail_result_t* parasail_sw_stats_table_striped_16_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_stats_table_striped_16_pointer = sw_striped_avx2_256_16;
+        parasail_sw_stats_table_striped_16_pointer = parasail_sw_striped_avx2_256_16;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_stats_table_striped_16_pointer = sw_striped_sse41_128_16;
+        parasail_sw_stats_table_striped_16_pointer = parasail_sw_striped_sse41_128_16;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_stats_table_striped_16_pointer = sw_striped_sse2_128_16;
+        parasail_sw_stats_table_striped_16_pointer = parasail_sw_striped_sse2_128_16;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_stats_table_striped_16_pointer = sw;
+        parasail_sw_stats_table_striped_16_pointer = parasail_sw;
     }
     return parasail_sw_stats_table_striped_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -1590,25 +1590,25 @@ parasail_result_t* parasail_sw_stats_table_striped_8_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_stats_table_striped_8_pointer = sw_striped_avx2_256_8;
+        parasail_sw_stats_table_striped_8_pointer = parasail_sw_striped_avx2_256_8;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_stats_table_striped_8_pointer = sw_striped_sse41_128_8;
+        parasail_sw_stats_table_striped_8_pointer = parasail_sw_striped_sse41_128_8;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_stats_table_striped_8_pointer = sw_striped_sse2_128_8;
+        parasail_sw_stats_table_striped_8_pointer = parasail_sw_striped_sse2_128_8;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_stats_table_striped_8_pointer = sw;
+        parasail_sw_stats_table_striped_8_pointer = parasail_sw;
     }
     return parasail_sw_stats_table_striped_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -1624,25 +1624,25 @@ parasail_result_t* parasail_sw_stats_table_diag_64_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_stats_table_diag_64_pointer = sw_diag_avx2_256_64;
+        parasail_sw_stats_table_diag_64_pointer = parasail_sw_diag_avx2_256_64;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_stats_table_diag_64_pointer = sw_diag_sse41_128_64;
+        parasail_sw_stats_table_diag_64_pointer = parasail_sw_diag_sse41_128_64;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_stats_table_diag_64_pointer = sw_diag_sse2_128_64;
+        parasail_sw_stats_table_diag_64_pointer = parasail_sw_diag_sse2_128_64;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_stats_table_diag_64_pointer = sw;
+        parasail_sw_stats_table_diag_64_pointer = parasail_sw;
     }
     return parasail_sw_stats_table_diag_64_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -1658,25 +1658,25 @@ parasail_result_t* parasail_sw_stats_table_diag_32_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_stats_table_diag_32_pointer = sw_diag_avx2_256_32;
+        parasail_sw_stats_table_diag_32_pointer = parasail_sw_diag_avx2_256_32;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_stats_table_diag_32_pointer = sw_diag_sse41_128_32;
+        parasail_sw_stats_table_diag_32_pointer = parasail_sw_diag_sse41_128_32;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_stats_table_diag_32_pointer = sw_diag_sse2_128_32;
+        parasail_sw_stats_table_diag_32_pointer = parasail_sw_diag_sse2_128_32;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_stats_table_diag_32_pointer = sw;
+        parasail_sw_stats_table_diag_32_pointer = parasail_sw;
     }
     return parasail_sw_stats_table_diag_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -1692,25 +1692,25 @@ parasail_result_t* parasail_sw_stats_table_diag_16_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_stats_table_diag_16_pointer = sw_diag_avx2_256_16;
+        parasail_sw_stats_table_diag_16_pointer = parasail_sw_diag_avx2_256_16;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_stats_table_diag_16_pointer = sw_diag_sse41_128_16;
+        parasail_sw_stats_table_diag_16_pointer = parasail_sw_diag_sse41_128_16;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_stats_table_diag_16_pointer = sw_diag_sse2_128_16;
+        parasail_sw_stats_table_diag_16_pointer = parasail_sw_diag_sse2_128_16;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_stats_table_diag_16_pointer = sw;
+        parasail_sw_stats_table_diag_16_pointer = parasail_sw;
     }
     return parasail_sw_stats_table_diag_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -1726,25 +1726,25 @@ parasail_result_t* parasail_sw_stats_table_diag_8_dispatcher(
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sw_stats_table_diag_8_pointer = sw_diag_avx2_256_8;
+        parasail_sw_stats_table_diag_8_pointer = parasail_sw_diag_avx2_256_8;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sw_stats_table_diag_8_pointer = sw_diag_sse41_128_8;
+        parasail_sw_stats_table_diag_8_pointer = parasail_sw_diag_sse41_128_8;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sw_stats_table_diag_8_pointer = sw_diag_sse2_128_8;
+        parasail_sw_stats_table_diag_8_pointer = parasail_sw_diag_sse2_128_8;
     }
     else
 #endif
 #endif
     {
-        parasail_sw_stats_table_diag_8_pointer = sw;
+        parasail_sw_stats_table_diag_8_pointer = parasail_sw;
     }
     return parasail_sw_stats_table_diag_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }

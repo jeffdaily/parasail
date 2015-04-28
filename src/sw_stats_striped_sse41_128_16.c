@@ -45,9 +45,9 @@ static inline void arr_store_si128(
 #endif
 
 #ifdef PARASAIL_TABLE
-#define FNAME sw_stats_table_striped_sse41_128_16
+#define FNAME parasail_sw_stats_table_striped_sse41_128_16
 #else
-#define FNAME sw_stats_striped_sse41_128_16
+#define FNAME parasail_sw_stats_striped_sse41_128_16
 #endif
 
 parasail_result_t* FNAME(

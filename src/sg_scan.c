@@ -70,7 +70,7 @@ parasail_result_t* ENAME(
 
     /* iterate over database */
     for (j=0; j<s2Len-1; ++j) {
-        const int * const restrict matcol = matrix->matrix_[s2[j]];
+        const int * const restrict matcol = &matrix->matrix[matrix->size*s2[j]];
         /* calculate E */
         for (i=0; i<s1Len; ++i) {
             E[i] = MAX(E[i]-gap, H[i]-open);
@@ -94,7 +94,7 @@ parasail_result_t* ENAME(
     }
     j = s2Len - 1;
     {
-        const int * const restrict matcol = matrix->matrix_[s2[j]];
+        const int * const restrict matcol = &matrix->matrix[matrix->size*s2[j]];
         /* calculate E */
         for (i=0; i<s1Len; ++i) {
             E[i] = MAX(E[i]-gap, H[i]-open);

@@ -96,7 +96,7 @@ parasail_result_t* ENAME(
 
     /* iterate over database */
     for (j=0; j<s2Len; ++j) {
-        const int * const restrict matcol = matrix->matrix_[s2[j]];
+        const int * const restrict matcol = &matrix->matrix[matrix->size*s2[j]];
         int FM = 0;
         int FS = 0;
         int FL = 0;

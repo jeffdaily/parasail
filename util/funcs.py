@@ -22,15 +22,15 @@ typedef struct parasail_function_info {
     const char * isa;
     const char * bits;
     const char * width;
-    const int lanes;
-    const char is_table;
-    const char is_stats;
-    const char is_ref;
+    int lanes;
+    char is_table;
+    char is_stats;
+    char is_ref;
 } parasail_function_info_t;
 
 typedef struct parasail_function_group {
     const char * name;
-    const parasail_function_info_t *fs;
+    parasail_function_info_t *fs;
 } parasail_function_group_t;
 
 """
@@ -63,7 +63,7 @@ isa_to_bits = {
     "knc"   : 512,
 }
 
-print "static const parasail_function_info_t functions[] = {"
+print "static parasail_function_info_t functions[] = {"
 
 for table in ["", "_table"]:
     for stats in ["", "_stats"]:
@@ -119,7 +119,7 @@ for table in ["", "_table"]:
             pre = "parasail_"+alg+stats+table
             for isa in ["sse2", "sse41", "avx2"]:
                 print "#if HAVE_%s" % isa.upper()
-                print "static const parasail_function_info_t %s_%s_functions[] = {" % (pre, isa)
+                print "static parasail_function_info_t %s_%s_functions[] = {" % (pre, isa)
                 print_fmt(pre,         pre,         alg+stats, "orig", "NA", "32", "32", 1, is_table, is_stats, 1)
                 print_fmt(pre+"_scan", pre+"_scan", alg+stats, "scan", "NA", "32", "32", 1, is_table, is_stats, 0)
                 bits = isa_to_bits[isa]
@@ -133,11 +133,11 @@ for table in ["", "_table"]:
                         print_fmt(name, name, alg+stats, par, isa, bits, width, bits/width, is_table, is_stats, 0)
                 print_null()
                 print "};"
-                print 'static const parasail_function_group_t %s_%s = {"%s_%s", %s_%s_functions};' % ((pre, isa)*3)
+                print 'static parasail_function_group_t %s_%s = {"%s_%s", %s_%s_functions};' % ((pre, isa)*3)
                 print "#endif"
             for isa in ["knc"]:
                 print "#if HAVE_%s" % isa.upper()
-                print "static const parasail_function_info_t %s_%s_functions[] = {" % (pre, isa)
+                print "static parasail_function_info_t %s_%s_functions[] = {" % (pre, isa)
                 print_fmt(pre,         pre,         alg+stats, "orig", "NA", "32", "32", 1, is_table, is_stats, 1)
                 print_fmt(pre+"_scan", pre+"_scan", alg+stats, "scan", "NA", "32", "32", 1, is_table, is_stats, 0)
                 bits = isa_to_bits[isa]
@@ -147,7 +147,7 @@ for table in ["", "_table"]:
                         print_fmt(name, name, alg+stats, par, isa, bits, width, bits/width, is_table, is_stats, 0)
                 print_null()
                 print "};"
-                print 'static const parasail_function_group_t %s_%s = {"%s_%s", %s_%s_functions};' % ((pre, isa)*3)
+                print 'static parasail_function_group_t %s_%s = {"%s_%s", %s_%s_functions};' % ((pre, isa)*3)
                 print "#endif"
 
 print """

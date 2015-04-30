@@ -16,7 +16,6 @@
 #include "parasail.h"
 #include "parasail/memory.h"
 #include "parasail/internal_sse.h"
-#include "parasail/matrices/blosum_map.h"
 
 #define NEG_INF (INT16_MIN/(int16_t)(2))
 
@@ -201,14 +200,14 @@ parasail_result_t* FNAME(
                 s1[i+6],
                 s1[i+7]);
         __m128i vs2 = vNegInf;
-        const int8_t * const restrict matrow0 = &matrix->matrix[matrix->size*s1[i+0]];
-        const int8_t * const restrict matrow1 = &matrix->matrix[matrix->size*s1[i+1]];
-        const int8_t * const restrict matrow2 = &matrix->matrix[matrix->size*s1[i+2]];
-        const int8_t * const restrict matrow3 = &matrix->matrix[matrix->size*s1[i+3]];
-        const int8_t * const restrict matrow4 = &matrix->matrix[matrix->size*s1[i+4]];
-        const int8_t * const restrict matrow5 = &matrix->matrix[matrix->size*s1[i+5]];
-        const int8_t * const restrict matrow6 = &matrix->matrix[matrix->size*s1[i+6]];
-        const int8_t * const restrict matrow7 = &matrix->matrix[matrix->size*s1[i+7]];
+        const int * const restrict matrow0 = &matrix->matrix[matrix->size*s1[i+0]];
+        const int * const restrict matrow1 = &matrix->matrix[matrix->size*s1[i+1]];
+        const int * const restrict matrow2 = &matrix->matrix[matrix->size*s1[i+2]];
+        const int * const restrict matrow3 = &matrix->matrix[matrix->size*s1[i+3]];
+        const int * const restrict matrow4 = &matrix->matrix[matrix->size*s1[i+4]];
+        const int * const restrict matrow5 = &matrix->matrix[matrix->size*s1[i+5]];
+        const int * const restrict matrow6 = &matrix->matrix[matrix->size*s1[i+6]];
+        const int * const restrict matrow7 = &matrix->matrix[matrix->size*s1[i+7]];
         __m128i vIltLimit = _mm_cmplt_epi16(vI, vILimit);
         __m128i vIeqLimit1 = _mm_cmpeq_epi16(vI, vILimit1);
         /* iterate over database sequence */

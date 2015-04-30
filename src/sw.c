@@ -62,7 +62,7 @@ parasail_result_t* ENAME(
 
     /* iter over first sequence */
     for (i=1; i<=s1Len; ++i) {
-        const int * const restrict matrow = matrix->matrix_[s1[i-1]];
+        const int * const restrict matrow = &matrix->matrix[matrix->size*s1[i-1]];
         /* init first column */
         int Nscore = tbl_pr[0];
         int Wscore = 0;

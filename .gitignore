@@ -6,4 +6,5 @@ bld*
 util/generated/
 util/matrices/generated/
 bindings/python/build
+bindings/python/parasail.c
 bindings/python/parasail.so

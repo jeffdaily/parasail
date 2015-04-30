@@ -279,7 +279,7 @@ def generated_params_diag(params):
             ["s1[i+%d],\n"%i
                 for i in range(lanes)])[:-2]
     params["DIAG_MATROW_DECL"] = "        ".join(
-            ["const int8_t * const restrict matrow%d = &matrix->matrix[matrix->size*s1[i+%d]];\n"%(i,i)
+            ["const int * const restrict matrow%d = &matrix->matrix[matrix->size*s1[i+%d]];\n"%(i,i)
                 for i in range(lanes)])[:-1]
     params["DIAG_MATROW_USE"] = "                    ".join(
             ["matrow%d[s2[j-%d]],\n"%(i,i)

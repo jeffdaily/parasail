@@ -17,7 +17,6 @@
 #include "parasail.h"
 #include "parasail/memory.h"
 #include "parasail/internal_%(ISA)s.h"
-#include "parasail/matrices/blosum_map.h"
 
 #define NEG_INF %(NEG_INF)s
 %(FIXES)s

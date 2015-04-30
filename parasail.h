@@ -10,8 +10,6 @@
 #ifndef _PARASAIL_H_
 #define _PARASAIL_H_
 
-#include <stdint.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -43,8 +41,7 @@ typedef struct parasail_result {
 
 typedef struct parasail_matrix {
     const char * name;
-    const int8_t *matrix;
-    const int (*matrix_)[24];
+    const int *matrix;
     const int *mapper;
     const int size;
 } parasail_matrix_t;

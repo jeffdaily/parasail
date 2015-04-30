@@ -17,7 +17,6 @@
 #include "parasail.h"
 #include "parasail/memory.h"
 #include "parasail/internal_avx.h"
-#include "parasail/matrices/blosum_map.h"
 
 #define NEG_INF (INT32_MIN/(int32_t)(2))
 

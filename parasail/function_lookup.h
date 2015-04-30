@@ -20,19 +20,19 @@ typedef struct parasail_function_info {
     const char * isa;
     const char * bits;
     const char * width;
-    const int lanes;
-    const char is_table;
-    const char is_stats;
-    const char is_ref;
+    int lanes;
+    char is_table;
+    char is_stats;
+    char is_ref;
 } parasail_function_info_t;
 
 typedef struct parasail_function_group {
     const char * name;
-    const parasail_function_info_t *fs;
+    parasail_function_info_t *fs;
 } parasail_function_group_t;
 
 
-static const parasail_function_info_t functions[] = {
+static parasail_function_info_t functions[] = {
 {parasail_nw,                         "parasail_nw",                         "nw",    "orig", "NA",     "32", "32",  1, 0, 0, 1},
 {parasail_nw_scan,                    "parasail_nw_scan",                    "nw",    "scan", "NA",     "32", "32",  1, 0, 0, 0},
 #if HAVE_SSE2
@@ -576,7 +576,7 @@ static const parasail_function_info_t functions[] = {
 #endif
 };
 #if HAVE_SSE2
-static const parasail_function_info_t parasail_nw_sse2_functions[] = {
+static parasail_function_info_t parasail_nw_sse2_functions[] = {
 {parasail_nw,                         "parasail_nw",                         "nw",    "orig", "NA",     "32", "32",  1, 0, 0, 1},
 {parasail_nw_scan,                    "parasail_nw_scan",                    "nw",    "scan", "NA",     "32", "32",  1, 0, 0, 0},
 {parasail_nw_scan_sse2_128_64,        "parasail_nw_scan_sse2_128_64",        "nw",    "scan", "sse2",  "128", "64",  2, 0, 0, 0},
@@ -593,10 +593,10 @@ static const parasail_function_info_t parasail_nw_sse2_functions[] = {
 {parasail_nw_diag_sse2_128_8,         "parasail_nw_diag_sse2_128_8",         "nw",    "diag", "sse2",  "128",  "8", 16, 0, 0, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_nw_sse2 = {"parasail_nw_sse2", parasail_nw_sse2_functions};
+static parasail_function_group_t parasail_nw_sse2 = {"parasail_nw_sse2", parasail_nw_sse2_functions};
 #endif
 #if HAVE_SSE41
-static const parasail_function_info_t parasail_nw_sse41_functions[] = {
+static parasail_function_info_t parasail_nw_sse41_functions[] = {
 {parasail_nw,                         "parasail_nw",                         "nw",    "orig", "NA",     "32", "32",  1, 0, 0, 1},
 {parasail_nw_scan,                    "parasail_nw_scan",                    "nw",    "scan", "NA",     "32", "32",  1, 0, 0, 0},
 {parasail_nw_scan_sse41_128_64,       "parasail_nw_scan_sse41_128_64",       "nw",    "scan", "sse41", "128", "64",  2, 0, 0, 0},
@@ -613,10 +613,10 @@ static const parasail_function_info_t parasail_nw_sse41_functions[] = {
 {parasail_nw_diag_sse41_128_8,        "parasail_nw_diag_sse41_128_8",        "nw",    "diag", "sse41", "128",  "8", 16, 0, 0, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_nw_sse41 = {"parasail_nw_sse41", parasail_nw_sse41_functions};
+static parasail_function_group_t parasail_nw_sse41 = {"parasail_nw_sse41", parasail_nw_sse41_functions};
 #endif
 #if HAVE_AVX2
-static const parasail_function_info_t parasail_nw_avx2_functions[] = {
+static parasail_function_info_t parasail_nw_avx2_functions[] = {
 {parasail_nw,                         "parasail_nw",                         "nw",    "orig", "NA",     "32", "32",  1, 0, 0, 1},
 {parasail_nw_scan,                    "parasail_nw_scan",                    "nw",    "scan", "NA",     "32", "32",  1, 0, 0, 0},
 {parasail_nw_scan_avx2_256_64,        "parasail_nw_scan_avx2_256_64",        "nw",    "scan", "avx2",  "256", "64",  4, 0, 0, 0},
@@ -633,10 +633,10 @@ static const parasail_function_info_t parasail_nw_avx2_functions[] = {
 {parasail_nw_diag_avx2_256_8,         "parasail_nw_diag_avx2_256_8",         "nw",    "diag", "avx2",  "256",  "8", 32, 0, 0, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_nw_avx2 = {"parasail_nw_avx2", parasail_nw_avx2_functions};
+static parasail_function_group_t parasail_nw_avx2 = {"parasail_nw_avx2", parasail_nw_avx2_functions};
 #endif
 #if HAVE_KNC
-static const parasail_function_info_t parasail_nw_knc_functions[] = {
+static parasail_function_info_t parasail_nw_knc_functions[] = {
 {parasail_nw,                         "parasail_nw",                         "nw",    "orig", "NA",     "32", "32",  1, 0, 0, 1},
 {parasail_nw_scan,                    "parasail_nw_scan",                    "nw",    "scan", "NA",     "32", "32",  1, 0, 0, 0},
 {parasail_nw_scan_knc_512_32,         "parasail_nw_scan_knc_512_32",         "nw",    "scan", "knc",   "512", "32", 16, 0, 0, 0},
@@ -644,10 +644,10 @@ static const parasail_function_info_t parasail_nw_knc_functions[] = {
 {parasail_nw_diag_knc_512_32,         "parasail_nw_diag_knc_512_32",         "nw",    "diag", "knc",   "512", "32", 16, 0, 0, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_nw_knc = {"parasail_nw_knc", parasail_nw_knc_functions};
+static parasail_function_group_t parasail_nw_knc = {"parasail_nw_knc", parasail_nw_knc_functions};
 #endif
 #if HAVE_SSE2
-static const parasail_function_info_t parasail_sg_sse2_functions[] = {
+static parasail_function_info_t parasail_sg_sse2_functions[] = {
 {parasail_sg,                         "parasail_sg",                         "sg",    "orig", "NA",     "32", "32",  1, 0, 0, 1},
 {parasail_sg_scan,                    "parasail_sg_scan",                    "sg",    "scan", "NA",     "32", "32",  1, 0, 0, 0},
 {parasail_sg_scan_sse2_128_64,        "parasail_sg_scan_sse2_128_64",        "sg",    "scan", "sse2",  "128", "64",  2, 0, 0, 0},
@@ -664,10 +664,10 @@ static const parasail_function_info_t parasail_sg_sse2_functions[] = {
 {parasail_sg_diag_sse2_128_8,         "parasail_sg_diag_sse2_128_8",         "sg",    "diag", "sse2",  "128",  "8", 16, 0, 0, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_sg_sse2 = {"parasail_sg_sse2", parasail_sg_sse2_functions};
+static parasail_function_group_t parasail_sg_sse2 = {"parasail_sg_sse2", parasail_sg_sse2_functions};
 #endif
 #if HAVE_SSE41
-static const parasail_function_info_t parasail_sg_sse41_functions[] = {
+static parasail_function_info_t parasail_sg_sse41_functions[] = {
 {parasail_sg,                         "parasail_sg",                         "sg",    "orig", "NA",     "32", "32",  1, 0, 0, 1},
 {parasail_sg_scan,                    "parasail_sg_scan",                    "sg",    "scan", "NA",     "32", "32",  1, 0, 0, 0},
 {parasail_sg_scan_sse41_128_64,       "parasail_sg_scan_sse41_128_64",       "sg",    "scan", "sse41", "128", "64",  2, 0, 0, 0},
@@ -684,10 +684,10 @@ static const parasail_function_info_t parasail_sg_sse41_functions[] = {
 {parasail_sg_diag_sse41_128_8,        "parasail_sg_diag_sse41_128_8",        "sg",    "diag", "sse41", "128",  "8", 16, 0, 0, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_sg_sse41 = {"parasail_sg_sse41", parasail_sg_sse41_functions};
+static parasail_function_group_t parasail_sg_sse41 = {"parasail_sg_sse41", parasail_sg_sse41_functions};
 #endif
 #if HAVE_AVX2
-static const parasail_function_info_t parasail_sg_avx2_functions[] = {
+static parasail_function_info_t parasail_sg_avx2_functions[] = {
 {parasail_sg,                         "parasail_sg",                         "sg",    "orig", "NA",     "32", "32",  1, 0, 0, 1},
 {parasail_sg_scan,                    "parasail_sg_scan",                    "sg",    "scan", "NA",     "32", "32",  1, 0, 0, 0},
 {parasail_sg_scan_avx2_256_64,        "parasail_sg_scan_avx2_256_64",        "sg",    "scan", "avx2",  "256", "64",  4, 0, 0, 0},
@@ -704,10 +704,10 @@ static const parasail_function_info_t parasail_sg_avx2_functions[] = {
 {parasail_sg_diag_avx2_256_8,         "parasail_sg_diag_avx2_256_8",         "sg",    "diag", "avx2",  "256",  "8", 32, 0, 0, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_sg_avx2 = {"parasail_sg_avx2", parasail_sg_avx2_functions};
+static parasail_function_group_t parasail_sg_avx2 = {"parasail_sg_avx2", parasail_sg_avx2_functions};
 #endif
 #if HAVE_KNC
-static const parasail_function_info_t parasail_sg_knc_functions[] = {
+static parasail_function_info_t parasail_sg_knc_functions[] = {
 {parasail_sg,                         "parasail_sg",                         "sg",    "orig", "NA",     "32", "32",  1, 0, 0, 1},
 {parasail_sg_scan,                    "parasail_sg_scan",                    "sg",    "scan", "NA",     "32", "32",  1, 0, 0, 0},
 {parasail_sg_scan_knc_512_32,         "parasail_sg_scan_knc_512_32",         "sg",    "scan", "knc",   "512", "32", 16, 0, 0, 0},
@@ -715,10 +715,10 @@ static const parasail_function_info_t parasail_sg_knc_functions[] = {
 {parasail_sg_diag_knc_512_32,         "parasail_sg_diag_knc_512_32",         "sg",    "diag", "knc",   "512", "32", 16, 0, 0, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_sg_knc = {"parasail_sg_knc", parasail_sg_knc_functions};
+static parasail_function_group_t parasail_sg_knc = {"parasail_sg_knc", parasail_sg_knc_functions};
 #endif
 #if HAVE_SSE2
-static const parasail_function_info_t parasail_sw_sse2_functions[] = {
+static parasail_function_info_t parasail_sw_sse2_functions[] = {
 {parasail_sw,                         "parasail_sw",                         "sw",    "orig", "NA",     "32", "32",  1, 0, 0, 1},
 {parasail_sw_scan,                    "parasail_sw_scan",                    "sw",    "scan", "NA",     "32", "32",  1, 0, 0, 0},
 {parasail_sw_scan_sse2_128_64,        "parasail_sw_scan_sse2_128_64",        "sw",    "scan", "sse2",  "128", "64",  2, 0, 0, 0},
@@ -735,10 +735,10 @@ static const parasail_function_info_t parasail_sw_sse2_functions[] = {
 {parasail_sw_diag_sse2_128_8,         "parasail_sw_diag_sse2_128_8",         "sw",    "diag", "sse2",  "128",  "8", 16, 0, 0, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_sw_sse2 = {"parasail_sw_sse2", parasail_sw_sse2_functions};
+static parasail_function_group_t parasail_sw_sse2 = {"parasail_sw_sse2", parasail_sw_sse2_functions};
 #endif
 #if HAVE_SSE41
-static const parasail_function_info_t parasail_sw_sse41_functions[] = {
+static parasail_function_info_t parasail_sw_sse41_functions[] = {
 {parasail_sw,                         "parasail_sw",                         "sw",    "orig", "NA",     "32", "32",  1, 0, 0, 1},
 {parasail_sw_scan,                    "parasail_sw_scan",                    "sw",    "scan", "NA",     "32", "32",  1, 0, 0, 0},
 {parasail_sw_scan_sse41_128_64,       "parasail_sw_scan_sse41_128_64",       "sw",    "scan", "sse41", "128", "64",  2, 0, 0, 0},
@@ -755,10 +755,10 @@ static const parasail_function_info_t parasail_sw_sse41_functions[] = {
 {parasail_sw_diag_sse41_128_8,        "parasail_sw_diag_sse41_128_8",        "sw",    "diag", "sse41", "128",  "8", 16, 0, 0, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_sw_sse41 = {"parasail_sw_sse41", parasail_sw_sse41_functions};
+static parasail_function_group_t parasail_sw_sse41 = {"parasail_sw_sse41", parasail_sw_sse41_functions};
 #endif
 #if HAVE_AVX2
-static const parasail_function_info_t parasail_sw_avx2_functions[] = {
+static parasail_function_info_t parasail_sw_avx2_functions[] = {
 {parasail_sw,                         "parasail_sw",                         "sw",    "orig", "NA",     "32", "32",  1, 0, 0, 1},
 {parasail_sw_scan,                    "parasail_sw_scan",                    "sw",    "scan", "NA",     "32", "32",  1, 0, 0, 0},
 {parasail_sw_scan_avx2_256_64,        "parasail_sw_scan_avx2_256_64",        "sw",    "scan", "avx2",  "256", "64",  4, 0, 0, 0},
@@ -775,10 +775,10 @@ static const parasail_function_info_t parasail_sw_avx2_functions[] = {
 {parasail_sw_diag_avx2_256_8,         "parasail_sw_diag_avx2_256_8",         "sw",    "diag", "avx2",  "256",  "8", 32, 0, 0, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_sw_avx2 = {"parasail_sw_avx2", parasail_sw_avx2_functions};
+static parasail_function_group_t parasail_sw_avx2 = {"parasail_sw_avx2", parasail_sw_avx2_functions};
 #endif
 #if HAVE_KNC
-static const parasail_function_info_t parasail_sw_knc_functions[] = {
+static parasail_function_info_t parasail_sw_knc_functions[] = {
 {parasail_sw,                         "parasail_sw",                         "sw",    "orig", "NA",     "32", "32",  1, 0, 0, 1},
 {parasail_sw_scan,                    "parasail_sw_scan",                    "sw",    "scan", "NA",     "32", "32",  1, 0, 0, 0},
 {parasail_sw_scan_knc_512_32,         "parasail_sw_scan_knc_512_32",         "sw",    "scan", "knc",   "512", "32", 16, 0, 0, 0},
@@ -786,10 +786,10 @@ static const parasail_function_info_t parasail_sw_knc_functions[] = {
 {parasail_sw_diag_knc_512_32,         "parasail_sw_diag_knc_512_32",         "sw",    "diag", "knc",   "512", "32", 16, 0, 0, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_sw_knc = {"parasail_sw_knc", parasail_sw_knc_functions};
+static parasail_function_group_t parasail_sw_knc = {"parasail_sw_knc", parasail_sw_knc_functions};
 #endif
 #if HAVE_SSE2
-static const parasail_function_info_t parasail_nw_stats_sse2_functions[] = {
+static parasail_function_info_t parasail_nw_stats_sse2_functions[] = {
 {parasail_nw_stats,                   "parasail_nw_stats",                   "nw_stats",    "orig", "NA",     "32", "32",  1, 0, 1, 1},
 {parasail_nw_stats_scan,              "parasail_nw_stats_scan",              "nw_stats",    "scan", "NA",     "32", "32",  1, 0, 1, 0},
 {parasail_nw_stats_scan_sse2_128_32,  "parasail_nw_stats_scan_sse2_128_32",  "nw_stats",    "scan", "sse2",  "128", "32",  4, 0, 1, 0},
@@ -803,10 +803,10 @@ static const parasail_function_info_t parasail_nw_stats_sse2_functions[] = {
 {parasail_nw_stats_diag_sse2_128_8,   "parasail_nw_stats_diag_sse2_128_8",   "nw_stats",    "diag", "sse2",  "128",  "8", 16, 0, 1, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_nw_stats_sse2 = {"parasail_nw_stats_sse2", parasail_nw_stats_sse2_functions};
+static parasail_function_group_t parasail_nw_stats_sse2 = {"parasail_nw_stats_sse2", parasail_nw_stats_sse2_functions};
 #endif
 #if HAVE_SSE41
-static const parasail_function_info_t parasail_nw_stats_sse41_functions[] = {
+static parasail_function_info_t parasail_nw_stats_sse41_functions[] = {
 {parasail_nw_stats,                   "parasail_nw_stats",                   "nw_stats",    "orig", "NA",     "32", "32",  1, 0, 1, 1},
 {parasail_nw_stats_scan,              "parasail_nw_stats_scan",              "nw_stats",    "scan", "NA",     "32", "32",  1, 0, 1, 0},
 {parasail_nw_stats_scan_sse41_128_32, "parasail_nw_stats_scan_sse41_128_32", "nw_stats",    "scan", "sse41", "128", "32",  4, 0, 1, 0},
@@ -820,10 +820,10 @@ static const parasail_function_info_t parasail_nw_stats_sse41_functions[] = {
 {parasail_nw_stats_diag_sse41_128_8,  "parasail_nw_stats_diag_sse41_128_8",  "nw_stats",    "diag", "sse41", "128",  "8", 16, 0, 1, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_nw_stats_sse41 = {"parasail_nw_stats_sse41", parasail_nw_stats_sse41_functions};
+static parasail_function_group_t parasail_nw_stats_sse41 = {"parasail_nw_stats_sse41", parasail_nw_stats_sse41_functions};
 #endif
 #if HAVE_AVX2
-static const parasail_function_info_t parasail_nw_stats_avx2_functions[] = {
+static parasail_function_info_t parasail_nw_stats_avx2_functions[] = {
 {parasail_nw_stats,                   "parasail_nw_stats",                   "nw_stats",    "orig", "NA",     "32", "32",  1, 0, 1, 1},
 {parasail_nw_stats_scan,              "parasail_nw_stats_scan",              "nw_stats",    "scan", "NA",     "32", "32",  1, 0, 1, 0},
 {parasail_nw_stats_scan_avx2_256_32,  "parasail_nw_stats_scan_avx2_256_32",  "nw_stats",    "scan", "avx2",  "256", "32",  8, 0, 1, 0},
@@ -837,10 +837,10 @@ static const parasail_function_info_t parasail_nw_stats_avx2_functions[] = {
 {parasail_nw_stats_diag_avx2_256_8,   "parasail_nw_stats_diag_avx2_256_8",   "nw_stats",    "diag", "avx2",  "256",  "8", 32, 0, 1, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_nw_stats_avx2 = {"parasail_nw_stats_avx2", parasail_nw_stats_avx2_functions};
+static parasail_function_group_t parasail_nw_stats_avx2 = {"parasail_nw_stats_avx2", parasail_nw_stats_avx2_functions};
 #endif
 #if HAVE_KNC
-static const parasail_function_info_t parasail_nw_stats_knc_functions[] = {
+static parasail_function_info_t parasail_nw_stats_knc_functions[] = {
 {parasail_nw_stats,                   "parasail_nw_stats",                   "nw_stats",    "orig", "NA",     "32", "32",  1, 0, 1, 1},
 {parasail_nw_stats_scan,              "parasail_nw_stats_scan",              "nw_stats",    "scan", "NA",     "32", "32",  1, 0, 1, 0},
 {parasail_nw_stats_scan_knc_512_32,   "parasail_nw_stats_scan_knc_512_32",   "nw_stats",    "scan", "knc",   "512", "32", 16, 0, 1, 0},
@@ -848,10 +848,10 @@ static const parasail_function_info_t parasail_nw_stats_knc_functions[] = {
 {parasail_nw_stats_diag_knc_512_32,   "parasail_nw_stats_diag_knc_512_32",   "nw_stats",    "diag", "knc",   "512", "32", 16, 0, 1, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_nw_stats_knc = {"parasail_nw_stats_knc", parasail_nw_stats_knc_functions};
+static parasail_function_group_t parasail_nw_stats_knc = {"parasail_nw_stats_knc", parasail_nw_stats_knc_functions};
 #endif
 #if HAVE_SSE2
-static const parasail_function_info_t parasail_sg_stats_sse2_functions[] = {
+static parasail_function_info_t parasail_sg_stats_sse2_functions[] = {
 {parasail_sg_stats,                   "parasail_sg_stats",                   "sg_stats",    "orig", "NA",     "32", "32",  1, 0, 1, 1},
 {parasail_sg_stats_scan,              "parasail_sg_stats_scan",              "sg_stats",    "scan", "NA",     "32", "32",  1, 0, 1, 0},
 {parasail_sg_stats_scan_sse2_128_32,  "parasail_sg_stats_scan_sse2_128_32",  "sg_stats",    "scan", "sse2",  "128", "32",  4, 0, 1, 0},
@@ -865,10 +865,10 @@ static const parasail_function_info_t parasail_sg_stats_sse2_functions[] = {
 {parasail_sg_stats_diag_sse2_128_8,   "parasail_sg_stats_diag_sse2_128_8",   "sg_stats",    "diag", "sse2",  "128",  "8", 16, 0, 1, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_sg_stats_sse2 = {"parasail_sg_stats_sse2", parasail_sg_stats_sse2_functions};
+static parasail_function_group_t parasail_sg_stats_sse2 = {"parasail_sg_stats_sse2", parasail_sg_stats_sse2_functions};
 #endif
 #if HAVE_SSE41
-static const parasail_function_info_t parasail_sg_stats_sse41_functions[] = {
+static parasail_function_info_t parasail_sg_stats_sse41_functions[] = {
 {parasail_sg_stats,                   "parasail_sg_stats",                   "sg_stats",    "orig", "NA",     "32", "32",  1, 0, 1, 1},
 {parasail_sg_stats_scan,              "parasail_sg_stats_scan",              "sg_stats",    "scan", "NA",     "32", "32",  1, 0, 1, 0},
 {parasail_sg_stats_scan_sse41_128_32, "parasail_sg_stats_scan_sse41_128_32", "sg_stats",    "scan", "sse41", "128", "32",  4, 0, 1, 0},
@@ -882,10 +882,10 @@ static const parasail_function_info_t parasail_sg_stats_sse41_functions[] = {
 {parasail_sg_stats_diag_sse41_128_8,  "parasail_sg_stats_diag_sse41_128_8",  "sg_stats",    "diag", "sse41", "128",  "8", 16, 0, 1, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_sg_stats_sse41 = {"parasail_sg_stats_sse41", parasail_sg_stats_sse41_functions};
+static parasail_function_group_t parasail_sg_stats_sse41 = {"parasail_sg_stats_sse41", parasail_sg_stats_sse41_functions};
 #endif
 #if HAVE_AVX2
-static const parasail_function_info_t parasail_sg_stats_avx2_functions[] = {
+static parasail_function_info_t parasail_sg_stats_avx2_functions[] = {
 {parasail_sg_stats,                   "parasail_sg_stats",                   "sg_stats",    "orig", "NA",     "32", "32",  1, 0, 1, 1},
 {parasail_sg_stats_scan,              "parasail_sg_stats_scan",              "sg_stats",    "scan", "NA",     "32", "32",  1, 0, 1, 0},
 {parasail_sg_stats_scan_avx2_256_32,  "parasail_sg_stats_scan_avx2_256_32",  "sg_stats",    "scan", "avx2",  "256", "32",  8, 0, 1, 0},
@@ -899,10 +899,10 @@ static const parasail_function_info_t parasail_sg_stats_avx2_functions[] = {
 {parasail_sg_stats_diag_avx2_256_8,   "parasail_sg_stats_diag_avx2_256_8",   "sg_stats",    "diag", "avx2",  "256",  "8", 32, 0, 1, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_sg_stats_avx2 = {"parasail_sg_stats_avx2", parasail_sg_stats_avx2_functions};
+static parasail_function_group_t parasail_sg_stats_avx2 = {"parasail_sg_stats_avx2", parasail_sg_stats_avx2_functions};
 #endif
 #if HAVE_KNC
-static const parasail_function_info_t parasail_sg_stats_knc_functions[] = {
+static parasail_function_info_t parasail_sg_stats_knc_functions[] = {
 {parasail_sg_stats,                   "parasail_sg_stats",                   "sg_stats",    "orig", "NA",     "32", "32",  1, 0, 1, 1},
 {parasail_sg_stats_scan,              "parasail_sg_stats_scan",              "sg_stats",    "scan", "NA",     "32", "32",  1, 0, 1, 0},
 {parasail_sg_stats_scan_knc_512_32,   "parasail_sg_stats_scan_knc_512_32",   "sg_stats",    "scan", "knc",   "512", "32", 16, 0, 1, 0},
@@ -910,10 +910,10 @@ static const parasail_function_info_t parasail_sg_stats_knc_functions[] = {
 {parasail_sg_stats_diag_knc_512_32,   "parasail_sg_stats_diag_knc_512_32",   "sg_stats",    "diag", "knc",   "512", "32", 16, 0, 1, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_sg_stats_knc = {"parasail_sg_stats_knc", parasail_sg_stats_knc_functions};
+static parasail_function_group_t parasail_sg_stats_knc = {"parasail_sg_stats_knc", parasail_sg_stats_knc_functions};
 #endif
 #if HAVE_SSE2
-static const parasail_function_info_t parasail_sw_stats_sse2_functions[] = {
+static parasail_function_info_t parasail_sw_stats_sse2_functions[] = {
 {parasail_sw_stats,                   "parasail_sw_stats",                   "sw_stats",    "orig", "NA",     "32", "32",  1, 0, 1, 1},
 {parasail_sw_stats_scan,              "parasail_sw_stats_scan",              "sw_stats",    "scan", "NA",     "32", "32",  1, 0, 1, 0},
 {parasail_sw_stats_scan_sse2_128_32,  "parasail_sw_stats_scan_sse2_128_32",  "sw_stats",    "scan", "sse2",  "128", "32",  4, 0, 1, 0},
@@ -927,10 +927,10 @@ static const parasail_function_info_t parasail_sw_stats_sse2_functions[] = {
 {parasail_sw_stats_diag_sse2_128_8,   "parasail_sw_stats_diag_sse2_128_8",   "sw_stats",    "diag", "sse2",  "128",  "8", 16, 0, 1, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_sw_stats_sse2 = {"parasail_sw_stats_sse2", parasail_sw_stats_sse2_functions};
+static parasail_function_group_t parasail_sw_stats_sse2 = {"parasail_sw_stats_sse2", parasail_sw_stats_sse2_functions};
 #endif
 #if HAVE_SSE41
-static const parasail_function_info_t parasail_sw_stats_sse41_functions[] = {
+static parasail_function_info_t parasail_sw_stats_sse41_functions[] = {
 {parasail_sw_stats,                   "parasail_sw_stats",                   "sw_stats",    "orig", "NA",     "32", "32",  1, 0, 1, 1},
 {parasail_sw_stats_scan,              "parasail_sw_stats_scan",              "sw_stats",    "scan", "NA",     "32", "32",  1, 0, 1, 0},
 {parasail_sw_stats_scan_sse41_128_32, "parasail_sw_stats_scan_sse41_128_32", "sw_stats",    "scan", "sse41", "128", "32",  4, 0, 1, 0},
@@ -944,10 +944,10 @@ static const parasail_function_info_t parasail_sw_stats_sse41_functions[] = {
 {parasail_sw_stats_diag_sse41_128_8,  "parasail_sw_stats_diag_sse41_128_8",  "sw_stats",    "diag", "sse41", "128",  "8", 16, 0, 1, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_sw_stats_sse41 = {"parasail_sw_stats_sse41", parasail_sw_stats_sse41_functions};
+static parasail_function_group_t parasail_sw_stats_sse41 = {"parasail_sw_stats_sse41", parasail_sw_stats_sse41_functions};
 #endif
 #if HAVE_AVX2
-static const parasail_function_info_t parasail_sw_stats_avx2_functions[] = {
+static parasail_function_info_t parasail_sw_stats_avx2_functions[] = {
 {parasail_sw_stats,                   "parasail_sw_stats",                   "sw_stats",    "orig", "NA",     "32", "32",  1, 0, 1, 1},
 {parasail_sw_stats_scan,              "parasail_sw_stats_scan",              "sw_stats",    "scan", "NA",     "32", "32",  1, 0, 1, 0},
 {parasail_sw_stats_scan_avx2_256_32,  "parasail_sw_stats_scan_avx2_256_32",  "sw_stats",    "scan", "avx2",  "256", "32",  8, 0, 1, 0},
@@ -961,10 +961,10 @@ static const parasail_function_info_t parasail_sw_stats_avx2_functions[] = {
 {parasail_sw_stats_diag_avx2_256_8,   "parasail_sw_stats_diag_avx2_256_8",   "sw_stats",    "diag", "avx2",  "256",  "8", 32, 0, 1, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_sw_stats_avx2 = {"parasail_sw_stats_avx2", parasail_sw_stats_avx2_functions};
+static parasail_function_group_t parasail_sw_stats_avx2 = {"parasail_sw_stats_avx2", parasail_sw_stats_avx2_functions};
 #endif
 #if HAVE_KNC
-static const parasail_function_info_t parasail_sw_stats_knc_functions[] = {
+static parasail_function_info_t parasail_sw_stats_knc_functions[] = {
 {parasail_sw_stats,                   "parasail_sw_stats",                   "sw_stats",    "orig", "NA",     "32", "32",  1, 0, 1, 1},
 {parasail_sw_stats_scan,              "parasail_sw_stats_scan",              "sw_stats",    "scan", "NA",     "32", "32",  1, 0, 1, 0},
 {parasail_sw_stats_scan_knc_512_32,   "parasail_sw_stats_scan_knc_512_32",   "sw_stats",    "scan", "knc",   "512", "32", 16, 0, 1, 0},
@@ -972,10 +972,10 @@ static const parasail_function_info_t parasail_sw_stats_knc_functions[] = {
 {parasail_sw_stats_diag_knc_512_32,   "parasail_sw_stats_diag_knc_512_32",   "sw_stats",    "diag", "knc",   "512", "32", 16, 0, 1, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_sw_stats_knc = {"parasail_sw_stats_knc", parasail_sw_stats_knc_functions};
+static parasail_function_group_t parasail_sw_stats_knc = {"parasail_sw_stats_knc", parasail_sw_stats_knc_functions};
 #endif
 #if HAVE_SSE2
-static const parasail_function_info_t parasail_nw_table_sse2_functions[] = {
+static parasail_function_info_t parasail_nw_table_sse2_functions[] = {
 {parasail_nw_table,                   "parasail_nw_table",                   "nw",    "orig", "NA",     "32", "32",  1, 1, 0, 1},
 {parasail_nw_table_scan,              "parasail_nw_table_scan",              "nw",    "scan", "NA",     "32", "32",  1, 1, 0, 0},
 {parasail_nw_table_scan_sse2_128_64,  "parasail_nw_table_scan_sse2_128_64",  "nw",    "scan", "sse2",  "128", "64",  2, 1, 0, 0},
@@ -992,10 +992,10 @@ static const parasail_function_info_t parasail_nw_table_sse2_functions[] = {
 {parasail_nw_table_diag_sse2_128_8,   "parasail_nw_table_diag_sse2_128_8",   "nw",    "diag", "sse2",  "128",  "8", 16, 1, 0, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_nw_table_sse2 = {"parasail_nw_table_sse2", parasail_nw_table_sse2_functions};
+static parasail_function_group_t parasail_nw_table_sse2 = {"parasail_nw_table_sse2", parasail_nw_table_sse2_functions};
 #endif
 #if HAVE_SSE41
-static const parasail_function_info_t parasail_nw_table_sse41_functions[] = {
+static parasail_function_info_t parasail_nw_table_sse41_functions[] = {
 {parasail_nw_table,                   "parasail_nw_table",                   "nw",    "orig", "NA",     "32", "32",  1, 1, 0, 1},
 {parasail_nw_table_scan,              "parasail_nw_table_scan",              "nw",    "scan", "NA",     "32", "32",  1, 1, 0, 0},
 {parasail_nw_table_scan_sse41_128_64, "parasail_nw_table_scan_sse41_128_64", "nw",    "scan", "sse41", "128", "64",  2, 1, 0, 0},
@@ -1012,10 +1012,10 @@ static const parasail_function_info_t parasail_nw_table_sse41_functions[] = {
 {parasail_nw_table_diag_sse41_128_8,  "parasail_nw_table_diag_sse41_128_8",  "nw",    "diag", "sse41", "128",  "8", 16, 1, 0, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_nw_table_sse41 = {"parasail_nw_table_sse41", parasail_nw_table_sse41_functions};
+static parasail_function_group_t parasail_nw_table_sse41 = {"parasail_nw_table_sse41", parasail_nw_table_sse41_functions};
 #endif
 #if HAVE_AVX2
-static const parasail_function_info_t parasail_nw_table_avx2_functions[] = {
+static parasail_function_info_t parasail_nw_table_avx2_functions[] = {
 {parasail_nw_table,                   "parasail_nw_table",                   "nw",    "orig", "NA",     "32", "32",  1, 1, 0, 1},
 {parasail_nw_table_scan,              "parasail_nw_table_scan",              "nw",    "scan", "NA",     "32", "32",  1, 1, 0, 0},
 {parasail_nw_table_scan_avx2_256_64,  "parasail_nw_table_scan_avx2_256_64",  "nw",    "scan", "avx2",  "256", "64",  4, 1, 0, 0},
@@ -1032,10 +1032,10 @@ static const parasail_function_info_t parasail_nw_table_avx2_functions[] = {
 {parasail_nw_table_diag_avx2_256_8,   "parasail_nw_table_diag_avx2_256_8",   "nw",    "diag", "avx2",  "256",  "8", 32, 1, 0, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_nw_table_avx2 = {"parasail_nw_table_avx2", parasail_nw_table_avx2_functions};
+static parasail_function_group_t parasail_nw_table_avx2 = {"parasail_nw_table_avx2", parasail_nw_table_avx2_functions};
 #endif
 #if HAVE_KNC
-static const parasail_function_info_t parasail_nw_table_knc_functions[] = {
+static parasail_function_info_t parasail_nw_table_knc_functions[] = {
 {parasail_nw_table,                   "parasail_nw_table",                   "nw",    "orig", "NA",     "32", "32",  1, 1, 0, 1},
 {parasail_nw_table_scan,              "parasail_nw_table_scan",              "nw",    "scan", "NA",     "32", "32",  1, 1, 0, 0},
 {parasail_nw_table_scan_knc_512_32,   "parasail_nw_table_scan_knc_512_32",   "nw",    "scan", "knc",   "512", "32", 16, 1, 0, 0},
@@ -1043,10 +1043,10 @@ static const parasail_function_info_t parasail_nw_table_knc_functions[] = {
 {parasail_nw_table_diag_knc_512_32,   "parasail_nw_table_diag_knc_512_32",   "nw",    "diag", "knc",   "512", "32", 16, 1, 0, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_nw_table_knc = {"parasail_nw_table_knc", parasail_nw_table_knc_functions};
+static parasail_function_group_t parasail_nw_table_knc = {"parasail_nw_table_knc", parasail_nw_table_knc_functions};
 #endif
 #if HAVE_SSE2
-static const parasail_function_info_t parasail_sg_table_sse2_functions[] = {
+static parasail_function_info_t parasail_sg_table_sse2_functions[] = {
 {parasail_sg_table,                   "parasail_sg_table",                   "sg",    "orig", "NA",     "32", "32",  1, 1, 0, 1},
 {parasail_sg_table_scan,              "parasail_sg_table_scan",              "sg",    "scan", "NA",     "32", "32",  1, 1, 0, 0},
 {parasail_sg_table_scan_sse2_128_64,  "parasail_sg_table_scan_sse2_128_64",  "sg",    "scan", "sse2",  "128", "64",  2, 1, 0, 0},
@@ -1063,10 +1063,10 @@ static const parasail_function_info_t parasail_sg_table_sse2_functions[] = {
 {parasail_sg_table_diag_sse2_128_8,   "parasail_sg_table_diag_sse2_128_8",   "sg",    "diag", "sse2",  "128",  "8", 16, 1, 0, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_sg_table_sse2 = {"parasail_sg_table_sse2", parasail_sg_table_sse2_functions};
+static parasail_function_group_t parasail_sg_table_sse2 = {"parasail_sg_table_sse2", parasail_sg_table_sse2_functions};
 #endif
 #if HAVE_SSE41
-static const parasail_function_info_t parasail_sg_table_sse41_functions[] = {
+static parasail_function_info_t parasail_sg_table_sse41_functions[] = {
 {parasail_sg_table,                   "parasail_sg_table",                   "sg",    "orig", "NA",     "32", "32",  1, 1, 0, 1},
 {parasail_sg_table_scan,              "parasail_sg_table_scan",              "sg",    "scan", "NA",     "32", "32",  1, 1, 0, 0},
 {parasail_sg_table_scan_sse41_128_64, "parasail_sg_table_scan_sse41_128_64", "sg",    "scan", "sse41", "128", "64",  2, 1, 0, 0},
@@ -1083,10 +1083,10 @@ static const parasail_function_info_t parasail_sg_table_sse41_functions[] = {
 {parasail_sg_table_diag_sse41_128_8,  "parasail_sg_table_diag_sse41_128_8",  "sg",    "diag", "sse41", "128",  "8", 16, 1, 0, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_sg_table_sse41 = {"parasail_sg_table_sse41", parasail_sg_table_sse41_functions};
+static parasail_function_group_t parasail_sg_table_sse41 = {"parasail_sg_table_sse41", parasail_sg_table_sse41_functions};
 #endif
 #if HAVE_AVX2
-static const parasail_function_info_t parasail_sg_table_avx2_functions[] = {
+static parasail_function_info_t parasail_sg_table_avx2_functions[] = {
 {parasail_sg_table,                   "parasail_sg_table",                   "sg",    "orig", "NA",     "32", "32",  1, 1, 0, 1},
 {parasail_sg_table_scan,              "parasail_sg_table_scan",              "sg",    "scan", "NA",     "32", "32",  1, 1, 0, 0},
 {parasail_sg_table_scan_avx2_256_64,  "parasail_sg_table_scan_avx2_256_64",  "sg",    "scan", "avx2",  "256", "64",  4, 1, 0, 0},
@@ -1103,10 +1103,10 @@ static const parasail_function_info_t parasail_sg_table_avx2_functions[] = {
 {parasail_sg_table_diag_avx2_256_8,   "parasail_sg_table_diag_avx2_256_8",   "sg",    "diag", "avx2",  "256",  "8", 32, 1, 0, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_sg_table_avx2 = {"parasail_sg_table_avx2", parasail_sg_table_avx2_functions};
+static parasail_function_group_t parasail_sg_table_avx2 = {"parasail_sg_table_avx2", parasail_sg_table_avx2_functions};
 #endif
 #if HAVE_KNC
-static const parasail_function_info_t parasail_sg_table_knc_functions[] = {
+static parasail_function_info_t parasail_sg_table_knc_functions[] = {
 {parasail_sg_table,                   "parasail_sg_table",                   "sg",    "orig", "NA",     "32", "32",  1, 1, 0, 1},
 {parasail_sg_table_scan,              "parasail_sg_table_scan",              "sg",    "scan", "NA",     "32", "32",  1, 1, 0, 0},
 {parasail_sg_table_scan_knc_512_32,   "parasail_sg_table_scan_knc_512_32",   "sg",    "scan", "knc",   "512", "32", 16, 1, 0, 0},
@@ -1114,10 +1114,10 @@ static const parasail_function_info_t parasail_sg_table_knc_functions[] = {
 {parasail_sg_table_diag_knc_512_32,   "parasail_sg_table_diag_knc_512_32",   "sg",    "diag", "knc",   "512", "32", 16, 1, 0, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_sg_table_knc = {"parasail_sg_table_knc", parasail_sg_table_knc_functions};
+static parasail_function_group_t parasail_sg_table_knc = {"parasail_sg_table_knc", parasail_sg_table_knc_functions};
 #endif
 #if HAVE_SSE2
-static const parasail_function_info_t parasail_sw_table_sse2_functions[] = {
+static parasail_function_info_t parasail_sw_table_sse2_functions[] = {
 {parasail_sw_table,                   "parasail_sw_table",                   "sw",    "orig", "NA",     "32", "32",  1, 1, 0, 1},
 {parasail_sw_table_scan,              "parasail_sw_table_scan",              "sw",    "scan", "NA",     "32", "32",  1, 1, 0, 0},
 {parasail_sw_table_scan_sse2_128_64,  "parasail_sw_table_scan_sse2_128_64",  "sw",    "scan", "sse2",  "128", "64",  2, 1, 0, 0},
@@ -1134,10 +1134,10 @@ static const parasail_function_info_t parasail_sw_table_sse2_functions[] = {
 {parasail_sw_table_diag_sse2_128_8,   "parasail_sw_table_diag_sse2_128_8",   "sw",    "diag", "sse2",  "128",  "8", 16, 1, 0, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_sw_table_sse2 = {"parasail_sw_table_sse2", parasail_sw_table_sse2_functions};
+static parasail_function_group_t parasail_sw_table_sse2 = {"parasail_sw_table_sse2", parasail_sw_table_sse2_functions};
 #endif
 #if HAVE_SSE41
-static const parasail_function_info_t parasail_sw_table_sse41_functions[] = {
+static parasail_function_info_t parasail_sw_table_sse41_functions[] = {
 {parasail_sw_table,                   "parasail_sw_table",                   "sw",    "orig", "NA",     "32", "32",  1, 1, 0, 1},
 {parasail_sw_table_scan,              "parasail_sw_table_scan",              "sw",    "scan", "NA",     "32", "32",  1, 1, 0, 0},
 {parasail_sw_table_scan_sse41_128_64, "parasail_sw_table_scan_sse41_128_64", "sw",    "scan", "sse41", "128", "64",  2, 1, 0, 0},
@@ -1154,10 +1154,10 @@ static const parasail_function_info_t parasail_sw_table_sse41_functions[] = {
 {parasail_sw_table_diag_sse41_128_8,  "parasail_sw_table_diag_sse41_128_8",  "sw",    "diag", "sse41", "128",  "8", 16, 1, 0, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_sw_table_sse41 = {"parasail_sw_table_sse41", parasail_sw_table_sse41_functions};
+static parasail_function_group_t parasail_sw_table_sse41 = {"parasail_sw_table_sse41", parasail_sw_table_sse41_functions};
 #endif
 #if HAVE_AVX2
-static const parasail_function_info_t parasail_sw_table_avx2_functions[] = {
+static parasail_function_info_t parasail_sw_table_avx2_functions[] = {
 {parasail_sw_table,                   "parasail_sw_table",                   "sw",    "orig", "NA",     "32", "32",  1, 1, 0, 1},
 {parasail_sw_table_scan,              "parasail_sw_table_scan",              "sw",    "scan", "NA",     "32", "32",  1, 1, 0, 0},
 {parasail_sw_table_scan_avx2_256_64,  "parasail_sw_table_scan_avx2_256_64",  "sw",    "scan", "avx2",  "256", "64",  4, 1, 0, 0},
@@ -1174,10 +1174,10 @@ static const parasail_function_info_t parasail_sw_table_avx2_functions[] = {
 {parasail_sw_table_diag_avx2_256_8,   "parasail_sw_table_diag_avx2_256_8",   "sw",    "diag", "avx2",  "256",  "8", 32, 1, 0, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_sw_table_avx2 = {"parasail_sw_table_avx2", parasail_sw_table_avx2_functions};
+static parasail_function_group_t parasail_sw_table_avx2 = {"parasail_sw_table_avx2", parasail_sw_table_avx2_functions};
 #endif
 #if HAVE_KNC
-static const parasail_function_info_t parasail_sw_table_knc_functions[] = {
+static parasail_function_info_t parasail_sw_table_knc_functions[] = {
 {parasail_sw_table,                   "parasail_sw_table",                   "sw",    "orig", "NA",     "32", "32",  1, 1, 0, 1},
 {parasail_sw_table_scan,              "parasail_sw_table_scan",              "sw",    "scan", "NA",     "32", "32",  1, 1, 0, 0},
 {parasail_sw_table_scan_knc_512_32,   "parasail_sw_table_scan_knc_512_32",   "sw",    "scan", "knc",   "512", "32", 16, 1, 0, 0},
@@ -1185,10 +1185,10 @@ static const parasail_function_info_t parasail_sw_table_knc_functions[] = {
 {parasail_sw_table_diag_knc_512_32,   "parasail_sw_table_diag_knc_512_32",   "sw",    "diag", "knc",   "512", "32", 16, 1, 0, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_sw_table_knc = {"parasail_sw_table_knc", parasail_sw_table_knc_functions};
+static parasail_function_group_t parasail_sw_table_knc = {"parasail_sw_table_knc", parasail_sw_table_knc_functions};
 #endif
 #if HAVE_SSE2
-static const parasail_function_info_t parasail_nw_stats_table_sse2_functions[] = {
+static parasail_function_info_t parasail_nw_stats_table_sse2_functions[] = {
 {parasail_nw_stats_table,             "parasail_nw_stats_table",             "nw_stats",    "orig", "NA",     "32", "32",  1, 1, 1, 1},
 {parasail_nw_stats_table_scan,        "parasail_nw_stats_table_scan",        "nw_stats",    "scan", "NA",     "32", "32",  1, 1, 1, 0},
 {parasail_nw_stats_table_scan_sse2_128_32, "parasail_nw_stats_table_scan_sse2_128_32", "nw_stats",    "scan", "sse2",  "128", "32",  4, 1, 1, 0},
@@ -1202,10 +1202,10 @@ static const parasail_function_info_t parasail_nw_stats_table_sse2_functions[] =
 {parasail_nw_stats_table_diag_sse2_128_8, "parasail_nw_stats_table_diag_sse2_128_8", "nw_stats",    "diag", "sse2",  "128",  "8", 16, 1, 1, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_nw_stats_table_sse2 = {"parasail_nw_stats_table_sse2", parasail_nw_stats_table_sse2_functions};
+static parasail_function_group_t parasail_nw_stats_table_sse2 = {"parasail_nw_stats_table_sse2", parasail_nw_stats_table_sse2_functions};
 #endif
 #if HAVE_SSE41
-static const parasail_function_info_t parasail_nw_stats_table_sse41_functions[] = {
+static parasail_function_info_t parasail_nw_stats_table_sse41_functions[] = {
 {parasail_nw_stats_table,             "parasail_nw_stats_table",             "nw_stats",    "orig", "NA",     "32", "32",  1, 1, 1, 1},
 {parasail_nw_stats_table_scan,        "parasail_nw_stats_table_scan",        "nw_stats",    "scan", "NA",     "32", "32",  1, 1, 1, 0},
 {parasail_nw_stats_table_scan_sse41_128_32, "parasail_nw_stats_table_scan_sse41_128_32", "nw_stats",    "scan", "sse41", "128", "32",  4, 1, 1, 0},
@@ -1219,10 +1219,10 @@ static const parasail_function_info_t parasail_nw_stats_table_sse41_functions[] 
 {parasail_nw_stats_table_diag_sse41_128_8, "parasail_nw_stats_table_diag_sse41_128_8", "nw_stats",    "diag", "sse41", "128",  "8", 16, 1, 1, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_nw_stats_table_sse41 = {"parasail_nw_stats_table_sse41", parasail_nw_stats_table_sse41_functions};
+static parasail_function_group_t parasail_nw_stats_table_sse41 = {"parasail_nw_stats_table_sse41", parasail_nw_stats_table_sse41_functions};
 #endif
 #if HAVE_AVX2
-static const parasail_function_info_t parasail_nw_stats_table_avx2_functions[] = {
+static parasail_function_info_t parasail_nw_stats_table_avx2_functions[] = {
 {parasail_nw_stats_table,             "parasail_nw_stats_table",             "nw_stats",    "orig", "NA",     "32", "32",  1, 1, 1, 1},
 {parasail_nw_stats_table_scan,        "parasail_nw_stats_table_scan",        "nw_stats",    "scan", "NA",     "32", "32",  1, 1, 1, 0},
 {parasail_nw_stats_table_scan_avx2_256_32, "parasail_nw_stats_table_scan_avx2_256_32", "nw_stats",    "scan", "avx2",  "256", "32",  8, 1, 1, 0},
@@ -1236,10 +1236,10 @@ static const parasail_function_info_t parasail_nw_stats_table_avx2_functions[] =
 {parasail_nw_stats_table_diag_avx2_256_8, "parasail_nw_stats_table_diag_avx2_256_8", "nw_stats",    "diag", "avx2",  "256",  "8", 32, 1, 1, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_nw_stats_table_avx2 = {"parasail_nw_stats_table_avx2", parasail_nw_stats_table_avx2_functions};
+static parasail_function_group_t parasail_nw_stats_table_avx2 = {"parasail_nw_stats_table_avx2", parasail_nw_stats_table_avx2_functions};
 #endif
 #if HAVE_KNC
-static const parasail_function_info_t parasail_nw_stats_table_knc_functions[] = {
+static parasail_function_info_t parasail_nw_stats_table_knc_functions[] = {
 {parasail_nw_stats_table,             "parasail_nw_stats_table",             "nw_stats",    "orig", "NA",     "32", "32",  1, 1, 1, 1},
 {parasail_nw_stats_table_scan,        "parasail_nw_stats_table_scan",        "nw_stats",    "scan", "NA",     "32", "32",  1, 1, 1, 0},
 {parasail_nw_stats_table_scan_knc_512_32, "parasail_nw_stats_table_scan_knc_512_32", "nw_stats",    "scan", "knc",   "512", "32", 16, 1, 1, 0},
@@ -1247,10 +1247,10 @@ static const parasail_function_info_t parasail_nw_stats_table_knc_functions[] = 
 {parasail_nw_stats_table_diag_knc_512_32, "parasail_nw_stats_table_diag_knc_512_32", "nw_stats",    "diag", "knc",   "512", "32", 16, 1, 1, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_nw_stats_table_knc = {"parasail_nw_stats_table_knc", parasail_nw_stats_table_knc_functions};
+static parasail_function_group_t parasail_nw_stats_table_knc = {"parasail_nw_stats_table_knc", parasail_nw_stats_table_knc_functions};
 #endif
 #if HAVE_SSE2
-static const parasail_function_info_t parasail_sg_stats_table_sse2_functions[] = {
+static parasail_function_info_t parasail_sg_stats_table_sse2_functions[] = {
 {parasail_sg_stats_table,             "parasail_sg_stats_table",             "sg_stats",    "orig", "NA",     "32", "32",  1, 1, 1, 1},
 {parasail_sg_stats_table_scan,        "parasail_sg_stats_table_scan",        "sg_stats",    "scan", "NA",     "32", "32",  1, 1, 1, 0},
 {parasail_sg_stats_table_scan_sse2_128_32, "parasail_sg_stats_table_scan_sse2_128_32", "sg_stats",    "scan", "sse2",  "128", "32",  4, 1, 1, 0},
@@ -1264,10 +1264,10 @@ static const parasail_function_info_t parasail_sg_stats_table_sse2_functions[] =
 {parasail_sg_stats_table_diag_sse2_128_8, "parasail_sg_stats_table_diag_sse2_128_8", "sg_stats",    "diag", "sse2",  "128",  "8", 16, 1, 1, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_sg_stats_table_sse2 = {"parasail_sg_stats_table_sse2", parasail_sg_stats_table_sse2_functions};
+static parasail_function_group_t parasail_sg_stats_table_sse2 = {"parasail_sg_stats_table_sse2", parasail_sg_stats_table_sse2_functions};
 #endif
 #if HAVE_SSE41
-static const parasail_function_info_t parasail_sg_stats_table_sse41_functions[] = {
+static parasail_function_info_t parasail_sg_stats_table_sse41_functions[] = {
 {parasail_sg_stats_table,             "parasail_sg_stats_table",             "sg_stats",    "orig", "NA",     "32", "32",  1, 1, 1, 1},
 {parasail_sg_stats_table_scan,        "parasail_sg_stats_table_scan",        "sg_stats",    "scan", "NA",     "32", "32",  1, 1, 1, 0},
 {parasail_sg_stats_table_scan_sse41_128_32, "parasail_sg_stats_table_scan_sse41_128_32", "sg_stats",    "scan", "sse41", "128", "32",  4, 1, 1, 0},
@@ -1281,10 +1281,10 @@ static const parasail_function_info_t parasail_sg_stats_table_sse41_functions[] 
 {parasail_sg_stats_table_diag_sse41_128_8, "parasail_sg_stats_table_diag_sse41_128_8", "sg_stats",    "diag", "sse41", "128",  "8", 16, 1, 1, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_sg_stats_table_sse41 = {"parasail_sg_stats_table_sse41", parasail_sg_stats_table_sse41_functions};
+static parasail_function_group_t parasail_sg_stats_table_sse41 = {"parasail_sg_stats_table_sse41", parasail_sg_stats_table_sse41_functions};
 #endif
 #if HAVE_AVX2
-static const parasail_function_info_t parasail_sg_stats_table_avx2_functions[] = {
+static parasail_function_info_t parasail_sg_stats_table_avx2_functions[] = {
 {parasail_sg_stats_table,             "parasail_sg_stats_table",             "sg_stats",    "orig", "NA",     "32", "32",  1, 1, 1, 1},
 {parasail_sg_stats_table_scan,        "parasail_sg_stats_table_scan",        "sg_stats",    "scan", "NA",     "32", "32",  1, 1, 1, 0},
 {parasail_sg_stats_table_scan_avx2_256_32, "parasail_sg_stats_table_scan_avx2_256_32", "sg_stats",    "scan", "avx2",  "256", "32",  8, 1, 1, 0},
@@ -1298,10 +1298,10 @@ static const parasail_function_info_t parasail_sg_stats_table_avx2_functions[] =
 {parasail_sg_stats_table_diag_avx2_256_8, "parasail_sg_stats_table_diag_avx2_256_8", "sg_stats",    "diag", "avx2",  "256",  "8", 32, 1, 1, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_sg_stats_table_avx2 = {"parasail_sg_stats_table_avx2", parasail_sg_stats_table_avx2_functions};
+static parasail_function_group_t parasail_sg_stats_table_avx2 = {"parasail_sg_stats_table_avx2", parasail_sg_stats_table_avx2_functions};
 #endif
 #if HAVE_KNC
-static const parasail_function_info_t parasail_sg_stats_table_knc_functions[] = {
+static parasail_function_info_t parasail_sg_stats_table_knc_functions[] = {
 {parasail_sg_stats_table,             "parasail_sg_stats_table",             "sg_stats",    "orig", "NA",     "32", "32",  1, 1, 1, 1},
 {parasail_sg_stats_table_scan,        "parasail_sg_stats_table_scan",        "sg_stats",    "scan", "NA",     "32", "32",  1, 1, 1, 0},
 {parasail_sg_stats_table_scan_knc_512_32, "parasail_sg_stats_table_scan_knc_512_32", "sg_stats",    "scan", "knc",   "512", "32", 16, 1, 1, 0},
@@ -1309,10 +1309,10 @@ static const parasail_function_info_t parasail_sg_stats_table_knc_functions[] = 
 {parasail_sg_stats_table_diag_knc_512_32, "parasail_sg_stats_table_diag_knc_512_32", "sg_stats",    "diag", "knc",   "512", "32", 16, 1, 1, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_sg_stats_table_knc = {"parasail_sg_stats_table_knc", parasail_sg_stats_table_knc_functions};
+static parasail_function_group_t parasail_sg_stats_table_knc = {"parasail_sg_stats_table_knc", parasail_sg_stats_table_knc_functions};
 #endif
 #if HAVE_SSE2
-static const parasail_function_info_t parasail_sw_stats_table_sse2_functions[] = {
+static parasail_function_info_t parasail_sw_stats_table_sse2_functions[] = {
 {parasail_sw_stats_table,             "parasail_sw_stats_table",             "sw_stats",    "orig", "NA",     "32", "32",  1, 1, 1, 1},
 {parasail_sw_stats_table_scan,        "parasail_sw_stats_table_scan",        "sw_stats",    "scan", "NA",     "32", "32",  1, 1, 1, 0},
 {parasail_sw_stats_table_scan_sse2_128_32, "parasail_sw_stats_table_scan_sse2_128_32", "sw_stats",    "scan", "sse2",  "128", "32",  4, 1, 1, 0},
@@ -1326,10 +1326,10 @@ static const parasail_function_info_t parasail_sw_stats_table_sse2_functions[] =
 {parasail_sw_stats_table_diag_sse2_128_8, "parasail_sw_stats_table_diag_sse2_128_8", "sw_stats",    "diag", "sse2",  "128",  "8", 16, 1, 1, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_sw_stats_table_sse2 = {"parasail_sw_stats_table_sse2", parasail_sw_stats_table_sse2_functions};
+static parasail_function_group_t parasail_sw_stats_table_sse2 = {"parasail_sw_stats_table_sse2", parasail_sw_stats_table_sse2_functions};
 #endif
 #if HAVE_SSE41
-static const parasail_function_info_t parasail_sw_stats_table_sse41_functions[] = {
+static parasail_function_info_t parasail_sw_stats_table_sse41_functions[] = {
 {parasail_sw_stats_table,             "parasail_sw_stats_table",             "sw_stats",    "orig", "NA",     "32", "32",  1, 1, 1, 1},
 {parasail_sw_stats_table_scan,        "parasail_sw_stats_table_scan",        "sw_stats",    "scan", "NA",     "32", "32",  1, 1, 1, 0},
 {parasail_sw_stats_table_scan_sse41_128_32, "parasail_sw_stats_table_scan_sse41_128_32", "sw_stats",    "scan", "sse41", "128", "32",  4, 1, 1, 0},
@@ -1343,10 +1343,10 @@ static const parasail_function_info_t parasail_sw_stats_table_sse41_functions[] 
 {parasail_sw_stats_table_diag_sse41_128_8, "parasail_sw_stats_table_diag_sse41_128_8", "sw_stats",    "diag", "sse41", "128",  "8", 16, 1, 1, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_sw_stats_table_sse41 = {"parasail_sw_stats_table_sse41", parasail_sw_stats_table_sse41_functions};
+static parasail_function_group_t parasail_sw_stats_table_sse41 = {"parasail_sw_stats_table_sse41", parasail_sw_stats_table_sse41_functions};
 #endif
 #if HAVE_AVX2
-static const parasail_function_info_t parasail_sw_stats_table_avx2_functions[] = {
+static parasail_function_info_t parasail_sw_stats_table_avx2_functions[] = {
 {parasail_sw_stats_table,             "parasail_sw_stats_table",             "sw_stats",    "orig", "NA",     "32", "32",  1, 1, 1, 1},
 {parasail_sw_stats_table_scan,        "parasail_sw_stats_table_scan",        "sw_stats",    "scan", "NA",     "32", "32",  1, 1, 1, 0},
 {parasail_sw_stats_table_scan_avx2_256_32, "parasail_sw_stats_table_scan_avx2_256_32", "sw_stats",    "scan", "avx2",  "256", "32",  8, 1, 1, 0},
@@ -1360,10 +1360,10 @@ static const parasail_function_info_t parasail_sw_stats_table_avx2_functions[] =
 {parasail_sw_stats_table_diag_avx2_256_8, "parasail_sw_stats_table_diag_avx2_256_8", "sw_stats",    "diag", "avx2",  "256",  "8", 32, 1, 1, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_sw_stats_table_avx2 = {"parasail_sw_stats_table_avx2", parasail_sw_stats_table_avx2_functions};
+static parasail_function_group_t parasail_sw_stats_table_avx2 = {"parasail_sw_stats_table_avx2", parasail_sw_stats_table_avx2_functions};
 #endif
 #if HAVE_KNC
-static const parasail_function_info_t parasail_sw_stats_table_knc_functions[] = {
+static parasail_function_info_t parasail_sw_stats_table_knc_functions[] = {
 {parasail_sw_stats_table,             "parasail_sw_stats_table",             "sw_stats",    "orig", "NA",     "32", "32",  1, 1, 1, 1},
 {parasail_sw_stats_table_scan,        "parasail_sw_stats_table_scan",        "sw_stats",    "scan", "NA",     "32", "32",  1, 1, 1, 0},
 {parasail_sw_stats_table_scan_knc_512_32, "parasail_sw_stats_table_scan_knc_512_32", "sw_stats",    "scan", "knc",   "512", "32", 16, 1, 1, 0},
@@ -1371,7 +1371,7 @@ static const parasail_function_info_t parasail_sw_stats_table_knc_functions[] = 
 {parasail_sw_stats_table_diag_knc_512_32, "parasail_sw_stats_table_diag_knc_512_32", "sw_stats",    "diag", "knc",   "512", "32", 16, 1, 1, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
-static const parasail_function_group_t parasail_sw_stats_table_knc = {"parasail_sw_stats_table_knc", parasail_sw_stats_table_knc_functions};
+static parasail_function_group_t parasail_sw_stats_table_knc = {"parasail_sw_stats_table_knc", parasail_sw_stats_table_knc_functions};
 #endif
 
 #endif /* _PARASAIL_FUNCTION_TYPE_H_ */

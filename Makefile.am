@@ -130,12 +130,8 @@ SRC_KNC =
 # core sources
 #################
 
-SRC_CORE += src/parasail_cpuid.h
-SRC_CORE += src/parasail_internal.h
-SRC_CORE += src/parasail_internal_sse.h
-SRC_CORE += src/parasail_internal_avx.h
-SRC_CORE += src/parasail_internal_knc.h
 SRC_CORE += src/cpuid.c
+SRC_CORE += src/function_lookup.c
 SRC_CORE += src/memory.c
 SRC_CORE += src/nw_dispatch.c
 SRC_CORE += src/sg_dispatch.c
@@ -606,6 +602,10 @@ check_PROGRAMS += tests/test_scatter
 check_PROGRAMS += tests/test_sw_dispatch
 check_PROGRAMS += tests/test_verify
 check_PROGRAMS += tests/test_verify_tables
+
+LDADD += $(CLOCK_LIBS)
+LDADD += $(MATH_LIBS)
+LDADD += $(Z_LIBS)
 
 tests_test_align_SOURCES = tests/test_align.c
 

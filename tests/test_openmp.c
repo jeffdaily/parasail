@@ -35,17 +35,18 @@ KSEQ_INIT(int, read)
 parasail_result_t* parasail_ssw_(
         const char * const restrict s1, const int s1_len,
         const char * const restrict s2, const int s2_len,
-        const int open, const int gap, const parasail_matrix_t * matrix,
+        const int open, const int gap, const parasail_matrix_t * notused,
         int score_size)
 {
     parasail_result_t *result = parasail_result_new();
     s_profile *profile = NULL;
     int8_t *s1_num = (int8_t*)malloc(sizeof(int8_t) * s1_len);
     int8_t *s2_num = (int8_t*)malloc(sizeof(int8_t) * s2_len);
+    int8_t *matrix = (int8_t*)malloc(sizeof(int8_t) * 24 * 24);
     s_align *ssw_result = NULL;
     int m = 0;
 
-    UNUSED(matrix);
+    UNUSED(notused);
 
     /* This table is used to transform amino acid letters into numbers. */
     static const int8_t table[128] = {
@@ -62,12 +63,16 @@ parasail_result_t* parasail_ssw_(
     /* initialize score matrix */
     for (m = 0; m < s1_len; ++m) s1_num[m] = table[(int)s1[m]];
     for (m = 0; m < s2_len; ++m) s2_num[m] = table[(int)s2[m]];
-    profile = ssw_init(s1_num, s1_len, parasail_blosum62_, 24, score_size);
+    for (m = 0; m < 24*24; ++m) matrix[m] = parasail_blosum62_[m];
+    profile = ssw_init(s1_num, s1_len, matrix, 24, score_size);
     ssw_result = ssw_align(profile, s2_num, s2_len, -open, -gap, 2, 0, 0, s1_len/2);
     result->score = ssw_result->score1;
     result->saturated = ssw_result->saturated;
     align_destroy(ssw_result);
     init_destroy(profile);
+    free(s1_num);
+    free(s2_num);
+    free(matrix);
 
     return result;
 }
@@ -332,7 +337,7 @@ int main(int argc, char **argv)
 
     /* select the function */
     if (funcname1) {
-        function1 = lookup_function(funcname1);
+        function1 = parasail_lookup_function(funcname1);
 #if HAVE_SSE2
         if (NULL == function1) {
             if (0 == strcmp(funcname1, "ssw_16")) {
@@ -354,7 +359,7 @@ int main(int argc, char **argv)
     }
 
     if (funcname2) {
-        function2 = lookup_function(funcname2);
+        function2 = parasail_lookup_function(funcname2);
         if (NULL == function2) {
             fprintf(stderr, "Specified function2 not found.\n");
             exit(1);

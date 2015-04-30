@@ -17,7 +17,6 @@
 #include "parasail.h"
 #include "parasail/memory.h"
 #include "parasail/internal_sse.h"
-#include "parasail/matrices/blosum_map.h"
 
 #define NEG_INF (INT64_MIN/(int64_t)(2))
 
@@ -80,9 +79,9 @@ static inline void arr_store_si128(
 
 
 #ifdef PARASAIL_TABLE
-#define FNAME nw_stats_table_diag_sse41_128_64
+#define FNAME parasail_nw_stats_table_diag_sse41_128_64
 #else
-#define FNAME nw_stats_diag_sse41_128_64
+#define FNAME parasail_nw_stats_diag_sse41_128_64
 #endif
 
 parasail_result_t* FNAME(
@@ -205,8 +204,8 @@ parasail_result_t* FNAME(
                 s1[i+0],
                 s1[i+1]);
         __m128i vs2 = vNegInf;
-        const int8_t * const restrict matrow0 = &matrix->matrix[matrix->size*s1[i+0]];
-        const int8_t * const restrict matrow1 = &matrix->matrix[matrix->size*s1[i+1]];
+        const int * const restrict matrow0 = &matrix->matrix[matrix->size*s1[i+0]];
+        const int * const restrict matrow1 = &matrix->matrix[matrix->size*s1[i+1]];
         vNscore = vshift(vNscore, tbl_pr[-1]);
         vNmatch = vshift(vNmatch, 0);
         vNsimilar = vshift(vNsimilar, 0);

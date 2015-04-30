@@ -102,7 +102,7 @@ for filename in filenames:
     count = len(the_lines)-1
     # write out the mat[] form
     writer.write("\n")
-    writer.write("static const int8_t parasail_%s_[] = {\n" % filename_lower)
+    writer.write("static const int parasail_%s_[] = {\n" % filename_lower)
     writer.write("/*     " + ("%4s"*24) % tuple(the_lines[0].split()) + " */\n")
     text = ""
     for line in the_lines[1:]:
@@ -113,29 +113,27 @@ for filename in filenames:
     writer.write(text[:-2])
     writer.write("\n};\n")
     # write out the mat[][] form
-    writer.write("\n")
-    writer.write("static const int parasail_%s__[%d][%d] = {\n" % (
-        filename_lower, count, count))
-    writer.write("/*     " + ("%4s"*24) % tuple(the_lines[0].split()) + " */\n")
-    text = ""
-    for line in the_lines[1:]:
-        parts = line.split()
-        text += "/* %s */{" % parts[0]
-        text += ((("%3s,"*24)[:-1]+"},") % tuple(parts[1:]))
-        text += "\n"
-    writer.write(text[:-2])
-    writer.write("\n};\n")
+    #writer.write("\n")
+    #writer.write("static const int parasail_%s__[%d][%d] = {\n" % (
+    #    filename_lower, count, count))
+    #writer.write("/*     " + ("%4s"*24) % tuple(the_lines[0].split()) + " */\n")
+    #text = ""
+    #for line in the_lines[1:]:
+    #    parts = line.split()
+    #    text += "/* %s */{" % parts[0]
+    #    text += ((("%3s,"*24)[:-1]+"},") % tuple(parts[1:]))
+    #    text += "\n"
+    #writer.write(text[:-2])
+    #writer.write("\n};\n")
     writer.write("""
 static const parasail_matrix_t parasail_%s = {
     "%s",
     parasail_%s_,
-    parasail_%s__,
     parasail_%s_map,
     %d
 };
 
-""" % (filename_lower, filename_lower, filename_lower, filename_lower,
-    base, count))
+""" % (filename_lower, filename_lower, filename_lower, base, count))
     writer.write(footer % filename)
     writer.write("\n")
     writer.close()

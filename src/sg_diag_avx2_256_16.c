@@ -16,7 +16,6 @@
 #include "parasail.h"
 #include "parasail/memory.h"
 #include "parasail/internal_avx.h"
-#include "parasail/matrices/blosum_map.h"
 
 #define NEG_INF (INT16_MIN/(int16_t)(2))
 
@@ -89,9 +88,9 @@ static inline void arr_store_si128(
 
 
 #ifdef PARASAIL_TABLE
-#define FNAME sg_table_diag_avx2_256_16
+#define FNAME parasail_sg_table_diag_avx2_256_16
 #else
-#define FNAME sg_diag_avx2_256_16
+#define FNAME parasail_sg_diag_avx2_256_16
 #endif
 
 parasail_result_t* FNAME(
@@ -178,22 +177,22 @@ parasail_result_t* FNAME(
         __m256i vIns = vNegInf;
         __m256i vDel = vNegInf;
         __m256i vJ = vJreset;
-        const int8_t * const restrict matrow0 = &matrix->matrix[matrix->size*s1[i+0]];
-        const int8_t * const restrict matrow1 = &matrix->matrix[matrix->size*s1[i+1]];
-        const int8_t * const restrict matrow2 = &matrix->matrix[matrix->size*s1[i+2]];
-        const int8_t * const restrict matrow3 = &matrix->matrix[matrix->size*s1[i+3]];
-        const int8_t * const restrict matrow4 = &matrix->matrix[matrix->size*s1[i+4]];
-        const int8_t * const restrict matrow5 = &matrix->matrix[matrix->size*s1[i+5]];
-        const int8_t * const restrict matrow6 = &matrix->matrix[matrix->size*s1[i+6]];
-        const int8_t * const restrict matrow7 = &matrix->matrix[matrix->size*s1[i+7]];
-        const int8_t * const restrict matrow8 = &matrix->matrix[matrix->size*s1[i+8]];
-        const int8_t * const restrict matrow9 = &matrix->matrix[matrix->size*s1[i+9]];
-        const int8_t * const restrict matrow10 = &matrix->matrix[matrix->size*s1[i+10]];
-        const int8_t * const restrict matrow11 = &matrix->matrix[matrix->size*s1[i+11]];
-        const int8_t * const restrict matrow12 = &matrix->matrix[matrix->size*s1[i+12]];
-        const int8_t * const restrict matrow13 = &matrix->matrix[matrix->size*s1[i+13]];
-        const int8_t * const restrict matrow14 = &matrix->matrix[matrix->size*s1[i+14]];
-        const int8_t * const restrict matrow15 = &matrix->matrix[matrix->size*s1[i+15]];
+        const int * const restrict matrow0 = &matrix->matrix[matrix->size*s1[i+0]];
+        const int * const restrict matrow1 = &matrix->matrix[matrix->size*s1[i+1]];
+        const int * const restrict matrow2 = &matrix->matrix[matrix->size*s1[i+2]];
+        const int * const restrict matrow3 = &matrix->matrix[matrix->size*s1[i+3]];
+        const int * const restrict matrow4 = &matrix->matrix[matrix->size*s1[i+4]];
+        const int * const restrict matrow5 = &matrix->matrix[matrix->size*s1[i+5]];
+        const int * const restrict matrow6 = &matrix->matrix[matrix->size*s1[i+6]];
+        const int * const restrict matrow7 = &matrix->matrix[matrix->size*s1[i+7]];
+        const int * const restrict matrow8 = &matrix->matrix[matrix->size*s1[i+8]];
+        const int * const restrict matrow9 = &matrix->matrix[matrix->size*s1[i+9]];
+        const int * const restrict matrow10 = &matrix->matrix[matrix->size*s1[i+10]];
+        const int * const restrict matrow11 = &matrix->matrix[matrix->size*s1[i+11]];
+        const int * const restrict matrow12 = &matrix->matrix[matrix->size*s1[i+12]];
+        const int * const restrict matrow13 = &matrix->matrix[matrix->size*s1[i+13]];
+        const int * const restrict matrow14 = &matrix->matrix[matrix->size*s1[i+14]];
+        const int * const restrict matrow15 = &matrix->matrix[matrix->size*s1[i+15]];
         __m256i vIltLimit = _mm256_cmplt_epi16_rpl(vI, vILimit);
         __m256i vIeqLimit1 = _mm256_cmpeq_epi16(vI, vILimit1);
         /* iterate over database sequence */

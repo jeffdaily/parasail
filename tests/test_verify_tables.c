@@ -16,8 +16,9 @@ KSEQ_INIT(int, read)
 #include "parasail.h"
 #include "parasail/cpuid.h"
 #include "parasail/memory.h"
-#include "parasail/function_lookup.h"
 #include "parasail/matrix_lookup.h"
+
+#include "func_verify_tables.h"
 
 static int verbose = 0;
 
@@ -146,7 +147,7 @@ static void check_functions(
         unsigned long *sizes,
         unsigned long pair_limit)
 {
-    parasail_function_info_t *functions = f.fs;
+    const parasail_function_info_t *functions = f.fs;
     unsigned long matrix_index = 0;
     unsigned long gap_index = 0;
     unsigned long function_index = 0;
@@ -340,14 +341,14 @@ int main(int argc, char **argv)
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         if (test_scores) {
-            check_functions(nw_table_sse2, sequences, sizes, limit);
-            check_functions(sg_table_sse2, sequences, sizes, limit);
-            check_functions(sw_table_sse2, sequences, sizes, limit);
+            check_functions(parasail_nw_table_sse2, sequences, sizes, limit);
+            check_functions(parasail_sg_table_sse2, sequences, sizes, limit);
+            check_functions(parasail_sw_table_sse2, sequences, sizes, limit);
         }
         if (test_stats) {
-            check_functions(nw_stats_table_sse2, sequences, sizes, limit);
-            check_functions(sg_stats_table_sse2, sequences, sizes, limit);
-            check_functions(sw_stats_table_sse2, sequences, sizes, limit);
+            check_functions(parasail_nw_stats_table_sse2, sequences, sizes, limit);
+            check_functions(parasail_sg_stats_table_sse2, sequences, sizes, limit);
+            check_functions(parasail_sw_stats_table_sse2, sequences, sizes, limit);
         }
     }
 #endif
@@ -355,14 +356,14 @@ int main(int argc, char **argv)
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
         if (test_scores) {
-            check_functions(nw_table_sse41, sequences, sizes, limit);
-            check_functions(sg_table_sse41, sequences, sizes, limit);
-            check_functions(sw_table_sse41, sequences, sizes, limit);
+            check_functions(parasail_nw_table_sse41, sequences, sizes, limit);
+            check_functions(parasail_sg_table_sse41, sequences, sizes, limit);
+            check_functions(parasail_sw_table_sse41, sequences, sizes, limit);
         }
         if (test_stats) {
-            check_functions(nw_stats_table_sse41, sequences, sizes, limit);
-            check_functions(sg_stats_table_sse41, sequences, sizes, limit);
-            check_functions(sw_stats_table_sse41, sequences, sizes, limit);
+            check_functions(parasail_nw_stats_table_sse41, sequences, sizes, limit);
+            check_functions(parasail_sg_stats_table_sse41, sequences, sizes, limit);
+            check_functions(parasail_sw_stats_table_sse41, sequences, sizes, limit);
         }
     }
 #endif
@@ -370,14 +371,14 @@ int main(int argc, char **argv)
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
         if (test_scores) {
-            check_functions(nw_table_avx2, sequences, sizes, limit);
-            check_functions(sg_table_avx2, sequences, sizes, limit);
-            check_functions(sw_table_avx2, sequences, sizes, limit);
+            check_functions(parasail_nw_table_avx2, sequences, sizes, limit);
+            check_functions(parasail_sg_table_avx2, sequences, sizes, limit);
+            check_functions(parasail_sw_table_avx2, sequences, sizes, limit);
         }
         if (test_stats) {
-            check_functions(nw_stats_table_avx2, sequences, sizes, limit);
-            check_functions(sg_stats_table_avx2, sequences, sizes, limit);
-            check_functions(sw_stats_table_avx2, sequences, sizes, limit);
+            check_functions(parasail_nw_stats_table_avx2, sequences, sizes, limit);
+            check_functions(parasail_sg_stats_table_avx2, sequences, sizes, limit);
+            check_functions(parasail_sw_stats_table_avx2, sequences, sizes, limit);
         }
     }
 #endif
@@ -385,14 +386,14 @@ int main(int argc, char **argv)
 #if HAVE_KNC
     {
         if (test_scores) {
-            check_functions(nw_table_knc, sequences, sizes, limit);
-            check_functions(sg_table_knc, sequences, sizes, limit);
-            check_functions(sw_table_knc, sequences, sizes, limit);
+            check_functions(parasail_nw_table_knc, sequences, sizes, limit);
+            check_functions(parasail_sg_table_knc, sequences, sizes, limit);
+            check_functions(parasail_sw_table_knc, sequences, sizes, limit);
         }
         if (test_stats) {
-            check_functions(nw_stats_table_knc, sequences, sizes, limit);
-            check_functions(sg_stats_table_knc, sequences, sizes, limit);
-            check_functions(sw_stats_table_knc, sequences, sizes, limit);
+            check_functions(parasail_nw_stats_table_knc, sequences, sizes, limit);
+            check_functions(parasail_sg_stats_table_knc, sequences, sizes, limit);
+            check_functions(parasail_sw_stats_table_knc, sequences, sizes, limit);
         }
     }
 #endif

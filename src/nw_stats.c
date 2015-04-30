@@ -20,9 +20,9 @@
 #define MAX(a,b) ((a)>(b)?(a):(b))
 
 #ifdef PARASAIL_TABLE
-#define ENAME nw_stats_table
+#define ENAME parasail_nw_stats_table
 #else
-#define ENAME nw_stats
+#define ENAME parasail_nw_stats
 #endif
 
 parasail_result_t* ENAME(
@@ -70,7 +70,7 @@ parasail_result_t* ENAME(
 
     /* iter over first sequence */
     for (i=1; i<=s1Len; ++i) {
-        const int * const restrict matrow = matrix->matrix_[s1[i-1]];
+        const int * const restrict matrow = &matrix->matrix[matrix->size*s1[i-1]];
         /* init first column */
         int Nscore = tbl_pr[0];
         int Nmatches = mch_pr[0];

@@ -17,7 +17,6 @@
 #include "parasail.h"
 #include "parasail/memory.h"
 #include "parasail/internal_sse.h"
-#include "parasail/matrices/blosum_map.h"
 
 #define NEG_INF (INT64_MIN/(int64_t)(2))
 
@@ -80,9 +79,9 @@ static inline void arr_store_si128(
 
 
 #ifdef PARASAIL_TABLE
-#define FNAME sg_stats_table_diag_sse41_128_64
+#define FNAME parasail_sg_stats_table_diag_sse41_128_64
 #else
-#define FNAME sg_stats_diag_sse41_128_64
+#define FNAME parasail_sg_stats_diag_sse41_128_64
 #endif
 
 parasail_result_t* FNAME(
@@ -202,8 +201,8 @@ parasail_result_t* FNAME(
                 s1[i+0],
                 s1[i+1]);
         __m128i vs2 = vNegInf;
-        const int8_t * const restrict matrow0 = &matrix->matrix[matrix->size*s1[i+0]];
-        const int8_t * const restrict matrow1 = &matrix->matrix[matrix->size*s1[i+1]];
+        const int * const restrict matrow0 = &matrix->matrix[matrix->size*s1[i+0]];
+        const int * const restrict matrow1 = &matrix->matrix[matrix->size*s1[i+1]];
         __m128i vIltLimit = _mm_cmplt_epi64_rpl(vI, vILimit);
         __m128i vIeqLimit1 = _mm_cmpeq_epi64(vI, vILimit1);
         /* iterate over database sequence */

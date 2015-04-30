@@ -17,7 +17,6 @@
 #include "parasail.h"
 #include "parasail/memory.h"
 #include "parasail/internal_sse.h"
-#include "parasail/matrices/blosum_map.h"
 
 #define NEG_INF (INT16_MIN/(int16_t)(2))
 
@@ -59,9 +58,9 @@ static inline void arr_store_si128(
 #endif
 
 #ifdef PARASAIL_TABLE
-#define FNAME nw_table_diag_sse41_128_16
+#define FNAME parasail_nw_table_diag_sse41_128_16
 #else
-#define FNAME nw_diag_sse41_128_16
+#define FNAME parasail_nw_diag_sse41_128_16
 #endif
 
 parasail_result_t* FNAME(
@@ -159,14 +158,14 @@ parasail_result_t* FNAME(
         __m128i vIns = vNegInf;
         __m128i vDel = vNegInf;
         __m128i vJ = vJreset;
-        const int8_t * const restrict matrow0 = &matrix->matrix[matrix->size*s1[i+0]];
-        const int8_t * const restrict matrow1 = &matrix->matrix[matrix->size*s1[i+1]];
-        const int8_t * const restrict matrow2 = &matrix->matrix[matrix->size*s1[i+2]];
-        const int8_t * const restrict matrow3 = &matrix->matrix[matrix->size*s1[i+3]];
-        const int8_t * const restrict matrow4 = &matrix->matrix[matrix->size*s1[i+4]];
-        const int8_t * const restrict matrow5 = &matrix->matrix[matrix->size*s1[i+5]];
-        const int8_t * const restrict matrow6 = &matrix->matrix[matrix->size*s1[i+6]];
-        const int8_t * const restrict matrow7 = &matrix->matrix[matrix->size*s1[i+7]];
+        const int * const restrict matrow0 = &matrix->matrix[matrix->size*s1[i+0]];
+        const int * const restrict matrow1 = &matrix->matrix[matrix->size*s1[i+1]];
+        const int * const restrict matrow2 = &matrix->matrix[matrix->size*s1[i+2]];
+        const int * const restrict matrow3 = &matrix->matrix[matrix->size*s1[i+3]];
+        const int * const restrict matrow4 = &matrix->matrix[matrix->size*s1[i+4]];
+        const int * const restrict matrow5 = &matrix->matrix[matrix->size*s1[i+5]];
+        const int * const restrict matrow6 = &matrix->matrix[matrix->size*s1[i+6]];
+        const int * const restrict matrow7 = &matrix->matrix[matrix->size*s1[i+7]];
         vNscore = _mm_srli_si128(vNscore, 2);
         vNscore = _mm_insert_epi16(vNscore, tbl_pr[-1], 7);
         vWscore = _mm_srli_si128(vWscore, 2);

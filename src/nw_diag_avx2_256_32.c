@@ -16,7 +16,6 @@
 #include "parasail.h"
 #include "parasail/memory.h"
 #include "parasail/internal_avx.h"
-#include "parasail/matrices/blosum_map.h"
 
 #define NEG_INF (INT32_MIN/(int32_t)(2))
 
@@ -62,9 +61,9 @@ static inline void arr_store_si256(
 #endif
 
 #ifdef PARASAIL_TABLE
-#define FNAME nw_table_diag_avx2_256_32
+#define FNAME parasail_nw_table_diag_avx2_256_32
 #else
-#define FNAME nw_diag_avx2_256_32
+#define FNAME parasail_nw_diag_avx2_256_32
 #endif
 
 parasail_result_t* FNAME(
@@ -162,14 +161,14 @@ parasail_result_t* FNAME(
         __m256i vIns = vNegInf;
         __m256i vDel = vNegInf;
         __m256i vJ = vJreset;
-        const int8_t * const restrict matrow0 = &matrix->matrix[matrix->size*s1[i+0]];
-        const int8_t * const restrict matrow1 = &matrix->matrix[matrix->size*s1[i+1]];
-        const int8_t * const restrict matrow2 = &matrix->matrix[matrix->size*s1[i+2]];
-        const int8_t * const restrict matrow3 = &matrix->matrix[matrix->size*s1[i+3]];
-        const int8_t * const restrict matrow4 = &matrix->matrix[matrix->size*s1[i+4]];
-        const int8_t * const restrict matrow5 = &matrix->matrix[matrix->size*s1[i+5]];
-        const int8_t * const restrict matrow6 = &matrix->matrix[matrix->size*s1[i+6]];
-        const int8_t * const restrict matrow7 = &matrix->matrix[matrix->size*s1[i+7]];
+        const int * const restrict matrow0 = &matrix->matrix[matrix->size*s1[i+0]];
+        const int * const restrict matrow1 = &matrix->matrix[matrix->size*s1[i+1]];
+        const int * const restrict matrow2 = &matrix->matrix[matrix->size*s1[i+2]];
+        const int * const restrict matrow3 = &matrix->matrix[matrix->size*s1[i+3]];
+        const int * const restrict matrow4 = &matrix->matrix[matrix->size*s1[i+4]];
+        const int * const restrict matrow5 = &matrix->matrix[matrix->size*s1[i+5]];
+        const int * const restrict matrow6 = &matrix->matrix[matrix->size*s1[i+6]];
+        const int * const restrict matrow7 = &matrix->matrix[matrix->size*s1[i+7]];
         vNscore = _mm256_srli_si256_rpl(vNscore, 4);
         vNscore = _mm256_insert_epi32(vNscore, tbl_pr[-1], 7);
         vWscore = _mm256_srli_si256_rpl(vWscore, 4);

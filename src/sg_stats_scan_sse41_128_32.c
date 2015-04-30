@@ -18,7 +18,6 @@
 #include "parasail.h"
 #include "parasail/memory.h"
 #include "parasail/internal_sse.h"
-#include "parasail/matrices/blosum_map.h"
 
 #define NEG_INF (INT32_MIN/(int32_t)(2))
 #define MAX(a,b) ((a)>(b)?(a):(b))
@@ -43,9 +42,9 @@ static inline void arr_store_si128(
 #endif
 
 #ifdef PARASAIL_TABLE
-#define FNAME sg_stats_table_scan_sse41_128_32
+#define FNAME parasail_sg_stats_table_scan_sse41_128_32
 #else
-#define FNAME sg_stats_scan_sse41_128_32
+#define FNAME parasail_sg_stats_scan_sse41_128_32
 #endif
 
 parasail_result_t* FNAME(

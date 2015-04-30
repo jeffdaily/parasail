@@ -16,7 +16,6 @@
 #include "parasail.h"
 #include "parasail/memory.h"
 #include "parasail/internal_avx.h"
-#include "parasail/matrices/blosum_map.h"
 
 #define NEG_INF (INT64_MIN/(int64_t)(2))
 
@@ -73,9 +72,9 @@ static inline void arr_store_si256(
 
 
 #ifdef PARASAIL_TABLE
-#define FNAME sg_stats_table_diag_avx2_256_64
+#define FNAME parasail_sg_stats_table_diag_avx2_256_64
 #else
-#define FNAME sg_stats_diag_avx2_256_64
+#define FNAME parasail_sg_stats_diag_avx2_256_64
 #endif
 
 parasail_result_t* FNAME(
@@ -197,10 +196,10 @@ parasail_result_t* FNAME(
                 s1[i+2],
                 s1[i+3]);
         __m256i vs2 = vNegInf;
-        const int8_t * const restrict matrow0 = &matrix->matrix[matrix->size*s1[i+0]];
-        const int8_t * const restrict matrow1 = &matrix->matrix[matrix->size*s1[i+1]];
-        const int8_t * const restrict matrow2 = &matrix->matrix[matrix->size*s1[i+2]];
-        const int8_t * const restrict matrow3 = &matrix->matrix[matrix->size*s1[i+3]];
+        const int * const restrict matrow0 = &matrix->matrix[matrix->size*s1[i+0]];
+        const int * const restrict matrow1 = &matrix->matrix[matrix->size*s1[i+1]];
+        const int * const restrict matrow2 = &matrix->matrix[matrix->size*s1[i+2]];
+        const int * const restrict matrow3 = &matrix->matrix[matrix->size*s1[i+3]];
         __m256i vIltLimit = _mm256_cmplt_epi64_rpl(vI, vILimit);
         __m256i vIeqLimit1 = _mm256_cmpeq_epi64(vI, vILimit1);
         /* iterate over database sequence */

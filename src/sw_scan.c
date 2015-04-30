@@ -20,9 +20,9 @@
 #define MAX(a,b) ((a)>(b)?(a):(b))
 
 #ifdef PARASAIL_TABLE
-#define ENAME sw_table_scan
+#define ENAME parasail_sw_table_scan
 #else
-#define ENAME sw_scan
+#define ENAME parasail_sw_scan
 #endif
 
 parasail_result_t* ENAME(
@@ -70,7 +70,7 @@ parasail_result_t* ENAME(
 
     /* iterate over database */
     for (j=0; j<s2Len; ++j) {
-        const int * const restrict matcol = matrix->matrix_[s2[j]];
+        const int * const restrict matcol = &matrix->matrix[matrix->size*s2[j]];
         /* calculate E */
         for (i=0; i<s1Len; ++i) {
             E[i] = MAX(E[i]-gap, H[i]-open);

@@ -8,7 +8,7 @@ for a in alg:
     for s in stats:
         for t in table:
             print ""
-            print "parasail_result_t* "+a+s+t+'('
+            print "parasail_result_t* parasail_"+a+s+t+'('
             print " "*8+"const char * const restrict s1, const int s1Len,"
             print " "*8+"const char * const restrict s2, const int s2Len,"
             print " "*8+"const int open, const int gap,"
@@ -22,7 +22,7 @@ for a in alg:
     for s in stats:
         for t in table:
             print ""
-            print "parasail_result_t* "+a+s+t+'_scan('
+            print "parasail_result_t* parasail_"+a+s+t+'_scan('
             print " "*8+"const char * const restrict s1, const int s1Len,"
             print " "*8+"const char * const restrict s2, const int s2Len,"
             print " "*8+"const int open, const int gap,"
@@ -46,7 +46,7 @@ for a in alg:
             for p in par:
                 for i in isa:
                     print ""
-                    print "parasail_result_t* "+a+s+t+p+i+'('
+                    print "parasail_result_t* parasail_"+a+s+t+p+i+'('
                     print " "*8+"const char * const restrict s1, const int s1Len,"
                     print " "*8+"const char * const restrict s2, const int s2Len,"
                     print " "*8+"const int open, const int gap,"
@@ -65,7 +65,7 @@ for a in alg:
             for p in par:
                 for i in isa:
                     print ""
-                    print "parasail_result_t* "+a+s+t+p+i+'('
+                    print "parasail_result_t* parasail_"+a+s+t+p+i+'('
                     print " "*8+"const char * const restrict s1, const int s1Len,"
                     print " "*8+"const char * const restrict s2, const int s2Len,"
                     print " "*8+"const int open, const int gap,"

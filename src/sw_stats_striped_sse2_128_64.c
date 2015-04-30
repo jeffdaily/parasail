@@ -17,7 +17,6 @@
 #include "parasail.h"
 #include "parasail/memory.h"
 #include "parasail/internal_sse.h"
-#include "parasail/matrices/blosum_map.h"
 
 #define NEG_INF (INT64_MIN/(int64_t)(2))
 
@@ -89,9 +88,9 @@ static inline void arr_store_si128(
 #endif
 
 #ifdef PARASAIL_TABLE
-#define FNAME sw_stats_table_striped_sse2_128_64
+#define FNAME parasail_sw_stats_table_striped_sse2_128_64
 #else
-#define FNAME sw_stats_striped_sse2_128_64
+#define FNAME parasail_sw_stats_striped_sse2_128_64
 #endif
 
 parasail_result_t* FNAME(

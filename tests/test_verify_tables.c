@@ -16,8 +16,9 @@ KSEQ_INIT(int, read)
 #include "parasail.h"
 #include "parasail/cpuid.h"
 #include "parasail/memory.h"
-#include "parasail/function_lookup.h"
 #include "parasail/matrix_lookup.h"
+
+#include "func_verify_tables.h"
 
 static int verbose = 0;
 

@@ -16,8 +16,9 @@ KSEQ_INIT(int, read)
 #include "parasail.h"
 #include "parasail/cpuid.h"
 #include "parasail/memory.h"
-#include "parasail/function_lookup.h"
 #include "parasail/matrix_lookup.h"
+
+#include "func_verify.h"
 
 typedef struct gap_score {
     int open;

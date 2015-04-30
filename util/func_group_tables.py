@@ -9,8 +9,8 @@ print """/**
  *
  * All rights reserved. No warranty, explicit or implicit, provided.
  */
-#ifndef _PARASAIL_FUNCTION_TYPE_H_
-#define _PARASAIL_FUNCTION_TYPE_H_
+#ifndef _PARASAIL_FUNCTION_GROUP_TABLE_H_
+#define _PARASAIL_FUNCTION_GROUP_TABLE_H_
 
 #include "parasail.h"
 
@@ -27,6 +27,12 @@ typedef struct parasail_function_info {
     char is_stats;
     char is_ref;
 } parasail_function_info_t;
+
+typedef struct parasail_function_group {
+    const char * name;
+    parasail_function_info_t *fs;
+} parasail_function_group_t;
+
 """
 
 
@@ -57,9 +63,7 @@ isa_to_bits = {
     "knc"   : 512,
 }
 
-print "static const parasail_function_info_t functions[] = {"
-
-for table in ["", "_table"]:
+for table in ["_table"]:
     for stats in ["", "_stats"]:
         for alg in ["nw", "sg", "sw"]:
             is_table = 0
@@ -69,10 +73,11 @@ for table in ["", "_table"]:
             if stats:
                 is_stats = 1
             pre = "parasail_"+alg+stats+table
-            print_fmt(pre,         pre,         alg+stats, "orig", "NA", "32", "32", 1, is_table, is_stats, 1)
-            print_fmt(pre+"_scan", pre+"_scan", alg+stats, "scan", "NA", "32", "32", 1, is_table, is_stats, 0)
             for isa in ["sse2", "sse41", "avx2"]:
                 print "#if HAVE_%s" % isa.upper()
+                print "static parasail_function_info_t %s_%s_functions[] = {" % (pre, isa)
+                print_fmt(pre,         pre,         alg+stats, "orig", "NA", "32", "32", 1, is_table, is_stats, 1)
+                print_fmt(pre+"_scan", pre+"_scan", alg+stats, "scan", "NA", "32", "32", 1, is_table, is_stats, 0)
                 bits = isa_to_bits[isa]
                 for par in ["scan", "striped", "diag"]:
                     widths = [64, 32, 16, 8]
@@ -82,25 +87,25 @@ for table in ["", "_table"]:
                     for width in widths:
                         name = "%s_%s_%s_%s_%s" % (pre, par, isa, bits, width)
                         print_fmt(name, name, alg+stats, par, isa, bits, width, bits/width, is_table, is_stats, 0)
+                print_null()
+                print "};"
+                print 'static parasail_function_group_t %s_%s = {"%s_%s", %s_%s_functions};' % ((pre, isa)*3)
                 print "#endif"
             for isa in ["knc"]:
                 print "#if HAVE_%s" % isa.upper()
+                print "static parasail_function_info_t %s_%s_functions[] = {" % (pre, isa)
+                print_fmt(pre,         pre,         alg+stats, "orig", "NA", "32", "32", 1, is_table, is_stats, 1)
+                print_fmt(pre+"_scan", pre+"_scan", alg+stats, "scan", "NA", "32", "32", 1, is_table, is_stats, 0)
                 bits = isa_to_bits[isa]
                 for par in ["scan", "striped", "diag"]:
                     for width in [32]:
                         name = "%s_%s_%s_%s_%s" % (pre, par, isa, bits, width)
                         print_fmt(name, name, alg+stats, par, isa, bits, width, bits/width, is_table, is_stats, 0)
+                print_null()
+                print "};"
+                print 'static parasail_function_group_t %s_%s = {"%s_%s", %s_%s_functions};' % ((pre, isa)*3)
                 print "#endif"
-print "#if HAVE_SSE41"
-print_fmt("parasail_sw_blocked_sse41_128_32", "parasail_sw_blocked_sse41_128_32", "sw", "blocked", "sse41", "128", "32", 4, 0, 0, 0)
-print_fmt("parasail_sw_blocked_sse41_128_16", "parasail_sw_blocked_sse41_128_16", "sw", "blocked", "sse41", "128", "16", 8, 0, 0, 0)
-print_fmt("parasail_sw_table_blocked_sse41_128_32", "parasail_sw_blocked_sse41_128_32", "sw", "blocked", "sse41", "128", "32", 4, 1, 0, 0)
-print_fmt("parasail_sw_table_blocked_sse41_128_16", "parasail_sw_blocked_sse41_128_16", "sw", "blocked", "sse41", "128", "16", 8, 1, 0, 0)
-print_null()
-print "#endif"
-
-print "};"
 
 print """
-#endif /* _PARASAIL_FUNCTION_TYPE_H_ */
+#endif /* _PARASAIL_FUNCTION_GROUP_TABLE_H_ */
 """

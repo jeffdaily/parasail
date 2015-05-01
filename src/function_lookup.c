@@ -36,7 +36,15 @@ parasail_function_t * parasail_lookup_function(const char *funcname)
             char *newname = (char*)malloc(strlen(prefix)+strlen(funcname)+1);
             strcpy(newname, prefix);
             strcat(newname, funcname);
-            function = parasail_lookup_function(newname);
+            index = 0;
+            f = functions[index++];
+            while (f.pointer) {
+                if (0 == strcmp(newname, f.name)) {
+                    function = f.pointer;
+                    break;
+                }
+                f = functions[index++];
+            }
             free(newname);
         }
     }

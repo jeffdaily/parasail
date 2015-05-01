@@ -75,15 +75,13 @@ for table in ["", "_table"]:
                 print "#if HAVE_%s" % isa.upper()
                 bits = isa_to_bits[isa]
                 for par in ["scan", "striped", "diag"]:
-                    widths = [64, 32, 16, 8]
-                    for width in widths:
+                    for width in [64, 32, 16, 8]:
                         name = "%s_%s_%s_%s_%s" % (pre, par, isa, bits, width)
                         print_fmt(name, name, alg+stats, par, isa, bits, width, bits/width, is_table, is_stats, 0)
                 # blocked implementations only exist for sw sse41 32 and 16 bit
                 if isa == "sse41" and alg == "sw" and not stats:
                     par = "blocked"
-                    widths = [32, 16]
-                    for width in widths:
+                    for width in [32, 16]:
                         name = "%s_%s_%s_%s_%s" % (pre, par, isa, bits, width)
                         print_fmt(name, name, alg+stats, par, isa, bits, width, bits/width, is_table, is_stats, 0)
                 print "#endif"
@@ -95,6 +93,12 @@ for table in ["", "_table"]:
                         name = "%s_%s_%s_%s_%s" % (pre, par, isa, bits, width)
                         print_fmt(name, name, alg+stats, par, isa, bits, width, bits/width, is_table, is_stats, 0)
                 print "#endif"
+            # also print the dispatcher function
+            for par in ["scan", "striped", "diag"]:
+                for width in [64, 32, 16, 8]:
+                    name = "%s_%s_%s" % (pre, par, width)
+                    print_fmt(name, name, alg+stats, par, "disp", "NA", width, -1, is_table, is_stats, 0)
+
 print_null()
 print "};"
 

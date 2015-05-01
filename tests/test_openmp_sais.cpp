@@ -42,7 +42,6 @@
 #include "parasail/function_lookup.h"
 #include "parasail/matrix_lookup.h"
 #include "stats.h"
-#include "timer.h"
 #include "timer_real.h"
 
 #include "sais.h"
@@ -103,7 +102,9 @@ int main(int argc, char **argv) {
     FILE *fp = NULL;
     const char *fname = NULL;
     unsigned char *T = NULL;
+#ifdef _OPENMP
     int num_threads = 1;
+#endif
     int *SA = NULL;
     int *LCP = NULL;
     unsigned char *BWT = NULL;
@@ -126,8 +127,10 @@ int main(int argc, char **argv) {
     parasail_function_t *function = NULL;
     const char *matrixname = "blosum62";
     const parasail_matrix_t *matrix = NULL;
+#if 0
     int gap_open = 10;
     int gap_extend = 1;
+#endif
 
     /* Check arguments. */
     while ((c = getopt(argc, argv, "a:b:c:f:h")) != -1) {
@@ -184,6 +187,7 @@ int main(int argc, char **argv) {
         fprintf(stderr, "No alignment function specified.\n");
         exit(1);
     }
+    printf("%s found\n", funcname);
 
     /* select the substitution matrix */
     if (matrixname) {
@@ -193,10 +197,14 @@ int main(int argc, char **argv) {
             exit(1);
         }
     }
+    printf("%s matrix used\n", matrixname);
 
     if (fname == NULL) {
         fprintf(stdout, "missing input file\n");
         print_help(argv[0], EXIT_FAILURE);
+    }
+    else {
+        printf("input file: %s\n", fname);
     }
 
     /* Open a file for reading. */
@@ -205,6 +213,7 @@ int main(int argc, char **argv) {
         perror(NULL);
         exit(EXIT_FAILURE);
     }
+    printf("file opened\n");
 
     /* Get the file size. */
     if(fseek(fp, 0, SEEK_END) == 0) {
@@ -403,12 +412,8 @@ int main(int argc, char **argv) {
     stats_clear(&length_b);
 #pragma omp parallel
     {
-        int thread_num = 0;
-#ifdef _OPENMP
-        thread_num = omp_get_thread_num();
-#endif
 #pragma omp for schedule(dynamic) nowait
-        for (int index=0; index<vpairs.size(); ++index) {
+        for (size_t index=0; index<vpairs.size(); ++index) {
             int i = vpairs[index].first;
             int j = vpairs[index].second;
             int i_beg = BEG[i];
@@ -418,8 +423,8 @@ int main(int argc, char **argv) {
             int j_end = END[j];
             int j_len = j_end-j_beg;
             unsigned long local_work = i_len * j_len;
-            double local_timer = timer_real();
 #if 0
+            double local_timer = timer_real();
             parasail_result_t *result = function(
                     (const char*)&T[i_beg], i_len,
                     (const char*)&T[j_beg], j_len,
@@ -500,7 +505,6 @@ inline static void process(
         const char &sentinal,
         const int &cutoff)
 {
-    static int used_cutoff = 0;
     const int n_children = q.children.size();
     int child_index = 0;
 

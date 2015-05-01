@@ -7,6 +7,9 @@
  *
  * Portable use of nanosecond precision realtime clock.
  */
+#include "config.h"
+
+#include "parasail.h"
 
 #ifdef __MACH__
 #include <mach/clock.h>
@@ -19,7 +22,7 @@
 
 #include <assert.h>
 
-inline static double timer_real()
+double parasail_time()
 {
 #ifdef __MACH__
     /* OS X does not have clock_gettime, use clock_get_time */
@@ -43,3 +46,4 @@ inline static double timer_real()
     return (double)(ts.tv_sec) + (double)(ts.tv_nsec)/1000000000.0;
 #endif
 }
+

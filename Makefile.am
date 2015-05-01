@@ -4,6 +4,7 @@ include_HEADERS = parasail.h
 nobase_include_HEADERS =
 lib_LTLIBRARIES = libparasail.la
 noinst_LTLIBRARIES =
+bin_PROGRAMS =
 check_PROGRAMS =
 check_LTLIBRARIES = 
 AM_CFLAGS =
@@ -11,10 +12,6 @@ AM_CPPFLAGS =
 AM_LDFLAGS =
 LDADD = libparasail.la
 libparasail_la_LDFLAGS = $(AM_LDFLAGS) -version-info @LTVER@
-
-LDADD += $(CLOCK_LIBS)
-LDADD += $(MATH_LIBS)
-LDADD += $(Z_LIBS)
 
 nobase_include_HEADERS += parasail/cpuid.h
 nobase_include_HEADERS += parasail/function_lookup.h
@@ -133,6 +130,7 @@ SRC_KNC =
 SRC_CORE += src/cpuid.c
 SRC_CORE += src/function_lookup.c
 SRC_CORE += src/memory.c
+SRC_CORE += src/time.c
 SRC_CORE += src/nw_dispatch.c
 SRC_CORE += src/sg_dispatch.c
 SRC_CORE += src/sw_dispatch.c
@@ -628,6 +626,8 @@ tests_libsais_la_SOURCES =
 tests_libsais_la_SOURCES += contrib/sais-lite-lcp/sais.c
 tests_libsais_la_SOURCES += contrib/sais-lite-lcp/sais.h
 
+bin_PROGRAMS += apps/parasail_all
+
 check_PROGRAMS += tests/test_align
 check_PROGRAMS += tests/test_gcups
 check_PROGRAMS += tests/test_isa
@@ -642,6 +642,11 @@ check_PROGRAMS += tests/test_verify_tables
 LDADD += $(CLOCK_LIBS)
 LDADD += $(MATH_LIBS)
 LDADD += $(Z_LIBS)
+
+apps_parasail_all_SOURCES = apps/parasail_all.cpp
+apps_parasail_all_LDADD =
+apps_parasail_all_LDADD += $(LDADD)
+apps_parasail_all_LDADD += tests/libsais.la
 
 tests_test_align_SOURCES = tests/test_align.c
 

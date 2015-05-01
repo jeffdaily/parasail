@@ -95,7 +95,7 @@ for table in ["", "_table"]:
                         name = "%s_%s_%s_%s_%s" % (pre, par, isa, bits, width)
                         print_fmt(name, name, alg+stats, par, isa, bits, width, bits/width, is_table, is_stats, 0)
                 print "#endif"
-
+print_null()
 print "};"
 
 print """

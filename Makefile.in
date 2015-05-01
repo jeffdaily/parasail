@@ -15,6 +15,7 @@
 @SET_MAKE@
 
 
+
 VPATH = @srcdir@
 am__is_gnu_make = test -n '$(MAKEFILE_LIST)' && test -n '$(MAKELEVEL)'
 am__make_running_with_option = \
@@ -79,6 +80,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
+bin_PROGRAMS = apps/parasail_all$(EXEEXT)
 check_PROGRAMS = tests/test_align$(EXEEXT) tests/test_gcups$(EXEEXT) \
 	tests/test_isa$(EXEEXT) tests/test_openmp$(EXEEXT) \
 	tests/test_openmp_sais$(EXEEXT) tests/test_query$(EXEEXT) \
@@ -159,15 +161,16 @@ am__uninstall_files_from_dir = { \
     || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
-am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(includedir)" \
-	"$(DESTDIR)$(includedir)"
+am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" \
+	"$(DESTDIR)$(includedir)" "$(DESTDIR)$(includedir)"
 LTLIBRARIES = $(lib_LTLIBRARIES) $(noinst_LTLIBRARIES)
 libparasail_la_DEPENDENCIES = libparasail_novec.la \
 	libparasail_novec_table.la $(am__append_6) $(am__append_7) \
 	$(am__append_8) $(am__append_9) $(am__append_10)
 am__dirstamp = $(am__leading_dot)dirstamp
 am__objects_1 = src/cpuid.lo src/function_lookup.lo src/memory.lo \
-	src/nw_dispatch.lo src/sg_dispatch.lo src/sw_dispatch.lo
+	src/time.lo src/nw_dispatch.lo src/sg_dispatch.lo \
+	src/sw_dispatch.lo
 am_libparasail_la_OBJECTS = $(am__objects_1)
 libparasail_la_OBJECTS = $(am_libparasail_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -795,35 +798,32 @@ am__tests_libssw_la_SOURCES_DIST = contrib/ssw.c contrib/ssw.h
 @HAVE_SSE2_TRUE@am_tests_libssw_la_OBJECTS = contrib/ssw.lo
 tests_libssw_la_OBJECTS = $(am_tests_libssw_la_OBJECTS)
 @HAVE_SSE2_TRUE@am_tests_libssw_la_rpath =
+PROGRAMS = $(bin_PROGRAMS)
+am_apps_parasail_all_OBJECTS = apps/parasail_all.$(OBJEXT)
+apps_parasail_all_OBJECTS = $(am_apps_parasail_all_OBJECTS)
+am__DEPENDENCIES_1 =
+am__DEPENDENCIES_2 = libparasail.la $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+apps_parasail_all_DEPENDENCIES = $(am__DEPENDENCIES_2) \
+	tests/libsais.la
 am_tests_test_align_OBJECTS = tests/test_align.$(OBJEXT)
 tests_test_align_OBJECTS = $(am_tests_test_align_OBJECTS)
 tests_test_align_LDADD = $(LDADD)
-am__DEPENDENCIES_1 =
 tests_test_align_DEPENDENCIES = libparasail.la $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 am_tests_test_gcups_OBJECTS = tests/test_gcups.$(OBJEXT)
 tests_test_gcups_OBJECTS = $(am_tests_test_gcups_OBJECTS)
 tests_test_gcups_LDADD = $(LDADD)
 tests_test_gcups_DEPENDENCIES = libparasail.la $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 am_tests_test_isa_OBJECTS = tests/test_isa.$(OBJEXT)
 tests_test_isa_OBJECTS = $(am_tests_test_isa_OBJECTS)
 tests_test_isa_LDADD = $(LDADD)
 tests_test_isa_DEPENDENCIES = libparasail.la $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 am_tests_test_openmp_OBJECTS =  \
 	tests/tests_test_openmp-test_openmp.$(OBJEXT)
 tests_test_openmp_OBJECTS = $(am_tests_test_openmp_OBJECTS)
-am__DEPENDENCIES_2 = libparasail.la $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
 tests_test_openmp_DEPENDENCIES = $(am__DEPENDENCIES_2) \
 	$(am__append_12)
 tests_test_openmp_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
@@ -844,9 +844,7 @@ am_tests_test_query_OBJECTS =  \
 tests_test_query_OBJECTS = $(am_tests_test_query_OBJECTS)
 tests_test_query_LDADD = $(LDADD)
 tests_test_query_DEPENDENCIES = libparasail.la $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 tests_test_query_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(tests_test_query_CFLAGS) $(CFLAGS) \
@@ -865,16 +863,13 @@ tests_test_sw_dispatch_OBJECTS = $(am_tests_test_sw_dispatch_OBJECTS)
 tests_test_sw_dispatch_LDADD = $(LDADD)
 tests_test_sw_dispatch_DEPENDENCIES = libparasail.la \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1)
 am_tests_test_verify_OBJECTS =  \
 	tests/tests_test_verify-test_verify.$(OBJEXT)
 tests_test_verify_OBJECTS = $(am_tests_test_verify_OBJECTS)
 tests_test_verify_LDADD = $(LDADD)
 tests_test_verify_DEPENDENCIES = libparasail.la $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 tests_test_verify_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(tests_test_verify_CFLAGS) $(CFLAGS) \
@@ -886,8 +881,7 @@ tests_test_verify_tables_OBJECTS =  \
 tests_test_verify_tables_LDADD = $(LDADD)
 tests_test_verify_tables_DEPENDENCIES = libparasail.la \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1)
 tests_test_verify_tables_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(tests_test_verify_tables_CFLAGS) $(CFLAGS) \
@@ -958,10 +952,10 @@ SOURCES = $(libparasail_la_SOURCES) $(libparasail_avx2_la_SOURCES) \
 	$(libparasail_sse41_table_la_SOURCES) \
 	$(libparasail_sse_memory_la_SOURCES) \
 	$(tests_libsais_la_SOURCES) $(tests_libssw_la_SOURCES) \
-	$(tests_test_align_SOURCES) $(tests_test_gcups_SOURCES) \
-	$(tests_test_isa_SOURCES) $(tests_test_openmp_SOURCES) \
-	$(tests_test_openmp_sais_SOURCES) $(tests_test_query_SOURCES) \
-	$(tests_test_scatter_SOURCES) \
+	$(apps_parasail_all_SOURCES) $(tests_test_align_SOURCES) \
+	$(tests_test_gcups_SOURCES) $(tests_test_isa_SOURCES) \
+	$(tests_test_openmp_SOURCES) $(tests_test_openmp_sais_SOURCES) \
+	$(tests_test_query_SOURCES) $(tests_test_scatter_SOURCES) \
 	$(tests_test_sw_dispatch_SOURCES) $(tests_test_verify_SOURCES) \
 	$(tests_test_verify_tables_SOURCES)
 DIST_SOURCES = $(libparasail_la_SOURCES) \
@@ -980,10 +974,10 @@ DIST_SOURCES = $(libparasail_la_SOURCES) \
 	$(libparasail_sse_memory_la_SOURCES) \
 	$(tests_libsais_la_SOURCES) \
 	$(am__tests_libssw_la_SOURCES_DIST) \
-	$(tests_test_align_SOURCES) $(tests_test_gcups_SOURCES) \
-	$(tests_test_isa_SOURCES) $(tests_test_openmp_SOURCES) \
-	$(tests_test_openmp_sais_SOURCES) $(tests_test_query_SOURCES) \
-	$(tests_test_scatter_SOURCES) \
+	$(apps_parasail_all_SOURCES) $(tests_test_align_SOURCES) \
+	$(tests_test_gcups_SOURCES) $(tests_test_isa_SOURCES) \
+	$(tests_test_openmp_SOURCES) $(tests_test_openmp_sais_SOURCES) \
+	$(tests_test_query_SOURCES) $(tests_test_scatter_SOURCES) \
 	$(tests_test_sw_dispatch_SOURCES) $(tests_test_verify_SOURCES) \
 	$(tests_test_verify_tables_SOURCES)
 am__can_run_installinfo = \
@@ -1207,14 +1201,13 @@ AM_CFLAGS =
 AM_CPPFLAGS = -I$(top_srcdir)/contrib \
 	-I$(top_srcdir)/contrib/sais-lite-lcp
 AM_LDFLAGS = 
-LDADD = libparasail.la $(CLOCK_LIBS) $(MATH_LIBS) $(Z_LIBS) \
-	$(CLOCK_LIBS) $(MATH_LIBS) $(Z_LIBS)
+LDADD = libparasail.la $(CLOCK_LIBS) $(MATH_LIBS) $(Z_LIBS)
 libparasail_la_LDFLAGS = $(AM_LDFLAGS) -version-info @LTVER@
 
 #################
 # core sources
 #################
-SRC_CORE = src/cpuid.c src/function_lookup.c src/memory.c \
+SRC_CORE = src/cpuid.c src/function_lookup.c src/memory.c src/time.c \
 	src/nw_dispatch.c src/sg_dispatch.c src/sw_dispatch.c
 
 #################
@@ -1499,6 +1492,8 @@ libparasail_la_LIBADD = libparasail_novec.la \
 @HAVE_SSE2_TRUE@tests_libssw_la_SOURCES = contrib/ssw.c contrib/ssw.h
 tests_libsais_la_SOURCES = contrib/sais-lite-lcp/sais.c \
 	contrib/sais-lite-lcp/sais.h
+apps_parasail_all_SOURCES = apps/parasail_all.cpp
+apps_parasail_all_LDADD = $(LDADD) tests/libsais.la
 tests_test_align_SOURCES = tests/test_align.c
 tests_test_gcups_SOURCES = tests/test_gcups.c
 tests_test_isa_SOURCES = tests/test_isa.c
@@ -1645,6 +1640,7 @@ src/cpuid.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/function_lookup.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/memory.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/time.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/nw_dispatch.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/sg_dispatch.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/sw_dispatch.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
@@ -2713,6 +2709,55 @@ contrib/ssw.lo: contrib/$(am__dirstamp) \
 
 tests/libssw.la: $(tests_libssw_la_OBJECTS) $(tests_libssw_la_DEPENDENCIES) $(EXTRA_tests_libssw_la_DEPENDENCIES) tests/$(am__dirstamp)
 	$(AM_V_CCLD)$(LINK) $(am_tests_libssw_la_rpath) $(tests_libssw_la_OBJECTS) $(tests_libssw_la_LIBADD) $(LIBS)
+install-binPROGRAMS: $(bin_PROGRAMS)
+	@$(NORMAL_INSTALL)
+	@list='$(bin_PROGRAMS)'; test -n "$(bindir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(bindir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(bindir)" || exit 1; \
+	fi; \
+	for p in $$list; do echo "$$p $$p"; done | \
+	sed 's/$(EXEEXT)$$//' | \
+	while read p p1; do if test -f $$p \
+	 || test -f $$p1 \
+	  ; then echo "$$p"; echo "$$p"; else :; fi; \
+	done | \
+	sed -e 'p;s,.*/,,;n;h' \
+	    -e 's|.*|.|' \
+	    -e 'p;x;s,.*/,,;s/$(EXEEXT)$$//;$(transform);s/$$/$(EXEEXT)/' | \
+	sed 'N;N;N;s,\n, ,g' | \
+	$(AWK) 'BEGIN { files["."] = ""; dirs["."] = 1 } \
+	  { d=$$3; if (dirs[d] != 1) { print "d", d; dirs[d] = 1 } \
+	    if ($$2 == $$4) files[d] = files[d] " " $$1; \
+	    else { print "f", $$3 "/" $$4, $$1; } } \
+	  END { for (d in files) print "f", d, files[d] }' | \
+	while read type dir files; do \
+	    if test "$$dir" = .; then dir=; else dir=/$$dir; fi; \
+	    test -z "$$files" || { \
+	    echo " $(INSTALL_PROGRAM_ENV) $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL_PROGRAM) $$files '$(DESTDIR)$(bindir)$$dir'"; \
+	    $(INSTALL_PROGRAM_ENV) $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL_PROGRAM) $$files "$(DESTDIR)$(bindir)$$dir" || exit $$?; \
+	    } \
+	; done
+
+uninstall-binPROGRAMS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(bin_PROGRAMS)'; test -n "$(bindir)" || list=; \
+	files=`for p in $$list; do echo "$$p"; done | \
+	  sed -e 'h;s,^.*/,,;s/$(EXEEXT)$$//;$(transform)' \
+	      -e 's/$$/$(EXEEXT)/' \
+	`; \
+	test -n "$$list" || exit 0; \
+	echo " ( cd '$(DESTDIR)$(bindir)' && rm -f" $$files ")"; \
+	cd "$(DESTDIR)$(bindir)" && rm -f $$files
+
+clean-binPROGRAMS:
+	@list='$(bin_PROGRAMS)'; test -n "$$list" || exit 0; \
+	echo " rm -f" $$list; \
+	rm -f $$list || exit $$?; \
+	test -n "$(EXEEXT)" || exit 0; \
+	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
+	echo " rm -f" $$list; \
+	rm -f $$list
 
 clean-checkPROGRAMS:
 	@list='$(check_PROGRAMS)'; test -n "$$list" || exit 0; \
@@ -2722,6 +2767,18 @@ clean-checkPROGRAMS:
 	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
 	echo " rm -f" $$list; \
 	rm -f $$list
+apps/$(am__dirstamp):
+	@$(MKDIR_P) apps
+	@: > apps/$(am__dirstamp)
+apps/$(DEPDIR)/$(am__dirstamp):
+	@$(MKDIR_P) apps/$(DEPDIR)
+	@: > apps/$(DEPDIR)/$(am__dirstamp)
+apps/parasail_all.$(OBJEXT): apps/$(am__dirstamp) \
+	apps/$(DEPDIR)/$(am__dirstamp)
+
+apps/parasail_all$(EXEEXT): $(apps_parasail_all_OBJECTS) $(apps_parasail_all_DEPENDENCIES) $(EXTRA_apps_parasail_all_DEPENDENCIES) apps/$(am__dirstamp)
+	@rm -f apps/parasail_all$(EXEEXT)
+	$(AM_V_CXXLD)$(CXXLINK) $(apps_parasail_all_OBJECTS) $(apps_parasail_all_LDADD) $(LIBS)
 tests/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) tests/$(DEPDIR)
 	@: > tests/$(DEPDIR)/$(am__dirstamp)
@@ -2788,6 +2845,7 @@ tests/test_verify_tables$(EXEEXT): $(tests_test_verify_tables_OBJECTS) $(tests_t
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
+	-rm -f apps/*.$(OBJEXT)
 	-rm -f contrib/*.$(OBJEXT)
 	-rm -f contrib/*.lo
 	-rm -f contrib/sais-lite-lcp/*.$(OBJEXT)
@@ -2799,6 +2857,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@apps/$(DEPDIR)/parasail_all.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@contrib/$(DEPDIR)/ssw.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@contrib/sais-lite-lcp/$(DEPDIR)/sais.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/cpuid.Plo@am__quote@
@@ -3306,6 +3365,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/nw_dispatch.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sg_dispatch.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sw_dispatch.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/time.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_align.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_gcups.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_isa.Po@am__quote@
@@ -6947,6 +7007,7 @@ mostlyclean-libtool:
 
 clean-libtool:
 	-rm -rf .libs _libs
+	-rm -rf apps/.libs apps/_libs
 	-rm -rf contrib/.libs contrib/_libs
 	-rm -rf contrib/sais-lite-lcp/.libs contrib/sais-lite-lcp/_libs
 	-rm -rf src/.libs src/_libs
@@ -7218,9 +7279,11 @@ distcleancheck: distclean
 check-am: all-am
 	$(MAKE) $(AM_MAKEFLAGS) $(check_LTLIBRARIES) $(check_PROGRAMS)
 check: check-am
-all-am: Makefile $(LTLIBRARIES) $(HEADERS) config.h
+all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(HEADERS) config.h
+install-binPROGRAMS: install-libLTLIBRARIES
+
 installdirs:
-	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(includedir)" "$(DESTDIR)$(includedir)"; do \
+	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(includedir)" "$(DESTDIR)$(includedir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -7249,6 +7312,8 @@ clean-generic:
 distclean-generic:
 	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
 	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
+	-rm -f apps/$(DEPDIR)/$(am__dirstamp)
+	-rm -f apps/$(am__dirstamp)
 	-rm -f contrib/$(DEPDIR)/$(am__dirstamp)
 	-rm -f contrib/$(am__dirstamp)
 	-rm -f contrib/sais-lite-lcp/$(DEPDIR)/$(am__dirstamp)
@@ -7263,13 +7328,13 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-checkLTLIBRARIES clean-checkPROGRAMS clean-generic \
-	clean-libLTLIBRARIES clean-libtool clean-noinstLTLIBRARIES \
-	mostlyclean-am
+clean-am: clean-binPROGRAMS clean-checkLTLIBRARIES clean-checkPROGRAMS \
+	clean-generic clean-libLTLIBRARIES clean-libtool \
+	clean-noinstLTLIBRARIES mostlyclean-am
 
 distclean: distclean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-	-rm -rf contrib/$(DEPDIR) contrib/sais-lite-lcp/$(DEPDIR) src/$(DEPDIR) tests/$(DEPDIR)
+	-rm -rf apps/$(DEPDIR) contrib/$(DEPDIR) contrib/sais-lite-lcp/$(DEPDIR) src/$(DEPDIR) tests/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-hdr distclean-libtool distclean-tags
@@ -7292,7 +7357,7 @@ install-dvi: install-dvi-am
 
 install-dvi-am:
 
-install-exec-am: install-libLTLIBRARIES
+install-exec-am: install-binPROGRAMS install-libLTLIBRARIES
 
 install-html: install-html-am
 
@@ -7317,7 +7382,7 @@ installcheck-am:
 maintainer-clean: maintainer-clean-am
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
-	-rm -rf contrib/$(DEPDIR) contrib/sais-lite-lcp/$(DEPDIR) src/$(DEPDIR) tests/$(DEPDIR)
+	-rm -rf apps/$(DEPDIR) contrib/$(DEPDIR) contrib/sais-lite-lcp/$(DEPDIR) src/$(DEPDIR) tests/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
@@ -7334,31 +7399,33 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-includeHEADERS uninstall-libLTLIBRARIES \
-	uninstall-nobase_includeHEADERS
+uninstall-am: uninstall-binPROGRAMS uninstall-includeHEADERS \
+	uninstall-libLTLIBRARIES uninstall-nobase_includeHEADERS
 
 .MAKE: all check-am install-am install-strip
 
 .PHONY: CTAGS GTAGS TAGS all all-am am--refresh check check-am clean \
-	clean-checkLTLIBRARIES clean-checkPROGRAMS clean-cscope \
-	clean-generic clean-libLTLIBRARIES clean-libtool \
+	clean-binPROGRAMS clean-checkLTLIBRARIES clean-checkPROGRAMS \
+	clean-cscope clean-generic clean-libLTLIBRARIES clean-libtool \
 	clean-noinstLTLIBRARIES cscope cscopelist-am ctags ctags-am \
 	dist dist-all dist-bzip2 dist-gzip dist-lzip dist-shar \
 	dist-tarZ dist-xz dist-zip distcheck distclean \
 	distclean-compile distclean-generic distclean-hdr \
 	distclean-libtool distclean-tags distcleancheck distdir \
 	distuninstallcheck dvi dvi-am html html-am info info-am \
-	install install-am install-data install-data-am install-dvi \
-	install-dvi-am install-exec install-exec-am install-html \
-	install-html-am install-includeHEADERS install-info \
-	install-info-am install-libLTLIBRARIES install-man \
+	install install-am install-binPROGRAMS install-data \
+	install-data-am install-dvi install-dvi-am install-exec \
+	install-exec-am install-html install-html-am \
+	install-includeHEADERS install-info install-info-am \
+	install-libLTLIBRARIES install-man \
 	install-nobase_includeHEADERS install-pdf install-pdf-am \
 	install-ps install-ps-am install-strip installcheck \
 	installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-compile \
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags tags-am uninstall uninstall-am uninstall-includeHEADERS \
-	uninstall-libLTLIBRARIES uninstall-nobase_includeHEADERS
+	tags tags-am uninstall uninstall-am uninstall-binPROGRAMS \
+	uninstall-includeHEADERS uninstall-libLTLIBRARIES \
+	uninstall-nobase_includeHEADERS
 
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

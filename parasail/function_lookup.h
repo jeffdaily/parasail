@@ -619,6 +619,7 @@ static const parasail_function_info_t functions[] = {
 {parasail_sw_stats_table_striped_knc_512_32, "parasail_sw_stats_table_striped_knc_512_32", "sw_stats", "striped", "knc",   "512", "32", 16, 1, 1, 0},
 {parasail_sw_stats_table_diag_knc_512_32, "parasail_sw_stats_table_diag_knc_512_32", "sw_stats",    "diag", "knc",   "512", "32", 16, 1, 1, 0},
 #endif
+{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0}
 };
 
 #endif /* _PARASAIL_FUNCTION_TYPE_H_ */

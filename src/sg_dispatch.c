@@ -124,7 +124,7 @@ parasail_result_t* parasail_sg_scan_64_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_scan_64_pointer = sg_scan_knc_512_32;
+    parasail_sg_scan_64_pointer = parasail_sg_scan_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -158,7 +158,7 @@ parasail_result_t* parasail_sg_scan_32_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_scan_32_pointer = sg_scan_knc_512_32;
+    parasail_sg_scan_32_pointer = parasail_sg_scan_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -192,7 +192,7 @@ parasail_result_t* parasail_sg_scan_16_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_scan_16_pointer = sg_scan_knc_512_32;
+    parasail_sg_scan_16_pointer = parasail_sg_scan_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -226,7 +226,7 @@ parasail_result_t* parasail_sg_scan_8_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_scan_8_pointer = sg_scan_knc_512_32;
+    parasail_sg_scan_8_pointer = parasail_sg_scan_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -260,7 +260,7 @@ parasail_result_t* parasail_sg_striped_64_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_striped_64_pointer = sg_striped_knc_512_32;
+    parasail_sg_striped_64_pointer = parasail_sg_striped_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -294,7 +294,7 @@ parasail_result_t* parasail_sg_striped_32_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_striped_32_pointer = sg_striped_knc_512_32;
+    parasail_sg_striped_32_pointer = parasail_sg_striped_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -328,7 +328,7 @@ parasail_result_t* parasail_sg_striped_16_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_striped_16_pointer = sg_striped_knc_512_32;
+    parasail_sg_striped_16_pointer = parasail_sg_striped_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -362,7 +362,7 @@ parasail_result_t* parasail_sg_striped_8_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_striped_8_pointer = sg_striped_knc_512_32;
+    parasail_sg_striped_8_pointer = parasail_sg_striped_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -396,7 +396,7 @@ parasail_result_t* parasail_sg_diag_64_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_diag_64_pointer = sg_diag_knc_512_32;
+    parasail_sg_diag_64_pointer = parasail_sg_diag_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -430,7 +430,7 @@ parasail_result_t* parasail_sg_diag_32_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_diag_32_pointer = sg_diag_knc_512_32;
+    parasail_sg_diag_32_pointer = parasail_sg_diag_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -464,7 +464,7 @@ parasail_result_t* parasail_sg_diag_16_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_diag_16_pointer = sg_diag_knc_512_32;
+    parasail_sg_diag_16_pointer = parasail_sg_diag_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -498,7 +498,7 @@ parasail_result_t* parasail_sg_diag_8_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_diag_8_pointer = sg_diag_knc_512_32;
+    parasail_sg_diag_8_pointer = parasail_sg_diag_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -532,23 +532,23 @@ parasail_result_t* parasail_sg_stats_scan_64_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_stats_scan_64_pointer = sg_scan_knc_512_32;
+    parasail_sg_stats_scan_64_pointer = parasail_sg_stats_scan_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sg_stats_scan_64_pointer = parasail_sg_scan_avx2_256_64;
+        parasail_sg_stats_scan_64_pointer = parasail_sg_stats_scan_avx2_256_64;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sg_stats_scan_64_pointer = parasail_sg_scan_sse41_128_64;
+        parasail_sg_stats_scan_64_pointer = parasail_sg_stats_scan_sse41_128_64;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sg_stats_scan_64_pointer = parasail_sg_scan_sse2_128_64;
+        parasail_sg_stats_scan_64_pointer = parasail_sg_stats_scan_sse2_128_64;
     }
     else
 #endif
@@ -566,23 +566,23 @@ parasail_result_t* parasail_sg_stats_scan_32_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_stats_scan_32_pointer = sg_scan_knc_512_32;
+    parasail_sg_stats_scan_32_pointer = parasail_sg_stats_scan_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sg_stats_scan_32_pointer = parasail_sg_scan_avx2_256_32;
+        parasail_sg_stats_scan_32_pointer = parasail_sg_stats_scan_avx2_256_32;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sg_stats_scan_32_pointer = parasail_sg_scan_sse41_128_32;
+        parasail_sg_stats_scan_32_pointer = parasail_sg_stats_scan_sse41_128_32;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sg_stats_scan_32_pointer = parasail_sg_scan_sse2_128_32;
+        parasail_sg_stats_scan_32_pointer = parasail_sg_stats_scan_sse2_128_32;
     }
     else
 #endif
@@ -600,23 +600,23 @@ parasail_result_t* parasail_sg_stats_scan_16_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_stats_scan_16_pointer = sg_scan_knc_512_32;
+    parasail_sg_stats_scan_16_pointer = parasail_sg_stats_scan_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sg_stats_scan_16_pointer = parasail_sg_scan_avx2_256_16;
+        parasail_sg_stats_scan_16_pointer = parasail_sg_stats_scan_avx2_256_16;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sg_stats_scan_16_pointer = parasail_sg_scan_sse41_128_16;
+        parasail_sg_stats_scan_16_pointer = parasail_sg_stats_scan_sse41_128_16;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sg_stats_scan_16_pointer = parasail_sg_scan_sse2_128_16;
+        parasail_sg_stats_scan_16_pointer = parasail_sg_stats_scan_sse2_128_16;
     }
     else
 #endif
@@ -634,23 +634,23 @@ parasail_result_t* parasail_sg_stats_scan_8_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_stats_scan_8_pointer = sg_scan_knc_512_32;
+    parasail_sg_stats_scan_8_pointer = parasail_sg_stats_scan_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sg_stats_scan_8_pointer = parasail_sg_scan_avx2_256_8;
+        parasail_sg_stats_scan_8_pointer = parasail_sg_stats_scan_avx2_256_8;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sg_stats_scan_8_pointer = parasail_sg_scan_sse41_128_8;
+        parasail_sg_stats_scan_8_pointer = parasail_sg_stats_scan_sse41_128_8;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sg_stats_scan_8_pointer = parasail_sg_scan_sse2_128_8;
+        parasail_sg_stats_scan_8_pointer = parasail_sg_stats_scan_sse2_128_8;
     }
     else
 #endif
@@ -668,23 +668,23 @@ parasail_result_t* parasail_sg_stats_striped_64_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_stats_striped_64_pointer = sg_striped_knc_512_32;
+    parasail_sg_stats_striped_64_pointer = parasail_sg_stats_striped_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sg_stats_striped_64_pointer = parasail_sg_striped_avx2_256_64;
+        parasail_sg_stats_striped_64_pointer = parasail_sg_stats_striped_avx2_256_64;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sg_stats_striped_64_pointer = parasail_sg_striped_sse41_128_64;
+        parasail_sg_stats_striped_64_pointer = parasail_sg_stats_striped_sse41_128_64;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sg_stats_striped_64_pointer = parasail_sg_striped_sse2_128_64;
+        parasail_sg_stats_striped_64_pointer = parasail_sg_stats_striped_sse2_128_64;
     }
     else
 #endif
@@ -702,23 +702,23 @@ parasail_result_t* parasail_sg_stats_striped_32_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_stats_striped_32_pointer = sg_striped_knc_512_32;
+    parasail_sg_stats_striped_32_pointer = parasail_sg_stats_striped_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sg_stats_striped_32_pointer = parasail_sg_striped_avx2_256_32;
+        parasail_sg_stats_striped_32_pointer = parasail_sg_stats_striped_avx2_256_32;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sg_stats_striped_32_pointer = parasail_sg_striped_sse41_128_32;
+        parasail_sg_stats_striped_32_pointer = parasail_sg_stats_striped_sse41_128_32;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sg_stats_striped_32_pointer = parasail_sg_striped_sse2_128_32;
+        parasail_sg_stats_striped_32_pointer = parasail_sg_stats_striped_sse2_128_32;
     }
     else
 #endif
@@ -736,23 +736,23 @@ parasail_result_t* parasail_sg_stats_striped_16_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_stats_striped_16_pointer = sg_striped_knc_512_32;
+    parasail_sg_stats_striped_16_pointer = parasail_sg_stats_striped_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sg_stats_striped_16_pointer = parasail_sg_striped_avx2_256_16;
+        parasail_sg_stats_striped_16_pointer = parasail_sg_stats_striped_avx2_256_16;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sg_stats_striped_16_pointer = parasail_sg_striped_sse41_128_16;
+        parasail_sg_stats_striped_16_pointer = parasail_sg_stats_striped_sse41_128_16;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sg_stats_striped_16_pointer = parasail_sg_striped_sse2_128_16;
+        parasail_sg_stats_striped_16_pointer = parasail_sg_stats_striped_sse2_128_16;
     }
     else
 #endif
@@ -770,23 +770,23 @@ parasail_result_t* parasail_sg_stats_striped_8_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_stats_striped_8_pointer = sg_striped_knc_512_32;
+    parasail_sg_stats_striped_8_pointer = parasail_sg_stats_striped_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sg_stats_striped_8_pointer = parasail_sg_striped_avx2_256_8;
+        parasail_sg_stats_striped_8_pointer = parasail_sg_stats_striped_avx2_256_8;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sg_stats_striped_8_pointer = parasail_sg_striped_sse41_128_8;
+        parasail_sg_stats_striped_8_pointer = parasail_sg_stats_striped_sse41_128_8;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sg_stats_striped_8_pointer = parasail_sg_striped_sse2_128_8;
+        parasail_sg_stats_striped_8_pointer = parasail_sg_stats_striped_sse2_128_8;
     }
     else
 #endif
@@ -804,23 +804,23 @@ parasail_result_t* parasail_sg_stats_diag_64_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_stats_diag_64_pointer = sg_diag_knc_512_32;
+    parasail_sg_stats_diag_64_pointer = parasail_sg_stats_diag_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sg_stats_diag_64_pointer = parasail_sg_diag_avx2_256_64;
+        parasail_sg_stats_diag_64_pointer = parasail_sg_stats_diag_avx2_256_64;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sg_stats_diag_64_pointer = parasail_sg_diag_sse41_128_64;
+        parasail_sg_stats_diag_64_pointer = parasail_sg_stats_diag_sse41_128_64;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sg_stats_diag_64_pointer = parasail_sg_diag_sse2_128_64;
+        parasail_sg_stats_diag_64_pointer = parasail_sg_stats_diag_sse2_128_64;
     }
     else
 #endif
@@ -838,23 +838,23 @@ parasail_result_t* parasail_sg_stats_diag_32_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_stats_diag_32_pointer = sg_diag_knc_512_32;
+    parasail_sg_stats_diag_32_pointer = parasail_sg_stats_diag_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sg_stats_diag_32_pointer = parasail_sg_diag_avx2_256_32;
+        parasail_sg_stats_diag_32_pointer = parasail_sg_stats_diag_avx2_256_32;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sg_stats_diag_32_pointer = parasail_sg_diag_sse41_128_32;
+        parasail_sg_stats_diag_32_pointer = parasail_sg_stats_diag_sse41_128_32;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sg_stats_diag_32_pointer = parasail_sg_diag_sse2_128_32;
+        parasail_sg_stats_diag_32_pointer = parasail_sg_stats_diag_sse2_128_32;
     }
     else
 #endif
@@ -872,23 +872,23 @@ parasail_result_t* parasail_sg_stats_diag_16_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_stats_diag_16_pointer = sg_diag_knc_512_32;
+    parasail_sg_stats_diag_16_pointer = parasail_sg_stats_diag_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sg_stats_diag_16_pointer = parasail_sg_diag_avx2_256_16;
+        parasail_sg_stats_diag_16_pointer = parasail_sg_stats_diag_avx2_256_16;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sg_stats_diag_16_pointer = parasail_sg_diag_sse41_128_16;
+        parasail_sg_stats_diag_16_pointer = parasail_sg_stats_diag_sse41_128_16;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sg_stats_diag_16_pointer = parasail_sg_diag_sse2_128_16;
+        parasail_sg_stats_diag_16_pointer = parasail_sg_stats_diag_sse2_128_16;
     }
     else
 #endif
@@ -906,23 +906,23 @@ parasail_result_t* parasail_sg_stats_diag_8_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_stats_diag_8_pointer = sg_diag_knc_512_32;
+    parasail_sg_stats_diag_8_pointer = parasail_sg_stats_diag_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sg_stats_diag_8_pointer = parasail_sg_diag_avx2_256_8;
+        parasail_sg_stats_diag_8_pointer = parasail_sg_stats_diag_avx2_256_8;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sg_stats_diag_8_pointer = parasail_sg_diag_sse41_128_8;
+        parasail_sg_stats_diag_8_pointer = parasail_sg_stats_diag_sse41_128_8;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sg_stats_diag_8_pointer = parasail_sg_diag_sse2_128_8;
+        parasail_sg_stats_diag_8_pointer = parasail_sg_stats_diag_sse2_128_8;
     }
     else
 #endif
@@ -940,23 +940,23 @@ parasail_result_t* parasail_sg_table_scan_64_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_table_scan_64_pointer = sg_scan_knc_512_32;
+    parasail_sg_table_scan_64_pointer = parasail_sg_table_scan_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sg_table_scan_64_pointer = parasail_sg_scan_avx2_256_64;
+        parasail_sg_table_scan_64_pointer = parasail_sg_table_scan_avx2_256_64;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sg_table_scan_64_pointer = parasail_sg_scan_sse41_128_64;
+        parasail_sg_table_scan_64_pointer = parasail_sg_table_scan_sse41_128_64;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sg_table_scan_64_pointer = parasail_sg_scan_sse2_128_64;
+        parasail_sg_table_scan_64_pointer = parasail_sg_table_scan_sse2_128_64;
     }
     else
 #endif
@@ -974,23 +974,23 @@ parasail_result_t* parasail_sg_table_scan_32_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_table_scan_32_pointer = sg_scan_knc_512_32;
+    parasail_sg_table_scan_32_pointer = parasail_sg_table_scan_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sg_table_scan_32_pointer = parasail_sg_scan_avx2_256_32;
+        parasail_sg_table_scan_32_pointer = parasail_sg_table_scan_avx2_256_32;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sg_table_scan_32_pointer = parasail_sg_scan_sse41_128_32;
+        parasail_sg_table_scan_32_pointer = parasail_sg_table_scan_sse41_128_32;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sg_table_scan_32_pointer = parasail_sg_scan_sse2_128_32;
+        parasail_sg_table_scan_32_pointer = parasail_sg_table_scan_sse2_128_32;
     }
     else
 #endif
@@ -1008,23 +1008,23 @@ parasail_result_t* parasail_sg_table_scan_16_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_table_scan_16_pointer = sg_scan_knc_512_32;
+    parasail_sg_table_scan_16_pointer = parasail_sg_table_scan_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sg_table_scan_16_pointer = parasail_sg_scan_avx2_256_16;
+        parasail_sg_table_scan_16_pointer = parasail_sg_table_scan_avx2_256_16;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sg_table_scan_16_pointer = parasail_sg_scan_sse41_128_16;
+        parasail_sg_table_scan_16_pointer = parasail_sg_table_scan_sse41_128_16;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sg_table_scan_16_pointer = parasail_sg_scan_sse2_128_16;
+        parasail_sg_table_scan_16_pointer = parasail_sg_table_scan_sse2_128_16;
     }
     else
 #endif
@@ -1042,23 +1042,23 @@ parasail_result_t* parasail_sg_table_scan_8_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_table_scan_8_pointer = sg_scan_knc_512_32;
+    parasail_sg_table_scan_8_pointer = parasail_sg_table_scan_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sg_table_scan_8_pointer = parasail_sg_scan_avx2_256_8;
+        parasail_sg_table_scan_8_pointer = parasail_sg_table_scan_avx2_256_8;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sg_table_scan_8_pointer = parasail_sg_scan_sse41_128_8;
+        parasail_sg_table_scan_8_pointer = parasail_sg_table_scan_sse41_128_8;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sg_table_scan_8_pointer = parasail_sg_scan_sse2_128_8;
+        parasail_sg_table_scan_8_pointer = parasail_sg_table_scan_sse2_128_8;
     }
     else
 #endif
@@ -1076,23 +1076,23 @@ parasail_result_t* parasail_sg_table_striped_64_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_table_striped_64_pointer = sg_striped_knc_512_32;
+    parasail_sg_table_striped_64_pointer = parasail_sg_table_striped_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sg_table_striped_64_pointer = parasail_sg_striped_avx2_256_64;
+        parasail_sg_table_striped_64_pointer = parasail_sg_table_striped_avx2_256_64;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sg_table_striped_64_pointer = parasail_sg_striped_sse41_128_64;
+        parasail_sg_table_striped_64_pointer = parasail_sg_table_striped_sse41_128_64;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sg_table_striped_64_pointer = parasail_sg_striped_sse2_128_64;
+        parasail_sg_table_striped_64_pointer = parasail_sg_table_striped_sse2_128_64;
     }
     else
 #endif
@@ -1110,23 +1110,23 @@ parasail_result_t* parasail_sg_table_striped_32_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_table_striped_32_pointer = sg_striped_knc_512_32;
+    parasail_sg_table_striped_32_pointer = parasail_sg_table_striped_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sg_table_striped_32_pointer = parasail_sg_striped_avx2_256_32;
+        parasail_sg_table_striped_32_pointer = parasail_sg_table_striped_avx2_256_32;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sg_table_striped_32_pointer = parasail_sg_striped_sse41_128_32;
+        parasail_sg_table_striped_32_pointer = parasail_sg_table_striped_sse41_128_32;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sg_table_striped_32_pointer = parasail_sg_striped_sse2_128_32;
+        parasail_sg_table_striped_32_pointer = parasail_sg_table_striped_sse2_128_32;
     }
     else
 #endif
@@ -1144,23 +1144,23 @@ parasail_result_t* parasail_sg_table_striped_16_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_table_striped_16_pointer = sg_striped_knc_512_32;
+    parasail_sg_table_striped_16_pointer = parasail_sg_table_striped_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sg_table_striped_16_pointer = parasail_sg_striped_avx2_256_16;
+        parasail_sg_table_striped_16_pointer = parasail_sg_table_striped_avx2_256_16;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sg_table_striped_16_pointer = parasail_sg_striped_sse41_128_16;
+        parasail_sg_table_striped_16_pointer = parasail_sg_table_striped_sse41_128_16;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sg_table_striped_16_pointer = parasail_sg_striped_sse2_128_16;
+        parasail_sg_table_striped_16_pointer = parasail_sg_table_striped_sse2_128_16;
     }
     else
 #endif
@@ -1178,23 +1178,23 @@ parasail_result_t* parasail_sg_table_striped_8_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_table_striped_8_pointer = sg_striped_knc_512_32;
+    parasail_sg_table_striped_8_pointer = parasail_sg_table_striped_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sg_table_striped_8_pointer = parasail_sg_striped_avx2_256_8;
+        parasail_sg_table_striped_8_pointer = parasail_sg_table_striped_avx2_256_8;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sg_table_striped_8_pointer = parasail_sg_striped_sse41_128_8;
+        parasail_sg_table_striped_8_pointer = parasail_sg_table_striped_sse41_128_8;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sg_table_striped_8_pointer = parasail_sg_striped_sse2_128_8;
+        parasail_sg_table_striped_8_pointer = parasail_sg_table_striped_sse2_128_8;
     }
     else
 #endif
@@ -1212,23 +1212,23 @@ parasail_result_t* parasail_sg_table_diag_64_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_table_diag_64_pointer = sg_diag_knc_512_32;
+    parasail_sg_table_diag_64_pointer = parasail_sg_table_diag_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sg_table_diag_64_pointer = parasail_sg_diag_avx2_256_64;
+        parasail_sg_table_diag_64_pointer = parasail_sg_table_diag_avx2_256_64;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sg_table_diag_64_pointer = parasail_sg_diag_sse41_128_64;
+        parasail_sg_table_diag_64_pointer = parasail_sg_table_diag_sse41_128_64;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sg_table_diag_64_pointer = parasail_sg_diag_sse2_128_64;
+        parasail_sg_table_diag_64_pointer = parasail_sg_table_diag_sse2_128_64;
     }
     else
 #endif
@@ -1246,23 +1246,23 @@ parasail_result_t* parasail_sg_table_diag_32_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_table_diag_32_pointer = sg_diag_knc_512_32;
+    parasail_sg_table_diag_32_pointer = parasail_sg_table_diag_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sg_table_diag_32_pointer = parasail_sg_diag_avx2_256_32;
+        parasail_sg_table_diag_32_pointer = parasail_sg_table_diag_avx2_256_32;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sg_table_diag_32_pointer = parasail_sg_diag_sse41_128_32;
+        parasail_sg_table_diag_32_pointer = parasail_sg_table_diag_sse41_128_32;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sg_table_diag_32_pointer = parasail_sg_diag_sse2_128_32;
+        parasail_sg_table_diag_32_pointer = parasail_sg_table_diag_sse2_128_32;
     }
     else
 #endif
@@ -1280,23 +1280,23 @@ parasail_result_t* parasail_sg_table_diag_16_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_table_diag_16_pointer = sg_diag_knc_512_32;
+    parasail_sg_table_diag_16_pointer = parasail_sg_table_diag_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sg_table_diag_16_pointer = parasail_sg_diag_avx2_256_16;
+        parasail_sg_table_diag_16_pointer = parasail_sg_table_diag_avx2_256_16;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sg_table_diag_16_pointer = parasail_sg_diag_sse41_128_16;
+        parasail_sg_table_diag_16_pointer = parasail_sg_table_diag_sse41_128_16;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sg_table_diag_16_pointer = parasail_sg_diag_sse2_128_16;
+        parasail_sg_table_diag_16_pointer = parasail_sg_table_diag_sse2_128_16;
     }
     else
 #endif
@@ -1314,23 +1314,23 @@ parasail_result_t* parasail_sg_table_diag_8_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_table_diag_8_pointer = sg_diag_knc_512_32;
+    parasail_sg_table_diag_8_pointer = parasail_sg_table_diag_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sg_table_diag_8_pointer = parasail_sg_diag_avx2_256_8;
+        parasail_sg_table_diag_8_pointer = parasail_sg_table_diag_avx2_256_8;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sg_table_diag_8_pointer = parasail_sg_diag_sse41_128_8;
+        parasail_sg_table_diag_8_pointer = parasail_sg_table_diag_sse41_128_8;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sg_table_diag_8_pointer = parasail_sg_diag_sse2_128_8;
+        parasail_sg_table_diag_8_pointer = parasail_sg_table_diag_sse2_128_8;
     }
     else
 #endif
@@ -1348,23 +1348,23 @@ parasail_result_t* parasail_sg_stats_table_scan_64_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_stats_table_scan_64_pointer = sg_scan_knc_512_32;
+    parasail_sg_stats_table_scan_64_pointer = parasail_sg_stats_table_scan_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sg_stats_table_scan_64_pointer = parasail_sg_scan_avx2_256_64;
+        parasail_sg_stats_table_scan_64_pointer = parasail_sg_stats_table_scan_avx2_256_64;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sg_stats_table_scan_64_pointer = parasail_sg_scan_sse41_128_64;
+        parasail_sg_stats_table_scan_64_pointer = parasail_sg_stats_table_scan_sse41_128_64;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sg_stats_table_scan_64_pointer = parasail_sg_scan_sse2_128_64;
+        parasail_sg_stats_table_scan_64_pointer = parasail_sg_stats_table_scan_sse2_128_64;
     }
     else
 #endif
@@ -1382,23 +1382,23 @@ parasail_result_t* parasail_sg_stats_table_scan_32_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_stats_table_scan_32_pointer = sg_scan_knc_512_32;
+    parasail_sg_stats_table_scan_32_pointer = parasail_sg_stats_table_scan_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sg_stats_table_scan_32_pointer = parasail_sg_scan_avx2_256_32;
+        parasail_sg_stats_table_scan_32_pointer = parasail_sg_stats_table_scan_avx2_256_32;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sg_stats_table_scan_32_pointer = parasail_sg_scan_sse41_128_32;
+        parasail_sg_stats_table_scan_32_pointer = parasail_sg_stats_table_scan_sse41_128_32;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sg_stats_table_scan_32_pointer = parasail_sg_scan_sse2_128_32;
+        parasail_sg_stats_table_scan_32_pointer = parasail_sg_stats_table_scan_sse2_128_32;
     }
     else
 #endif
@@ -1416,23 +1416,23 @@ parasail_result_t* parasail_sg_stats_table_scan_16_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_stats_table_scan_16_pointer = sg_scan_knc_512_32;
+    parasail_sg_stats_table_scan_16_pointer = parasail_sg_stats_table_scan_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sg_stats_table_scan_16_pointer = parasail_sg_scan_avx2_256_16;
+        parasail_sg_stats_table_scan_16_pointer = parasail_sg_stats_table_scan_avx2_256_16;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sg_stats_table_scan_16_pointer = parasail_sg_scan_sse41_128_16;
+        parasail_sg_stats_table_scan_16_pointer = parasail_sg_stats_table_scan_sse41_128_16;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sg_stats_table_scan_16_pointer = parasail_sg_scan_sse2_128_16;
+        parasail_sg_stats_table_scan_16_pointer = parasail_sg_stats_table_scan_sse2_128_16;
     }
     else
 #endif
@@ -1450,23 +1450,23 @@ parasail_result_t* parasail_sg_stats_table_scan_8_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_stats_table_scan_8_pointer = sg_scan_knc_512_32;
+    parasail_sg_stats_table_scan_8_pointer = parasail_sg_stats_table_scan_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sg_stats_table_scan_8_pointer = parasail_sg_scan_avx2_256_8;
+        parasail_sg_stats_table_scan_8_pointer = parasail_sg_stats_table_scan_avx2_256_8;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sg_stats_table_scan_8_pointer = parasail_sg_scan_sse41_128_8;
+        parasail_sg_stats_table_scan_8_pointer = parasail_sg_stats_table_scan_sse41_128_8;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sg_stats_table_scan_8_pointer = parasail_sg_scan_sse2_128_8;
+        parasail_sg_stats_table_scan_8_pointer = parasail_sg_stats_table_scan_sse2_128_8;
     }
     else
 #endif
@@ -1484,23 +1484,23 @@ parasail_result_t* parasail_sg_stats_table_striped_64_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_stats_table_striped_64_pointer = sg_striped_knc_512_32;
+    parasail_sg_stats_table_striped_64_pointer = parasail_sg_stats_table_striped_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sg_stats_table_striped_64_pointer = parasail_sg_striped_avx2_256_64;
+        parasail_sg_stats_table_striped_64_pointer = parasail_sg_stats_table_striped_avx2_256_64;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sg_stats_table_striped_64_pointer = parasail_sg_striped_sse41_128_64;
+        parasail_sg_stats_table_striped_64_pointer = parasail_sg_stats_table_striped_sse41_128_64;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sg_stats_table_striped_64_pointer = parasail_sg_striped_sse2_128_64;
+        parasail_sg_stats_table_striped_64_pointer = parasail_sg_stats_table_striped_sse2_128_64;
     }
     else
 #endif
@@ -1518,23 +1518,23 @@ parasail_result_t* parasail_sg_stats_table_striped_32_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_stats_table_striped_32_pointer = sg_striped_knc_512_32;
+    parasail_sg_stats_table_striped_32_pointer = parasail_sg_stats_table_striped_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sg_stats_table_striped_32_pointer = parasail_sg_striped_avx2_256_32;
+        parasail_sg_stats_table_striped_32_pointer = parasail_sg_stats_table_striped_avx2_256_32;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sg_stats_table_striped_32_pointer = parasail_sg_striped_sse41_128_32;
+        parasail_sg_stats_table_striped_32_pointer = parasail_sg_stats_table_striped_sse41_128_32;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sg_stats_table_striped_32_pointer = parasail_sg_striped_sse2_128_32;
+        parasail_sg_stats_table_striped_32_pointer = parasail_sg_stats_table_striped_sse2_128_32;
     }
     else
 #endif
@@ -1552,23 +1552,23 @@ parasail_result_t* parasail_sg_stats_table_striped_16_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_stats_table_striped_16_pointer = sg_striped_knc_512_32;
+    parasail_sg_stats_table_striped_16_pointer = parasail_sg_stats_table_striped_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sg_stats_table_striped_16_pointer = parasail_sg_striped_avx2_256_16;
+        parasail_sg_stats_table_striped_16_pointer = parasail_sg_stats_table_striped_avx2_256_16;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sg_stats_table_striped_16_pointer = parasail_sg_striped_sse41_128_16;
+        parasail_sg_stats_table_striped_16_pointer = parasail_sg_stats_table_striped_sse41_128_16;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sg_stats_table_striped_16_pointer = parasail_sg_striped_sse2_128_16;
+        parasail_sg_stats_table_striped_16_pointer = parasail_sg_stats_table_striped_sse2_128_16;
     }
     else
 #endif
@@ -1586,23 +1586,23 @@ parasail_result_t* parasail_sg_stats_table_striped_8_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_stats_table_striped_8_pointer = sg_striped_knc_512_32;
+    parasail_sg_stats_table_striped_8_pointer = parasail_sg_stats_table_striped_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sg_stats_table_striped_8_pointer = parasail_sg_striped_avx2_256_8;
+        parasail_sg_stats_table_striped_8_pointer = parasail_sg_stats_table_striped_avx2_256_8;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sg_stats_table_striped_8_pointer = parasail_sg_striped_sse41_128_8;
+        parasail_sg_stats_table_striped_8_pointer = parasail_sg_stats_table_striped_sse41_128_8;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sg_stats_table_striped_8_pointer = parasail_sg_striped_sse2_128_8;
+        parasail_sg_stats_table_striped_8_pointer = parasail_sg_stats_table_striped_sse2_128_8;
     }
     else
 #endif
@@ -1620,23 +1620,23 @@ parasail_result_t* parasail_sg_stats_table_diag_64_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_stats_table_diag_64_pointer = sg_diag_knc_512_32;
+    parasail_sg_stats_table_diag_64_pointer = parasail_sg_stats_table_diag_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sg_stats_table_diag_64_pointer = parasail_sg_diag_avx2_256_64;
+        parasail_sg_stats_table_diag_64_pointer = parasail_sg_stats_table_diag_avx2_256_64;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sg_stats_table_diag_64_pointer = parasail_sg_diag_sse41_128_64;
+        parasail_sg_stats_table_diag_64_pointer = parasail_sg_stats_table_diag_sse41_128_64;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sg_stats_table_diag_64_pointer = parasail_sg_diag_sse2_128_64;
+        parasail_sg_stats_table_diag_64_pointer = parasail_sg_stats_table_diag_sse2_128_64;
     }
     else
 #endif
@@ -1654,23 +1654,23 @@ parasail_result_t* parasail_sg_stats_table_diag_32_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_stats_table_diag_32_pointer = sg_diag_knc_512_32;
+    parasail_sg_stats_table_diag_32_pointer = parasail_sg_stats_table_diag_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sg_stats_table_diag_32_pointer = parasail_sg_diag_avx2_256_32;
+        parasail_sg_stats_table_diag_32_pointer = parasail_sg_stats_table_diag_avx2_256_32;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sg_stats_table_diag_32_pointer = parasail_sg_diag_sse41_128_32;
+        parasail_sg_stats_table_diag_32_pointer = parasail_sg_stats_table_diag_sse41_128_32;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sg_stats_table_diag_32_pointer = parasail_sg_diag_sse2_128_32;
+        parasail_sg_stats_table_diag_32_pointer = parasail_sg_stats_table_diag_sse2_128_32;
     }
     else
 #endif
@@ -1688,23 +1688,23 @@ parasail_result_t* parasail_sg_stats_table_diag_16_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_stats_table_diag_16_pointer = sg_diag_knc_512_32;
+    parasail_sg_stats_table_diag_16_pointer = parasail_sg_stats_table_diag_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sg_stats_table_diag_16_pointer = parasail_sg_diag_avx2_256_16;
+        parasail_sg_stats_table_diag_16_pointer = parasail_sg_stats_table_diag_avx2_256_16;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sg_stats_table_diag_16_pointer = parasail_sg_diag_sse41_128_16;
+        parasail_sg_stats_table_diag_16_pointer = parasail_sg_stats_table_diag_sse41_128_16;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sg_stats_table_diag_16_pointer = parasail_sg_diag_sse2_128_16;
+        parasail_sg_stats_table_diag_16_pointer = parasail_sg_stats_table_diag_sse2_128_16;
     }
     else
 #endif
@@ -1722,23 +1722,23 @@ parasail_result_t* parasail_sg_stats_table_diag_8_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sg_stats_table_diag_8_pointer = sg_diag_knc_512_32;
+    parasail_sg_stats_table_diag_8_pointer = parasail_sg_stats_table_diag_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_sg_stats_table_diag_8_pointer = parasail_sg_diag_avx2_256_8;
+        parasail_sg_stats_table_diag_8_pointer = parasail_sg_stats_table_diag_avx2_256_8;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_sg_stats_table_diag_8_pointer = parasail_sg_diag_sse41_128_8;
+        parasail_sg_stats_table_diag_8_pointer = parasail_sg_stats_table_diag_sse41_128_8;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_sg_stats_table_diag_8_pointer = parasail_sg_diag_sse2_128_8;
+        parasail_sg_stats_table_diag_8_pointer = parasail_sg_stats_table_diag_sse2_128_8;
     }
     else
 #endif

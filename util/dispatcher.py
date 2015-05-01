@@ -52,6 +52,8 @@ def codegen(alg):
                 for width in [64, 32, 16, 8]:
                     prefix = "parasail_%s%s%s_%s_%d"%(
                         alg, stats, table, par, width)
+                    prefix2 = "parasail_%s%s%s_%s"%(
+                        alg, stats, table, par)
                     base = alg
                     if par == "scan":
                         base += "_scan"
@@ -59,6 +61,7 @@ def codegen(alg):
                             "ALG": alg,
                             "BASE": base,
                             "PREFIX": prefix,
+                            "PREFIX2": prefix2,
                             "TABLE": table,
                             "STATS": stats,
                             "PAR": par,
@@ -72,23 +75,23 @@ parasail_result_t* %(PREFIX)s_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    %(PREFIX)s_pointer = %(ALG)s_%(PAR)s_knc_512_32;
+    %(PREFIX)s_pointer = %(PREFIX2)s_knc_512_32;
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        %(PREFIX)s_pointer = parasail_%(ALG)s_%(PAR)s_avx2_256_%(WIDTH)s;
+        %(PREFIX)s_pointer = %(PREFIX2)s_avx2_256_%(WIDTH)s;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        %(PREFIX)s_pointer = parasail_%(ALG)s_%(PAR)s_sse41_128_%(WIDTH)s;
+        %(PREFIX)s_pointer = %(PREFIX2)s_sse41_128_%(WIDTH)s;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        %(PREFIX)s_pointer = parasail_%(ALG)s_%(PAR)s_sse2_128_%(WIDTH)s;
+        %(PREFIX)s_pointer = %(PREFIX2)s_sse2_128_%(WIDTH)s;
     }
     else
 #endif

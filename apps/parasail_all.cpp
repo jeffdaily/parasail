@@ -69,7 +69,7 @@ struct quad {
 };
 
 inline static void pair_check(
-        int &count_generated,
+        unsigned long &count_generated,
         PairSet &pairs,
         const int &i,
         const int &j,
@@ -79,7 +79,7 @@ inline static void pair_check(
         const char &sentinal);
 
 inline static void process(
-        int &count_generated,
+        unsigned long &count_generated,
         PairSet &pairs,
         const quad &q,
         const int * const restrict SA,
@@ -88,14 +88,42 @@ inline static void process(
         const char &sentinal,
         const int &cutoff);
 
+inline static int self_score(
+        const char * const restrict seq,
+        int len,
+        const parasail_matrix_t *matrix);
+
 static void print_help(const char *progname, int status) {
-    fprintf(stdout, "usage: %s [-c cutoff>=1] -f FILE\n\n", progname);
+    fprintf(stderr, "\nusage: %s "
+            "[-a funcname] "
+            "[-c cutoff] "
+            "[-e gap_extend] "
+            "[-o gap_open] "
+            "[-l AOL] "
+            "[-s SIM] "
+            "[-i OS] "
+            "-f file"
+            "\n\n",
+            progname);
+    fprintf(stderr, "Defaults:\n"
+            "  funcname: sg_stats_striped_16\n"
+            "    cutoff: 7, must be >= 1, exact match length cutoff\n"
+            "gap_extend: 1, must be >= 0\n"
+            "  gap_open: 10, must be >= 0\n"
+            "    matrix: blosum62\n"
+            "       AOL: 80, must be 0 <= AOL <= 100, percent alignment length\n"
+            "       SIM: 40, must be 0 <= SIM <= 100, percent exact matches\n"
+            "        OS: 30, must be 0 <= OS <= 100, percent optimal score over self score\n"
+            "      file: no default, must be in FASTA format\n"
+            );
     exit(status);
 }
 
 int main(int argc, char **argv) {
-    FILE *fp = NULL;
+    FILE *fip = NULL;
+    FILE *fop = NULL;
     const char *fname = NULL;
+    const char *oname = "edges.csv";
     unsigned char *T = NULL;
 #ifdef _OPENMP
     int num_threads = 1;
@@ -106,50 +134,96 @@ int main(int argc, char **argv) {
     int *SID = NULL;
     vector<int> BEG;
     vector<int> END;
-    int n = 0;
+    long n = 0;
     double start = 0;
     double finish = 0;
     int i = 0;
     int longest = 0;
     int sid = 0;
     char sentinal = 0;
-    int cutoff = 1;
+    int cutoff = 7;
     PairSet pairs;
-    int count_generated = 0;
+    unsigned long count_possible = 0;
+    unsigned long count_generated = 0;
     unsigned long work = 0;
     int c = 0;
-    const char *funcname = NULL;
+    const char *funcname = "sg_stats_striped_16";
     parasail_function_t *function = NULL;
     const char *matrixname = "blosum62";
     const parasail_matrix_t *matrix = NULL;
-#if 0
     int gap_open = 10;
     int gap_extend = 1;
-#endif
+    const char *progname = "parasail_all";
+    int AOL = 80;
+    int SIM = 40;
+    int OS = 30;
 
     /* Check arguments. */
-    while ((c = getopt(argc, argv, "a:b:c:f:h")) != -1) {
+    while ((c = getopt(argc, argv, "a:c:e:f:g:hm:o:l:s:i:")) != -1) {
         switch (c) {
             case 'a':
                 funcname = optarg;
                 break;
-            case 'b':
-                matrixname = optarg;
-                break;
-            case 'h':
-                print_help(argv[0], EXIT_FAILURE);
-                break;
             case 'c':
                 cutoff = atoi(optarg);
                 if (cutoff <= 0) {
-                    print_help(argv[0], EXIT_FAILURE);
+                    print_help(progname, EXIT_FAILURE);
+                }
+                break;
+            case 'e':
+                gap_extend = atoi(optarg);
+                if (gap_extend < 0) {
+                    print_help(progname, EXIT_FAILURE);
                 }
                 break;
             case 'f':
                 fname = optarg;
                 break;
+            case 'g':
+                oname = optarg;
+                break;
+            case 'h':
+                print_help(progname, EXIT_FAILURE);
+                break;
+            case 'm':
+                matrixname = optarg;
+                break;
+            case 'o':
+                gap_open = atoi(optarg);
+                if (gap_open < 0) {
+                    print_help(progname, EXIT_FAILURE);
+                }
+                break;
+            case 'l':
+                AOL = atoi(optarg);
+                if (AOL < 0 || AOL > 100) {
+                    print_help(progname, EXIT_FAILURE);
+                }
+                break;
+            case 's':
+                SIM = atoi(optarg);
+                if (SIM < 0 || SIM > 100) {
+                    print_help(progname, EXIT_FAILURE);
+                }
+                break;
+            case 'i':
+                OS = atoi(optarg);
+                if (OS < 0 || OS > 100) {
+                    print_help(progname, EXIT_FAILURE);
+                }
+                break;
             case '?':
-                if (optopt == 'c' || optopt == 'f') {
+                if (optopt == 'a'
+                        || optopt == 'c'
+                        || optopt == 'e'
+                        || optopt == 'f'
+                        || optopt == 'g'
+                        || optopt == 'm'
+                        || optopt == 'o'
+                        || optopt == 'l'
+                        || optopt == 's'
+                        || optopt == 'i'
+                        ) {
                     fprintf(stderr,
                             "Option -%c requires an argument.\n",
                             optopt);
@@ -163,24 +237,29 @@ int main(int argc, char **argv) {
                             "Unknown option character `\\x%x'.\n",
                             optopt);
                 }
-                exit(1);
+                exit(EXIT_FAILURE);
             default:
                 fprintf(stderr, "default case in getopt\n");
-                exit(1);
+                exit(EXIT_FAILURE);
         }
     }
 
     /* select the function */
     if (funcname) {
+        if (NULL == strstr(funcname, "stats") ) {
+            fprintf(stderr, "Specified function does not calculate stats.\n");
+            fprintf(stderr, "Use a 'stats' function, e.g, sg_stats_striped_16.\n");
+            exit(EXIT_FAILURE);
+        }
         function = parasail_lookup_function(funcname);
         if (NULL == function) {
             fprintf(stderr, "Specified function not found.\n");
-            exit(1);
+            exit(EXIT_FAILURE);
         }
     }
     else {
         fprintf(stderr, "No alignment function specified.\n");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
     /* select the substitution matrix */
@@ -188,39 +267,100 @@ int main(int argc, char **argv) {
         matrix = parasail_matrix_lookup(matrixname);
         if (NULL == matrix) {
             fprintf(stderr, "Specified substitution matrix not found.\n");
-            exit(1);
+            exit(EXIT_FAILURE);
         }
     }
 
     if (fname == NULL) {
-        fprintf(stdout, "missing input file\n");
-        print_help(argv[0], EXIT_FAILURE);
+        fprintf(stderr, "missing input file\n");
+        print_help(progname, EXIT_FAILURE);
     }
 
+    /* Best to know early whether we can open the output file. */
+    if((fop = fopen(oname, "w")) == NULL) {
+        fprintf(stderr, "%s: Cannot open output file `%s': ", progname, oname);
+        perror(NULL);
+        exit(EXIT_FAILURE);
+    }
+    
     /* Open a file for reading. */
-    if((fp = fopen(fname, "rb")) == NULL) {
-        fprintf(stdout, "%s: Cannot open file `%s': ", argv[0], fname);
+    if((fip = fopen(fname, "rb")) == NULL) {
+        fprintf(stderr, "%s: Cannot open input file `%s': ", progname, fname);
         perror(NULL);
         exit(EXIT_FAILURE);
     }
 
     /* Get the file size. */
-    if(fseek(fp, 0, SEEK_END) == 0) {
-        n = ftell(fp);
-        rewind(fp);
+    if(fseek(fip, 0, SEEK_END) == 0) {
+        n = ftell(fip);
+        rewind(fip);
         if(n < 0) {
-            fprintf(stdout, "%s: Cannot ftell `%s': ", argv[0], fname);
+            fprintf(stderr, "%s: Cannot ftell `%s': ", progname, fname);
             perror(NULL);
             exit(EXIT_FAILURE);
         }
     } else {
-        fprintf(stdout, "%s: Cannot fseek `%s': ", argv[0], fname);
+        fprintf(stderr, "%s: Cannot fseek `%s': ", progname, fname);
         perror(NULL);
         exit(EXIT_FAILURE);
     }
 
-    /* Allocate 9n bytes of memory. */
+    /* Allocate file buffer, read the entire file, then pack it. */
     T = (unsigned char *)malloc((size_t)(n+1) * sizeof(unsigned char));
+    if(fread(T, sizeof(unsigned char), (size_t)n, fip) != (size_t)n) {
+        fprintf(stderr, "%s: %s `%s': ",
+                progname,
+                (ferror(fip) || !feof(fip)) ? "Cannot read from" : "Unexpected EOF in",
+                fname);
+        perror(NULL);
+        exit(EXIT_FAILURE);
+    }
+    fclose(fip);
+    T[n]='\0'; /* so we can print it */
+    fprintf(stdout, "%20s: %s\n", "filename", fname);
+    fprintf(stdout, "%20s: %ld bytes\n", "original size", n);
+    /* Pack the buffer so it's ready for sais function. */
+    {
+        long i;
+        char first = 1;
+        long w = 0;
+        long save = 0;
+        for (i=0; i<n; ++i) { 
+            if (T[i] == '>') {
+                if (first) {
+                    first = 0;
+                }
+                else {
+                    T[w++] = '$';
+                }
+                /* skip rest of this line */
+                while (T[i] != '\n') {
+                    ++i;
+                }
+            }
+            else if (isalpha(T[i])) {
+                T[w++] = T[i];
+            }
+            else if (T[i] == '\n') {
+                /* ignore newline */
+            }
+            else {
+                fprintf(stderr, "uh oh at T[%ld]='%c'\n", i, T[i]);
+                exit(EXIT_FAILURE);
+            }
+        }
+        T[w++] = '$';
+        save = w;
+        /* nullifiy rest of buffer */
+        while (w < n) {
+            T[w++] = '\0';
+        }
+        /* new length */
+        n = save;
+    }
+    fprintf(stdout, "%20s: %ld bytes\n", "packed size", n);
+
+    /* Allocate memory. */
     SA = (int *)malloc((size_t)(n+1) * sizeof(int)); /* +1 for computing LCP */
     LCP = (int *)malloc((size_t)(n+1) * sizeof(int)); /* +1 for lcp tree */
     BWT = (unsigned char *)malloc((size_t)(n+1) * sizeof(unsigned char));
@@ -231,22 +371,9 @@ int main(int argc, char **argv) {
             || (BWT == NULL)
             || (SID == NULL))
     {
-        fprintf(stdout, "%s: Cannot allocate memory.\n", argv[0]);
+        fprintf(stderr, "%s: Cannot allocate memory.\n", progname);
         exit(EXIT_FAILURE);
     }
-
-    /* Read n bytes of data. */
-    if(fread(T, sizeof(unsigned char), (size_t)n, fp) != (size_t)n) {
-        fprintf(stdout, "%s: %s `%s': ",
-                argv[0],
-                (ferror(fp) || !feof(fp)) ? "Cannot read from" : "Unexpected EOF in",
-                fname);
-        perror(NULL);
-        exit(EXIT_FAILURE);
-    }
-    fclose(fp);
-
-    T[n]='\0'; /* so we can print it */
 
     /* determine sentinal */
     if (sentinal == 0) {
@@ -282,20 +409,19 @@ int main(int argc, char **argv) {
     }
     longest += 1;
     if (0 == sid) { /* no sentinal found */
-        fprintf(stdout, "no sentinal(%c) found in input\n", sentinal);
+        fprintf(stderr, "no sentinal(%c) found in input\n", sentinal);
         exit(EXIT_FAILURE);
     }
 
     /* Construct the suffix and LCP arrays.
      * The following sais routine is from Fischer, with bugs fixed. */
-    fprintf(stdout, "%s: %d bytes ... \n", fname, n);
     start = parasail_time();
     if(sais(T, SA, LCP, (int)n) != 0) {
-        fprintf(stdout, "%s: Cannot allocate memory.\n", argv[0]);
+        fprintf(stderr, "%s: Cannot allocate memory.\n", progname);
         exit(EXIT_FAILURE);
     }
     finish = parasail_time();
-    fprintf(stdout, "induced SA: %.4f sec\n", finish-start);
+    fprintf(stdout, "%20s: %.4f seconds\n", "induced SA time", finish-start);
 
     /* construct naive BWT: */
     start = parasail_time();
@@ -303,7 +429,7 @@ int main(int argc, char **argv) {
         BWT[i] = (SA[i] > 0) ? T[SA[i]-1] : sentinal;
     }
     finish = parasail_time();
-    fprintf(stdout, " naive BWT: %.4f sec\n", finish-start);
+    fprintf(stdout, "%20s: %.4f seconds\n", "naive BWT time", finish-start);
 
     /* "fix" the LCP array to clamp LCP's that are too long */
     start = parasail_time();
@@ -312,7 +438,7 @@ int main(int argc, char **argv) {
         if (LCP[i] > len) LCP[i] = len;
     }
     finish = parasail_time();
-    fprintf(stdout, " clamp LCP: %.4f sec\n", finish-start);
+    fprintf(stdout, "%20s: %.4f seconds\n", "clamp LCP time", finish-start);
 
     /* The GSA we create will put all sentinals either at the beginning
      * or end of the SA. We don't want to count all of the terminals,
@@ -331,7 +457,8 @@ int main(int argc, char **argv) {
         bup_stop = n-sid;
     }
     else {
-        fprintf(stdout, "sentinals not found at beginning or end of SA\n");
+        fprintf(stderr, "sentinals not found at beginning or end of SA\n");
+        exit(EXIT_FAILURE);
     }
 
     /* DFS of enhanced SA, from Abouelhoda et al */
@@ -371,9 +498,12 @@ int main(int argc, char **argv) {
         process(count_generated, pairs, the_stack.top(), SA, BWT, SID, sentinal, cutoff);
     }
     finish = parasail_time();
-    fprintf(stdout, "processing: %.4f sec\n", finish-start);
-    fprintf(stdout, "generated pairs = %d\n", count_generated);
-    fprintf(stdout, "   unique pairs = %zu\n", pairs.size());
+    count_possible = ((unsigned long)sid)*((unsigned long)sid-1)/2;
+    fprintf(stdout, "%20s: %.4f seconds\n", "processing time", finish-start);
+    fprintf(stdout, "%20s: %d\n", "number of sequences", sid);
+    fprintf(stdout, "%20s: %lu\n", "possible pairs", count_possible);
+    fprintf(stdout, "%20s: %lu\n", "generated pairs", count_generated);
+    fprintf(stdout, "%20s: %zu\n", "unique pairs", pairs.size());
 
     /* Deallocate memory. */
     free(SA);
@@ -383,14 +513,16 @@ int main(int argc, char **argv) {
 
 #ifdef _OPENMP
     num_threads = omp_get_max_threads();
-    printf("omp num threads %d\n", num_threads);
+    fprintf(stdout, "%20s: %d\n", "omp num threads", num_threads);
 #endif
 
     /* OpenMP can't iterate over an STL set. Convert to STL vector. */
     start = parasail_time();
     vector<Pair> vpairs(pairs.begin(), pairs.end());
+    vector<pair<size_t,parasail_result_t*> > results;
+    results.reserve(vpairs.size());
     finish = parasail_time();
-    fprintf(stdout, "vec pairs: %.4f sec\n", finish-start);
+    fprintf(stdout, "%20s: %.4f seconds\n", "openmp prep time", finish-start);
 
     /* align pairs */
     start = parasail_time();
@@ -407,35 +539,82 @@ int main(int argc, char **argv) {
             int j_end = END[j];
             int j_len = j_end-j_beg;
             unsigned long local_work = i_len * j_len;
-#if 0
-            double local_timer = timer_real();
+            double local_timer = parasail_time();
             parasail_result_t *result = function(
                     (const char*)&T[i_beg], i_len,
                     (const char*)&T[j_beg], j_len,
-                    gap_open, gap_extend, blosum);
+                    gap_open, gap_extend, matrix);
             local_timer = parasail_time() - local_timer;
-#endif
 #pragma omp critical
             {
                 work += local_work;
+                results.push_back(make_pair(index,result));
             }
-            //parasail_result_free(result);
         }
     }
     finish = parasail_time();
-    fprintf(stdout, "alignments: %.4f sec\n", finish-start);
-    fprintf(stdout, "      work: %lu \n", work);
-    fprintf(stdout, "     gcups: %.4f \n", double(work)/(finish-start));
+    fprintf(stdout, "%20s: %lu cells\n", "work", work);
+    fprintf(stdout, "%20s: %.4f seconds\n", "alignment time", finish-start);
+    fprintf(stdout, "%20s: %.4f \n", "gcups", double(work)/(finish-start)/1000000);
 
     /* Done with input text. */
     free(T);
+
+    /* Output results. */
+    unsigned long edge_count = 0;
+    for (size_t result_index=0; result_index<results.size(); ++result_index) {
+        size_t index = results[result_index].first;
+        parasail_result_t *result = results[result_index].second;
+        int i = vpairs[index].first;
+        int j = vpairs[index].second;
+        int i_beg = BEG[i];
+        int i_end = END[i];
+        int i_len = i_end-i_beg;
+        int j_beg = BEG[j];
+        int j_end = END[j];
+        int j_len = j_end-j_beg;
+        int i_self_score = 0;
+        int j_self_score = 0;
+        int max_len = 0;
+        int self_score_ = 0;
+
+        if (result->score <= 0) {
+            continue; /* skip negative scores */
+        }
+
+        i_self_score = self_score((const char*)&T[i_beg], i_len, matrix);
+        j_self_score = self_score((const char*)&T[j_beg], j_len, matrix);
+
+        if (i_len > j_len) {
+            max_len = i_len;
+            self_score_ = i_self_score;
+        }
+        else {
+            max_len = j_len;
+            self_score_ = j_self_score;
+        }
+
+        if ((result->length * 100 >= AOL * int(max_len))
+                && (result->matches * 100 >= SIM * result->length)
+                && (result->score * 100 >= OS * self_score_)) {
+            ++edge_count;
+            fprintf(fop, "%d,%d,%f,%f,%f\n",
+                    i, j,
+                    1.0*result->length/max_len,
+                    1.0*result->matches/result->length,
+                    1.0*result->score/self_score_);
+        }
+    }
+    fclose(fop);
+
+    fprintf(stdout, "%20s: %lu\n", "edges count", edge_count);
 
     return 0;
 }
 
 
 inline static void pair_check(
-        int &count_generated,
+        unsigned long &count_generated,
         PairSet &pairs,
         const int &i,
         const int &j,
@@ -470,7 +649,7 @@ inline static void pair_check(
  * bounded by the number of exact matches...
  */
 inline static void process(
-        int &count_generated,
+        unsigned long &count_generated,
         PairSet &pairs,
         const quad &q,
         const int * const restrict SA,
@@ -507,5 +686,18 @@ inline static void process(
             }
         }
     }
+}
+
+inline static int self_score(
+        const char * const restrict seq,
+        int len,
+        const parasail_matrix_t *matrix)
+{
+    int score = 0;
+    for (int i=0; i<len; ++i) {
+        unsigned char mapped = matrix->mapper[(unsigned char)seq[i]];
+        score += matrix->matrix[matrix->size*mapped+mapped];
+    }
+    return score;
 }
 

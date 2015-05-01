@@ -632,7 +632,6 @@ check_PROGRAMS += tests/test_align
 check_PROGRAMS += tests/test_gcups
 check_PROGRAMS += tests/test_isa
 check_PROGRAMS += tests/test_openmp
-check_PROGRAMS += tests/test_openmp_sais
 check_PROGRAMS += tests/test_query
 check_PROGRAMS += tests/test_scatter
 check_PROGRAMS += tests/test_sw_dispatch
@@ -644,6 +643,8 @@ LDADD += $(MATH_LIBS)
 LDADD += $(Z_LIBS)
 
 apps_parasail_all_SOURCES = apps/parasail_all.cpp
+apps_parasail_all_CXXFLAGS = $(AM_CXXFLAGS) $(OPENMP_CXXFLAGS)
+apps_parasail_all_LDFLAGS  = $(AM_LDFLAGS) $(OPENMP_CXXFLAGS)
 apps_parasail_all_LDADD =
 apps_parasail_all_LDADD += $(LDADD)
 apps_parasail_all_LDADD += tests/libsais.la
@@ -662,13 +663,6 @@ tests_test_openmp_LDADD   += $(LDADD)
 if HAVE_SSE2
 tests_test_openmp_LDADD   += tests/libssw.la
 endif
-
-tests_test_openmp_sais_SOURCES  = tests/test_openmp_sais.cpp
-tests_test_openmp_sais_CXXFLAGS = $(AM_CXXFLAGS) $(OPENMP_CXXFLAGS)
-tests_test_openmp_sais_LDFLAGS  = $(AM_LDFLAGS) $(OPENMP_CXXFLAGS)
-tests_test_openmp_sais_LDADD    =
-tests_test_openmp_sais_LDADD    += $(LDADD)
-tests_test_openmp_sais_LDADD    += tests/libsais.la
 
 tests_test_query_SOURCES = tests/test_query.c
 tests_test_query_CFLAGS  = $(AM_CFLAGS) $(OPENMP_CFLAGS)

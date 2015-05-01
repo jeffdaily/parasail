@@ -19337,6 +19337,8 @@ $as_echo "$as_me: " >&6;}
 $as_echo "$as_me:                     CC=$CC" >&6;}
 { $as_echo "$as_me:${as_lineno-$LINENO}:                 CFLAGS=$CFLAGS" >&5
 $as_echo "$as_me:                 CFLAGS=$CFLAGS" >&6;}
+{ $as_echo "$as_me:${as_lineno-$LINENO}:          OPENMP_CFLAGS=$OPENMP_CFLAGS" >&5
+$as_echo "$as_me:          OPENMP_CFLAGS=$OPENMP_CFLAGS" >&6;}
 { $as_echo "$as_me:${as_lineno-$LINENO}:            SSE2_CFLAGS=$SSE2_CFLAGS" >&5
 $as_echo "$as_me:            SSE2_CFLAGS=$SSE2_CFLAGS" >&6;}
 { $as_echo "$as_me:${as_lineno-$LINENO}:           SSE41_CFLAGS=$SSE41_CFLAGS" >&5
@@ -19347,6 +19349,8 @@ $as_echo "$as_me:            AVX2_CFLAGS=$AVX2_CFLAGS" >&6;}
 $as_echo "$as_me:                    CXX=$CXX" >&6;}
 { $as_echo "$as_me:${as_lineno-$LINENO}:               CXXFLAGS=$CXXFLAGS" >&5
 $as_echo "$as_me:               CXXFLAGS=$CXXFLAGS" >&6;}
+{ $as_echo "$as_me:${as_lineno-$LINENO}:        OPENMP_CXXFLAGS=$OPENMP_CXXFLAGS" >&5
+$as_echo "$as_me:        OPENMP_CXXFLAGS=$OPENMP_CXXFLAGS" >&6;}
 { $as_echo "$as_me:${as_lineno-$LINENO}:                    CPP=$CPP" >&5
 $as_echo "$as_me:                    CPP=$CPP" >&6;}
 { $as_echo "$as_me:${as_lineno-$LINENO}:               CPPFLAGS=$CPPFLAGS" >&5

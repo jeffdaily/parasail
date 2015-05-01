@@ -83,9 +83,9 @@ host_triplet = @host@
 bin_PROGRAMS = apps/parasail_all$(EXEEXT)
 check_PROGRAMS = tests/test_align$(EXEEXT) tests/test_gcups$(EXEEXT) \
 	tests/test_isa$(EXEEXT) tests/test_openmp$(EXEEXT) \
-	tests/test_openmp_sais$(EXEEXT) tests/test_query$(EXEEXT) \
-	tests/test_scatter$(EXEEXT) tests/test_sw_dispatch$(EXEEXT) \
-	tests/test_verify$(EXEEXT) tests/test_verify_tables$(EXEEXT)
+	tests/test_query$(EXEEXT) tests/test_scatter$(EXEEXT) \
+	tests/test_sw_dispatch$(EXEEXT) tests/test_verify$(EXEEXT) \
+	tests/test_verify_tables$(EXEEXT)
 @HAVE_SSE_TRUE@am__append_1 = libparasail_sse_memory.la
 @HAVE_SSE2_TRUE@am__append_2 = libparasail_sse2.la \
 @HAVE_SSE2_TRUE@	libparasail_sse2_table.la
@@ -799,13 +799,18 @@ am__tests_libssw_la_SOURCES_DIST = contrib/ssw.c contrib/ssw.h
 tests_libssw_la_OBJECTS = $(am_tests_libssw_la_OBJECTS)
 @HAVE_SSE2_TRUE@am_tests_libssw_la_rpath =
 PROGRAMS = $(bin_PROGRAMS)
-am_apps_parasail_all_OBJECTS = apps/parasail_all.$(OBJEXT)
+am_apps_parasail_all_OBJECTS =  \
+	apps/apps_parasail_all-parasail_all.$(OBJEXT)
 apps_parasail_all_OBJECTS = $(am_apps_parasail_all_OBJECTS)
 am__DEPENDENCIES_1 =
 am__DEPENDENCIES_2 = libparasail.la $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 apps_parasail_all_DEPENDENCIES = $(am__DEPENDENCIES_2) \
 	tests/libsais.la
+apps_parasail_all_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(apps_parasail_all_CXXFLAGS) $(CXXFLAGS) \
+	$(apps_parasail_all_LDFLAGS) $(LDFLAGS) -o $@
 am_tests_test_align_OBJECTS = tests/test_align.$(OBJEXT)
 tests_test_align_OBJECTS = $(am_tests_test_align_OBJECTS)
 tests_test_align_LDADD = $(LDADD)
@@ -830,15 +835,6 @@ tests_test_openmp_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(tests_test_openmp_CFLAGS) $(CFLAGS) \
 	$(tests_test_openmp_LDFLAGS) $(LDFLAGS) -o $@
-am_tests_test_openmp_sais_OBJECTS =  \
-	tests/tests_test_openmp_sais-test_openmp_sais.$(OBJEXT)
-tests_test_openmp_sais_OBJECTS = $(am_tests_test_openmp_sais_OBJECTS)
-tests_test_openmp_sais_DEPENDENCIES = $(am__DEPENDENCIES_2) \
-	tests/libsais.la
-tests_test_openmp_sais_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
-	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
-	$(tests_test_openmp_sais_CXXFLAGS) $(CXXFLAGS) \
-	$(tests_test_openmp_sais_LDFLAGS) $(LDFLAGS) -o $@
 am_tests_test_query_OBJECTS =  \
 	tests/tests_test_query-test_query.$(OBJEXT)
 tests_test_query_OBJECTS = $(am_tests_test_query_OBJECTS)
@@ -954,8 +950,8 @@ SOURCES = $(libparasail_la_SOURCES) $(libparasail_avx2_la_SOURCES) \
 	$(tests_libsais_la_SOURCES) $(tests_libssw_la_SOURCES) \
 	$(apps_parasail_all_SOURCES) $(tests_test_align_SOURCES) \
 	$(tests_test_gcups_SOURCES) $(tests_test_isa_SOURCES) \
-	$(tests_test_openmp_SOURCES) $(tests_test_openmp_sais_SOURCES) \
-	$(tests_test_query_SOURCES) $(tests_test_scatter_SOURCES) \
+	$(tests_test_openmp_SOURCES) $(tests_test_query_SOURCES) \
+	$(tests_test_scatter_SOURCES) \
 	$(tests_test_sw_dispatch_SOURCES) $(tests_test_verify_SOURCES) \
 	$(tests_test_verify_tables_SOURCES)
 DIST_SOURCES = $(libparasail_la_SOURCES) \
@@ -976,8 +972,8 @@ DIST_SOURCES = $(libparasail_la_SOURCES) \
 	$(am__tests_libssw_la_SOURCES_DIST) \
 	$(apps_parasail_all_SOURCES) $(tests_test_align_SOURCES) \
 	$(tests_test_gcups_SOURCES) $(tests_test_isa_SOURCES) \
-	$(tests_test_openmp_SOURCES) $(tests_test_openmp_sais_SOURCES) \
-	$(tests_test_query_SOURCES) $(tests_test_scatter_SOURCES) \
+	$(tests_test_openmp_SOURCES) $(tests_test_query_SOURCES) \
+	$(tests_test_scatter_SOURCES) \
 	$(tests_test_sw_dispatch_SOURCES) $(tests_test_verify_SOURCES) \
 	$(tests_test_verify_tables_SOURCES)
 am__can_run_installinfo = \
@@ -1493,6 +1489,8 @@ libparasail_la_LIBADD = libparasail_novec.la \
 tests_libsais_la_SOURCES = contrib/sais-lite-lcp/sais.c \
 	contrib/sais-lite-lcp/sais.h
 apps_parasail_all_SOURCES = apps/parasail_all.cpp
+apps_parasail_all_CXXFLAGS = $(AM_CXXFLAGS) $(OPENMP_CXXFLAGS)
+apps_parasail_all_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CXXFLAGS)
 apps_parasail_all_LDADD = $(LDADD) tests/libsais.la
 tests_test_align_SOURCES = tests/test_align.c
 tests_test_gcups_SOURCES = tests/test_gcups.c
@@ -1501,10 +1499,6 @@ tests_test_openmp_SOURCES = tests/test_openmp.c
 tests_test_openmp_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_test_openmp_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
 tests_test_openmp_LDADD = $(LDADD) $(am__append_12)
-tests_test_openmp_sais_SOURCES = tests/test_openmp_sais.cpp
-tests_test_openmp_sais_CXXFLAGS = $(AM_CXXFLAGS) $(OPENMP_CXXFLAGS)
-tests_test_openmp_sais_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CXXFLAGS)
-tests_test_openmp_sais_LDADD = $(LDADD) tests/libsais.la
 tests_test_query_SOURCES = tests/test_query.c
 tests_test_query_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_test_query_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
@@ -2773,12 +2767,12 @@ apps/$(am__dirstamp):
 apps/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) apps/$(DEPDIR)
 	@: > apps/$(DEPDIR)/$(am__dirstamp)
-apps/parasail_all.$(OBJEXT): apps/$(am__dirstamp) \
+apps/apps_parasail_all-parasail_all.$(OBJEXT): apps/$(am__dirstamp) \
 	apps/$(DEPDIR)/$(am__dirstamp)
 
 apps/parasail_all$(EXEEXT): $(apps_parasail_all_OBJECTS) $(apps_parasail_all_DEPENDENCIES) $(EXTRA_apps_parasail_all_DEPENDENCIES) apps/$(am__dirstamp)
 	@rm -f apps/parasail_all$(EXEEXT)
-	$(AM_V_CXXLD)$(CXXLINK) $(apps_parasail_all_OBJECTS) $(apps_parasail_all_LDADD) $(LIBS)
+	$(AM_V_CXXLD)$(apps_parasail_all_LINK) $(apps_parasail_all_OBJECTS) $(apps_parasail_all_LDADD) $(LIBS)
 tests/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) tests/$(DEPDIR)
 	@: > tests/$(DEPDIR)/$(am__dirstamp)
@@ -2806,12 +2800,6 @@ tests/tests_test_openmp-test_openmp.$(OBJEXT): tests/$(am__dirstamp) \
 tests/test_openmp$(EXEEXT): $(tests_test_openmp_OBJECTS) $(tests_test_openmp_DEPENDENCIES) $(EXTRA_tests_test_openmp_DEPENDENCIES) tests/$(am__dirstamp)
 	@rm -f tests/test_openmp$(EXEEXT)
 	$(AM_V_CCLD)$(tests_test_openmp_LINK) $(tests_test_openmp_OBJECTS) $(tests_test_openmp_LDADD) $(LIBS)
-tests/tests_test_openmp_sais-test_openmp_sais.$(OBJEXT):  \
-	tests/$(am__dirstamp) tests/$(DEPDIR)/$(am__dirstamp)
-
-tests/test_openmp_sais$(EXEEXT): $(tests_test_openmp_sais_OBJECTS) $(tests_test_openmp_sais_DEPENDENCIES) $(EXTRA_tests_test_openmp_sais_DEPENDENCIES) tests/$(am__dirstamp)
-	@rm -f tests/test_openmp_sais$(EXEEXT)
-	$(AM_V_CXXLD)$(tests_test_openmp_sais_LINK) $(tests_test_openmp_sais_OBJECTS) $(tests_test_openmp_sais_LDADD) $(LIBS)
 tests/tests_test_query-test_query.$(OBJEXT): tests/$(am__dirstamp) \
 	tests/$(DEPDIR)/$(am__dirstamp)
 
@@ -2857,7 +2845,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@apps/$(DEPDIR)/parasail_all.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@apps/$(DEPDIR)/apps_parasail_all-parasail_all.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@contrib/$(DEPDIR)/ssw.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@contrib/sais-lite-lcp/$(DEPDIR)/sais.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/cpuid.Plo@am__quote@
@@ -3371,7 +3359,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_isa.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_sw_dispatch.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/tests_test_openmp-test_openmp.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/tests_test_openmp_sais-test_openmp_sais.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/tests_test_query-test_query.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/tests_test_scatter-test_scatter.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/tests_test_verify-test_verify.Po@am__quote@
@@ -6988,19 +6975,19 @@ tests/tests_test_verify_tables-test_verify_tables.obj: tests/test_verify_tables.
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LTCXXCOMPILE) -c -o $@ $<
 
-tests/tests_test_openmp_sais-test_openmp_sais.o: tests/test_openmp_sais.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_test_openmp_sais_CXXFLAGS) $(CXXFLAGS) -MT tests/tests_test_openmp_sais-test_openmp_sais.o -MD -MP -MF tests/$(DEPDIR)/tests_test_openmp_sais-test_openmp_sais.Tpo -c -o tests/tests_test_openmp_sais-test_openmp_sais.o `test -f 'tests/test_openmp_sais.cpp' || echo '$(srcdir)/'`tests/test_openmp_sais.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) tests/$(DEPDIR)/tests_test_openmp_sais-test_openmp_sais.Tpo tests/$(DEPDIR)/tests_test_openmp_sais-test_openmp_sais.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='tests/test_openmp_sais.cpp' object='tests/tests_test_openmp_sais-test_openmp_sais.o' libtool=no @AMDEPBACKSLASH@
+apps/apps_parasail_all-parasail_all.o: apps/parasail_all.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apps_parasail_all_CXXFLAGS) $(CXXFLAGS) -MT apps/apps_parasail_all-parasail_all.o -MD -MP -MF apps/$(DEPDIR)/apps_parasail_all-parasail_all.Tpo -c -o apps/apps_parasail_all-parasail_all.o `test -f 'apps/parasail_all.cpp' || echo '$(srcdir)/'`apps/parasail_all.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) apps/$(DEPDIR)/apps_parasail_all-parasail_all.Tpo apps/$(DEPDIR)/apps_parasail_all-parasail_all.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='apps/parasail_all.cpp' object='apps/apps_parasail_all-parasail_all.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_test_openmp_sais_CXXFLAGS) $(CXXFLAGS) -c -o tests/tests_test_openmp_sais-test_openmp_sais.o `test -f 'tests/test_openmp_sais.cpp' || echo '$(srcdir)/'`tests/test_openmp_sais.cpp
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apps_parasail_all_CXXFLAGS) $(CXXFLAGS) -c -o apps/apps_parasail_all-parasail_all.o `test -f 'apps/parasail_all.cpp' || echo '$(srcdir)/'`apps/parasail_all.cpp
 
-tests/tests_test_openmp_sais-test_openmp_sais.obj: tests/test_openmp_sais.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_test_openmp_sais_CXXFLAGS) $(CXXFLAGS) -MT tests/tests_test_openmp_sais-test_openmp_sais.obj -MD -MP -MF tests/$(DEPDIR)/tests_test_openmp_sais-test_openmp_sais.Tpo -c -o tests/tests_test_openmp_sais-test_openmp_sais.obj `if test -f 'tests/test_openmp_sais.cpp'; then $(CYGPATH_W) 'tests/test_openmp_sais.cpp'; else $(CYGPATH_W) '$(srcdir)/tests/test_openmp_sais.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) tests/$(DEPDIR)/tests_test_openmp_sais-test_openmp_sais.Tpo tests/$(DEPDIR)/tests_test_openmp_sais-test_openmp_sais.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='tests/test_openmp_sais.cpp' object='tests/tests_test_openmp_sais-test_openmp_sais.obj' libtool=no @AMDEPBACKSLASH@
+apps/apps_parasail_all-parasail_all.obj: apps/parasail_all.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apps_parasail_all_CXXFLAGS) $(CXXFLAGS) -MT apps/apps_parasail_all-parasail_all.obj -MD -MP -MF apps/$(DEPDIR)/apps_parasail_all-parasail_all.Tpo -c -o apps/apps_parasail_all-parasail_all.obj `if test -f 'apps/parasail_all.cpp'; then $(CYGPATH_W) 'apps/parasail_all.cpp'; else $(CYGPATH_W) '$(srcdir)/apps/parasail_all.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) apps/$(DEPDIR)/apps_parasail_all-parasail_all.Tpo apps/$(DEPDIR)/apps_parasail_all-parasail_all.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='apps/parasail_all.cpp' object='apps/apps_parasail_all-parasail_all.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_test_openmp_sais_CXXFLAGS) $(CXXFLAGS) -c -o tests/tests_test_openmp_sais-test_openmp_sais.obj `if test -f 'tests/test_openmp_sais.cpp'; then $(CYGPATH_W) 'tests/test_openmp_sais.cpp'; else $(CYGPATH_W) '$(srcdir)/tests/test_openmp_sais.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apps_parasail_all_CXXFLAGS) $(CXXFLAGS) -c -o apps/apps_parasail_all-parasail_all.obj `if test -f 'apps/parasail_all.cpp'; then $(CYGPATH_W) 'apps/parasail_all.cpp'; else $(CYGPATH_W) '$(srcdir)/apps/parasail_all.cpp'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo

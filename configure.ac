@@ -101,6 +101,8 @@ AC_CACHE_CHECK([for SSE2],
     [pt_cv_sse2],
     [save_CFLAGS="$CFLAGS"
      CFLAGS="$SSE2_CFLAGS $CFLAGS"
+     ac_save_c_werror_flag=$ac_c_werror_flag
+     ac_c_werror_flag=yes
      AC_LINK_IFELSE([AC_LANG_SOURCE([[
 #include <emmintrin.h>
 int foo() {
@@ -112,6 +114,7 @@ int main(int argc, char **argv) { return foo(); }
 ]])],
         [pt_cv_sse2=yes; pt_cv_sse2_val=1],
         [pt_cv_sse2=no; pt_cv_sse2_val=0])
+     ac_c_werror_flag=$ac_save_c_werror_flag
      CFLAGS="$save_CFLAGS"])
 AC_DEFINE_UNQUOTED([HAVE_SSE2], [$pt_cv_sse2_val],
     [define to 1 if the C compiler supports SSE2])
@@ -121,6 +124,8 @@ AC_CACHE_CHECK([for SSE4.1],
     [pt_cv_sse41],
     [save_CFLAGS="$CFLAGS"
      CFLAGS="$SSE41_CFLAGS $CFLAGS"
+     ac_save_c_werror_flag=$ac_c_werror_flag
+     ac_c_werror_flag=yes
      AC_LINK_IFELSE([AC_LANG_SOURCE([[
 #include <smmintrin.h>
 int foo() {
@@ -133,6 +138,7 @@ int main(int argc, char **argv) { return foo(); }
 ]])],
         [pt_cv_sse41=yes; pt_cv_sse41_val=1],
         [pt_cv_sse41=no; pt_cv_sse41_val=0])
+     ac_c_werror_flag=$ac_save_c_werror_flag
      CFLAGS="$save_CFLAGS"])
 AC_DEFINE_UNQUOTED([HAVE_SSE41], [$pt_cv_sse41_val],
     [define to 1 if the C compiler supports SSE4.1])
@@ -144,6 +150,8 @@ AC_CACHE_CHECK([for AVX2],
     [pt_cv_avx2],
     [save_CFLAGS="$CFLAGS"
      CFLAGS="$AVX2_CFLAGS $CFLAGS"
+     ac_save_c_werror_flag=$ac_c_werror_flag
+     ac_c_werror_flag=yes
      AC_LINK_IFELSE([AC_LANG_SOURCE([[
 #include <immintrin.h>
 int foo() {
@@ -156,26 +164,55 @@ int main(int argc, char **argv) { return foo(); }
 ]])],
         [pt_cv_avx2=yes; pt_cv_avx2_val=1],
         [pt_cv_avx2=no; pt_cv_avx2_val=0])
+     ac_c_werror_flag=$ac_save_c_werror_flag
      CFLAGS="$save_CFLAGS"])
 AC_DEFINE_UNQUOTED([HAVE_AVX2], [$pt_cv_avx2_val],
     [define to 1 if the C compiler supports AVX2])
 AM_CONDITIONAL([HAVE_AVX2], [test "x$pt_cv_avx2" = xyes])
 
+AC_CACHE_CHECK([for AVX2 _mm256_insert_epi64],
+    [pt_cv_avx2_mm256_insert_epi64],
+    [save_CFLAGS="$CFLAGS"
+     CFLAGS="$AVX2_CFLAGS $CFLAGS"
+     ac_save_c_werror_flag=$ac_c_werror_flag
+     ac_c_werror_flag=yes
+     AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+#include <stdint.h>
+#include <immintrin.h>
+__m256i foo() {
+    __m256i vOne = _mm256_set1_epi8(1);
+    return _mm256_insert_epi64(vOne,INT64_MIN,0);
+}
+]])],
+        [pt_cv_avx2_mm256_insert_epi64=yes;
+         pt_cv_avx2_mm256_insert_epi64_val=1],
+        [pt_cv_avx2_mm256_insert_epi64=no;
+         pt_cv_avx2_mm256_insert_epi64_val=0])
+     ac_c_werror_flag=$ac_save_c_werror_flag
+     CFLAGS="$save_CFLAGS"])
+AC_DEFINE_UNQUOTED([HAVE_AVX2_MM256_INSERT_EPI64],
+    [$pt_cv_avx2_mm256_insert_epi64_val],
+    [define to 1 if the C compiler supports AVX2 _mm256_insert_epi64])
+
 AC_CACHE_CHECK([for AVX2 _mm256_insert_epi32],
     [pt_cv_avx2_mm256_insert_epi32],
     [save_CFLAGS="$CFLAGS"
      CFLAGS="$AVX2_CFLAGS $CFLAGS"
+     ac_save_c_werror_flag=$ac_c_werror_flag
+     ac_c_werror_flag=yes
      AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+#include <stdint.h>
 #include <immintrin.h>
 __m256i foo() {
     __m256i vOne = _mm256_set1_epi8(1);
-    return _mm256_insert_epi32(vOne,99,0);
+    return _mm256_insert_epi32(vOne,INT32_MIN,0);
 }
 ]])],
         [pt_cv_avx2_mm256_insert_epi32=yes;
          pt_cv_avx2_mm256_insert_epi32_val=1],
         [pt_cv_avx2_mm256_insert_epi32=no;
          pt_cv_avx2_mm256_insert_epi32_val=0])
+     ac_c_werror_flag=$ac_save_c_werror_flag
      CFLAGS="$save_CFLAGS"])
 AC_DEFINE_UNQUOTED([HAVE_AVX2_MM256_INSERT_EPI32],
     [$pt_cv_avx2_mm256_insert_epi32_val],
@@ -185,17 +222,21 @@ AC_CACHE_CHECK([for AVX2 _mm256_insert_epi16],
     [pt_cv_avx2_mm256_insert_epi16],
     [save_CFLAGS="$CFLAGS"
      CFLAGS="$AVX2_CFLAGS $CFLAGS"
+     ac_save_c_werror_flag=$ac_c_werror_flag
+     ac_c_werror_flag=yes
      AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+#include <stdint.h>
 #include <immintrin.h>
 __m256i foo() {
     __m256i vZero = _mm256_set1_epi8(0);
-    return _mm256_insert_epi16(vZero,99,0);
+    return _mm256_insert_epi16(vZero,INT16_MIN,0);
 }
 ]])],
         [pt_cv_avx2_mm256_insert_epi16=yes;
          pt_cv_avx2_mm256_insert_epi16_val=1],
         [pt_cv_avx2_mm256_insert_epi16=no;
          pt_cv_avx2_mm256_insert_epi16_val=0])
+     ac_c_werror_flag=$ac_save_c_werror_flag
      CFLAGS="$save_CFLAGS"])
 AC_DEFINE_UNQUOTED([HAVE_AVX2_MM256_INSERT_EPI16],
     [$pt_cv_avx2_mm256_insert_epi16_val],
@@ -205,26 +246,57 @@ AC_CACHE_CHECK([for AVX2 _mm256_insert_epi8],
     [pt_cv_avx2_mm256_insert_epi8],
     [save_CFLAGS="$CFLAGS"
      CFLAGS="$AVX2_CFLAGS $CFLAGS"
+     ac_save_c_werror_flag=$ac_c_werror_flag
+     ac_c_werror_flag=yes
      AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+#include <stdint.h>
 #include <immintrin.h>
 __m256i foo() {
     __m256i vZero = _mm256_set1_epi8(0);
-    return _mm256_insert_epi8(vZero,99,0);
+    return _mm256_insert_epi8(vZero,INT8_MIN,0);
 }
 ]])],
         [pt_cv_avx2_mm256_insert_epi8=yes;
          pt_cv_avx2_mm256_insert_epi8_val=1],
         [pt_cv_avx2_mm256_insert_epi8=no;
          pt_cv_avx2_mm256_insert_epi8_val=0])
+     ac_c_werror_flag=$ac_save_c_werror_flag
      CFLAGS="$save_CFLAGS"])
 AC_DEFINE_UNQUOTED([HAVE_AVX2_MM256_INSERT_EPI8],
     [$pt_cv_avx2_mm256_insert_epi8_val],
     [define to 1 if the C compiler supports AVX2 _mm256_insert_epi8])
 
+AC_CACHE_CHECK([for AVX2 _mm256_extract_epi64],
+    [pt_cv_avx2_mm256_extract_epi64],
+    [save_CFLAGS="$CFLAGS"
+     CFLAGS="$AVX2_CFLAGS $CFLAGS"
+     ac_save_c_werror_flag=$ac_c_werror_flag
+     ac_c_werror_flag=yes
+     AC_LINK_IFELSE([AC_LANG_SOURCE([[
+#include <stdint.h>
+#include <immintrin.h>
+int64_t foo() {
+    __m256i vZero = _mm256_set1_epi8(0);
+    return _mm256_extract_epi64(vZero,0);
+}
+int main(int argc, char **argv) { return foo(); }
+]])],
+        [pt_cv_avx2_mm256_extract_epi64=yes;
+         pt_cv_avx2_mm256_extract_epi64_val=1],
+        [pt_cv_avx2_mm256_extract_epi64=no;
+         pt_cv_avx2_mm256_extract_epi64_val=0])
+     ac_c_werror_flag=$ac_save_c_werror_flag
+     CFLAGS="$save_CFLAGS"])
+AC_DEFINE_UNQUOTED([HAVE_AVX2_MM256_EXTRACT_EPI64],
+    [$pt_cv_avx2_mm256_extract_epi64_val],
+    [define to 1 if the C compiler supports AVX2 _mm256_extract_epi64])
+
 AC_CACHE_CHECK([for AVX2 _mm256_extract_epi32],
     [pt_cv_avx2_mm256_extract_epi32],
     [save_CFLAGS="$CFLAGS"
      CFLAGS="$AVX2_CFLAGS $CFLAGS"
+     ac_save_c_werror_flag=$ac_c_werror_flag
+     ac_c_werror_flag=yes
      AC_LINK_IFELSE([AC_LANG_SOURCE([[
 #include <stdint.h>
 #include <immintrin.h>
@@ -238,6 +310,7 @@ int main(int argc, char **argv) { return foo(); }
          pt_cv_avx2_mm256_extract_epi32_val=1],
         [pt_cv_avx2_mm256_extract_epi32=no;
          pt_cv_avx2_mm256_extract_epi32_val=0])
+     ac_c_werror_flag=$ac_save_c_werror_flag
      CFLAGS="$save_CFLAGS"])
 AC_DEFINE_UNQUOTED([HAVE_AVX2_MM256_EXTRACT_EPI32],
     [$pt_cv_avx2_mm256_extract_epi32_val],
@@ -247,6 +320,8 @@ AC_CACHE_CHECK([for AVX2 _mm256_extract_epi16],
     [pt_cv_avx2_mm256_extract_epi16],
     [save_CFLAGS="$CFLAGS"
      CFLAGS="$AVX2_CFLAGS $CFLAGS"
+     ac_save_c_werror_flag=$ac_c_werror_flag
+     ac_c_werror_flag=yes
      AC_LINK_IFELSE([AC_LANG_SOURCE([[
 #include <stdint.h>
 #include <immintrin.h>
@@ -260,6 +335,7 @@ int main(int argc, char **argv) { return foo(); }
          pt_cv_avx2_mm256_extract_epi16_val=1],
         [pt_cv_avx2_mm256_extract_epi16=no;
          pt_cv_avx2_mm256_extract_epi16_val=0])
+     ac_c_werror_flag=$ac_save_c_werror_flag
      CFLAGS="$save_CFLAGS"])
 AC_DEFINE_UNQUOTED([HAVE_AVX2_MM256_EXTRACT_EPI16],
     [$pt_cv_avx2_mm256_extract_epi16_val],
@@ -269,6 +345,8 @@ AC_CACHE_CHECK([for AVX2 _mm256_extract_epi8],
     [pt_cv_avx2_mm256_extract_epi8],
     [save_CFLAGS="$CFLAGS"
      CFLAGS="$AVX2_CFLAGS $CFLAGS"
+     ac_save_c_werror_flag=$ac_c_werror_flag
+     ac_c_werror_flag=yes
      AC_LINK_IFELSE([AC_LANG_SOURCE([[
 #include <stdint.h>
 #include <immintrin.h>
@@ -282,6 +360,7 @@ int main(int argc, char **argv) { return foo(); }
          pt_cv_avx2_mm256_extract_epi8_val=1],
         [pt_cv_avx2_mm256_extract_epi8=no;
          pt_cv_avx2_mm256_extract_epi8_val=0])
+     ac_c_werror_flag=$ac_save_c_werror_flag
      CFLAGS="$save_CFLAGS"])
 AC_DEFINE_UNQUOTED([HAVE_AVX2_MM256_EXTRACT_EPI8],
     [$pt_cv_avx2_mm256_extract_epi8_val],

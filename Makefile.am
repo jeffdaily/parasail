@@ -381,6 +381,10 @@ SRC_SSE41 += src/sw_blocked_sse41_128_16.c
 
 # parallel scan methods
 
+SRC_SSE2 += src/nw_stats_scan_sse2_128_64.c
+SRC_SSE2 += src/sg_stats_scan_sse2_128_64.c
+SRC_SSE2 += src/sw_stats_scan_sse2_128_64.c
+
 SRC_SSE2 += src/nw_stats_scan_sse2_128_32.c
 SRC_SSE2 += src/sg_stats_scan_sse2_128_32.c
 SRC_SSE2 += src/sw_stats_scan_sse2_128_32.c
@@ -393,6 +397,10 @@ SRC_SSE2 += src/nw_stats_scan_sse2_128_8.c
 SRC_SSE2 += src/sg_stats_scan_sse2_128_8.c
 SRC_SSE2 += src/sw_stats_scan_sse2_128_8.c
 
+SRC_SSE41 += src/nw_stats_scan_sse41_128_64.c
+SRC_SSE41 += src/sg_stats_scan_sse41_128_64.c
+SRC_SSE41 += src/sw_stats_scan_sse41_128_64.c
+
 SRC_SSE41 += src/nw_stats_scan_sse41_128_32.c
 SRC_SSE41 += src/sg_stats_scan_sse41_128_32.c
 SRC_SSE41 += src/sw_stats_scan_sse41_128_32.c
@@ -404,6 +412,10 @@ SRC_SSE41 += src/sw_stats_scan_sse41_128_16.c
 SRC_SSE41 += src/nw_stats_scan_sse41_128_8.c
 SRC_SSE41 += src/sg_stats_scan_sse41_128_8.c
 SRC_SSE41 += src/sw_stats_scan_sse41_128_8.c
+
+SRC_AVX2 += src/nw_stats_scan_avx2_256_64.c
+SRC_AVX2 += src/sg_stats_scan_avx2_256_64.c
+SRC_AVX2 += src/sw_stats_scan_avx2_256_64.c
 
 SRC_AVX2 += src/nw_stats_scan_avx2_256_32.c
 SRC_AVX2 += src/sg_stats_scan_avx2_256_32.c
@@ -423,6 +435,10 @@ SRC_KNC += src/sw_stats_scan_knc_512_32.c
 
 # parallel diag methods
 
+SRC_SSE2 += src/nw_stats_diag_sse2_128_64.c
+SRC_SSE2 += src/sg_stats_diag_sse2_128_64.c
+SRC_SSE2 += src/sw_stats_diag_sse2_128_64.c
+
 SRC_SSE2 += src/nw_stats_diag_sse2_128_32.c
 SRC_SSE2 += src/sg_stats_diag_sse2_128_32.c
 SRC_SSE2 += src/sw_stats_diag_sse2_128_32.c
@@ -435,6 +451,10 @@ SRC_SSE2 += src/nw_stats_diag_sse2_128_8.c
 SRC_SSE2 += src/sg_stats_diag_sse2_128_8.c
 SRC_SSE2 += src/sw_stats_diag_sse2_128_8.c
 
+SRC_SSE41 += src/nw_stats_diag_sse41_128_64.c
+SRC_SSE41 += src/sg_stats_diag_sse41_128_64.c
+SRC_SSE41 += src/sw_stats_diag_sse41_128_64.c
+
 SRC_SSE41 += src/nw_stats_diag_sse41_128_32.c
 SRC_SSE41 += src/sg_stats_diag_sse41_128_32.c
 SRC_SSE41 += src/sw_stats_diag_sse41_128_32.c
@@ -446,6 +466,10 @@ SRC_SSE41 += src/sw_stats_diag_sse41_128_16.c
 SRC_SSE41 += src/nw_stats_diag_sse41_128_8.c
 SRC_SSE41 += src/sg_stats_diag_sse41_128_8.c
 SRC_SSE41 += src/sw_stats_diag_sse41_128_8.c
+
+SRC_AVX2 += src/nw_stats_diag_avx2_256_64.c
+SRC_AVX2 += src/sg_stats_diag_avx2_256_64.c
+SRC_AVX2 += src/sw_stats_diag_avx2_256_64.c
 
 SRC_AVX2 += src/nw_stats_diag_avx2_256_32.c
 SRC_AVX2 += src/sg_stats_diag_avx2_256_32.c
@@ -465,6 +489,10 @@ SRC_KNC += src/sw_stats_diag_knc_512_32.c
 
 # parallel striped methods
 
+SRC_SSE2 += src/nw_stats_striped_sse2_128_64.c
+SRC_SSE2 += src/sg_stats_striped_sse2_128_64.c
+SRC_SSE2 += src/sw_stats_striped_sse2_128_64.c
+
 SRC_SSE2 += src/nw_stats_striped_sse2_128_32.c
 SRC_SSE2 += src/sg_stats_striped_sse2_128_32.c
 SRC_SSE2 += src/sw_stats_striped_sse2_128_32.c
@@ -477,6 +505,10 @@ SRC_SSE2 += src/nw_stats_striped_sse2_128_8.c
 SRC_SSE2 += src/sg_stats_striped_sse2_128_8.c
 SRC_SSE2 += src/sw_stats_striped_sse2_128_8.c
 
+SRC_SSE41 += src/nw_stats_striped_sse41_128_64.c
+SRC_SSE41 += src/sg_stats_striped_sse41_128_64.c
+SRC_SSE41 += src/sw_stats_striped_sse41_128_64.c
+
 SRC_SSE41 += src/nw_stats_striped_sse41_128_32.c
 SRC_SSE41 += src/sg_stats_striped_sse41_128_32.c
 SRC_SSE41 += src/sw_stats_striped_sse41_128_32.c
@@ -488,6 +520,10 @@ SRC_SSE41 += src/sw_stats_striped_sse41_128_16.c
 SRC_SSE41 += src/nw_stats_striped_sse41_128_8.c
 SRC_SSE41 += src/sg_stats_striped_sse41_128_8.c
 SRC_SSE41 += src/sw_stats_striped_sse41_128_8.c
+
+SRC_AVX2 += src/nw_stats_striped_avx2_256_64.c
+SRC_AVX2 += src/sg_stats_striped_avx2_256_64.c
+SRC_AVX2 += src/sw_stats_striped_avx2_256_64.c
 
 SRC_AVX2 += src/nw_stats_striped_avx2_256_32.c
 SRC_AVX2 += src/sg_stats_striped_avx2_256_32.c

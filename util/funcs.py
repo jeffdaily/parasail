@@ -76,9 +76,13 @@ for table in ["", "_table"]:
                 bits = isa_to_bits[isa]
                 for par in ["scan", "striped", "diag"]:
                     widths = [64, 32, 16, 8]
-                    # temporary hack until stats codegen catches up
-                    if stats:
-                        widths = [32, 16, 8]
+                    for width in widths:
+                        name = "%s_%s_%s_%s_%s" % (pre, par, isa, bits, width)
+                        print_fmt(name, name, alg+stats, par, isa, bits, width, bits/width, is_table, is_stats, 0)
+                # blocked implementations only exist for sw sse41 32 and 16 bit
+                if isa == "sse41" and alg == "sw" and not stats:
+                    par = "blocked"
+                    widths = [32, 16]
                     for width in widths:
                         name = "%s_%s_%s_%s_%s" % (pre, par, isa, bits, width)
                         print_fmt(name, name, alg+stats, par, isa, bits, width, bits/width, is_table, is_stats, 0)
@@ -91,13 +95,6 @@ for table in ["", "_table"]:
                         name = "%s_%s_%s_%s_%s" % (pre, par, isa, bits, width)
                         print_fmt(name, name, alg+stats, par, isa, bits, width, bits/width, is_table, is_stats, 0)
                 print "#endif"
-print "#if HAVE_SSE41"
-print_fmt("parasail_sw_blocked_sse41_128_32", "parasail_sw_blocked_sse41_128_32", "sw", "blocked", "sse41", "128", "32", 4, 0, 0, 0)
-print_fmt("parasail_sw_blocked_sse41_128_16", "parasail_sw_blocked_sse41_128_16", "sw", "blocked", "sse41", "128", "16", 8, 0, 0, 0)
-print_fmt("parasail_sw_table_blocked_sse41_128_32", "parasail_sw_blocked_sse41_128_32", "sw", "blocked", "sse41", "128", "32", 4, 1, 0, 0)
-print_fmt("parasail_sw_table_blocked_sse41_128_16", "parasail_sw_blocked_sse41_128_16", "sw", "blocked", "sse41", "128", "16", 8, 1, 0, 0)
-print_null()
-print "#endif"
 
 print "};"
 

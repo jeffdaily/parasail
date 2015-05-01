@@ -353,14 +353,14 @@ avx2 = {
     "VCMPLTx16"   : "_mm256_cmplt_epi16_rpl",
     "VCMPLTx32"   : "_mm256_cmplt_epi32_rpl",
     "VCMPLTx64"   : "_mm256_cmplt_epi64_rpl",
-    "VEXTRACTx8"  : "_mm256_extract_epi8",
-    "VEXTRACTx16" : "_mm256_extract_epi16",
-    "VEXTRACTx32" : "_mm256_extract_epi32",
-    "VEXTRACTx64" : "_mm256_extract_epi64",
-    "VINSERTx8"   : "_mm256_insert_epi8",
-    "VINSERTx16"  : "_mm256_insert_epi16",
-    "VINSERTx32"  : "_mm256_insert_epi32",
-    "VINSERTx64"  : "_mm256_insert_epi64",
+    "VEXTRACTx8"  : "_mm256_extract_epi8_rpl",
+    "VEXTRACTx16" : "_mm256_extract_epi16_rpl",
+    "VEXTRACTx32" : "_mm256_extract_epi32_rpl",
+    "VEXTRACTx64" : "_mm256_extract_epi64_rpl",
+    "VINSERTx8"   : "_mm256_insert_epi8_rpl",
+    "VINSERTx16"  : "_mm256_insert_epi16_rpl",
+    "VINSERTx32"  : "_mm256_insert_epi32_rpl",
+    "VINSERTx64"  : "_mm256_insert_epi64_rpl",
     "VLOAD"       : "_mm256_load_si256",
     "VMAXx8"      : "_mm256_max_epi8",
     "VMAXx16"     : "_mm256_max_epi16",
@@ -447,6 +447,98 @@ static inline __m256i _mm256_packs_epi16_rpl(__m256i a, __m256i b) {
 """,
     "_mm256_rlli_si256_rpl" : """
 #define _mm256_rlli_si256_rpl(a,imm) _mm256_alignr_epi8(a, _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,0,1)), 16-imm)
+""",
+    "_mm256_insert_epi64_rpl" : """
+#if HAVE_AVX2_MM256_INSERT_EPI64
+#define _mm256_insert_epi64_rpl _mm256_insert_epi64
+#else
+static inline __m256i _mm256_insert_epi64_rpl(__m256i a, int64_t i, int imm) {
+    __m256i_64_t A;
+    A.m = a;
+    A.v[imm] = i;
+    return A.m;
+}
+#endif
+""",
+    "_mm256_insert_epi32_rpl" : """
+#if HAVE_AVX2_MM256_INSERT_EPI32
+#define _mm256_insert_epi32_rpl _mm256_insert_epi32
+#else
+static inline __m256i _mm256_insert_epi32_rpl(__m256i a, int32_t i, int imm) {
+    __m256i_32_t A;
+    A.m = a;
+    A.v[imm] = i;
+    return A.m;
+}
+#endif
+""",
+    "_mm256_insert_epi16_rpl" : """
+#if HAVE_AVX2_MM256_INSERT_EPI16
+#define _mm256_insert_epi16_rpl _mm256_insert_epi16
+#else
+static inline __m256i _mm256_insert_epi16_rpl(__m256i a, int16_t i, int imm) {
+    __m256i_16_t A;
+    A.m = a;
+    A.v[imm] = i;
+    return A.m;
+}
+#endif
+""",
+    "_mm256_insert_epi8_rpl" : """
+#if HAVE_AVX2_MM256_INSERT_EPI8
+#define _mm256_insert_epi8_rpl _mm256_insert_epi8
+#else
+static inline __m256i _mm256_insert_epi8_rpl(__m256i a, int8_t i, int imm) {
+    __m256i_8_t A;
+    A.m = a;
+    A.v[imm] = i;
+    return A.m;
+}
+#endif
+""",
+    "_mm256_extract_epi64_rpl" : """
+#if HAVE_AVX2_MM256_EXTRACT_EPI64
+#define _mm256_extract_epi64_rpl _mm256_extract_epi64
+#else
+static inline int64_t _mm256_extract_epi64_rpl(__m256i a, int imm) {
+    __m256i_64_t A;
+    A.m = a;
+    return A.v[imm];
+}
+#endif
+""",
+    "_mm256_extract_epi32_rpl" : """
+#if HAVE_AVX2_MM256_EXTRACT_EPI32
+#define _mm256_extract_epi32_rpl _mm256_extract_epi32
+#else
+static inline int32_t _mm256_extract_epi32_rpl(__m256i a, int imm) {
+    __m256i_32_t A;
+    A.m = a;
+    return A.v[imm];
+}
+#endif
+""",
+    "_mm256_extract_epi16_rpl" : """
+#if HAVE_AVX2_MM256_EXTRACT_EPI16
+#define _mm256_extract_epi16_rpl _mm256_extract_epi16
+#else
+static inline int16_t _mm256_extract_epi16_rpl(__m256i a, int imm) {
+    __m256i_16_t A;
+    A.m = a;
+    return A.v[imm];
+}
+#endif
+""",
+    "_mm256_extract_epi8_rpl" : """
+#if HAVE_AVX2_MM256_EXTRACT_EPI8
+#define _mm256_extract_epi8_rpl _mm256_extract_epi8
+#else
+static inline int8_t _mm256_extract_epi8_rpl(__m256i a, int imm) {
+    __m256i_8_t A;
+    A.m = a;
+    return A.v[imm];
+}
+#endif
 """,
 }
 

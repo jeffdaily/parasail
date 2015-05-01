@@ -19,6 +19,27 @@
 
 #define NEG_INF INT8_MIN
 
+#if HAVE_AVX2_MM256_INSERT_EPI8
+#define _mm256_insert_epi8_rpl _mm256_insert_epi8
+#else
+static inline __m256i _mm256_insert_epi8_rpl(__m256i a, int8_t i, int imm) {
+    __m256i_8_t A;
+    A.m = a;
+    A.v[imm] = i;
+    return A.m;
+}
+#endif
+
+#if HAVE_AVX2_MM256_EXTRACT_EPI8
+#define _mm256_extract_epi8_rpl _mm256_extract_epi8
+#else
+static inline int8_t _mm256_extract_epi8_rpl(__m256i a, int imm) {
+    __m256i_8_t A;
+    A.m = a;
+    return A.v[imm];
+}
+#endif
+
 #define _mm256_cmplt_epi8_rpl(a,b) _mm256_cmpgt_epi8(b,a)
 
 #define _mm256_srli_si256_rpl(a,imm) _mm256_or_si256(_mm256_slli_si256(_mm256_permute2x128_si256(a, a, _MM_SHUFFLE(3,0,0,1)), 16-imm), _mm256_srli_si256(a, imm))
@@ -44,100 +65,100 @@ static inline void arr_store_si256(
         int32_t s2Len)
 {
     if (0 <= i+0 && i+0 < s1Len && 0 <= j-0 && j-0 < s2Len) {
-        array[(i+0)*s2Len + (j-0)] = (int8_t)_mm256_extract_epi8(vWscore, 31);
+        array[(i+0)*s2Len + (j-0)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 31);
     }
     if (0 <= i+1 && i+1 < s1Len && 0 <= j-1 && j-1 < s2Len) {
-        array[(i+1)*s2Len + (j-1)] = (int8_t)_mm256_extract_epi8(vWscore, 30);
+        array[(i+1)*s2Len + (j-1)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 30);
     }
     if (0 <= i+2 && i+2 < s1Len && 0 <= j-2 && j-2 < s2Len) {
-        array[(i+2)*s2Len + (j-2)] = (int8_t)_mm256_extract_epi8(vWscore, 29);
+        array[(i+2)*s2Len + (j-2)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 29);
     }
     if (0 <= i+3 && i+3 < s1Len && 0 <= j-3 && j-3 < s2Len) {
-        array[(i+3)*s2Len + (j-3)] = (int8_t)_mm256_extract_epi8(vWscore, 28);
+        array[(i+3)*s2Len + (j-3)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 28);
     }
     if (0 <= i+4 && i+4 < s1Len && 0 <= j-4 && j-4 < s2Len) {
-        array[(i+4)*s2Len + (j-4)] = (int8_t)_mm256_extract_epi8(vWscore, 27);
+        array[(i+4)*s2Len + (j-4)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 27);
     }
     if (0 <= i+5 && i+5 < s1Len && 0 <= j-5 && j-5 < s2Len) {
-        array[(i+5)*s2Len + (j-5)] = (int8_t)_mm256_extract_epi8(vWscore, 26);
+        array[(i+5)*s2Len + (j-5)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 26);
     }
     if (0 <= i+6 && i+6 < s1Len && 0 <= j-6 && j-6 < s2Len) {
-        array[(i+6)*s2Len + (j-6)] = (int8_t)_mm256_extract_epi8(vWscore, 25);
+        array[(i+6)*s2Len + (j-6)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 25);
     }
     if (0 <= i+7 && i+7 < s1Len && 0 <= j-7 && j-7 < s2Len) {
-        array[(i+7)*s2Len + (j-7)] = (int8_t)_mm256_extract_epi8(vWscore, 24);
+        array[(i+7)*s2Len + (j-7)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 24);
     }
     if (0 <= i+8 && i+8 < s1Len && 0 <= j-8 && j-8 < s2Len) {
-        array[(i+8)*s2Len + (j-8)] = (int8_t)_mm256_extract_epi8(vWscore, 23);
+        array[(i+8)*s2Len + (j-8)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 23);
     }
     if (0 <= i+9 && i+9 < s1Len && 0 <= j-9 && j-9 < s2Len) {
-        array[(i+9)*s2Len + (j-9)] = (int8_t)_mm256_extract_epi8(vWscore, 22);
+        array[(i+9)*s2Len + (j-9)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 22);
     }
     if (0 <= i+10 && i+10 < s1Len && 0 <= j-10 && j-10 < s2Len) {
-        array[(i+10)*s2Len + (j-10)] = (int8_t)_mm256_extract_epi8(vWscore, 21);
+        array[(i+10)*s2Len + (j-10)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 21);
     }
     if (0 <= i+11 && i+11 < s1Len && 0 <= j-11 && j-11 < s2Len) {
-        array[(i+11)*s2Len + (j-11)] = (int8_t)_mm256_extract_epi8(vWscore, 20);
+        array[(i+11)*s2Len + (j-11)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 20);
     }
     if (0 <= i+12 && i+12 < s1Len && 0 <= j-12 && j-12 < s2Len) {
-        array[(i+12)*s2Len + (j-12)] = (int8_t)_mm256_extract_epi8(vWscore, 19);
+        array[(i+12)*s2Len + (j-12)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 19);
     }
     if (0 <= i+13 && i+13 < s1Len && 0 <= j-13 && j-13 < s2Len) {
-        array[(i+13)*s2Len + (j-13)] = (int8_t)_mm256_extract_epi8(vWscore, 18);
+        array[(i+13)*s2Len + (j-13)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 18);
     }
     if (0 <= i+14 && i+14 < s1Len && 0 <= j-14 && j-14 < s2Len) {
-        array[(i+14)*s2Len + (j-14)] = (int8_t)_mm256_extract_epi8(vWscore, 17);
+        array[(i+14)*s2Len + (j-14)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 17);
     }
     if (0 <= i+15 && i+15 < s1Len && 0 <= j-15 && j-15 < s2Len) {
-        array[(i+15)*s2Len + (j-15)] = (int8_t)_mm256_extract_epi8(vWscore, 16);
+        array[(i+15)*s2Len + (j-15)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 16);
     }
     if (0 <= i+16 && i+16 < s1Len && 0 <= j-16 && j-16 < s2Len) {
-        array[(i+16)*s2Len + (j-16)] = (int8_t)_mm256_extract_epi8(vWscore, 15);
+        array[(i+16)*s2Len + (j-16)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 15);
     }
     if (0 <= i+17 && i+17 < s1Len && 0 <= j-17 && j-17 < s2Len) {
-        array[(i+17)*s2Len + (j-17)] = (int8_t)_mm256_extract_epi8(vWscore, 14);
+        array[(i+17)*s2Len + (j-17)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 14);
     }
     if (0 <= i+18 && i+18 < s1Len && 0 <= j-18 && j-18 < s2Len) {
-        array[(i+18)*s2Len + (j-18)] = (int8_t)_mm256_extract_epi8(vWscore, 13);
+        array[(i+18)*s2Len + (j-18)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 13);
     }
     if (0 <= i+19 && i+19 < s1Len && 0 <= j-19 && j-19 < s2Len) {
-        array[(i+19)*s2Len + (j-19)] = (int8_t)_mm256_extract_epi8(vWscore, 12);
+        array[(i+19)*s2Len + (j-19)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 12);
     }
     if (0 <= i+20 && i+20 < s1Len && 0 <= j-20 && j-20 < s2Len) {
-        array[(i+20)*s2Len + (j-20)] = (int8_t)_mm256_extract_epi8(vWscore, 11);
+        array[(i+20)*s2Len + (j-20)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 11);
     }
     if (0 <= i+21 && i+21 < s1Len && 0 <= j-21 && j-21 < s2Len) {
-        array[(i+21)*s2Len + (j-21)] = (int8_t)_mm256_extract_epi8(vWscore, 10);
+        array[(i+21)*s2Len + (j-21)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 10);
     }
     if (0 <= i+22 && i+22 < s1Len && 0 <= j-22 && j-22 < s2Len) {
-        array[(i+22)*s2Len + (j-22)] = (int8_t)_mm256_extract_epi8(vWscore, 9);
+        array[(i+22)*s2Len + (j-22)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 9);
     }
     if (0 <= i+23 && i+23 < s1Len && 0 <= j-23 && j-23 < s2Len) {
-        array[(i+23)*s2Len + (j-23)] = (int8_t)_mm256_extract_epi8(vWscore, 8);
+        array[(i+23)*s2Len + (j-23)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 8);
     }
     if (0 <= i+24 && i+24 < s1Len && 0 <= j-24 && j-24 < s2Len) {
-        array[(i+24)*s2Len + (j-24)] = (int8_t)_mm256_extract_epi8(vWscore, 7);
+        array[(i+24)*s2Len + (j-24)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 7);
     }
     if (0 <= i+25 && i+25 < s1Len && 0 <= j-25 && j-25 < s2Len) {
-        array[(i+25)*s2Len + (j-25)] = (int8_t)_mm256_extract_epi8(vWscore, 6);
+        array[(i+25)*s2Len + (j-25)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 6);
     }
     if (0 <= i+26 && i+26 < s1Len && 0 <= j-26 && j-26 < s2Len) {
-        array[(i+26)*s2Len + (j-26)] = (int8_t)_mm256_extract_epi8(vWscore, 5);
+        array[(i+26)*s2Len + (j-26)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 5);
     }
     if (0 <= i+27 && i+27 < s1Len && 0 <= j-27 && j-27 < s2Len) {
-        array[(i+27)*s2Len + (j-27)] = (int8_t)_mm256_extract_epi8(vWscore, 4);
+        array[(i+27)*s2Len + (j-27)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 4);
     }
     if (0 <= i+28 && i+28 < s1Len && 0 <= j-28 && j-28 < s2Len) {
-        array[(i+28)*s2Len + (j-28)] = (int8_t)_mm256_extract_epi8(vWscore, 3);
+        array[(i+28)*s2Len + (j-28)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 3);
     }
     if (0 <= i+29 && i+29 < s1Len && 0 <= j-29 && j-29 < s2Len) {
-        array[(i+29)*s2Len + (j-29)] = (int8_t)_mm256_extract_epi8(vWscore, 2);
+        array[(i+29)*s2Len + (j-29)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 2);
     }
     if (0 <= i+30 && i+30 < s1Len && 0 <= j-30 && j-30 < s2Len) {
-        array[(i+30)*s2Len + (j-30)] = (int8_t)_mm256_extract_epi8(vWscore, 1);
+        array[(i+30)*s2Len + (j-30)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 1);
     }
     if (0 <= i+31 && i+31 < s1Len && 0 <= j-31 && j-31 < s2Len) {
-        array[(i+31)*s2Len + (j-31)] = (int8_t)_mm256_extract_epi8(vWscore, 0);
+        array[(i+31)*s2Len + (j-31)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 0);
     }
 }
 #endif
@@ -277,9 +298,9 @@ parasail_result_t* FNAME(
             __m256i vMat;
             __m256i vNWscore = vNscore;
             vNscore = _mm256_srli_si256_rpl(vWscore, 1);
-            vNscore = _mm256_insert_epi8(vNscore, tbl_pr[j], 31);
+            vNscore = _mm256_insert_epi8_rpl(vNscore, tbl_pr[j], 31);
             vDel = _mm256_srli_si256_rpl(vDel, 1);
-            vDel = _mm256_insert_epi8(vDel, del_pr[j], 31);
+            vDel = _mm256_insert_epi8_rpl(vDel, del_pr[j], 31);
             vDel = _mm256_max_epi8(
                     _mm256_subs_epi8(vNscore, vOpen),
                     _mm256_subs_epi8(vDel, vGap));
@@ -342,8 +363,8 @@ parasail_result_t* FNAME(
 #ifdef PARASAIL_TABLE
             arr_store_si256(result->score_table, vWscore, i, s1Len, j, s2Len);
 #endif
-            tbl_pr[j-31] = (int8_t)_mm256_extract_epi8(vWscore,0);
-            del_pr[j-31] = (int8_t)_mm256_extract_epi8(vDel,0);
+            tbl_pr[j-31] = (int8_t)_mm256_extract_epi8_rpl(vWscore,0);
+            del_pr[j-31] = (int8_t)_mm256_extract_epi8_rpl(vDel,0);
             /* as minor diagonal vector passes across table, extract
              * max values within the i,j bounds */
             {
@@ -369,7 +390,7 @@ parasail_result_t* FNAME(
     /* max in vMax */
     for (i=0; i<N; ++i) {
         int8_t value;
-        value = (int8_t) _mm256_extract_epi8(vMax, 31);
+        value = (int8_t) _mm256_extract_epi8_rpl(vMax, 31);
         if (value > score) {
             score = value;
         }

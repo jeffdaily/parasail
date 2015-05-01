@@ -12,6 +12,9 @@
 /* define to 1 if the C compiler supports AVX2 _mm256_extract_epi32 */
 #undef HAVE_AVX2_MM256_EXTRACT_EPI32
 
+/* define to 1 if the C compiler supports AVX2 _mm256_extract_epi64 */
+#undef HAVE_AVX2_MM256_EXTRACT_EPI64
+
 /* define to 1 if the C compiler supports AVX2 _mm256_extract_epi8 */
 #undef HAVE_AVX2_MM256_EXTRACT_EPI8
 
@@ -20,6 +23,9 @@
 
 /* define to 1 if the C compiler supports AVX2 _mm256_insert_epi32 */
 #undef HAVE_AVX2_MM256_INSERT_EPI32
+
+/* define to 1 if the C compiler supports AVX2 _mm256_insert_epi64 */
+#undef HAVE_AVX2_MM256_INSERT_EPI64
 
 /* define to 1 if the C compiler supports AVX2 _mm256_insert_epi8 */
 #undef HAVE_AVX2_MM256_INSERT_EPI8

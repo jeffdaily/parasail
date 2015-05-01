@@ -20,6 +20,17 @@
 
 #define NEG_INF (INT64_MIN/(int64_t)(2))
 
+#if HAVE_AVX2_MM256_INSERT_EPI64
+#define _mm256_insert_epi64_rpl _mm256_insert_epi64
+#else
+static inline __m256i _mm256_insert_epi64_rpl(__m256i a, int64_t i, int imm) {
+    __m256i_64_t A;
+    A.m = a;
+    A.v[imm] = i;
+    return A.m;
+}
+#endif
+
 static inline __m256i _mm256_max_epi64_rpl(__m256i a, __m256i b) {
     __m256i_64_t A;
     __m256i_64_t B;
@@ -31,6 +42,16 @@ static inline __m256i _mm256_max_epi64_rpl(__m256i a, __m256i b) {
     A.v[3] = (A.v[3]>B.v[3]) ? A.v[3] : B.v[3];
     return A.m;
 }
+
+#if HAVE_AVX2_MM256_EXTRACT_EPI64
+#define _mm256_extract_epi64_rpl _mm256_extract_epi64
+#else
+static inline int64_t _mm256_extract_epi64_rpl(__m256i a, int imm) {
+    __m256i_64_t A;
+    A.m = a;
+    return A.v[imm];
+}
+#endif
 
 #define _mm256_rlli_si256_rpl(a,imm) _mm256_alignr_epi8(a, _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,0,1)), 16-imm)
 
@@ -46,10 +67,10 @@ static inline void arr_store_si256(
         int32_t d,
         int32_t dlen)
 {
-    array[(0*seglen+t)*dlen + d] = (int64_t)_mm256_extract_epi64(vH, 0);
-    array[(1*seglen+t)*dlen + d] = (int64_t)_mm256_extract_epi64(vH, 1);
-    array[(2*seglen+t)*dlen + d] = (int64_t)_mm256_extract_epi64(vH, 2);
-    array[(3*seglen+t)*dlen + d] = (int64_t)_mm256_extract_epi64(vH, 3);
+    array[(0*seglen+t)*dlen + d] = (int64_t)_mm256_extract_epi64_rpl(vH, 0);
+    array[(1*seglen+t)*dlen + d] = (int64_t)_mm256_extract_epi64_rpl(vH, 1);
+    array[(2*seglen+t)*dlen + d] = (int64_t)_mm256_extract_epi64_rpl(vH, 2);
+    array[(3*seglen+t)*dlen + d] = (int64_t)_mm256_extract_epi64_rpl(vH, 3);
 }
 #endif
 
@@ -157,7 +178,7 @@ parasail_result_t* FNAME(
         /* calculate Ft first pass */
         vHp = _mm256_load_si256(pvH+(segLen-1));
         vHp = _mm256_slli_si256_rpl(vHp, 8);
-        vHp = _mm256_insert_epi64(vHp, boundary[j], 0);
+        vHp = _mm256_insert_epi64_rpl(vHp, boundary[j], 0);
         pvW = pvP + matrix->mapper[(unsigned char)s2[j]]*segLen;
         vHt = vNegInf;
         vFt = vNegInf;
@@ -180,7 +201,7 @@ parasail_result_t* FNAME(
 
         /* adjust Ft before local prefix scan */
         vHt = _mm256_slli_si256_rpl(vHt, 8);
-        vHt = _mm256_insert_epi64(vHt, boundary[j+1], 0);
+        vHt = _mm256_insert_epi64_rpl(vHt, boundary[j+1], 0);
         vFt = _mm256_max_epi64_rpl(vFt,
                 _mm256_sub_epi64(vHt, vSegLenXgap1));
         /* local prefix scan */
@@ -213,7 +234,7 @@ parasail_result_t* FNAME(
         for (k=0; k<position; ++k) {
             vH = _mm256_slli_si256_rpl(vH, 8);
         }
-        score = (int64_t) _mm256_extract_epi64 (vH, 3);
+        score = (int64_t) _mm256_extract_epi64_rpl (vH, 3);
     }
 
     

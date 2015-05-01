@@ -32,6 +32,16 @@ static inline __m256i _mm256_max_epi64_rpl(__m256i a, __m256i b) {
     return A.m;
 }
 
+#if HAVE_AVX2_MM256_EXTRACT_EPI64
+#define _mm256_extract_epi64_rpl _mm256_extract_epi64
+#else
+static inline int64_t _mm256_extract_epi64_rpl(__m256i a, int imm) {
+    __m256i_64_t A;
+    A.m = a;
+    return A.v[imm];
+}
+#endif
+
 #define _mm256_rlli_si256_rpl(a,imm) _mm256_alignr_epi8(a, _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,0,1)), 16-imm)
 
 #define _mm256_slli_si256_rpl(a,imm) _mm256_alignr_epi8(a, _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,3,0)), 16-imm)
@@ -46,10 +56,10 @@ static inline void arr_store_si256(
         int32_t d,
         int32_t dlen)
 {
-    array[(0*seglen+t)*dlen + d] = (int64_t)_mm256_extract_epi64(vH, 0);
-    array[(1*seglen+t)*dlen + d] = (int64_t)_mm256_extract_epi64(vH, 1);
-    array[(2*seglen+t)*dlen + d] = (int64_t)_mm256_extract_epi64(vH, 2);
-    array[(3*seglen+t)*dlen + d] = (int64_t)_mm256_extract_epi64(vH, 3);
+    array[(0*seglen+t)*dlen + d] = (int64_t)_mm256_extract_epi64_rpl(vH, 0);
+    array[(1*seglen+t)*dlen + d] = (int64_t)_mm256_extract_epi64_rpl(vH, 1);
+    array[(2*seglen+t)*dlen + d] = (int64_t)_mm256_extract_epi64_rpl(vH, 2);
+    array[(3*seglen+t)*dlen + d] = (int64_t)_mm256_extract_epi64_rpl(vH, 3);
 }
 #endif
 
@@ -197,7 +207,7 @@ parasail_result_t* FNAME(
 
     /* max in vec */
     for (j=0; j<segWidth; ++j) {
-        int64_t value = (int64_t) _mm256_extract_epi64(vMaxH, 3);
+        int64_t value = (int64_t) _mm256_extract_epi64_rpl(vMaxH, 3);
         if (value > score) {
             score = value;
         }

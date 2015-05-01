@@ -19,6 +19,17 @@
 
 #define NEG_INF (INT64_MIN/(int64_t)(2))
 
+#if HAVE_AVX2_MM256_INSERT_EPI64
+#define _mm256_insert_epi64_rpl _mm256_insert_epi64
+#else
+static inline __m256i _mm256_insert_epi64_rpl(__m256i a, int64_t i, int imm) {
+    __m256i_64_t A;
+    A.m = a;
+    A.v[imm] = i;
+    return A.m;
+}
+#endif
+
 static inline __m256i _mm256_max_epi64_rpl(__m256i a, __m256i b) {
     __m256i_64_t A;
     __m256i_64_t B;
@@ -31,6 +42,16 @@ static inline __m256i _mm256_max_epi64_rpl(__m256i a, __m256i b) {
     return A.m;
 }
 
+#if HAVE_AVX2_MM256_EXTRACT_EPI64
+#define _mm256_extract_epi64_rpl _mm256_extract_epi64
+#else
+static inline int64_t _mm256_extract_epi64_rpl(__m256i a, int imm) {
+    __m256i_64_t A;
+    A.m = a;
+    return A.v[imm];
+}
+#endif
+
 #define _mm256_cmplt_epi64_rpl(a,b) _mm256_cmpgt_epi64(b,a)
 
 #define _mm256_srli_si256_rpl(a,imm) _mm256_or_si256(_mm256_slli_si256(_mm256_permute2x128_si256(a, a, _MM_SHUFFLE(3,0,0,1)), 16-imm), _mm256_srli_si256(a, imm))
@@ -42,7 +63,7 @@ static inline __m256i _mm256_max_epi64_rpl(__m256i a, __m256i b) {
 static inline __m256i vshift(const __m256i v, const int val)
 {
     __m256i ret = _mm256_srli_si256_rpl(v, 8);
-    ret = _mm256_insert_epi64(ret, val, 3);
+    ret = _mm256_insert_epi64_rpl(ret, val, 3);
     return ret;
 }
 
@@ -56,16 +77,16 @@ static inline void arr_store_si256(
         int32_t s2Len)
 {
     if (0 <= i+0 && i+0 < s1Len && 0 <= j-0 && j-0 < s2Len) {
-        array[(i+0)*s2Len + (j-0)] = (int64_t)_mm256_extract_epi64(vWscore, 3);
+        array[(i+0)*s2Len + (j-0)] = (int64_t)_mm256_extract_epi64_rpl(vWscore, 3);
     }
     if (0 <= i+1 && i+1 < s1Len && 0 <= j-1 && j-1 < s2Len) {
-        array[(i+1)*s2Len + (j-1)] = (int64_t)_mm256_extract_epi64(vWscore, 2);
+        array[(i+1)*s2Len + (j-1)] = (int64_t)_mm256_extract_epi64_rpl(vWscore, 2);
     }
     if (0 <= i+2 && i+2 < s1Len && 0 <= j-2 && j-2 < s2Len) {
-        array[(i+2)*s2Len + (j-2)] = (int64_t)_mm256_extract_epi64(vWscore, 1);
+        array[(i+2)*s2Len + (j-2)] = (int64_t)_mm256_extract_epi64_rpl(vWscore, 1);
     }
     if (0 <= i+3 && i+3 < s1Len && 0 <= j-3 && j-3 < s2Len) {
-        array[(i+3)*s2Len + (j-3)] = (int64_t)_mm256_extract_epi64(vWscore, 0);
+        array[(i+3)*s2Len + (j-3)] = (int64_t)_mm256_extract_epi64_rpl(vWscore, 0);
     }
 }
 #endif
@@ -289,11 +310,11 @@ parasail_result_t* FNAME(
             arr_store_si256(result->similar_table, vWsimilar, i, s1Len, j, s2Len);
             arr_store_si256(result->length_table, vWlength, i, s1Len, j, s2Len);
 #endif
-            tbl_pr[j-3] = (int64_t)_mm256_extract_epi64(vWscore,0);
-            mch_pr[j-3] = (int64_t)_mm256_extract_epi64(vWmatch,0);
-            sim_pr[j-3] = (int64_t)_mm256_extract_epi64(vWsimilar,0);
-            len_pr[j-3] = (int64_t)_mm256_extract_epi64(vWlength,0);
-            del_pr[j-3] = (int64_t)_mm256_extract_epi64(vDel,0);
+            tbl_pr[j-3] = (int64_t)_mm256_extract_epi64_rpl(vWscore,0);
+            mch_pr[j-3] = (int64_t)_mm256_extract_epi64_rpl(vWmatch,0);
+            sim_pr[j-3] = (int64_t)_mm256_extract_epi64_rpl(vWsimilar,0);
+            len_pr[j-3] = (int64_t)_mm256_extract_epi64_rpl(vWlength,0);
+            del_pr[j-3] = (int64_t)_mm256_extract_epi64_rpl(vDel,0);
             /* as minor diagonal vector passes across table, extract
              * max values within the i,j bounds */
             {
@@ -316,12 +337,12 @@ parasail_result_t* FNAME(
     /* max in vMaxScore */
     for (i=0; i<N; ++i) {
         int64_t value;
-        value = (int64_t) _mm256_extract_epi64(vMaxScore, 3);
+        value = (int64_t) _mm256_extract_epi64_rpl(vMaxScore, 3);
         if (value > score) {
             score = value;
-            matches = (int64_t) _mm256_extract_epi64(vMaxMatch, 3);
-            similar = (int64_t) _mm256_extract_epi64(vMaxSimilar, 3);
-            length= (int64_t) _mm256_extract_epi64(vMaxLength, 3);
+            matches = (int64_t) _mm256_extract_epi64_rpl(vMaxMatch, 3);
+            similar = (int64_t) _mm256_extract_epi64_rpl(vMaxSimilar, 3);
+            length= (int64_t) _mm256_extract_epi64_rpl(vMaxLength, 3);
         }
         vMaxScore = _mm256_slli_si256_rpl(vMaxScore, 8);
         vMaxMatch = _mm256_slli_si256_rpl(vMaxMatch, 8);

@@ -19,6 +19,17 @@
 
 #define NEG_INF (INT64_MIN/(int64_t)(2))
 
+#if HAVE_AVX2_MM256_INSERT_EPI64
+#define _mm256_insert_epi64_rpl _mm256_insert_epi64
+#else
+static inline __m256i _mm256_insert_epi64_rpl(__m256i a, int64_t i, int imm) {
+    __m256i_64_t A;
+    A.m = a;
+    A.v[imm] = i;
+    return A.m;
+}
+#endif
+
 static inline __m256i _mm256_max_epi64_rpl(__m256i a, __m256i b) {
     __m256i_64_t A;
     __m256i_64_t B;
@@ -30,6 +41,16 @@ static inline __m256i _mm256_max_epi64_rpl(__m256i a, __m256i b) {
     A.v[3] = (A.v[3]>B.v[3]) ? A.v[3] : B.v[3];
     return A.m;
 }
+
+#if HAVE_AVX2_MM256_EXTRACT_EPI64
+#define _mm256_extract_epi64_rpl _mm256_extract_epi64
+#else
+static inline int64_t _mm256_extract_epi64_rpl(__m256i a, int imm) {
+    __m256i_64_t A;
+    A.m = a;
+    return A.v[imm];
+}
+#endif
 
 #define _mm256_cmplt_epi64_rpl(a,b) _mm256_cmpgt_epi64(b,a)
 
@@ -48,16 +69,16 @@ static inline void arr_store_si256(
         int32_t s2Len)
 {
     if (0 <= i+0 && i+0 < s1Len && 0 <= j-0 && j-0 < s2Len) {
-        array[(i+0)*s2Len + (j-0)] = (int64_t)_mm256_extract_epi64(vWscore, 3);
+        array[(i+0)*s2Len + (j-0)] = (int64_t)_mm256_extract_epi64_rpl(vWscore, 3);
     }
     if (0 <= i+1 && i+1 < s1Len && 0 <= j-1 && j-1 < s2Len) {
-        array[(i+1)*s2Len + (j-1)] = (int64_t)_mm256_extract_epi64(vWscore, 2);
+        array[(i+1)*s2Len + (j-1)] = (int64_t)_mm256_extract_epi64_rpl(vWscore, 2);
     }
     if (0 <= i+2 && i+2 < s1Len && 0 <= j-2 && j-2 < s2Len) {
-        array[(i+2)*s2Len + (j-2)] = (int64_t)_mm256_extract_epi64(vWscore, 1);
+        array[(i+2)*s2Len + (j-2)] = (int64_t)_mm256_extract_epi64_rpl(vWscore, 1);
     }
     if (0 <= i+3 && i+3 < s1Len && 0 <= j-3 && j-3 < s2Len) {
-        array[(i+3)*s2Len + (j-3)] = (int64_t)_mm256_extract_epi64(vWscore, 0);
+        array[(i+3)*s2Len + (j-3)] = (int64_t)_mm256_extract_epi64_rpl(vWscore, 0);
     }
 }
 #endif
@@ -161,9 +182,9 @@ parasail_result_t* FNAME(
             __m256i vMat;
             __m256i vNWscore = vNscore;
             vNscore = _mm256_srli_si256_rpl(vWscore, 8);
-            vNscore = _mm256_insert_epi64(vNscore, tbl_pr[j], 3);
+            vNscore = _mm256_insert_epi64_rpl(vNscore, tbl_pr[j], 3);
             vDel = _mm256_srli_si256_rpl(vDel, 8);
-            vDel = _mm256_insert_epi64(vDel, del_pr[j], 3);
+            vDel = _mm256_insert_epi64_rpl(vDel, del_pr[j], 3);
             vDel = _mm256_max_epi64_rpl(
                     _mm256_sub_epi64(vNscore, vOpen),
                     _mm256_sub_epi64(vDel, vGap));
@@ -192,8 +213,8 @@ parasail_result_t* FNAME(
 #ifdef PARASAIL_TABLE
             arr_store_si256(result->score_table, vWscore, i, s1Len, j, s2Len);
 #endif
-            tbl_pr[j-3] = (int64_t)_mm256_extract_epi64(vWscore,0);
-            del_pr[j-3] = (int64_t)_mm256_extract_epi64(vDel,0);
+            tbl_pr[j-3] = (int64_t)_mm256_extract_epi64_rpl(vWscore,0);
+            del_pr[j-3] = (int64_t)_mm256_extract_epi64_rpl(vDel,0);
             /* as minor diagonal vector passes across table, extract
              * max values within the i,j bounds */
             {
@@ -213,7 +234,7 @@ parasail_result_t* FNAME(
     /* max in vMax */
     for (i=0; i<N; ++i) {
         int64_t value;
-        value = (int64_t) _mm256_extract_epi64(vMax, 3);
+        value = (int64_t) _mm256_extract_epi64_rpl(vMax, 3);
         if (value > score) {
             score = value;
         }

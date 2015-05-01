@@ -23,6 +23,27 @@
 
 #define _mm256_cmplt_epi32_rpl(a,b) _mm256_cmpgt_epi32(b,a)
 
+#if HAVE_AVX2_MM256_INSERT_EPI32
+#define _mm256_insert_epi32_rpl _mm256_insert_epi32
+#else
+static inline __m256i _mm256_insert_epi32_rpl(__m256i a, int32_t i, int imm) {
+    __m256i_32_t A;
+    A.m = a;
+    A.v[imm] = i;
+    return A.m;
+}
+#endif
+
+#if HAVE_AVX2_MM256_EXTRACT_EPI32
+#define _mm256_extract_epi32_rpl _mm256_extract_epi32
+#else
+static inline int32_t _mm256_extract_epi32_rpl(__m256i a, int imm) {
+    __m256i_32_t A;
+    A.m = a;
+    return A.v[imm];
+}
+#endif
+
 #define _mm256_srli_si256_rpl(a,imm) _mm256_or_si256(_mm256_slli_si256(_mm256_permute2x128_si256(a, a, _MM_SHUFFLE(3,0,0,1)), 16-imm), _mm256_srli_si256(a, imm))
 
 #define _mm256_slli_si256_rpl(a,imm) _mm256_alignr_epi8(a, _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,3,0)), 16-imm)
@@ -37,14 +58,14 @@ static inline void arr_store_si256(
         int32_t d,
         int32_t dlen)
 {
-    array[(0*seglen+t)*dlen + d] = (int32_t)_mm256_extract_epi32(vH, 0);
-    array[(1*seglen+t)*dlen + d] = (int32_t)_mm256_extract_epi32(vH, 1);
-    array[(2*seglen+t)*dlen + d] = (int32_t)_mm256_extract_epi32(vH, 2);
-    array[(3*seglen+t)*dlen + d] = (int32_t)_mm256_extract_epi32(vH, 3);
-    array[(4*seglen+t)*dlen + d] = (int32_t)_mm256_extract_epi32(vH, 4);
-    array[(5*seglen+t)*dlen + d] = (int32_t)_mm256_extract_epi32(vH, 5);
-    array[(6*seglen+t)*dlen + d] = (int32_t)_mm256_extract_epi32(vH, 6);
-    array[(7*seglen+t)*dlen + d] = (int32_t)_mm256_extract_epi32(vH, 7);
+    array[(0*seglen+t)*dlen + d] = (int32_t)_mm256_extract_epi32_rpl(vH, 0);
+    array[(1*seglen+t)*dlen + d] = (int32_t)_mm256_extract_epi32_rpl(vH, 1);
+    array[(2*seglen+t)*dlen + d] = (int32_t)_mm256_extract_epi32_rpl(vH, 2);
+    array[(3*seglen+t)*dlen + d] = (int32_t)_mm256_extract_epi32_rpl(vH, 3);
+    array[(4*seglen+t)*dlen + d] = (int32_t)_mm256_extract_epi32_rpl(vH, 4);
+    array[(5*seglen+t)*dlen + d] = (int32_t)_mm256_extract_epi32_rpl(vH, 5);
+    array[(6*seglen+t)*dlen + d] = (int32_t)_mm256_extract_epi32_rpl(vH, 6);
+    array[(7*seglen+t)*dlen + d] = (int32_t)_mm256_extract_epi32_rpl(vH, 7);
 }
 #endif
 
@@ -189,7 +210,7 @@ parasail_result_t* FNAME(
 
         /* calculate Ht */
         vH = _mm256_slli_si256_rpl(_mm256_load_si256(pvH+(segLen-1)), 4);
-        vH = _mm256_insert_epi32(vH, boundary[j], 0);
+        vH = _mm256_insert_epi32_rpl(vH, boundary[j], 0);
         vMp= _mm256_slli_si256_rpl(_mm256_load_si256(pvM+(segLen-1)), 4);
         vSp= _mm256_slli_si256_rpl(_mm256_load_si256(pvS+(segLen-1)), 4);
         vLp= _mm256_slli_si256_rpl(_mm256_load_si256(pvL+(segLen-1)), 4);
@@ -232,7 +253,7 @@ parasail_result_t* FNAME(
 
         /* calculate Ft */
         vHt = _mm256_slli_si256_rpl(_mm256_load_si256(pvHt+(segLen-1)), 4);
-        vHt = _mm256_insert_epi32(vHt, boundary[j+1], 0);
+        vHt = _mm256_insert_epi32_rpl(vHt, boundary[j+1], 0);
         vFt = vNegInf;
         for (i=0; i<segLen; ++i) {
             vFt = _mm256_sub_epi32(vFt, vGapE);
@@ -252,9 +273,9 @@ parasail_result_t* FNAME(
             vFt = tmp.m;
         }
         vHt = _mm256_slli_si256_rpl(_mm256_load_si256(pvHt+(segLen-1)), 4);
-        vHt = _mm256_insert_epi32(vHt, boundary[j+1], 0);
+        vHt = _mm256_insert_epi32_rpl(vHt, boundary[j+1], 0);
         vFt = _mm256_slli_si256_rpl(vFt, 4);
-        vFt = _mm256_insert_epi32(vFt, NEG_INF, 0);
+        vFt = _mm256_insert_epi32_rpl(vFt, NEG_INF, 0);
         for (i=0; i<segLen; ++i) {
             vFt = _mm256_sub_epi32(vFt, vGapE);
             vFt = _mm256_max_epi32(vFt, vHt);
@@ -374,10 +395,10 @@ parasail_result_t* FNAME(
             vS = _mm256_slli_si256_rpl(vS, 4);
             vL = _mm256_slli_si256_rpl(vL, 4);
         }
-        score = (int32_t) _mm256_extract_epi32 (vH, 7);
-        matches = (int32_t) _mm256_extract_epi32 (vM, 7);
-        similar = (int32_t) _mm256_extract_epi32 (vS, 7);
-        length = (int32_t) _mm256_extract_epi32 (vL, 7);
+        score = (int32_t) _mm256_extract_epi32_rpl (vH, 7);
+        matches = (int32_t) _mm256_extract_epi32_rpl (vM, 7);
+        similar = (int32_t) _mm256_extract_epi32_rpl (vS, 7);
+        length = (int32_t) _mm256_extract_epi32_rpl (vL, 7);
     }
 
     

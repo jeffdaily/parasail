@@ -22,6 +22,27 @@
 
 #define _mm256_cmplt_epi16_rpl(a,b) _mm256_cmpgt_epi16(b,a)
 
+#if HAVE_AVX2_MM256_INSERT_EPI16
+#define _mm256_insert_epi16_rpl _mm256_insert_epi16
+#else
+static inline __m256i _mm256_insert_epi16_rpl(__m256i a, int16_t i, int imm) {
+    __m256i_16_t A;
+    A.m = a;
+    A.v[imm] = i;
+    return A.m;
+}
+#endif
+
+#if HAVE_AVX2_MM256_EXTRACT_EPI16
+#define _mm256_extract_epi16_rpl _mm256_extract_epi16
+#else
+static inline int16_t _mm256_extract_epi16_rpl(__m256i a, int imm) {
+    __m256i_16_t A;
+    A.m = a;
+    return A.v[imm];
+}
+#endif
+
 #define _mm256_slli_si256_rpl(a,imm) _mm256_alignr_epi8(a, _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,3,0)), 16-imm)
 
 
@@ -34,22 +55,22 @@ static inline void arr_store_si256(
         int32_t d,
         int32_t dlen)
 {
-    array[( 0*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16(vH,  0);
-    array[( 1*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16(vH,  1);
-    array[( 2*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16(vH,  2);
-    array[( 3*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16(vH,  3);
-    array[( 4*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16(vH,  4);
-    array[( 5*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16(vH,  5);
-    array[( 6*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16(vH,  6);
-    array[( 7*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16(vH,  7);
-    array[( 8*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16(vH,  8);
-    array[( 9*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16(vH,  9);
-    array[(10*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16(vH, 10);
-    array[(11*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16(vH, 11);
-    array[(12*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16(vH, 12);
-    array[(13*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16(vH, 13);
-    array[(14*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16(vH, 14);
-    array[(15*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16(vH, 15);
+    array[( 0*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16_rpl(vH,  0);
+    array[( 1*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16_rpl(vH,  1);
+    array[( 2*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16_rpl(vH,  2);
+    array[( 3*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16_rpl(vH,  3);
+    array[( 4*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16_rpl(vH,  4);
+    array[( 5*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16_rpl(vH,  5);
+    array[( 6*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16_rpl(vH,  6);
+    array[( 7*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16_rpl(vH,  7);
+    array[( 8*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16_rpl(vH,  8);
+    array[( 9*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16_rpl(vH,  9);
+    array[(10*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16_rpl(vH, 10);
+    array[(11*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16_rpl(vH, 11);
+    array[(12*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16_rpl(vH, 12);
+    array[(13*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16_rpl(vH, 13);
+    array[(14*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16_rpl(vH, 14);
+    array[(15*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16_rpl(vH, 15);
 }
 #endif
 
@@ -195,7 +216,7 @@ parasail_result_t* FNAME(
         vHL = _mm256_slli_si256_rpl(pvHLStore[segLen - 1], 2);
 
         /* insert upper boundary condition */
-        vH = _mm256_insert_epi16(vH, boundary[j], 0);
+        vH = _mm256_insert_epi16_rpl(vH, boundary[j], 0);
 
         /* Correct part of the vProfile */
         vP = vProfile + matrix->mapper[(unsigned char)s2[j]] * segLen;
@@ -310,7 +331,7 @@ parasail_result_t* FNAME(
             int64_t tmp = boundary[j+1]-open;
             int16_t tmp2 = tmp < INT16_MIN ? INT16_MIN : tmp;
             vF = _mm256_slli_si256_rpl(vF, 2);
-            vF = _mm256_insert_epi16(vF, tmp2, 0);
+            vF = _mm256_insert_epi16_rpl(vF, tmp2, 0);
             vFM = _mm256_slli_si256_rpl(vFM, 2);
             vFS = _mm256_slli_si256_rpl(vFS, 2);
             vFL = _mm256_slli_si256_rpl(vFL, 2);
@@ -380,10 +401,10 @@ end:
             vHS = _mm256_slli_si256_rpl (vHS, 2);
             vHL = _mm256_slli_si256_rpl (vHL, 2);
         }
-        score = (int16_t) _mm256_extract_epi16 (vH, 15);
-        matches = (int16_t) _mm256_extract_epi16 (vHM, 15);
-        similar = (int16_t) _mm256_extract_epi16 (vHS, 15);
-        length = (int16_t) _mm256_extract_epi16 (vHL, 15);
+        score = (int16_t) _mm256_extract_epi16_rpl (vH, 15);
+        matches = (int16_t) _mm256_extract_epi16_rpl (vHM, 15);
+        similar = (int16_t) _mm256_extract_epi16_rpl (vHS, 15);
+        length = (int16_t) _mm256_extract_epi16_rpl (vHL, 15);
     }
 
     

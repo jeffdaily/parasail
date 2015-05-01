@@ -4938,6 +4938,8 @@ if ${pt_cv_sse2+:} false; then :
 else
   save_CFLAGS="$CFLAGS"
      CFLAGS="$SSE2_CFLAGS $CFLAGS"
+     ac_save_c_werror_flag=$ac_c_werror_flag
+     ac_c_werror_flag=yes
      cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -4957,6 +4959,7 @@ else
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
+     ac_c_werror_flag=$ac_save_c_werror_flag
      CFLAGS="$save_CFLAGS"
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $pt_cv_sse2" >&5
@@ -4982,6 +4985,8 @@ if ${pt_cv_sse41+:} false; then :
 else
   save_CFLAGS="$CFLAGS"
      CFLAGS="$SSE41_CFLAGS $CFLAGS"
+     ac_save_c_werror_flag=$ac_c_werror_flag
+     ac_c_werror_flag=yes
      cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -5002,6 +5007,7 @@ else
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
+     ac_c_werror_flag=$ac_save_c_werror_flag
      CFLAGS="$save_CFLAGS"
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $pt_cv_sse41" >&5
@@ -5036,6 +5042,8 @@ if ${pt_cv_avx2+:} false; then :
 else
   save_CFLAGS="$CFLAGS"
      CFLAGS="$AVX2_CFLAGS $CFLAGS"
+     ac_save_c_werror_flag=$ac_c_werror_flag
+     ac_c_werror_flag=yes
      cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -5056,6 +5064,7 @@ else
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
+     ac_c_werror_flag=$ac_save_c_werror_flag
      CFLAGS="$save_CFLAGS"
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $pt_cv_avx2" >&5
@@ -5074,6 +5083,45 @@ else
 fi
 
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for AVX2 _mm256_insert_epi64" >&5
+$as_echo_n "checking for AVX2 _mm256_insert_epi64... " >&6; }
+if ${pt_cv_avx2_mm256_insert_epi64+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  save_CFLAGS="$CFLAGS"
+     CFLAGS="$AVX2_CFLAGS $CFLAGS"
+     ac_save_c_werror_flag=$ac_c_werror_flag
+     ac_c_werror_flag=yes
+     cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#include <stdint.h>
+#include <immintrin.h>
+__m256i foo() {
+    __m256i vOne = _mm256_set1_epi8(1);
+    return _mm256_insert_epi64(vOne,INT64_MIN,0);
+}
+
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  pt_cv_avx2_mm256_insert_epi64=yes;
+         pt_cv_avx2_mm256_insert_epi64_val=1
+else
+  pt_cv_avx2_mm256_insert_epi64=no;
+         pt_cv_avx2_mm256_insert_epi64_val=0
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+     ac_c_werror_flag=$ac_save_c_werror_flag
+     CFLAGS="$save_CFLAGS"
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $pt_cv_avx2_mm256_insert_epi64" >&5
+$as_echo "$pt_cv_avx2_mm256_insert_epi64" >&6; }
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_AVX2_MM256_INSERT_EPI64 $pt_cv_avx2_mm256_insert_epi64_val
+_ACEOF
+
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for AVX2 _mm256_insert_epi32" >&5
 $as_echo_n "checking for AVX2 _mm256_insert_epi32... " >&6; }
 if ${pt_cv_avx2_mm256_insert_epi32+:} false; then :
@@ -5081,13 +5129,16 @@ if ${pt_cv_avx2_mm256_insert_epi32+:} false; then :
 else
   save_CFLAGS="$CFLAGS"
      CFLAGS="$AVX2_CFLAGS $CFLAGS"
+     ac_save_c_werror_flag=$ac_c_werror_flag
+     ac_c_werror_flag=yes
      cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
+#include <stdint.h>
 #include <immintrin.h>
 __m256i foo() {
     __m256i vOne = _mm256_set1_epi8(1);
-    return _mm256_insert_epi32(vOne,99,0);
+    return _mm256_insert_epi32(vOne,INT32_MIN,0);
 }
 
 _ACEOF
@@ -5099,6 +5150,7 @@ else
          pt_cv_avx2_mm256_insert_epi32_val=0
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+     ac_c_werror_flag=$ac_save_c_werror_flag
      CFLAGS="$save_CFLAGS"
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $pt_cv_avx2_mm256_insert_epi32" >&5
@@ -5116,13 +5168,16 @@ if ${pt_cv_avx2_mm256_insert_epi16+:} false; then :
 else
   save_CFLAGS="$CFLAGS"
      CFLAGS="$AVX2_CFLAGS $CFLAGS"
+     ac_save_c_werror_flag=$ac_c_werror_flag
+     ac_c_werror_flag=yes
      cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
+#include <stdint.h>
 #include <immintrin.h>
 __m256i foo() {
     __m256i vZero = _mm256_set1_epi8(0);
-    return _mm256_insert_epi16(vZero,99,0);
+    return _mm256_insert_epi16(vZero,INT16_MIN,0);
 }
 
 _ACEOF
@@ -5134,6 +5189,7 @@ else
          pt_cv_avx2_mm256_insert_epi16_val=0
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+     ac_c_werror_flag=$ac_save_c_werror_flag
      CFLAGS="$save_CFLAGS"
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $pt_cv_avx2_mm256_insert_epi16" >&5
@@ -5151,13 +5207,16 @@ if ${pt_cv_avx2_mm256_insert_epi8+:} false; then :
 else
   save_CFLAGS="$CFLAGS"
      CFLAGS="$AVX2_CFLAGS $CFLAGS"
+     ac_save_c_werror_flag=$ac_c_werror_flag
+     ac_c_werror_flag=yes
      cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
+#include <stdint.h>
 #include <immintrin.h>
 __m256i foo() {
     __m256i vZero = _mm256_set1_epi8(0);
-    return _mm256_insert_epi8(vZero,99,0);
+    return _mm256_insert_epi8(vZero,INT8_MIN,0);
 }
 
 _ACEOF
@@ -5169,6 +5228,7 @@ else
          pt_cv_avx2_mm256_insert_epi8_val=0
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+     ac_c_werror_flag=$ac_save_c_werror_flag
      CFLAGS="$save_CFLAGS"
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $pt_cv_avx2_mm256_insert_epi8" >&5
@@ -5179,6 +5239,47 @@ cat >>confdefs.h <<_ACEOF
 _ACEOF
 
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for AVX2 _mm256_extract_epi64" >&5
+$as_echo_n "checking for AVX2 _mm256_extract_epi64... " >&6; }
+if ${pt_cv_avx2_mm256_extract_epi64+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  save_CFLAGS="$CFLAGS"
+     CFLAGS="$AVX2_CFLAGS $CFLAGS"
+     ac_save_c_werror_flag=$ac_c_werror_flag
+     ac_c_werror_flag=yes
+     cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#include <stdint.h>
+#include <immintrin.h>
+int64_t foo() {
+    __m256i vZero = _mm256_set1_epi8(0);
+    return _mm256_extract_epi64(vZero,0);
+}
+int main(int argc, char **argv) { return foo(); }
+
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  pt_cv_avx2_mm256_extract_epi64=yes;
+         pt_cv_avx2_mm256_extract_epi64_val=1
+else
+  pt_cv_avx2_mm256_extract_epi64=no;
+         pt_cv_avx2_mm256_extract_epi64_val=0
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+     ac_c_werror_flag=$ac_save_c_werror_flag
+     CFLAGS="$save_CFLAGS"
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $pt_cv_avx2_mm256_extract_epi64" >&5
+$as_echo "$pt_cv_avx2_mm256_extract_epi64" >&6; }
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_AVX2_MM256_EXTRACT_EPI64 $pt_cv_avx2_mm256_extract_epi64_val
+_ACEOF
+
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for AVX2 _mm256_extract_epi32" >&5
 $as_echo_n "checking for AVX2 _mm256_extract_epi32... " >&6; }
 if ${pt_cv_avx2_mm256_extract_epi32+:} false; then :
@@ -5186,6 +5287,8 @@ if ${pt_cv_avx2_mm256_extract_epi32+:} false; then :
 else
   save_CFLAGS="$CFLAGS"
      CFLAGS="$AVX2_CFLAGS $CFLAGS"
+     ac_save_c_werror_flag=$ac_c_werror_flag
+     ac_c_werror_flag=yes
      cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -5207,6 +5310,7 @@ else
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
+     ac_c_werror_flag=$ac_save_c_werror_flag
      CFLAGS="$save_CFLAGS"
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $pt_cv_avx2_mm256_extract_epi32" >&5
@@ -5224,6 +5328,8 @@ if ${pt_cv_avx2_mm256_extract_epi16+:} false; then :
 else
   save_CFLAGS="$CFLAGS"
      CFLAGS="$AVX2_CFLAGS $CFLAGS"
+     ac_save_c_werror_flag=$ac_c_werror_flag
+     ac_c_werror_flag=yes
      cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -5245,6 +5351,7 @@ else
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
+     ac_c_werror_flag=$ac_save_c_werror_flag
      CFLAGS="$save_CFLAGS"
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $pt_cv_avx2_mm256_extract_epi16" >&5
@@ -5262,6 +5369,8 @@ if ${pt_cv_avx2_mm256_extract_epi8+:} false; then :
 else
   save_CFLAGS="$CFLAGS"
      CFLAGS="$AVX2_CFLAGS $CFLAGS"
+     ac_save_c_werror_flag=$ac_c_werror_flag
+     ac_c_werror_flag=yes
      cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -5283,6 +5392,7 @@ else
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
+     ac_c_werror_flag=$ac_save_c_werror_flag
      CFLAGS="$save_CFLAGS"
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $pt_cv_avx2_mm256_extract_epi8" >&5

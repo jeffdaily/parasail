@@ -20,6 +20,27 @@
 
 #define NEG_INF (INT16_MIN/(int16_t)(2))
 
+#if HAVE_AVX2_MM256_INSERT_EPI16
+#define _mm256_insert_epi16_rpl _mm256_insert_epi16
+#else
+static inline __m256i _mm256_insert_epi16_rpl(__m256i a, int16_t i, int imm) {
+    __m256i_16_t A;
+    A.m = a;
+    A.v[imm] = i;
+    return A.m;
+}
+#endif
+
+#if HAVE_AVX2_MM256_EXTRACT_EPI16
+#define _mm256_extract_epi16_rpl _mm256_extract_epi16
+#else
+static inline int16_t _mm256_extract_epi16_rpl(__m256i a, int imm) {
+    __m256i_16_t A;
+    A.m = a;
+    return A.v[imm];
+}
+#endif
+
 #define _mm256_slli_si256_rpl(a,imm) _mm256_alignr_epi8(a, _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,3,0)), 16-imm)
 
 
@@ -33,22 +54,22 @@ static inline void arr_store_si256(
         int32_t dlen,
         int32_t bias)
 {
-    array[( 0*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16(vH,  0) - bias;
-    array[( 1*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16(vH,  1) - bias;
-    array[( 2*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16(vH,  2) - bias;
-    array[( 3*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16(vH,  3) - bias;
-    array[( 4*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16(vH,  4) - bias;
-    array[( 5*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16(vH,  5) - bias;
-    array[( 6*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16(vH,  6) - bias;
-    array[( 7*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16(vH,  7) - bias;
-    array[( 8*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16(vH,  8) - bias;
-    array[( 9*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16(vH,  9) - bias;
-    array[(10*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16(vH, 10) - bias;
-    array[(11*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16(vH, 11) - bias;
-    array[(12*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16(vH, 12) - bias;
-    array[(13*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16(vH, 13) - bias;
-    array[(14*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16(vH, 14) - bias;
-    array[(15*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16(vH, 15) - bias;
+    array[( 0*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16_rpl(vH,  0) - bias;
+    array[( 1*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16_rpl(vH,  1) - bias;
+    array[( 2*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16_rpl(vH,  2) - bias;
+    array[( 3*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16_rpl(vH,  3) - bias;
+    array[( 4*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16_rpl(vH,  4) - bias;
+    array[( 5*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16_rpl(vH,  5) - bias;
+    array[( 6*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16_rpl(vH,  6) - bias;
+    array[( 7*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16_rpl(vH,  7) - bias;
+    array[( 8*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16_rpl(vH,  8) - bias;
+    array[( 9*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16_rpl(vH,  9) - bias;
+    array[(10*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16_rpl(vH, 10) - bias;
+    array[(11*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16_rpl(vH, 11) - bias;
+    array[(12*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16_rpl(vH, 12) - bias;
+    array[(13*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16_rpl(vH, 13) - bias;
+    array[(14*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16_rpl(vH, 14) - bias;
+    array[(15*seglen+t)*dlen + d] = (int16_t)_mm256_extract_epi16_rpl(vH, 15) - bias;
 }
 #endif
 
@@ -130,7 +151,7 @@ parasail_result_t* FNAME(
 
         /* load final segment of pvHStore and shift left by 2 bytes */
         __m256i vH = _mm256_slli_si256_rpl(pvHStore[segLen - 1], 2);
-        vH = _mm256_insert_epi16(vH, bias, 0);
+        vH = _mm256_insert_epi16_rpl(vH, bias, 0);
 
         /* Correct part of the vProfile */
         const __m256i* vP = vProfile + matrix->mapper[(unsigned char)s2[j]] * segLen;
@@ -173,7 +194,7 @@ parasail_result_t* FNAME(
          * then deletion, so don't update E(i, i), learn from SWPS3 */
         for (k=0; k<segWidth; ++k) {
             vF = _mm256_slli_si256_rpl(vF, 2);
-            vF = _mm256_insert_epi16(vF, bias, 0);
+            vF = _mm256_insert_epi16_rpl(vF, bias, 0);
             for (i=0; i<segLen; ++i) {
                 vH = _mm256_load_si256(pvHStore + i);
                 vH = _mm256_max_epi16(vH,vF);
@@ -195,7 +216,7 @@ end:
 
     /* max in vec */
     for (j=0; j<segWidth; ++j) {
-        int16_t value = (int16_t) _mm256_extract_epi16(vMaxH, 15);
+        int16_t value = (int16_t) _mm256_extract_epi16_rpl(vMaxH, 15);
         if (value > score) {
             score = value;
         }

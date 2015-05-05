@@ -14,6 +14,8 @@
 
 #include <immintrin.h>
 
+#include "parasail.h"
+
 typedef union __m256i_8 {
     __m256i m;
     int8_t v[32];
@@ -34,7 +36,10 @@ typedef union __m256i_64 {
     int64_t v[4];
 } __m256i_64_t;
 
+extern PARASAIL_LOCAL
 __m256i * parasail_memalign___m256i(size_t alignment, size_t size);
+
+extern PARASAIL_LOCAL
 void parasail_memset___m256i(__m256i *b, __m256i c, size_t len);
 
 #endif /* _PARASAIL_INTERNAL_AVX_H_ */

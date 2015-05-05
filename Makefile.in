@@ -1025,6 +1025,7 @@ ACLOCAL = @ACLOCAL@
 AMTAR = @AMTAR@
 AM_DEFAULT_VERBOSITY = @AM_DEFAULT_VERBOSITY@
 AR = @AR@
+AS = @AS@
 AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
@@ -1096,6 +1097,7 @@ SSE2_CFLAGS = @SSE2_CFLAGS@
 SSE41_CFLAGS = @SSE41_CFLAGS@
 STRIP = @STRIP@
 VERSION = @VERSION@
+VISIBILITY_CFLAGS = @VISIBILITY_CFLAGS@
 Z_LIBS = @Z_LIBS@
 abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
@@ -1193,12 +1195,14 @@ noinst_LTLIBRARIES = libparasail_novec.la libparasail_novec_table.la \
 	$(am__append_1) $(am__append_2) $(am__append_3) \
 	$(am__append_4) $(am__append_5)
 check_LTLIBRARIES = $(am__append_11) tests/libsais.la
-AM_CFLAGS = 
+AM_CFLAGS = $(VISIBILITY_FLAGS)
 AM_CPPFLAGS = -I$(top_srcdir)/contrib \
 	-I$(top_srcdir)/contrib/sais-lite-lcp
 AM_LDFLAGS = 
 LDADD = libparasail.la $(CLOCK_LIBS) $(MATH_LIBS) $(Z_LIBS)
-libparasail_la_LDFLAGS = $(AM_LDFLAGS) -version-info @LTVER@
+@ON_MINGW_FALSE@libparasail_la_LDFLAGS = $(AM_LDFLAGS) -version-info @LTVER@
+@ON_MINGW_TRUE@libparasail_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined -avoid-version -version-info @LTVER@
+EXTRA_DIST = version.sh
 
 #################
 # core sources
@@ -1209,9 +1213,9 @@ SRC_CORE = src/cpuid.c src/function_lookup.c src/memory.c src/time.c \
 #################
 # vector memory
 #################
-MEM_SRC_SSE = src/memory_sse.c
-MEM_SRC_AVX2 = src/memory_avx2.c
-MEM_SRC_KNC = src/memory_knc.c
+MEM_SRC_SSE = src/memory_sse.c parasail/internal_sse.h
+MEM_SRC_AVX2 = src/memory_avx2.c parasail/internal_avx.h
+MEM_SRC_KNC = src/memory_knc.c parasail/internal_knc.h
 
 #################
 # serial methods

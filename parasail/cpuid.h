@@ -10,13 +10,15 @@
 #ifndef _PARASAIL_CPUID_H_
 #define _PARASAIL_CPUID_H_
 
+#include "parasail.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-int parasail_can_use_avx2();
-int parasail_can_use_sse41();
-int parasail_can_use_sse2();
+extern PARASAIL_API int parasail_can_use_avx2();
+extern PARASAIL_API int parasail_can_use_sse41();
+extern PARASAIL_API int parasail_can_use_sse2();
 
 #ifdef __cplusplus
 }

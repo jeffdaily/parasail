@@ -147,6 +147,7 @@ const parasail_matrix_t * parasail_matrices[] = {
     NULL
 };
 
+extern PARASAIL_API
 const parasail_matrix_t* parasail_matrix_lookup(const char *matrixname)
 {
     const parasail_matrix_t *matrix = NULL;

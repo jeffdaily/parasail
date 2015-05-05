@@ -101,7 +101,7 @@ AC_CACHE_CHECK([for SSE2],
     [pt_cv_sse2],
     [save_CFLAGS="$CFLAGS"
      CFLAGS="$SSE2_CFLAGS $CFLAGS"
-     ac_save_c_werror_flag=$ac_c_werror_flag
+     psl_save_c_werror_flag=$ac_c_werror_flag
      ac_c_werror_flag=yes
      AC_LINK_IFELSE([AC_LANG_SOURCE([[
 #include <emmintrin.h>
@@ -114,7 +114,7 @@ int main(int argc, char **argv) { return foo(); }
 ]])],
         [pt_cv_sse2=yes; pt_cv_sse2_val=1],
         [pt_cv_sse2=no; pt_cv_sse2_val=0])
-     ac_c_werror_flag=$ac_save_c_werror_flag
+     ac_c_werror_flag=$psl_save_c_werror_flag
      CFLAGS="$save_CFLAGS"])
 AC_DEFINE_UNQUOTED([HAVE_SSE2], [$pt_cv_sse2_val],
     [define to 1 if the C compiler supports SSE2])
@@ -124,7 +124,7 @@ AC_CACHE_CHECK([for SSE4.1],
     [pt_cv_sse41],
     [save_CFLAGS="$CFLAGS"
      CFLAGS="$SSE41_CFLAGS $CFLAGS"
-     ac_save_c_werror_flag=$ac_c_werror_flag
+     psl_save_c_werror_flag=$ac_c_werror_flag
      ac_c_werror_flag=yes
      AC_LINK_IFELSE([AC_LANG_SOURCE([[
 #include <smmintrin.h>
@@ -138,7 +138,7 @@ int main(int argc, char **argv) { return foo(); }
 ]])],
         [pt_cv_sse41=yes; pt_cv_sse41_val=1],
         [pt_cv_sse41=no; pt_cv_sse41_val=0])
-     ac_c_werror_flag=$ac_save_c_werror_flag
+     ac_c_werror_flag=$psl_save_c_werror_flag
      CFLAGS="$save_CFLAGS"])
 AC_DEFINE_UNQUOTED([HAVE_SSE41], [$pt_cv_sse41_val],
     [define to 1 if the C compiler supports SSE4.1])
@@ -150,7 +150,7 @@ AC_CACHE_CHECK([for AVX2],
     [pt_cv_avx2],
     [save_CFLAGS="$CFLAGS"
      CFLAGS="$AVX2_CFLAGS $CFLAGS"
-     ac_save_c_werror_flag=$ac_c_werror_flag
+     psl_save_c_werror_flag=$ac_c_werror_flag
      ac_c_werror_flag=yes
      AC_LINK_IFELSE([AC_LANG_SOURCE([[
 #include <immintrin.h>
@@ -164,7 +164,7 @@ int main(int argc, char **argv) { return foo(); }
 ]])],
         [pt_cv_avx2=yes; pt_cv_avx2_val=1],
         [pt_cv_avx2=no; pt_cv_avx2_val=0])
-     ac_c_werror_flag=$ac_save_c_werror_flag
+     ac_c_werror_flag=$psl_save_c_werror_flag
      CFLAGS="$save_CFLAGS"])
 AC_DEFINE_UNQUOTED([HAVE_AVX2], [$pt_cv_avx2_val],
     [define to 1 if the C compiler supports AVX2])
@@ -174,7 +174,7 @@ AC_CACHE_CHECK([for AVX2 _mm256_insert_epi64],
     [pt_cv_avx2_mm256_insert_epi64],
     [save_CFLAGS="$CFLAGS"
      CFLAGS="$AVX2_CFLAGS $CFLAGS"
-     ac_save_c_werror_flag=$ac_c_werror_flag
+     psl_save_c_werror_flag=$ac_c_werror_flag
      ac_c_werror_flag=yes
      AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
 #include <stdint.h>
@@ -188,7 +188,7 @@ __m256i foo() {
          pt_cv_avx2_mm256_insert_epi64_val=1],
         [pt_cv_avx2_mm256_insert_epi64=no;
          pt_cv_avx2_mm256_insert_epi64_val=0])
-     ac_c_werror_flag=$ac_save_c_werror_flag
+     ac_c_werror_flag=$psl_save_c_werror_flag
      CFLAGS="$save_CFLAGS"])
 AC_DEFINE_UNQUOTED([HAVE_AVX2_MM256_INSERT_EPI64],
     [$pt_cv_avx2_mm256_insert_epi64_val],
@@ -198,7 +198,7 @@ AC_CACHE_CHECK([for AVX2 _mm256_insert_epi32],
     [pt_cv_avx2_mm256_insert_epi32],
     [save_CFLAGS="$CFLAGS"
      CFLAGS="$AVX2_CFLAGS $CFLAGS"
-     ac_save_c_werror_flag=$ac_c_werror_flag
+     psl_save_c_werror_flag=$ac_c_werror_flag
      ac_c_werror_flag=yes
      AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
 #include <stdint.h>
@@ -212,7 +212,7 @@ __m256i foo() {
          pt_cv_avx2_mm256_insert_epi32_val=1],
         [pt_cv_avx2_mm256_insert_epi32=no;
          pt_cv_avx2_mm256_insert_epi32_val=0])
-     ac_c_werror_flag=$ac_save_c_werror_flag
+     ac_c_werror_flag=$psl_save_c_werror_flag
      CFLAGS="$save_CFLAGS"])
 AC_DEFINE_UNQUOTED([HAVE_AVX2_MM256_INSERT_EPI32],
     [$pt_cv_avx2_mm256_insert_epi32_val],
@@ -222,7 +222,7 @@ AC_CACHE_CHECK([for AVX2 _mm256_insert_epi16],
     [pt_cv_avx2_mm256_insert_epi16],
     [save_CFLAGS="$CFLAGS"
      CFLAGS="$AVX2_CFLAGS $CFLAGS"
-     ac_save_c_werror_flag=$ac_c_werror_flag
+     psl_save_c_werror_flag=$ac_c_werror_flag
      ac_c_werror_flag=yes
      AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
 #include <stdint.h>
@@ -236,7 +236,7 @@ __m256i foo() {
          pt_cv_avx2_mm256_insert_epi16_val=1],
         [pt_cv_avx2_mm256_insert_epi16=no;
          pt_cv_avx2_mm256_insert_epi16_val=0])
-     ac_c_werror_flag=$ac_save_c_werror_flag
+     ac_c_werror_flag=$psl_save_c_werror_flag
      CFLAGS="$save_CFLAGS"])
 AC_DEFINE_UNQUOTED([HAVE_AVX2_MM256_INSERT_EPI16],
     [$pt_cv_avx2_mm256_insert_epi16_val],
@@ -246,7 +246,7 @@ AC_CACHE_CHECK([for AVX2 _mm256_insert_epi8],
     [pt_cv_avx2_mm256_insert_epi8],
     [save_CFLAGS="$CFLAGS"
      CFLAGS="$AVX2_CFLAGS $CFLAGS"
-     ac_save_c_werror_flag=$ac_c_werror_flag
+     psl_save_c_werror_flag=$ac_c_werror_flag
      ac_c_werror_flag=yes
      AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
 #include <stdint.h>
@@ -260,7 +260,7 @@ __m256i foo() {
          pt_cv_avx2_mm256_insert_epi8_val=1],
         [pt_cv_avx2_mm256_insert_epi8=no;
          pt_cv_avx2_mm256_insert_epi8_val=0])
-     ac_c_werror_flag=$ac_save_c_werror_flag
+     ac_c_werror_flag=$psl_save_c_werror_flag
      CFLAGS="$save_CFLAGS"])
 AC_DEFINE_UNQUOTED([HAVE_AVX2_MM256_INSERT_EPI8],
     [$pt_cv_avx2_mm256_insert_epi8_val],
@@ -270,7 +270,7 @@ AC_CACHE_CHECK([for AVX2 _mm256_extract_epi64],
     [pt_cv_avx2_mm256_extract_epi64],
     [save_CFLAGS="$CFLAGS"
      CFLAGS="$AVX2_CFLAGS $CFLAGS"
-     ac_save_c_werror_flag=$ac_c_werror_flag
+     psl_save_c_werror_flag=$ac_c_werror_flag
      ac_c_werror_flag=yes
      AC_LINK_IFELSE([AC_LANG_SOURCE([[
 #include <stdint.h>
@@ -285,7 +285,7 @@ int main(int argc, char **argv) { return foo(); }
          pt_cv_avx2_mm256_extract_epi64_val=1],
         [pt_cv_avx2_mm256_extract_epi64=no;
          pt_cv_avx2_mm256_extract_epi64_val=0])
-     ac_c_werror_flag=$ac_save_c_werror_flag
+     ac_c_werror_flag=$psl_save_c_werror_flag
      CFLAGS="$save_CFLAGS"])
 AC_DEFINE_UNQUOTED([HAVE_AVX2_MM256_EXTRACT_EPI64],
     [$pt_cv_avx2_mm256_extract_epi64_val],
@@ -295,7 +295,7 @@ AC_CACHE_CHECK([for AVX2 _mm256_extract_epi32],
     [pt_cv_avx2_mm256_extract_epi32],
     [save_CFLAGS="$CFLAGS"
      CFLAGS="$AVX2_CFLAGS $CFLAGS"
-     ac_save_c_werror_flag=$ac_c_werror_flag
+     psl_save_c_werror_flag=$ac_c_werror_flag
      ac_c_werror_flag=yes
      AC_LINK_IFELSE([AC_LANG_SOURCE([[
 #include <stdint.h>
@@ -310,7 +310,7 @@ int main(int argc, char **argv) { return foo(); }
          pt_cv_avx2_mm256_extract_epi32_val=1],
         [pt_cv_avx2_mm256_extract_epi32=no;
          pt_cv_avx2_mm256_extract_epi32_val=0])
-     ac_c_werror_flag=$ac_save_c_werror_flag
+     ac_c_werror_flag=$psl_save_c_werror_flag
      CFLAGS="$save_CFLAGS"])
 AC_DEFINE_UNQUOTED([HAVE_AVX2_MM256_EXTRACT_EPI32],
     [$pt_cv_avx2_mm256_extract_epi32_val],
@@ -320,7 +320,7 @@ AC_CACHE_CHECK([for AVX2 _mm256_extract_epi16],
     [pt_cv_avx2_mm256_extract_epi16],
     [save_CFLAGS="$CFLAGS"
      CFLAGS="$AVX2_CFLAGS $CFLAGS"
-     ac_save_c_werror_flag=$ac_c_werror_flag
+     psl_save_c_werror_flag=$ac_c_werror_flag
      ac_c_werror_flag=yes
      AC_LINK_IFELSE([AC_LANG_SOURCE([[
 #include <stdint.h>
@@ -335,7 +335,7 @@ int main(int argc, char **argv) { return foo(); }
          pt_cv_avx2_mm256_extract_epi16_val=1],
         [pt_cv_avx2_mm256_extract_epi16=no;
          pt_cv_avx2_mm256_extract_epi16_val=0])
-     ac_c_werror_flag=$ac_save_c_werror_flag
+     ac_c_werror_flag=$psl_save_c_werror_flag
      CFLAGS="$save_CFLAGS"])
 AC_DEFINE_UNQUOTED([HAVE_AVX2_MM256_EXTRACT_EPI16],
     [$pt_cv_avx2_mm256_extract_epi16_val],
@@ -345,7 +345,7 @@ AC_CACHE_CHECK([for AVX2 _mm256_extract_epi8],
     [pt_cv_avx2_mm256_extract_epi8],
     [save_CFLAGS="$CFLAGS"
      CFLAGS="$AVX2_CFLAGS $CFLAGS"
-     ac_save_c_werror_flag=$ac_c_werror_flag
+     psl_save_c_werror_flag=$ac_c_werror_flag
      ac_c_werror_flag=yes
      AC_LINK_IFELSE([AC_LANG_SOURCE([[
 #include <stdint.h>
@@ -360,7 +360,7 @@ int main(int argc, char **argv) { return foo(); }
          pt_cv_avx2_mm256_extract_epi8_val=1],
         [pt_cv_avx2_mm256_extract_epi8=no;
          pt_cv_avx2_mm256_extract_epi8_val=0])
-     ac_c_werror_flag=$ac_save_c_werror_flag
+     ac_c_werror_flag=$psl_save_c_werror_flag
      CFLAGS="$save_CFLAGS"])
 AC_DEFINE_UNQUOTED([HAVE_AVX2_MM256_EXTRACT_EPI8],
     [$pt_cv_avx2_mm256_extract_epi8_val],
@@ -412,31 +412,86 @@ AC_CHECK_FUNCS([_mm_malloc])
 parasail_save_LIBS="$LIBS"
 AC_SEARCH_LIBS([clock_gettime], [rt])
 LIBS="$parasail_save_LIBS"
-AS_CASE(["$ac_cv_search_clock_gettime"],
+AS_CASE(["$psl_cv_search_clock_gettime"],
         [*none*], [],
         [*no*], [],
-        [CLOCK_LIBS="$ac_cv_search_clock_gettime"])
+        [CLOCK_LIBS="$psl_cv_search_clock_gettime"])
 AC_SUBST([CLOCK_LIBS])
 
 parasail_save_LIBS="$LIBS"
 AC_SEARCH_LIBS([sqrt], [m])
 LIBS="$parasail_save_LIBS"
-AS_CASE(["$ac_cv_search_sqrt"],
+AS_CASE(["$psl_cv_search_sqrt"],
         [*none*], [],
         [*no*], [],
-        [MATH_LIBS="$ac_cv_search_sqrt"])
+        [MATH_LIBS="$psl_cv_search_sqrt"])
 AC_SUBST([MATH_LIBS])
 
 parasail_save_LIBS="$LIBS"
 AC_CHECK_HEADERS([zlib.h])
 AC_SEARCH_LIBS([gzopen], [z])
 LIBS="$parasail_save_LIBS"
-AS_CASE(["$ac_cv_search_gzopen"],
+AS_CASE(["$psl_cv_search_gzopen"],
         [*none*], [],
         [*no*], [],
-        [Z_LIBS="$ac_cv_search_gzopen"])
+        [Z_LIBS="$psl_cv_search_gzopen"])
 AC_SUBST([Z_LIBS])
-AM_CONDITIONAL([HAVE_ZLIB], [test "x$ac_cv_search_gzopen" != xno && test "x$ac_cv_header_zlib_h" = xyes])
+AM_CONDITIONAL([HAVE_ZLIB], [test "x$psl_cv_search_gzopen" != xno && test "x$psl_cv_header_zlib_h" = xyes])
+
+# For host type checks
+AC_CANONICAL_HOST
+
+# OS-specific tests
+psl_on_mingw32="no"
+psl_dso_visibility="yes"
+case "${host_os}" in
+    *mingw32*)
+        psl_on_mingw32="yes"
+        psl_dso_visibility="no"
+        if test "x$enable_static" = "xyes"; then
+            AC_MSG_ERROR([Building static libraries is not supported under MinGW32])
+        fi
+        ;;
+    *cygwin*)
+        if test "x$enable_static" = "xyes"; then
+            AC_MSG_ERROR([Building static libraries is not supported under Cygwin])
+        fi
+        ;;
+esac
+
+AM_CONDITIONAL([ON_MINGW], [test "x$psl_on_mingw32" = "xyes"])
+
+#
+# Check if the compiler supports -fvisibility=hidden flag.
+# MinGW32 uses __declspec.
+#
+AC_PROG_GREP
+AC_MSG_CHECKING([whether C compiler supports visibility flag])
+if test "x$psl_dso_visibility" = "xyes"; then
+    psl_save_c_werror_flag=$ac_c_werror_flag
+    for flag in -fvisibility=hidden -xldscope=hidden; do
+        AC_COMPILE_IFELSE(
+            [AC_LANG_PROGRAM()],
+            # This hack exist for ICC, which outputs unknown options as remarks
+            # Remarks are not turned into errors even with -Werror on
+            [if ($GREP 'ignoring unknown' conftest.err ||
+                 $GREP 'not supported' conftest.err) >/dev/null 2>&1; then
+                psl_dso_visibility="no"
+            else
+                psl_dso_visibility="$flag"
+            fi],
+            [psl_dso_visibility="no"])
+        if test "x$psl_dso_visibility" != "xno"; then
+            break
+        fi
+    done
+    ac_c_werror_flag=$psl_save_c_werror_flag
+fi
+AC_MSG_RESULT([$psl_dso_visibility])
+if test "x$psl_dso_visibility" = "xno"; then
+    psl_dso_visibility=
+fi
+AC_SUBST([VISIBILITY_CFLAGS], [$psl_dso_visibility])
 
 ###############################################################################
 # C++ compiler
@@ -467,7 +522,7 @@ AC_MSG_NOTICE
 AC_MSG_NOTICE([Libtool setup])
 AC_MSG_NOTICE
 
-LT_INIT
+LT_INIT([win32-dll])
 
 ###############################################################################
 # The End

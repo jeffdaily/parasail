@@ -14,6 +14,8 @@
 
 #include <emmintrin.h>
 
+#include "parasail.h"
+
 typedef union __m128i_8 {
     __m128i m;
     int8_t v[16];
@@ -34,7 +36,10 @@ typedef union __m128i_64 {
     int64_t v[2];
 } __m128i_64_t;
 
+extern PARASAIL_LOCAL
 __m128i * parasail_memalign___m128i(size_t alignment, size_t size);
+
+extern PARASAIL_LOCAL
 void parasail_memset___m128i(__m128i *b, __m128i c, size_t len);
 
 #endif /* _PARASAIL_INTERNAL_SSE_H_ */

@@ -11,7 +11,17 @@ AM_CFLAGS =
 AM_CPPFLAGS =
 AM_LDFLAGS =
 LDADD = libparasail.la
+
+AM_CFLAGS += $(VISIBILITY_FLAGS)
+
+if ON_MINGW
+libparasail_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined -avoid-version -version-info @LTVER@
+else
 libparasail_la_LDFLAGS = $(AM_LDFLAGS) -version-info @LTVER@
+endif
+
+EXTRA_DIST =
+EXTRA_DIST += version.sh
 
 nobase_include_HEADERS += parasail/cpuid.h
 nobase_include_HEADERS += parasail/function_lookup.h
@@ -140,10 +150,13 @@ SRC_CORE += src/sw_dispatch.c
 #################
 
 MEM_SRC_SSE += src/memory_sse.c
+MEM_SRC_SSE += parasail/internal_sse.h
 
 MEM_SRC_AVX2 += src/memory_avx2.c
+MEM_SRC_AVX2 += parasail/internal_avx.h
 
 MEM_SRC_KNC += src/memory_knc.c
+MEM_SRC_KNC += parasail/internal_knc.h
 
 #################
 # serial methods

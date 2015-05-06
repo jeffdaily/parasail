@@ -164,9 +164,11 @@ am__uninstall_files_from_dir = { \
 am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" \
 	"$(DESTDIR)$(includedir)" "$(DESTDIR)$(includedir)"
 LTLIBRARIES = $(lib_LTLIBRARIES) $(noinst_LTLIBRARIES)
+am__DEPENDENCIES_1 =
 libparasail_la_DEPENDENCIES = libparasail_novec.la \
 	libparasail_novec_table.la $(am__append_6) $(am__append_7) \
-	$(am__append_8) $(am__append_9) $(am__append_10)
+	$(am__append_8) $(am__append_9) $(am__append_10) \
+	$(am__DEPENDENCIES_1)
 am__dirstamp = $(am__leading_dot)dirstamp
 am__objects_1 = src/cpuid.lo src/function_lookup.lo src/memory.lo \
 	src/time.lo src/nw_dispatch.lo src/sg_dispatch.lo \
@@ -802,9 +804,8 @@ PROGRAMS = $(bin_PROGRAMS)
 am_apps_parasail_all_OBJECTS =  \
 	apps/apps_parasail_all-parasail_all.$(OBJEXT)
 apps_parasail_all_OBJECTS = $(am_apps_parasail_all_OBJECTS)
-am__DEPENDENCIES_1 =
 am__DEPENDENCIES_2 = libparasail.la $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1)
 apps_parasail_all_DEPENDENCIES = $(am__DEPENDENCIES_2) \
 	tests/libsais.la
 apps_parasail_all_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
@@ -815,17 +816,17 @@ am_tests_test_align_OBJECTS = tests/test_align.$(OBJEXT)
 tests_test_align_OBJECTS = $(am_tests_test_align_OBJECTS)
 tests_test_align_LDADD = $(LDADD)
 tests_test_align_DEPENDENCIES = libparasail.la $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1)
 am_tests_test_gcups_OBJECTS = tests/test_gcups.$(OBJEXT)
 tests_test_gcups_OBJECTS = $(am_tests_test_gcups_OBJECTS)
 tests_test_gcups_LDADD = $(LDADD)
 tests_test_gcups_DEPENDENCIES = libparasail.la $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1)
 am_tests_test_isa_OBJECTS = tests/test_isa.$(OBJEXT)
 tests_test_isa_OBJECTS = $(am_tests_test_isa_OBJECTS)
 tests_test_isa_LDADD = $(LDADD)
 tests_test_isa_DEPENDENCIES = libparasail.la $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1)
 am_tests_test_openmp_OBJECTS =  \
 	tests/tests_test_openmp-test_openmp.$(OBJEXT)
 tests_test_openmp_OBJECTS = $(am_tests_test_openmp_OBJECTS)
@@ -840,7 +841,7 @@ am_tests_test_query_OBJECTS =  \
 tests_test_query_OBJECTS = $(am_tests_test_query_OBJECTS)
 tests_test_query_LDADD = $(LDADD)
 tests_test_query_DEPENDENCIES = libparasail.la $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1)
 tests_test_query_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(tests_test_query_CFLAGS) $(CFLAGS) \
@@ -858,14 +859,13 @@ am_tests_test_sw_dispatch_OBJECTS = tests/test_sw_dispatch.$(OBJEXT)
 tests_test_sw_dispatch_OBJECTS = $(am_tests_test_sw_dispatch_OBJECTS)
 tests_test_sw_dispatch_LDADD = $(LDADD)
 tests_test_sw_dispatch_DEPENDENCIES = libparasail.la \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 am_tests_test_verify_OBJECTS =  \
 	tests/tests_test_verify-test_verify.$(OBJEXT)
 tests_test_verify_OBJECTS = $(am_tests_test_verify_OBJECTS)
 tests_test_verify_LDADD = $(LDADD)
 tests_test_verify_DEPENDENCIES = libparasail.la $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1)
 tests_test_verify_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(tests_test_verify_CFLAGS) $(CFLAGS) \
@@ -876,8 +876,7 @@ tests_test_verify_tables_OBJECTS =  \
 	$(am_tests_test_verify_tables_OBJECTS)
 tests_test_verify_tables_LDADD = $(LDADD)
 tests_test_verify_tables_DEPENDENCIES = libparasail.la \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 tests_test_verify_tables_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(tests_test_verify_tables_CFLAGS) $(CFLAGS) \
@@ -1199,7 +1198,9 @@ AM_CFLAGS = $(VISIBILITY_FLAGS)
 AM_CPPFLAGS = -I$(top_srcdir)/contrib \
 	-I$(top_srcdir)/contrib/sais-lite-lcp
 AM_LDFLAGS = 
-LDADD = libparasail.la $(CLOCK_LIBS) $(MATH_LIBS) $(Z_LIBS)
+
+#LDADD += $(CLOCK_LIBS)
+LDADD = libparasail.la $(MATH_LIBS) $(Z_LIBS)
 @ON_MINGW_FALSE@libparasail_la_LDFLAGS = $(AM_LDFLAGS) -version-info @LTVER@
 @ON_MINGW_TRUE@libparasail_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined -avoid-version -version-info @LTVER@
 EXTRA_DIST = version.sh
@@ -1488,7 +1489,7 @@ libparasail_avx2_memory_la_CFLAGS = $(AM_CFLAGS) $(AVX2_CFLAGS)
 libparasail_knc_memory_la_CFLAGS = $(AM_CFLAGS)
 libparasail_la_LIBADD = libparasail_novec.la \
 	libparasail_novec_table.la $(am__append_6) $(am__append_7) \
-	$(am__append_8) $(am__append_9) $(am__append_10)
+	$(am__append_8) $(am__append_9) $(am__append_10) $(CLOCK_LIBS)
 @HAVE_SSE2_TRUE@tests_libssw_la_SOURCES = contrib/ssw.c contrib/ssw.h
 tests_libsais_la_SOURCES = contrib/sais-lite-lcp/sais.c \
 	contrib/sais-lite-lcp/sais.h

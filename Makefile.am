@@ -626,6 +626,7 @@ libparasail_la_LIBADD += libparasail_knc_memory.la
 libparasail_la_LIBADD += libparasail_knc.la
 libparasail_la_LIBADD += libparasail_knc_table.la
 endif
+libparasail_la_LIBADD += $(CLOCK_LIBS)
 
 if HAVE_SSE2
 check_LTLIBRARIES += tests/libssw.la
@@ -651,7 +652,7 @@ check_PROGRAMS += tests/test_sw_dispatch
 check_PROGRAMS += tests/test_verify
 check_PROGRAMS += tests/test_verify_tables
 
-LDADD += $(CLOCK_LIBS)
+#LDADD += $(CLOCK_LIBS)
 LDADD += $(MATH_LIBS)
 LDADD += $(Z_LIBS)
 

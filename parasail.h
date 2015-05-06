@@ -95,6 +95,7 @@ void parasail_version(int *major, int *minor, int *patch);
 extern PARASAIL_API
 void parasail_result_free(parasail_result_t *result);
 
+extern PARASAIL_API
 parasail_function_t * parasail_lookup_function(const char *funcname);
 
 /** Current time in seconds with nanosecond resolution. */

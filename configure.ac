@@ -410,8 +410,9 @@ AC_CHECK_FUNCS([memset])
 AC_CHECK_FUNCS([posix_memalign])
 AC_CHECK_FUNCS([_mm_malloc])
 
+# clock_gettime is in librt on linux, libpthread on windows
 parasail_save_LIBS="$LIBS"
-AC_SEARCH_LIBS([clock_gettime], [rt])
+AC_SEARCH_LIBS([clock_gettime], [rt pthread])
 LIBS="$parasail_save_LIBS"
 AS_CASE(["$ac_cv_search_clock_gettime"],
         [*none*], [],

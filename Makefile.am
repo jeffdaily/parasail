@@ -26,7 +26,6 @@ EXTRA_DIST += version.sh
 nobase_include_HEADERS += parasail/cpuid.h
 nobase_include_HEADERS += parasail/function_lookup.h
 nobase_include_HEADERS += parasail/matrix_lookup.h
-nobase_include_HEADERS += parasail/memory.h
 
 nobase_include_HEADERS += parasail/matrices/blosum100.h
 nobase_include_HEADERS += parasail/matrices/blosum30.h
@@ -144,6 +143,7 @@ SRC_CORE += src/time.c
 SRC_CORE += src/nw_dispatch.c
 SRC_CORE += src/sg_dispatch.c
 SRC_CORE += src/sw_dispatch.c
+SRC_CORE += parasail/memory.h
 
 #################
 # vector memory

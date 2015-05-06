@@ -99,6 +99,9 @@
 /* Define to 1 if you have the <zlib.h> header file. */
 #undef HAVE_ZLIB_H
 
+/* Define to 1 if you have the `_aligned_malloc' function. */
+#undef HAVE__ALIGNED_MALLOC
+
 /* Define to 1 if you have the `_mm_malloc' function. */
 #undef HAVE__MM_MALLOC
 

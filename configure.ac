@@ -403,6 +403,7 @@ AC_DEFINE_UNQUOTED([HAVE_XGETBV], [$pt_cv_xgetbv_val],
 AM_CONDITIONAL([HAVE_XGETBV], [test "x$pt_cv_xgetbv" = xyes])
 
 # Checks for library functions.
+AC_CHECK_FUNCS([_aligned_malloc])
 AC_CHECK_FUNCS([aligned_alloc])
 AC_CHECK_FUNCS([memalign])
 AC_CHECK_FUNCS([memset])
@@ -412,31 +413,31 @@ AC_CHECK_FUNCS([_mm_malloc])
 parasail_save_LIBS="$LIBS"
 AC_SEARCH_LIBS([clock_gettime], [rt])
 LIBS="$parasail_save_LIBS"
-AS_CASE(["$psl_cv_search_clock_gettime"],
+AS_CASE(["$ac_cv_search_clock_gettime"],
         [*none*], [],
         [*no*], [],
-        [CLOCK_LIBS="$psl_cv_search_clock_gettime"])
+        [CLOCK_LIBS="$ac_cv_search_clock_gettime"])
 AC_SUBST([CLOCK_LIBS])
 
 parasail_save_LIBS="$LIBS"
 AC_SEARCH_LIBS([sqrt], [m])
 LIBS="$parasail_save_LIBS"
-AS_CASE(["$psl_cv_search_sqrt"],
+AS_CASE(["$ac_cv_search_sqrt"],
         [*none*], [],
         [*no*], [],
-        [MATH_LIBS="$psl_cv_search_sqrt"])
+        [MATH_LIBS="$ac_cv_search_sqrt"])
 AC_SUBST([MATH_LIBS])
 
 parasail_save_LIBS="$LIBS"
 AC_CHECK_HEADERS([zlib.h])
 AC_SEARCH_LIBS([gzopen], [z])
 LIBS="$parasail_save_LIBS"
-AS_CASE(["$psl_cv_search_gzopen"],
+AS_CASE(["$ac_cv_search_gzopen"],
         [*none*], [],
         [*no*], [],
-        [Z_LIBS="$psl_cv_search_gzopen"])
+        [Z_LIBS="$ac_cv_search_gzopen"])
 AC_SUBST([Z_LIBS])
-AM_CONDITIONAL([HAVE_ZLIB], [test "x$psl_cv_search_gzopen" != xno && test "x$psl_cv_header_zlib_h" = xyes])
+AM_CONDITIONAL([HAVE_ZLIB], [test "x$ac_cv_search_gzopen" != xno && test "x$ac_cv_header_zlib_h" = xyes])
 
 # For host type checks
 AC_CANONICAL_HOST

@@ -5490,6 +5490,17 @@ fi
 
 
 # Checks for library functions.
+for ac_func in _aligned_malloc
+do :
+  ac_fn_c_check_func "$LINENO" "_aligned_malloc" "ac_cv_func__aligned_malloc"
+if test "x$ac_cv_func__aligned_malloc" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE__ALIGNED_MALLOC 1
+_ACEOF
+
+fi
+done
+
 for ac_func in aligned_alloc
 do :
   ac_fn_c_check_func "$LINENO" "aligned_alloc" "ac_cv_func_aligned_alloc"
@@ -5604,13 +5615,13 @@ if test "$ac_res" != no; then :
 fi
 
 LIBS="$parasail_save_LIBS"
-case "$psl_cv_search_clock_gettime" in #(
+case "$ac_cv_search_clock_gettime" in #(
   *none*) :
      ;; #(
   *no*) :
      ;; #(
   *) :
-    CLOCK_LIBS="$psl_cv_search_clock_gettime" ;;
+    CLOCK_LIBS="$ac_cv_search_clock_gettime" ;;
 esac
 
 
@@ -5672,13 +5683,13 @@ if test "$ac_res" != no; then :
 fi
 
 LIBS="$parasail_save_LIBS"
-case "$psl_cv_search_sqrt" in #(
+case "$ac_cv_search_sqrt" in #(
   *none*) :
      ;; #(
   *no*) :
      ;; #(
   *) :
-    MATH_LIBS="$psl_cv_search_sqrt" ;;
+    MATH_LIBS="$ac_cv_search_sqrt" ;;
 esac
 
 
@@ -5752,16 +5763,16 @@ if test "$ac_res" != no; then :
 fi
 
 LIBS="$parasail_save_LIBS"
-case "$psl_cv_search_gzopen" in #(
+case "$ac_cv_search_gzopen" in #(
   *none*) :
      ;; #(
   *no*) :
      ;; #(
   *) :
-    Z_LIBS="$psl_cv_search_gzopen" ;;
+    Z_LIBS="$ac_cv_search_gzopen" ;;
 esac
 
- if test "x$psl_cv_search_gzopen" != xno && test "x$psl_cv_header_zlib_h" = xyes; then
+ if test "x$ac_cv_search_gzopen" != xno && test "x$ac_cv_header_zlib_h" = xyes; then
   HAVE_ZLIB_TRUE=
   HAVE_ZLIB_FALSE='#'
 else

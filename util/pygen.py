@@ -141,7 +141,7 @@ cdef class Matrix:
     def __dealloc__(self):
         if self._c_object is not NULL:
             if self._c_object.need_free:
-                parasail_matrix_free(self._c_object)
+                parasail_matrix_free(<parasail_matrix_t*>self._c_object)
     @staticmethod
     cdef create(const parasail_matrix_t *c_object):
         p = Matrix()
@@ -175,14 +175,49 @@ for name in names:
 alg = ["nw", "sg", "sw"]
 stats = ["", "_stats"]
 table = ["", "_table"]
+scan = ["", "_scan"]
 for a in alg:
     for s in stats:
         for t in table:
-            print ""
-            print "def "+a+s+t+'('
-            print " "*8+"const_char * s1,"
-            print " "*8+"const_char * s2,"
-            print " "*8+"const int open, const int gap,"
-            print " "*8+"Matrix matrix not None):"
-            print " "*4+"return Result.create(parasail_"+a+s+t+"(s1,len(s1),s2,len(s2),open,gap,matrix._c_object))"
+            for x in scan:
+                prefix = a+s+t+x
+                print ""
+                print "def "+prefix+'('
+                print " "*8+"const_char * s1,"
+                print " "*8+"const_char * s2,"
+                print " "*8+"const int open, const int gap,"
+                print " "*8+"Matrix matrix not None):"
+                print " "*4+"cdef size_t t1 = len(s1)"
+                print " "*4+"cdef size_t t2 = len(s2)"
+                print " "*4+"cdef int l1 = <int>t1"
+                print " "*4+"cdef int l2 = <int>t2"
+                print " "*4+"assert l1 == t1"
+                print " "*4+"assert l2 == t2"
+                print " "*4+"return Result.create(parasail_"+prefix+"(s1,l1,s2,l2,open,gap,matrix._c_object))"
+
+# vectorized implementations (3x2x2x3x13 = 468 impl)
+alg = ["nw", "sg", "sw"]
+stats = ["", "_stats"]
+table = ["", "_table"]
+par = ["_scan", "_striped", "_diag"]
+width = ["_64","_32","_16","_8"]
+for a in alg:
+    for s in stats:
+        for t in table:
+            for p in par:
+                for w in width:
+                    prefix = a+s+t+p+w
+                    print ""
+                    print "def "+prefix+'('
+                    print " "*8+"const_char * s1,"
+                    print " "*8+"const_char * s2,"
+                    print " "*8+"const int open, const int gap,"
+                    print " "*8+"Matrix matrix not None):"
+                    print " "*4+"cdef size_t t1 = len(s1)"
+                    print " "*4+"cdef size_t t2 = len(s2)"
+                    print " "*4+"cdef int l1 = <int>t1"
+                    print " "*4+"cdef int l2 = <int>t2"
+                    print " "*4+"assert l1 == t1"
+                    print " "*4+"assert l2 == t2"
+                    print " "*4+"return Result.create(parasail_"+prefix+"(s1,l1,s2,l2,open,gap,matrix._c_object))"
 

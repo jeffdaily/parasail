@@ -59,7 +59,8 @@ static const parasail_matrix_t parasail_pam140 = {
     "pam140",
     parasail_pam140_,
     parasail_pam_map,
-    24
+    24,
+    0
 };
 
 #endif /* _PARASAIL_PAM140_H_ */

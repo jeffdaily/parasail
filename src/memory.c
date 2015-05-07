@@ -10,6 +10,7 @@
 #include "config.h"
 
 #include <assert.h>
+#include <ctype.h>
 #ifdef HAVE_MALLOC_H
 #include <malloc.h>
 #endif
@@ -198,5 +199,71 @@ void parasail_version(int *major, int *minor, int *patch)
     *major = PARASAIL_VERSION_MAJOR;
     *minor = PARASAIL_VERSION_MINOR;
     *patch = PARASAIL_VERSION_PATCH;
+}
+
+#include <stdio.h>
+parasail_matrix_t* parasail_matrix_create(
+        const char *alphabet, const int match, const int mismatch)
+{
+    parasail_matrix_t *retval = NULL;
+    int *matrix = NULL;
+    int *mapper = NULL;
+    size_t size = 0;
+    size_t size1 = 0;
+    size_t i = 0;
+    size_t j = 0;
+    size_t c = 0;
+
+    size = strlen(alphabet);
+    size1 = size + 1;
+
+    matrix = (int*)malloc(sizeof(int)*size1*size1);
+    assert(matrix);
+    for (i=0; i<size; ++i) {
+        for (j=0; j<size; ++j) {
+            if (i == j) {
+                matrix[c++] = match;
+            }
+            else {
+                matrix[c++] = mismatch;
+            }
+        }
+        matrix[c++] = mismatch;
+    }
+    for (j=0; j<size1; ++j) {
+        matrix[c++] = mismatch;
+    }
+
+    mapper = (int*)malloc(sizeof(int)*256);
+    assert(mapper);
+    parasail_memset_int(mapper, size, 256);
+    for (i=0; i<size; ++i) {
+        mapper[toupper(alphabet[i])] = (int)i;
+        mapper[tolower(alphabet[i])] = (int)i;
+    }
+
+    retval = (parasail_matrix_t*)malloc(sizeof(parasail_matrix_t));
+    assert(retval);
+    retval->name = "";
+    retval->matrix = matrix;
+    retval->mapper = mapper;
+    retval->size = (int)size;
+    retval->need_free = 1;
+    return retval;
+}
+
+void parasail_matrix_free(parasail_matrix_t *matrix)
+{
+    /* validate inputs */
+    assert(NULL != matrix);
+    if (matrix->need_free) {
+        free((void*)matrix->matrix);
+        free((void*)matrix->mapper);
+        free(matrix);
+    }
+    else {
+        fprintf(stderr, "attempted to free built-in matrix '%s'\n",
+                matrix->name);
+    }
 }
 

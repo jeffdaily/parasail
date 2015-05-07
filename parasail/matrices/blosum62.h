@@ -56,7 +56,8 @@ static const parasail_matrix_t parasail_blosum62 = {
     "blosum62",
     parasail_blosum62_,
     parasail_blosum_map,
-    24
+    24,
+    0
 };
 
 #endif /* _PARASAIL_BLOSUM62_H_ */

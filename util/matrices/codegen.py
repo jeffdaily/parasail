@@ -130,7 +130,8 @@ static const parasail_matrix_t parasail_%s = {
     "%s",
     parasail_%s_,
     parasail_%s_map,
-    %d
+    %d,
+    0
 };
 
 """ % (filename_lower, filename_lower, filename_lower, base, count))

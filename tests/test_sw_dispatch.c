@@ -44,6 +44,10 @@ int main(int argc, char **argv)
     printf("score8=%d\n", result->score);
     parasail_result_free(result);
 
+    parasail_matrix_t *matrix = parasail_matrix_create("ASDF", 1, -1);
+    parasail_matrix_free(matrix);
+    parasail_matrix_free((parasail_matrix_t*)&parasail_blosum62);
+
     return 0;
 }
 

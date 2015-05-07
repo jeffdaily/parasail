@@ -24,7 +24,7 @@ KSEQ_INIT(int, read)
 #include "timer.h"
 #include "timer_real.h"
 
-#define USE_TIMER_REAL 0
+#define USE_TIMER_REAL 1
 
 static double pctf(double orig, double new)
 {
@@ -422,21 +422,21 @@ int main(int argc, char **argv)
         if (f.is_table) {
             strcat(name, "_table");
         }
+        printf("%-15s %8s %6s %4s %5s %5d "
+                "%8d %8d %8d %8d "
+                "%8.3f %5.2f %8.3f %8.3f %8.3f\n",
 #if USE_TIMER_REAL
-        printf("%-15s %8s %6s %4s %5s %5d %8d %8d %8d %8d %8.2f %5.2f %8.2f %8.2f %8.2f %8.7f %5.7f %8.7f %8.7f %8.7f\n",
                 name, f.type, f.isa, f.bits, f.width, elem(f),
-                score, matches, similar, length,
-                stats_rdtsc._mean, pctf(timer_rdtsc_ref_mean, stats_rdtsc._mean),
-                stats_stddev(&stats_rdtsc), stats_rdtsc._min, stats_rdtsc._max,
-                stats_nsecs._mean, pctf(timer_nsecs_ref_mean, stats_nsecs._mean),
-                stats_stddev(&stats_nsecs), stats_nsecs._min, stats_nsecs._max);
+                score, matches, similar, length, stats_nsecs._mean,
+                pctf(timer_nsecs_ref_mean, stats_nsecs._mean),
+                stats_stddev(&stats_nsecs), stats_nsecs._min, stats_nsecs._max
 #else
-        printf("%-15s %8s %6s %4s %5s %5d %8d %8d %8d %8d %8.2f %5.2f %8.2f %8.2f %8.2f\n",
                 name, f.type, f.isa, f.bits, f.width, elem(f),
-                score, matches, similar, length,
-                stats_rdtsc._mean, pctf(timer_rdtsc_ref_mean, stats_rdtsc._mean),
-                stats_stddev(&stats_rdtsc), stats_rdtsc._min, stats_rdtsc._max);
+                score, matches, similar, length, stats_rdtsc._mean,
+                pctf(timer_rdtsc_ref_mean, stats_rdtsc._mean),
+                stats_stddev(&stats_rdtsc), stats_rdtsc._min, stats_rdtsc._max
 #endif
+                );
         f = functions[index++];
     }
 

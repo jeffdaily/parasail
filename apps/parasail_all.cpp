@@ -99,10 +99,12 @@ static void print_help(const char *progname, int status) {
             "[-c cutoff] "
             "[-e gap_extend] "
             "[-o gap_open] "
+            "[-m matrix] "
             "[-l AOL] "
             "[-s SIM] "
             "[-i OS] "
-            "-f file"
+            "-f file "
+            "[-g output] "
             "\n\n",
             progname);
     fprintf(stderr, "Defaults:\n"
@@ -115,6 +117,7 @@ static void print_help(const char *progname, int status) {
             "       SIM: 40, must be 0 <= SIM <= 100, percent exact matches\n"
             "        OS: 30, must be 0 <= OS <= 100, percent optimal score over self score\n"
             "      file: no default, must be in FASTA format\n"
+            "    output: edges.csv\n"
             );
     exit(status);
 }

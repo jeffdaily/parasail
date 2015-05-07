@@ -1,3 +1,5 @@
+# cython: c_string_type=str, c_string_encoding=ascii
+
 from libc.string cimport const_char
 
 cdef extern from "parasail.h":
@@ -7,15 +9,25 @@ cdef extern from "parasail.h":
         int matches
         int similar
         int length
-        #int * restrict score_table
-        #int * restrict matches_table
-        #int * restrict similar_table
-        #int * restrict length_table
+        #int * score_table
+        #int * matches_table
+        #int * similar_table
+        #int * length_table
 
-    ctypedef struct parasail_matrix_t:
-        pass
+    cdef struct parasail_matrix:
+        const char * name
+        #int * matrix
+        #int * mapper
+        int size
+        int need_free
+    ctypedef parasail_matrix parasail_matrix_t
 
     void parasail_result_free(parasail_result_t * result)
+
+    parasail_matrix_t* parasail_matrix_create(
+            const char * alphabet, int match, int mismatch)
+
+    void parasail_matrix_free(parasail_matrix_t *matrix)
 
 
     parasail_result_t* parasail_nw(
@@ -1080,11 +1092,25 @@ cdef class Result:
 
 cdef class Matrix:
     cdef const parasail_matrix_t *_c_object
+    def __dealloc__(self):
+        if self._c_object is not NULL:
+            if self._c_object.need_free:
+                parasail_matrix_free(self._c_object)
     @staticmethod
     cdef create(const parasail_matrix_t *c_object):
         p = Matrix()
         p._c_object = c_object
         return p
+    property name:
+        def __get__(self): return self._c_object.name
+    property size:
+        def __get__(self): return self._c_object.size
+
+def matrix_create(const char* alphabet, int match, int mismatch):
+    cdef parasail_matrix_t* matrix = parasail_matrix_create(
+            alphabet, match, mismatch)
+    return Matrix.create(matrix)
+
 
 cdef extern from "parasail/matrices/blosum100.h":
     const parasail_matrix_t parasail_blosum100

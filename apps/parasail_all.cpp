@@ -282,29 +282,29 @@ int main(int argc, char **argv) {
     /* Best to know early whether we can open the output file. */
     if((fop = fopen(oname, "w")) == NULL) {
         fprintf(stderr, "%s: Cannot open output file `%s': ", progname, oname);
-        perror(NULL);
+        perror("fopen");
         exit(EXIT_FAILURE);
     }
     
     /* Open a file for reading. */
-    if((fip = fopen(fname, "rb")) == NULL) {
+    if((fip = fopen(fname, "r")) == NULL) {
         fprintf(stderr, "%s: Cannot open input file `%s': ", progname, fname);
-        perror(NULL);
+        perror("fopen");
         exit(EXIT_FAILURE);
     }
 
     /* Get the file size. */
     if(fseek(fip, 0, SEEK_END) == 0) {
         n = ftell(fip);
-        rewind(fip);
         if(n < 0) {
             fprintf(stderr, "%s: Cannot ftell `%s': ", progname, fname);
-            perror(NULL);
+            perror("ftell");
             exit(EXIT_FAILURE);
         }
+        rewind(fip);
     } else {
         fprintf(stderr, "%s: Cannot fseek `%s': ", progname, fname);
-        perror(NULL);
+        perror("fseek");
         exit(EXIT_FAILURE);
     }
 
@@ -315,7 +315,7 @@ int main(int argc, char **argv) {
                 progname,
                 (ferror(fip) || !feof(fip)) ? "Cannot read from" : "Unexpected EOF in",
                 fname);
-        perror(NULL);
+        perror("fread");
         exit(EXIT_FAILURE);
     }
     fclose(fip);

@@ -170,12 +170,13 @@ int main(int argc, char **argv)
 
     if (distribution) {
         for (i=0; i<seq_count; ++i) {
-            printf("%lu\n", sizes[i]);
+            printf("%lu\n", (unsigned long)sizes[i]);
         }
     }
     else {
         limit = binomial_coefficient(seq_count, 2);
-        printf("%lu choose 2 is %lu\n", seq_count, limit);
+        printf("%lu choose 2 is %lu\n",
+                (unsigned long)seq_count, (unsigned long)limit);
 
         {
             unsigned long a=0;

@@ -56,6 +56,8 @@ parasail_result_t* FNAME(
     const %(INDEX)s N = %(LANES)s; /* number of values in vector */
     const %(INDEX)s PAD = N-1;
     const %(INDEX)s PAD2 = PAD*2;
+    const %(INDEX)s s1Len_PAD = s1Len+PAD;
+    const %(INDEX)s s2Len_PAD = s2Len+PAD;
     %(INT)s * const restrict s1      = parasail_memalign_%(INT)s(%(ALIGNMENT)s, s1Len+PAD);
     %(INT)s * const restrict s2B     = parasail_memalign_%(INT)s(%(ALIGNMENT)s, s2Len+PAD2);
     %(INT)s * const restrict _tbl_pr = parasail_memalign_%(INT)s(%(ALIGNMENT)s, s2Len+PAD2);
@@ -107,7 +109,7 @@ parasail_result_t* FNAME(
         s1[i] = matrix->mapper[(unsigned char)_s1[i]];
     }
     /* pad back of s1 with dummy values */
-    for (i=s1Len; i<s1Len+PAD; ++i) {
+    for (i=s1Len; i<s1Len_PAD; ++i) {
         s1[i] = 0; /* point to first matrix row because we don't care */
     }
 
@@ -120,7 +122,7 @@ parasail_result_t* FNAME(
         s2[j] = 0; /* point to first matrix row because we don't care */
     }
     /* pad back of s2 with dummy values */
-    for (j=s2Len; j<s2Len+PAD; ++j) {
+    for (j=s2Len; j<s2Len_PAD; ++j) {
         s2[j] = 0; /* point to first matrix row because we don't care */
     }
 

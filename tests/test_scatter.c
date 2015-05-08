@@ -303,10 +303,13 @@ int main(int argc, char **argv)
             }
 #pragma omp critical
             printf("%lu,%lu,%lu,%d,%d,%d,%d,%lu,%f",
-                    sizes[a], (sizes[a]+lanes-1)/lanes, sizes[b],
+                    (unsigned long)sizes[a],
+                    (unsigned long)(sizes[a]+lanes-1)/lanes,
+                    (unsigned long)sizes[b],
                     result->score, result->matches,
                     result->similar, result->length,
-                    sizes[a]*sizes[b], timer_local);
+                    (unsigned long)(sizes[a]*sizes[b]),
+                    timer_local);
             for (j=0; j<24; ++j) {
                 //printf(",%lu", a_counts[j]);
                 printf(",%f", (double)(a_counts[j])/sizes[a]);

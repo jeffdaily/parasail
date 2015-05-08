@@ -255,7 +255,7 @@ int main(int argc, char **argv)
         }
         local_timer = timer_real() - local_timer;
         printf("%lu\t %lu\t %d\t %f\n",
-                i, sizes_queries[i],
+                i, (unsigned long)sizes_queries[i],
                 saturated_query,
                 local_timer);
         if (exact_length != 0) {

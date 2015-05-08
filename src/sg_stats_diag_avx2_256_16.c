@@ -130,6 +130,8 @@ parasail_result_t* FNAME(
     const int32_t N = 16; /* number of values in vector */
     const int32_t PAD = N-1;
     const int32_t PAD2 = PAD*2;
+    const int32_t s1Len_PAD = s1Len+PAD;
+    const int32_t s2Len_PAD = s2Len+PAD;
     int16_t * const restrict s1      = parasail_memalign_int16_t(32, s1Len+PAD);
     int16_t * const restrict s2B     = parasail_memalign_int16_t(32, s2Len+PAD2);
     int16_t * const restrict _tbl_pr = parasail_memalign_int16_t(32, s2Len+PAD2);
@@ -179,7 +181,7 @@ parasail_result_t* FNAME(
         s1[i] = matrix->mapper[(unsigned char)_s1[i]];
     }
     /* pad back of s1 with dummy values */
-    for (i=s1Len; i<s1Len+PAD; ++i) {
+    for (i=s1Len; i<s1Len_PAD; ++i) {
         s1[i] = 0; /* point to first matrix row because we don't care */
     }
 
@@ -192,7 +194,7 @@ parasail_result_t* FNAME(
         s2[j] = 0; /* point to first matrix row because we don't care */
     }
     /* pad back of s2 with dummy values */
-    for (j=s2Len; j<s2Len+PAD; ++j) {
+    for (j=s2Len; j<s2Len_PAD; ++j) {
         s2[j] = 0; /* point to first matrix row because we don't care */
     }
 

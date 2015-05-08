@@ -8,7 +8,6 @@
 #include <errno.h>
 #include <unistd.h>
 #include <sys/types.h>
-#include <pwd.h>
 
 #include "parasail.h"
 #include "parasail/matrices/blosum62.h"

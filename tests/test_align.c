@@ -10,7 +10,6 @@
 #include <errno.h>
 #include <unistd.h>
 #include <sys/types.h>
-#include <pwd.h>
 
 #include "kseq.h"
 KSEQ_INIT(int, read)
@@ -166,11 +165,12 @@ int main(int argc, char **argv)
     int length = 0;
     unsigned long long timer_rdtsc = 0;
     unsigned long long timer_rdtsc_single = 0;
-    double timer_rdtsc_ref_mean = 0.0;
     double timer_nsecs = 0.0;
     double timer_nsecs_single = 0.0;
 #if USE_TIMER_REAL
     double timer_nsecs_ref_mean = 0.0;
+#else
+    double timer_rdtsc_ref_mean = 0.0;
 #endif
     int limit = 2;
     int i = 0;
@@ -362,9 +362,10 @@ int main(int argc, char **argv)
         timer_rdtsc = timer_start()-(timer_rdtsc);
         timer_nsecs = timer_real() - timer_nsecs;
         if (f.is_ref) {
-            timer_rdtsc_ref_mean = stats_rdtsc._mean;
 #if USE_TIMER_REAL
             timer_nsecs_ref_mean = stats_nsecs._mean;
+#else
+            timer_rdtsc_ref_mean = stats_rdtsc._mean;
 #endif
         }
         strcpy(name, f.alg);

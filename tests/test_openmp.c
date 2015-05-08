@@ -403,7 +403,6 @@ int main(int argc, char **argv)
         double total_timer = 0.0;
         for (i=0; i<seq_count_queries; ++i) {
             int saturated_query = 0;
-            unsigned long long corrections_query = 0;
             double local_timer = 0.0;
             parasail_function_t *function = function1;
 
@@ -429,9 +428,9 @@ int main(int argc, char **argv)
             }
             local_timer = timer_real() - local_timer;
             total_timer += local_timer;
-            printf("%lu\t %lu\t %d\t %llu\t %f\n",
-                    i, sizes_queries[i],
-                    saturated_query, corrections_query, local_timer);
+            printf("%lu\t %lu\t %d\t %f\n",
+                    i, (unsigned long)sizes_queries[i],
+                    saturated_query, local_timer);
             fflush(stdout);
         }
         printf("total_time=%f\n", total_timer);

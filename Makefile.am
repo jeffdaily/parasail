@@ -633,6 +633,7 @@ check_LTLIBRARIES += tests/libssw.la
 tests_libssw_la_SOURCES =
 tests_libssw_la_SOURCES += contrib/ssw.c
 tests_libssw_la_SOURCES += contrib/ssw.h
+tests_libssw_la_CFLAGS  = $(AM_CFLAGS) $(SSE2_CFLAGS)
 endif
 
 check_LTLIBRARIES += tests/libsais.la

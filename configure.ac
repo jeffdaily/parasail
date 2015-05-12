@@ -110,7 +110,7 @@ int foo() {
     __m128i result = _mm_add_epi16(vOne,vOne);
     return _mm_extract_epi16(result, 0);
 }
-int main(int argc, char **argv) { return foo(); }
+int main(void) { return foo(); }
 ]])],
         [pt_cv_sse2=yes; pt_cv_sse2_val=1],
         [pt_cv_sse2=no; pt_cv_sse2_val=0])
@@ -134,7 +134,7 @@ int foo() {
     __m128i result2 =  _mm_insert_epi64(vOne,0,0);
     return _mm_extract_epi8(result, 0);
 }
-int main(int argc, char **argv) { return foo(); }
+int main(void) { return foo(); }
 ]])],
         [pt_cv_sse41=yes; pt_cv_sse41_val=1],
         [pt_cv_sse41=no; pt_cv_sse41_val=0])
@@ -160,7 +160,7 @@ int foo() {
     __m256i result2 =  _mm256_insert_epi64(vOne,0,0);
     return _mm_extract_epi16(_mm256_extracti128_si256(result,0),0);
 }
-int main(int argc, char **argv) { return foo(); }
+int main(void) { return foo(); }
 ]])],
         [pt_cv_avx2=yes; pt_cv_avx2_val=1],
         [pt_cv_avx2=no; pt_cv_avx2_val=0])
@@ -279,7 +279,7 @@ int64_t foo() {
     __m256i vZero = _mm256_set1_epi8(0);
     return _mm256_extract_epi64(vZero,0);
 }
-int main(int argc, char **argv) { return foo(); }
+int main(void) { return foo(); }
 ]])],
         [pt_cv_avx2_mm256_extract_epi64=yes;
          pt_cv_avx2_mm256_extract_epi64_val=1],
@@ -304,7 +304,7 @@ int32_t foo() {
     __m256i vZero = _mm256_set1_epi8(0);
     return _mm256_extract_epi32(vZero,0);
 }
-int main(int argc, char **argv) { return foo(); }
+int main(void) { return foo(); }
 ]])],
         [pt_cv_avx2_mm256_extract_epi32=yes;
          pt_cv_avx2_mm256_extract_epi32_val=1],
@@ -329,7 +329,7 @@ int16_t foo() {
     __m256i vZero = _mm256_set1_epi8(0);
     return _mm256_extract_epi16(vZero,0);
 }
-int main(int argc, char **argv) { return foo(); }
+int main(void) { return foo(); }
 ]])],
         [pt_cv_avx2_mm256_extract_epi16=yes;
          pt_cv_avx2_mm256_extract_epi16_val=1],
@@ -354,7 +354,7 @@ int8_t foo() {
     __m256i vZero = _mm256_set1_epi8(0);
     return _mm256_extract_epi8(vZero,0);
 }
-int main(int argc, char **argv) { return foo(); }
+int main(void) { return foo(); }
 ]])],
         [pt_cv_avx2_mm256_extract_epi8=yes;
          pt_cv_avx2_mm256_extract_epi8_val=1],

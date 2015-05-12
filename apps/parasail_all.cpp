@@ -542,12 +542,10 @@ int main(int argc, char **argv) {
             int j_end = END[j];
             int j_len = j_end-j_beg;
             unsigned long local_work = i_len * j_len;
-            double local_timer = parasail_time();
             parasail_result_t *result = function(
                     (const char*)&T[i_beg], i_len,
                     (const char*)&T[j_beg], j_len,
                     gap_open, gap_extend, matrix);
-            local_timer = parasail_time() - local_timer;
 #pragma omp critical
             {
                 work += local_work;
@@ -559,9 +557,6 @@ int main(int argc, char **argv) {
     fprintf(stdout, "%20s: %lu cells\n", "work", work);
     fprintf(stdout, "%20s: %.4f seconds\n", "alignment time", finish-start);
     fprintf(stdout, "%20s: %.4f \n", "gcups", double(work)/(finish-start)/1000000);
-
-    /* Done with input text. */
-    free(T);
 
     /* Output results. */
     unsigned long edge_count = 0;
@@ -611,6 +606,9 @@ int main(int argc, char **argv) {
     fclose(fop);
 
     fprintf(stdout, "%20s: %lu\n", "edges count", edge_count);
+
+    /* Done with input text. */
+    free(T);
 
     return 0;
 }

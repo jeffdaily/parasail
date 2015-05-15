@@ -102,7 +102,7 @@ parasail_function_t * parasail_lookup_function(const char *funcname);
 
 /** Current time in seconds with nanosecond resolution. */
 extern PARASAIL_API
-double parasail_time();
+double parasail_time(void);
 
 /** Create simple substitution matrix. */
 extern PARASAIL_API

@@ -22,7 +22,7 @@
 
 #include <assert.h>
 
-double parasail_time()
+double parasail_time(void)
 {
 #ifdef __MACH__
     /* OS X does not have clock_gettime, use clock_get_time */

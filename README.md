@@ -141,6 +141,11 @@ result = parasail.sw_scan_16("asdf", "asdf", -11, -1, parasail.blosum62)
 result = parasail.sw_stats_striped_8("asdf", "asdf", -11, -1, parasail.pam100)
 ```
 
+## Citing parasail
+If needed, please cite the following paper.
+
+Daily, Jeff. 2015. "Scalable Parallel Methods for Analyzing Metagenomic Data at Extreme Scale". PhD dissertation, Washington State University.  http://hpc.pnl.gov/tascel/papers/PNNL-24266.pdf
+
 ## License: Battelle BSD-style
 
 Copyright (c) 2015, Battelle Memorial Institute

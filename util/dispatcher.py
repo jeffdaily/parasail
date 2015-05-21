@@ -10,9 +10,7 @@ def codegen(alg):
  *
  * @author jeff.daily@pnnl.gov
  *
- * Copyright (c) 2014 Battelle Memorial Institute.
- *
- * All rights reserved. No warranty, explicit or implicit, provided.
+ * Copyright (c) 2015 Battelle Memorial Institute.
  */
 #include "config.h"
 

@@ -3,9 +3,7 @@
  *
  * @author jeff.daily@pnnl.gov
  *
- * Copyright (c) 2014 Battelle Memorial Institute.
- *
- * All rights reserved. No warranty, explicit or implicit, provided.
+ * Copyright (c) 2015 Battelle Memorial Institute.
  *
  * This file was converted to C code from the raw file found at
  * ftp://ftp.cbi.pku.edu.cn/pub/software/blast/matrices/PAM420, the

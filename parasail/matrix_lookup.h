@@ -3,9 +3,7 @@
  *
  * @author jeff.daily@pnnl.gov
  *
- * Copyright (c) 2014 Battelle Memorial Institute.
- *
- * All rights reserved. No warranty, explicit or implicit, provided.
+ * Copyright (c) 2015 Battelle Memorial Institute.
  */
 #ifndef _PARASAIL_MATRIX_LOOKUP_H_
 #define _PARASAIL_MATRIX_LOOKUP_H_
@@ -147,7 +145,6 @@ const parasail_matrix_t * parasail_matrices[] = {
     NULL
 };
 
-extern PARASAIL_API
 const parasail_matrix_t* parasail_matrix_lookup(const char *matrixname)
 {
     const parasail_matrix_t *matrix = NULL;

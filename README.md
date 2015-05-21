@@ -141,6 +141,33 @@ result = parasail.sw_scan_16("asdf", "asdf", -11, -1, parasail.blosum62)
 result = parasail.sw_stats_striped_8("asdf", "asdf", -11, -1, parasail.pam100)
 ```
 
+## Windows Build
+A parasail.dll was successfully created using a combination of Cygwin and its mingw64 package.
+
+```bash
+cd parasail
+mkdir bld # it's cleaner to keep build and source directories separated
+cd bld
+../configure --prefix=`pwd` --host=x86_64-w64-mingw32 --build=x86_64-pc-cygwin
+make
+make install # installs DLL into `pwd`/bin
+ldd bin/parasail.dll
+        ntdll.dll => /cygdrive/c/Windows/SYSTEM32/ntdll.dll (0x77910000)
+        kernel32.dll => /cygdrive/c/Windows/system32/kernel32.dll (0x777f0000)
+        KERNELBASE.dll => /cygdrive/c/Windows/system32/KERNELBASE.dll (0x7fefd790000)
+        msvcrt.dll => /cygdrive/c/Windows/system32/msvcrt.dll (0x7fefdbc0000)
+        libwinpthread-1.dll => /usr/x86_64-w64-mingw32/sys-root/mingw/bin/libwinpthread-1.dll (0x64940000)
+        USER32.dll => /cygdrive/c/Windows/system32/USER32.dll (0x776f0000)
+        GDI32.dll => /cygdrive/c/Windows/system32/GDI32.dll (0x7fefdc60000)
+        LPK.dll => /cygdrive/c/Windows/system32/LPK.dll (0x7fefde30000)
+        USP10.dll => /cygdrive/c/Windows/system32/USP10.dll (0x7fefde40000)
+        IMM32.DLL => /cygdrive/c/Windows/system32/IMM32.DLL (0x7feff370000)
+        MSCTF.dll => /cygdrive/c/Windows/system32/MSCTF.dll (0x7feff000000)
+        KATRK64.DLL => /cygdrive/c/Windows/KATRK64.DLL (0x180000000)
+        WTSAPI32.dll => /cygdrive/c/Windows/system32/WTSAPI32.dll (0x7fefc920000)
+```
+Note that parasail.dll depends on a `libwinpthread-1.dll` which is located in the sys-root of the corresponding mingw installation.  See the `ldd` output above for an example.  If it weren't for the `parasail_time(void)` function, parasail would have zero external dependencies.
+
 ## Citing parasail
 If needed, please cite the following paper.
 

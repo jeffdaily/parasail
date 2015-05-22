@@ -12,6 +12,11 @@ Note: When any of the algorithms open a gap, only the gap open penalty alone is 
 
 parasail supports the SSE2, SSE4.1, AVX2, and KNC (Xeon Phi) instruction sets.  In many cases, your compiler can compile source code for an instruction set which is not supported by your host CPU.  The code is still compiled, however, parasail uses CPU dispatching at runtime to correctly select the appropriate implementation for the highest level of instruction set supported.
 
+Occasionally, configure will report that your compiler supports an instruction set, e.g., AVX2, when in fact it does not.  This is a bug; please file an issue and I will amend the configure script.  You likely won't discover this until you attempt to compile all of the sources.  If you run into issues (or if for some other reason you wish to disable one of the instruction sets), and after reporting the issue, you can disable the offending code as a temporary work-around using one or more of the following configure flags.
+```bash
+configure SSE2_FLAGS=choke SSE41_FLAGS=choke AVX2_CFLAGS=choke
+```
+
 ## Installing
 
 parasail follows the typical configure, make, make install steps of other GNU autotools-based installations.  There are no external dependencies.
@@ -36,8 +41,8 @@ The function names for the low-level, instruction set-aware functions follow a n
   1. the algorithm (nw/sg/sw),
   2. optionally if the statistics are requested (_stats),
   3. optionally the vectorized approach (_scan/_striped/_blocked/_diag), which requires
-     1. the instruction set (_sse2/_sse41/_avx2/_knc), and
-     2. the vector and vector element widths (_128_8/16/32/64 for sse2 and sse41, _256_8/16/32/64 for avx2, and _512_32 for knc).
+     1. the instruction set and vector width (_sse2_128/_sse41_128/_avx2_256/_knc_512), and
+     2. the vector element widths (_8/_16/_32/_64 for {sse2,sse41,avx2}, and _32 only for knc).
 
 For example:
 
@@ -45,20 +50,26 @@ For example:
 - `parasail_sg` would use semi-global, no alignment statistics, no vectorized code (i.e. serial).
 - `parasail_sw_scan_avx2_256_8` would use Smith-Waterman, no alignment statistics, using prefix scan vectors for avx2 8-bit integers.
 
+Note: The blocked vector implementation only exist for sse41 16-bit and 32-bit integer elements.
+
 ### Higher-Level Functions
 
 There are higher-level, instruction set-unaware functions which automatically dispatch to the best available instruction set of your host CPU.  The function names are similar in convention to the low-level functions
   0. the "parasail_" prefix a.k.a. namespace,
   1. the algorithm (nw/sg/sw),
   2. optionally if the statistics are requested (_stats),
-  3. optionally the vectorized approach (_scan/_striped/_blocked/_diag), which requires
-    - the desired integer element bit width
+  3. optionally the vectorized approach (_scan/_striped/_diag), which requires
+    - the desired integer element bit width (_8/_16/_32/_64)
 
 For example:
 
 - `parasail_nw_stats_striped_16` would use Needleman-Wunsch, with alignment statistics, using striped vectors and 16-bit integers.
 - `parasail_sg` would use semi-global, no alignment statistics, no vectorized code (i.e. serial).
 - `parasail_sw_scan_8` would use Smith-Waterman, no alignment statistics, using prefix scan vectors for 8-bit integers.
+
+Note: The blocked vector implementations do not have a higher-level dispatching function.
+
+Note: The dispatcher for the KNC instruction set will always dispatch to the 32-bit integer element implementation since it is the only one supported on that platform.
 
 ### Substitution Matrices
 
@@ -131,7 +142,7 @@ PARASAIL_PREFIX=$PREFIX python setup.py build
 
 This will correctly setup the necessary CPPFLAGS, LDFLAGS, and LIBS variables during the build.  Becuase the parasail.h header uses C99 keywords, e.g., restrict, the setup.py process will test your C compiler for the correct use of restrict, automatically.
 
-The Python interface only includes bindings for the dispatching functions, not the low-level ISA-specific function calls.  The Python interface also includes wrappers for the various PAM and BLOSUM matrices included in the distribution.
+The Python interface only includes bindings for the dispatching functions, not the low-level instruction set-specific function calls.  The Python interface also includes wrappers for the various PAM and BLOSUM matrices included in the distribution.
 
 Example:
 

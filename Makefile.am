@@ -640,6 +640,7 @@ tests_libsais_la_SOURCES += contrib/sais-lite-lcp/sais.c
 tests_libsais_la_SOURCES += contrib/sais-lite-lcp/sais.h
 
 bin_PROGRAMS += apps/parasail_all
+bin_PROGRAMS += apps/parasail_query
 
 check_PROGRAMS += tests/test_align
 check_PROGRAMS += tests/test_gcups
@@ -661,6 +662,13 @@ apps_parasail_all_LDFLAGS  = $(AM_LDFLAGS) $(OPENMP_CXXFLAGS)
 apps_parasail_all_LDADD =
 apps_parasail_all_LDADD += $(LDADD)
 apps_parasail_all_LDADD += tests/libsais.la
+
+apps_parasail_query_SOURCES = apps/parasail_query.cpp
+apps_parasail_query_CXXFLAGS = $(AM_CXXFLAGS) $(OPENMP_CXXFLAGS)
+apps_parasail_query_LDFLAGS  = $(AM_LDFLAGS) $(OPENMP_CXXFLAGS)
+apps_parasail_query_LDADD =
+apps_parasail_query_LDADD += $(LDADD)
+apps_parasail_query_LDADD += tests/libsais.la
 
 tests_test_align_SOURCES = tests/test_align.c
 

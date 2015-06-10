@@ -602,6 +602,7 @@ int main(int argc, char **argv) {
                     1.0*result->matches/result->length,
                     1.0*result->score/self_score_);
         }
+        parasail_result_free(result);
     }
     fclose(fop);
 

@@ -323,6 +323,7 @@ int main(int argc, char **argv) {
     }
     (void)memcpy(T+t, Q, q);
     free(Q);
+    T[n] = '\0';
 
     /* Allocate memory. */
     SA = (int *)malloc((size_t)(n+1) * sizeof(int)); /* +1 for computing LCP */
@@ -565,6 +566,7 @@ int main(int argc, char **argv) {
                     1.0*result->matches/result->length,
                     1.0*result->score/self_score_);
         }
+        parasail_result_free(result);
     }
     fclose(fop);
 

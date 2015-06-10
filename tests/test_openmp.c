@@ -23,19 +23,15 @@ KSEQ_INIT(int, read)
 
 #include "parasail.h"
 #include "parasail/memory.h"
-#include "parasail/function_lookup.h"
-#include "parasail/matrix_lookup.h"
 #include "stats.h"
 //#include "timer.h"
 #include "timer_real.h"
-
-#define UNUSED(expr) do { (void)(expr); } while (0)
 
 #if HAVE_SSE2
 parasail_result_t* parasail_ssw_(
         const char * const restrict s1, const int s1_len,
         const char * const restrict s2, const int s2_len,
-        const int open, const int gap, const parasail_matrix_t * notused,
+        const int open, const int gap, const parasail_matrix_t * pmatrix,
         int score_size)
 {
     parasail_result_t *result = parasail_result_new();
@@ -45,8 +41,6 @@ parasail_result_t* parasail_ssw_(
     int8_t *matrix = (int8_t*)malloc(sizeof(int8_t) * 24 * 24);
     s_align *ssw_result = NULL;
     int m = 0;
-
-    UNUSED(notused);
 
     /* This table is used to transform amino acid letters into numbers. */
     static const int8_t table[128] = {
@@ -63,7 +57,7 @@ parasail_result_t* parasail_ssw_(
     /* initialize score matrix */
     for (m = 0; m < s1_len; ++m) s1_num[m] = table[(int)s1[m]];
     for (m = 0; m < s2_len; ++m) s2_num[m] = table[(int)s2[m]];
-    for (m = 0; m < 24*24; ++m) matrix[m] = parasail_blosum62_[m];
+    for (m = 0; m < 24*24; ++m) matrix[m] = pmatrix->matrix[m];
     profile = ssw_init(s1_num, s1_len, matrix, 24, score_size);
     ssw_result = ssw_align(profile, s2_num, s2_len, -open, -gap, 2, 0, 0, s1_len/2);
     result->score = ssw_result->score1;

@@ -170,9 +170,9 @@ libparasail_la_DEPENDENCIES = libparasail_novec.la \
 	$(am__append_8) $(am__append_9) $(am__append_10) \
 	$(am__DEPENDENCIES_1)
 am__dirstamp = $(am__leading_dot)dirstamp
-am__objects_1 = src/cpuid.lo src/function_lookup.lo src/memory.lo \
-	src/time.lo src/nw_dispatch.lo src/sg_dispatch.lo \
-	src/sw_dispatch.lo
+am__objects_1 = src/cpuid.lo src/function_lookup.lo \
+	src/matrix_lookup.lo src/memory.lo src/time.lo \
+	src/nw_dispatch.lo src/sg_dispatch.lo src/sw_dispatch.lo
 am_libparasail_la_OBJECTS = $(am__objects_1)
 libparasail_la_OBJECTS = $(am_libparasail_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -1271,9 +1271,9 @@ EXTRA_DIST = version.sh DISCLAIMER README.md \
 #################
 # core sources
 #################
-SRC_CORE = src/cpuid.c src/function_lookup.c src/memory.c src/time.c \
-	src/nw_dispatch.c src/sg_dispatch.c src/sw_dispatch.c \
-	parasail/memory.h
+SRC_CORE = src/cpuid.c src/function_lookup.c src/matrix_lookup.c \
+	src/memory.c src/time.c src/nw_dispatch.c src/sg_dispatch.c \
+	src/sw_dispatch.c parasail/memory.h
 
 #################
 # vector memory
@@ -1706,6 +1706,8 @@ src/$(DEPDIR)/$(am__dirstamp):
 	@: > src/$(DEPDIR)/$(am__dirstamp)
 src/cpuid.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/function_lookup.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/matrix_lookup.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/memory.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/time.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
@@ -3430,6 +3432,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_sse41_table_la-sw_striped_sse41_128_64.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_sse41_table_la-sw_striped_sse41_128_8.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_sse_memory_la-memory_sse.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/matrix_lookup.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/memory.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/nw_dispatch.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sg_dispatch.Plo@am__quote@

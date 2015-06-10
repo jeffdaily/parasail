@@ -33,9 +33,6 @@
 #endif
 
 #include "parasail.h"
-#include "parasail/memory.h"
-#include "parasail/function_lookup.h"
-#include "parasail/matrix_lookup.h"
 
 #include "sais.h"
 

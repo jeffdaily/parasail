@@ -10,20 +10,6 @@
 
 #include "parasail.h"
 
-typedef struct parasail_function_info {
-    parasail_function_t * pointer;
-    const char * name;
-    const char * alg;
-    const char * type;
-    const char * isa;
-    const char * bits;
-    const char * width;
-    int lanes;
-    char is_table;
-    char is_stats;
-    char is_ref;
-} parasail_function_info_t;
-
 static const parasail_function_info_t functions[] = {
 {parasail_nw,                         "parasail_nw",                         "nw",    "orig", "NA",     "32", "32",  1, 0, 0, 1},
 {parasail_nw_scan,                    "parasail_nw_scan",                    "nw",    "scan", "NA",     "32", "32",  1, 0, 0, 0},

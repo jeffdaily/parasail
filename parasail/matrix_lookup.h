@@ -145,24 +145,5 @@ const parasail_matrix_t * parasail_matrices[] = {
     NULL
 };
 
-const parasail_matrix_t* parasail_matrix_lookup(const char *matrixname)
-{
-    const parasail_matrix_t *matrix = NULL;
-
-    if (matrixname) {
-        int index = 0;
-        const parasail_matrix_t *current = parasail_matrices[index++];
-        while (current) {
-            if (0 == strcmp(matrixname, current->name)) {
-                matrix = current;
-                break;
-            }
-            current = parasail_matrices[index++];
-        }
-    }
-
-    return matrix;
-}
-
 #endif /* _PARASAIL_MATRIX_LOOKUP_H_ */
 

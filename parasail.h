@@ -86,6 +86,20 @@ typedef parasail_result_t* parasail_function_t(
         const int open, const int gap,
         const parasail_matrix_t *matrix);
 
+typedef struct parasail_function_info {
+    parasail_function_t * pointer;
+    const char * name;
+    const char * alg;
+    const char * type;
+    const char * isa;
+    const char * bits;
+    const char * width;
+    int lanes;
+    char is_table;
+    char is_stats;
+    char is_ref;
+} parasail_function_info_t;
+
 /* Run-time API version detection */
 extern PARASAIL_API
 void parasail_version(int *major, int *minor, int *patch);
@@ -98,9 +112,17 @@ void parasail_result_free(parasail_result_t *result);
 extern PARASAIL_API
 parasail_function_t * parasail_lookup_function(const char *funcname);
 
+/** Lookup function info by name. */
+extern PARASAIL_API
+const parasail_function_info_t * parasail_lookup_function_info(const char *funcname);
+
 /** Current time in seconds with nanosecond resolution. */
 extern PARASAIL_API
 double parasail_time(void);
+
+/** Lookup substitution matrix by name. */
+extern PARASAIL_API
+const parasail_matrix_t* parasail_matrix_lookup(const char *matrixname);
 
 /** Create simple substitution matrix. */
 extern PARASAIL_API

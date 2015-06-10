@@ -10,25 +10,10 @@
 
 #include "parasail.h"
 
-typedef struct parasail_function_info {
-    parasail_function_t * pointer;
-    const char * name;
-    const char * alg;
-    const char * type;
-    const char * isa;
-    const char * bits;
-    const char * width;
-    int lanes;
-    char is_table;
-    char is_stats;
-    char is_ref;
-} parasail_function_info_t;
-
 typedef struct parasail_function_group {
     const char * name;
     parasail_function_info_t *fs;
 } parasail_function_group_t;
-
 
 #if HAVE_SSE2
 static parasail_function_info_t parasail_nw_table_sse2_functions[] = {

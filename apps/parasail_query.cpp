@@ -297,6 +297,32 @@ int main(int argc, char **argv) {
         print_help(progname, EXIT_FAILURE);
     }
 
+    /* print the parameters for reference */
+    fprintf(stdout,
+            "%20s: %s\n"
+            "%20s: %d\n"
+            "%20s: %d\n"
+            "%20s: %d\n"
+            "%20s: %s\n"
+            "%20s: %d\n"
+            "%20s: %d\n"
+            "%20s: %d\n"
+            "%20s: %s\n"
+            "%20s: %s\n",
+            "%20s: %s\n",
+            "funcname", funcname,
+            "cutoff", cutoff,
+            "gap_extend", gap_extend,
+            "gap_open", gap_open,
+            "matrix", matrixname,
+            "AOL", AOL,
+            "SIM", SIM,
+            "OS", OS,
+            "file", fname,
+            "query", qname,
+            "output", oname
+            );
+
     /* Best to know early whether we can open the output file. */
     if((fop = fopen(oname, "w")) == NULL) {
         fprintf(stderr, "%s: Cannot open output file `%s': ", progname, oname);
@@ -483,8 +509,7 @@ int main(int argc, char **argv) {
     /* OpenMP can't iterate over an STL set. Convert to STL vector. */
     start = parasail_time();
     vector<Pair> vpairs(pairs.begin(), pairs.end());
-    vector<pair<size_t,parasail_result_t*> > results;
-    results.reserve(vpairs.size());
+    vector<parasail_result_t*> results(vpairs.size(), NULL);
     finish = parasail_time();
     fprintf(stdout, "%20s: %.4f seconds\n", "openmp prep time", finish-start);
 
@@ -507,11 +532,9 @@ int main(int argc, char **argv) {
                     (const char*)&T[i_beg], i_len,
                     (const char*)&T[j_beg], j_len,
                     gap_open, gap_extend, matrix);
-#pragma omp critical
-            {
-                work += local_work;
-                results.push_back(make_pair(index,result));
-            }
+#pragma omp atomic
+            work += local_work;
+            results[index] = result;
         }
     }
     finish = parasail_time();
@@ -521,9 +544,8 @@ int main(int argc, char **argv) {
 
     /* Output results. */
     unsigned long edge_count = 0;
-    for (size_t result_index=0; result_index<results.size(); ++result_index) {
-        size_t index = results[result_index].first;
-        parasail_result_t *result = results[result_index].second;
+    for (size_t index=0; index<results.size(); ++index) {
+        parasail_result_t *result = results[index];
         int i = vpairs[index].first;
         int j = vpairs[index].second;
         int i_beg = BEG[i];

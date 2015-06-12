@@ -90,6 +90,12 @@ inline static int self_score(
         int len,
         const parasail_matrix_t *matrix);
 
+inline static void read_and_pack_file(
+        const char *fname, 
+        unsigned char * &T,
+        long &n,
+        const char *progname);
+
 static void print_help(const char *progname, int status) {
     fprintf(stderr, "\nusage: %s "
             "[-a funcname] "
@@ -120,7 +126,6 @@ static void print_help(const char *progname, int status) {
 }
 
 int main(int argc, char **argv) {
-    FILE *fip = NULL;
     FILE *fop = NULL;
     const char *fname = NULL;
     const char *oname = "edges.csv";
@@ -159,7 +164,7 @@ int main(int argc, char **argv) {
     int OS = 30;
 
     /* Check arguments. */
-    while ((c = getopt(argc, argv, "a:c:e:f:g:hm:o:l:s:i:")) != -1) {
+    while ((c = getopt(argc, argv, "a:c:e:f:g:hi:l:m:o:s:")) != -1) {
         switch (c) {
             case 'a':
                 funcname = optarg;
@@ -237,7 +242,7 @@ int main(int argc, char **argv) {
                             "Unknown option character `\\x%x'.\n",
                             optopt);
                 }
-                exit(EXIT_FAILURE);
+                print_help(progname, EXIT_FAILURE);
             default:
                 fprintf(stderr, "default case in getopt\n");
                 exit(EXIT_FAILURE);
@@ -276,6 +281,30 @@ int main(int argc, char **argv) {
         print_help(progname, EXIT_FAILURE);
     }
 
+    /* print the parameters for reference */
+    fprintf(stdout,
+            "%20s: %s\n"
+            "%20s: %d\n"
+            "%20s: %d\n"
+            "%20s: %d\n"
+            "%20s: %s\n"
+            "%20s: %d\n"
+            "%20s: %d\n"
+            "%20s: %d\n"
+            "%20s: %s\n"
+            "%20s: %s\n",
+            "funcname", funcname,
+            "cutoff", cutoff,
+            "gap_extend", gap_extend,
+            "gap_open", gap_open,
+            "matrix", matrixname,
+            "AOL", AOL,
+            "SIM", SIM,
+            "OS", OS,
+            "file", fname,
+            "output", oname
+            );
+
     /* Best to know early whether we can open the output file. */
     if((fop = fopen(oname, "w")) == NULL) {
         fprintf(stderr, "%s: Cannot open output file `%s': ", progname, oname);
@@ -283,82 +312,10 @@ int main(int argc, char **argv) {
         exit(EXIT_FAILURE);
     }
     
-    /* Open a file for reading. */
-    if((fip = fopen(fname, "r")) == NULL) {
-        fprintf(stderr, "%s: Cannot open input file `%s': ", progname, fname);
-        perror("fopen");
-        exit(EXIT_FAILURE);
-    }
-
-    /* Get the file size. */
-    if(fseek(fip, 0, SEEK_END) == 0) {
-        n = ftell(fip);
-        if(n < 0) {
-            fprintf(stderr, "%s: Cannot ftell `%s': ", progname, fname);
-            perror("ftell");
-            exit(EXIT_FAILURE);
-        }
-        rewind(fip);
-    } else {
-        fprintf(stderr, "%s: Cannot fseek `%s': ", progname, fname);
-        perror("fseek");
-        exit(EXIT_FAILURE);
-    }
-
-    /* Allocate file buffer, read the entire file, then pack it. */
-    T = (unsigned char *)malloc((size_t)(n+1) * sizeof(unsigned char));
-    if(fread(T, sizeof(unsigned char), (size_t)n, fip) != (size_t)n) {
-        fprintf(stderr, "%s: %s `%s': ",
-                progname,
-                (ferror(fip) || !feof(fip)) ? "Cannot read from" : "Unexpected EOF in",
-                fname);
-        perror("fread");
-        exit(EXIT_FAILURE);
-    }
-    fclose(fip);
-    T[n]='\0'; /* so we can print it */
-    fprintf(stdout, "%20s: %s\n", "filename", fname);
-    fprintf(stdout, "%20s: %ld bytes\n", "original size", n);
-    /* Pack the buffer so it's ready for sais function. */
-    {
-        long i;
-        char first = 1;
-        long w = 0;
-        long save = 0;
-        for (i=0; i<n; ++i) { 
-            if (T[i] == '>') {
-                if (first) {
-                    first = 0;
-                }
-                else {
-                    T[w++] = '$';
-                }
-                /* skip rest of this line */
-                while (T[i] != '\n') {
-                    ++i;
-                }
-            }
-            else if (isalpha(T[i])) {
-                T[w++] = T[i];
-            }
-            else if (T[i] == '\n') {
-                /* ignore newline */
-            }
-            else {
-                fprintf(stderr, "uh oh at T[%ld]='%c'\n", i, T[i]);
-                exit(EXIT_FAILURE);
-            }
-        }
-        T[w++] = '$';
-        save = w;
-        /* nullifiy rest of buffer */
-        while (w < n) {
-            T[w++] = '\0';
-        }
-        /* new length */
-        n = save;
-    }
-    fprintf(stdout, "%20s: %ld bytes\n", "packed size", n);
+    start = parasail_time();
+    read_and_pack_file(fname, T, n, progname);
+    finish = parasail_time();
+    fprintf(stdout, "%20s: %.4f seconds\n", "read and pack time", finish-start);
 
     /* Allocate memory. */
     SA = (int *)malloc((size_t)(n+1) * sizeof(int)); /* +1 for computing LCP */
@@ -519,8 +476,7 @@ int main(int argc, char **argv) {
     /* OpenMP can't iterate over an STL set. Convert to STL vector. */
     start = parasail_time();
     vector<Pair> vpairs(pairs.begin(), pairs.end());
-    vector<pair<size_t,parasail_result_t*> > results;
-    results.reserve(vpairs.size());
+    vector<parasail_result_t*> results(vpairs.size(), NULL);
     finish = parasail_time();
     fprintf(stdout, "%20s: %.4f seconds\n", "openmp prep time", finish-start);
 
@@ -543,11 +499,9 @@ int main(int argc, char **argv) {
                     (const char*)&T[i_beg], i_len,
                     (const char*)&T[j_beg], j_len,
                     gap_open, gap_extend, matrix);
-#pragma omp critical
-            {
-                work += local_work;
-                results.push_back(make_pair(index,result));
-            }
+#pragma omp atomic
+            work += local_work;
+            results[index] = result;
         }
     }
     finish = parasail_time();
@@ -557,9 +511,8 @@ int main(int argc, char **argv) {
 
     /* Output results. */
     unsigned long edge_count = 0;
-    for (size_t result_index=0; result_index<results.size(); ++result_index) {
-        size_t index = results[result_index].first;
-        parasail_result_t *result = results[result_index].second;
+    for (size_t index=0; index<results.size(); ++index) {
+        parasail_result_t *result = results[index];
         int i = vpairs[index].first;
         int j = vpairs[index].second;
         int i_beg = BEG[i];
@@ -698,5 +651,91 @@ inline static int self_score(
         score += matrix->matrix[matrix->size*mapped+mapped];
     }
     return score;
+}
+
+inline static void read_and_pack_file(
+        const char *fname, 
+        unsigned char * &T,
+        long &n,
+        const char *progname)
+{
+    FILE *fip = NULL;
+
+    /* Open a file for reading. */
+    if((fip = fopen(fname, "r")) == NULL) {
+        fprintf(stderr, "%s: Cannot open input file `%s': ", progname, fname);
+        perror("fopen");
+        exit(EXIT_FAILURE);
+    }
+
+    /* Get the database file size. */
+    if(fseek(fip, 0, SEEK_END) == 0) {
+        n = ftell(fip);
+        if(n < 0) {
+            fprintf(stderr, "%s: Cannot ftell `%s': ", progname, fname);
+            perror("ftell");
+            exit(EXIT_FAILURE);
+        }
+        rewind(fip);
+    } else {
+        fprintf(stderr, "%s: Cannot fseek `%s': ", progname, fname);
+        perror("fseek");
+        exit(EXIT_FAILURE);
+    }
+
+    /* Allocate file buffer, read the entire file, then pack it. */
+    T = (unsigned char *)malloc((size_t)(n+1) * sizeof(unsigned char));
+    if(fread(T, sizeof(unsigned char), (size_t)n, fip) != (size_t)n) {
+        fprintf(stderr, "%s: %s `%s': ",
+                progname,
+                (ferror(fip) || !feof(fip)) ? "Cannot read from" : "Unexpected EOF in",
+                fname);
+        perror("fread");
+        exit(EXIT_FAILURE);
+    }
+    fclose(fip);
+    T[n]='\0'; /* so we can print it */
+    fprintf(stdout, "%20s: %s\n", "filename", fname);
+    fprintf(stdout, "%20s: %ld bytes\n", "original size", n);
+    /* Pack the buffer so it's ready for sais function. */
+    {
+        long i;
+        char first = 1;
+        long w = 0;
+        long save = 0;
+        for (i=0; i<n; ++i) { 
+            if (T[i] == '>') {
+                if (first) {
+                    first = 0;
+                }
+                else {
+                    T[w++] = '$';
+                }
+                /* skip rest of this line */
+                while (T[i] != '\n') {
+                    ++i;
+                }
+            }
+            else if (isalpha(T[i])) {
+                T[w++] = T[i];
+            }
+            else if (T[i] == '\n') {
+                /* ignore newline */
+            }
+            else {
+                fprintf(stderr, "uh oh at T[%ld]='%c'\n", i, T[i]);
+                exit(EXIT_FAILURE);
+            }
+        }
+        T[w++] = '$';
+        save = w;
+        /* nullifiy rest of buffer */
+        while (w < n) {
+            T[w++] = '\0';
+        }
+        /* new length */
+        n = save;
+    }
+    fprintf(stdout, "%20s: %ld bytes\n", "packed size", n);
 }
 

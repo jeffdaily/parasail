@@ -80,7 +80,8 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-bin_PROGRAMS = apps/parasail_all$(EXEEXT) apps/parasail_query$(EXEEXT)
+bin_PROGRAMS = apps/parasail_aligner$(EXEEXT) \
+	apps/parasail_all$(EXEEXT) apps/parasail_query$(EXEEXT)
 check_PROGRAMS = tests/test_align$(EXEEXT) tests/test_gcups$(EXEEXT) \
 	tests/test_isa$(EXEEXT) tests/test_openmp$(EXEEXT) \
 	tests/test_query$(EXEEXT) tests/test_scatter$(EXEEXT) \
@@ -806,11 +807,20 @@ tests_libssw_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	-o $@
 @HAVE_SSE2_TRUE@am_tests_libssw_la_rpath =
 PROGRAMS = $(bin_PROGRAMS)
+am_apps_parasail_aligner_OBJECTS =  \
+	apps/apps_parasail_aligner-parasail_aligner.$(OBJEXT)
+apps_parasail_aligner_OBJECTS = $(am_apps_parasail_aligner_OBJECTS)
+am__DEPENDENCIES_2 = libparasail.la $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
+apps_parasail_aligner_DEPENDENCIES = $(am__DEPENDENCIES_2) \
+	tests/libsais.la
+apps_parasail_aligner_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(apps_parasail_aligner_CXXFLAGS) $(CXXFLAGS) \
+	$(apps_parasail_aligner_LDFLAGS) $(LDFLAGS) -o $@
 am_apps_parasail_all_OBJECTS =  \
 	apps/apps_parasail_all-parasail_all.$(OBJEXT)
 apps_parasail_all_OBJECTS = $(am_apps_parasail_all_OBJECTS)
-am__DEPENDENCIES_2 = libparasail.la $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
 apps_parasail_all_DEPENDENCIES = $(am__DEPENDENCIES_2) \
 	tests/libsais.la
 apps_parasail_all_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
@@ -961,10 +971,11 @@ SOURCES = $(libparasail_la_SOURCES) $(libparasail_avx2_la_SOURCES) \
 	$(libparasail_sse41_table_la_SOURCES) \
 	$(libparasail_sse_memory_la_SOURCES) \
 	$(tests_libsais_la_SOURCES) $(tests_libssw_la_SOURCES) \
-	$(apps_parasail_all_SOURCES) $(apps_parasail_query_SOURCES) \
-	$(tests_test_align_SOURCES) $(tests_test_gcups_SOURCES) \
-	$(tests_test_isa_SOURCES) $(tests_test_openmp_SOURCES) \
-	$(tests_test_query_SOURCES) $(tests_test_scatter_SOURCES) \
+	$(apps_parasail_aligner_SOURCES) $(apps_parasail_all_SOURCES) \
+	$(apps_parasail_query_SOURCES) $(tests_test_align_SOURCES) \
+	$(tests_test_gcups_SOURCES) $(tests_test_isa_SOURCES) \
+	$(tests_test_openmp_SOURCES) $(tests_test_query_SOURCES) \
+	$(tests_test_scatter_SOURCES) \
 	$(tests_test_sw_dispatch_SOURCES) $(tests_test_verify_SOURCES) \
 	$(tests_test_verify_tables_SOURCES)
 DIST_SOURCES = $(libparasail_la_SOURCES) \
@@ -983,10 +994,11 @@ DIST_SOURCES = $(libparasail_la_SOURCES) \
 	$(libparasail_sse_memory_la_SOURCES) \
 	$(tests_libsais_la_SOURCES) \
 	$(am__tests_libssw_la_SOURCES_DIST) \
-	$(apps_parasail_all_SOURCES) $(apps_parasail_query_SOURCES) \
-	$(tests_test_align_SOURCES) $(tests_test_gcups_SOURCES) \
-	$(tests_test_isa_SOURCES) $(tests_test_openmp_SOURCES) \
-	$(tests_test_query_SOURCES) $(tests_test_scatter_SOURCES) \
+	$(apps_parasail_aligner_SOURCES) $(apps_parasail_all_SOURCES) \
+	$(apps_parasail_query_SOURCES) $(tests_test_align_SOURCES) \
+	$(tests_test_gcups_SOURCES) $(tests_test_isa_SOURCES) \
+	$(tests_test_openmp_SOURCES) $(tests_test_query_SOURCES) \
+	$(tests_test_scatter_SOURCES) \
 	$(tests_test_sw_dispatch_SOURCES) $(tests_test_verify_SOURCES) \
 	$(tests_test_verify_tables_SOURCES)
 am__can_run_installinfo = \
@@ -1558,6 +1570,10 @@ libparasail_la_LIBADD = libparasail_novec.la \
 @HAVE_SSE2_TRUE@tests_libssw_la_CFLAGS = $(AM_CFLAGS) $(SSE2_CFLAGS)
 tests_libsais_la_SOURCES = contrib/sais-lite-lcp/sais.c \
 	contrib/sais-lite-lcp/sais.h
+apps_parasail_aligner_SOURCES = apps/parasail_aligner.cpp
+apps_parasail_aligner_CXXFLAGS = $(AM_CXXFLAGS) $(OPENMP_CXXFLAGS)
+apps_parasail_aligner_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CXXFLAGS)
+apps_parasail_aligner_LDADD = $(LDADD) tests/libsais.la
 apps_parasail_all_SOURCES = apps/parasail_all.cpp
 apps_parasail_all_CXXFLAGS = $(AM_CXXFLAGS) $(OPENMP_CXXFLAGS)
 apps_parasail_all_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CXXFLAGS)
@@ -2843,6 +2859,12 @@ apps/$(am__dirstamp):
 apps/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) apps/$(DEPDIR)
 	@: > apps/$(DEPDIR)/$(am__dirstamp)
+apps/apps_parasail_aligner-parasail_aligner.$(OBJEXT):  \
+	apps/$(am__dirstamp) apps/$(DEPDIR)/$(am__dirstamp)
+
+apps/parasail_aligner$(EXEEXT): $(apps_parasail_aligner_OBJECTS) $(apps_parasail_aligner_DEPENDENCIES) $(EXTRA_apps_parasail_aligner_DEPENDENCIES) apps/$(am__dirstamp)
+	@rm -f apps/parasail_aligner$(EXEEXT)
+	$(AM_V_CXXLD)$(apps_parasail_aligner_LINK) $(apps_parasail_aligner_OBJECTS) $(apps_parasail_aligner_LDADD) $(LIBS)
 apps/apps_parasail_all-parasail_all.$(OBJEXT): apps/$(am__dirstamp) \
 	apps/$(DEPDIR)/$(am__dirstamp)
 
@@ -2927,6 +2949,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@apps/$(DEPDIR)/apps_parasail_aligner-parasail_aligner.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@apps/$(DEPDIR)/apps_parasail_all-parasail_all.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@apps/$(DEPDIR)/apps_parasail_query-parasail_query.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@contrib/$(DEPDIR)/tests_libssw_la-ssw.Plo@am__quote@
@@ -7065,6 +7088,20 @@ tests/tests_test_verify_tables-test_verify_tables.obj: tests/test_verify_tables.
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LTCXXCOMPILE) -c -o $@ $<
+
+apps/apps_parasail_aligner-parasail_aligner.o: apps/parasail_aligner.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apps_parasail_aligner_CXXFLAGS) $(CXXFLAGS) -MT apps/apps_parasail_aligner-parasail_aligner.o -MD -MP -MF apps/$(DEPDIR)/apps_parasail_aligner-parasail_aligner.Tpo -c -o apps/apps_parasail_aligner-parasail_aligner.o `test -f 'apps/parasail_aligner.cpp' || echo '$(srcdir)/'`apps/parasail_aligner.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) apps/$(DEPDIR)/apps_parasail_aligner-parasail_aligner.Tpo apps/$(DEPDIR)/apps_parasail_aligner-parasail_aligner.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='apps/parasail_aligner.cpp' object='apps/apps_parasail_aligner-parasail_aligner.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apps_parasail_aligner_CXXFLAGS) $(CXXFLAGS) -c -o apps/apps_parasail_aligner-parasail_aligner.o `test -f 'apps/parasail_aligner.cpp' || echo '$(srcdir)/'`apps/parasail_aligner.cpp
+
+apps/apps_parasail_aligner-parasail_aligner.obj: apps/parasail_aligner.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apps_parasail_aligner_CXXFLAGS) $(CXXFLAGS) -MT apps/apps_parasail_aligner-parasail_aligner.obj -MD -MP -MF apps/$(DEPDIR)/apps_parasail_aligner-parasail_aligner.Tpo -c -o apps/apps_parasail_aligner-parasail_aligner.obj `if test -f 'apps/parasail_aligner.cpp'; then $(CYGPATH_W) 'apps/parasail_aligner.cpp'; else $(CYGPATH_W) '$(srcdir)/apps/parasail_aligner.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) apps/$(DEPDIR)/apps_parasail_aligner-parasail_aligner.Tpo apps/$(DEPDIR)/apps_parasail_aligner-parasail_aligner.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='apps/parasail_aligner.cpp' object='apps/apps_parasail_aligner-parasail_aligner.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apps_parasail_aligner_CXXFLAGS) $(CXXFLAGS) -c -o apps/apps_parasail_aligner-parasail_aligner.obj `if test -f 'apps/parasail_aligner.cpp'; then $(CYGPATH_W) 'apps/parasail_aligner.cpp'; else $(CYGPATH_W) '$(srcdir)/apps/parasail_aligner.cpp'; fi`
 
 apps/apps_parasail_all-parasail_all.o: apps/parasail_all.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apps_parasail_all_CXXFLAGS) $(CXXFLAGS) -MT apps/apps_parasail_all-parasail_all.o -MD -MP -MF apps/$(DEPDIR)/apps_parasail_all-parasail_all.Tpo -c -o apps/apps_parasail_all-parasail_all.o `test -f 'apps/parasail_all.cpp' || echo '$(srcdir)/'`apps/parasail_all.cpp

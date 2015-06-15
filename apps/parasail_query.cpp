@@ -1,19 +1,17 @@
 /**
- * @file parasail_all
+ * @file parasail_query
  *
  * @author jeff.daily@pnnl.gov
  *
  * Copyright 2012 Pacific Northwest National Laboratory. All rights reserved.
  *
- * Reads packed fasta file of N sequences.
+ * Reads fasta file of database sequences.
+ * Reads fasta file of query sequences.
  * Indexes input to learn length and end locations of each sequence.
  * Creates SA, LCP, and BWT.
  * Runs maximal pairs algorithm with the given minimum cutoff length.
- * For each sequence pair, performs semi-global alignment.
- *
- * Note about the input file. It is expected to be a packed fasta file
- * with each sequence delimited by the '$' sentinal. For example,
- * "banana$mississippi$foo$bar$".
+ * For each sequence pair, performs alignment of use choice.
+ * Output is csv of 'edges' between the two input files.
  */
 #include "config.h"
 
@@ -73,6 +71,7 @@ inline static void pair_check(
         const int * const restrict SA,
         const unsigned char * const restrict BWT,
         const int * const restrict SID,
+        const vector<int> &DB,
         const char &sentinal);
 
 inline static void process(
@@ -82,6 +81,7 @@ inline static void process(
         const int * const restrict SA,
         const unsigned char * const restrict BWT,
         const int * const restrict SID,
+        const vector<int> &DB,
         const char &sentinal,
         const int &cutoff);
 
@@ -107,6 +107,7 @@ static void print_help(const char *progname, int status) {
             "[-s SIM] "
             "[-i OS] "
             "-f file "
+            "-q query file "
             "[-g output] "
             "\n\n",
             progname);
@@ -120,6 +121,7 @@ static void print_help(const char *progname, int status) {
             "       SIM: 40, must be 0 <= SIM <= 100, percent exact matches\n"
             "        OS: 30, must be 0 <= OS <= 100, percent optimal score over self score\n"
             "      file: no default, must be in FASTA format\n"
+            "query file: no default, must be in FASTA format\n"
             "    output: edges.csv\n"
             );
     exit(status);
@@ -128,8 +130,10 @@ static void print_help(const char *progname, int status) {
 int main(int argc, char **argv) {
     FILE *fop = NULL;
     const char *fname = NULL;
+    const char *qname = NULL;
     const char *oname = "edges.csv";
     unsigned char *T = NULL;
+    unsigned char *Q = NULL;
 #ifdef _OPENMP
     int num_threads = 1;
 #endif
@@ -139,7 +143,10 @@ int main(int argc, char **argv) {
     int *SID = NULL;
     vector<int> BEG;
     vector<int> END;
+    vector<int> DB;
     long n = 0;
+    long t = 0;
+    long q = 0;
     double start = 0;
     double finish = 0;
     int i = 0;
@@ -158,13 +165,13 @@ int main(int argc, char **argv) {
     const parasail_matrix_t *matrix = NULL;
     int gap_open = 10;
     int gap_extend = 1;
-    const char *progname = "parasail_all";
+    const char *progname = "parasail_query";
     int AOL = 80;
     int SIM = 40;
     int OS = 30;
 
     /* Check arguments. */
-    while ((c = getopt(argc, argv, "a:c:e:f:g:hi:l:m:o:s:")) != -1) {
+    while ((c = getopt(argc, argv, "a:c:e:f:g:hi:l:m:o:q:s:")) != -1) {
         switch (c) {
             case 'a':
                 funcname = optarg;
@@ -183,6 +190,9 @@ int main(int argc, char **argv) {
                 break;
             case 'f':
                 fname = optarg;
+                break;
+            case 'q':
+                qname = optarg;
                 break;
             case 'g':
                 oname = optarg;
@@ -225,6 +235,7 @@ int main(int argc, char **argv) {
                         || optopt == 'g'
                         || optopt == 'm'
                         || optopt == 'o'
+                        || optopt == 'q'
                         || optopt == 'l'
                         || optopt == 's'
                         || optopt == 'i'
@@ -281,6 +292,11 @@ int main(int argc, char **argv) {
         print_help(progname, EXIT_FAILURE);
     }
 
+    if (qname == NULL) {
+        fprintf(stderr, "missing query file\n");
+        print_help(progname, EXIT_FAILURE);
+    }
+
     /* print the parameters for reference */
     fprintf(stdout,
             "%20s: %s\n"
@@ -293,6 +309,7 @@ int main(int argc, char **argv) {
             "%20s: %d\n"
             "%20s: %s\n"
             "%20s: %s\n",
+            "%20s: %s\n",
             "funcname", funcname,
             "cutoff", cutoff,
             "gap_extend", gap_extend,
@@ -302,6 +319,7 @@ int main(int argc, char **argv) {
             "SIM", SIM,
             "OS", OS,
             "file", fname,
+            "query", qname,
             "output", oname
             );
 
@@ -313,9 +331,22 @@ int main(int argc, char **argv) {
     }
     
     start = parasail_time();
-    read_and_pack_file(fname, T, n, progname);
+    read_and_pack_file(fname, T, t, progname);
+    read_and_pack_file(qname, Q, q, progname);
+    n = t+q;
     finish = parasail_time();
     fprintf(stdout, "%20s: %.4f seconds\n", "read and pack time", finish-start);
+
+    /* realloc T and copy Q into it */
+    T = (unsigned char*)realloc(T, (n+1)*sizeof(unsigned char));
+    if (T == NULL) {
+        fprintf(stderr, "%s: Cannot allocate memory.\n", progname);
+        perror("realloc");
+        exit(EXIT_FAILURE);
+    }
+    (void)memcpy(T+t, Q, q);
+    free(Q);
+    T[n] = '\0';
 
     /* Allocate memory. */
     SA = (int *)malloc((size_t)(n+1) * sizeof(int)); /* +1 for computing LCP */
@@ -329,6 +360,7 @@ int main(int argc, char **argv) {
             || (SID == NULL))
     {
         fprintf(stderr, "%s: Cannot allocate memory.\n", progname);
+        perror("malloc");
         exit(EXIT_FAILURE);
     }
 
@@ -361,6 +393,7 @@ int main(int argc, char **argv) {
             longest = (len>longest) ? len : longest;
             END.push_back(i);
             BEG.push_back(i+1);
+            DB.push_back(i<t);
             ++sid;
         }
     }
@@ -432,7 +465,7 @@ int main(int argc, char **argv) {
                 the_stack.top().rb = i - 1;
                 last_interval = the_stack.top();
                 the_stack.pop();
-                process(count_generated, pairs, last_interval, SA, BWT, SID, sentinal, cutoff);
+                process(count_generated, pairs, last_interval, SA, BWT, SID, DB, sentinal, cutoff);
                 lb = last_interval.lb;
                 if (LCP[i] <= the_stack.top().lcp) {
                     last_interval.children.clear();
@@ -452,7 +485,7 @@ int main(int argc, char **argv) {
             }
         }
         the_stack.top().rb = bup_stop - 1;
-        process(count_generated, pairs, the_stack.top(), SA, BWT, SID, sentinal, cutoff);
+        process(count_generated, pairs, the_stack.top(), SA, BWT, SID, DB, sentinal, cutoff);
     }
     finish = parasail_time();
     count_possible = ((unsigned long)sid)*((unsigned long)sid-1)/2;
@@ -573,12 +606,13 @@ inline static void pair_check(
         const int * const restrict SA,
         const unsigned char * const restrict BWT,
         const int * const restrict SID,
+        const vector<int> &DB,
         const char &sentinal)
 {
     const int &sidi = SID[SA[i]];
     const int &sidj = SID[SA[j]];
     if (BWT[i] != BWT[j] || BWT[i] == sentinal) {
-        if (sidi != sidj) {
+        if (sidi != sidj && DB[sidi] != DB[sidj]) {
             ++count_generated;
             if (sidi < sidj) {
                 pairs.insert(make_pair(sidi,sidj));
@@ -607,6 +641,7 @@ inline static void process(
         const int * const restrict SA,
         const unsigned char * const restrict BWT,
         const int * const restrict SID,
+        const vector<int> &DB,
         const char &sentinal,
         const int &cutoff)
 {
@@ -627,14 +662,14 @@ inline static void process(
                 }
             }
             for (/*nope*/; j<=q.rb; ++j) {
-                pair_check(count_generated, pairs, i, j, SA, BWT, SID, sentinal);
+                pair_check(count_generated, pairs, i, j, SA, BWT, SID, DB, sentinal);
             }
         }
     }
     else {
         for (int i=q.lb; i<=q.rb; ++i) {
             for (int j=i+1; j<=q.rb; ++j) {
-                pair_check(count_generated, pairs, i, j, SA, BWT, SID, sentinal);
+                pair_check(count_generated, pairs, i, j, SA, BWT, SID, DB, sentinal);
             }
         }
     }

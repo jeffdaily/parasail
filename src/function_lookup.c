@@ -15,38 +15,52 @@
 
 parasail_function_t * parasail_lookup_function(const char *funcname)
 {
-    parasail_function_t * function = NULL;
+    const parasail_function_info_t * info = NULL;
+
+    info = parasail_lookup_function_info(funcname);
+
+    if (info && info->pointer) {
+        return info->pointer;
+    }
+
+    return NULL;
+}
+
+const parasail_function_info_t * parasail_lookup_function_info(const char *funcname)
+{
+    const parasail_function_info_t * f = NULL;
 
     if (funcname) {
         int index = 0;
-        parasail_function_info_t f;
-        f = functions[index++];
-        while (f.pointer) {
-            if (0 == strcmp(funcname, f.name)) {
-                function = f.pointer;
+        f = &functions[index++];
+        while (f->pointer) {
+            if (0 == strcmp(funcname, f->name)) {
                 break;
             }
-            f = functions[index++];
+            f = &functions[index++];
         }
-        if (!function) {
+        if (!f->pointer) {
             /* perhaps caller forgot "parasail_" prefix? */
             const char *prefix = "parasail_";
             char *newname = (char*)malloc(strlen(prefix)+strlen(funcname)+1);
             strcpy(newname, prefix);
             strcat(newname, funcname);
             index = 0;
-            f = functions[index++];
-            while (f.pointer) {
-                if (0 == strcmp(newname, f.name)) {
-                    function = f.pointer;
+            f = &functions[index++];
+            while (f->pointer) {
+                if (0 == strcmp(newname, f->name)) {
                     break;
                 }
-                f = functions[index++];
+                f = &functions[index++];
             }
             free(newname);
         }
     }
 
-    return function;
+    if (!f->pointer) {
+        f = NULL;
+    }
+
+    return f;
 }
 

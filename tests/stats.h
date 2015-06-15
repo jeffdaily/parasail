@@ -30,12 +30,6 @@ static inline void stats_clear(stats_t *stats) {
     stats->_max = 0.0;
 }
 
-static inline stats_t* stats_new() {
-    stats_t *stats = (stats_t*)malloc(sizeof(stats_t));
-    stats_clear(stats);
-    return stats;
-}
-
 static inline void stats_sample_value(stats_t *stats, const double x) {
     double delta = 0;
 
@@ -54,34 +48,6 @@ static inline void stats_sample_value(stats_t *stats, const double x) {
     delta = x - stats->_mean;
     stats->_mean = stats->_mean + delta/stats->_n;
     stats->_M2 = stats->_M2 + delta * (x - stats->_mean);
-}
-
-static inline void stats_sample_stats(stats_t *stats, const stats_t * const B) {
-    if (B->_n == 0) {
-        return;
-    }
-    else if (stats->_n == 0) {
-        stats->_n = B->_n;
-        stats->_mean = B->_mean;
-        stats->_M2 = B->_M2;
-        stats->_sum = B->_sum;
-        stats->_min = B->_min;
-        stats->_max = B->_max;
-    }
-    else {
-        double delta = B->_mean - stats->_mean;
-        unsigned long X_n = stats->_n + B->_n;
-        /*double X_mean = stats->_mean + delta*(B->_n/X_n);*/
-        double X_mean = (stats->_n*stats->_mean + B->_n*B->_mean) / X_n;
-        double X_M2 = stats->_M2 + B->_M2 + delta*delta*stats->_n*B->_n/X_n;
-
-        stats->_n = X_n;
-        stats->_mean = X_mean;
-        stats->_M2 = X_M2;
-        stats->_sum += B->_sum;
-        stats->_min = stats->_min < B->_min ? stats->_min : B->_min;
-        stats->_max = stats->_max > B->_max ? stats->_max : B->_max;
-    }
 }
 
 static inline double stats_variance(const stats_t * const stats) {

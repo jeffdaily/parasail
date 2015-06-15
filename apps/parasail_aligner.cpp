@@ -1,19 +1,18 @@
 /**
- * @file parasail_all
+ * @file parasail_query
  *
  * @author jeff.daily@pnnl.gov
  *
  * Copyright 2012 Pacific Northwest National Laboratory. All rights reserved.
  *
- * Reads packed fasta file of N sequences.
+ * Reads fasta file of database sequences.
+ * Optionally reads fasta file of query sequences.
+ * Optionally filters inputs through suffix array.
  * Indexes input to learn length and end locations of each sequence.
  * Creates SA, LCP, and BWT.
  * Runs maximal pairs algorithm with the given minimum cutoff length.
- * For each sequence pair, performs semi-global alignment.
- *
- * Note about the input file. It is expected to be a packed fasta file
- * with each sequence delimited by the '$' sentinal. For example,
- * "banana$mississippi$foo$bar$".
+ * For each sequence pair, performs alignment of user choice.
+ * Output is csv of alignments between sequences.
  */
 #include "config.h"
 
@@ -73,6 +72,7 @@ inline static void pair_check(
         const int * const restrict SA,
         const unsigned char * const restrict BWT,
         const int * const restrict SID,
+        const vector<int> &DB,
         const char &sentinal);
 
 inline static void process(
@@ -82,6 +82,7 @@ inline static void process(
         const int * const restrict SA,
         const unsigned char * const restrict BWT,
         const int * const restrict SID,
+        const vector<int> &DB,
         const char &sentinal,
         const int &cutoff);
 
@@ -100,27 +101,25 @@ static void print_help(const char *progname, int status) {
     fprintf(stderr, "\nusage: %s "
             "[-a funcname] "
             "[-c cutoff] "
+            "[-x] "
             "[-e gap_extend] "
             "[-o gap_open] "
             "[-m matrix] "
-            "[-l AOL] "
-            "[-s SIM] "
-            "[-i OS] "
             "-f file "
-            "[-g output] "
+            "[-q query_file] "
+            "[-g output_file] "
             "\n\n",
             progname);
     fprintf(stderr, "Defaults:\n"
-            "  funcname: sg_stats_striped_16\n"
-            "    cutoff: 7, must be >= 1, exact match length cutoff\n"
-            "gap_extend: 1, must be >= 0\n"
-            "  gap_open: 10, must be >= 0\n"
-            "    matrix: blosum62\n"
-            "       AOL: 80, must be 0 <= AOL <= 100, percent alignment length\n"
-            "       SIM: 40, must be 0 <= SIM <= 100, percent exact matches\n"
-            "        OS: 30, must be 0 <= OS <= 100, percent optimal score over self score\n"
-            "      file: no default, must be in FASTA format\n"
-            "    output: edges.csv\n"
+            "   funcname: sw_stats_striped_16\n"
+            "     cutoff: 7, must be >= 1, exact match length cutoff\n"
+            "         -x: if present, don't use suffix array filter\n"
+            " gap_extend: 1, must be >= 0\n"
+            "   gap_open: 10, must be >= 0\n"
+            "     matrix: blosum62\n"
+            "       file: no default, must be in FASTA format\n"
+            " query_file: no default, must be in FASTA format\n"
+            "output_file: parasail.csv\n"
             );
     exit(status);
 }
@@ -128,8 +127,10 @@ static void print_help(const char *progname, int status) {
 int main(int argc, char **argv) {
     FILE *fop = NULL;
     const char *fname = NULL;
-    const char *oname = "edges.csv";
+    const char *qname = NULL;
+    const char *oname = "parasail.csv";
     unsigned char *T = NULL;
+    unsigned char *Q = NULL;
 #ifdef _OPENMP
     int num_threads = 1;
 #endif
@@ -139,32 +140,33 @@ int main(int argc, char **argv) {
     int *SID = NULL;
     vector<int> BEG;
     vector<int> END;
+    vector<int> DB;
     long n = 0;
+    long t = 0;
+    long q = 0;
     double start = 0;
     double finish = 0;
     int i = 0;
-    int longest = 0;
     int sid = 0;
+    int sid_crossover = -1;
     char sentinal = 0;
     int cutoff = 7;
+    bool use_filter = true;
     PairSet pairs;
     unsigned long count_possible = 0;
     unsigned long count_generated = 0;
     unsigned long work = 0;
     int c = 0;
-    const char *funcname = "sg_stats_striped_16";
+    const char *funcname = "sw_stats_striped_16";
     parasail_function_t *function = NULL;
     const char *matrixname = "blosum62";
     const parasail_matrix_t *matrix = NULL;
     int gap_open = 10;
     int gap_extend = 1;
-    const char *progname = "parasail_all";
-    int AOL = 80;
-    int SIM = 40;
-    int OS = 30;
+    const char *progname = "parasail_aligner";
 
     /* Check arguments. */
-    while ((c = getopt(argc, argv, "a:c:e:f:g:hi:l:m:o:s:")) != -1) {
+    while ((c = getopt(argc, argv, "a:c:e:f:g:hm:o:q:x")) != -1) {
         switch (c) {
             case 'a':
                 funcname = optarg;
@@ -184,6 +186,9 @@ int main(int argc, char **argv) {
             case 'f':
                 fname = optarg;
                 break;
+            case 'q':
+                qname = optarg;
+                break;
             case 'g':
                 oname = optarg;
                 break;
@@ -199,23 +204,8 @@ int main(int argc, char **argv) {
                     print_help(progname, EXIT_FAILURE);
                 }
                 break;
-            case 'l':
-                AOL = atoi(optarg);
-                if (AOL < 0 || AOL > 100) {
-                    print_help(progname, EXIT_FAILURE);
-                }
-                break;
-            case 's':
-                SIM = atoi(optarg);
-                if (SIM < 0 || SIM > 100) {
-                    print_help(progname, EXIT_FAILURE);
-                }
-                break;
-            case 'i':
-                OS = atoi(optarg);
-                if (OS < 0 || OS > 100) {
-                    print_help(progname, EXIT_FAILURE);
-                }
+            case 'x':
+                use_filter = false;
                 break;
             case '?':
                 if (optopt == 'a'
@@ -225,9 +215,7 @@ int main(int argc, char **argv) {
                         || optopt == 'g'
                         || optopt == 'm'
                         || optopt == 'o'
-                        || optopt == 'l'
-                        || optopt == 's'
-                        || optopt == 'i'
+                        || optopt == 'q'
                         ) {
                     fprintf(stderr,
                             "Option -%c requires an argument.\n",
@@ -251,11 +239,6 @@ int main(int argc, char **argv) {
 
     /* select the function */
     if (funcname) {
-        if (NULL == strstr(funcname, "stats") ) {
-            fprintf(stderr, "Specified function does not calculate stats.\n");
-            fprintf(stderr, "Use a 'stats' function, e.g, sg_stats_striped_16.\n");
-            exit(EXIT_FAILURE);
-        }
         function = parasail_lookup_function(funcname);
         if (NULL == function) {
             fprintf(stderr, "Specified function not found.\n");
@@ -285,23 +268,21 @@ int main(int argc, char **argv) {
     fprintf(stdout,
             "%20s: %s\n"
             "%20s: %d\n"
-            "%20s: %d\n"
-            "%20s: %d\n"
             "%20s: %s\n"
             "%20s: %d\n"
             "%20s: %d\n"
-            "%20s: %d\n"
+            "%20s: %s\n"
+            "%20s: %s\n"
             "%20s: %s\n"
             "%20s: %s\n",
             "funcname", funcname,
             "cutoff", cutoff,
+            "use filter", use_filter ? "yes" : "no",
             "gap_extend", gap_extend,
             "gap_open", gap_open,
             "matrix", matrixname,
-            "AOL", AOL,
-            "SIM", SIM,
-            "OS", OS,
             "file", fname,
+            "query", (NULL == qname) ? "<no query>" : qname,
             "output", oname
             );
 
@@ -313,22 +294,32 @@ int main(int argc, char **argv) {
     }
     
     start = parasail_time();
-    read_and_pack_file(fname, T, n, progname);
+    if (qname == NULL) {
+        read_and_pack_file(fname, T, n, progname);
+    }
+    else {
+        read_and_pack_file(fname, T, t, progname);
+        read_and_pack_file(qname, Q, q, progname);
+        n = t+q;
+        /* realloc T and copy Q into it */
+        T = (unsigned char*)realloc(T, (n+1)*sizeof(unsigned char));
+        if (T == NULL) {
+            fprintf(stderr, "%s: Cannot reallocate memory.\n", progname);
+            perror("realloc");
+            exit(EXIT_FAILURE);
+        }
+        (void)memcpy(T+t, Q, q);
+        free(Q);
+    }
+    T[n] = '\0';
     finish = parasail_time();
     fprintf(stdout, "%20s: %.4f seconds\n", "read and pack time", finish-start);
 
-    /* Allocate memory. */
-    SA = (int *)malloc((size_t)(n+1) * sizeof(int)); /* +1 for computing LCP */
-    LCP = (int *)malloc((size_t)(n+1) * sizeof(int)); /* +1 for lcp tree */
-    BWT = (unsigned char *)malloc((size_t)(n+1) * sizeof(unsigned char));
+    /* Allocate memory for sequence ID array. */
     SID = (int *)malloc((size_t)n * sizeof(int));
-    if((T == NULL)
-            || (SA == NULL)
-            || (LCP == NULL)
-            || (BWT == NULL)
-            || (SID == NULL))
-    {
+    if(SID == NULL) {
         fprintf(stderr, "%s: Cannot allocate memory.\n", progname);
+        perror("malloc");
         exit(EXIT_FAILURE);
     }
 
@@ -351,121 +342,168 @@ int main(int argc, char **argv) {
     }
 
     /* scan T from left to build sequence ID and end index */
-    longest = 0;
     sid = 0;
     BEG.push_back(0);
     for (i=0; i<n; ++i) {
         SID[i] = sid;
         if (T[i] == sentinal) {
-            int len = i-BEG[sid];
-            longest = (len>longest) ? len : longest;
             END.push_back(i);
             BEG.push_back(i+1);
+            DB.push_back(i<t);
+            if (-1 == sid_crossover && i>=t) {
+                sid_crossover = sid;
+            }
             ++sid;
         }
     }
-    longest += 1;
     if (0 == sid) { /* no sentinal found */
         fprintf(stderr, "no sentinal(%c) found in input\n", sentinal);
         exit(EXIT_FAILURE);
     }
-
-    /* Construct the suffix and LCP arrays.
-     * The following sais routine is from Fischer, with bugs fixed. */
-    start = parasail_time();
-    if(sais(T, SA, LCP, (int)n) != 0) {
-        fprintf(stderr, "%s: Cannot allocate memory.\n", progname);
-        exit(EXIT_FAILURE);
-    }
-    finish = parasail_time();
-    fprintf(stdout, "%20s: %.4f seconds\n", "induced SA time", finish-start);
-
-    /* construct naive BWT: */
-    start = parasail_time();
-    for (i = 0; i < n; ++i) {
-        BWT[i] = (SA[i] > 0) ? T[SA[i]-1] : sentinal;
-    }
-    finish = parasail_time();
-    fprintf(stdout, "%20s: %.4f seconds\n", "naive BWT time", finish-start);
-
-    /* "fix" the LCP array to clamp LCP's that are too long */
-    start = parasail_time();
-    for (i = 0; i < n; ++i) {
-        int len = END[SID[SA[i]]] - SA[i]; /* don't include sentinal */
-        if (LCP[i] > len) LCP[i] = len;
-    }
-    finish = parasail_time();
-    fprintf(stdout, "%20s: %.4f seconds\n", "clamp LCP time", finish-start);
-
-    /* The GSA we create will put all sentinals either at the beginning
-     * or end of the SA. We don't want to count all of the terminals,
-     * nor do we want to process them in our bottom-up traversal. */
-    /* do the sentinals appear at the beginning or end of SA? */
-    int bup_start = 1;
-    int bup_stop = n;
-    if (T[SA[0]] == sentinal) {
-        /* sentinals at beginning */
-        bup_start = sid+1;
-        bup_stop = n;
-    }
-    else if (T[SA[n-1]] == sentinal) {
-        /* sentinals at end */
-        bup_start = 1;
-        bup_stop = n-sid;
+    fprintf(stdout, "%20s: %d\n", "number of sequences", sid);
+    /* if we don't have a query file, clear the DB flags */
+    if (qname == NULL) {
+        DB.clear();
+        sid_crossover = -1;
     }
     else {
-        fprintf(stderr, "sentinals not found at beginning or end of SA\n");
-        exit(EXIT_FAILURE);
+        fprintf(stdout, "%20s: %d\n", "number of queries", sid - sid_crossover);
+        fprintf(stdout, "%20s: %d\n", "number of db seqs", sid_crossover);
     }
 
-    /* DFS of enhanced SA, from Abouelhoda et al */
-    start = parasail_time();
-    count_generated = 0;
-    LCP[n] = 0; /* doesn't really exist, but for the root */
-    {
-        stack<quad> the_stack;
-        quad last_interval;
-        the_stack.push(quad());
-        for (i = bup_start; i <= bup_stop; ++i) {
-            int lb = i - 1;
-            while (LCP[i] < the_stack.top().lcp) {
-                the_stack.top().rb = i - 1;
-                last_interval = the_stack.top();
-                the_stack.pop();
-                process(count_generated, pairs, last_interval, SA, BWT, SID, sentinal, cutoff);
-                lb = last_interval.lb;
-                if (LCP[i] <= the_stack.top().lcp) {
-                    last_interval.children.clear();
-                    the_stack.top().children.push_back(last_interval);
-                    last_interval = quad();
+    /* use the enhanced SA filter */
+    if (use_filter) {
+        /* Allocate memory for enhanced SA. */
+        SA = (int *)malloc((size_t)(n+1) * sizeof(int)); /* +1 for LCP */
+        LCP = (int *)malloc((size_t)(n+1) * sizeof(int)); /* +1 for lcp tree */
+        BWT = (unsigned char *)malloc((size_t)(n+1) * sizeof(unsigned char));
+        if((SA == NULL) || (LCP == NULL) || (BWT == NULL))
+        {
+            fprintf(stderr, "%s: Cannot allocate ESA memory.\n", progname);
+            perror("malloc");
+            exit(EXIT_FAILURE);
+        }
+
+        /* Construct the suffix and LCP arrays.
+         * The following sais routine is from Fischer, with bugs fixed. */
+        start = parasail_time();
+        if(sais(T, SA, LCP, (int)n) != 0) {
+            fprintf(stderr, "%s: Cannot allocate memory.\n", progname);
+            exit(EXIT_FAILURE);
+        }
+        finish = parasail_time();
+        fprintf(stdout,"%20s: %.4f seconds\n", "induced SA time", finish-start);
+
+        /* construct naive BWT: */
+        start = parasail_time();
+        for (i = 0; i < n; ++i) {
+            BWT[i] = (SA[i] > 0) ? T[SA[i]-1] : sentinal;
+        }
+        finish = parasail_time();
+        fprintf(stdout, "%20s: %.4f seconds\n", "naive BWT time", finish-start);
+
+        /* "fix" the LCP array to clamp LCP's that are too long */
+        start = parasail_time();
+        for (i = 0; i < n; ++i) {
+            int len = END[SID[SA[i]]] - SA[i]; /* don't include sentinal */
+            if (LCP[i] > len) LCP[i] = len;
+        }
+        finish = parasail_time();
+        fprintf(stdout, "%20s: %.4f seconds\n", "clamp LCP time", finish-start);
+
+        /* The GSA we create will put all sentinals either at the beginning
+         * or end of the SA. We don't want to count all of the terminals,
+         * nor do we want to process them in our bottom-up traversal. */
+        /* do the sentinals appear at the beginning or end of SA? */
+        int bup_start = 1;
+        int bup_stop = n;
+        if (T[SA[0]] == sentinal) {
+            /* sentinals at beginning */
+            bup_start = sid+1;
+            bup_stop = n;
+        }
+        else if (T[SA[n-1]] == sentinal) {
+            /* sentinals at end */
+            bup_start = 1;
+            bup_stop = n-sid;
+        }
+        else {
+            fprintf(stderr, "sentinals not found at beginning or end of SA\n");
+            exit(EXIT_FAILURE);
+        }
+
+        /* DFS of enhanced SA, from Abouelhoda et al */
+        start = parasail_time();
+        count_generated = 0;
+        LCP[n] = 0; /* doesn't really exist, but for the root */
+        {
+            stack<quad> the_stack;
+            quad last_interval;
+            the_stack.push(quad());
+            for (i = bup_start; i <= bup_stop; ++i) {
+                int lb = i - 1;
+                while (LCP[i] < the_stack.top().lcp) {
+                    the_stack.top().rb = i - 1;
+                    last_interval = the_stack.top();
+                    the_stack.pop();
+                    process(count_generated, pairs, last_interval, SA, BWT, SID, DB, sentinal, cutoff);
+                    lb = last_interval.lb;
+                    if (LCP[i] <= the_stack.top().lcp) {
+                        last_interval.children.clear();
+                        the_stack.top().children.push_back(last_interval);
+                        last_interval = quad();
+                    }
+                }
+                if (LCP[i] > the_stack.top().lcp) {
+                    if (!last_interval.empty()) {
+                        last_interval.children.clear();
+                        the_stack.push(quad(LCP[i],lb,INT_MAX,vector<quad>(1, last_interval)));
+                        last_interval = quad();
+                    }
+                    else {
+                        the_stack.push(quad(LCP[i],lb,INT_MAX));
+                    }
                 }
             }
-            if (LCP[i] > the_stack.top().lcp) {
-                if (!last_interval.empty()) {
-                    last_interval.children.clear();
-                    the_stack.push(quad(LCP[i],lb,INT_MAX,vector<quad>(1, last_interval)));
-                    last_interval = quad();
-                }
-                else {
-                    the_stack.push(quad(LCP[i],lb,INT_MAX));
+            the_stack.top().rb = bup_stop - 1;
+            process(count_generated, pairs, the_stack.top(), SA, BWT, SID, DB, sentinal, cutoff);
+        }
+        finish = parasail_time();
+        count_possible = ((unsigned long)sid)*((unsigned long)sid-1)/2;
+        fprintf(stdout, "%20s: %.4f seconds\n", "ESA time", finish-start);
+        fprintf(stdout, "%20s: %lu\n", "possible pairs", count_possible);
+        fprintf(stdout, "%20s: %lu\n", "generated pairs", count_generated);
+
+        /* Deallocate memory. */
+        free(SA);
+        free(LCP);
+        free(BWT);
+    }
+    else {
+        /* don't use enhanced SA filter -- generate all pairs */
+        start = parasail_time();
+        if (qname == NULL) {
+            /* no query file, so all against all comparison */
+            for (int i=0; i<sid; ++i) {
+                for (int j=i+1; j<sid; ++j) {
+                    pairs.insert(make_pair(i,j));
                 }
             }
         }
-        the_stack.top().rb = bup_stop - 1;
-        process(count_generated, pairs, the_stack.top(), SA, BWT, SID, sentinal, cutoff);
+        else {
+            /* query given, so only compare query against database */
+            for (int i=sid_crossover; i<sid; ++i) {
+                for (int j=0; j<sid_crossover; ++j) {
+                    pairs.insert(make_pair(i,j));
+                }
+            }
+        }
+        finish = parasail_time();
+        fprintf(stdout, "%20s: %.4f seconds\n", "enumerate time", finish-start);
     }
-    finish = parasail_time();
-    count_possible = ((unsigned long)sid)*((unsigned long)sid-1)/2;
-    fprintf(stdout, "%20s: %.4f seconds\n", "processing time", finish-start);
-    fprintf(stdout, "%20s: %d\n", "number of sequences", sid);
-    fprintf(stdout, "%20s: %lu\n", "possible pairs", count_possible);
-    fprintf(stdout, "%20s: %lu\n", "generated pairs", count_generated);
     fprintf(stdout, "%20s: %zu\n", "unique pairs", pairs.size());
 
     /* Deallocate memory. */
-    free(SA);
-    free(LCP);
-    free(BWT);
     free(SID);
 
 #ifdef _OPENMP
@@ -510,53 +548,31 @@ int main(int argc, char **argv) {
     fprintf(stdout, "%20s: %.4f \n", "gcups", double(work)/(finish-start)/1000000);
 
     /* Output results. */
-    unsigned long edge_count = 0;
+    bool is_stats = (NULL != strstr(funcname, "stats"));
     for (size_t index=0; index<results.size(); ++index) {
         parasail_result_t *result = results[index];
         int i = vpairs[index].first;
         int j = vpairs[index].second;
-        int i_beg = BEG[i];
-        int i_end = END[i];
-        int i_len = i_end-i_beg;
-        int j_beg = BEG[j];
-        int j_end = END[j];
-        int j_len = j_end-j_beg;
-        int i_self_score = 0;
-        int j_self_score = 0;
-        int max_len = 0;
-        int self_score_ = 0;
 
-        if (result->score <= 0) {
-            continue; /* skip negative scores */
-        }
-
-        i_self_score = self_score((const char*)&T[i_beg], i_len, matrix);
-        j_self_score = self_score((const char*)&T[j_beg], j_len, matrix);
-
-        if (i_len > j_len) {
-            max_len = i_len;
-            self_score_ = i_self_score;
+        if (is_stats) {
+            fprintf(fop, "%d,%d,%d,%d,%d,%d\n",
+                    (NULL == qname) ? i : i - sid_crossover,
+                    j,
+                    result->score,
+                    result->matches,
+                    result->similar,
+                    result->length);
         }
         else {
-            max_len = j_len;
-            self_score_ = j_self_score;
+            fprintf(fop, "%d,%d,%d\n",
+                    (NULL == qname) ? i : i - sid_crossover,
+                    j,
+                    result->score);
         }
 
-        if ((result->length * 100 >= AOL * int(max_len))
-                && (result->matches * 100 >= SIM * result->length)
-                && (result->score * 100 >= OS * self_score_)) {
-            ++edge_count;
-            fprintf(fop, "%d,%d,%f,%f,%f\n",
-                    i, j,
-                    1.0*result->length/max_len,
-                    1.0*result->matches/result->length,
-                    1.0*result->score/self_score_);
-        }
         parasail_result_free(result);
     }
     fclose(fop);
-
-    fprintf(stdout, "%20s: %lu\n", "edges count", edge_count);
 
     /* Done with input text. */
     free(T);
@@ -573,18 +589,32 @@ inline static void pair_check(
         const int * const restrict SA,
         const unsigned char * const restrict BWT,
         const int * const restrict SID,
+        const vector<int> &DB,
         const char &sentinal)
 {
     const int &sidi = SID[SA[i]];
     const int &sidj = SID[SA[j]];
     if (BWT[i] != BWT[j] || BWT[i] == sentinal) {
-        if (sidi != sidj) {
-            ++count_generated;
-            if (sidi < sidj) {
-                pairs.insert(make_pair(sidi,sidj));
+        if (DB.empty()) {
+            if (sidi != sidj) {
+                ++count_generated;
+                if (sidi < sidj) {
+                    pairs.insert(make_pair(sidi,sidj));
+                }
+                else {
+                    pairs.insert(make_pair(sidj,sidi));
+                }
             }
-            else {
-                pairs.insert(make_pair(sidj,sidi));
+        }
+        else {
+            if (sidi != sidj && DB[sidi] != DB[sidj]) {
+                ++count_generated;
+                if (sidi > sidj) {
+                    pairs.insert(make_pair(sidi,sidj));
+                }
+                else {
+                    pairs.insert(make_pair(sidj,sidi));
+                }
             }
         }
     }
@@ -607,6 +637,7 @@ inline static void process(
         const int * const restrict SA,
         const unsigned char * const restrict BWT,
         const int * const restrict SID,
+        const vector<int> &DB,
         const char &sentinal,
         const int &cutoff)
 {
@@ -627,14 +658,14 @@ inline static void process(
                 }
             }
             for (/*nope*/; j<=q.rb; ++j) {
-                pair_check(count_generated, pairs, i, j, SA, BWT, SID, sentinal);
+                pair_check(count_generated, pairs, i, j, SA, BWT, SID, DB, sentinal);
             }
         }
     }
     else {
         for (int i=q.lb; i<=q.rb; ++i) {
             for (int j=i+1; j<=q.rb; ++j) {
-                pair_check(count_generated, pairs, i, j, SA, BWT, SID, sentinal);
+                pair_check(count_generated, pairs, i, j, SA, BWT, SID, DB, sentinal);
             }
         }
     }
@@ -685,6 +716,11 @@ inline static void read_and_pack_file(
 
     /* Allocate file buffer, read the entire file, then pack it. */
     T = (unsigned char *)malloc((size_t)(n+1) * sizeof(unsigned char));
+    if (T == NULL) {
+        fprintf(stderr, "%s: Cannot allocate memory for file.\n", progname);
+        perror("malloc");
+        exit(EXIT_FAILURE);
+    }
     if(fread(T, sizeof(unsigned char), (size_t)n, fip) != (size_t)n) {
         fprintf(stderr, "%s: %s `%s': ",
                 progname,

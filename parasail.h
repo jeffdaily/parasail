@@ -121,9 +121,17 @@ void parasail_result_free(parasail_result_t *result);
 extern PARASAIL_API
 parasail_function_t * parasail_lookup_function(const char *funcname);
 
+/** Lookup function info by name. */
+extern PARASAIL_API
+const parasail_function_info_t * parasail_lookup_function_info(const char *funcname);
+
 /** Current time in seconds with nanosecond resolution. */
 extern PARASAIL_API
 double parasail_time(void);
+
+/** Lookup substitution matrix by name. */
+extern PARASAIL_API
+const parasail_matrix_t* parasail_matrix_lookup(const char *matrixname);
 
 /** Create simple substitution matrix. */
 extern PARASAIL_API

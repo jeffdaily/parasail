@@ -35,7 +35,11 @@ static inline void arr_store_si%(BITS)s(
 #ifdef PARASAIL_TABLE
 #define FNAME %(NAME_TABLE)s
 #else
+#ifdef PARASAIL_ROWCOL
+#define FNAME %(NAME_ROWCOL)s
+#else
 #define FNAME %(NAME)s
+#endif
 #endif
 
 parasail_result_t* FNAME(

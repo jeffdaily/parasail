@@ -46,7 +46,11 @@ static inline void arr_store_si128(
 #ifdef PARASAIL_TABLE
 #define FNAME parasail_nw_table_diag_sse41_128_32
 #else
+#ifdef PARASAIL_ROWCOL
+#define FNAME parasail_nw_rowcol_diag_sse41_128_32
+#else
 #define FNAME parasail_nw_diag_sse41_128_32
+#endif
 #endif
 
 parasail_result_t* FNAME(

@@ -100,26 +100,31 @@ AM_CPPFLAGS += -I$(top_srcdir)/contrib/sais-lite-lcp
 
 noinst_LTLIBRARIES += libparasail_novec.la
 noinst_LTLIBRARIES += libparasail_novec_table.la
+noinst_LTLIBRARIES += libparasail_novec_rowcol.la
 if HAVE_SSE
 noinst_LTLIBRARIES += libparasail_sse_memory.la
 endif
 if HAVE_SSE2
 noinst_LTLIBRARIES += libparasail_sse2.la
 noinst_LTLIBRARIES += libparasail_sse2_table.la
+noinst_LTLIBRARIES += libparasail_sse2_rowcol.la
 endif
 if HAVE_SSE41
 noinst_LTLIBRARIES += libparasail_sse41.la
 noinst_LTLIBRARIES += libparasail_sse41_table.la
+noinst_LTLIBRARIES += libparasail_sse41_rowcol.la
 endif
 if HAVE_AVX2
 noinst_LTLIBRARIES += libparasail_avx2_memory.la
 noinst_LTLIBRARIES += libparasail_avx2.la
 noinst_LTLIBRARIES += libparasail_avx2_table.la
+noinst_LTLIBRARIES += libparasail_avx2_rowcol.la
 endif
 if HAVE_KNC
 noinst_LTLIBRARIES += libparasail_knc_memory.la
 noinst_LTLIBRARIES += libparasail_knc.la
 noinst_LTLIBRARIES += libparasail_knc_table.la
+noinst_LTLIBRARIES += libparasail_knc_rowcol.la
 endif
 
 SRC_CORE =
@@ -588,6 +593,24 @@ libparasail_sse41_table_la_CPPFLAGS = $(AM_CPPFLAGS) -DPARASAIL_TABLE=1
 libparasail_avx2_table_la_CPPFLAGS  = $(AM_CPPFLAGS) -DPARASAIL_TABLE=1
 libparasail_knc_table_la_CPPFLAGS   = $(AM_CPPFLAGS) -DPARASAIL_TABLE=1
 
+libparasail_novec_rowcol_la_SOURCES = $(SRC_NOVEC)
+libparasail_sse2_rowcol_la_SOURCES  = $(SRC_SSE2)
+libparasail_sse41_rowcol_la_SOURCES = $(SRC_SSE41)
+libparasail_avx2_rowcol_la_SOURCES  = $(SRC_AVX2)
+libparasail_knc_rowcol_la_SOURCES   = $(SRC_KNC)
+
+libparasail_novec_rowcol_la_CFLAGS = $(AM_CFLAGS)
+libparasail_sse2_rowcol_la_CFLAGS  = $(AM_CFLAGS) $(SSE2_CFLAGS)
+libparasail_sse41_rowcol_la_CFLAGS = $(AM_CFLAGS) $(SSE41_CFLAGS)
+libparasail_avx2_rowcol_la_CFLAGS  = $(AM_CFLAGS) $(AVX2_CFLAGS)
+libparasail_knc_rowcol_la_CFLAGS   = $(AM_CFLAGS)
+
+libparasail_novec_rowcol_la_CPPFLAGS = $(AM_CPPFLAGS) -DPARASAIL_ROWCOL=1
+libparasail_sse2_rowcol_la_CPPFLAGS  = $(AM_CPPFLAGS) -DPARASAIL_ROWCOL=1
+libparasail_sse41_rowcol_la_CPPFLAGS = $(AM_CPPFLAGS) -DPARASAIL_ROWCOL=1
+libparasail_avx2_rowcol_la_CPPFLAGS  = $(AM_CPPFLAGS) -DPARASAIL_ROWCOL=1
+libparasail_knc_rowcol_la_CPPFLAGS   = $(AM_CPPFLAGS) -DPARASAIL_ROWCOL=1
+
 libparasail_sse_memory_la_SOURCES  = $(MEM_SRC_SSE)
 libparasail_avx2_memory_la_SOURCES = $(MEM_SRC_AVX2)
 libparasail_knc_memory_la_SOURCES  = $(MEM_SRC_KNC)
@@ -605,26 +628,31 @@ libparasail_knc_memory_la_CFLAGS  = $(AM_CFLAGS)
 libparasail_la_LIBADD =
 libparasail_la_LIBADD += libparasail_novec.la
 libparasail_la_LIBADD += libparasail_novec_table.la
+libparasail_la_LIBADD += libparasail_novec_rowcol.la
 if HAVE_SSE
 libparasail_la_LIBADD += libparasail_sse_memory.la
 endif
 if HAVE_SSE2
 libparasail_la_LIBADD += libparasail_sse2.la
 libparasail_la_LIBADD += libparasail_sse2_table.la
+libparasail_la_LIBADD += libparasail_sse2_rowcol.la
 endif
 if HAVE_SSE41
 libparasail_la_LIBADD += libparasail_sse41.la
 libparasail_la_LIBADD += libparasail_sse41_table.la
+libparasail_la_LIBADD += libparasail_sse41_rowcol.la
 endif
 if HAVE_AVX2
 libparasail_la_LIBADD += libparasail_avx2_memory.la
 libparasail_la_LIBADD += libparasail_avx2.la
 libparasail_la_LIBADD += libparasail_avx2_table.la
+libparasail_la_LIBADD += libparasail_avx2_rowcol.la
 endif
 if HAVE_KNC
 libparasail_la_LIBADD += libparasail_knc_memory.la
 libparasail_la_LIBADD += libparasail_knc.la
 libparasail_la_LIBADD += libparasail_knc_table.la
+libparasail_la_LIBADD += libparasail_knc_rowcol.la
 endif
 libparasail_la_LIBADD += $(CLOCK_LIBS)
 

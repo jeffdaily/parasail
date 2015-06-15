@@ -62,6 +62,30 @@ parasail_function_t parasail_sw_stats_table_diag_64_dispatcher;
 parasail_function_t parasail_sw_stats_table_diag_32_dispatcher;
 parasail_function_t parasail_sw_stats_table_diag_16_dispatcher;
 parasail_function_t parasail_sw_stats_table_diag_8_dispatcher;
+parasail_function_t parasail_sw_rowcol_scan_64_dispatcher;
+parasail_function_t parasail_sw_rowcol_scan_32_dispatcher;
+parasail_function_t parasail_sw_rowcol_scan_16_dispatcher;
+parasail_function_t parasail_sw_rowcol_scan_8_dispatcher;
+parasail_function_t parasail_sw_rowcol_striped_64_dispatcher;
+parasail_function_t parasail_sw_rowcol_striped_32_dispatcher;
+parasail_function_t parasail_sw_rowcol_striped_16_dispatcher;
+parasail_function_t parasail_sw_rowcol_striped_8_dispatcher;
+parasail_function_t parasail_sw_rowcol_diag_64_dispatcher;
+parasail_function_t parasail_sw_rowcol_diag_32_dispatcher;
+parasail_function_t parasail_sw_rowcol_diag_16_dispatcher;
+parasail_function_t parasail_sw_rowcol_diag_8_dispatcher;
+parasail_function_t parasail_sw_stats_rowcol_scan_64_dispatcher;
+parasail_function_t parasail_sw_stats_rowcol_scan_32_dispatcher;
+parasail_function_t parasail_sw_stats_rowcol_scan_16_dispatcher;
+parasail_function_t parasail_sw_stats_rowcol_scan_8_dispatcher;
+parasail_function_t parasail_sw_stats_rowcol_striped_64_dispatcher;
+parasail_function_t parasail_sw_stats_rowcol_striped_32_dispatcher;
+parasail_function_t parasail_sw_stats_rowcol_striped_16_dispatcher;
+parasail_function_t parasail_sw_stats_rowcol_striped_8_dispatcher;
+parasail_function_t parasail_sw_stats_rowcol_diag_64_dispatcher;
+parasail_function_t parasail_sw_stats_rowcol_diag_32_dispatcher;
+parasail_function_t parasail_sw_stats_rowcol_diag_16_dispatcher;
+parasail_function_t parasail_sw_stats_rowcol_diag_8_dispatcher;
 
 /* declare and initialize the pointer to the dispatcher function */
 parasail_function_t * parasail_sw_scan_64_pointer = parasail_sw_scan_64_dispatcher;
@@ -112,6 +136,30 @@ parasail_function_t * parasail_sw_stats_table_diag_64_pointer = parasail_sw_stat
 parasail_function_t * parasail_sw_stats_table_diag_32_pointer = parasail_sw_stats_table_diag_32_dispatcher;
 parasail_function_t * parasail_sw_stats_table_diag_16_pointer = parasail_sw_stats_table_diag_16_dispatcher;
 parasail_function_t * parasail_sw_stats_table_diag_8_pointer = parasail_sw_stats_table_diag_8_dispatcher;
+parasail_function_t * parasail_sw_rowcol_scan_64_pointer = parasail_sw_rowcol_scan_64_dispatcher;
+parasail_function_t * parasail_sw_rowcol_scan_32_pointer = parasail_sw_rowcol_scan_32_dispatcher;
+parasail_function_t * parasail_sw_rowcol_scan_16_pointer = parasail_sw_rowcol_scan_16_dispatcher;
+parasail_function_t * parasail_sw_rowcol_scan_8_pointer = parasail_sw_rowcol_scan_8_dispatcher;
+parasail_function_t * parasail_sw_rowcol_striped_64_pointer = parasail_sw_rowcol_striped_64_dispatcher;
+parasail_function_t * parasail_sw_rowcol_striped_32_pointer = parasail_sw_rowcol_striped_32_dispatcher;
+parasail_function_t * parasail_sw_rowcol_striped_16_pointer = parasail_sw_rowcol_striped_16_dispatcher;
+parasail_function_t * parasail_sw_rowcol_striped_8_pointer = parasail_sw_rowcol_striped_8_dispatcher;
+parasail_function_t * parasail_sw_rowcol_diag_64_pointer = parasail_sw_rowcol_diag_64_dispatcher;
+parasail_function_t * parasail_sw_rowcol_diag_32_pointer = parasail_sw_rowcol_diag_32_dispatcher;
+parasail_function_t * parasail_sw_rowcol_diag_16_pointer = parasail_sw_rowcol_diag_16_dispatcher;
+parasail_function_t * parasail_sw_rowcol_diag_8_pointer = parasail_sw_rowcol_diag_8_dispatcher;
+parasail_function_t * parasail_sw_stats_rowcol_scan_64_pointer = parasail_sw_stats_rowcol_scan_64_dispatcher;
+parasail_function_t * parasail_sw_stats_rowcol_scan_32_pointer = parasail_sw_stats_rowcol_scan_32_dispatcher;
+parasail_function_t * parasail_sw_stats_rowcol_scan_16_pointer = parasail_sw_stats_rowcol_scan_16_dispatcher;
+parasail_function_t * parasail_sw_stats_rowcol_scan_8_pointer = parasail_sw_stats_rowcol_scan_8_dispatcher;
+parasail_function_t * parasail_sw_stats_rowcol_striped_64_pointer = parasail_sw_stats_rowcol_striped_64_dispatcher;
+parasail_function_t * parasail_sw_stats_rowcol_striped_32_pointer = parasail_sw_stats_rowcol_striped_32_dispatcher;
+parasail_function_t * parasail_sw_stats_rowcol_striped_16_pointer = parasail_sw_stats_rowcol_striped_16_dispatcher;
+parasail_function_t * parasail_sw_stats_rowcol_striped_8_pointer = parasail_sw_stats_rowcol_striped_8_dispatcher;
+parasail_function_t * parasail_sw_stats_rowcol_diag_64_pointer = parasail_sw_stats_rowcol_diag_64_dispatcher;
+parasail_function_t * parasail_sw_stats_rowcol_diag_32_pointer = parasail_sw_stats_rowcol_diag_32_dispatcher;
+parasail_function_t * parasail_sw_stats_rowcol_diag_16_pointer = parasail_sw_stats_rowcol_diag_16_dispatcher;
+parasail_function_t * parasail_sw_stats_rowcol_diag_8_pointer = parasail_sw_stats_rowcol_diag_8_dispatcher;
 
 /* dispatcher function implementations */
 
@@ -1747,6 +1795,822 @@ parasail_result_t* parasail_sw_stats_table_diag_8_dispatcher(
     return parasail_sw_stats_table_diag_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
 
+parasail_result_t* parasail_sw_rowcol_scan_64_dispatcher(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+#if HAVE_KNC
+    parasail_sw_rowcol_scan_64_pointer = parasail_sw_rowcol_scan_knc_512_32;
+#else
+#if HAVE_AVX2
+    if (parasail_can_use_avx2()) {
+        parasail_sw_rowcol_scan_64_pointer = parasail_sw_rowcol_scan_avx2_256_64;
+    }
+    else
+#endif
+#if HAVE_SSE41
+    if (parasail_can_use_sse41()) {
+        parasail_sw_rowcol_scan_64_pointer = parasail_sw_rowcol_scan_sse41_128_64;
+    }
+    else
+#endif
+#if HAVE_SSE2
+    if (parasail_can_use_sse2()) {
+        parasail_sw_rowcol_scan_64_pointer = parasail_sw_rowcol_scan_sse2_128_64;
+    }
+    else
+#endif
+#endif
+    {
+        parasail_sw_rowcol_scan_64_pointer = parasail_sw_scan;
+    }
+    return parasail_sw_rowcol_scan_64_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+parasail_result_t* parasail_sw_rowcol_scan_32_dispatcher(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+#if HAVE_KNC
+    parasail_sw_rowcol_scan_32_pointer = parasail_sw_rowcol_scan_knc_512_32;
+#else
+#if HAVE_AVX2
+    if (parasail_can_use_avx2()) {
+        parasail_sw_rowcol_scan_32_pointer = parasail_sw_rowcol_scan_avx2_256_32;
+    }
+    else
+#endif
+#if HAVE_SSE41
+    if (parasail_can_use_sse41()) {
+        parasail_sw_rowcol_scan_32_pointer = parasail_sw_rowcol_scan_sse41_128_32;
+    }
+    else
+#endif
+#if HAVE_SSE2
+    if (parasail_can_use_sse2()) {
+        parasail_sw_rowcol_scan_32_pointer = parasail_sw_rowcol_scan_sse2_128_32;
+    }
+    else
+#endif
+#endif
+    {
+        parasail_sw_rowcol_scan_32_pointer = parasail_sw_scan;
+    }
+    return parasail_sw_rowcol_scan_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+parasail_result_t* parasail_sw_rowcol_scan_16_dispatcher(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+#if HAVE_KNC
+    parasail_sw_rowcol_scan_16_pointer = parasail_sw_rowcol_scan_knc_512_32;
+#else
+#if HAVE_AVX2
+    if (parasail_can_use_avx2()) {
+        parasail_sw_rowcol_scan_16_pointer = parasail_sw_rowcol_scan_avx2_256_16;
+    }
+    else
+#endif
+#if HAVE_SSE41
+    if (parasail_can_use_sse41()) {
+        parasail_sw_rowcol_scan_16_pointer = parasail_sw_rowcol_scan_sse41_128_16;
+    }
+    else
+#endif
+#if HAVE_SSE2
+    if (parasail_can_use_sse2()) {
+        parasail_sw_rowcol_scan_16_pointer = parasail_sw_rowcol_scan_sse2_128_16;
+    }
+    else
+#endif
+#endif
+    {
+        parasail_sw_rowcol_scan_16_pointer = parasail_sw_scan;
+    }
+    return parasail_sw_rowcol_scan_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+parasail_result_t* parasail_sw_rowcol_scan_8_dispatcher(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+#if HAVE_KNC
+    parasail_sw_rowcol_scan_8_pointer = parasail_sw_rowcol_scan_knc_512_32;
+#else
+#if HAVE_AVX2
+    if (parasail_can_use_avx2()) {
+        parasail_sw_rowcol_scan_8_pointer = parasail_sw_rowcol_scan_avx2_256_8;
+    }
+    else
+#endif
+#if HAVE_SSE41
+    if (parasail_can_use_sse41()) {
+        parasail_sw_rowcol_scan_8_pointer = parasail_sw_rowcol_scan_sse41_128_8;
+    }
+    else
+#endif
+#if HAVE_SSE2
+    if (parasail_can_use_sse2()) {
+        parasail_sw_rowcol_scan_8_pointer = parasail_sw_rowcol_scan_sse2_128_8;
+    }
+    else
+#endif
+#endif
+    {
+        parasail_sw_rowcol_scan_8_pointer = parasail_sw_scan;
+    }
+    return parasail_sw_rowcol_scan_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+parasail_result_t* parasail_sw_rowcol_striped_64_dispatcher(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+#if HAVE_KNC
+    parasail_sw_rowcol_striped_64_pointer = parasail_sw_rowcol_striped_knc_512_32;
+#else
+#if HAVE_AVX2
+    if (parasail_can_use_avx2()) {
+        parasail_sw_rowcol_striped_64_pointer = parasail_sw_rowcol_striped_avx2_256_64;
+    }
+    else
+#endif
+#if HAVE_SSE41
+    if (parasail_can_use_sse41()) {
+        parasail_sw_rowcol_striped_64_pointer = parasail_sw_rowcol_striped_sse41_128_64;
+    }
+    else
+#endif
+#if HAVE_SSE2
+    if (parasail_can_use_sse2()) {
+        parasail_sw_rowcol_striped_64_pointer = parasail_sw_rowcol_striped_sse2_128_64;
+    }
+    else
+#endif
+#endif
+    {
+        parasail_sw_rowcol_striped_64_pointer = parasail_sw;
+    }
+    return parasail_sw_rowcol_striped_64_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+parasail_result_t* parasail_sw_rowcol_striped_32_dispatcher(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+#if HAVE_KNC
+    parasail_sw_rowcol_striped_32_pointer = parasail_sw_rowcol_striped_knc_512_32;
+#else
+#if HAVE_AVX2
+    if (parasail_can_use_avx2()) {
+        parasail_sw_rowcol_striped_32_pointer = parasail_sw_rowcol_striped_avx2_256_32;
+    }
+    else
+#endif
+#if HAVE_SSE41
+    if (parasail_can_use_sse41()) {
+        parasail_sw_rowcol_striped_32_pointer = parasail_sw_rowcol_striped_sse41_128_32;
+    }
+    else
+#endif
+#if HAVE_SSE2
+    if (parasail_can_use_sse2()) {
+        parasail_sw_rowcol_striped_32_pointer = parasail_sw_rowcol_striped_sse2_128_32;
+    }
+    else
+#endif
+#endif
+    {
+        parasail_sw_rowcol_striped_32_pointer = parasail_sw;
+    }
+    return parasail_sw_rowcol_striped_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+parasail_result_t* parasail_sw_rowcol_striped_16_dispatcher(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+#if HAVE_KNC
+    parasail_sw_rowcol_striped_16_pointer = parasail_sw_rowcol_striped_knc_512_32;
+#else
+#if HAVE_AVX2
+    if (parasail_can_use_avx2()) {
+        parasail_sw_rowcol_striped_16_pointer = parasail_sw_rowcol_striped_avx2_256_16;
+    }
+    else
+#endif
+#if HAVE_SSE41
+    if (parasail_can_use_sse41()) {
+        parasail_sw_rowcol_striped_16_pointer = parasail_sw_rowcol_striped_sse41_128_16;
+    }
+    else
+#endif
+#if HAVE_SSE2
+    if (parasail_can_use_sse2()) {
+        parasail_sw_rowcol_striped_16_pointer = parasail_sw_rowcol_striped_sse2_128_16;
+    }
+    else
+#endif
+#endif
+    {
+        parasail_sw_rowcol_striped_16_pointer = parasail_sw;
+    }
+    return parasail_sw_rowcol_striped_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+parasail_result_t* parasail_sw_rowcol_striped_8_dispatcher(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+#if HAVE_KNC
+    parasail_sw_rowcol_striped_8_pointer = parasail_sw_rowcol_striped_knc_512_32;
+#else
+#if HAVE_AVX2
+    if (parasail_can_use_avx2()) {
+        parasail_sw_rowcol_striped_8_pointer = parasail_sw_rowcol_striped_avx2_256_8;
+    }
+    else
+#endif
+#if HAVE_SSE41
+    if (parasail_can_use_sse41()) {
+        parasail_sw_rowcol_striped_8_pointer = parasail_sw_rowcol_striped_sse41_128_8;
+    }
+    else
+#endif
+#if HAVE_SSE2
+    if (parasail_can_use_sse2()) {
+        parasail_sw_rowcol_striped_8_pointer = parasail_sw_rowcol_striped_sse2_128_8;
+    }
+    else
+#endif
+#endif
+    {
+        parasail_sw_rowcol_striped_8_pointer = parasail_sw;
+    }
+    return parasail_sw_rowcol_striped_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+parasail_result_t* parasail_sw_rowcol_diag_64_dispatcher(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+#if HAVE_KNC
+    parasail_sw_rowcol_diag_64_pointer = parasail_sw_rowcol_diag_knc_512_32;
+#else
+#if HAVE_AVX2
+    if (parasail_can_use_avx2()) {
+        parasail_sw_rowcol_diag_64_pointer = parasail_sw_rowcol_diag_avx2_256_64;
+    }
+    else
+#endif
+#if HAVE_SSE41
+    if (parasail_can_use_sse41()) {
+        parasail_sw_rowcol_diag_64_pointer = parasail_sw_rowcol_diag_sse41_128_64;
+    }
+    else
+#endif
+#if HAVE_SSE2
+    if (parasail_can_use_sse2()) {
+        parasail_sw_rowcol_diag_64_pointer = parasail_sw_rowcol_diag_sse2_128_64;
+    }
+    else
+#endif
+#endif
+    {
+        parasail_sw_rowcol_diag_64_pointer = parasail_sw;
+    }
+    return parasail_sw_rowcol_diag_64_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+parasail_result_t* parasail_sw_rowcol_diag_32_dispatcher(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+#if HAVE_KNC
+    parasail_sw_rowcol_diag_32_pointer = parasail_sw_rowcol_diag_knc_512_32;
+#else
+#if HAVE_AVX2
+    if (parasail_can_use_avx2()) {
+        parasail_sw_rowcol_diag_32_pointer = parasail_sw_rowcol_diag_avx2_256_32;
+    }
+    else
+#endif
+#if HAVE_SSE41
+    if (parasail_can_use_sse41()) {
+        parasail_sw_rowcol_diag_32_pointer = parasail_sw_rowcol_diag_sse41_128_32;
+    }
+    else
+#endif
+#if HAVE_SSE2
+    if (parasail_can_use_sse2()) {
+        parasail_sw_rowcol_diag_32_pointer = parasail_sw_rowcol_diag_sse2_128_32;
+    }
+    else
+#endif
+#endif
+    {
+        parasail_sw_rowcol_diag_32_pointer = parasail_sw;
+    }
+    return parasail_sw_rowcol_diag_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+parasail_result_t* parasail_sw_rowcol_diag_16_dispatcher(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+#if HAVE_KNC
+    parasail_sw_rowcol_diag_16_pointer = parasail_sw_rowcol_diag_knc_512_32;
+#else
+#if HAVE_AVX2
+    if (parasail_can_use_avx2()) {
+        parasail_sw_rowcol_diag_16_pointer = parasail_sw_rowcol_diag_avx2_256_16;
+    }
+    else
+#endif
+#if HAVE_SSE41
+    if (parasail_can_use_sse41()) {
+        parasail_sw_rowcol_diag_16_pointer = parasail_sw_rowcol_diag_sse41_128_16;
+    }
+    else
+#endif
+#if HAVE_SSE2
+    if (parasail_can_use_sse2()) {
+        parasail_sw_rowcol_diag_16_pointer = parasail_sw_rowcol_diag_sse2_128_16;
+    }
+    else
+#endif
+#endif
+    {
+        parasail_sw_rowcol_diag_16_pointer = parasail_sw;
+    }
+    return parasail_sw_rowcol_diag_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+parasail_result_t* parasail_sw_rowcol_diag_8_dispatcher(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+#if HAVE_KNC
+    parasail_sw_rowcol_diag_8_pointer = parasail_sw_rowcol_diag_knc_512_32;
+#else
+#if HAVE_AVX2
+    if (parasail_can_use_avx2()) {
+        parasail_sw_rowcol_diag_8_pointer = parasail_sw_rowcol_diag_avx2_256_8;
+    }
+    else
+#endif
+#if HAVE_SSE41
+    if (parasail_can_use_sse41()) {
+        parasail_sw_rowcol_diag_8_pointer = parasail_sw_rowcol_diag_sse41_128_8;
+    }
+    else
+#endif
+#if HAVE_SSE2
+    if (parasail_can_use_sse2()) {
+        parasail_sw_rowcol_diag_8_pointer = parasail_sw_rowcol_diag_sse2_128_8;
+    }
+    else
+#endif
+#endif
+    {
+        parasail_sw_rowcol_diag_8_pointer = parasail_sw;
+    }
+    return parasail_sw_rowcol_diag_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+parasail_result_t* parasail_sw_stats_rowcol_scan_64_dispatcher(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+#if HAVE_KNC
+    parasail_sw_stats_rowcol_scan_64_pointer = parasail_sw_stats_rowcol_scan_knc_512_32;
+#else
+#if HAVE_AVX2
+    if (parasail_can_use_avx2()) {
+        parasail_sw_stats_rowcol_scan_64_pointer = parasail_sw_stats_rowcol_scan_avx2_256_64;
+    }
+    else
+#endif
+#if HAVE_SSE41
+    if (parasail_can_use_sse41()) {
+        parasail_sw_stats_rowcol_scan_64_pointer = parasail_sw_stats_rowcol_scan_sse41_128_64;
+    }
+    else
+#endif
+#if HAVE_SSE2
+    if (parasail_can_use_sse2()) {
+        parasail_sw_stats_rowcol_scan_64_pointer = parasail_sw_stats_rowcol_scan_sse2_128_64;
+    }
+    else
+#endif
+#endif
+    {
+        parasail_sw_stats_rowcol_scan_64_pointer = parasail_sw_scan;
+    }
+    return parasail_sw_stats_rowcol_scan_64_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+parasail_result_t* parasail_sw_stats_rowcol_scan_32_dispatcher(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+#if HAVE_KNC
+    parasail_sw_stats_rowcol_scan_32_pointer = parasail_sw_stats_rowcol_scan_knc_512_32;
+#else
+#if HAVE_AVX2
+    if (parasail_can_use_avx2()) {
+        parasail_sw_stats_rowcol_scan_32_pointer = parasail_sw_stats_rowcol_scan_avx2_256_32;
+    }
+    else
+#endif
+#if HAVE_SSE41
+    if (parasail_can_use_sse41()) {
+        parasail_sw_stats_rowcol_scan_32_pointer = parasail_sw_stats_rowcol_scan_sse41_128_32;
+    }
+    else
+#endif
+#if HAVE_SSE2
+    if (parasail_can_use_sse2()) {
+        parasail_sw_stats_rowcol_scan_32_pointer = parasail_sw_stats_rowcol_scan_sse2_128_32;
+    }
+    else
+#endif
+#endif
+    {
+        parasail_sw_stats_rowcol_scan_32_pointer = parasail_sw_scan;
+    }
+    return parasail_sw_stats_rowcol_scan_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+parasail_result_t* parasail_sw_stats_rowcol_scan_16_dispatcher(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+#if HAVE_KNC
+    parasail_sw_stats_rowcol_scan_16_pointer = parasail_sw_stats_rowcol_scan_knc_512_32;
+#else
+#if HAVE_AVX2
+    if (parasail_can_use_avx2()) {
+        parasail_sw_stats_rowcol_scan_16_pointer = parasail_sw_stats_rowcol_scan_avx2_256_16;
+    }
+    else
+#endif
+#if HAVE_SSE41
+    if (parasail_can_use_sse41()) {
+        parasail_sw_stats_rowcol_scan_16_pointer = parasail_sw_stats_rowcol_scan_sse41_128_16;
+    }
+    else
+#endif
+#if HAVE_SSE2
+    if (parasail_can_use_sse2()) {
+        parasail_sw_stats_rowcol_scan_16_pointer = parasail_sw_stats_rowcol_scan_sse2_128_16;
+    }
+    else
+#endif
+#endif
+    {
+        parasail_sw_stats_rowcol_scan_16_pointer = parasail_sw_scan;
+    }
+    return parasail_sw_stats_rowcol_scan_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+parasail_result_t* parasail_sw_stats_rowcol_scan_8_dispatcher(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+#if HAVE_KNC
+    parasail_sw_stats_rowcol_scan_8_pointer = parasail_sw_stats_rowcol_scan_knc_512_32;
+#else
+#if HAVE_AVX2
+    if (parasail_can_use_avx2()) {
+        parasail_sw_stats_rowcol_scan_8_pointer = parasail_sw_stats_rowcol_scan_avx2_256_8;
+    }
+    else
+#endif
+#if HAVE_SSE41
+    if (parasail_can_use_sse41()) {
+        parasail_sw_stats_rowcol_scan_8_pointer = parasail_sw_stats_rowcol_scan_sse41_128_8;
+    }
+    else
+#endif
+#if HAVE_SSE2
+    if (parasail_can_use_sse2()) {
+        parasail_sw_stats_rowcol_scan_8_pointer = parasail_sw_stats_rowcol_scan_sse2_128_8;
+    }
+    else
+#endif
+#endif
+    {
+        parasail_sw_stats_rowcol_scan_8_pointer = parasail_sw_scan;
+    }
+    return parasail_sw_stats_rowcol_scan_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+parasail_result_t* parasail_sw_stats_rowcol_striped_64_dispatcher(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+#if HAVE_KNC
+    parasail_sw_stats_rowcol_striped_64_pointer = parasail_sw_stats_rowcol_striped_knc_512_32;
+#else
+#if HAVE_AVX2
+    if (parasail_can_use_avx2()) {
+        parasail_sw_stats_rowcol_striped_64_pointer = parasail_sw_stats_rowcol_striped_avx2_256_64;
+    }
+    else
+#endif
+#if HAVE_SSE41
+    if (parasail_can_use_sse41()) {
+        parasail_sw_stats_rowcol_striped_64_pointer = parasail_sw_stats_rowcol_striped_sse41_128_64;
+    }
+    else
+#endif
+#if HAVE_SSE2
+    if (parasail_can_use_sse2()) {
+        parasail_sw_stats_rowcol_striped_64_pointer = parasail_sw_stats_rowcol_striped_sse2_128_64;
+    }
+    else
+#endif
+#endif
+    {
+        parasail_sw_stats_rowcol_striped_64_pointer = parasail_sw;
+    }
+    return parasail_sw_stats_rowcol_striped_64_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+parasail_result_t* parasail_sw_stats_rowcol_striped_32_dispatcher(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+#if HAVE_KNC
+    parasail_sw_stats_rowcol_striped_32_pointer = parasail_sw_stats_rowcol_striped_knc_512_32;
+#else
+#if HAVE_AVX2
+    if (parasail_can_use_avx2()) {
+        parasail_sw_stats_rowcol_striped_32_pointer = parasail_sw_stats_rowcol_striped_avx2_256_32;
+    }
+    else
+#endif
+#if HAVE_SSE41
+    if (parasail_can_use_sse41()) {
+        parasail_sw_stats_rowcol_striped_32_pointer = parasail_sw_stats_rowcol_striped_sse41_128_32;
+    }
+    else
+#endif
+#if HAVE_SSE2
+    if (parasail_can_use_sse2()) {
+        parasail_sw_stats_rowcol_striped_32_pointer = parasail_sw_stats_rowcol_striped_sse2_128_32;
+    }
+    else
+#endif
+#endif
+    {
+        parasail_sw_stats_rowcol_striped_32_pointer = parasail_sw;
+    }
+    return parasail_sw_stats_rowcol_striped_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+parasail_result_t* parasail_sw_stats_rowcol_striped_16_dispatcher(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+#if HAVE_KNC
+    parasail_sw_stats_rowcol_striped_16_pointer = parasail_sw_stats_rowcol_striped_knc_512_32;
+#else
+#if HAVE_AVX2
+    if (parasail_can_use_avx2()) {
+        parasail_sw_stats_rowcol_striped_16_pointer = parasail_sw_stats_rowcol_striped_avx2_256_16;
+    }
+    else
+#endif
+#if HAVE_SSE41
+    if (parasail_can_use_sse41()) {
+        parasail_sw_stats_rowcol_striped_16_pointer = parasail_sw_stats_rowcol_striped_sse41_128_16;
+    }
+    else
+#endif
+#if HAVE_SSE2
+    if (parasail_can_use_sse2()) {
+        parasail_sw_stats_rowcol_striped_16_pointer = parasail_sw_stats_rowcol_striped_sse2_128_16;
+    }
+    else
+#endif
+#endif
+    {
+        parasail_sw_stats_rowcol_striped_16_pointer = parasail_sw;
+    }
+    return parasail_sw_stats_rowcol_striped_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+parasail_result_t* parasail_sw_stats_rowcol_striped_8_dispatcher(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+#if HAVE_KNC
+    parasail_sw_stats_rowcol_striped_8_pointer = parasail_sw_stats_rowcol_striped_knc_512_32;
+#else
+#if HAVE_AVX2
+    if (parasail_can_use_avx2()) {
+        parasail_sw_stats_rowcol_striped_8_pointer = parasail_sw_stats_rowcol_striped_avx2_256_8;
+    }
+    else
+#endif
+#if HAVE_SSE41
+    if (parasail_can_use_sse41()) {
+        parasail_sw_stats_rowcol_striped_8_pointer = parasail_sw_stats_rowcol_striped_sse41_128_8;
+    }
+    else
+#endif
+#if HAVE_SSE2
+    if (parasail_can_use_sse2()) {
+        parasail_sw_stats_rowcol_striped_8_pointer = parasail_sw_stats_rowcol_striped_sse2_128_8;
+    }
+    else
+#endif
+#endif
+    {
+        parasail_sw_stats_rowcol_striped_8_pointer = parasail_sw;
+    }
+    return parasail_sw_stats_rowcol_striped_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+parasail_result_t* parasail_sw_stats_rowcol_diag_64_dispatcher(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+#if HAVE_KNC
+    parasail_sw_stats_rowcol_diag_64_pointer = parasail_sw_stats_rowcol_diag_knc_512_32;
+#else
+#if HAVE_AVX2
+    if (parasail_can_use_avx2()) {
+        parasail_sw_stats_rowcol_diag_64_pointer = parasail_sw_stats_rowcol_diag_avx2_256_64;
+    }
+    else
+#endif
+#if HAVE_SSE41
+    if (parasail_can_use_sse41()) {
+        parasail_sw_stats_rowcol_diag_64_pointer = parasail_sw_stats_rowcol_diag_sse41_128_64;
+    }
+    else
+#endif
+#if HAVE_SSE2
+    if (parasail_can_use_sse2()) {
+        parasail_sw_stats_rowcol_diag_64_pointer = parasail_sw_stats_rowcol_diag_sse2_128_64;
+    }
+    else
+#endif
+#endif
+    {
+        parasail_sw_stats_rowcol_diag_64_pointer = parasail_sw;
+    }
+    return parasail_sw_stats_rowcol_diag_64_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+parasail_result_t* parasail_sw_stats_rowcol_diag_32_dispatcher(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+#if HAVE_KNC
+    parasail_sw_stats_rowcol_diag_32_pointer = parasail_sw_stats_rowcol_diag_knc_512_32;
+#else
+#if HAVE_AVX2
+    if (parasail_can_use_avx2()) {
+        parasail_sw_stats_rowcol_diag_32_pointer = parasail_sw_stats_rowcol_diag_avx2_256_32;
+    }
+    else
+#endif
+#if HAVE_SSE41
+    if (parasail_can_use_sse41()) {
+        parasail_sw_stats_rowcol_diag_32_pointer = parasail_sw_stats_rowcol_diag_sse41_128_32;
+    }
+    else
+#endif
+#if HAVE_SSE2
+    if (parasail_can_use_sse2()) {
+        parasail_sw_stats_rowcol_diag_32_pointer = parasail_sw_stats_rowcol_diag_sse2_128_32;
+    }
+    else
+#endif
+#endif
+    {
+        parasail_sw_stats_rowcol_diag_32_pointer = parasail_sw;
+    }
+    return parasail_sw_stats_rowcol_diag_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+parasail_result_t* parasail_sw_stats_rowcol_diag_16_dispatcher(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+#if HAVE_KNC
+    parasail_sw_stats_rowcol_diag_16_pointer = parasail_sw_stats_rowcol_diag_knc_512_32;
+#else
+#if HAVE_AVX2
+    if (parasail_can_use_avx2()) {
+        parasail_sw_stats_rowcol_diag_16_pointer = parasail_sw_stats_rowcol_diag_avx2_256_16;
+    }
+    else
+#endif
+#if HAVE_SSE41
+    if (parasail_can_use_sse41()) {
+        parasail_sw_stats_rowcol_diag_16_pointer = parasail_sw_stats_rowcol_diag_sse41_128_16;
+    }
+    else
+#endif
+#if HAVE_SSE2
+    if (parasail_can_use_sse2()) {
+        parasail_sw_stats_rowcol_diag_16_pointer = parasail_sw_stats_rowcol_diag_sse2_128_16;
+    }
+    else
+#endif
+#endif
+    {
+        parasail_sw_stats_rowcol_diag_16_pointer = parasail_sw;
+    }
+    return parasail_sw_stats_rowcol_diag_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+parasail_result_t* parasail_sw_stats_rowcol_diag_8_dispatcher(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+#if HAVE_KNC
+    parasail_sw_stats_rowcol_diag_8_pointer = parasail_sw_stats_rowcol_diag_knc_512_32;
+#else
+#if HAVE_AVX2
+    if (parasail_can_use_avx2()) {
+        parasail_sw_stats_rowcol_diag_8_pointer = parasail_sw_stats_rowcol_diag_avx2_256_8;
+    }
+    else
+#endif
+#if HAVE_SSE41
+    if (parasail_can_use_sse41()) {
+        parasail_sw_stats_rowcol_diag_8_pointer = parasail_sw_stats_rowcol_diag_sse41_128_8;
+    }
+    else
+#endif
+#if HAVE_SSE2
+    if (parasail_can_use_sse2()) {
+        parasail_sw_stats_rowcol_diag_8_pointer = parasail_sw_stats_rowcol_diag_sse2_128_8;
+    }
+    else
+#endif
+#endif
+    {
+        parasail_sw_stats_rowcol_diag_8_pointer = parasail_sw;
+    }
+    return parasail_sw_stats_rowcol_diag_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
 /* implementation which simply calls the pointer,
  * first time it's the dispatcher, otherwise it's correct impl */
 
@@ -2180,5 +3044,221 @@ parasail_result_t* parasail_sw_stats_table_diag_8(
         const parasail_matrix_t *matrix)
 {
     return parasail_sw_stats_table_diag_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+parasail_result_t* parasail_sw_rowcol_scan_64(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+    return parasail_sw_rowcol_scan_64_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+parasail_result_t* parasail_sw_rowcol_scan_32(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+    return parasail_sw_rowcol_scan_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+parasail_result_t* parasail_sw_rowcol_scan_16(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+    return parasail_sw_rowcol_scan_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+parasail_result_t* parasail_sw_rowcol_scan_8(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+    return parasail_sw_rowcol_scan_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+parasail_result_t* parasail_sw_rowcol_striped_64(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+    return parasail_sw_rowcol_striped_64_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+parasail_result_t* parasail_sw_rowcol_striped_32(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+    return parasail_sw_rowcol_striped_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+parasail_result_t* parasail_sw_rowcol_striped_16(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+    return parasail_sw_rowcol_striped_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+parasail_result_t* parasail_sw_rowcol_striped_8(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+    return parasail_sw_rowcol_striped_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+parasail_result_t* parasail_sw_rowcol_diag_64(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+    return parasail_sw_rowcol_diag_64_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+parasail_result_t* parasail_sw_rowcol_diag_32(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+    return parasail_sw_rowcol_diag_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+parasail_result_t* parasail_sw_rowcol_diag_16(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+    return parasail_sw_rowcol_diag_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+parasail_result_t* parasail_sw_rowcol_diag_8(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+    return parasail_sw_rowcol_diag_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+parasail_result_t* parasail_sw_stats_rowcol_scan_64(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+    return parasail_sw_stats_rowcol_scan_64_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+parasail_result_t* parasail_sw_stats_rowcol_scan_32(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+    return parasail_sw_stats_rowcol_scan_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+parasail_result_t* parasail_sw_stats_rowcol_scan_16(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+    return parasail_sw_stats_rowcol_scan_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+parasail_result_t* parasail_sw_stats_rowcol_scan_8(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+    return parasail_sw_stats_rowcol_scan_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+parasail_result_t* parasail_sw_stats_rowcol_striped_64(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+    return parasail_sw_stats_rowcol_striped_64_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+parasail_result_t* parasail_sw_stats_rowcol_striped_32(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+    return parasail_sw_stats_rowcol_striped_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+parasail_result_t* parasail_sw_stats_rowcol_striped_16(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+    return parasail_sw_stats_rowcol_striped_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+parasail_result_t* parasail_sw_stats_rowcol_striped_8(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+    return parasail_sw_stats_rowcol_striped_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+parasail_result_t* parasail_sw_stats_rowcol_diag_64(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+    return parasail_sw_stats_rowcol_diag_64_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+parasail_result_t* parasail_sw_stats_rowcol_diag_32(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+    return parasail_sw_stats_rowcol_diag_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+parasail_result_t* parasail_sw_stats_rowcol_diag_16(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+    return parasail_sw_stats_rowcol_diag_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
+}
+
+parasail_result_t* parasail_sw_stats_rowcol_diag_8(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t *matrix)
+{
+    return parasail_sw_stats_rowcol_diag_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
 

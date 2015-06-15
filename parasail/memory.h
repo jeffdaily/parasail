@@ -35,6 +35,8 @@ extern PARASAIL_LOCAL void parasail_memset_int64_t(int64_t *b, int64_t c, size_t
 extern PARASAIL_LOCAL parasail_result_t* parasail_result_new();
 extern PARASAIL_LOCAL parasail_result_t* parasail_result_new_table1(const int a, const int b);
 extern PARASAIL_LOCAL parasail_result_t* parasail_result_new_table3(const int a, const int b);
+extern PARASAIL_LOCAL parasail_result_t* parasail_result_new_rowcol1(const int a, const int b);
+extern PARASAIL_LOCAL parasail_result_t* parasail_result_new_rowcol3(const int a, const int b);
 
 #ifdef __cplusplus
 }

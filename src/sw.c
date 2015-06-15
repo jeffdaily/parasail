@@ -20,7 +20,11 @@
 #ifdef PARASAIL_TABLE
 #define ENAME parasail_sw_table
 #else
+#ifdef PARASAIL_ROWCOL
+#define ENAME parasail_sw_rowcol
+#else
 #define ENAME parasail_sw
+#endif
 #endif
 
 parasail_result_t* ENAME(
@@ -31,7 +35,11 @@ parasail_result_t* ENAME(
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(s1Len, s2Len);
 #else
+#ifdef PARASAIL_ROWCOL
+    parasail_result_t *result = parasail_result_new_rowcol1(s2Len, s1Len);
+#else
     parasail_result_t *result = parasail_result_new();
+#endif
 #endif
     int * const restrict s1 = parasail_memalign_int(16, s1Len);
     int * const restrict s2 = parasail_memalign_int(16, s2Len);
@@ -78,6 +86,14 @@ parasail_result_t* ENAME(
             result->score_table[(i-1)*s2Len + (j-1)] = Wscore;
 #endif
         }
+#ifdef PARASAIL_ROWCOL
+        if (i == s1Len) {
+            for (j=1; j<=s2Len; ++j) {
+                result->score_row[j-1] = tbl_pr[j];
+            }
+        }
+        result->score_col[i-1] = tbl_pr[s2Len-1];
+#endif
     }
 
     result->score = score;

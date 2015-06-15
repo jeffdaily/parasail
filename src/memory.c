@@ -135,6 +135,14 @@ parasail_result_t* parasail_result_new()
     result->matches_table = NULL;
     result->similar_table = NULL;
     result->length_table = NULL;
+    result->score_row = NULL;
+    result->matches_row = NULL;
+    result->similar_row = NULL;
+    result->length_row = NULL;
+    result->score_col = NULL;
+    result->matches_col = NULL;
+    result->similar_col = NULL;
+    result->length_col = NULL;
 
     return result;
 }
@@ -158,6 +166,27 @@ parasail_result_t* parasail_result_new_table1(const int a, const int b)
     return result;
 }
 
+parasail_result_t* parasail_result_new_rowcol1(const int a, const int b)
+{
+    /* declare all variables */
+    parasail_result_t *result = NULL;
+
+    /* validate inputs */
+    assert(a > 0);
+    assert(b > 0);
+    
+    /* allocate struct to hold memory */
+    result = parasail_result_new();
+
+    /* allocate only score col and row */
+    result->score_row = (int *)malloc(sizeof(int)*a);
+    assert(result->score_row);
+    result->score_col = (int *)malloc(sizeof(int)*b);
+    assert(result->score_col);
+
+    return result;
+}
+
 parasail_result_t* parasail_result_new_table3(const int a, const int b)
 {
     /* declare all variables */
@@ -176,6 +205,35 @@ parasail_result_t* parasail_result_new_table3(const int a, const int b)
     assert(result->similar_table);
     result->length_table = (int *)malloc(sizeof(int)*a*b);
     assert(result->length_table);
+
+    return result;
+}
+
+parasail_result_t* parasail_result_new_rowcol3(const int a, const int b)
+{
+    /* declare all variables */
+    parasail_result_t *result = NULL;
+
+    /* validate inputs */
+    assert(a > 0);
+    assert(b > 0);
+    
+    /* allocate struct to hold memory */
+    result = parasail_result_new_rowcol1(a, b);
+    
+    result->matches_row = (int *)malloc(sizeof(int)*a);
+    assert(result->matches_row);
+    result->similar_row = (int *)malloc(sizeof(int)*a);
+    assert(result->similar_row);
+    result->length_row = (int *)malloc(sizeof(int)*a);
+    assert(result->length_row);
+
+    result->matches_col = (int *)malloc(sizeof(int)*b);
+    assert(result->matches_col);
+    result->similar_col = (int *)malloc(sizeof(int)*b);
+    assert(result->similar_col);
+    result->length_col = (int *)malloc(sizeof(int)*b);
+    assert(result->length_col);
 
     return result;
 }

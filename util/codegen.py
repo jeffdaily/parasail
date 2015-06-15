@@ -365,16 +365,22 @@ for template_filename in template_filenames:
             prefix = template_filename[:-2]
             parts = prefix.split('_')
             table_prefix = ""
+            rowcol_prefix = ""
             if len(parts) == 2:
                 table_prefix = "%s_table_%s" % (parts[0], parts[1])
+                rowcol_prefix = "%s_rowcol_%s" % (parts[0], parts[1])
             if len(parts) == 3:
                 table_prefix = "%s_%s_table_%s" % (parts[0], parts[1], parts[2])
+                rowcol_prefix = "%s_%s_rowcol_%s" % (parts[0], parts[1], parts[2])
             function_name = "%s_%s%s_%s_%s" % (prefix,
                     isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
             function_table_name = "%s_%s%s_%s_%s" % (table_prefix,
                     isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
+            function_rowcol_name = "%s_%s%s_%s_%s" % (rowcol_prefix,
+                    isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
             params["NAME"] = "parasail_"+function_name
             params["NAME_TABLE"] = "parasail_"+function_table_name
+            params["NAME_ROWCOL"] = "parasail_"+function_rowcol_name
             params = generated_params(params)
             output_filename = "%s%s.c" % (output_dir, function_name)
             result = template % params
@@ -393,10 +399,13 @@ for template_filename in special_templates:
     parts = parts[:-1]
     prefix = "_".join(parts)
     table_prefix = ""
+    rowcol_prefix = ""
     if len(parts) == 2:
         table_prefix = "%s_table_%s" % (parts[0], parts[1])
+        rowcol_prefix = "%s_rowcol_%s" % (parts[0], parts[1])
     if len(parts) == 3:
         table_prefix = "%s_%s_table_%s" % (parts[0], parts[1], parts[2])
+        rowcol_prefix = "%s_%s_rowcol_%s" % (parts[0], parts[1], parts[2])
     for isa in [sse2,sse41,avx2]:
         params = copy.deepcopy(isa)
         params["WIDTH"] = width
@@ -404,8 +413,11 @@ for template_filename in special_templates:
                 isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
         function_table_name = "%s_%s%s_%s_%s" % (table_prefix,
                 isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
+        function_rowcol_name = "%s_%s%s_%s_%s" % (rowcol_prefix,
+                isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
         params["NAME"] = "parasail_"+function_name
         params["NAME_TABLE"] = "parasail_"+function_table_name
+        params["NAME_ROWCOL"] = "parasail_"+function_rowcol_name
         params = generated_params(params)
         output_filename = "%s%s.c" % (output_dir, function_name)
         result = template % params
@@ -422,10 +434,13 @@ for template_filename in bias_templates:
     parts = parts[:-1]
     prefix = "_".join(parts)
     table_prefix = ""
+    rowcol_prefix = ""
     if len(parts) == 2:
         table_prefix = "%s_table_%s" % (parts[0], parts[1])
+        rowcol_prefix = "%s_rowcol_%s" % (parts[0], parts[1])
     if len(parts) == 3:
         table_prefix = "%s_%s_table_%s" % (parts[0], parts[1], parts[2])
+        rowcol_prefix = "%s_%s_rowcol_%s" % (parts[0], parts[1], parts[2])
     for width in [16,8]:
         for isa in [sse2,sse41,avx2]:
             params = copy.deepcopy(isa)
@@ -434,8 +449,11 @@ for template_filename in bias_templates:
                     isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
             function_table_name = "%s_%s%s_%s_%s" % (table_prefix,
                     isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
+            function_rowcol_name = "%s_%s%s_%s_%s" % (rowcol_prefix,
+                    isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
             params["NAME"] = "parasail_"+function_name
             params["NAME_TABLE"] = "parasail_"+function_table_name
+            params["NAME_ROWCOL"] = "parasail_"+function_rowcol_name
             params = generated_params(params)
             params["VADD"] = params["VADDSx%d"%width]
             params["VSUB"] = params["VSUBSx%d"%width]

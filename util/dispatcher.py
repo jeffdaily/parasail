@@ -22,7 +22,7 @@ def codegen(alg):
 
 /* forward declare the dispatcher functions */
 """
-    for table in ["", "_table"]:
+    for table in ["", "_table", "_rowcol"]:
         for stats in ["", "_stats"]:
             for par in ["scan", "striped", "diag"]:
                 for width in [64, 32, 16, 8]:
@@ -33,7 +33,7 @@ def codegen(alg):
     txt += """
 /* declare and initialize the pointer to the dispatcher function */
 """
-    for table in ["", "_table"]:
+    for table in ["", "_table", "_rowcol"]:
         for stats in ["", "_stats"]:
             for par in ["scan", "striped", "diag"]:
                 for width in [64, 32, 16, 8]:
@@ -44,7 +44,7 @@ def codegen(alg):
     txt += """
 /* dispatcher function implementations */
 """
-    for table in ["", "_table"]:
+    for table in ["", "_table", "_rowcol"]:
         for stats in ["", "_stats"]:
             for par in ["scan", "striped", "diag"]:
                 for width in [64, 32, 16, 8]:
@@ -104,7 +104,7 @@ parasail_result_t* %(PREFIX)s_dispatcher(
 /* implementation which simply calls the pointer,
  * first time it's the dispatcher, otherwise it's correct impl */
 """
-    for table in ["", "_table"]:
+    for table in ["", "_table", "_rowcol"]:
         for stats in ["", "_stats"]:
             for par in ["scan", "striped", "diag"]:
                 for width in [64, 32, 16, 8]:

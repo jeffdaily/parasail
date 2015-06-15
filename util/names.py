@@ -3,7 +3,7 @@
 # serial reference implementations (3x2x2x2 = 24 impl)
 alg = ["nw", "sg", "sw"]
 stats = ["", "_stats"]
-table = ["", "_table"]
+table = ["", "_table", "_rowcol"]
 for a in alg:
     for s in stats:
         for t in table:
@@ -18,7 +18,7 @@ for a in alg:
 # serial scan reference implementations (3x2x2x2 = 24 impl)
 alg = ["nw", "sg", "sw"]
 stats = ["", "_stats"]
-table = ["", "_table"]
+table = ["", "_table", "_rowcol"]
 for a in alg:
     for s in stats:
         for t in table:
@@ -33,7 +33,7 @@ for a in alg:
 # vectorized implementations (3x2x2x3x13 = 468 impl)
 alg = ["nw", "sg", "sw"]
 stats = ["", "_stats"]
-table = ["", "_table"]
+table = ["", "_table", "_rowcol"]
 par = ["_scan", "_striped", "_diag"]
 isa = [
     "_sse2_128_64", "_sse2_128_32", "_sse2_128_16", "_sse2_128_8",
@@ -58,7 +58,7 @@ for a in alg:
 # vectorized implementations of blocked (just a couple)
 alg = ["sw"]
 stats = [""]
-table = ["", "_table"]
+table = ["", "_table", "_rowcol"]
 par = ["_blocked"]
 isa = ["_sse41_128_32", "_sse41_128_16"]
 
@@ -78,7 +78,7 @@ for a in alg:
 # dispatching implementations (3x2x3x4 = 72 impl)
 alg = ["nw", "sg", "sw"]
 stats = ["", "_stats"]
-table = ["", "_table"]
+table = ["", "_table", "_rowcol"]
 par = ["_scan", "_striped", "_diag"]
 width = ["", "_64", "_32", "_16", "_8"]
 

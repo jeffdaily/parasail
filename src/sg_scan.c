@@ -20,7 +20,11 @@
 #ifdef PARASAIL_TABLE
 #define ENAME parasail_sg_table_scan
 #else
+#ifdef PARASAIL_ROWCOL
+#define ENAME parasail_sg_rowcol_scan
+#else
 #define ENAME parasail_sg_scan
+#endif
 #endif
 
 parasail_result_t* ENAME(

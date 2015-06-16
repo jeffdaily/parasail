@@ -247,6 +247,14 @@ void parasail_result_free(parasail_result_t *result)
     if (NULL != result->matches_table) free(result->matches_table);
     if (NULL != result->similar_table) free(result->similar_table);
     if (NULL != result->length_table) free(result->length_table);
+    if (NULL != result->score_row) free(result->score_row);
+    if (NULL != result->matches_row) free(result->matches_row);
+    if (NULL != result->similar_row) free(result->similar_row);
+    if (NULL != result->length_row) free(result->length_row);
+    if (NULL != result->score_col) free(result->score_col);
+    if (NULL != result->matches_col) free(result->matches_col);
+    if (NULL != result->similar_col) free(result->similar_col);
+    if (NULL != result->length_col) free(result->length_col);
     free(result);
 }
 

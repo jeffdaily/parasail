@@ -22,9 +22,7 @@ KSEQ_INIT(int, read)
 #endif
 
 #include "parasail.h"
-#include "parasail/memory.h"
 #include "parasail/function_lookup.h"
-#include "parasail/matrix_lookup.h"
 //#include "timer.h"
 #include "timer_real.h"
 

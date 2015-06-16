@@ -35,7 +35,11 @@ parasail_result_t* ENAME(
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(s1Len, s2Len);
 #else
+#ifdef PARASAIL_ROWCOL
+    parasail_result_t *result = parasail_result_new_rowcol1(s1Len, s2Len);
+#else
     parasail_result_t *result = parasail_result_new();
+#endif
 #endif
     int * const restrict s1 = parasail_memalign_int(16, s1Len);
     int * const restrict s2 = parasail_memalign_int(16, s2Len);

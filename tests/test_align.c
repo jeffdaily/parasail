@@ -82,6 +82,59 @@ static void print_array(
     fclose(f);
 }
 
+static void print_rowcol(
+        const char * filename_,
+        const int * const restrict row,
+        const int * const restrict col,
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len)
+{
+    int i;
+    int j;
+    FILE *f = NULL;
+#ifdef __MIC__
+    const char *username = get_user_name();
+    char filename[4096] = {0};
+    strcat(filename, "/tmp/");
+    if (username[0] != '\0') {
+        strcat(filename, username);
+        strcat(filename, "/");
+    }
+    strcat(filename, filename_);
+#else
+    const char *filename = filename_;
+#endif
+    f = fopen(filename, "w");
+    if (NULL == f) {
+        printf("fopen(\"%s\") error: %s\n", filename, strerror(errno));
+        exit(-1);
+    }
+    fprintf(f, " ");
+    if (NULL == row) {
+        for (j=0; j<s2Len; ++j) {
+            fprintf(f, "%4c", '!');
+        }
+    }
+    else {
+        for (j=0; j<s2Len; ++j) {
+            fprintf(f, "%4c", row[j]);
+        }
+    }
+    fprintf(f, "\n");
+    if (NULL == col) {
+        for (i=0; j<s1Len; ++i) {
+            fprintf(f, "%4c", '!');
+        }
+    }
+    else {
+        for (i=0; j<s1Len; ++i) {
+            fprintf(f, "%4c", col[i]);
+        }
+    }
+    fprintf(f, "\n");
+    fclose(f);
+}
+
 static inline void parse_sequences(
         const char *filename,
         char ***strings_,
@@ -419,8 +472,61 @@ int main(int argc, char **argv)
             }
             parasail_result_free(result);
         }
+        else if (f.is_rowcol) {
+            char suffix[256] = {0};
+            if (strlen(f.type)) {
+                strcat(suffix, "_");
+                strcat(suffix, f.type);
+            }
+            if (strlen(f.isa)) {
+                strcat(suffix, "_");
+                strcat(suffix, f.isa);
+            }
+            if (strlen(f.bits)) {
+                strcat(suffix, "_");
+                strcat(suffix, f.bits);
+            }
+            if (strlen(f.width)) {
+                strcat(suffix, "_");
+                strcat(suffix, f.width);
+            }
+            strcat(suffix, ".txt");
+            result = f.pointer(seqA, lena, seqB, lenb, open, extend, matrix);
+            {
+                char filename[256] = {'\0'};
+                strcpy(filename, f.alg);
+                strcat(filename, "_rowcol_scr");
+                strcat(filename, suffix);
+                print_rowcol(filename, result->score_row, result->score_col, seqA, lena, seqB, lenb);
+            }
+            if (f.is_stats) {
+                char filename[256] = {'\0'};
+                strcpy(filename, f.alg);
+                strcat(filename, "_rowcol_mch");
+                strcat(filename, suffix);
+                print_rowcol(filename, result->matches_row, result->matches_col, seqA, lena, seqB, lenb);
+            }
+            if (f.is_stats) {
+                char filename[256] = {'\0'};
+                strcpy(filename, f.alg);
+                strcat(filename, "_rowcol_sim");
+                strcat(filename, suffix);
+                print_rowcol(filename, result->similar_row, result->similar_col, seqA, lena, seqB, lenb);
+            }
+            if (f.is_stats) {
+                char filename[256] = {'\0'};
+                strcpy(filename, f.alg);
+                strcat(filename, "_rowcol_len");
+                strcat(filename, suffix);
+                print_rowcol(filename, result->length_row, result->length_col, seqA, lena, seqB, lenb);
+            }
+            parasail_result_free(result);
+        }
         if (f.is_table) {
             strcat(name, "_table");
+        }
+        else if (f.is_rowcol) {
+            strcat(name, "_rowcol");
         }
         printf("%-15s %8s %6s %4s %5s %5d "
                 "%8d %8d %8d %8d "

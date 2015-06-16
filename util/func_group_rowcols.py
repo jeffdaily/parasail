@@ -7,8 +7,8 @@ print """/**
  *
  * Copyright (c) 2015 Battelle Memorial Institute.
  */
-#ifndef _PARASAIL_FUNCTION_GROUP_TABLE_H_
-#define _PARASAIL_FUNCTION_GROUP_TABLE_H_
+#ifndef _PARASAIL_FUNCTION_GROUP_ROWCOL_H_
+#define _PARASAIL_FUNCTION_GROUP_ROWCOL_H_
 
 #include "parasail.h"
 
@@ -62,9 +62,6 @@ for table in ["_rowcol"]:
                 bits = isa_to_bits[isa]
                 for par in ["scan", "striped", "diag"]:
                     widths = [64, 32, 16, 8]
-                    # temporary hack until stats codegen catches up
-                    if stats:
-                        widths = [32, 16, 8]
                     for width in widths:
                         name = "%s_%s_%s_%s_%s" % (pre, par, isa, bits, width)
                         print_fmt(name, name, alg+stats, par, isa, bits, width, bits/width, is_table, is_stats, 0)
@@ -88,5 +85,5 @@ for table in ["_rowcol"]:
                 print "#endif"
 
 print """
-#endif /* _PARASAIL_FUNCTION_GROUP_TABLE_H_ */
+#endif /* _PARASAIL_FUNCTION_GROUP_ROWCOL_H_ */
 """

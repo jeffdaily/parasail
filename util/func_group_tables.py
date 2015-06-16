@@ -64,9 +64,6 @@ for table in ["_table"]:
                 bits = isa_to_bits[isa]
                 for par in ["scan", "striped", "diag"]:
                     widths = [64, 32, 16, 8]
-                    # temporary hack until stats codegen catches up
-                    if stats:
-                        widths = [32, 16, 8]
                     for width in widths:
                         name = "%s_%s_%s_%s_%s" % (pre, par, isa, bits, width)
                         print_fmt(name, name, alg+stats, par, isa, bits, width, bits/width, is_table, is_stats, 0)

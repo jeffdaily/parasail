@@ -65,6 +65,7 @@ def generate_printer(params):
     text = ""
     bias = ""
     rowcol = ""
+    bias_rowcol = ""
     if "striped" in params["NAME"] or "scan" in params["NAME"]:
         for lane in range(params["LANES"]):
             params["LANE"] = lane
@@ -84,6 +85,12 @@ def generate_printer(params):
                 bias += "    array[(%(LANE)2d*seglen+t)*dlen + d] = (%(INT)s)%(VEXTRACT)s(vH, %(LANE)2d) - bias;\n" % params
             else:
                 bias += "    array[(%(LANE)s*seglen+t)*dlen + d] = (%(INT)s)%(VEXTRACT)s(vH, %(LANE)s) - bias;\n" % params
+        for lane in range(params["LANES"]):
+            params["LANE"] = lane
+            if params["LANES"] / 10:
+                bias_rowcol += "    col[%(LANE)2d*seglen+t] = (%(INT)s)%(VEXTRACT)s(vH, %(LANE)2d) - bias;\n" % params
+            else:
+                bias_rowcol += "    col[%(LANE)s*seglen+t] = (%(INT)s)%(VEXTRACT)s(vH, %(LANE)s) - bias;\n" % params
     elif "diag" in params["NAME"]:
         for lane in range(params["LANES"]):
             params["LANE"] = lane
@@ -109,6 +116,7 @@ def generate_printer(params):
     params["PRINTER"] = text[:-1] # remove last newline
     params["PRINTER_BIAS"] = bias[:-1] # remove last newline
     params["PRINTER_ROWCOL"] = rowcol[:-1] # remove last newline
+    params["PRINTER_BIAS_ROWCOL"] = bias_rowcol[:-1] # remove last newline
     return params
 
 

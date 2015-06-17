@@ -243,8 +243,10 @@ int main(int argc, char **argv)
     const parasail_matrix_t *matrix = NULL;
     int open = 10;
     int extend = 1;
+    int do_table = 1;
+    int do_rowcol = 1;
 
-    while ((c = getopt(argc, argv, "a:b:f:m:n:o:e:")) != -1) {
+    while ((c = getopt(argc, argv, "a:b:f:m:n:o:e:RT")) != -1) {
         switch (c) {
             case 'a':
                 errno = 0;
@@ -293,6 +295,12 @@ int main(int argc, char **argv)
                     perror("strtol extend");
                     exit(1);
                 }
+                break;
+            case 'R':
+                do_rowcol = 0;
+                break;
+            case 'T':
+                do_table = 0;
                 break;
             case '?':
                 if (optopt == 'a'
@@ -392,6 +400,14 @@ int main(int argc, char **argv)
         if ((0 == strncmp(f.isa, "sse2",  4) && 0 == parasail_can_use_sse2()) 
                 || (0 == strncmp(f.isa, "sse41", 5) && 0 == parasail_can_use_sse41())
                 || (0 == strncmp(f.isa, "avx2",  4) && 0 == parasail_can_use_avx2())) {
+            f = functions[index++];
+            continue;
+        }
+        if (f.is_table && !do_table) {
+            f = functions[index++];
+            continue;
+        }
+        if (f.is_rowcol && !do_rowcol) {
             f = functions[index++];
             continue;
         }

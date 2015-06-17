@@ -179,9 +179,9 @@ parasail_result_t* parasail_result_new_rowcol1(const int a, const int b)
     result = parasail_result_new();
 
     /* allocate only score col and row */
-    result->score_row = (int *)malloc(sizeof(int)*a);
+    result->score_row = (int *)malloc(sizeof(int)*b);
     assert(result->score_row);
-    result->score_col = (int *)malloc(sizeof(int)*b);
+    result->score_col = (int *)malloc(sizeof(int)*a);
     assert(result->score_col);
 
     return result;
@@ -221,18 +221,18 @@ parasail_result_t* parasail_result_new_rowcol3(const int a, const int b)
     /* allocate struct to hold memory */
     result = parasail_result_new_rowcol1(a, b);
     
-    result->matches_row = (int *)malloc(sizeof(int)*a);
+    result->matches_row = (int *)malloc(sizeof(int)*b);
     assert(result->matches_row);
-    result->similar_row = (int *)malloc(sizeof(int)*a);
+    result->similar_row = (int *)malloc(sizeof(int)*b);
     assert(result->similar_row);
-    result->length_row = (int *)malloc(sizeof(int)*a);
+    result->length_row = (int *)malloc(sizeof(int)*b);
     assert(result->length_row);
 
-    result->matches_col = (int *)malloc(sizeof(int)*b);
+    result->matches_col = (int *)malloc(sizeof(int)*a);
     assert(result->matches_col);
-    result->similar_col = (int *)malloc(sizeof(int)*b);
+    result->similar_col = (int *)malloc(sizeof(int)*a);
     assert(result->similar_col);
-    result->length_col = (int *)malloc(sizeof(int)*b);
+    result->length_col = (int *)malloc(sizeof(int)*a);
     assert(result->length_col);
 
     return result;

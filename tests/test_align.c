@@ -109,7 +109,7 @@ static void print_rowcol(
         printf("fopen(\"%s\") error: %s\n", filename, strerror(errno));
         exit(-1);
     }
-    fprintf(f, " ");
+    fprintf(f, "%c", s1[s1Len-1]);
     if (NULL == row) {
         for (j=0; j<s2Len; ++j) {
             fprintf(f, "%4c", '!');
@@ -117,18 +117,19 @@ static void print_rowcol(
     }
     else {
         for (j=0; j<s2Len; ++j) {
-            fprintf(f, "%4c", row[j]);
+            fprintf(f, "%4d", row[j]);
         }
     }
     fprintf(f, "\n");
+    fprintf(f, "%c", s2[s2Len-1]);
     if (NULL == col) {
-        for (i=0; j<s1Len; ++i) {
+        for (i=0; i<s1Len; ++i) {
             fprintf(f, "%4c", '!');
         }
     }
     else {
-        for (i=0; j<s1Len; ++i) {
-            fprintf(f, "%4c", col[i]);
+        for (i=0; i<s1Len; ++i) {
+            fprintf(f, "%4d", col[i]);
         }
     }
     fprintf(f, "\n");

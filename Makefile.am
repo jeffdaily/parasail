@@ -681,6 +681,7 @@ check_PROGRAMS += tests/test_scatter
 check_PROGRAMS += tests/test_sw_dispatch
 check_PROGRAMS += tests/test_verify
 check_PROGRAMS += tests/test_verify_tables
+check_PROGRAMS += tests/test_verify_rowcols
 
 #LDADD += $(CLOCK_LIBS)
 LDADD += $(MATH_LIBS)
@@ -744,6 +745,10 @@ tests_test_verify_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
 tests_test_verify_tables_SOURCES = tests/test_verify_tables.c
 tests_test_verify_tables_CFLAGS  = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_test_verify_tables_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
+
+tests_test_verify_rowcols_SOURCES = tests/test_verify_rowcols.c
+tests_test_verify_rowcols_CFLAGS  = $(AM_CFLAGS) $(OPENMP_CFLAGS)
+tests_test_verify_rowcols_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
 
 EXTRA_DIST += DISCLAIMER
 EXTRA_DIST += README.md

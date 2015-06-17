@@ -48,6 +48,32 @@ static inline void arr_store_si128(
 }
 #endif
 
+#ifdef PARASAIL_ROWCOL
+static inline void arr_store_col(
+        int *col,
+        __m128i vH,
+        int32_t t,
+        int32_t seglen)
+{
+    col[ 0*seglen+t] = (int8_t)_mm_extract_epi8(vH,  0);
+    col[ 1*seglen+t] = (int8_t)_mm_extract_epi8(vH,  1);
+    col[ 2*seglen+t] = (int8_t)_mm_extract_epi8(vH,  2);
+    col[ 3*seglen+t] = (int8_t)_mm_extract_epi8(vH,  3);
+    col[ 4*seglen+t] = (int8_t)_mm_extract_epi8(vH,  4);
+    col[ 5*seglen+t] = (int8_t)_mm_extract_epi8(vH,  5);
+    col[ 6*seglen+t] = (int8_t)_mm_extract_epi8(vH,  6);
+    col[ 7*seglen+t] = (int8_t)_mm_extract_epi8(vH,  7);
+    col[ 8*seglen+t] = (int8_t)_mm_extract_epi8(vH,  8);
+    col[ 9*seglen+t] = (int8_t)_mm_extract_epi8(vH,  9);
+    col[10*seglen+t] = (int8_t)_mm_extract_epi8(vH, 10);
+    col[11*seglen+t] = (int8_t)_mm_extract_epi8(vH, 11);
+    col[12*seglen+t] = (int8_t)_mm_extract_epi8(vH, 12);
+    col[13*seglen+t] = (int8_t)_mm_extract_epi8(vH, 13);
+    col[14*seglen+t] = (int8_t)_mm_extract_epi8(vH, 14);
+    col[15*seglen+t] = (int8_t)_mm_extract_epi8(vH, 15);
+}
+#endif
+
 #ifdef PARASAIL_TABLE
 #define FNAME parasail_sg_stats_table_striped_sse41_128_8
 #else
@@ -375,6 +401,18 @@ end:
             vMaxHM = _mm_blendv_epi8(vMaxHM, vHM, cond_max);
             vMaxHS = _mm_blendv_epi8(vMaxHS, vHS, cond_max);
             vMaxHL = _mm_blendv_epi8(vMaxHL, vHL, cond_max);
+#ifdef PARASAIL_ROWCOL
+            for (k=0; k<position; ++k) {
+                vH = _mm_slli_si128(vH, 1);
+                vHM = _mm_slli_si128(vHM, 1);
+                vHS = _mm_slli_si128(vHS, 1);
+                vHL = _mm_slli_si128(vHL, 1);
+            }
+            result->score_row[j] = (int8_t) _mm_extract_epi8 (vH, 15);
+            result->matches_row[j] = (int8_t) _mm_extract_epi8 (vHM, 15);
+            result->similar_row[j] = (int8_t) _mm_extract_epi8 (vHS, 15);
+            result->length_row[j] = (int8_t) _mm_extract_epi8 (vHL, 15);
+#endif
         }
     }
 
@@ -414,6 +452,12 @@ end:
             vMaxHM = _mm_blendv_epi8(vMaxHM, vHM, cond_max);
             vMaxHS = _mm_blendv_epi8(vMaxHS, vHS, cond_max);
             vMaxHL = _mm_blendv_epi8(vMaxHL, vHL, cond_max);
+#ifdef PARASAIL_ROWCOL
+            arr_store_col(result->score_col, vH, i, segLen);
+            arr_store_col(result->matches_col, vHM, i, segLen);
+            arr_store_col(result->similar_col, vHS, i, segLen);
+            arr_store_col(result->length_col, vHL, i, segLen);
+#endif
         }
 
         /* max in vec */

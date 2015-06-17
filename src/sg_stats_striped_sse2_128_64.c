@@ -82,6 +82,18 @@ static inline void arr_store_si128(
 }
 #endif
 
+#ifdef PARASAIL_ROWCOL
+static inline void arr_store_col(
+        int *col,
+        __m128i vH,
+        int32_t t,
+        int32_t seglen)
+{
+    col[0*seglen+t] = (int64_t)_mm_extract_epi64_rpl(vH, 0);
+    col[1*seglen+t] = (int64_t)_mm_extract_epi64_rpl(vH, 1);
+}
+#endif
+
 #ifdef PARASAIL_TABLE
 #define FNAME parasail_sg_stats_table_striped_sse2_128_64
 #else
@@ -399,6 +411,18 @@ end:
             vMaxHM = _mm_blendv_epi8_rpl(vMaxHM, vHM, cond_max);
             vMaxHS = _mm_blendv_epi8_rpl(vMaxHS, vHS, cond_max);
             vMaxHL = _mm_blendv_epi8_rpl(vMaxHL, vHL, cond_max);
+#ifdef PARASAIL_ROWCOL
+            for (k=0; k<position; ++k) {
+                vH = _mm_slli_si128(vH, 8);
+                vHM = _mm_slli_si128(vHM, 8);
+                vHS = _mm_slli_si128(vHS, 8);
+                vHL = _mm_slli_si128(vHL, 8);
+            }
+            result->score_row[j] = (int64_t) _mm_extract_epi64_rpl (vH, 1);
+            result->matches_row[j] = (int64_t) _mm_extract_epi64_rpl (vHM, 1);
+            result->similar_row[j] = (int64_t) _mm_extract_epi64_rpl (vHS, 1);
+            result->length_row[j] = (int64_t) _mm_extract_epi64_rpl (vHL, 1);
+#endif
         }
     }
 
@@ -438,6 +462,12 @@ end:
             vMaxHM = _mm_blendv_epi8_rpl(vMaxHM, vHM, cond_max);
             vMaxHS = _mm_blendv_epi8_rpl(vMaxHS, vHS, cond_max);
             vMaxHL = _mm_blendv_epi8_rpl(vMaxHL, vHL, cond_max);
+#ifdef PARASAIL_ROWCOL
+            arr_store_col(result->score_col, vH, i, segLen);
+            arr_store_col(result->matches_col, vHM, i, segLen);
+            arr_store_col(result->similar_col, vHS, i, segLen);
+            arr_store_col(result->length_col, vHL, i, segLen);
+#endif
         }
 
         /* max in vec */

@@ -46,6 +46,25 @@ static inline void arr_store_si128(
 }
 #endif
 
+#ifdef PARASAIL_ROWCOL
+static inline void arr_store_col(
+        int *col,
+        __m128i vH,
+        int32_t t,
+        int32_t seglen,
+        int32_t bias)
+{
+    col[0*seglen+t] = (int16_t)_mm_extract_epi16(vH, 0) - bias;
+    col[1*seglen+t] = (int16_t)_mm_extract_epi16(vH, 1) - bias;
+    col[2*seglen+t] = (int16_t)_mm_extract_epi16(vH, 2) - bias;
+    col[3*seglen+t] = (int16_t)_mm_extract_epi16(vH, 3) - bias;
+    col[4*seglen+t] = (int16_t)_mm_extract_epi16(vH, 4) - bias;
+    col[5*seglen+t] = (int16_t)_mm_extract_epi16(vH, 5) - bias;
+    col[6*seglen+t] = (int16_t)_mm_extract_epi16(vH, 6) - bias;
+    col[7*seglen+t] = (int16_t)_mm_extract_epi16(vH, 7) - bias;
+}
+#endif
+
 #ifdef PARASAIL_TABLE
 #define FNAME parasail_sw_stats_table_striped_sse2_128_16
 #else
@@ -104,6 +123,8 @@ parasail_result_t* FNAME(
 #else
 #ifdef PARASAIL_ROWCOL
     parasail_result_t *result = parasail_result_new_rowcol3(segLen*segWidth, s2Len);
+    const int32_t offset = (s1Len - 1) % segLen;
+    const int32_t position = (segWidth - 1) - (s1Len - 1) / segLen;
 #else
     parasail_result_t *result = parasail_result_new();
 #endif
@@ -384,7 +405,40 @@ parasail_result_t* FNAME(
 end:
         {
         }
+
+#ifdef PARASAIL_ROWCOL
+        /* extract last value from the column */
+        {
+            vH = _mm_load_si128(pvHStore + offset);
+            vHM = _mm_load_si128(pvHMStore + offset);
+            vHS = _mm_load_si128(pvHSStore + offset);
+            vHL = _mm_load_si128(pvHLStore + offset);
+            for (k=0; k<position; ++k) {
+                vH = _mm_slli_si128(vH, 2);
+                vHM = _mm_slli_si128(vHM, 2);
+                vHS = _mm_slli_si128(vHS, 2);
+                vHL = _mm_slli_si128(vHL, 2);
+            }
+            result->score_row[j] = (int16_t) _mm_extract_epi16 (vH, 7) - bias;
+            result->matches_row[j] = (int16_t) _mm_extract_epi16 (vHM, 7) - bias;
+            result->similar_row[j] = (int16_t) _mm_extract_epi16 (vHS, 7) - bias;
+            result->length_row[j] = (int16_t) _mm_extract_epi16 (vHL, 7) - bias;
+        }
+#endif
     }
+
+#ifdef PARASAIL_ROWCOL
+    for (i=0; i<segLen; ++i) {
+        __m128i vH = _mm_load_si128(pvHStore+i);
+        __m128i vHM = _mm_load_si128(pvHMStore+i);
+        __m128i vHS = _mm_load_si128(pvHSStore+i);
+        __m128i vHL = _mm_load_si128(pvHLStore+i);
+        arr_store_col(result->score_col, vH, i, segLen, bias);
+        arr_store_col(result->matches_col, vHM, i, segLen, bias);
+        arr_store_col(result->similar_col, vHS, i, segLen, bias);
+        arr_store_col(result->length_col, vHL, i, segLen, bias);
+    }
+#endif
 
     /* max in vec */
     for (j=0; j<segWidth; ++j) {

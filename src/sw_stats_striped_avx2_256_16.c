@@ -73,6 +73,33 @@ static inline void arr_store_si256(
 }
 #endif
 
+#ifdef PARASAIL_ROWCOL
+static inline void arr_store_col(
+        int *col,
+        __m256i vH,
+        int32_t t,
+        int32_t seglen,
+        int32_t bias)
+{
+    col[ 0*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH,  0) - bias;
+    col[ 1*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH,  1) - bias;
+    col[ 2*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH,  2) - bias;
+    col[ 3*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH,  3) - bias;
+    col[ 4*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH,  4) - bias;
+    col[ 5*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH,  5) - bias;
+    col[ 6*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH,  6) - bias;
+    col[ 7*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH,  7) - bias;
+    col[ 8*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH,  8) - bias;
+    col[ 9*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH,  9) - bias;
+    col[10*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH, 10) - bias;
+    col[11*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH, 11) - bias;
+    col[12*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH, 12) - bias;
+    col[13*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH, 13) - bias;
+    col[14*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH, 14) - bias;
+    col[15*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH, 15) - bias;
+}
+#endif
+
 #ifdef PARASAIL_TABLE
 #define FNAME parasail_sw_stats_table_striped_avx2_256_16
 #else
@@ -131,6 +158,8 @@ parasail_result_t* FNAME(
 #else
 #ifdef PARASAIL_ROWCOL
     parasail_result_t *result = parasail_result_new_rowcol3(segLen*segWidth, s2Len);
+    const int32_t offset = (s1Len - 1) % segLen;
+    const int32_t position = (segWidth - 1) - (s1Len - 1) / segLen;
 #else
     parasail_result_t *result = parasail_result_new();
 #endif
@@ -411,7 +440,40 @@ parasail_result_t* FNAME(
 end:
         {
         }
+
+#ifdef PARASAIL_ROWCOL
+        /* extract last value from the column */
+        {
+            vH = _mm256_load_si256(pvHStore + offset);
+            vHM = _mm256_load_si256(pvHMStore + offset);
+            vHS = _mm256_load_si256(pvHSStore + offset);
+            vHL = _mm256_load_si256(pvHLStore + offset);
+            for (k=0; k<position; ++k) {
+                vH = _mm256_slli_si256_rpl(vH, 2);
+                vHM = _mm256_slli_si256_rpl(vHM, 2);
+                vHS = _mm256_slli_si256_rpl(vHS, 2);
+                vHL = _mm256_slli_si256_rpl(vHL, 2);
+            }
+            result->score_row[j] = (int16_t) _mm256_extract_epi16_rpl (vH, 15) - bias;
+            result->matches_row[j] = (int16_t) _mm256_extract_epi16_rpl (vHM, 15) - bias;
+            result->similar_row[j] = (int16_t) _mm256_extract_epi16_rpl (vHS, 15) - bias;
+            result->length_row[j] = (int16_t) _mm256_extract_epi16_rpl (vHL, 15) - bias;
+        }
+#endif
     }
+
+#ifdef PARASAIL_ROWCOL
+    for (i=0; i<segLen; ++i) {
+        __m256i vH = _mm256_load_si256(pvHStore+i);
+        __m256i vHM = _mm256_load_si256(pvHMStore+i);
+        __m256i vHS = _mm256_load_si256(pvHSStore+i);
+        __m256i vHL = _mm256_load_si256(pvHLStore+i);
+        arr_store_col(result->score_col, vH, i, segLen, bias);
+        arr_store_col(result->matches_col, vHM, i, segLen, bias);
+        arr_store_col(result->similar_col, vHS, i, segLen, bias);
+        arr_store_col(result->length_col, vHL, i, segLen, bias);
+    }
+#endif
 
     /* max in vec */
     for (j=0; j<segWidth; ++j) {

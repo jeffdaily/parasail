@@ -53,14 +53,6 @@ static inline __m256i _mm256_packs_epi16_rpl(__m256i a, __m256i b) {
 #define _mm256_slli_si256_rpl(a,imm) _mm256_alignr_epi8(a, _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,3,0)), 16-imm)
 
 
-/* shift given vector v, insert val, return shifted val */
-static inline __m256i vshift(const __m256i v, const int val)
-{
-    __m256i ret = _mm256_srli_si256_rpl(v, 1);
-    ret = _mm256_insert_epi8_rpl(ret, val, 31);
-    return ret;
-}
-
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si256(
         int *array,
@@ -584,18 +576,24 @@ parasail_result_t* FNAME(
             __m256i vNWmatch = vNmatch;
             __m256i vNWsimilar = vNsimilar;
             __m256i vNWlength = vNlength;
-            vNscore = vshift(vWscore, tbl_pr[j]);
-            vNmatch = vshift(vWmatch, mch_pr[j]);
-            vNsimilar = vshift(vWsimilar, sim_pr[j]);
-            vNlength = vshift(vWlength, len_pr[j]);
-            vDel = vshift(vDel, del_pr[j]);
+            vNscore = _mm256_srli_si256_rpl(vWscore, 1);
+            vNscore = _mm256_insert_epi8_rpl(vNscore, tbl_pr[j], 31);
+            vNmatch = _mm256_srli_si256_rpl(vWmatch, 1);
+            vNmatch = _mm256_insert_epi8_rpl(vNmatch, mch_pr[j], 31);
+            vNsimilar = _mm256_srli_si256_rpl(vWsimilar, 1);
+            vNsimilar = _mm256_insert_epi8_rpl(vNsimilar, sim_pr[j], 31);
+            vNlength = _mm256_srli_si256_rpl(vWlength, 1);
+            vNlength = _mm256_insert_epi8_rpl(vNlength, len_pr[j], 31);
+            vDel = _mm256_srli_si256_rpl(vDel, 1);
+            vDel = _mm256_insert_epi8_rpl(vDel, del_pr[j], 31);
             vDel = _mm256_max_epi8(
                     _mm256_subs_epi8(vNscore, vOpen),
                     _mm256_subs_epi8(vDel, vGap));
             vIns = _mm256_max_epi8(
                     _mm256_subs_epi8(vWscore, vOpen),
                     _mm256_subs_epi8(vIns, vGap));
-            vs2 = vshift(vs2, s2[j]);
+            vs2 = _mm256_srli_si256_rpl(vs2, 1);
+            vs2 = _mm256_insert_epi8_rpl(vs2, s2[j], 31);
             vMat = _mm256_set_epi8(
                     matrow0[s2[j-0]],
                     matrow1[s2[j-1]],

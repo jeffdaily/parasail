@@ -51,14 +51,6 @@ static inline __m128i _mm_min_epi8_rpl(__m128i a, __m128i b) {
 }
 
 
-/* shift given vector v, insert val, return shifted val */
-static inline __m128i vshift(const __m128i v, const int val)
-{
-    __m128i ret = _mm_srli_si128(v, 1);
-    ret = _mm_insert_epi8_rpl(ret, val, 15);
-    return ret;
-}
-
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si128(
         int *array,
@@ -406,18 +398,24 @@ parasail_result_t* FNAME(
             __m128i vNWmatch = vNmatch;
             __m128i vNWsimilar = vNsimilar;
             __m128i vNWlength = vNlength;
-            vNscore = vshift(vWscore, tbl_pr[j]);
-            vNmatch = vshift(vWmatch, mch_pr[j]);
-            vNsimilar = vshift(vWsimilar, sim_pr[j]);
-            vNlength = vshift(vWlength, len_pr[j]);
-            vDel = vshift(vDel, del_pr[j]);
+            vNscore = _mm_srli_si128(vWscore, 1);
+            vNscore = _mm_insert_epi8_rpl(vNscore, tbl_pr[j], 15);
+            vNmatch = _mm_srli_si128(vWmatch, 1);
+            vNmatch = _mm_insert_epi8_rpl(vNmatch, mch_pr[j], 15);
+            vNsimilar = _mm_srli_si128(vWsimilar, 1);
+            vNsimilar = _mm_insert_epi8_rpl(vNsimilar, sim_pr[j], 15);
+            vNlength = _mm_srli_si128(vWlength, 1);
+            vNlength = _mm_insert_epi8_rpl(vNlength, len_pr[j], 15);
+            vDel = _mm_srli_si128(vDel, 1);
+            vDel = _mm_insert_epi8_rpl(vDel, del_pr[j], 15);
             vDel = _mm_max_epi8_rpl(
                     _mm_subs_epi8(vNscore, vOpen),
                     _mm_subs_epi8(vDel, vGap));
             vIns = _mm_max_epi8_rpl(
                     _mm_subs_epi8(vWscore, vOpen),
                     _mm_subs_epi8(vIns, vGap));
-            vs2 = vshift(vs2, s2[j]);
+            vs2 = _mm_srli_si128(vs2, 1);
+            vs2 = _mm_insert_epi8_rpl(vs2, s2[j], 15);
             vMat = _mm_set_epi8(
                     matrow0[s2[j-0]],
                     matrow1[s2[j-1]],

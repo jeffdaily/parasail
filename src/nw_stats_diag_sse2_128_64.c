@@ -77,14 +77,6 @@ static inline __m128i _mm_cmpeq_epi64_rpl(__m128i a, __m128i b) {
 }
 
 
-/* shift given vector v, insert val, return shifted val */
-static inline __m128i vshift(const __m128i v, const int val)
-{
-    __m128i ret = _mm_srli_si128(v, 8);
-    ret = _mm_insert_epi64_rpl(ret, val, 1);
-    return ret;
-}
-
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si128(
         int *array,
@@ -103,6 +95,30 @@ static inline void arr_store_si128(
 }
 #endif
 
+#ifdef PARASAIL_ROWCOL
+static inline void arr_store_rowcol(
+        int *row,
+        int *col,
+        __m128i vWscore,
+        int32_t i,
+        int32_t s1Len,
+        int32_t j,
+        int32_t s2Len)
+{
+    if (i+0 == s1Len-1 && 0 <= j-0 && j-0 < s2Len) {
+        row[j-0] = (int64_t)_mm_extract_epi64_rpl(vWscore, 1);
+    }
+    if (j-0 == s2Len-1 && 0 <= i+0 && i+0 < s1Len) {
+        col[(i+0)] = (int64_t)_mm_extract_epi64_rpl(vWscore, 1);
+    }
+    if (i+1 == s1Len-1 && 0 <= j-1 && j-1 < s2Len) {
+        row[j-1] = (int64_t)_mm_extract_epi64_rpl(vWscore, 0);
+    }
+    if (j-1 == s2Len-1 && 0 <= i+1 && i+1 < s1Len) {
+        col[(i+1)] = (int64_t)_mm_extract_epi64_rpl(vWscore, 0);
+    }
+}
+#endif
 
 #ifdef PARASAIL_TABLE
 #define FNAME parasail_nw_stats_table_diag_sse2_128_64
@@ -242,14 +258,22 @@ parasail_result_t* FNAME(
         __m128i vs2 = vNegInf;
         const int * const restrict matrow0 = &matrix->matrix[matrix->size*s1[i+0]];
         const int * const restrict matrow1 = &matrix->matrix[matrix->size*s1[i+1]];
-        vNscore = vshift(vNscore, tbl_pr[-1]);
-        vNmatch = vshift(vNmatch, 0);
-        vNsimilar = vshift(vNsimilar, 0);
-        vNlength = vshift(vNlength, 0);
-        vWscore = vshift(vWscore, -open - i*gap);
-        vWmatch = vshift(vWmatch, 0);
-        vWsimilar = vshift(vWsimilar, 0);
-        vWlength = vshift(vWlength, 0);
+        vNscore = _mm_srli_si128(vNscore, 8);
+        vNscore = _mm_insert_epi64_rpl(vNscore, tbl_pr[-1], 1);
+        vNmatch = _mm_srli_si128(vNmatch, 8);
+        vNmatch = _mm_insert_epi64_rpl(vNmatch, 0, 1);
+        vNsimilar = _mm_srli_si128(vNsimilar, 8);
+        vNsimilar = _mm_insert_epi64_rpl(vNsimilar, 0, 1);
+        vNlength = _mm_srli_si128(vNlength, 8);
+        vNlength = _mm_insert_epi64_rpl(vNlength, 0, 1);
+        vWscore = _mm_srli_si128(vWscore, 8);
+        vWscore = _mm_insert_epi64_rpl(vWscore, -open - i*gap, 1);
+        vWmatch = _mm_srli_si128(vWmatch, 8);
+        vWmatch = _mm_insert_epi64_rpl(vWmatch, 0, 1);
+        vWsimilar = _mm_srli_si128(vWsimilar, 8);
+        vWsimilar = _mm_insert_epi64_rpl(vWsimilar, 0, 1);
+        vWlength = _mm_srli_si128(vWlength, 8);
+        vWlength = _mm_insert_epi64_rpl(vWlength, 0, 1);
         tbl_pr[-1] = -open - (i+N)*gap;
         /* iterate over database sequence */
         for (j=0; j<s2Len+PAD; ++j) {
@@ -258,18 +282,24 @@ parasail_result_t* FNAME(
             __m128i vNWmatch = vNmatch;
             __m128i vNWsimilar = vNsimilar;
             __m128i vNWlength = vNlength;
-            vNscore = vshift(vWscore, tbl_pr[j]);
-            vNmatch = vshift(vWmatch, mch_pr[j]);
-            vNsimilar = vshift(vWsimilar, sim_pr[j]);
-            vNlength = vshift(vWlength, len_pr[j]);
-            vDel = vshift(vDel, del_pr[j]);
+            vNscore = _mm_srli_si128(vWscore, 8);
+            vNscore = _mm_insert_epi64_rpl(vNscore, tbl_pr[j], 1);
+            vNmatch = _mm_srli_si128(vWmatch, 8);
+            vNmatch = _mm_insert_epi64_rpl(vNmatch, mch_pr[j], 1);
+            vNsimilar = _mm_srli_si128(vWsimilar, 8);
+            vNsimilar = _mm_insert_epi64_rpl(vNsimilar, sim_pr[j], 1);
+            vNlength = _mm_srli_si128(vWlength, 8);
+            vNlength = _mm_insert_epi64_rpl(vNlength, len_pr[j], 1);
+            vDel = _mm_srli_si128(vDel, 8);
+            vDel = _mm_insert_epi64_rpl(vDel, del_pr[j], 1);
             vDel = _mm_max_epi64_rpl(
                     _mm_sub_epi64(vNscore, vOpen),
                     _mm_sub_epi64(vDel, vGap));
             vIns = _mm_max_epi64_rpl(
                     _mm_sub_epi64(vWscore, vOpen),
                     _mm_sub_epi64(vIns, vGap));
-            vs2 = vshift(vs2, s2[j]);
+            vs2 = _mm_srli_si128(vs2, 8);
+            vs2 = _mm_insert_epi64_rpl(vs2, s2[j], 1);
             vMat = _mm_set_epi64x(
                     matrow0[s2[j-0]],
                     matrow1[s2[j-1]]
@@ -330,6 +360,12 @@ parasail_result_t* FNAME(
             arr_store_si128(result->matches_table, vWmatch, i, s1Len, j, s2Len);
             arr_store_si128(result->similar_table, vWsimilar, i, s1Len, j, s2Len);
             arr_store_si128(result->length_table, vWlength, i, s1Len, j, s2Len);
+#endif
+#ifdef PARASAIL_ROWCOL
+            arr_store_rowcol(result->score_row, result->score_col, vWscore, i, s1Len, j, s2Len);
+            arr_store_rowcol(result->matches_row, result->matches_col, vWmatch, i, s1Len, j, s2Len);
+            arr_store_rowcol(result->similar_row, result->similar_col, vWsimilar, i, s1Len, j, s2Len);
+            arr_store_rowcol(result->length_row, result->length_col, vWlength, i, s1Len, j, s2Len);
 #endif
             tbl_pr[j-1] = (int64_t)_mm_extract_epi64_rpl(vWscore,0);
             mch_pr[j-1] = (int64_t)_mm_extract_epi64_rpl(vWmatch,0);

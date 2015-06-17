@@ -255,13 +255,6 @@ end:
         }
     }
 
-#ifdef PARASAIL_ROWCOL
-    for (i=0; i<segLen; ++i) {
-        __m256i vH = _mm256_load_si256(pvHStore+i);
-        arr_store_col(result->score_col, vH, i, segLen);
-    }
-#endif
-
     /* max last value from all columns */
     {
         int16_t value;
@@ -281,6 +274,9 @@ end:
         for (i=0; i<segLen; ++i) {
             __m256i vH = _mm256_load_si256(pvHStore + i);
             vMaxH = _mm256_max_epi16(vH, vMaxH);
+#ifdef PARASAIL_ROWCOL
+            arr_store_col(result->score_col, vH, i, segLen);
+#endif
         }
 
         /* max in vec */

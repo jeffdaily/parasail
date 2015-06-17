@@ -39,6 +39,20 @@ static inline void arr_store_si128(
 }
 #endif
 
+#ifdef PARASAIL_ROWCOL
+static inline void arr_store_col(
+        int *col,
+        __m128i vH,
+        int32_t t,
+        int32_t seglen)
+{
+    col[0*seglen+t] = (int32_t)_mm_extract_epi32(vH, 0);
+    col[1*seglen+t] = (int32_t)_mm_extract_epi32(vH, 1);
+    col[2*seglen+t] = (int32_t)_mm_extract_epi32(vH, 2);
+    col[3*seglen+t] = (int32_t)_mm_extract_epi32(vH, 3);
+}
+#endif
+
 #ifdef PARASAIL_TABLE
 #define FNAME parasail_sg_stats_table_scan_sse41_128_32
 #else
@@ -355,6 +369,18 @@ parasail_result_t* FNAME(
             vMaxM = _mm_blendv_epi8(vMaxM, vM, cond_max);
             vMaxS = _mm_blendv_epi8(vMaxS, vS, cond_max);
             vMaxL = _mm_blendv_epi8(vMaxL, vL, cond_max);
+#ifdef PARASAIL_ROWCOL
+            for (k=0; k<position; ++k) {
+                vH = _mm_slli_si128(vH, 4);
+                vM = _mm_slli_si128(vM, 4);
+                vS = _mm_slli_si128(vS, 4);
+                vL = _mm_slli_si128(vL, 4);
+            }
+            result->score_row[j] = (int32_t) _mm_extract_epi32 (vH, 3);
+            result->matches_row[j] = (int32_t) _mm_extract_epi32 (vM, 3);
+            result->similar_row[j] = (int32_t) _mm_extract_epi32 (vS, 3);
+            result->length_row[j] = (int32_t) _mm_extract_epi32 (vL, 3);
+#endif
         }
     }
 
@@ -393,6 +419,12 @@ parasail_result_t* FNAME(
             vMaxM = _mm_blendv_epi8(vMaxM, vM, cond_max);
             vMaxS = _mm_blendv_epi8(vMaxS, vS, cond_max);
             vMaxL = _mm_blendv_epi8(vMaxL, vL, cond_max);
+#ifdef PARASAIL_ROWCOL
+            arr_store_col(result->score_col, vH, i, segLen);
+            arr_store_col(result->matches_col, vM, i, segLen);
+            arr_store_col(result->similar_col, vS, i, segLen);
+            arr_store_col(result->length_col, vL, i, segLen);
+#endif
         }
 
         /* max in vec */

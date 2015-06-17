@@ -19,7 +19,7 @@
 %(FIXES)s
 
 #ifdef PARASAIL_TABLE
-static inline void arr_store_si128(
+static inline void arr_store_si%(BITS)s(
         int *array,
         %(VTYPE)s vWscore,
         %(INDEX)s i,
@@ -187,7 +187,7 @@ parasail_result_t* FNAME(
             }
             %(SATURATION_CHECK_MID)s
 #ifdef PARASAIL_TABLE
-            arr_store_si128(result->score_table, vWscore, i, s1Len, j, s2Len);
+            arr_store_si%(BITS)s(result->score_table, vWscore, i, s1Len, j, s2Len);
 #endif
 #ifdef PARASAIL_ROWCOL
             arr_store_rowcol(result->score_row, result->score_col, vWscore, i, s1Len, j, s2Len);

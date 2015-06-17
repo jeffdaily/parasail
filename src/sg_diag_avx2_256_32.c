@@ -46,7 +46,7 @@ static inline int32_t _mm256_extract_epi32_rpl(__m256i a, int imm) {
 
 
 #ifdef PARASAIL_TABLE
-static inline void arr_store_si128(
+static inline void arr_store_si256(
         int *array,
         __m256i vWscore,
         int32_t i,
@@ -289,7 +289,7 @@ parasail_result_t* FNAME(
             }
             
 #ifdef PARASAIL_TABLE
-            arr_store_si128(result->score_table, vWscore, i, s1Len, j, s2Len);
+            arr_store_si256(result->score_table, vWscore, i, s1Len, j, s2Len);
 #endif
 #ifdef PARASAIL_ROWCOL
             arr_store_rowcol(result->score_row, result->score_col, vWscore, i, s1Len, j, s2Len);

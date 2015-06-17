@@ -32,6 +32,17 @@ static inline void arr_store_si%(BITS)s(
 }
 #endif
 
+#ifdef PARASAIL_ROWCOL
+static inline void arr_store_col(
+        int *col,
+        %(VTYPE)s vH,
+        %(INDEX)s t,
+        %(INDEX)s seglen)
+{
+%(PRINTER_ROWCOL)s
+}
+#endif
+
 #ifdef PARASAIL_TABLE
 #define FNAME %(NAME_TABLE)s
 #else
@@ -349,6 +360,18 @@ end:
             vMaxHM = %(VBLEND)s(vMaxHM, vHM, cond_max);
             vMaxHS = %(VBLEND)s(vMaxHS, vHS, cond_max);
             vMaxHL = %(VBLEND)s(vMaxHL, vHL, cond_max);
+#ifdef PARASAIL_ROWCOL
+            for (k=0; k<position; ++k) {
+                vH = %(VSHIFT)s(vH, %(BYTES)s);
+                vHM = %(VSHIFT)s(vHM, %(BYTES)s);
+                vHS = %(VSHIFT)s(vHS, %(BYTES)s);
+                vHL = %(VSHIFT)s(vHL, %(BYTES)s);
+            }
+            result->score_row[j] = (%(INT)s) %(VEXTRACT)s (vH, %(LAST_POS)s);
+            result->matches_row[j] = (%(INT)s) %(VEXTRACT)s (vHM, %(LAST_POS)s);
+            result->similar_row[j] = (%(INT)s) %(VEXTRACT)s (vHS, %(LAST_POS)s);
+            result->length_row[j] = (%(INT)s) %(VEXTRACT)s (vHL, %(LAST_POS)s);
+#endif
         }
     }
 
@@ -388,6 +411,12 @@ end:
             vMaxHM = %(VBLEND)s(vMaxHM, vHM, cond_max);
             vMaxHS = %(VBLEND)s(vMaxHS, vHS, cond_max);
             vMaxHL = %(VBLEND)s(vMaxHL, vHL, cond_max);
+#ifdef PARASAIL_ROWCOL
+            arr_store_col(result->score_col, vH, i, segLen);
+            arr_store_col(result->matches_col, vHM, i, segLen);
+            arr_store_col(result->similar_col, vHS, i, segLen);
+            arr_store_col(result->length_col, vHL, i, segLen);
+#endif
         }
 
         /* max in vec */

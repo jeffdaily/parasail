@@ -45,6 +45,24 @@ static inline void arr_store_si128(
 }
 #endif
 
+#ifdef PARASAIL_ROWCOL
+static inline void arr_store_col(
+        int *col,
+        __m128i vH,
+        int32_t t,
+        int32_t seglen)
+{
+    col[0*seglen+t] = (int16_t)_mm_extract_epi16(vH, 0);
+    col[1*seglen+t] = (int16_t)_mm_extract_epi16(vH, 1);
+    col[2*seglen+t] = (int16_t)_mm_extract_epi16(vH, 2);
+    col[3*seglen+t] = (int16_t)_mm_extract_epi16(vH, 3);
+    col[4*seglen+t] = (int16_t)_mm_extract_epi16(vH, 4);
+    col[5*seglen+t] = (int16_t)_mm_extract_epi16(vH, 5);
+    col[6*seglen+t] = (int16_t)_mm_extract_epi16(vH, 6);
+    col[7*seglen+t] = (int16_t)_mm_extract_epi16(vH, 7);
+}
+#endif
+
 #ifdef PARASAIL_TABLE
 #define FNAME parasail_sg_stats_table_striped_sse2_128_16
 #else
@@ -362,6 +380,18 @@ end:
             vMaxHM = _mm_blendv_epi8_rpl(vMaxHM, vHM, cond_max);
             vMaxHS = _mm_blendv_epi8_rpl(vMaxHS, vHS, cond_max);
             vMaxHL = _mm_blendv_epi8_rpl(vMaxHL, vHL, cond_max);
+#ifdef PARASAIL_ROWCOL
+            for (k=0; k<position; ++k) {
+                vH = _mm_slli_si128(vH, 2);
+                vHM = _mm_slli_si128(vHM, 2);
+                vHS = _mm_slli_si128(vHS, 2);
+                vHL = _mm_slli_si128(vHL, 2);
+            }
+            result->score_row[j] = (int16_t) _mm_extract_epi16 (vH, 7);
+            result->matches_row[j] = (int16_t) _mm_extract_epi16 (vHM, 7);
+            result->similar_row[j] = (int16_t) _mm_extract_epi16 (vHS, 7);
+            result->length_row[j] = (int16_t) _mm_extract_epi16 (vHL, 7);
+#endif
         }
     }
 
@@ -401,6 +431,12 @@ end:
             vMaxHM = _mm_blendv_epi8_rpl(vMaxHM, vHM, cond_max);
             vMaxHS = _mm_blendv_epi8_rpl(vMaxHS, vHS, cond_max);
             vMaxHL = _mm_blendv_epi8_rpl(vMaxHL, vHL, cond_max);
+#ifdef PARASAIL_ROWCOL
+            arr_store_col(result->score_col, vH, i, segLen);
+            arr_store_col(result->matches_col, vHM, i, segLen);
+            arr_store_col(result->similar_col, vHS, i, segLen);
+            arr_store_col(result->length_col, vHL, i, segLen);
+#endif
         }
 
         /* max in vec */

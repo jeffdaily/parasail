@@ -202,13 +202,6 @@ end:
         }
     }
 
-#ifdef PARASAIL_ROWCOL
-    for (i=0; i<segLen; ++i) {
-        %(VTYPE)s vH = %(VLOAD)s(pvHStore+i);
-        arr_store_col(result->score_col, vH, i, segLen);
-    }
-#endif
-
     /* max last value from all columns */
     {
         %(INT)s value;
@@ -228,6 +221,9 @@ end:
         for (i=0; i<segLen; ++i) {
             %(VTYPE)s vH = %(VLOAD)s(pvHStore + i);
             vMaxH = %(VMAX)s(vH, vMaxH);
+#ifdef PARASAIL_ROWCOL
+            arr_store_col(result->score_col, vH, i, segLen);
+#endif
         }
 
         /* max in vec */

@@ -72,6 +72,20 @@ static inline void arr_store_si256(
 }
 #endif
 
+#ifdef PARASAIL_ROWCOL
+static inline void arr_store_col(
+        int *col,
+        __m256i vH,
+        int32_t t,
+        int32_t seglen)
+{
+    col[0*seglen+t] = (int64_t)_mm256_extract_epi64_rpl(vH, 0);
+    col[1*seglen+t] = (int64_t)_mm256_extract_epi64_rpl(vH, 1);
+    col[2*seglen+t] = (int64_t)_mm256_extract_epi64_rpl(vH, 2);
+    col[3*seglen+t] = (int64_t)_mm256_extract_epi64_rpl(vH, 3);
+}
+#endif
+
 #ifdef PARASAIL_TABLE
 #define FNAME parasail_nw_stats_table_striped_avx2_256_64
 #else
@@ -393,7 +407,40 @@ parasail_result_t* FNAME(
 end:
         {
         }
+
+#ifdef PARASAIL_ROWCOL
+        /* extract last value from the column */
+        {
+            vH = _mm256_load_si256(pvHStore + offset);
+            vHM = _mm256_load_si256(pvHMStore + offset);
+            vHS = _mm256_load_si256(pvHSStore + offset);
+            vHL = _mm256_load_si256(pvHLStore + offset);
+            for (k=0; k<position; ++k) {
+                vH = _mm256_slli_si256_rpl (vH, 8);
+                vHM = _mm256_slli_si256_rpl (vHM, 8);
+                vHS = _mm256_slli_si256_rpl (vHS, 8);
+                vHL = _mm256_slli_si256_rpl (vHL, 8);
+            }
+            result->score_row[j] = (int64_t) _mm256_extract_epi64_rpl (vH, 3);
+            result->matches_row[j] = (int64_t) _mm256_extract_epi64_rpl (vHM, 3);
+            result->similar_row[j] = (int64_t) _mm256_extract_epi64_rpl (vHS, 3);
+            result->length_row[j] = (int64_t) _mm256_extract_epi64_rpl (vHL, 3);
+        }
+#endif
     }
+
+#ifdef PARASAIL_ROWCOL
+    for (i=0; i<segLen; ++i) {
+        __m256i vH = _mm256_load_si256(pvHStore+i);
+        __m256i vHM = _mm256_load_si256(pvHMStore+i);
+        __m256i vHS = _mm256_load_si256(pvHSStore+i);
+        __m256i vHL = _mm256_load_si256(pvHLStore+i);
+        arr_store_col(result->score_col, vH, i, segLen);
+        arr_store_col(result->matches_col, vHM, i, segLen);
+        arr_store_col(result->similar_col, vHS, i, segLen);
+        arr_store_col(result->length_col, vHL, i, segLen);
+    }
+#endif
 
     /* extract last value from the last column */
     {

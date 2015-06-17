@@ -57,14 +57,6 @@ static inline int64_t _mm256_extract_epi64_rpl(__m256i a, int imm) {
 #define _mm256_slli_si256_rpl(a,imm) _mm256_alignr_epi8(a, _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,3,0)), 16-imm)
 
 
-/* shift given vector v, insert val, return shifted val */
-static inline __m256i vshift(const __m256i v, const int val)
-{
-    __m256i ret = _mm256_srli_si256_rpl(v, 8);
-    ret = _mm256_insert_epi64_rpl(ret, val, 3);
-    return ret;
-}
-
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si256(
         int *array,
@@ -89,6 +81,42 @@ static inline void arr_store_si256(
 }
 #endif
 
+#ifdef PARASAIL_ROWCOL
+static inline void arr_store_rowcol(
+        int *row,
+        int *col,
+        __m256i vWscore,
+        int32_t i,
+        int32_t s1Len,
+        int32_t j,
+        int32_t s2Len)
+{
+    if (i+0 == s1Len-1 && 0 <= j-0 && j-0 < s2Len) {
+        row[j-0] = (int64_t)_mm256_extract_epi64_rpl(vWscore, 3);
+    }
+    if (j-0 == s2Len-1 && 0 <= i+0 && i+0 < s1Len) {
+        col[(i+0)] = (int64_t)_mm256_extract_epi64_rpl(vWscore, 3);
+    }
+    if (i+1 == s1Len-1 && 0 <= j-1 && j-1 < s2Len) {
+        row[j-1] = (int64_t)_mm256_extract_epi64_rpl(vWscore, 2);
+    }
+    if (j-1 == s2Len-1 && 0 <= i+1 && i+1 < s1Len) {
+        col[(i+1)] = (int64_t)_mm256_extract_epi64_rpl(vWscore, 2);
+    }
+    if (i+2 == s1Len-1 && 0 <= j-2 && j-2 < s2Len) {
+        row[j-2] = (int64_t)_mm256_extract_epi64_rpl(vWscore, 1);
+    }
+    if (j-2 == s2Len-1 && 0 <= i+2 && i+2 < s1Len) {
+        col[(i+2)] = (int64_t)_mm256_extract_epi64_rpl(vWscore, 1);
+    }
+    if (i+3 == s1Len-1 && 0 <= j-3 && j-3 < s2Len) {
+        row[j-3] = (int64_t)_mm256_extract_epi64_rpl(vWscore, 0);
+    }
+    if (j-3 == s2Len-1 && 0 <= i+3 && i+3 < s1Len) {
+        col[(i+3)] = (int64_t)_mm256_extract_epi64_rpl(vWscore, 0);
+    }
+}
+#endif
 
 #ifdef PARASAIL_TABLE
 #define FNAME parasail_nw_stats_table_diag_avx2_256_64
@@ -234,14 +262,22 @@ parasail_result_t* FNAME(
         const int * const restrict matrow1 = &matrix->matrix[matrix->size*s1[i+1]];
         const int * const restrict matrow2 = &matrix->matrix[matrix->size*s1[i+2]];
         const int * const restrict matrow3 = &matrix->matrix[matrix->size*s1[i+3]];
-        vNscore = vshift(vNscore, tbl_pr[-1]);
-        vNmatch = vshift(vNmatch, 0);
-        vNsimilar = vshift(vNsimilar, 0);
-        vNlength = vshift(vNlength, 0);
-        vWscore = vshift(vWscore, -open - i*gap);
-        vWmatch = vshift(vWmatch, 0);
-        vWsimilar = vshift(vWsimilar, 0);
-        vWlength = vshift(vWlength, 0);
+        vNscore = _mm256_srli_si256_rpl(vNscore, 8);
+        vNscore = _mm256_insert_epi64_rpl(vNscore, tbl_pr[-1], 3);
+        vNmatch = _mm256_srli_si256_rpl(vNmatch, 8);
+        vNmatch = _mm256_insert_epi64_rpl(vNmatch, 0, 3);
+        vNsimilar = _mm256_srli_si256_rpl(vNsimilar, 8);
+        vNsimilar = _mm256_insert_epi64_rpl(vNsimilar, 0, 3);
+        vNlength = _mm256_srli_si256_rpl(vNlength, 8);
+        vNlength = _mm256_insert_epi64_rpl(vNlength, 0, 3);
+        vWscore = _mm256_srli_si256_rpl(vWscore, 8);
+        vWscore = _mm256_insert_epi64_rpl(vWscore, -open - i*gap, 3);
+        vWmatch = _mm256_srli_si256_rpl(vWmatch, 8);
+        vWmatch = _mm256_insert_epi64_rpl(vWmatch, 0, 3);
+        vWsimilar = _mm256_srli_si256_rpl(vWsimilar, 8);
+        vWsimilar = _mm256_insert_epi64_rpl(vWsimilar, 0, 3);
+        vWlength = _mm256_srli_si256_rpl(vWlength, 8);
+        vWlength = _mm256_insert_epi64_rpl(vWlength, 0, 3);
         tbl_pr[-1] = -open - (i+N)*gap;
         /* iterate over database sequence */
         for (j=0; j<s2Len+PAD; ++j) {
@@ -250,18 +286,24 @@ parasail_result_t* FNAME(
             __m256i vNWmatch = vNmatch;
             __m256i vNWsimilar = vNsimilar;
             __m256i vNWlength = vNlength;
-            vNscore = vshift(vWscore, tbl_pr[j]);
-            vNmatch = vshift(vWmatch, mch_pr[j]);
-            vNsimilar = vshift(vWsimilar, sim_pr[j]);
-            vNlength = vshift(vWlength, len_pr[j]);
-            vDel = vshift(vDel, del_pr[j]);
+            vNscore = _mm256_srli_si256_rpl(vWscore, 8);
+            vNscore = _mm256_insert_epi64_rpl(vNscore, tbl_pr[j], 3);
+            vNmatch = _mm256_srli_si256_rpl(vWmatch, 8);
+            vNmatch = _mm256_insert_epi64_rpl(vNmatch, mch_pr[j], 3);
+            vNsimilar = _mm256_srli_si256_rpl(vWsimilar, 8);
+            vNsimilar = _mm256_insert_epi64_rpl(vNsimilar, sim_pr[j], 3);
+            vNlength = _mm256_srli_si256_rpl(vWlength, 8);
+            vNlength = _mm256_insert_epi64_rpl(vNlength, len_pr[j], 3);
+            vDel = _mm256_srli_si256_rpl(vDel, 8);
+            vDel = _mm256_insert_epi64_rpl(vDel, del_pr[j], 3);
             vDel = _mm256_max_epi64_rpl(
                     _mm256_sub_epi64(vNscore, vOpen),
                     _mm256_sub_epi64(vDel, vGap));
             vIns = _mm256_max_epi64_rpl(
                     _mm256_sub_epi64(vWscore, vOpen),
                     _mm256_sub_epi64(vIns, vGap));
-            vs2 = vshift(vs2, s2[j]);
+            vs2 = _mm256_srli_si256_rpl(vs2, 8);
+            vs2 = _mm256_insert_epi64_rpl(vs2, s2[j], 3);
             vMat = _mm256_set_epi64x(
                     matrow0[s2[j-0]],
                     matrow1[s2[j-1]],
@@ -324,6 +366,12 @@ parasail_result_t* FNAME(
             arr_store_si256(result->matches_table, vWmatch, i, s1Len, j, s2Len);
             arr_store_si256(result->similar_table, vWsimilar, i, s1Len, j, s2Len);
             arr_store_si256(result->length_table, vWlength, i, s1Len, j, s2Len);
+#endif
+#ifdef PARASAIL_ROWCOL
+            arr_store_rowcol(result->score_row, result->score_col, vWscore, i, s1Len, j, s2Len);
+            arr_store_rowcol(result->matches_row, result->matches_col, vWmatch, i, s1Len, j, s2Len);
+            arr_store_rowcol(result->similar_row, result->similar_col, vWsimilar, i, s1Len, j, s2Len);
+            arr_store_rowcol(result->length_row, result->length_col, vWlength, i, s1Len, j, s2Len);
 #endif
             tbl_pr[j-3] = (int64_t)_mm256_extract_epi64_rpl(vWscore,0);
             mch_pr[j-3] = (int64_t)_mm256_extract_epi64_rpl(vWmatch,0);

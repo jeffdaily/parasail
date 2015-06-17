@@ -54,7 +54,7 @@ static inline __m256i _mm256_packs_epi16_rpl(__m256i a, __m256i b) {
 
 
 #ifdef PARASAIL_TABLE
-static inline void arr_store_si128(
+static inline void arr_store_si256(
         int *array,
         __m256i vWscore,
         int32_t i,
@@ -577,7 +577,7 @@ parasail_result_t* FNAME(
                 vSaturationCheckMin = _mm256_min_epi8(vSaturationCheckMin, vWscore);
             }
 #ifdef PARASAIL_TABLE
-            arr_store_si128(result->score_table, vWscore, i, s1Len, j, s2Len);
+            arr_store_si256(result->score_table, vWscore, i, s1Len, j, s2Len);
 #endif
 #ifdef PARASAIL_ROWCOL
             arr_store_rowcol(result->score_row, result->score_col, vWscore, i, s1Len, j, s2Len);

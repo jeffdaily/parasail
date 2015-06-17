@@ -33,6 +33,18 @@ static inline void arr_store_si%(BITS)s(
 }
 #endif
 
+#ifdef PARASAIL_ROWCOL
+static inline void arr_store_col(
+        int *col,
+        %(VTYPE)s vH,
+        %(INDEX)s t,
+        %(INDEX)s seglen,
+        %(INDEX)s bias)
+{
+%(PRINTER_BIAS_ROWCOL)s
+}
+#endif
+
 #ifdef PARASAIL_TABLE
 #define FNAME %(NAME_TABLE)s
 #else
@@ -91,6 +103,8 @@ parasail_result_t* FNAME(
 #else
 #ifdef PARASAIL_ROWCOL
     parasail_result_t *result = parasail_result_new_rowcol3(segLen*segWidth, s2Len);
+    const %(INDEX)s offset = (s1Len - 1) %% segLen;
+    const %(INDEX)s position = (segWidth - 1) - (s1Len - 1) / segLen;
 #else
     parasail_result_t *result = parasail_result_new();
 #endif
@@ -371,7 +385,40 @@ parasail_result_t* FNAME(
 end:
         {
         }
+
+#ifdef PARASAIL_ROWCOL
+        /* extract last value from the column */
+        {
+            vH = %(VLOAD)s(pvHStore + offset);
+            vHM = %(VLOAD)s(pvHMStore + offset);
+            vHS = %(VLOAD)s(pvHSStore + offset);
+            vHL = %(VLOAD)s(pvHLStore + offset);
+            for (k=0; k<position; ++k) {
+                vH = %(VSHIFT)s(vH, %(BYTES)s);
+                vHM = %(VSHIFT)s(vHM, %(BYTES)s);
+                vHS = %(VSHIFT)s(vHS, %(BYTES)s);
+                vHL = %(VSHIFT)s(vHL, %(BYTES)s);
+            }
+            result->score_row[j] = (%(INT)s) %(VEXTRACT)s (vH, %(LAST_POS)s) - bias;
+            result->matches_row[j] = (%(INT)s) %(VEXTRACT)s (vHM, %(LAST_POS)s) - bias;
+            result->similar_row[j] = (%(INT)s) %(VEXTRACT)s (vHS, %(LAST_POS)s) - bias;
+            result->length_row[j] = (%(INT)s) %(VEXTRACT)s (vHL, %(LAST_POS)s) - bias;
+        }
+#endif
     }
+
+#ifdef PARASAIL_ROWCOL
+    for (i=0; i<segLen; ++i) {
+        %(VTYPE)s vH = %(VLOAD)s(pvHStore+i);
+        %(VTYPE)s vHM = %(VLOAD)s(pvHMStore+i);
+        %(VTYPE)s vHS = %(VLOAD)s(pvHSStore+i);
+        %(VTYPE)s vHL = %(VLOAD)s(pvHLStore+i);
+        arr_store_col(result->score_col, vH, i, segLen, bias);
+        arr_store_col(result->matches_col, vHM, i, segLen, bias);
+        arr_store_col(result->similar_col, vHS, i, segLen, bias);
+        arr_store_col(result->length_col, vHL, i, segLen, bias);
+    }
+#endif
 
     /* max in vec */
     for (j=0; j<segWidth; ++j) {

@@ -65,6 +65,18 @@ static inline void arr_store_si128(
 }
 #endif
 
+#ifdef PARASAIL_ROWCOL
+static inline void arr_store_col(
+        int *col,
+        __m128i vH,
+        int32_t t,
+        int32_t seglen)
+{
+    col[0*seglen+t] = (int64_t)_mm_extract_epi64(vH, 0);
+    col[1*seglen+t] = (int64_t)_mm_extract_epi64(vH, 1);
+}
+#endif
+
 #ifdef PARASAIL_TABLE
 #define FNAME parasail_nw_stats_table_scan_sse41_128_64
 #else
@@ -361,7 +373,40 @@ parasail_result_t* FNAME(
             arr_store_si128(result->length_table, vL, i, segLen, j, s2Len);
 #endif
         }
+
+#ifdef PARASAIL_ROWCOL
+        /* extract last value from the column */
+        {
+            vH = _mm_load_si128(pvH + offset);
+            vM = _mm_load_si128(pvM + offset);
+            vS = _mm_load_si128(pvS + offset);
+            vL = _mm_load_si128(pvL + offset);
+            for (k=0; k<position; ++k) {
+                vH = _mm_slli_si128(vH, 8);
+                vM = _mm_slli_si128(vM, 8);
+                vS = _mm_slli_si128(vS, 8);
+                vL = _mm_slli_si128(vL, 8);
+            }
+            result->score_row[j] = (int64_t) _mm_extract_epi64 (vH, 1);
+            result->matches_row[j] = (int64_t) _mm_extract_epi64 (vM, 1);
+            result->similar_row[j] = (int64_t) _mm_extract_epi64 (vS, 1);
+            result->length_row[j] = (int64_t) _mm_extract_epi64 (vL, 1);
+        }
+#endif
     }
+
+#ifdef PARASAIL_ROWCOL
+    for (i=0; i<segLen; ++i) {
+        __m128i vH = _mm_load_si128(pvH+i);
+        __m128i vM = _mm_load_si128(pvM+i);
+        __m128i vS = _mm_load_si128(pvS+i);
+        __m128i vL = _mm_load_si128(pvL+i);
+        arr_store_col(result->score_col, vH, i, segLen);
+        arr_store_col(result->matches_col, vM, i, segLen);
+        arr_store_col(result->similar_col, vS, i, segLen);
+        arr_store_col(result->length_col, vL, i, segLen);
+    }
+#endif
 
     /* extract last value from the last column */
     {

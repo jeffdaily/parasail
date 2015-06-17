@@ -145,7 +145,10 @@ static void check_functions(
         parasail_function_group_t f,
         char **sequences,
         unsigned long *sizes,
-        unsigned long pair_limit)
+        unsigned long pair_limit,
+        const char *matrixname,
+        const parasail_matrix_t *matrix,
+        gap_score_t gap)
 {
     const parasail_function_info_t *functions = f.fs;
     unsigned long matrix_index = 0;
@@ -156,16 +159,24 @@ static void check_functions(
 
     printf("checking %s functions\n", f.name);
     for (matrix_index=0; NULL!=parasail_matrices[matrix_index]; ++matrix_index) {
-        //printf("\t%s\n", parasail_matrices[matrix_index]->name);
+        if (NULL == matrix || NULL == matrixname) {
+            matrix = parasail_matrices[matrix_index];
+            matrixname = parasail_matrices[matrix_index]->name;
+        }
+        printf("\t%s\n", matrixname);
         for (gap_index=0; INT_MIN!=gap_scores[gap_index].open; ++gap_index) {
             int open = gap_scores[gap_index].open;
             int extend = gap_scores[gap_index].extend;
-            //printf("\t\topen=%d extend=%d\n", open, extend);
+            if (gap.open != INT_MIN && gap.extend != INT_MIN) {
+                open = gap.open;
+                extend = gap.extend;
+            }
+            printf("\t\topen=%d extend=%d\n", open, extend);
             reference_function = functions[0].pointer;
             for (function_index=1;
                     NULL!=functions[function_index].pointer;
                     ++function_index) {
-                //printf("\t\t\t%s\n", functions[function_index].name);
+                printf("\t\t\t%s\n", functions[function_index].name);
                 unsigned long saturated = 0;
 #pragma omp parallel for
                 for (pair_index=0; pair_index<pair_limit; ++pair_index) {
@@ -179,12 +190,12 @@ static void check_functions(
                             sequences[a], sizes[a],
                             sequences[b], sizes[b],
                             open, extend,
-                            parasail_matrices[matrix_index]);
+                            matrix);
                     result = functions[function_index].pointer(
                             sequences[a], sizes[a],
                             sequences[b], sizes[b],
                             open, extend,
-                            parasail_matrices[matrix_index]);
+                            matrix);
                     if (result->saturated) {
                         /* no point in comparing a result that saturated */
                         parasail_result_free(reference_result);
@@ -199,7 +210,7 @@ static void check_functions(
                             printf("%s(%lu,%lu,%d,%d,%s) wrong score (%d!=%d)\n",
                                     functions[function_index].name,
                                     a, b, open, extend,
-                                    parasail_matrices[matrix_index]->name,
+                                    matrixname,
                                     reference_result->score, result->score);
                         }
                     }
@@ -212,7 +223,7 @@ static void check_functions(
                             printf("%s(%lu,%lu,%d,%d,%s) bad score table\n",
                                     functions[function_index].name,
                                     a, b, open, extend,
-                                    parasail_matrices[matrix_index]->name);
+                                    matrixname);
                         }
                     }
                     if (reference_result->matches_table
@@ -225,7 +236,7 @@ static void check_functions(
                             printf("%s(%lu,%lu,%d,%d,%s) bad matches table\n",
                                     functions[function_index].name,
                                     a, b, open, extend,
-                                    parasail_matrices[matrix_index]->name);
+                                    matrixname);
                         }
                     }
                     if (reference_result->similar_table
@@ -238,7 +249,7 @@ static void check_functions(
                             printf("%s(%lu,%lu,%d,%d,%s) bad similar table\n",
                                     functions[function_index].name,
                                     a, b, open, extend,
-                                    parasail_matrices[matrix_index]->name);
+                                    matrixname);
                         }
                     }
                     if (reference_result->length_table
@@ -251,7 +262,7 @@ static void check_functions(
                             printf("%s(%lu,%lu,%d,%d,%s) bad length table\n",
                                     functions[function_index].name,
                                     a, b, open, extend,
-                                    parasail_matrices[matrix_index]->name);
+                                    matrixname);
                         }
                     }
                     parasail_result_free(reference_result);
@@ -261,10 +272,18 @@ static void check_functions(
                     printf("%s %d %d %s saturated %lu times\n",
                             functions[function_index].name,
                             open, extend,
-                            parasail_matrices[matrix_index]->name,
+                            matrixname,
                             saturated);
                 }
             }
+            if (gap.open != INT_MIN && gap.extend != INT_MIN) {
+                /* user-specified gap, don't loop */
+                break;
+            }
+        }
+        if (!(NULL == matrix || NULL == matrixname)) {
+            /* user-specified matrix, don't loop */
+            break;
         }
     }
 }
@@ -281,17 +300,39 @@ int main(int argc, char **argv)
     int c = 0;
     int test_scores = 1;
     int test_stats = 0;
+    char *matrixname = NULL;
+    const parasail_matrix_t *matrix = NULL;
+    gap_score_t gap = {INT_MIN,INT_MIN};
 
-    while ((c = getopt(argc, argv, "f:n:vsS")) != -1) {
+    while ((c = getopt(argc, argv, "f:m:n:o:e:vsS")) != -1) {
         switch (c) {
             case 'f':
                 filename = optarg;
+                break;
+            case 'm':
+                matrixname = optarg;
                 break;
             case 'n':
                 errno = 0;
                 seq_count = strtol(optarg, &endptr, 10);
                 if (errno) {
                     perror("strtol");
+                    exit(1);
+                }
+                break;
+            case 'o':
+                errno = 0;
+                gap.open = strtol(optarg, &endptr, 10);
+                if (errno) {
+                    perror("strtol gap.open");
+                    exit(1);
+                }
+                break;
+            case 'e':
+                errno = 0;
+                gap.extend = strtol(optarg, &endptr, 10);
+                if (errno) {
+                    perror("strtol gap.extend");
                     exit(1);
                 }
                 break;
@@ -334,6 +375,15 @@ int main(int argc, char **argv)
         exit(1);
     }
 
+    /* select the matrix */
+    if (matrixname) {
+        matrix = parasail_matrix_lookup(matrixname);
+        if (NULL == matrix) {
+            fprintf(stderr, "Specified substitution matrix not found.\n");
+            exit(1);
+        }
+    }
+
     limit = binomial_coefficient(seq_count, 2);
     printf("%lu choose 2 is %lu\n", seq_count, limit);
 
@@ -341,14 +391,14 @@ int main(int argc, char **argv)
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         if (test_scores) {
-            check_functions(parasail_nw_table_sse2, sequences, sizes, limit);
-            check_functions(parasail_sg_table_sse2, sequences, sizes, limit);
-            check_functions(parasail_sw_table_sse2, sequences, sizes, limit);
+            check_functions(parasail_nw_table_sse2, sequences, sizes, limit, matrixname, matrix, gap);
+            check_functions(parasail_sg_table_sse2, sequences, sizes, limit, matrixname, matrix, gap);
+            check_functions(parasail_sw_table_sse2, sequences, sizes, limit, matrixname, matrix, gap);
         }
         if (test_stats) {
-            check_functions(parasail_nw_stats_table_sse2, sequences, sizes, limit);
-            check_functions(parasail_sg_stats_table_sse2, sequences, sizes, limit);
-            check_functions(parasail_sw_stats_table_sse2, sequences, sizes, limit);
+            check_functions(parasail_nw_stats_table_sse2, sequences, sizes, limit, matrixname, matrix, gap);
+            check_functions(parasail_sg_stats_table_sse2, sequences, sizes, limit, matrixname, matrix, gap);
+            check_functions(parasail_sw_stats_table_sse2, sequences, sizes, limit, matrixname, matrix, gap);
         }
     }
 #endif
@@ -356,14 +406,14 @@ int main(int argc, char **argv)
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
         if (test_scores) {
-            check_functions(parasail_nw_table_sse41, sequences, sizes, limit);
-            check_functions(parasail_sg_table_sse41, sequences, sizes, limit);
-            check_functions(parasail_sw_table_sse41, sequences, sizes, limit);
+            check_functions(parasail_nw_table_sse41, sequences, sizes, limit, matrixname, matrix, gap);
+            check_functions(parasail_sg_table_sse41, sequences, sizes, limit, matrixname, matrix, gap);
+            check_functions(parasail_sw_table_sse41, sequences, sizes, limit, matrixname, matrix, gap);
         }
         if (test_stats) {
-            check_functions(parasail_nw_stats_table_sse41, sequences, sizes, limit);
-            check_functions(parasail_sg_stats_table_sse41, sequences, sizes, limit);
-            check_functions(parasail_sw_stats_table_sse41, sequences, sizes, limit);
+            check_functions(parasail_nw_stats_table_sse41, sequences, sizes, limit, matrixname, matrix, gap);
+            check_functions(parasail_sg_stats_table_sse41, sequences, sizes, limit, matrixname, matrix, gap);
+            check_functions(parasail_sw_stats_table_sse41, sequences, sizes, limit, matrixname, matrix, gap);
         }
     }
 #endif
@@ -371,14 +421,14 @@ int main(int argc, char **argv)
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
         if (test_scores) {
-            check_functions(parasail_nw_table_avx2, sequences, sizes, limit);
-            check_functions(parasail_sg_table_avx2, sequences, sizes, limit);
-            check_functions(parasail_sw_table_avx2, sequences, sizes, limit);
+            check_functions(parasail_nw_table_avx2, sequences, sizes, limit, matrixname, matrix, gap);
+            check_functions(parasail_sg_table_avx2, sequences, sizes, limit, matrixname, matrix, gap);
+            check_functions(parasail_sw_table_avx2, sequences, sizes, limit, matrixname, matrix, gap);
         }
         if (test_stats) {
-            check_functions(parasail_nw_stats_table_avx2, sequences, sizes, limit);
-            check_functions(parasail_sg_stats_table_avx2, sequences, sizes, limit);
-            check_functions(parasail_sw_stats_table_avx2, sequences, sizes, limit);
+            check_functions(parasail_nw_stats_table_avx2, sequences, sizes, limit, matrixname, matrix, gap);
+            check_functions(parasail_sg_stats_table_avx2, sequences, sizes, limit, matrixname, matrix, gap);
+            check_functions(parasail_sw_stats_table_avx2, sequences, sizes, limit, matrixname, matrix, gap);
         }
     }
 #endif
@@ -386,14 +436,14 @@ int main(int argc, char **argv)
 #if HAVE_KNC
     {
         if (test_scores) {
-            check_functions(parasail_nw_table_knc, sequences, sizes, limit);
-            check_functions(parasail_sg_table_knc, sequences, sizes, limit);
-            check_functions(parasail_sw_table_knc, sequences, sizes, limit);
+            check_functions(parasail_nw_table_knc, sequences, sizes, limit, matrixname, matrix, gap);
+            check_functions(parasail_sg_table_knc, sequences, sizes, limit, matrixname, matrix, gap);
+            check_functions(parasail_sw_table_knc, sequences, sizes, limit, matrixname, matrix, gap);
         }
         if (test_stats) {
-            check_functions(parasail_nw_stats_table_knc, sequences, sizes, limit);
-            check_functions(parasail_sg_stats_table_knc, sequences, sizes, limit);
-            check_functions(parasail_sw_stats_table_knc, sequences, sizes, limit);
+            check_functions(parasail_nw_stats_table_knc, sequences, sizes, limit, matrixname, matrix, gap);
+            check_functions(parasail_sg_stats_table_knc, sequences, sizes, limit, matrixname, matrix, gap);
+            check_functions(parasail_sw_stats_table_knc, sequences, sizes, limit, matrixname, matrix, gap);
         }
     }
 #endif

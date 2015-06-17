@@ -18,14 +18,6 @@
 #define NEG_INF %(NEG_INF)s
 %(FIXES)s
 
-/* shift given vector v, insert val, return shifted val */
-static inline %(VTYPE)s vshift(const %(VTYPE)s v, const int val)
-{
-    %(VTYPE)s ret = %(VRSHIFT)s(v, %(BYTES)s);
-    ret = %(VINSERT)s(ret, val, %(LAST_POS)s);
-    return ret;
-}
-
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si%(BITS)s(
         int *array,
@@ -39,6 +31,19 @@ static inline void arr_store_si%(BITS)s(
 }
 #endif
 
+#ifdef PARASAIL_ROWCOL
+static inline void arr_store_rowcol(
+        int *row,
+        int *col,
+        %(VTYPE)s vWscore,
+        %(INDEX)s i,
+        %(INDEX)s s1Len,
+        %(INDEX)s j,
+        %(INDEX)s s2Len)
+{
+%(PRINTER_ROWCOL)s
+}
+#endif
 
 #ifdef PARASAIL_TABLE
 #define FNAME %(NAME_TABLE)s
@@ -179,18 +184,24 @@ parasail_result_t* FNAME(
             %(VTYPE)s vNWmatch = vNmatch;
             %(VTYPE)s vNWsimilar = vNsimilar;
             %(VTYPE)s vNWlength = vNlength;
-            vNscore = vshift(vWscore, tbl_pr[j]);
-            vNmatch = vshift(vWmatch, mch_pr[j]);
-            vNsimilar = vshift(vWsimilar, sim_pr[j]);
-            vNlength = vshift(vWlength, len_pr[j]);
-            vDel = vshift(vDel, del_pr[j]);
+            vNscore = %(VRSHIFT)s(vWscore, %(BYTES)s);
+            vNscore = %(VINSERT)s(vNscore, tbl_pr[j], %(LAST_POS)s);
+            vNmatch = %(VRSHIFT)s(vWmatch, %(BYTES)s);
+            vNmatch = %(VINSERT)s(vNmatch, mch_pr[j], %(LAST_POS)s);
+            vNsimilar = %(VRSHIFT)s(vWsimilar, %(BYTES)s);
+            vNsimilar = %(VINSERT)s(vNsimilar, sim_pr[j], %(LAST_POS)s);
+            vNlength = %(VRSHIFT)s(vWlength, %(BYTES)s);
+            vNlength = %(VINSERT)s(vNlength, len_pr[j], %(LAST_POS)s);
+            vDel = %(VRSHIFT)s(vDel, %(BYTES)s);
+            vDel = %(VINSERT)s(vDel, del_pr[j], %(LAST_POS)s);
             vDel = %(VMAX)s(
                     %(VSUB)s(vNscore, vOpen),
                     %(VSUB)s(vDel, vGap));
             vIns = %(VMAX)s(
                     %(VSUB)s(vWscore, vOpen),
                     %(VSUB)s(vIns, vGap));
-            vs2 = vshift(vs2, s2[j]);
+            vs2 = %(VRSHIFT)s(vs2, %(BYTES)s);
+            vs2 = %(VINSERT)s(vs2, s2[j], %(LAST_POS)s);
             vMat = %(VSET)s(
                     %(DIAG_MATROW_USE)s
                     );
@@ -258,6 +269,12 @@ parasail_result_t* FNAME(
             arr_store_si%(BITS)s(result->matches_table, vWmatch, i, s1Len, j, s2Len);
             arr_store_si%(BITS)s(result->similar_table, vWsimilar, i, s1Len, j, s2Len);
             arr_store_si%(BITS)s(result->length_table, vWlength, i, s1Len, j, s2Len);
+#endif
+#ifdef PARASAIL_ROWCOL
+            arr_store_rowcol(result->score_row, result->score_col, vWscore, i, s1Len, j, s2Len);
+            arr_store_rowcol(result->matches_row, result->matches_col, vWmatch, i, s1Len, j, s2Len);
+            arr_store_rowcol(result->similar_row, result->similar_col, vWsimilar, i, s1Len, j, s2Len);
+            arr_store_rowcol(result->length_row, result->length_col, vWlength, i, s1Len, j, s2Len);
 #endif
             tbl_pr[j-%(LAST_POS)s] = (%(INT)s)%(VEXTRACT)s(vWscore,0);
             mch_pr[j-%(LAST_POS)s] = (%(INT)s)%(VEXTRACT)s(vWmatch,0);

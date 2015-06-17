@@ -75,6 +75,32 @@ static inline void arr_store_si256(
 }
 #endif
 
+#ifdef PARASAIL_ROWCOL
+static inline void arr_store_col(
+        int *col,
+        __m256i vH,
+        int32_t t,
+        int32_t seglen)
+{
+    col[ 0*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH,  0);
+    col[ 1*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH,  1);
+    col[ 2*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH,  2);
+    col[ 3*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH,  3);
+    col[ 4*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH,  4);
+    col[ 5*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH,  5);
+    col[ 6*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH,  6);
+    col[ 7*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH,  7);
+    col[ 8*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH,  8);
+    col[ 9*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH,  9);
+    col[10*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH, 10);
+    col[11*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH, 11);
+    col[12*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH, 12);
+    col[13*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH, 13);
+    col[14*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH, 14);
+    col[15*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH, 15);
+}
+#endif
+
 #ifdef PARASAIL_TABLE
 #define FNAME parasail_nw_stats_table_scan_avx2_256_16
 #else
@@ -427,7 +453,40 @@ parasail_result_t* FNAME(
             arr_store_si256(result->length_table, vL, i, segLen, j, s2Len);
 #endif
         }
+
+#ifdef PARASAIL_ROWCOL
+        /* extract last value from the column */
+        {
+            vH = _mm256_load_si256(pvH + offset);
+            vM = _mm256_load_si256(pvM + offset);
+            vS = _mm256_load_si256(pvS + offset);
+            vL = _mm256_load_si256(pvL + offset);
+            for (k=0; k<position; ++k) {
+                vH = _mm256_slli_si256_rpl(vH, 2);
+                vM = _mm256_slli_si256_rpl(vM, 2);
+                vS = _mm256_slli_si256_rpl(vS, 2);
+                vL = _mm256_slli_si256_rpl(vL, 2);
+            }
+            result->score_row[j] = (int16_t) _mm256_extract_epi16_rpl (vH, 15);
+            result->matches_row[j] = (int16_t) _mm256_extract_epi16_rpl (vM, 15);
+            result->similar_row[j] = (int16_t) _mm256_extract_epi16_rpl (vS, 15);
+            result->length_row[j] = (int16_t) _mm256_extract_epi16_rpl (vL, 15);
+        }
+#endif
     }
+
+#ifdef PARASAIL_ROWCOL
+    for (i=0; i<segLen; ++i) {
+        __m256i vH = _mm256_load_si256(pvH+i);
+        __m256i vM = _mm256_load_si256(pvM+i);
+        __m256i vS = _mm256_load_si256(pvS+i);
+        __m256i vL = _mm256_load_si256(pvL+i);
+        arr_store_col(result->score_col, vH, i, segLen);
+        arr_store_col(result->matches_col, vM, i, segLen);
+        arr_store_col(result->similar_col, vS, i, segLen);
+        arr_store_col(result->length_col, vL, i, segLen);
+    }
+#endif
 
     /* extract last value from the last column */
     {

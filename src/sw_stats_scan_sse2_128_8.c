@@ -145,7 +145,11 @@ parasail_result_t* FNAME(
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table3(segLen*segWidth, s2Len);
 #else
+#ifdef PARASAIL_ROWCOL
+    parasail_result_t *result = parasail_result_new_rowcol3(segLen*segWidth, s2Len);
+#else
     parasail_result_t *result = parasail_result_new();
+#endif
 #endif
 
     parasail_memset___m128i(pvM, vZero, segLen);

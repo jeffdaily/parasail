@@ -61,7 +61,11 @@ parasail_result_t* FNAME(
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(s1Len, s2Len);
 #else
+#ifdef PARASAIL_ROWCOL
+    parasail_result_t *result = parasail_result_new_rowcol1(s1Len, s2Len);
+#else
     parasail_result_t *result = parasail_result_new();
+#endif
 #endif
     %(INDEX)s i = 0;
     %(INDEX)s j = 0;

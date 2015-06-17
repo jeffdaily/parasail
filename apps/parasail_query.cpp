@@ -308,7 +308,7 @@ int main(int argc, char **argv) {
             "%20s: %d\n"
             "%20s: %d\n"
             "%20s: %s\n"
-            "%20s: %s\n",
+            "%20s: %s\n"
             "%20s: %s\n",
             "funcname", funcname,
             "cutoff", cutoff,

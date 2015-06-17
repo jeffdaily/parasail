@@ -36,7 +36,7 @@ parasail_result_t* ENAME(
     parasail_result_t *result = parasail_result_new_table1(s1Len, s2Len);
 #else
 #ifdef PARASAIL_ROWCOL
-    parasail_result_t *result = parasail_result_new_rowcol1(s2Len, s1Len);
+    parasail_result_t *result = parasail_result_new_rowcol1(s1Len, s2Len);
 #else
     parasail_result_t *result = parasail_result_new();
 #endif
@@ -87,14 +87,14 @@ parasail_result_t* ENAME(
 #endif
         }
 #ifdef PARASAIL_ROWCOL
-        if (i == s1Len) {
-            for (j=1; j<=s2Len; ++j) {
-                result->score_row[j-1] = tbl_pr[j];
-            }
-        }
         result->score_col[i-1] = tbl_pr[s2Len-1];
 #endif
     }
+#ifdef PARASAIL_ROWCOL
+    for (j=1; j<=s2Len; ++j) {
+        result->score_row[j-1] = tbl_pr[j];
+    }
+#endif
 
     result->score = score;
 

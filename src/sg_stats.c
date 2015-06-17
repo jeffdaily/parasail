@@ -35,7 +35,11 @@ parasail_result_t* ENAME(
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table3(s1Len, s2Len);
 #else
+#ifdef PARASAIL_ROWCOL
+    parasail_result_t *result = parasail_result_new_rowcol3(s1Len, s2Len);
+#else
     parasail_result_t *result = parasail_result_new();
+#endif
 #endif
     int * const restrict s1 = parasail_memalign_int(16, s1Len);
     int * const restrict s2 = parasail_memalign_int(16, s2Len);
@@ -130,6 +134,12 @@ parasail_result_t* ENAME(
             result->length_table[(i-1)*s2Len + (j-1)] = Wlength;
 #endif
         }
+#ifdef PARASAIL_ROWCOL
+        result->score_col[i-1] = Wscore;
+        result->matches_col[i-1] = Wmatches;
+        result->similar_col[i-1] = Wsimilar;
+        result->length_col[i-1] = Wlength;
+#endif
         if (Wscore > score) {
             score = Wscore;
             matches = Wmatches;
@@ -192,6 +202,12 @@ parasail_result_t* ENAME(
             result->similar_table[(i-1)*s2Len + (j-1)] = Wsimilar;
             result->length_table[(i-1)*s2Len + (j-1)] = Wlength;
 #endif
+#ifdef PARASAIL_ROWCOL
+            result->score_row[j-1] = tbl_pr[j];
+            result->matches_row[j-1] = mch_pr[j];
+            result->similar_row[j-1] = sim_pr[j];
+            result->length_row[j-1] = len_pr[j];
+#endif
             if (Wscore > score) {
                 score = Wscore;
                 matches = Wmatches;
@@ -199,6 +215,12 @@ parasail_result_t* ENAME(
                 length = Wlength;
             }
         }
+#ifdef PARASAIL_ROWCOL
+        result->score_col[i-1] = Wscore;
+        result->matches_col[i-1] = Wmatches;
+        result->similar_col[i-1] = Wsimilar;
+        result->length_col[i-1] = Wlength;
+#endif
     }
 
     result->score = score;

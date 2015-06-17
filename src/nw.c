@@ -84,7 +84,15 @@ parasail_result_t* ENAME(
             result->score_table[(i-1)*s2Len + (j-1)] = Wscore;
 #endif
         }
+#ifdef PARASAIL_ROWCOL
+        result->score_col[i-1] = tbl_pr[s2Len-1];
+#endif
     }
+#ifdef PARASAIL_ROWCOL
+    for (j=1; j<=s2Len; ++j) {
+        result->score_row[j-1] = tbl_pr[j];
+    }
+#endif
 
     result->score = tbl_pr[s2Len];
 

@@ -39,6 +39,19 @@ static inline void arr_store_si%(BITS)s(
 }
 #endif
 
+#ifdef PARASAIL_ROWCOL
+static inline void arr_store_rowcol(
+        int *row,
+        int *col,
+        %(VTYPE)s vWscore,
+        %(INDEX)s i,
+        %(INDEX)s s1Len,
+        %(INDEX)s j,
+        %(INDEX)s s2Len)
+{
+%(PRINTER_ROWCOL)s
+}
+#endif
 
 #ifdef PARASAIL_TABLE
 #define FNAME %(NAME_TABLE)s
@@ -266,6 +279,12 @@ parasail_result_t* FNAME(
             arr_store_si%(BITS)s(result->matches_table, vWmatch, i, s1Len, j, s2Len);
             arr_store_si%(BITS)s(result->similar_table, vWsimilar, i, s1Len, j, s2Len);
             arr_store_si%(BITS)s(result->length_table, vWlength, i, s1Len, j, s2Len);
+#endif
+#ifdef PARASAIL_ROWCOL
+            arr_store_rowcol(result->score_row, result->score_col, vWscore, i, s1Len, j, s2Len);
+            arr_store_rowcol(result->matches_row, result->matches_col, vWmatch, i, s1Len, j, s2Len);
+            arr_store_rowcol(result->similar_row, result->similar_col, vWsimilar, i, s1Len, j, s2Len);
+            arr_store_rowcol(result->length_row, result->length_col, vWlength, i, s1Len, j, s2Len);
 #endif
             tbl_pr[j-%(LAST_POS)s] = (%(INT)s)%(VEXTRACT)s(vWscore,0);
             mch_pr[j-%(LAST_POS)s] = (%(INT)s)%(VEXTRACT)s(vWmatch,0);

@@ -55,6 +55,67 @@ static inline void arr_store_si128(
 }
 #endif
 
+#ifdef PARASAIL_ROWCOL
+static inline void arr_store_rowcol(
+        int *row,
+        int *col,
+        __m128i vWscore,
+        int32_t i,
+        int32_t s1Len,
+        int32_t j,
+        int32_t s2Len)
+{
+    if (i+0 == s1Len-1 && 0 <= j-0 && j-0 < s2Len) {
+        row[j-0] = (int16_t)_mm_extract_epi16(vWscore, 7);
+    }
+    if (j-0 == s2Len-1 && 0 <= i+0 && i+0 < s1Len) {
+        col[(i+0)] = (int16_t)_mm_extract_epi16(vWscore, 7);
+    }
+    if (i+1 == s1Len-1 && 0 <= j-1 && j-1 < s2Len) {
+        row[j-1] = (int16_t)_mm_extract_epi16(vWscore, 6);
+    }
+    if (j-1 == s2Len-1 && 0 <= i+1 && i+1 < s1Len) {
+        col[(i+1)] = (int16_t)_mm_extract_epi16(vWscore, 6);
+    }
+    if (i+2 == s1Len-1 && 0 <= j-2 && j-2 < s2Len) {
+        row[j-2] = (int16_t)_mm_extract_epi16(vWscore, 5);
+    }
+    if (j-2 == s2Len-1 && 0 <= i+2 && i+2 < s1Len) {
+        col[(i+2)] = (int16_t)_mm_extract_epi16(vWscore, 5);
+    }
+    if (i+3 == s1Len-1 && 0 <= j-3 && j-3 < s2Len) {
+        row[j-3] = (int16_t)_mm_extract_epi16(vWscore, 4);
+    }
+    if (j-3 == s2Len-1 && 0 <= i+3 && i+3 < s1Len) {
+        col[(i+3)] = (int16_t)_mm_extract_epi16(vWscore, 4);
+    }
+    if (i+4 == s1Len-1 && 0 <= j-4 && j-4 < s2Len) {
+        row[j-4] = (int16_t)_mm_extract_epi16(vWscore, 3);
+    }
+    if (j-4 == s2Len-1 && 0 <= i+4 && i+4 < s1Len) {
+        col[(i+4)] = (int16_t)_mm_extract_epi16(vWscore, 3);
+    }
+    if (i+5 == s1Len-1 && 0 <= j-5 && j-5 < s2Len) {
+        row[j-5] = (int16_t)_mm_extract_epi16(vWscore, 2);
+    }
+    if (j-5 == s2Len-1 && 0 <= i+5 && i+5 < s1Len) {
+        col[(i+5)] = (int16_t)_mm_extract_epi16(vWscore, 2);
+    }
+    if (i+6 == s1Len-1 && 0 <= j-6 && j-6 < s2Len) {
+        row[j-6] = (int16_t)_mm_extract_epi16(vWscore, 1);
+    }
+    if (j-6 == s2Len-1 && 0 <= i+6 && i+6 < s1Len) {
+        col[(i+6)] = (int16_t)_mm_extract_epi16(vWscore, 1);
+    }
+    if (i+7 == s1Len-1 && 0 <= j-7 && j-7 < s2Len) {
+        row[j-7] = (int16_t)_mm_extract_epi16(vWscore, 0);
+    }
+    if (j-7 == s2Len-1 && 0 <= i+7 && i+7 < s1Len) {
+        col[(i+7)] = (int16_t)_mm_extract_epi16(vWscore, 0);
+    }
+}
+#endif
+
 #ifdef PARASAIL_TABLE
 #define FNAME parasail_sw_table_diag_sse41_128_16
 #else
@@ -202,6 +263,9 @@ parasail_result_t* FNAME(
             
 #ifdef PARASAIL_TABLE
             arr_store_si128(result->score_table, vWscore, i, s1Len, j, s2Len);
+#endif
+#ifdef PARASAIL_ROWCOL
+            arr_store_rowcol(result->score_row, result->score_col, vWscore, i, s1Len, j, s2Len);
 #endif
             tbl_pr[j-7] = (int16_t)_mm_extract_epi16(vWscore,0);
             del_pr[j-7] = (int16_t)_mm_extract_epi16(vDel,0);

@@ -50,6 +50,32 @@ static inline void arr_store_si128(
 }
 #endif
 
+#ifdef PARASAIL_ROWCOL
+static inline void arr_store_col(
+        int *col,
+        __m128i vH,
+        int32_t t,
+        int32_t seglen)
+{
+    col[ 0*seglen+t] = (int8_t)_mm_extract_epi8(vH,  0);
+    col[ 1*seglen+t] = (int8_t)_mm_extract_epi8(vH,  1);
+    col[ 2*seglen+t] = (int8_t)_mm_extract_epi8(vH,  2);
+    col[ 3*seglen+t] = (int8_t)_mm_extract_epi8(vH,  3);
+    col[ 4*seglen+t] = (int8_t)_mm_extract_epi8(vH,  4);
+    col[ 5*seglen+t] = (int8_t)_mm_extract_epi8(vH,  5);
+    col[ 6*seglen+t] = (int8_t)_mm_extract_epi8(vH,  6);
+    col[ 7*seglen+t] = (int8_t)_mm_extract_epi8(vH,  7);
+    col[ 8*seglen+t] = (int8_t)_mm_extract_epi8(vH,  8);
+    col[ 9*seglen+t] = (int8_t)_mm_extract_epi8(vH,  9);
+    col[10*seglen+t] = (int8_t)_mm_extract_epi8(vH, 10);
+    col[11*seglen+t] = (int8_t)_mm_extract_epi8(vH, 11);
+    col[12*seglen+t] = (int8_t)_mm_extract_epi8(vH, 12);
+    col[13*seglen+t] = (int8_t)_mm_extract_epi8(vH, 13);
+    col[14*seglen+t] = (int8_t)_mm_extract_epi8(vH, 14);
+    col[15*seglen+t] = (int8_t)_mm_extract_epi8(vH, 15);
+}
+#endif
+
 #ifdef PARASAIL_TABLE
 #define FNAME parasail_sg_table_scan_sse41_128_8
 #else
@@ -209,8 +235,21 @@ parasail_result_t* FNAME(
         {
             vH = _mm_load_si128(pvH + offset);
             vMaxH = _mm_max_epi8(vH, vMaxH);
+#ifdef PARASAIL_ROWCOL
+            for (k=0; k<position; ++k) {
+                vH = _mm_slli_si128(vH, 1);
+            }
+            result->score_row[j] = (int8_t) _mm_extract_epi8 (vH, 15);
+#endif
         }
     }
+
+#ifdef PARASAIL_ROWCOL
+    for (i=0; i<segLen; ++i) {
+        __m128i vH = _mm_load_si128(pvH+i);
+        arr_store_col(result->score_col, vH, i, segLen);
+    }
+#endif
 
     /* max last value from all columns */
     {

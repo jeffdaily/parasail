@@ -64,6 +64,7 @@ if not os.path.exists(output_dir):
 def generate_printer(params):
     text = ""
     bias = ""
+    rowcol = ""
     if "striped" in params["NAME"] or "scan" in params["NAME"]:
         for lane in range(params["LANES"]):
             params["LANE"] = lane
@@ -71,6 +72,12 @@ def generate_printer(params):
                 text += "    array[(%(LANE)2d*seglen+t)*dlen + d] = (%(INT)s)%(VEXTRACT)s(vH, %(LANE)2d);\n" % params
             else:
                 text += "    array[(%(LANE)s*seglen+t)*dlen + d] = (%(INT)s)%(VEXTRACT)s(vH, %(LANE)s);\n" % params
+        for lane in range(params["LANES"]):
+            params["LANE"] = lane
+            if params["LANES"] / 10:
+                rowcol += "    col[%(LANE)2d*seglen+t] = (%(INT)s)%(VEXTRACT)s(vH, %(LANE)2d);\n" % params
+            else:
+                rowcol += "    col[%(LANE)s*seglen+t] = (%(INT)s)%(VEXTRACT)s(vH, %(LANE)s);\n" % params
         for lane in range(params["LANES"]):
             params["LANE"] = lane
             if params["LANES"] / 10:
@@ -85,11 +92,23 @@ def generate_printer(params):
     if (0 <= i+%(LANE)s && i+%(LANE)s < s1Len && 0 <= j-%(LANE)s && j-%(LANE)s < s2Len) {
         array[(i+%(LANE)s)*s2Len + (j-%(LANE)s)] = (%(INT)s)%(VEXTRACT)s(vWscore, %(LANE_END)s);
     }\n"""[1:] % params
+        for lane in range(params["LANES"]):
+            params["LANE"] = lane
+            params["LANE_END"] = params["LANES"]-lane-1
+            rowcol += """
+    if (i+%(LANE)s == s1Len-1 && 0 <= j-%(LANE)s && j-%(LANE)s < s2Len) {
+        row[j-%(LANE)s] = (%(INT)s)%(VEXTRACT)s(vWscore, %(LANE_END)s);
+    }\n"""[1:] % params
+            rowcol += """
+    if (j-%(LANE)s == s2Len-1 && 0 <= i+%(LANE)s && i+%(LANE)s < s1Len) {
+        col[(i+%(LANE)s)] = (%(INT)s)%(VEXTRACT)s(vWscore, %(LANE_END)s);
+    }\n"""[1:] % params
     else:
         print "bad printer name"
         sys.exit(1)
     params["PRINTER"] = text[:-1] # remove last newline
     params["PRINTER_BIAS"] = bias[:-1] # remove last newline
+    params["PRINTER_ROWCOL"] = rowcol[:-1] # remove last newline
     return params
 
 

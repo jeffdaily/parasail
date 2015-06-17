@@ -31,6 +31,19 @@ static inline void arr_store_si128(
 }
 #endif
 
+#ifdef PARASAIL_ROWCOL
+static inline void arr_store_rowcol(
+        int *row,
+        int *col,
+        %(VTYPE)s vWscore,
+        %(INDEX)s i,
+        %(INDEX)s s1Len,
+        %(INDEX)s j,
+        %(INDEX)s s2Len)
+{
+%(PRINTER_ROWCOL)s
+}
+#endif
 
 #ifdef PARASAIL_TABLE
 #define FNAME %(NAME_TABLE)s
@@ -166,6 +179,9 @@ parasail_result_t* FNAME(
             %(SATURATION_CHECK_MID)s
 #ifdef PARASAIL_TABLE
             arr_store_si128(result->score_table, vWscore, i, s1Len, j, s2Len);
+#endif
+#ifdef PARASAIL_ROWCOL
+            arr_store_rowcol(result->score_row, result->score_col, vWscore, i, s1Len, j, s2Len);
 #endif
             tbl_pr[j-%(LAST_POS)s] = (%(INT)s)%(VEXTRACT)s(vWscore,0);
             del_pr[j-%(LAST_POS)s] = (%(INT)s)%(VEXTRACT)s(vDel,0);

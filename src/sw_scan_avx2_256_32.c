@@ -53,6 +53,24 @@ static inline void arr_store_si256(
 }
 #endif
 
+#ifdef PARASAIL_ROWCOL
+static inline void arr_store_col(
+        int *col,
+        __m256i vH,
+        int32_t t,
+        int32_t seglen)
+{
+    col[0*seglen+t] = (int32_t)_mm256_extract_epi32_rpl(vH, 0);
+    col[1*seglen+t] = (int32_t)_mm256_extract_epi32_rpl(vH, 1);
+    col[2*seglen+t] = (int32_t)_mm256_extract_epi32_rpl(vH, 2);
+    col[3*seglen+t] = (int32_t)_mm256_extract_epi32_rpl(vH, 3);
+    col[4*seglen+t] = (int32_t)_mm256_extract_epi32_rpl(vH, 4);
+    col[5*seglen+t] = (int32_t)_mm256_extract_epi32_rpl(vH, 5);
+    col[6*seglen+t] = (int32_t)_mm256_extract_epi32_rpl(vH, 6);
+    col[7*seglen+t] = (int32_t)_mm256_extract_epi32_rpl(vH, 7);
+}
+#endif
+
 #ifdef PARASAIL_TABLE
 #define FNAME parasail_sw_table_scan_avx2_256_32
 #else
@@ -98,6 +116,8 @@ parasail_result_t* FNAME(
 #else
 #ifdef PARASAIL_ROWCOL
     parasail_result_t *result = parasail_result_new_rowcol1(segLen*segWidth, s2Len);
+    const int32_t offset = (s1Len - 1) % segLen;
+    const int32_t position = (segWidth - 1) - (s1Len - 1) / segLen;
 #else
     parasail_result_t *result = parasail_result_new();
 #endif
@@ -201,7 +221,25 @@ parasail_result_t* FNAME(
 #endif
             vMaxH = _mm256_max_epi32(vH, vMaxH);
         }
+
+#ifdef PARASAIL_ROWCOL
+        /* extract last value from the column */
+        {
+            vH = _mm256_load_si256(pvH + offset);
+            for (k=0; k<position; ++k) {
+                vH = _mm256_slli_si256_rpl(vH, 4);
+            }
+            result->score_row[j] = (int32_t) _mm256_extract_epi32_rpl (vH, 7);
+        }
+#endif
     }
+
+#ifdef PARASAIL_ROWCOL
+    for (i=0; i<segLen; ++i) {
+        __m256i vH = _mm256_load_si256(pvH+i);
+        arr_store_col(result->score_col, vH, i, segLen);
+    }
+#endif
 
     /* max in vec */
     for (j=0; j<segWidth; ++j) {

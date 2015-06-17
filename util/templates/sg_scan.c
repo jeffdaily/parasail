@@ -32,6 +32,17 @@ static inline void arr_store_si%(BITS)s(
 }
 #endif
 
+#ifdef PARASAIL_ROWCOL
+static inline void arr_store_col(
+        int *col,
+        %(VTYPE)s vH,
+        %(INDEX)s t,
+        %(INDEX)s seglen)
+{
+%(PRINTER_ROWCOL)s
+}
+#endif
+
 #ifdef PARASAIL_TABLE
 #define FNAME %(NAME_TABLE)s
 #else
@@ -184,8 +195,21 @@ parasail_result_t* FNAME(
         {
             vH = %(VLOAD)s(pvH + offset);
             vMaxH = %(VMAX)s(vH, vMaxH);
+#ifdef PARASAIL_ROWCOL
+            for (k=0; k<position; ++k) {
+                vH = %(VSHIFT)s(vH, %(BYTES)s);
+            }
+            result->score_row[j] = (%(INT)s) %(VEXTRACT)s (vH, %(LAST_POS)s);
+#endif
         }
     }
+
+#ifdef PARASAIL_ROWCOL
+    for (i=0; i<segLen; ++i) {
+        %(VTYPE)s vH = %(VLOAD)s(pvH+i);
+        arr_store_col(result->score_col, vH, i, segLen);
+    }
+#endif
 
     /* max last value from all columns */
     {

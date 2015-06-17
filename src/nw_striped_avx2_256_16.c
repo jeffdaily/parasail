@@ -70,6 +70,32 @@ static inline void arr_store_si256(
 }
 #endif
 
+#ifdef PARASAIL_ROWCOL
+static inline void arr_store_col(
+        int *col,
+        __m256i vH,
+        int32_t t,
+        int32_t seglen)
+{
+    col[ 0*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH,  0);
+    col[ 1*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH,  1);
+    col[ 2*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH,  2);
+    col[ 3*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH,  3);
+    col[ 4*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH,  4);
+    col[ 5*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH,  5);
+    col[ 6*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH,  6);
+    col[ 7*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH,  7);
+    col[ 8*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH,  8);
+    col[ 9*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH,  9);
+    col[10*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH, 10);
+    col[11*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH, 11);
+    col[12*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH, 12);
+    col[13*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH, 13);
+    col[14*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH, 14);
+    col[15*seglen+t] = (int16_t)_mm256_extract_epi16_rpl(vH, 15);
+}
+#endif
+
 #ifdef PARASAIL_TABLE
 #define FNAME parasail_nw_table_striped_avx2_256_16
 #else
@@ -234,7 +260,25 @@ parasail_result_t* FNAME(
 end:
         {
         }
+
+#ifdef PARASAIL_ROWCOL
+        /* extract last value from the column */
+        {
+            vH = _mm256_load_si256(pvHStore + offset);
+            for (k=0; k<position; ++k) {
+                vH = _mm256_slli_si256_rpl(vH, 2);
+            }
+            result->score_row[j] = (int16_t) _mm256_extract_epi16_rpl (vH, 15);
+        }
+#endif
     }
+
+#ifdef PARASAIL_ROWCOL
+    for (i=0; i<segLen; ++i) {
+        __m256i vH = _mm256_load_si256(pvHStore+i);
+        arr_store_col(result->score_col, vH, i, segLen);
+    }
+#endif
 
     /* extract last value from the last column */
     {

@@ -43,6 +43,42 @@ static inline void arr_store_si128(
 }
 #endif
 
+#ifdef PARASAIL_ROWCOL
+static inline void arr_store_rowcol(
+        int *row,
+        int *col,
+        __m128i vWscore,
+        int32_t i,
+        int32_t s1Len,
+        int32_t j,
+        int32_t s2Len)
+{
+    if (i+0 == s1Len-1 && 0 <= j-0 && j-0 < s2Len) {
+        row[j-0] = (int32_t)_mm_extract_epi32(vWscore, 3);
+    }
+    if (j-0 == s2Len-1 && 0 <= i+0 && i+0 < s1Len) {
+        col[(i+0)] = (int32_t)_mm_extract_epi32(vWscore, 3);
+    }
+    if (i+1 == s1Len-1 && 0 <= j-1 && j-1 < s2Len) {
+        row[j-1] = (int32_t)_mm_extract_epi32(vWscore, 2);
+    }
+    if (j-1 == s2Len-1 && 0 <= i+1 && i+1 < s1Len) {
+        col[(i+1)] = (int32_t)_mm_extract_epi32(vWscore, 2);
+    }
+    if (i+2 == s1Len-1 && 0 <= j-2 && j-2 < s2Len) {
+        row[j-2] = (int32_t)_mm_extract_epi32(vWscore, 1);
+    }
+    if (j-2 == s2Len-1 && 0 <= i+2 && i+2 < s1Len) {
+        col[(i+2)] = (int32_t)_mm_extract_epi32(vWscore, 1);
+    }
+    if (i+3 == s1Len-1 && 0 <= j-3 && j-3 < s2Len) {
+        row[j-3] = (int32_t)_mm_extract_epi32(vWscore, 0);
+    }
+    if (j-3 == s2Len-1 && 0 <= i+3 && i+3 < s1Len) {
+        col[(i+3)] = (int32_t)_mm_extract_epi32(vWscore, 0);
+    }
+}
+#endif
 
 #ifdef PARASAIL_TABLE
 #define FNAME parasail_sg_table_diag_sse41_128_32
@@ -184,6 +220,9 @@ parasail_result_t* FNAME(
             
 #ifdef PARASAIL_TABLE
             arr_store_si128(result->score_table, vWscore, i, s1Len, j, s2Len);
+#endif
+#ifdef PARASAIL_ROWCOL
+            arr_store_rowcol(result->score_row, result->score_col, vWscore, i, s1Len, j, s2Len);
 #endif
             tbl_pr[j-3] = (int32_t)_mm_extract_epi32(vWscore,0);
             del_pr[j-3] = (int32_t)_mm_extract_epi32(vDel,0);

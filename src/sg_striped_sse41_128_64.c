@@ -54,6 +54,18 @@ static inline void arr_store_si128(
 }
 #endif
 
+#ifdef PARASAIL_ROWCOL
+static inline void arr_store_col(
+        int *col,
+        __m128i vH,
+        int32_t t,
+        int32_t seglen)
+{
+    col[0*seglen+t] = (int64_t)_mm_extract_epi64(vH, 0);
+    col[1*seglen+t] = (int64_t)_mm_extract_epi64(vH, 1);
+}
+#endif
+
 #ifdef PARASAIL_TABLE
 #define FNAME parasail_sg_table_striped_sse41_128_64
 #else
@@ -204,8 +216,21 @@ end:
             /* extract vector containing last value from the column */
             vH = _mm_load_si128(pvHStore + offset);
             vMaxH = _mm_max_epi64_rpl(vH, vMaxH);
+#ifdef PARASAIL_ROWCOL
+            for (k=0; k<position; ++k) {
+                vH = _mm_slli_si128(vH, 8);
+            }
+            result->score_row[j] = (int64_t) _mm_extract_epi64 (vH, 1);
+#endif
         }
     }
+
+#ifdef PARASAIL_ROWCOL
+    for (i=0; i<segLen; ++i) {
+        __m128i vH = _mm_load_si128(pvHStore+i);
+        arr_store_col(result->score_col, vH, i, segLen);
+    }
+#endif
 
     /* max last value from all columns */
     {

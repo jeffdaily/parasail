@@ -96,6 +96,9 @@ parasail_result_t* ENAME(
             result->score_table[i*s2Len + j] = H[i];
 #endif
         }
+#ifdef PARASAIL_ROWCOL
+        result->score_row[j] = H[s1Len-1];
+#endif
         score = MAX(score, H[s1Len-1]);
     }
     j = s2Len - 1;
@@ -119,8 +122,14 @@ parasail_result_t* ENAME(
 #ifdef PARASAIL_TABLE
             result->score_table[i*s2Len + j] = H[i];
 #endif
+#ifdef PARASAIL_ROWCOL
+            result->score_col[i] = H[i];
+#endif
             score = MAX(score, H[i]);
         }
+#ifdef PARASAIL_ROWCOL
+        result->score_row[j] = H[s1Len-1];
+#endif
     }
 
     result->score = score;

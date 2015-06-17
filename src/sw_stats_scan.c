@@ -171,6 +171,20 @@ parasail_result_t* ENAME(
             }
         }
         H[-1] = 0;
+#ifdef PARASAIL_ROWCOL
+        if (j == s2Len-1) {
+            for (i=0; i<s1Len; ++i) {
+                result->score_col[i] = H[i];
+                result->matches_col[i] = M[i];
+                result->similar_col[i] = S[i];
+                result->length_col[i] = L[i];
+            }
+        }
+        result->score_row[j] = H[s1Len-1];
+        result->matches_row[j] = M[s1Len-1];
+        result->similar_row[j] = S[s1Len-1];
+        result->length_row[j] = L[s1Len-1];
+#endif
     }
 
     result->score = score;

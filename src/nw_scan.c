@@ -98,6 +98,14 @@ parasail_result_t* ENAME(
 #endif
         }
         H[-1] = -open - j*gap;
+#ifdef PARASAIL_ROWCOL
+        if (j == s2Len-1) {
+            for (i=0; i<s1Len; ++i) {
+                result->score_col[i] = H[i];
+            }
+        }
+        result->score_row[j] = H[s1Len-1];
+#endif
     }
 #else
     /* iterate over database */

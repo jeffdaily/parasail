@@ -76,7 +76,7 @@
 #include "parasail/matrices/blosum_map.h"
 #include "parasail/matrices/pam_map.h"
 
-const parasail_matrix_t * parasail_matrices[] = {
+static const parasail_matrix_t * parasail_matrices[] = {
     &parasail_blosum100,
     &parasail_blosum30,
     &parasail_blosum35,

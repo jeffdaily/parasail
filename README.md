@@ -8,8 +8,7 @@ Author: Jeff Daily (jeff.daily@pnnl.gov)
   * [A Note About Instruction Sets and CPU Dispatching](#a-note-about-instruction-sets-and-cpu-dispatching)
   * [Installing](#installing)
   * [C Interface Example](#c-interface-example)
-    * [Low-Level Functions](#low-level-functions)
-    * [Higher-Level Functions](#higher-level-functions)
+    * [Function Naming Convention](#function-naming-convention)
     * [Substitution Matrices](#substitution-matrices)
     * [Function Lookup](#function-lookup)
   * [Language Bindings](#language-bindings)
@@ -60,46 +59,62 @@ parasail_result_t* the_parasail_function_name(
         const int open, const int gap,
         const parasail_matrix_t* matrix);
 ```
+
+With respect to traditional database query use, s1 is the query sequence and s2 is the database sequence.  For the functions returning the DP table or last row and column, the dimensions of the DP table are s1Len x s2Len where s1Len is the number of rows and s2Len is the number of columns (in C row-major order).
+
+The return type is a C struct and will be populated based on the function called; no single function will fill all members.
+
+```C
+typedef struct parasail_result {
+    int saturated;  /* for the 8-bit functions, whether score overflowed and should be discarded */
+    int score;      /* alignment score */
+    int matches;    /* number of exactly matching characters in the alignment */
+    int similar;    /* number of similar characters (positive substitutions) in the alignment */
+    int length;     /* length of the alignment */
+    int * restrict score_table;     /* DP table of scores */
+    int * restrict matches_table;   /* DP table of exact match counts */
+    int * restrict similar_table;   /* DP table of similar substitution counts */
+    int * restrict length_table;    /* DP table of lengths */
+    int * restrict score_row;       /* last row of DP table of scores */
+    int * restrict matches_row;     /* last row of DP table of exact match counts */
+    int * restrict similar_row;     /* last row of DP table of similar substitution counts */
+    int * restrict length_row;      /* last row of DP table of lengths */
+    int * restrict score_col;       /* last col of DP table of scores */
+    int * restrict matches_col;     /* last col of DP table of exact match counts */
+    int * restrict similar_col;     /* last col of DP table of similar substitution counts */
+    int * restrict length_col;      /* last col of DP table of lengths */
+} parasail_result_t;
+```
+
 You must free the returned parasail result using `void parasail_result_free(parasail_result_t *result)`.
 
-### Low-Level Functions
+### Function Naming Convention
 
 [back to top](#parasail-pairwise-sequence-alignment-library)
 
-The function names for the low-level, instruction set-aware functions follow a naming convention which includes
-  0. the "parasail_" prefix a.k.a. namespace,
-  1. the algorithm (nw/sg/sw),
-  2. optionally if the statistics are requested (_stats),
-  3. optionally the vectorized approach (_scan/_striped/_blocked/_diag), which requires
-     1. the instruction set and vector width (_sse2_128/_sse41_128/_avx2_256/_knc_512), and
-     2. the vector element widths (_8/_16/_32/_64 for {sse2,sse41,avx2}, and _32 only for knc).
+There are over 1,000 functions within the parasail library.  To make it easier to find the function you're looking for, the function names follow a naming convention.  The following will use set notation {} to indicate a selection must be made and brackets [] to indicate an optional part of the name.
+
+`parasail_ {nw,sg,sw}_ [stats_] [{table,rowcol}_] {striped,scan,diag,blocked}_ [{sse2_128,sse4_128,avx2_256,knc_512}_] {8,16,32,64}`
+
+Here is a breakdown of each section of the name:
+  1. parasail_ -- prefix a.k.a. namespace
+  2. {nw,sg,sw}_ -- the class of alignment; global, semi-global, or local
+  3. [stats_] -- optionally if the statistics are requested
+  4. [{table,rowcol}_] -- optionally if the DP table or last row and column of DP table should be returned
+  5. {striped,scan,diag,blocked} -- the vectorized approach; striped is always a good choice
+  6. [{sse2_128,sse4_128,avx2_256,knc_512}_] -- optionally the instruction set and vector width
+  7. {8,16,32,64} -- the integer width of the solution, a.k.a. the vector element widths; knc only supports _32; 16 is often a good choice.
 
 For example:
 
 - `parasail_nw_stats_striped_sse41_128_16` would use Needleman-Wunsch, with alignment statistics, using striped vectors for sse41 16-bit integers.
 - `parasail_sg` would use semi-global, no alignment statistics, no vectorized code (i.e. serial).
 - `parasail_sw_scan_avx2_256_8` would use Smith-Waterman, no alignment statistics, using prefix scan vectors for avx2 8-bit integers.
+- `parasail_nw_stats_striped_16` would use Needleman-Wunsch, with alignment statistics, using striped vectors, dispatching to the best CPU, and 16-bit integers.
+- `parasail_sw_scan_8` would use Smith-Waterman, no alignment statistics, using prefix scan vectors, dispatching to the best CPU, for 8-bit integers.
+- `parasail_sg_rowcol_striped_16` would use semi-global, no alignment statistics, output the last row and column of the DP table, using striped vectors, dispatching to the best CPU, for 16-bit integers.
 
 Note: The blocked vector implementation only exist for sse41 16-bit and 32-bit integer elements.
-
-### Higher-Level Functions
-
-[back to top](#parasail-pairwise-sequence-alignment-library)
-
-There are higher-level, instruction set-unaware functions which automatically dispatch to the best available instruction set of your host CPU.  The function names are similar in convention to the low-level functions
-  0. the "parasail_" prefix a.k.a. namespace,
-  1. the algorithm (nw/sg/sw),
-  2. optionally if the statistics are requested (_stats),
-  3. optionally the vectorized approach (_scan/_striped/_diag), which requires
-    - the desired integer element bit width (_8/_16/_32/_64)
-
-For example:
-
-- `parasail_nw_stats_striped_16` would use Needleman-Wunsch, with alignment statistics, using striped vectors and 16-bit integers.
-- `parasail_sg` would use semi-global, no alignment statistics, no vectorized code (i.e. serial).
-- `parasail_sw_scan_8` would use Smith-Waterman, no alignment statistics, using prefix scan vectors for 8-bit integers.
-
-Note: The blocked vector implementations do not have a higher-level dispatching function.
 
 Note: The dispatcher for the KNC instruction set will always dispatch to the 32-bit integer element implementation since it is the only one supported on that platform.
 

@@ -163,7 +163,7 @@ static void check_functions(
             matrix = parasail_matrices[matrix_index];
             matrixname = parasail_matrices[matrix_index]->name;
         }
-        printf("\t%s\n", matrixname);
+        if (verbose) printf("\t%s\n", matrixname);
         for (gap_index=0; INT_MIN!=gap_scores[gap_index].open; ++gap_index) {
             int open = gap_scores[gap_index].open;
             int extend = gap_scores[gap_index].extend;
@@ -171,12 +171,12 @@ static void check_functions(
                 open = gap.open;
                 extend = gap.extend;
             }
-            printf("\t\topen=%d extend=%d\n", open, extend);
+            if (verbose) printf("\t\topen=%d extend=%d\n", open, extend);
             reference_function = functions[0].pointer;
             for (function_index=1;
                     NULL!=functions[function_index].pointer;
                     ++function_index) {
-                printf("\t\t\t%s\n", functions[function_index].name);
+                if (verbose) printf("\t\t\t%s\n", functions[function_index].name);
                 unsigned long saturated = 0;
 #pragma omp parallel for
                 for (pair_index=0; pair_index<pair_limit; ++pair_index) {

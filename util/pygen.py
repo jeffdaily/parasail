@@ -8,6 +8,11 @@ import os
 print """# cython: c_string_type=str, c_string_encoding=ascii
 
 from libc.string cimport const_char
+import numpy as np
+cimport numpy as np
+from cpython cimport PyObject, Py_INCREF
+
+np.import_array()
 
 cdef extern from "parasail.h":
     ctypedef struct parasail_result_t:
@@ -16,14 +21,22 @@ cdef extern from "parasail.h":
         int matches
         int similar
         int length
-        #int * score_table
-        #int * matches_table
-        #int * similar_table
-        #int * length_table
+        int * score_table
+        int * matches_table
+        int * similar_table
+        int * length_table
+        int * score_row
+        int * matches_row
+        int * similar_row
+        int * length_row
+        int * score_col
+        int * matches_col
+        int * similar_col
+        int * length_col
 
     cdef struct parasail_matrix:
         const char * name
-        #int * matrix
+        int * matrix
         #int * mapper
         int size
         int need_free
@@ -107,15 +120,27 @@ for a in alg:
 # now for the actual implementations and not just the header info
 
 print """
+
+cdef np.ndarray to_ndarray(object base, int * data, np.npy_intp length):
+    cdef np.ndarray[np.int32_t, ndim=1] ndarray
+    ndarray = np.PyArray_SimpleNewFromData(1, &length, np.NPY_INT32, data)
+    Py_INCREF(base)
+    ndarray.base = <PyObject*>base
+    return ndarray
+
 cdef class Result:
     cdef parasail_result_t *_c_object
+    cdef int s1Len
+    cdef int s2Len
     def __dealloc__(self):
         if self._c_object is not NULL:
             parasail_result_free(self._c_object)
     @staticmethod
-    cdef create(parasail_result_t *c_object):
+    cdef create(parasail_result_t *c_object, s1Len, s2Len):
         p = Result()
         p._c_object = c_object
+        p.s1Len = s1Len
+        p.s2Len = s2Len
         return p
     property saturated:
         def __get__(self): return self._c_object.saturated
@@ -127,6 +152,58 @@ cdef class Result:
         def __get__(self): return self._c_object.similar
     property length:
         def __get__(self): return self._c_object.length
+    cdef get_table(self, int * table):
+        if not table:
+            return None
+        else:
+            array = to_ndarray(self, table, self.s1Len * self.s2Len)
+            return array.reshape((self.s1Len, self.s2Len))
+    property score_table:
+        def __get__(self):
+            return self.get_table(self._c_object.score_table)
+    property matches_table:
+        def __get__(self):
+            return self.get_table(self._c_object.matches_table)
+    property similar_table:
+        def __get__(self):
+            return self.get_table(self._c_object.similar_table)
+    property length_table:
+        def __get__(self):
+            return self.get_table(self._c_object.length_table)
+    cdef get_row(self, int * row):
+        if not row:
+            return None
+        else:
+            return to_ndarray(self, row, self.s2Len)
+    property score_row:
+        def __get__(self):
+            return self.get_row(self._c_object.score_row)
+    property matches_row:
+        def __get__(self):
+            return self.get_row(self._c_object.matches_row)
+    property similar_row:
+        def __get__(self):
+            return self.get_row(self._c_object.similar_row)
+    property length_row:
+        def __get__(self):
+            return self.get_row(self._c_object.length_row)
+    cdef get_col(self, int * col):
+        if not col:
+            return None
+        else:
+            return to_ndarray(self, col, self.s1Len)
+    property score_col:
+        def __get__(self):
+            return self.get_col(self._c_object.score_col)
+    property matches_col:
+        def __get__(self):
+            return self.get_col(self._c_object.matches_col)
+    property similar_col:
+        def __get__(self):
+            return self.get_col(self._c_object.similar_col)
+    property length_col:
+        def __get__(self):
+            return self.get_col(self._c_object.length_col)
     def __str__(self):
         return str(self.score)
     def __int__(self):
@@ -151,6 +228,11 @@ cdef class Matrix:
         def __get__(self): return self._c_object.name
     property size:
         def __get__(self): return self._c_object.size
+    property matrix:
+        def __get__(self):
+            size = self.size
+            array = to_ndarray(self, self._c_object.matrix, size*size)
+            return array.reshape((size, size))
 
 def matrix_create(const char* alphabet, int match, int mismatch):
     cdef parasail_matrix_t* matrix = parasail_matrix_create(
@@ -193,7 +275,7 @@ for a in alg:
                 print " "*4+"cdef int l2 = <int>t2"
                 print " "*4+"assert l1 == t1"
                 print " "*4+"assert l2 == t2"
-                print " "*4+"return Result.create(parasail_"+prefix+"(s1,l1,s2,l2,open,gap,matrix._c_object))"
+                print " "*4+"return Result.create(parasail_"+prefix+"(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)"
 
 # vectorized implementations (3x2x2x3x13 = 468 impl)
 alg = ["nw", "sg", "sw"]
@@ -219,5 +301,5 @@ for a in alg:
                     print " "*4+"cdef int l2 = <int>t2"
                     print " "*4+"assert l1 == t1"
                     print " "*4+"assert l2 == t2"
-                    print " "*4+"return Result.create(parasail_"+prefix+"(s1,l1,s2,l2,open,gap,matrix._c_object))"
+                    print " "*4+"return Result.create(parasail_"+prefix+"(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)"
 

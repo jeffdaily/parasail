@@ -7,6 +7,13 @@ from Cython.Build import cythonize
 
 import os
 
+# numpy is required -- attempt import
+try:
+    import numpy
+except ImportError:
+    print "numpy is required"
+    raise
+
 PARASAIL_PREFIX = "PARASAIL_PREFIX"
 PARASAIL_INCLUDE = "PARASAIL_INCLUDE"
 PARASAIL_LIB = "PARASAIL_LIB"
@@ -70,12 +77,17 @@ ext_modules=[
         Extension("parasail",
             sources=["parasail.pyx"],
             libraries=["parasail"],
-            include_dirs=[INCLUDE],
+            include_dirs=[INCLUDE, numpy.get_include()],
             library_dirs=[LIB]
             )
         ]
 
 setup(
+        name = "parasail",
+        description = "Pairwise Sequence Alignment Library",
+        author = "Jeff Daily",
+        author_email = "jeff.daily@pnnl.gov",
+        url = "https://github.com/jeffdaily/parasail",
         cmdclass={'config': my_config, "build_ext": my_build_ext},
         ext_modules = cythonize(ext_modules)
         )

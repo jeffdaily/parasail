@@ -1876,6 +1876,32 @@ def nw_table_scan(
     assert l2 == t2
     return Result.create(parasail_nw_table_scan(s1,l1,s2,l2,open,gap,matrix._c_object))
 
+def nw_rowcol(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_nw_rowcol(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def nw_rowcol_scan(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_nw_rowcol_scan(s1,l1,s2,l2,open,gap,matrix._c_object))
+
 def nw_stats(
         const_char * s1,
         const_char * s2,
@@ -1927,6 +1953,32 @@ def nw_stats_table_scan(
     assert l1 == t1
     assert l2 == t2
     return Result.create(parasail_nw_stats_table_scan(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def nw_stats_rowcol(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_nw_stats_rowcol(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def nw_stats_rowcol_scan(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_nw_stats_rowcol_scan(s1,l1,s2,l2,open,gap,matrix._c_object))
 
 def sg(
         const_char * s1,
@@ -1980,6 +2032,32 @@ def sg_table_scan(
     assert l2 == t2
     return Result.create(parasail_sg_table_scan(s1,l1,s2,l2,open,gap,matrix._c_object))
 
+def sg_rowcol(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sg_rowcol(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sg_rowcol_scan(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sg_rowcol_scan(s1,l1,s2,l2,open,gap,matrix._c_object))
+
 def sg_stats(
         const_char * s1,
         const_char * s2,
@@ -2031,6 +2109,32 @@ def sg_stats_table_scan(
     assert l1 == t1
     assert l2 == t2
     return Result.create(parasail_sg_stats_table_scan(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sg_stats_rowcol(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sg_stats_rowcol(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sg_stats_rowcol_scan(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sg_stats_rowcol_scan(s1,l1,s2,l2,open,gap,matrix._c_object))
 
 def sw(
         const_char * s1,
@@ -2084,6 +2188,32 @@ def sw_table_scan(
     assert l2 == t2
     return Result.create(parasail_sw_table_scan(s1,l1,s2,l2,open,gap,matrix._c_object))
 
+def sw_rowcol(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sw_rowcol(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sw_rowcol_scan(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sw_rowcol_scan(s1,l1,s2,l2,open,gap,matrix._c_object))
+
 def sw_stats(
         const_char * s1,
         const_char * s2,
@@ -2135,6 +2265,32 @@ def sw_stats_table_scan(
     assert l1 == t1
     assert l2 == t2
     return Result.create(parasail_sw_stats_table_scan(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sw_stats_rowcol(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sw_stats_rowcol(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sw_stats_rowcol_scan(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sw_stats_rowcol_scan(s1,l1,s2,l2,open,gap,matrix._c_object))
 
 def nw_scan_64(
         const_char * s1,
@@ -2448,6 +2604,162 @@ def nw_table_diag_8(
     assert l2 == t2
     return Result.create(parasail_nw_table_diag_8(s1,l1,s2,l2,open,gap,matrix._c_object))
 
+def nw_rowcol_scan_64(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_nw_rowcol_scan_64(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def nw_rowcol_scan_32(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_nw_rowcol_scan_32(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def nw_rowcol_scan_16(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_nw_rowcol_scan_16(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def nw_rowcol_scan_8(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_nw_rowcol_scan_8(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def nw_rowcol_striped_64(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_nw_rowcol_striped_64(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def nw_rowcol_striped_32(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_nw_rowcol_striped_32(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def nw_rowcol_striped_16(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_nw_rowcol_striped_16(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def nw_rowcol_striped_8(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_nw_rowcol_striped_8(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def nw_rowcol_diag_64(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_nw_rowcol_diag_64(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def nw_rowcol_diag_32(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_nw_rowcol_diag_32(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def nw_rowcol_diag_16(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_nw_rowcol_diag_16(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def nw_rowcol_diag_8(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_nw_rowcol_diag_8(s1,l1,s2,l2,open,gap,matrix._c_object))
+
 def nw_stats_scan_64(
         const_char * s1,
         const_char * s2,
@@ -2759,6 +3071,162 @@ def nw_stats_table_diag_8(
     assert l1 == t1
     assert l2 == t2
     return Result.create(parasail_nw_stats_table_diag_8(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def nw_stats_rowcol_scan_64(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_nw_stats_rowcol_scan_64(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def nw_stats_rowcol_scan_32(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_nw_stats_rowcol_scan_32(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def nw_stats_rowcol_scan_16(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_nw_stats_rowcol_scan_16(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def nw_stats_rowcol_scan_8(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_nw_stats_rowcol_scan_8(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def nw_stats_rowcol_striped_64(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_nw_stats_rowcol_striped_64(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def nw_stats_rowcol_striped_32(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_nw_stats_rowcol_striped_32(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def nw_stats_rowcol_striped_16(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_nw_stats_rowcol_striped_16(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def nw_stats_rowcol_striped_8(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_nw_stats_rowcol_striped_8(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def nw_stats_rowcol_diag_64(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_nw_stats_rowcol_diag_64(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def nw_stats_rowcol_diag_32(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_nw_stats_rowcol_diag_32(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def nw_stats_rowcol_diag_16(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_nw_stats_rowcol_diag_16(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def nw_stats_rowcol_diag_8(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_nw_stats_rowcol_diag_8(s1,l1,s2,l2,open,gap,matrix._c_object))
 
 def sg_scan_64(
         const_char * s1,
@@ -3072,6 +3540,162 @@ def sg_table_diag_8(
     assert l2 == t2
     return Result.create(parasail_sg_table_diag_8(s1,l1,s2,l2,open,gap,matrix._c_object))
 
+def sg_rowcol_scan_64(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sg_rowcol_scan_64(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sg_rowcol_scan_32(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sg_rowcol_scan_32(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sg_rowcol_scan_16(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sg_rowcol_scan_16(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sg_rowcol_scan_8(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sg_rowcol_scan_8(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sg_rowcol_striped_64(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sg_rowcol_striped_64(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sg_rowcol_striped_32(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sg_rowcol_striped_32(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sg_rowcol_striped_16(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sg_rowcol_striped_16(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sg_rowcol_striped_8(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sg_rowcol_striped_8(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sg_rowcol_diag_64(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sg_rowcol_diag_64(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sg_rowcol_diag_32(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sg_rowcol_diag_32(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sg_rowcol_diag_16(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sg_rowcol_diag_16(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sg_rowcol_diag_8(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sg_rowcol_diag_8(s1,l1,s2,l2,open,gap,matrix._c_object))
+
 def sg_stats_scan_64(
         const_char * s1,
         const_char * s2,
@@ -3383,6 +4007,162 @@ def sg_stats_table_diag_8(
     assert l1 == t1
     assert l2 == t2
     return Result.create(parasail_sg_stats_table_diag_8(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sg_stats_rowcol_scan_64(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sg_stats_rowcol_scan_64(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sg_stats_rowcol_scan_32(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sg_stats_rowcol_scan_32(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sg_stats_rowcol_scan_16(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sg_stats_rowcol_scan_16(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sg_stats_rowcol_scan_8(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sg_stats_rowcol_scan_8(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sg_stats_rowcol_striped_64(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sg_stats_rowcol_striped_64(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sg_stats_rowcol_striped_32(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sg_stats_rowcol_striped_32(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sg_stats_rowcol_striped_16(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sg_stats_rowcol_striped_16(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sg_stats_rowcol_striped_8(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sg_stats_rowcol_striped_8(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sg_stats_rowcol_diag_64(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sg_stats_rowcol_diag_64(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sg_stats_rowcol_diag_32(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sg_stats_rowcol_diag_32(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sg_stats_rowcol_diag_16(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sg_stats_rowcol_diag_16(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sg_stats_rowcol_diag_8(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sg_stats_rowcol_diag_8(s1,l1,s2,l2,open,gap,matrix._c_object))
 
 def sw_scan_64(
         const_char * s1,
@@ -3696,6 +4476,162 @@ def sw_table_diag_8(
     assert l2 == t2
     return Result.create(parasail_sw_table_diag_8(s1,l1,s2,l2,open,gap,matrix._c_object))
 
+def sw_rowcol_scan_64(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sw_rowcol_scan_64(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sw_rowcol_scan_32(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sw_rowcol_scan_32(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sw_rowcol_scan_16(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sw_rowcol_scan_16(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sw_rowcol_scan_8(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sw_rowcol_scan_8(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sw_rowcol_striped_64(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sw_rowcol_striped_64(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sw_rowcol_striped_32(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sw_rowcol_striped_32(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sw_rowcol_striped_16(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sw_rowcol_striped_16(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sw_rowcol_striped_8(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sw_rowcol_striped_8(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sw_rowcol_diag_64(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sw_rowcol_diag_64(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sw_rowcol_diag_32(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sw_rowcol_diag_32(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sw_rowcol_diag_16(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sw_rowcol_diag_16(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sw_rowcol_diag_8(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sw_rowcol_diag_8(s1,l1,s2,l2,open,gap,matrix._c_object))
+
 def sw_stats_scan_64(
         const_char * s1,
         const_char * s2,
@@ -4007,3 +4943,159 @@ def sw_stats_table_diag_8(
     assert l1 == t1
     assert l2 == t2
     return Result.create(parasail_sw_stats_table_diag_8(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sw_stats_rowcol_scan_64(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sw_stats_rowcol_scan_64(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sw_stats_rowcol_scan_32(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sw_stats_rowcol_scan_32(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sw_stats_rowcol_scan_16(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sw_stats_rowcol_scan_16(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sw_stats_rowcol_scan_8(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sw_stats_rowcol_scan_8(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sw_stats_rowcol_striped_64(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sw_stats_rowcol_striped_64(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sw_stats_rowcol_striped_32(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sw_stats_rowcol_striped_32(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sw_stats_rowcol_striped_16(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sw_stats_rowcol_striped_16(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sw_stats_rowcol_striped_8(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sw_stats_rowcol_striped_8(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sw_stats_rowcol_diag_64(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sw_stats_rowcol_diag_64(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sw_stats_rowcol_diag_32(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sw_stats_rowcol_diag_32(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sw_stats_rowcol_diag_16(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sw_stats_rowcol_diag_16(s1,l1,s2,l2,open,gap,matrix._c_object))
+
+def sw_stats_rowcol_diag_8(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sw_stats_rowcol_diag_8(s1,l1,s2,l2,open,gap,matrix._c_object))

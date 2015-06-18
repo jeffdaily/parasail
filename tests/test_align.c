@@ -220,11 +220,8 @@ int main(int argc, char **argv)
     unsigned long long timer_rdtsc_single = 0;
     double timer_nsecs = 0.0;
     double timer_nsecs_single = 0.0;
-#if USE_TIMER_REAL
     double timer_nsecs_ref_mean = 0.0;
-#else
     double timer_rdtsc_ref_mean = 0.0;
-#endif
     int limit = 2;
     int i = 0;
     int index = 0;
@@ -245,8 +242,9 @@ int main(int argc, char **argv)
     int extend = 1;
     int do_table = 1;
     int do_rowcol = 1;
+    int use_rdtsc = 0;
 
-    while ((c = getopt(argc, argv, "a:b:f:m:n:o:e:RT")) != -1) {
+    while ((c = getopt(argc, argv, "a:b:f:m:n:o:e:rRT")) != -1) {
         switch (c) {
             case 'a':
                 errno = 0;
@@ -296,6 +294,8 @@ int main(int argc, char **argv)
                     exit(1);
                 }
                 break;
+            case 'r':
+                use_rdtsc = 1;
             case 'R':
                 do_rowcol = 0;
                 break;
@@ -391,6 +391,7 @@ int main(int argc, char **argv)
     while (f.pointer) {
         char name[16] = {'\0'};
         int new_limit = f.is_table ? 1 : limit;
+        int saturated = 0;
 #if 0
         if (f.is_table && HAVE_KNC) {
             f = functions[index++];
@@ -426,16 +427,14 @@ int main(int argc, char **argv)
             similar = result->similar;
             matches = result->matches;
             length = result->length;
+            saturated = result->saturated;
             parasail_result_free(result);
         }
         timer_rdtsc = timer_start()-(timer_rdtsc);
         timer_nsecs = timer_real() - timer_nsecs;
         if (f.is_ref) {
-#if USE_TIMER_REAL
             timer_nsecs_ref_mean = stats_nsecs._mean;
-#else
             timer_rdtsc_ref_mean = stats_rdtsc._mean;
-#endif
         }
         strcpy(name, f.alg);
         /* xeon phi was unable to perform I/O running natively */
@@ -545,21 +544,32 @@ int main(int argc, char **argv)
         else if (f.is_rowcol) {
             strcat(name, "_rowcol");
         }
-        printf("%-15s %8s %6s %4s %5s %5d "
+        if (use_rdtsc) {
+            printf(
+                "%-15s %8s %6s %4s %5s %5d "
+                "%8d %8d %8d %8d "
+                "%8.1f %5.1f %8.1f %8.0f %8.0f\n",
+                name, f.type, f.isa, f.bits, f.width, elem(f),
+                score, matches, similar, length,
+                saturated ? 0 : stats_rdtsc._mean,
+                saturated ? 0 : pctf(timer_rdtsc_ref_mean, stats_rdtsc._mean),
+                saturated ? 0 : stats_stddev(&stats_rdtsc),
+                saturated ? 0 : stats_rdtsc._min,
+                saturated ? 0 : stats_rdtsc._max);
+        }
+        else {
+            printf(
+                "%-15s %8s %6s %4s %5s %5d "
                 "%8d %8d %8d %8d "
                 "%8.3f %5.2f %8.3f %8.3f %8.3f\n",
-#if USE_TIMER_REAL
                 name, f.type, f.isa, f.bits, f.width, elem(f),
-                score, matches, similar, length, stats_nsecs._mean,
-                pctf(timer_nsecs_ref_mean, stats_nsecs._mean),
-                stats_stddev(&stats_nsecs), stats_nsecs._min, stats_nsecs._max
-#else
-                name, f.type, f.isa, f.bits, f.width, elem(f),
-                score, matches, similar, length, stats_rdtsc._mean,
-                pctf(timer_rdtsc_ref_mean, stats_rdtsc._mean),
-                stats_stddev(&stats_rdtsc), stats_rdtsc._min, stats_rdtsc._max
-#endif
-                );
+                score, matches, similar, length,
+                saturated ? 0 : stats_nsecs._mean,
+                saturated ? 0 : pctf(timer_nsecs_ref_mean, stats_nsecs._mean),
+                saturated ? 0 : stats_stddev(&stats_nsecs),
+                saturated ? 0 : stats_nsecs._min,
+                saturated ? 0 : stats_nsecs._max);
+        }
         f = functions[index++];
     }
 

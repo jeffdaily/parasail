@@ -40,7 +40,7 @@ cdef extern from "parasail.h":
 # serial reference implementations (3x2x2x2 = 24 impl)
 alg = ["nw", "sg", "sw"]
 stats = ["", "_stats"]
-table = ["", "_table"]
+table = ["", "_table", "_rowcol"]
 for a in alg:
     for s in stats:
         for t in table:
@@ -54,7 +54,7 @@ for a in alg:
 # serial scan reference implementations (3x2x2x2 = 24 impl)
 alg = ["nw", "sg", "sw"]
 stats = ["", "_stats"]
-table = ["", "_table"]
+table = ["", "_table", "_rowcol"]
 for a in alg:
     for s in stats:
         for t in table:
@@ -68,7 +68,7 @@ for a in alg:
 # vectorized implementations (3x2x2x3x13 = 468 impl)
 alg = ["nw", "sg", "sw"]
 stats = ["", "_stats"]
-table = ["", "_table"]
+table = ["", "_table", "_rowcol"]
 par = ["_scan", "_striped", "_diag"]
 width = ["_64","_32","_16","_8"]
 
@@ -87,7 +87,7 @@ for a in alg:
 # vectorized implementations of blocked (just a couple)
 alg = ["sw"]
 stats = [""]
-table = ["", "_table"]
+table = ["", "_table", "_rowcol"]
 par = ["_blocked"]
 width = ["_32","_16"]
 

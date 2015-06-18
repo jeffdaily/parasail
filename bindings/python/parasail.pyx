@@ -42,6 +42,12 @@ cdef extern from "parasail.h":
         const int open, const int gap,
         const parasail_matrix_t* matrix);
 
+    parasail_result_t* parasail_nw_rowcol(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
     parasail_result_t* parasail_nw_stats(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
@@ -49,6 +55,12 @@ cdef extern from "parasail.h":
         const parasail_matrix_t* matrix);
 
     parasail_result_t* parasail_nw_stats_table(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_nw_stats_rowcol(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
         const int open, const int gap,
@@ -66,6 +78,12 @@ cdef extern from "parasail.h":
         const int open, const int gap,
         const parasail_matrix_t* matrix);
 
+    parasail_result_t* parasail_sg_rowcol(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
     parasail_result_t* parasail_sg_stats(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
@@ -73,6 +91,12 @@ cdef extern from "parasail.h":
         const parasail_matrix_t* matrix);
 
     parasail_result_t* parasail_sg_stats_table(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sg_stats_rowcol(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
         const int open, const int gap,
@@ -90,6 +114,12 @@ cdef extern from "parasail.h":
         const int open, const int gap,
         const parasail_matrix_t* matrix);
 
+    parasail_result_t* parasail_sw_rowcol(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
     parasail_result_t* parasail_sw_stats(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
@@ -97,6 +127,12 @@ cdef extern from "parasail.h":
         const parasail_matrix_t* matrix);
 
     parasail_result_t* parasail_sw_stats_table(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sw_stats_rowcol(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
         const int open, const int gap,
@@ -114,6 +150,12 @@ cdef extern from "parasail.h":
         const int open, const int gap,
         const parasail_matrix_t* matrix);
 
+    parasail_result_t* parasail_nw_rowcol_scan(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
     parasail_result_t* parasail_nw_stats_scan(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
@@ -121,6 +163,12 @@ cdef extern from "parasail.h":
         const parasail_matrix_t* matrix);
 
     parasail_result_t* parasail_nw_stats_table_scan(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_nw_stats_rowcol_scan(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
         const int open, const int gap,
@@ -138,6 +186,12 @@ cdef extern from "parasail.h":
         const int open, const int gap,
         const parasail_matrix_t* matrix);
 
+    parasail_result_t* parasail_sg_rowcol_scan(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
     parasail_result_t* parasail_sg_stats_scan(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
@@ -145,6 +199,12 @@ cdef extern from "parasail.h":
         const parasail_matrix_t* matrix);
 
     parasail_result_t* parasail_sg_stats_table_scan(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sg_stats_rowcol_scan(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
         const int open, const int gap,
@@ -162,6 +222,12 @@ cdef extern from "parasail.h":
         const int open, const int gap,
         const parasail_matrix_t* matrix);
 
+    parasail_result_t* parasail_sw_rowcol_scan(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
     parasail_result_t* parasail_sw_stats_scan(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
@@ -169,6 +235,12 @@ cdef extern from "parasail.h":
         const parasail_matrix_t* matrix);
 
     parasail_result_t* parasail_sw_stats_table_scan(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sw_stats_rowcol_scan(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
         const int open, const int gap,
@@ -318,6 +390,78 @@ cdef extern from "parasail.h":
         const int open, const int gap,
         const parasail_matrix_t* matrix);
 
+    parasail_result_t* parasail_nw_rowcol_scan_64(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_nw_rowcol_scan_32(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_nw_rowcol_scan_16(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_nw_rowcol_scan_8(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_nw_rowcol_striped_64(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_nw_rowcol_striped_32(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_nw_rowcol_striped_16(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_nw_rowcol_striped_8(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_nw_rowcol_diag_64(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_nw_rowcol_diag_32(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_nw_rowcol_diag_16(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_nw_rowcol_diag_8(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
     parasail_result_t* parasail_nw_stats_scan_64(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
@@ -457,6 +601,78 @@ cdef extern from "parasail.h":
         const parasail_matrix_t* matrix);
 
     parasail_result_t* parasail_nw_stats_table_diag_8(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_nw_stats_rowcol_scan_64(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_nw_stats_rowcol_scan_32(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_nw_stats_rowcol_scan_16(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_nw_stats_rowcol_scan_8(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_nw_stats_rowcol_striped_64(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_nw_stats_rowcol_striped_32(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_nw_stats_rowcol_striped_16(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_nw_stats_rowcol_striped_8(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_nw_stats_rowcol_diag_64(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_nw_stats_rowcol_diag_32(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_nw_stats_rowcol_diag_16(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_nw_stats_rowcol_diag_8(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
         const int open, const int gap,
@@ -606,6 +822,78 @@ cdef extern from "parasail.h":
         const int open, const int gap,
         const parasail_matrix_t* matrix);
 
+    parasail_result_t* parasail_sg_rowcol_scan_64(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sg_rowcol_scan_32(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sg_rowcol_scan_16(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sg_rowcol_scan_8(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sg_rowcol_striped_64(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sg_rowcol_striped_32(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sg_rowcol_striped_16(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sg_rowcol_striped_8(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sg_rowcol_diag_64(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sg_rowcol_diag_32(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sg_rowcol_diag_16(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sg_rowcol_diag_8(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
     parasail_result_t* parasail_sg_stats_scan_64(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
@@ -745,6 +1033,78 @@ cdef extern from "parasail.h":
         const parasail_matrix_t* matrix);
 
     parasail_result_t* parasail_sg_stats_table_diag_8(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sg_stats_rowcol_scan_64(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sg_stats_rowcol_scan_32(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sg_stats_rowcol_scan_16(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sg_stats_rowcol_scan_8(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sg_stats_rowcol_striped_64(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sg_stats_rowcol_striped_32(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sg_stats_rowcol_striped_16(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sg_stats_rowcol_striped_8(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sg_stats_rowcol_diag_64(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sg_stats_rowcol_diag_32(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sg_stats_rowcol_diag_16(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sg_stats_rowcol_diag_8(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
         const int open, const int gap,
@@ -894,6 +1254,78 @@ cdef extern from "parasail.h":
         const int open, const int gap,
         const parasail_matrix_t* matrix);
 
+    parasail_result_t* parasail_sw_rowcol_scan_64(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sw_rowcol_scan_32(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sw_rowcol_scan_16(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sw_rowcol_scan_8(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sw_rowcol_striped_64(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sw_rowcol_striped_32(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sw_rowcol_striped_16(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sw_rowcol_striped_8(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sw_rowcol_diag_64(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sw_rowcol_diag_32(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sw_rowcol_diag_16(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sw_rowcol_diag_8(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
     parasail_result_t* parasail_sw_stats_scan_64(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
@@ -1038,6 +1470,78 @@ cdef extern from "parasail.h":
         const int open, const int gap,
         const parasail_matrix_t* matrix);
 
+    parasail_result_t* parasail_sw_stats_rowcol_scan_64(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sw_stats_rowcol_scan_32(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sw_stats_rowcol_scan_16(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sw_stats_rowcol_scan_8(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sw_stats_rowcol_striped_64(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sw_stats_rowcol_striped_32(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sw_stats_rowcol_striped_16(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sw_stats_rowcol_striped_8(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sw_stats_rowcol_diag_64(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sw_stats_rowcol_diag_32(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sw_stats_rowcol_diag_16(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sw_stats_rowcol_diag_8(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
     parasail_result_t* parasail_sw_blocked_32(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
@@ -1057,6 +1561,18 @@ cdef extern from "parasail.h":
         const parasail_matrix_t* matrix);
 
     parasail_result_t* parasail_sw_table_blocked_16(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sw_rowcol_blocked_32(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sw_rowcol_blocked_16(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
         const int open, const int gap,

@@ -61,23 +61,23 @@ extern "C" {
 #endif /* PARASAIL_DLL */
 
 typedef struct parasail_result {
-    int saturated;
-    int score;
-    int matches;
-    int similar;
-    int length;
-    int * restrict score_table;
-    int * restrict matches_table;
-    int * restrict similar_table;
-    int * restrict length_table;
-    int * restrict score_row;
-    int * restrict matches_row;
-    int * restrict similar_row;
-    int * restrict length_row;
-    int * restrict score_col;
-    int * restrict matches_col;
-    int * restrict similar_col;
-    int * restrict length_col;
+    int saturated;  /* for the 8-bit functions, whether score overflowed and should be discarded */
+    int score;      /* alignment score */
+    int matches;    /* number of exactly matching characters in the alignment */
+    int similar;    /* number of similar characters (positive substitutions) in the alignment */
+    int length;     /* length of the alignment */
+    int * restrict score_table;     /* DP table of scores */
+    int * restrict matches_table;   /* DP table of exact match counts */
+    int * restrict similar_table;   /* DP table of similar substitution counts */
+    int * restrict length_table;    /* DP table of lengths */
+    int * restrict score_row;       /* last row of DP table of scores */
+    int * restrict matches_row;     /* last row of DP table of exact match counts */
+    int * restrict similar_row;     /* last row of DP table of similar substitution counts */
+    int * restrict length_row;      /* last row of DP table of lengths */
+    int * restrict score_col;       /* last col of DP table of scores */
+    int * restrict matches_col;     /* last col of DP table of exact match counts */
+    int * restrict similar_col;     /* last col of DP table of similar substitution counts */
+    int * restrict length_col;      /* last col of DP table of lengths */
 } parasail_result_t;
 
 typedef struct parasail_matrix {

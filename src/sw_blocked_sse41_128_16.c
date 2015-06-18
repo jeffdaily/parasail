@@ -40,6 +40,24 @@ static inline void arr_store_si128(
 }
 #endif
 
+#ifdef PARASAIL_ROWCOL
+static inline void arr_store_col(
+        int *col,
+        __m128i vH,
+        int32_t i,
+        int32_t segWidth)
+{
+    col[i*segWidth+0] = (int16_t)_mm_extract_epi16(vH, 0);
+    col[i*segWidth+1] = (int16_t)_mm_extract_epi16(vH, 1);
+    col[i*segWidth+2] = (int16_t)_mm_extract_epi16(vH, 2);
+    col[i*segWidth+3] = (int16_t)_mm_extract_epi16(vH, 3);
+    col[i*segWidth+4] = (int16_t)_mm_extract_epi16(vH, 4);
+    col[i*segWidth+5] = (int16_t)_mm_extract_epi16(vH, 5);
+    col[i*segWidth+6] = (int16_t)_mm_extract_epi16(vH, 6);
+    col[i*segWidth+7] = (int16_t)_mm_extract_epi16(vH, 7);
+}
+#endif
+
 #ifdef PARASAIL_TABLE
 #define FNAME parasail_sw_table_blocked_sse41_128_16
 #else
@@ -76,6 +94,8 @@ parasail_result_t* FNAME(
 #else
 #ifdef PARASAIL_ROWCOL
     parasail_result_t *result = parasail_result_new_rowcol1(segLen*segWidth, s2Len);
+    const int32_t offset = segLen - 1;
+    const int32_t position = s1Len % segWidth;
 #else
     parasail_result_t *result = parasail_result_new();
 #endif
@@ -171,7 +191,25 @@ parasail_result_t* FNAME(
             _mm_store_si128(pvE + i, vE);
 
         }
+
+#ifdef PARASAIL_ROWCOL
+        /* extract last value from the column */
+        {
+            __m128i vH = _mm_load_si128(pvH + offset);
+            for (k=0; k<position; ++k) {
+                vH = _mm_slli_si128(vH, 2);
+            }
+            result->score_row[j] = (int16_t) _mm_extract_epi16 (vH, 7);
+        }
+#endif
     }
+
+#ifdef PARASAIL_ROWCOL
+    for (i=0; i<segLen; ++i) {
+        __m128i vH = _mm_load_si128(pvH + i);
+        arr_store_col(result->score_col, vH, i, segLen);
+    }
+#endif
 
     /* max in vec */
     for (j=0; j<segWidth; ++j) {

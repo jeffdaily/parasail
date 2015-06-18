@@ -64,7 +64,7 @@ parasail_result_t* FNAME(
     %(INDEX)s j = 0;
     %(INDEX)s k = 0;
     %(INDEX)s segNum = 0;
-    const %(INDEX)s n = 24; /* number of amino acids in table */
+    const %(INDEX)s n = matrix->size; /* number of amino acids in table */
     const %(INDEX)s segWidth = %(LANES)s; /* number of values in vector unit */
     const %(INDEX)s segLen = (s1Len + segWidth - 1) / segWidth;
     %(VTYPE)s* const restrict vProfile = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, n * segLen);
@@ -99,7 +99,7 @@ parasail_result_t* FNAME(
                 %(VTYPE)s_%(WIDTH)s_t t;
                 j = i;
                 for (segNum=0; segNum<segWidth; ++segNum) {
-                    t.v[segNum] = j >= s1Len ? 0 : matrix->matrix[matrix->size*k+matrix->mapper[(unsigned char)s1[j]]];
+                    t.v[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
                     j += segLen;
                 }
                 %(VSTORE)s(&vProfile[index], t.m);

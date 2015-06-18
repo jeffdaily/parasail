@@ -103,7 +103,7 @@ parasail_result_t* FNAME(
     int32_t j = 0;
     int32_t k = 0;
     int32_t segNum = 0;
-    const int32_t n = 24; /* number of amino acids in table */
+    const int32_t n = matrix->size; /* number of amino acids in table */
     const int32_t segWidth = 4; /* number of values in vector unit */
     const int32_t segLen = (s1Len + segWidth - 1) / segWidth;
     const int32_t offset = (s1Len - 1) % segLen;
@@ -138,7 +138,7 @@ parasail_result_t* FNAME(
                 __m256i_64_t t;
                 j = i;
                 for (segNum=0; segNum<segWidth; ++segNum) {
-                    t.v[segNum] = j >= s1Len ? 0 : matrix->matrix[matrix->size*k+matrix->mapper[(unsigned char)s1[j]]];
+                    t.v[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
                     j += segLen;
                 }
                 _mm256_store_si256(&vProfile[index], t.m);

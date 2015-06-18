@@ -14,6 +14,7 @@
 #endif
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -265,7 +266,6 @@ void parasail_version(int *major, int *minor, int *patch)
     *patch = PARASAIL_VERSION_PATCH;
 }
 
-#include <stdio.h>
 parasail_matrix_t* parasail_matrix_create(
         const char *alphabet, const int match, const int mismatch)
 {
@@ -311,7 +311,7 @@ parasail_matrix_t* parasail_matrix_create(
     retval->name = "";
     retval->matrix = matrix;
     retval->mapper = mapper;
-    retval->size = (int)size;
+    retval->size = (int)size1;
     retval->need_free = 1;
     return retval;
 }

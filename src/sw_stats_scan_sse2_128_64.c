@@ -126,7 +126,7 @@ parasail_result_t* FNAME(
     int32_t j = 0;
     int32_t k = 0;
     int32_t segNum = 0;
-    const int32_t n = 24; /* number of amino acids in table */
+    const int32_t n = matrix->size; /* number of amino acids in table */
     const int32_t segWidth = 2;
     const int32_t segLen = (s1Len + segWidth - 1) / segWidth;
     __m128i* const restrict pvP  = parasail_memalign___m128i(16, n * segLen);
@@ -191,7 +191,7 @@ parasail_result_t* FNAME(
                 __m128i_64_t s;
                 j = i;
                 for (segNum=0; segNum<segWidth; ++segNum) {
-                    p.v[segNum] = j >= s1Len ? 0 : matrix->matrix[matrix->size*k+matrix->mapper[(unsigned char)s1[j]]];
+                    p.v[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
                     m.v[segNum] = j >= s1Len ? 0 : (k == matrix->mapper[(unsigned char)s1[j]]);
                     s.v[segNum] = p.v[segNum] > 0;
                     j += segLen;

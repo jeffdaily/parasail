@@ -252,7 +252,7 @@ See [the apps README](apps/README.md) for more details.
 
 If needed, please cite the following paper.
 
-Daily, Jeff. 2015. "Scalable Parallel Methods for Analyzing Metagenomic Data at Extreme Scale". PhD dissertation, Washington State University.  http://hpc.pnl.gov/tascel/papers/PNNL-24266.pdf
+Daily, Jeff. 2015. "Scalable Parallel Methods for Analyzing Metagenomic Data at Extreme Scale". PhD dissertation, Washington State University.  http://www.pnnl.gov/main/publications/external/technical_reports/PNNL-24266.pdf
 
 ## License: Battelle BSD-style
 
@@ -287,7 +287,7 @@ Copyright (c) 2015, Battelle Memorial Institute
 
     Daily, Jeff. 2015. "Scalable Parallel Methods for Analyzing
     Metagenomic Data at Extreme Scale". PhD dissertation, Washington
-    State University.  http://hpc.pnl.gov/tascel/papers/PNNL-24266.pdf
+    State University.  http://www.pnnl.gov/main/publications/external/technical_reports/PNNL-24266.pdf
 
 2.  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
     "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT

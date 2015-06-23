@@ -390,6 +390,7 @@ for template_filename in template_filenames:
             params = copy.deepcopy(isa)
             params["WIDTH"] = width
             prefix = template_filename[:-2]
+            prefix_prof = prefix + "_profile"
             parts = prefix.split('_')
             table_prefix = ""
             rowcol_prefix = ""
@@ -399,15 +400,26 @@ for template_filename in template_filenames:
             if len(parts) == 3:
                 table_prefix = "%s_%s_table_%s" % (parts[0], parts[1], parts[2])
                 rowcol_prefix = "%s_%s_rowcol_%s" % (parts[0], parts[1], parts[2])
+            table_prefix_prof = table_prefix + "_profile"
+            rowcol_prefix_prof = rowcol_prefix + "_profile"
             function_name = "%s_%s%s_%s_%s" % (prefix,
                     isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
             function_table_name = "%s_%s%s_%s_%s" % (table_prefix,
                     isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
             function_rowcol_name = "%s_%s%s_%s_%s" % (rowcol_prefix,
                     isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
+            function_pname = "%s_%s%s_%s_%s" % (prefix_prof,
+                    isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
+            function_table_pname = "%s_%s%s_%s_%s" % (table_prefix_prof,
+                    isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
+            function_rowcol_pname = "%s_%s%s_%s_%s" % (rowcol_prefix_prof,
+                    isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
             params["NAME"] = "parasail_"+function_name
             params["NAME_TABLE"] = "parasail_"+function_table_name
             params["NAME_ROWCOL"] = "parasail_"+function_rowcol_name
+            params["PNAME"] = "parasail_"+function_pname
+            params["PNAME_TABLE"] = "parasail_"+function_table_pname
+            params["PNAME_ROWCOL"] = "parasail_"+function_rowcol_pname
             params = generated_params(params)
             output_filename = "%s%s.c" % (output_dir, function_name)
             result = template % params
@@ -460,6 +472,7 @@ for template_filename in bias_templates:
     parts = prefix.split('_')
     parts = parts[:-1]
     prefix = "_".join(parts)
+    prefix_prof = prefix + "_profile"
     table_prefix = ""
     rowcol_prefix = ""
     if len(parts) == 2:
@@ -468,6 +481,8 @@ for template_filename in bias_templates:
     if len(parts) == 3:
         table_prefix = "%s_%s_table_%s" % (parts[0], parts[1], parts[2])
         rowcol_prefix = "%s_%s_rowcol_%s" % (parts[0], parts[1], parts[2])
+    table_prefix_prof = table_prefix + "_profile"
+    rowcol_prefix_prof = rowcol_prefix + "_profile"
     for width in [16,8]:
         for isa in [sse2,sse41,avx2]:
             params = copy.deepcopy(isa)
@@ -478,9 +493,18 @@ for template_filename in bias_templates:
                     isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
             function_rowcol_name = "%s_%s%s_%s_%s" % (rowcol_prefix,
                     isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
+            function_pname = "%s_%s%s_%s_%s" % (prefix_prof,
+                    isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
+            function_table_pname = "%s_%s%s_%s_%s" % (table_prefix_prof,
+                    isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
+            function_rowcol_pname = "%s_%s%s_%s_%s" % (rowcol_prefix_prof,
+                    isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
             params["NAME"] = "parasail_"+function_name
             params["NAME_TABLE"] = "parasail_"+function_table_name
             params["NAME_ROWCOL"] = "parasail_"+function_rowcol_name
+            params["PNAME"] = "parasail_"+function_pname
+            params["PNAME_TABLE"] = "parasail_"+function_table_pname
+            params["PNAME_ROWCOL"] = "parasail_"+function_rowcol_pname
             params = generated_params(params)
             params["VADD"] = params["VADDSx%d"%width]
             params["VSUB"] = params["VSUBSx%d"%width]

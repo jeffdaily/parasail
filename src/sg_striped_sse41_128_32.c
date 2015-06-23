@@ -52,11 +52,14 @@ static inline void arr_store_col(
 
 #ifdef PARASAIL_TABLE
 #define FNAME parasail_sg_table_striped_sse41_128_32
+#define PNAME parasail_sg_table_striped_profile_sse41_128_32
 #else
 #ifdef PARASAIL_ROWCOL
 #define FNAME parasail_sg_rowcol_striped_sse41_128_32
+#define PNAME parasail_sg_rowcol_striped_profile_sse41_128_32
 #else
 #define FNAME parasail_sg_striped_sse41_128_32
+#define PNAME parasail_sg_striped_profile_sse41_128_32
 #endif
 #endif
 
@@ -65,16 +68,28 @@ parasail_result_t* FNAME(
         const char * const restrict s2, const int s2Len,
         const int open, const int gap, const parasail_matrix_t *matrix)
 {
+    parasail_profile_t *profile = parasail_profile_create_sse_128_32(s1, s1Len, matrix);
+    parasail_result_t *result = PNAME(profile, s2, s2Len, open, gap);
+    parasail_profile_free(profile);
+    return result;
+}
+
+parasail_result_t* PNAME(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
     int32_t i = 0;
     int32_t j = 0;
     int32_t k = 0;
     int32_t segNum = 0;
-    const int32_t n = matrix->size; /* number of amino acids in table */
+    const int s1Len = profile->s1Len;
+    const parasail_matrix_t *matrix = profile->matrix;
     const int32_t segWidth = 4; /* number of values in vector unit */
     const int32_t segLen = (s1Len + segWidth - 1) / segWidth;
     const int32_t offset = (s1Len - 1) % segLen;
     const int32_t position = (segWidth - 1) - (s1Len - 1) / segLen;
-    __m128i* const restrict vProfile = parasail_memalign___m128i(16, n * segLen);
+    __m128i* const restrict vProfile = (__m128i*)profile->profile;
     __m128i* restrict pvHStore = parasail_memalign___m128i(16, segLen);
     __m128i* restrict pvHLoad =  parasail_memalign___m128i(16, segLen);
     __m128i* const restrict pvE = parasail_memalign___m128i(16, segLen);
@@ -93,25 +108,6 @@ parasail_result_t* FNAME(
     parasail_result_t *result = parasail_result_new();
 #endif
 #endif
-
-    /* Generate query profile.
-     * Rearrange query sequence & calculate the weight of match/mismatch.
-     * Don't alias. */
-    {
-        int32_t index = 0;
-        for (k=0; k<n; ++k) {
-            for (i=0; i<segLen; ++i) {
-                __m128i_32_t t;
-                j = i;
-                for (segNum=0; segNum<segWidth; ++segNum) {
-                    t.v[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
-                    j += segLen;
-                }
-                _mm_store_si128(&vProfile[index], t.m);
-                ++index;
-            }
-        }
-    }
 
     /* initialize H and E */
     {
@@ -250,7 +246,6 @@ end:
     parasail_free(pvE);
     parasail_free(pvHLoad);
     parasail_free(pvHStore);
-    parasail_free(vProfile);
 
     return result;
 }

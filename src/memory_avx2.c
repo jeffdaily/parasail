@@ -25,3 +25,320 @@ void parasail_memset___m256i(__m256i *b, __m256i c, size_t len)
     }
 }
 
+parasail_profile_t * parasail_profile_create_avx_256_8(
+        const char * const restrict s1, const int s1Len,
+        const parasail_matrix_t *matrix)
+{
+    int32_t i = 0;
+    int32_t j = 0;
+    int32_t k = 0;
+    int32_t segNum = 0;
+    const int32_t n = matrix->size; /* number of amino acids in table */
+    const int32_t segWidth = 32; /* number of values in vector unit */
+    const int32_t segLen = (s1Len + segWidth - 1) / segWidth;
+    __m256i* const restrict vProfile = parasail_memalign___m256i(32, n * segLen);
+    int32_t index = 0;
+
+    parasail_profile_t *profile = parasail_profile_new(s1, s1Len, matrix);
+
+    for (k=0; k<n; ++k) {
+        for (i=0; i<segLen; ++i) {
+            __m256i_8_t t;
+            j = i;
+            for (segNum=0; segNum<segWidth; ++segNum) {
+                t.v[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
+                j += segLen;
+            }
+            _mm256_store_si256(&vProfile[index], t.m);
+            ++index;
+        }
+    }
+
+    profile->profile = vProfile;
+    profile->free = &parasail_profile_free___m256i;
+    return profile;
+}
+
+parasail_profile_t * parasail_profile_create_avx_256_16(
+        const char * const restrict s1, const int s1Len,
+        const parasail_matrix_t *matrix)
+{
+    int32_t i = 0;
+    int32_t j = 0;
+    int32_t k = 0;
+    int32_t segNum = 0;
+    const int32_t n = matrix->size; /* number of amino acids in table */
+    const int32_t segWidth = 16; /* number of values in vector unit */
+    const int32_t segLen = (s1Len + segWidth - 1) / segWidth;
+    __m256i* const restrict vProfile = parasail_memalign___m256i(32, n * segLen);
+    int32_t index = 0;
+
+    parasail_profile_t *profile = parasail_profile_new(s1, s1Len, matrix);
+
+    for (k=0; k<n; ++k) {
+        for (i=0; i<segLen; ++i) {
+            __m256i_16_t t;
+            j = i;
+            for (segNum=0; segNum<segWidth; ++segNum) {
+                t.v[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
+                j += segLen;
+            }
+            _mm256_store_si256(&vProfile[index], t.m);
+            ++index;
+        }
+    }
+
+    profile->profile = vProfile;
+    profile->free = &parasail_profile_free___m256i;
+    return profile;
+}
+
+parasail_profile_t * parasail_profile_create_avx_256_32(
+        const char * const restrict s1, const int s1Len,
+        const parasail_matrix_t *matrix)
+{
+    int32_t i = 0;
+    int32_t j = 0;
+    int32_t k = 0;
+    int32_t segNum = 0;
+    const int32_t n = matrix->size; /* number of amino acids in table */
+    const int32_t segWidth = 8; /* number of values in vector unit */
+    const int32_t segLen = (s1Len + segWidth - 1) / segWidth;
+    __m256i* const restrict vProfile = parasail_memalign___m256i(32, n * segLen);
+    int32_t index = 0;
+
+    parasail_profile_t *profile = parasail_profile_new(s1, s1Len, matrix);
+
+    for (k=0; k<n; ++k) {
+        for (i=0; i<segLen; ++i) {
+            __m256i_32_t t;
+            j = i;
+            for (segNum=0; segNum<segWidth; ++segNum) {
+                t.v[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
+                j += segLen;
+            }
+            _mm256_store_si256(&vProfile[index], t.m);
+            ++index;
+        }
+    }
+
+    profile->profile = vProfile;
+    profile->free = &parasail_profile_free___m256i;
+    return profile;
+}
+
+parasail_profile_t * parasail_profile_create_avx_256_64(
+        const char * const restrict s1, const int s1Len,
+        const parasail_matrix_t *matrix)
+{
+    int32_t i = 0;
+    int32_t j = 0;
+    int32_t k = 0;
+    int32_t segNum = 0;
+    const int32_t n = matrix->size; /* number of amino acids in table */
+    const int32_t segWidth = 4; /* number of values in vector unit */
+    const int32_t segLen = (s1Len + segWidth - 1) / segWidth;
+    __m256i* const restrict vProfile = parasail_memalign___m256i(32, n * segLen);
+    int32_t index = 0;
+
+    parasail_profile_t *profile = parasail_profile_new(s1, s1Len, matrix);
+
+    for (k=0; k<n; ++k) {
+        for (i=0; i<segLen; ++i) {
+            __m256i_64_t t;
+            j = i;
+            for (segNum=0; segNum<segWidth; ++segNum) {
+                t.v[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
+                j += segLen;
+            }
+            _mm256_store_si256(&vProfile[index], t.m);
+            ++index;
+        }
+    }
+
+    profile->profile = vProfile;
+    profile->free = &parasail_profile_free___m256i;
+    return profile;
+}
+
+parasail_profile_t * parasail_profile_create_stats_avx_256_8(
+        const char * const restrict s1, const int s1Len,
+        const parasail_matrix_t *matrix)
+{
+    int32_t i = 0;
+    int32_t j = 0;
+    int32_t k = 0;
+    int32_t segNum = 0;
+    const int32_t n = matrix->size; /* number of amino acids in table */
+    const int32_t segWidth = 32; /* number of values in vector unit */
+    const int32_t segLen = (s1Len + segWidth - 1) / segWidth;
+    __m256i* const restrict vProfile = parasail_memalign___m256i(32, n * segLen);
+    __m256i* const restrict vProfileM = parasail_memalign___m256i(32, n * segLen);
+    __m256i* const restrict vProfileS = parasail_memalign___m256i(32, n * segLen);
+    int32_t index = 0;
+
+    parasail_profile_t *profile = parasail_profile_new(s1, s1Len, matrix);
+
+    for (k=0; k<n; ++k) {
+        for (i=0; i<segLen; ++i) {
+            __m256i_8_t p;
+            __m256i_8_t m;
+            __m256i_8_t s;
+            j = i;
+            for (segNum=0; segNum<segWidth; ++segNum) {
+                p.v[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
+                m.v[segNum] = j >= s1Len ? 0 : (k == matrix->mapper[(unsigned char)s1[j]]);
+                s.v[segNum] = p.v[segNum] > 0;
+                j += segLen;
+            }
+            _mm256_store_si256(&vProfile[index], p.m);
+            _mm256_store_si256(&vProfileM[index], m.m);
+            _mm256_store_si256(&vProfileS[index], s.m);
+            ++index;
+        }
+    }
+
+    profile->profile = vProfile;
+    profile->profile_m = vProfileM;
+    profile->profile_s = vProfileS;
+    profile->free = &parasail_profile_free___m256i;
+    return profile;
+}
+
+parasail_profile_t * parasail_profile_create_stats_avx_256_16(
+        const char * const restrict s1, const int s1Len,
+        const parasail_matrix_t *matrix)
+{
+    int32_t i = 0;
+    int32_t j = 0;
+    int32_t k = 0;
+    int32_t segNum = 0;
+    const int32_t n = matrix->size; /* number of amino acids in table */
+    const int32_t segWidth = 16; /* number of values in vector unit */
+    const int32_t segLen = (s1Len + segWidth - 1) / segWidth;
+    __m256i* const restrict vProfile = parasail_memalign___m256i(32, n * segLen);
+    __m256i* const restrict vProfileM = parasail_memalign___m256i(32, n * segLen);
+    __m256i* const restrict vProfileS = parasail_memalign___m256i(32, n * segLen);
+    int32_t index = 0;
+
+    parasail_profile_t *profile = parasail_profile_new(s1, s1Len, matrix);
+
+    for (k=0; k<n; ++k) {
+        for (i=0; i<segLen; ++i) {
+            __m256i_16_t p;
+            __m256i_16_t m;
+            __m256i_16_t s;
+            j = i;
+            for (segNum=0; segNum<segWidth; ++segNum) {
+                p.v[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
+                m.v[segNum] = j >= s1Len ? 0 : (k == matrix->mapper[(unsigned char)s1[j]]);
+                s.v[segNum] = p.v[segNum] > 0;
+                j += segLen;
+            }
+            _mm256_store_si256(&vProfile[index], p.m);
+            _mm256_store_si256(&vProfileM[index], m.m);
+            _mm256_store_si256(&vProfileS[index], s.m);
+            ++index;
+        }
+    }
+
+    profile->profile = vProfile;
+    profile->profile_m = vProfileM;
+    profile->profile_s = vProfileS;
+    profile->free = &parasail_profile_free___m256i;
+    return profile;
+}
+
+parasail_profile_t * parasail_profile_create_stats_avx_256_32(
+        const char * const restrict s1, const int s1Len,
+        const parasail_matrix_t *matrix)
+{
+    int32_t i = 0;
+    int32_t j = 0;
+    int32_t k = 0;
+    int32_t segNum = 0;
+    const int32_t n = matrix->size; /* number of amino acids in table */
+    const int32_t segWidth = 8; /* number of values in vector unit */
+    const int32_t segLen = (s1Len + segWidth - 1) / segWidth;
+    __m256i* const restrict vProfile = parasail_memalign___m256i(32, n * segLen);
+    __m256i* const restrict vProfileM = parasail_memalign___m256i(32, n * segLen);
+    __m256i* const restrict vProfileS = parasail_memalign___m256i(32, n * segLen);
+    int32_t index = 0;
+
+    parasail_profile_t *profile = parasail_profile_new(s1, s1Len, matrix);
+
+    for (k=0; k<n; ++k) {
+        for (i=0; i<segLen; ++i) {
+            __m256i_32_t p;
+            __m256i_32_t m;
+            __m256i_32_t s;
+            j = i;
+            for (segNum=0; segNum<segWidth; ++segNum) {
+                p.v[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
+                m.v[segNum] = j >= s1Len ? 0 : (k == matrix->mapper[(unsigned char)s1[j]]);
+                s.v[segNum] = p.v[segNum] > 0;
+                j += segLen;
+            }
+            _mm256_store_si256(&vProfile[index], p.m);
+            _mm256_store_si256(&vProfileM[index], m.m);
+            _mm256_store_si256(&vProfileS[index], s.m);
+            ++index;
+        }
+    }
+
+    profile->profile = vProfile;
+    profile->profile_m = vProfileM;
+    profile->profile_s = vProfileS;
+    profile->free = &parasail_profile_free___m256i;
+    return profile;
+}
+
+parasail_profile_t * parasail_profile_create_stats_avx_256_64(
+        const char * const restrict s1, const int s1Len,
+        const parasail_matrix_t *matrix)
+{
+    int32_t i = 0;
+    int32_t j = 0;
+    int32_t k = 0;
+    int32_t segNum = 0;
+    const int32_t n = matrix->size; /* number of amino acids in table */
+    const int32_t segWidth = 4; /* number of values in vector unit */
+    const int32_t segLen = (s1Len + segWidth - 1) / segWidth;
+    __m256i* const restrict vProfile = parasail_memalign___m256i(32, n * segLen);
+    __m256i* const restrict vProfileM = parasail_memalign___m256i(32, n * segLen);
+    __m256i* const restrict vProfileS = parasail_memalign___m256i(32, n * segLen);
+    int32_t index = 0;
+
+    parasail_profile_t *profile = parasail_profile_new(s1, s1Len, matrix);
+
+    for (k=0; k<n; ++k) {
+        for (i=0; i<segLen; ++i) {
+            __m256i_64_t p;
+            __m256i_64_t m;
+            __m256i_64_t s;
+            j = i;
+            for (segNum=0; segNum<segWidth; ++segNum) {
+                p.v[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
+                m.v[segNum] = j >= s1Len ? 0 : (k == matrix->mapper[(unsigned char)s1[j]]);
+                s.v[segNum] = p.v[segNum] > 0;
+                j += segLen;
+            }
+            _mm256_store_si256(&vProfile[index], p.m);
+            _mm256_store_si256(&vProfileM[index], m.m);
+            _mm256_store_si256(&vProfileS[index], s.m);
+            ++index;
+        }
+    }
+
+    profile->profile = vProfile;
+    profile->profile_m = vProfileM;
+    profile->profile_s = vProfileS;
+    profile->free = &parasail_profile_free___m256i;
+    return profile;
+}
+
+void parasail_profile_free___m256i(void *profile)
+{
+    free((__m256i*)profile);
+}
+

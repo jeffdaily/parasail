@@ -25,4 +25,7 @@ __m512i * parasail_memalign_m512i(size_t alignment, size_t size);
 extern PARASAIL_LOCAL
 void parasail_memset_m512i(__m512i *b, __m512i c, size_t len);
 
+extern PARASAIL_LOCAL
+void parasail_profile_free___m512i(void *profile);
+
 #endif /* _PARASAIL_INTERNAL_KNC_H_ */

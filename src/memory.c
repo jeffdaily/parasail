@@ -331,3 +331,31 @@ void parasail_matrix_free(parasail_matrix_t *matrix)
     }
 }
 
+parasail_profile_t* parasail_profile_new(
+        const char * s1, const int s1Len, const parasail_matrix_t *matrix)
+{
+    /* declare all variables */
+    parasail_profile_t *profile = NULL;
+
+    profile = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
+    assert(profile);
+
+    profile->s1 = s1;
+    profile->s1Len = s1Len;
+    profile->matrix = matrix;
+    profile->profile = NULL;
+    profile->profile_m = NULL;
+    profile->profile_s = NULL;
+    profile->free = NULL;
+
+    return profile;
+}
+
+void parasail_profile_free(parasail_profile_t *profile)
+{
+    profile->free(profile->profile);
+    if (NULL != profile->profile_m) profile->free(profile->profile_m);
+    if (NULL != profile->profile_s) profile->free(profile->profile_s);
+    free(profile);
+}
+

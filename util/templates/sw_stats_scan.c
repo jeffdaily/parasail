@@ -46,11 +46,14 @@ static inline void arr_store_col(
 
 #ifdef PARASAIL_TABLE
 #define FNAME %(NAME_TABLE)s
+#define PNAME %(PNAME_TABLE)s
 #else
 #ifdef PARASAIL_ROWCOL
 #define FNAME %(NAME_ROWCOL)s
+#define PNAME %(PNAME_ROWCOL)s
 #else
 #define FNAME %(NAME)s
+#define PNAME %(PNAME)s
 #endif
 #endif
 
@@ -59,16 +62,27 @@ parasail_result_t* FNAME(
         const char * const restrict s2, const int s2Len,
         const int open, const int gap, const parasail_matrix_t *matrix)
 {
+    parasail_profile_t *profile = parasail_profile_create_stats_%(ISA)s_%(BITS)s_%(WIDTH)s(s1, s1Len, matrix);
+    parasail_result_t *result = PNAME(profile, s2, s2Len, open, gap);
+    parasail_profile_free(profile);
+    return result;
+}
+
+parasail_result_t* PNAME(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
     %(INDEX)s i = 0;
     %(INDEX)s j = 0;
-    %(INDEX)s k = 0;
     %(INDEX)s segNum = 0;
-    const %(INDEX)s n = matrix->size; /* number of amino acids in table */
+    const int s1Len = profile->s1Len;
+    const parasail_matrix_t *matrix = profile->matrix;
     const %(INDEX)s segWidth = %(LANES)s;
     const %(INDEX)s segLen = (s1Len + segWidth - 1) / segWidth;
-    %(VTYPE)s* const restrict pvP  = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, n * segLen);
-    %(VTYPE)s* const restrict pvPm = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, n * segLen);
-    %(VTYPE)s* const restrict pvPs = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, n * segLen);
+    %(VTYPE)s* const restrict pvP  = (%(VTYPE)s*)profile->profile;
+    %(VTYPE)s* const restrict pvPm = (%(VTYPE)s*)profile->profile_m;
+    %(VTYPE)s* const restrict pvPs = (%(VTYPE)s*)profile->profile_s;
     %(VTYPE)s* const restrict pvE  = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
     %(VTYPE)s* const restrict pvHt = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
     %(VTYPE)s* const restrict pvFt = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
@@ -115,31 +129,6 @@ parasail_result_t* FNAME(
     parasail_memset_%(VTYPE)s(pvM, vZero, segLen);
     parasail_memset_%(VTYPE)s(pvS, vZero, segLen);
     parasail_memset_%(VTYPE)s(pvL, vZero, segLen);
-
-    /* Generate query profile and match profile.
-     * Rearrange query sequence & calculate the weight of match/mismatch.
-     * Don't alias. */
-    {
-        %(INDEX)s index = 0;
-        for (k=0; k<n; ++k) {
-            for (i=0; i<segLen; ++i) {
-                %(VTYPE)s_%(WIDTH)s_t p;
-                %(VTYPE)s_%(WIDTH)s_t m;
-                %(VTYPE)s_%(WIDTH)s_t s;
-                j = i;
-                for (segNum=0; segNum<segWidth; ++segNum) {
-                    p.v[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
-                    m.v[segNum] = j >= s1Len ? 0 : (k == matrix->mapper[(unsigned char)s1[j]]);
-                    s.v[segNum] = p.v[segNum] > 0;
-                    j += segLen;
-                }
-                %(VSTORE)s(&pvP[index], p.m);
-                %(VSTORE)s(&pvPm[index], m.m);
-                %(VSTORE)s(&pvPs[index], s.m);
-                ++index;
-            }
-        }
-    }
 
     /* initialize H and E */
     {
@@ -362,6 +351,7 @@ parasail_result_t* FNAME(
 #ifdef PARASAIL_ROWCOL
         /* extract last value from the column */
         {
+            %(INDEX)s k = 0;
             vH = %(VLOAD)s(pvH + offset);
             vM = %(VLOAD)s(pvM + offset);
             vS = %(VLOAD)s(pvS + offset);
@@ -426,9 +416,6 @@ parasail_result_t* FNAME(
     parasail_free(pvFt);
     parasail_free(pvHt);
     parasail_free(pvE);
-    parasail_free(pvPs);
-    parasail_free(pvPm);
-    parasail_free(pvP);
 
     return result;
 }

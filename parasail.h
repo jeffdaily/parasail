@@ -98,8 +98,6 @@ typedef struct parasail_profile {
     void (*free)(void * profile);
 } parasail_profile_t;
 
-/* profile functions */
-
 extern PARASAIL_API
 void parasail_profile_free(parasail_profile_t *profile);
 
@@ -124,6 +122,26 @@ typedef struct parasail_function_info {
     char is_ref;
 } parasail_function_info_t;
 
+typedef parasail_result_t* parasail_pfunction_t(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap);
+
+typedef struct parasail_pfunction_info {
+    parasail_pfunction_t * pointer;
+    const char * name;
+    const char * alg;
+    const char * type;
+    const char * isa;
+    const char * bits;
+    const char * width;
+    int lanes;
+    char is_table;
+    char is_rowcol;
+    char is_stats;
+    char is_ref;
+} parasail_pfunction_info_t;
+
 /* Run-time API version detection */
 extern PARASAIL_API
 void parasail_version(int *major, int *minor, int *patch);
@@ -136,9 +154,17 @@ void parasail_result_free(parasail_result_t *result);
 extern PARASAIL_API
 parasail_function_t * parasail_lookup_function(const char *funcname);
 
+/** Lookup pfunction by name. */
+extern PARASAIL_API
+parasail_pfunction_t * parasail_lookup_pfunction(const char *funcname);
+
 /** Lookup function info by name. */
 extern PARASAIL_API
 const parasail_function_info_t * parasail_lookup_function_info(const char *funcname);
+
+/** Lookup function info by name. */
+extern PARASAIL_API
+const parasail_pfunction_info_t * parasail_lookup_pfunction_info(const char *funcname);
 
 /** Current time in seconds with nanosecond resolution. */
 extern PARASAIL_API

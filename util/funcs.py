@@ -90,6 +90,47 @@ for table in ["", "_table", "_rowcol"]:
 print_null()
 print "};"
 
+print
+print "static const parasail_pfunction_info_t pfunctions[] = {"
+
+for table in ["", "_table", "_rowcol"]:
+    for stats in ["", "_stats"]:
+        for alg in ["nw", "sg", "sw"]:
+            is_table = 0
+            is_rowcol = 0
+            if table == "_table":
+                is_table = 1
+            elif table == "_rowcol":
+                is_rowcol = 1
+            is_stats = 0
+            if stats:
+                is_stats = 1
+            pre = "parasail_"+alg+stats+table
+            for isa in ["sse2", "sse41", "avx2"]:
+                print "#if HAVE_%s" % isa.upper()
+                bits = isa_to_bits[isa]
+                for par in ["scan_profile", "striped_profile"]:
+                    for width in [64, 32, 16, 8]:
+                        name = "%s_%s_%s_%s_%s" % (pre, par, isa, bits, width)
+                        print_fmt(name, name, alg+stats, par, isa, bits, width, bits/width, is_table, is_rowcol, is_stats, 0)
+                print "#endif"
+            for isa in ["knc"]:
+                print "#if HAVE_%s" % isa.upper()
+                bits = isa_to_bits[isa]
+                for par in ["scan_profile", "striped_profile"]:
+                    for width in [32]:
+                        name = "%s_%s_%s_%s_%s" % (pre, par, isa, bits, width)
+                        print_fmt(name, name, alg+stats, par, isa, bits, width, bits/width, is_table, is_rowcol, is_stats, 0)
+                print "#endif"
+            # also print the dispatcher function
+            for par in ["scan_profile", "striped_profile"]:
+                for width in [64, 32, 16, 8]:
+                    name = "%s_%s_%s" % (pre, par, width)
+                    print_fmt(name, name, alg+stats, par, "disp", "NA", width, -1, is_table, is_rowcol, is_stats, 0)
+
+print_null()
+print "};"
+
 print """
 #endif /* _PARASAIL_FUNCTION_TYPE_H_ */
 """

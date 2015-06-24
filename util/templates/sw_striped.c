@@ -45,11 +45,14 @@ static inline void arr_store_col(
 
 #ifdef PARASAIL_TABLE
 #define FNAME %(NAME_TABLE)s
+#define PNAME %(PNAME_TABLE)s
 #else
 #ifdef PARASAIL_ROWCOL
 #define FNAME %(NAME_ROWCOL)s
+#define PNAME %(PNAME_ROWCOL)s
 #else
 #define FNAME %(NAME)s
+#define PNAME %(PNAME)s
 #endif
 #endif
 
@@ -58,14 +61,26 @@ parasail_result_t* FNAME(
         const char * const restrict s2, const int s2Len,
         const int open, const int gap, const parasail_matrix_t *matrix)
 {
+    parasail_profile_t *profile = parasail_profile_create_%(ISA)s_%(BITS)s_%(WIDTH)s(s1, s1Len, matrix);
+    parasail_result_t *result = PNAME(profile, s2, s2Len, open, gap);
+    parasail_profile_free(profile);
+    return result;
+}
+
+parasail_result_t* PNAME(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
     %(INDEX)s i = 0;
     %(INDEX)s j = 0;
     %(INDEX)s k = 0;
     %(INDEX)s segNum = 0;
-    const %(INDEX)s n = matrix->size; /* number of amino acids in table */
+    const int s1Len = profile->s1Len;
+    const parasail_matrix_t *matrix = profile->matrix;
     const %(INDEX)s segWidth = %(LANES)s; /* number of values in vector unit */
     const %(INDEX)s segLen = (s1Len + segWidth - 1) / segWidth;
-    %(VTYPE)s* const restrict vProfile = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, n * segLen);
+    %(VTYPE)s* const restrict vProfile = (%(VTYPE)s*)profile->profile;
     %(VTYPE)s* restrict pvHStore = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
     %(VTYPE)s* restrict pvHLoad =  parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
     %(VTYPE)s* const restrict pvE = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
@@ -87,25 +102,6 @@ parasail_result_t* FNAME(
     parasail_result_t *result = parasail_result_new();
 #endif
 #endif
-
-    /* Generate query profile.
-     * Rearrange query sequence & calculate the weight of match/mismatch.
-     * Don't alias. */
-    {
-        %(INDEX)s index = 0;
-        for (k=0; k<n; ++k) {
-            for (i=0; i<segLen; ++i) {
-                %(VTYPE)s_%(WIDTH)s_t t;
-                j = i;
-                for (segNum=0; segNum<segWidth; ++segNum) {
-                    t.v[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
-                    j += segLen;
-                }
-                %(VSTORE)s(&vProfile[index], t.m);
-                ++index;
-            }
-        }
-    }
 
     /* initialize H and E */
     {
@@ -230,7 +226,6 @@ end:
     parasail_free(pvE);
     parasail_free(pvHLoad);
     parasail_free(pvHStore);
-    parasail_free(vProfile);
 
     return result;
 }

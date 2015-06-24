@@ -159,6 +159,8 @@ int main(int argc, char **argv) {
     int c = 0;
     const char *funcname = "sw_stats_striped_16";
     parasail_function_t *function = NULL;
+    parasail_pfunction_t *pfunction = NULL;
+    parasail_pcreator_t *pcreator = NULL;
     const char *matrixname = "blosum62";
     const parasail_matrix_t *matrix = NULL;
     int gap_open = 10;
@@ -239,10 +241,25 @@ int main(int argc, char **argv) {
 
     /* select the function */
     if (funcname) {
-        function = parasail_lookup_function(funcname);
-        if (NULL == function) {
-            fprintf(stderr, "Specified function not found.\n");
-            exit(EXIT_FAILURE);
+        if (NULL != strstr(funcname, "profile")) {
+            pfunction = parasail_lookup_pfunction(funcname);
+            if (NULL == pfunction) {
+                fprintf(stderr, "Specified profile function not found.\n");
+                exit(EXIT_FAILURE);
+            }
+            pcreator = parasail_lookup_pcreator(funcname);
+            if (NULL == pcreator) {
+                fprintf(stderr, "Specified profile creator function not found.\n");
+                exit(EXIT_FAILURE);
+            }
+
+        }
+        else {
+            function = parasail_lookup_function(funcname);
+            if (NULL == function) {
+                fprintf(stderr, "Specified function not found.\n");
+                exit(EXIT_FAILURE);
+            }
         }
     }
     else {
@@ -518,34 +535,112 @@ int main(int argc, char **argv) {
     finish = parasail_time();
     fprintf(stdout, "%20s: %.4f seconds\n", "openmp prep time", finish-start);
 
+    /* create profiles, if necessary */
+    vector<parasail_profile_t*> profiles;
+    if (pfunction) {
+        start = parasail_time();
+        set<int> profile_indices_set;
+        for (size_t index=0; index<vpairs.size(); ++index) {
+            profile_indices_set.insert(vpairs[index].first);
+        }
+        vector<int> profile_indices(
+                profile_indices_set.begin(),
+                profile_indices_set.end());
+        profiles.assign(sid, NULL);
+        finish = parasail_time();
+        fprintf(stdout, "%20s: %.4f seconds\n", "profile init", finish-start);
+        start = parasail_time();
+#pragma omp parallel
+        {
+#pragma omp for schedule(dynamic)
+            for (size_t index=0; index<profile_indices.size(); ++index) {
+                int i = profile_indices[index];
+                int i_beg = BEG[i];
+                int i_end = END[i];
+                int i_len = i_end-i_beg;
+                profiles[i] = pcreator((const char*)&T[i_beg], i_len, matrix);
+            }
+        }
+        finish = parasail_time();
+        fprintf(stdout, "%20s: %.4f seconds\n", "profile creation", finish-start);
+    }
+
     /* align pairs */
     start = parasail_time();
+    if (function) {
 #pragma omp parallel
-    {
-#pragma omp for schedule(dynamic) nowait
-        for (size_t index=0; index<vpairs.size(); ++index) {
-            int i = vpairs[index].first;
-            int j = vpairs[index].second;
-            int i_beg = BEG[i];
-            int i_end = END[i];
-            int i_len = i_end-i_beg;
-            int j_beg = BEG[j];
-            int j_end = END[j];
-            int j_len = j_end-j_beg;
-            unsigned long local_work = i_len * j_len;
-            parasail_result_t *result = function(
-                    (const char*)&T[i_beg], i_len,
-                    (const char*)&T[j_beg], j_len,
-                    gap_open, gap_extend, matrix);
+        {
+#pragma omp for schedule(dynamic)
+            for (size_t index=0; index<vpairs.size(); ++index) {
+                int i = vpairs[index].first;
+                int j = vpairs[index].second;
+                int i_beg = BEG[i];
+                int i_end = END[i];
+                int i_len = i_end-i_beg;
+                int j_beg = BEG[j];
+                int j_end = END[j];
+                int j_len = j_end-j_beg;
+                unsigned long local_work = i_len * j_len;
+                parasail_result_t *result = function(
+                        (const char*)&T[i_beg], i_len,
+                        (const char*)&T[j_beg], j_len,
+                        gap_open, gap_extend, matrix);
 #pragma omp atomic
-            work += local_work;
-            results[index] = result;
+                work += local_work;
+                results[index] = result;
+            }
         }
+    }
+    else if (pfunction) {
+#pragma omp parallel
+        {
+#pragma omp for schedule(dynamic)
+            for (size_t index=0; index<vpairs.size(); ++index) {
+                int i = vpairs[index].first;
+                int j = vpairs[index].second;
+                int j_beg = BEG[j];
+                int j_end = END[j];
+                int j_len = j_end-j_beg;
+                parasail_profile_t *profile = profiles[i];
+                if (NULL == profile) {
+                    fprintf(stderr, "BAD PROFILE %d\n", i);
+                    exit(EXIT_FAILURE);
+                }
+                unsigned long local_work = profile->s1Len * j_len;
+                parasail_result_t *result = pfunction(
+                        profile, (const char*)&T[j_beg], j_len,
+                        gap_open, gap_extend);
+#pragma omp atomic
+                work += local_work;
+                results[index] = result;
+            }
+        }
+    }
+    else {
+        /* shouldn't get here */
+        fprintf(stderr, "alignment function was not properly set (shouldn't happen)\n");
+        exit(EXIT_FAILURE);
     }
     finish = parasail_time();
     fprintf(stdout, "%20s: %lu cells\n", "work", work);
     fprintf(stdout, "%20s: %.4f seconds\n", "alignment time", finish-start);
-    fprintf(stdout, "%20s: %.4f \n", "gcups", double(work)/(finish-start)/1000000);
+    fprintf(stdout, "%20s: %.4f \n", "gcups", double(work)/(finish-start)/1000000000);
+
+    if (pfunction) {
+        start = parasail_time();
+#pragma omp parallel
+        {
+#pragma omp for schedule(dynamic)
+            for (size_t index=0; index<profiles.size(); ++index) {
+                if (NULL != profiles[index]) {
+                    parasail_profile_free(profiles[index]);
+                }
+            }
+            profiles.clear();
+        }
+        finish = parasail_time();
+        fprintf(stdout, "%20s: %.4f seconds\n", "profile cleanup", finish-start);
+    }
 
     /* Output results. */
     bool is_stats = (NULL != strstr(funcname, "stats"));

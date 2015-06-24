@@ -102,11 +102,14 @@ static inline void arr_store_col(
 
 #ifdef PARASAIL_TABLE
 #define FNAME parasail_sw_stats_table_striped_avx2_256_16
+#define PNAME parasail_sw_stats_table_striped_profile_avx2_256_16
 #else
 #ifdef PARASAIL_ROWCOL
 #define FNAME parasail_sw_stats_rowcol_striped_avx2_256_16
+#define PNAME parasail_sw_stats_rowcol_striped_profile_avx2_256_16
 #else
 #define FNAME parasail_sw_stats_striped_avx2_256_16
+#define PNAME parasail_sw_stats_striped_profile_avx2_256_16
 #endif
 #endif
 
@@ -115,16 +118,28 @@ parasail_result_t* FNAME(
         const char * const restrict s2, const int s2Len,
         const int open, const int gap, const parasail_matrix_t *matrix)
 {
+    parasail_profile_t *profile = parasail_profile_create_stats_avx_256_16(s1, s1Len, matrix);
+    parasail_result_t *result = PNAME(profile, s2, s2Len, open, gap);
+    parasail_profile_free(profile);
+    return result;
+}
+
+parasail_result_t* PNAME(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
     int32_t i = 0;
     int32_t j = 0;
     int32_t k = 0;
     int32_t segNum = 0;
-    const int32_t n = matrix->size; /* number of amino acids in table */
+    const int s1Len = profile->s1Len;
+    const parasail_matrix_t *matrix = profile->matrix;
     const int32_t segWidth = 16; /* number of values in vector unit */
     const int32_t segLen = (s1Len + segWidth - 1) / segWidth;
-    __m256i* const restrict vProfile  = parasail_memalign___m256i(32, n * segLen);
-    __m256i* const restrict vProfileM = parasail_memalign___m256i(32, n * segLen);
-    __m256i* const restrict vProfileS = parasail_memalign___m256i(32, n * segLen);
+    __m256i* const restrict vProfile  = (__m256i*)profile->profile;
+    __m256i* const restrict vProfileM = (__m256i*)profile->profile_m;
+    __m256i* const restrict vProfileS = (__m256i*)profile->profile_s;
     __m256i* restrict pvHStore        = parasail_memalign___m256i(32, segLen);
     __m256i* restrict pvHLoad         = parasail_memalign___m256i(32, segLen);
     __m256i* restrict pvHMStore       = parasail_memalign___m256i(32, segLen);
@@ -168,31 +183,6 @@ parasail_result_t* FNAME(
     parasail_memset___m256i(pvHMStore, vBias, segLen);
     parasail_memset___m256i(pvHSStore, vBias, segLen);
     parasail_memset___m256i(pvHLStore, vBias, segLen);
-
-    /* Generate query profile.
-     * Rearrange query sequence & calculate the weight of match/mismatch.
-     * Don't alias. */
-    {
-        int32_t index = 0;
-        for (k=0; k<n; ++k) {
-            for (i=0; i<segLen; ++i) {
-                __m256i_16_t p;
-                __m256i_16_t m;
-                __m256i_16_t s;
-                j = i;
-                for (segNum=0; segNum<segWidth; ++segNum) {
-                    p.v[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
-                    m.v[segNum] = j >= s1Len ? 0 : (k == matrix->mapper[(unsigned char)s1[j]]);
-                    s.v[segNum] = p.v[segNum] > 0;
-                    j += segLen;
-                }
-                _mm256_store_si256(&vProfile[index], p.m);
-                _mm256_store_si256(&vProfileM[index], m.m);
-                _mm256_store_si256(&vProfileS[index], s.m);
-                ++index;
-            }
-        }
-    }
 
     /* initialize H and E */
     {
@@ -517,9 +507,6 @@ end:
     parasail_free(pvHMStore);
     parasail_free(pvHLoad);
     parasail_free(pvHStore);
-    parasail_free(vProfileS);
-    parasail_free(vProfileM);
-    parasail_free(vProfile);
 
     return result;
 }

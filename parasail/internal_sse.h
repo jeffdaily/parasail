@@ -40,4 +40,7 @@ __m128i * parasail_memalign___m128i(size_t alignment, size_t size);
 extern PARASAIL_LOCAL
 void parasail_memset___m128i(__m128i *b, __m128i c, size_t len);
 
+extern PARASAIL_LOCAL
+void parasail_profile_free___m128i(void *profile);
+
 #endif /* _PARASAIL_INTERNAL_SSE_H_ */

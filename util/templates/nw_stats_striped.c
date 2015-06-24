@@ -45,11 +45,14 @@ static inline void arr_store_col(
 
 #ifdef PARASAIL_TABLE
 #define FNAME %(NAME_TABLE)s
+#define PNAME %(PNAME_TABLE)s
 #else
 #ifdef PARASAIL_ROWCOL
 #define FNAME %(NAME_ROWCOL)s
+#define PNAME %(PNAME_ROWCOL)s
 #else
 #define FNAME %(NAME)s
+#define PNAME %(PNAME)s
 #endif
 #endif
 
@@ -58,18 +61,30 @@ parasail_result_t* FNAME(
         const char * const restrict s2, const int s2Len,
         const int open, const int gap, const parasail_matrix_t *matrix)
 {
+    parasail_profile_t *profile = parasail_profile_create_stats_%(ISA)s_%(BITS)s_%(WIDTH)s(s1, s1Len, matrix);
+    parasail_result_t *result = PNAME(profile, s2, s2Len, open, gap);
+    parasail_profile_free(profile);
+    return result;
+}
+
+parasail_result_t* PNAME(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
     %(INDEX)s i = 0;
     %(INDEX)s j = 0;
     %(INDEX)s k = 0;
     %(INDEX)s segNum = 0;
-    const %(INDEX)s n = matrix->size; /* number of amino acids in table */
+    const int s1Len = profile->s1Len;
+    const parasail_matrix_t *matrix = profile->matrix;
     const %(INDEX)s segWidth = %(LANES)s; /* number of values in vector unit */
     const %(INDEX)s segLen = (s1Len + segWidth - 1) / segWidth;
     const %(INDEX)s offset = (s1Len - 1) %% segLen;
     const %(INDEX)s position = (segWidth - 1) - (s1Len - 1) / segLen;
-    %(VTYPE)s* const restrict vProfile  = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, n * segLen);
-    %(VTYPE)s* const restrict vProfileM = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, n * segLen);
-    %(VTYPE)s* const restrict vProfileS = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, n * segLen);
+    %(VTYPE)s* const restrict vProfile  = (%(VTYPE)s*)profile->profile;
+    %(VTYPE)s* const restrict vProfileM = (%(VTYPE)s*)profile->profile_m;
+    %(VTYPE)s* const restrict vProfileS = (%(VTYPE)s*)profile->profile_s;
     %(VTYPE)s* restrict pvHStore        = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
     %(VTYPE)s* restrict pvHLoad         = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
     %(VTYPE)s* restrict pvHMStore       = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
@@ -107,31 +122,6 @@ parasail_result_t* FNAME(
     parasail_memset_%(VTYPE)s(pvHMStore, vZero, segLen);
     parasail_memset_%(VTYPE)s(pvHSStore, vZero, segLen);
     parasail_memset_%(VTYPE)s(pvHLStore, vZero, segLen);
-
-    /* Generate query profile.
-     * Rearrange query sequence & calculate the weight of match/mismatch.
-     * Don't alias. */
-    {
-        %(INDEX)s index = 0;
-        for (k=0; k<n; ++k) {
-            for (i=0; i<segLen; ++i) {
-                %(VTYPE)s_%(WIDTH)s_t p;
-                %(VTYPE)s_%(WIDTH)s_t m;
-                %(VTYPE)s_%(WIDTH)s_t s;
-                j = i;
-                for (segNum=0; segNum<segWidth; ++segNum) {
-                    p.v[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
-                    m.v[segNum] = j >= s1Len ? 0 : (k == matrix->mapper[(unsigned char)s1[j]]);
-                    s.v[segNum] = p.v[segNum] > 0;
-                    j += segLen;
-                }
-                %(VSTORE)s(&vProfile[index], p.m);
-                %(VSTORE)s(&vProfileM[index], m.m);
-                %(VSTORE)s(&vProfileS[index], s.m);
-                ++index;
-            }
-        }
-    }
 
     /* initialize H and E */
     {
@@ -438,9 +428,6 @@ end:
     parasail_free(pvHMStore);
     parasail_free(pvHLoad);
     parasail_free(pvHStore);
-    parasail_free(vProfileS);
-    parasail_free(vProfileM);
-    parasail_free(vProfile);
 
     return result;
 }

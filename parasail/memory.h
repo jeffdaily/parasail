@@ -38,6 +38,9 @@ extern PARASAIL_LOCAL parasail_result_t* parasail_result_new_table3(const int a,
 extern PARASAIL_LOCAL parasail_result_t* parasail_result_new_rowcol1(const int a, const int b);
 extern PARASAIL_LOCAL parasail_result_t* parasail_result_new_rowcol3(const int a, const int b);
 
+extern PARASAIL_LOCAL parasail_profile_t* parasail_profile_new(
+        const char * s1, const int s1Len, const parasail_matrix_t *matrix);
+
 #ifdef __cplusplus
 }
 #endif

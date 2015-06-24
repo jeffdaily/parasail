@@ -272,6 +272,8 @@ cdef class Matrix:
             size = self.size
             array = to_ndarray(self, self._c_object.matrix, size*size)
             return array.reshape((size, size))
+    def __str__(self):
+        return str(self.matrix)
 
 def matrix_create(const char* alphabet, int match, int mismatch):
     cdef parasail_matrix_t* matrix = parasail_matrix_create(
@@ -295,36 +297,26 @@ for name in names:
 print """
 cdef class Profile:
     cdef parasail_profile_t *_c_object
+    cdef Matrix matrix
+    def __init__(self, const_char * s1, Matrix matrix not None, int bits):
+        if bits not in [8,16,32,64]:
+            raise ValueError("bits must be one of [8,16,32,64]")
+        self.create(s1, matrix, bits)
     def __dealloc__(self):
         if self._c_object is not NULL:
             parasail_profile_free(self._c_object)
-    @staticmethod
-    cdef create(const_char s1, Matrix matrix not None, int bits):
+    cdef create(self, const_char * s1, Matrix matrix, int bits):
         cdef size_t t1 = len(s1)
         cdef int l1 = <int>t1
-        p = Profile()
         if 8 == bits:
-            p._c_object = parasail_profile_create_8(s1, l1, matrix._c_object)
+            self._c_object = parasail_profile_create_8(s1, l1, matrix._c_object)
         elif 16 == bits:
-            p._c_object = parasail_profile_create_16(s1, l1, matrix._c_object)
+            self._c_object = parasail_profile_create_16(s1, l1, matrix._c_object)
         elif 32 == bits:
-            p._c_object = parasail_profile_create_32(s1, l1, matrix._c_object)
+            self._c_object = parasail_profile_create_32(s1, l1, matrix._c_object)
         elif 64 == bits:
-            p._c_object = parasail_profile_create_64(s1, l1, matrix._c_object)
-        p.matrix = matrix
-        return p
-    @staticmethod
-    def create_8(const_char s1, Matrix matrix not None):
-        return Profile.create(s1, matrix, 8)
-    @staticmethod
-    def create_16(const_char s1, Matrix matrix not None):
-        return Profile.create(s1, matrix, 16)
-    @staticmethod
-    def create_32(const_char s1, Matrix matrix not None):
-        return Profile.create(s1, matrix, 32)
-    @staticmethod
-    def create_64(const_char s1, Matrix matrix not None):
-        return Profile.create(s1, matrix, 64)
+            self._c_object = parasail_profile_create_64(s1, l1, matrix._c_object)
+        self.matrix = matrix
     property s1:
         def __get__(self): return self._c_object.s1
     property matrix:

@@ -91,3 +91,21 @@ print result.length
 print parasail.blosum62.name
 print parasail.blosum62.size
 print parasail.blosum62.matrix
+
+#profile = parasail.Profile.create_8("asdf", parasail.blosum62)
+#print profile
+#print profile.s1
+#print profile.matrix
+
+profile = parasail.Profile("asdf", parasail.blosum62, 8)
+profile = parasail.Profile("asdf", parasail.blosum62, 8)
+print profile
+print profile.s1
+print profile.matrix
+
+result = parasail.sw_striped_profile_8(profile,"asdf",10,1)
+print result
+print result.saturated
+print result.score
+
+profile = parasail.Profile("asdf", parasail.blosum62, 1234)

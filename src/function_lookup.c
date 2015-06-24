@@ -77,6 +77,19 @@ parasail_pfunction_t * parasail_lookup_pfunction(const char *funcname)
     return NULL;
 }
 
+parasail_pcreator_t * parasail_lookup_pcreator(const char *funcname)
+{
+    const parasail_pfunction_info_t * info = NULL;
+
+    info = parasail_lookup_pfunction_info(funcname);
+
+    if (info && info->creator) {
+        return info->creator;
+    }
+
+    return NULL;
+}
+
 const parasail_pfunction_info_t * parasail_lookup_pfunction_info(const char *funcname)
 {
     const parasail_pfunction_info_t * f = NULL;

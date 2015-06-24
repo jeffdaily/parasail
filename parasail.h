@@ -127,8 +127,13 @@ typedef parasail_result_t* parasail_pfunction_t(
         const char * const restrict s2, const int s2Len,
         const int open, const int gap);
 
+typedef parasail_profile_t* parasail_pcreator_t(
+        const char * const restrict s1, const int s1Len,
+        const parasail_matrix_t *matrix);
+
 typedef struct parasail_pfunction_info {
     parasail_pfunction_t * pointer;
+    parasail_pcreator_t * creator;
     const char * name;
     const char * alg;
     const char * type;
@@ -157,6 +162,10 @@ parasail_function_t * parasail_lookup_function(const char *funcname);
 /** Lookup pfunction by name. */
 extern PARASAIL_API
 parasail_pfunction_t * parasail_lookup_pfunction(const char *funcname);
+
+/** Lookup pcreator by name. */
+extern PARASAIL_API
+parasail_pcreator_t * parasail_lookup_pcreator(const char *funcname);
 
 /** Lookup function info by name. */
 extern PARASAIL_API

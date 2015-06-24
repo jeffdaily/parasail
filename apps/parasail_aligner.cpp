@@ -546,8 +546,7 @@ int main(int argc, char **argv) {
         vector<int> profile_indices(
                 profile_indices_set.begin(),
                 profile_indices_set.end());
-        int n_profiles = (qname == NULL) ? sid : sid - sid_crossover;
-        profiles.assign(n_profiles, NULL);
+        profiles.assign(sid, NULL);
         finish = parasail_time();
         fprintf(stdout, "%20s: %.4f seconds\n", "profile init", finish-start);
         start = parasail_time();

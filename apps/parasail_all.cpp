@@ -130,9 +130,7 @@ int main(int argc, char **argv) {
     const char *fname = NULL;
     const char *oname = "edges.csv";
     unsigned char *T = NULL;
-#ifdef _OPENMP
     int num_threads = -1;
-#endif
     int *SA = NULL;
     int *LCP = NULL;
     unsigned char *BWT = NULL;

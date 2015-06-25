@@ -86,11 +86,6 @@ inline static void process(
         const char &sentinal,
         const int &cutoff);
 
-inline static int self_score(
-        const char * const restrict seq,
-        int len,
-        const parasail_matrix_t *matrix);
-
 inline static void read_and_pack_file(
         const char *fname, 
         unsigned char * &T,
@@ -131,9 +126,7 @@ int main(int argc, char **argv) {
     const char *oname = "parasail.csv";
     unsigned char *T = NULL;
     unsigned char *Q = NULL;
-#ifdef _OPENMP
     int num_threads = -1;
-#endif
     int *SA = NULL;
     int *LCP = NULL;
     unsigned char *BWT = NULL;
@@ -776,19 +769,6 @@ inline static void process(
             }
         }
     }
-}
-
-inline static int self_score(
-        const char * const restrict seq,
-        int len,
-        const parasail_matrix_t *matrix)
-{
-    int score = 0;
-    for (int i=0; i<len; ++i) {
-        unsigned char mapped = matrix->mapper[(unsigned char)seq[i]];
-        score += matrix->matrix[matrix->size*mapped+mapped];
-    }
-    return score;
 }
 
 inline static void read_and_pack_file(

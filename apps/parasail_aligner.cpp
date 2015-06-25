@@ -834,6 +834,7 @@ inline static void read_and_pack_file(
         char first = 1;
         long w = 0;
         long save = 0;
+        long newlines = 0;
         for (i=0; i<n; ++i) { 
             if (T[i] == '>') {
                 if (first) {
@@ -843,18 +844,41 @@ inline static void read_and_pack_file(
                     T[w++] = '$';
                 }
                 /* skip rest of this line */
-                while (T[i] != '\n') {
+                while (T[i] != '\n' && T[i] != '\r') {
+                    ++i;
+                }
+                newlines++;
+                /* for the case of "\r\n" */
+                if (T[i] == '\n') {
                     ++i;
                 }
             }
             else if (isalpha(T[i])) {
                 T[w++] = T[i];
             }
-            else if (T[i] == '\n') {
+            else if (T[i] == '\n' || T[i] == '\r') {
                 /* ignore newline */
+                newlines++;
+                /* for the case of "\r\n" */
+                if (T[i] == '\r') {
+                    ++i;
+                    if (i >= n || T[i] != '\n') {
+                        fprintf(stderr, "error: \\r without \\n "
+                                "line %ld in input\n", newlines);
+                        exit(EXIT_FAILURE);
+                    }
+                }
+            }
+            else if (isprint(T[i])) {
+                fprintf(stderr, "error: non-alpha character "
+                        "at pos %ld line %ld in input ('%c')\n",
+                        i, newlines, T[i]);
+                exit(EXIT_FAILURE);
             }
             else {
-                fprintf(stderr, "uh oh at T[%ld]='%c'\n", i, T[i]);
+                fprintf(stderr, "error: non-printing character "
+                        "at pos %ld line %ld in input ('%d')\n",
+                        i, newlines, T[i]);
                 exit(EXIT_FAILURE);
             }
         }

@@ -135,7 +135,7 @@ int main(int argc, char **argv) {
     unsigned char *T = NULL;
     unsigned char *Q = NULL;
 #ifdef _OPENMP
-    int num_threads = 1;
+    int num_threads = -1;
 #endif
     int *SA = NULL;
     int *LCP = NULL;
@@ -171,7 +171,7 @@ int main(int argc, char **argv) {
     int OS = 30;
 
     /* Check arguments. */
-    while ((c = getopt(argc, argv, "a:c:e:f:g:hi:l:m:o:q:s:")) != -1) {
+    while ((c = getopt(argc, argv, "a:c:e:f:g:hi:l:m:o:q:s:t:")) != -1) {
         switch (c) {
             case 'a':
                 funcname = optarg;
@@ -226,6 +226,9 @@ int main(int argc, char **argv) {
                 if (OS < 0 || OS > 100) {
                     print_help(progname, EXIT_FAILURE);
                 }
+                break;
+            case 't':
+                num_threads = atoi(optarg);
                 break;
             case '?':
                 if (optopt == 'a'
@@ -502,7 +505,16 @@ int main(int argc, char **argv) {
     free(SID);
 
 #ifdef _OPENMP
-    num_threads = omp_get_max_threads();
+    if (-1 == num_threads) {
+        num_threads = omp_get_max_threads();
+    }
+    else if (num_threads >= 1) {
+        omp_set_num_threads(num_threads);
+    }
+    else {
+        fprintf(stderr, "invalid number of threads chosen (%d)\n", num_threads);
+        exit(EXIT_FAILURE);
+    }
     fprintf(stdout, "%20s: %d\n", "omp num threads", num_threads);
 #endif
 

@@ -120,7 +120,7 @@ alg = ["nw", "sg", "sw"]
 stats = ["", "_stats"]
 table = ["", "_table", "_rowcol"]
 par = ["_scan_profile", "_striped_profile"]
-width = ["_64", "_32", "_16", "_8"]
+width = ["_64", "_32", "_16", "_8", "_sat"]
 for a in alg:
     for s in stats:
         for t in table:
@@ -139,7 +139,7 @@ isa = [
     "_sse_128_64", "_sse_128_32", "_sse_128_16", "_sse_128_8",
     "_avx_256_64", "_avx_256_32", "_avx_256_16", "_avx_256_8",
     "_knc_512_32",
-    "_64", "_32", "_16", "_8"
+    "_64", "_32", "_16", "_8", "_8_16"
     ]
 for s in stats:
     for i in isa:

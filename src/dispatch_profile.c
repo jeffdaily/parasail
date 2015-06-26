@@ -343,6 +343,19 @@ parasail_profile_t* parasail_profile_create_8(
     return parasail_profile_create_8_pointer(s1, s1Len, matrix);
 }
 
+parasail_profile_t* parasail_profile_create_8_16(
+        const char * const restrict s1, const int s1Len,
+        const parasail_matrix_t *matrix)
+{
+    parasail_profile_t *profile8 = parasail_profile_create_8(s1, s1Len, matrix);
+    parasail_profile_t *profile16 = parasail_profile_create_16(s1, s1Len, matrix);
+    profile8->profile2 = profile16->profile;
+    profile16->profile = NULL;
+    parasail_profile_free(profile16);
+
+    return profile8;
+}
+
 parasail_profile_t* parasail_profile_create_stats_64(
         const char * const restrict s1, const int s1Len,
         const parasail_matrix_t *matrix)
@@ -369,5 +382,22 @@ parasail_profile_t* parasail_profile_create_stats_8(
         const parasail_matrix_t *matrix)
 {
     return parasail_profile_create_stats_8_pointer(s1, s1Len, matrix);
+}
+
+parasail_profile_t* parasail_profile_create_stats_8_16(
+        const char * const restrict s1, const int s1Len,
+        const parasail_matrix_t *matrix)
+{
+    parasail_profile_t *profile8 = parasail_profile_create_stats_8(s1, s1Len, matrix);
+    parasail_profile_t *profile16 = parasail_profile_create_stats_16(s1, s1Len, matrix);
+    profile8->profile2 = profile16->profile;
+    profile16->profile = NULL;
+    profile8->profile2_m = profile16->profile_m;
+    profile16->profile_m = NULL;
+    profile8->profile2_s = profile16->profile_s;
+    profile16->profile_s = NULL;
+    parasail_profile_free(profile16);
+
+    return profile8;
 }
 

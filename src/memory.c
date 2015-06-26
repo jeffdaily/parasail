@@ -346,6 +346,9 @@ parasail_profile_t* parasail_profile_new(
     profile->profile = NULL;
     profile->profile_m = NULL;
     profile->profile_s = NULL;
+    profile->profile2 = NULL;
+    profile->profile2_m = NULL;
+    profile->profile2_s = NULL;
     profile->free = NULL;
 
     return profile;
@@ -356,6 +359,9 @@ void parasail_profile_free(parasail_profile_t *profile)
     profile->free(profile->profile);
     if (NULL != profile->profile_m) profile->free(profile->profile_m);
     if (NULL != profile->profile_s) profile->free(profile->profile_s);
+    if (NULL != profile->profile2) profile->free(profile->profile2);
+    if (NULL != profile->profile2_m) profile->free(profile->profile2_m);
+    if (NULL != profile->profile2_s) profile->free(profile->profile2_s);
     free(profile);
 }
 

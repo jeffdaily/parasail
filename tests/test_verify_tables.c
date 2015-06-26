@@ -448,6 +448,17 @@ int main(int argc, char **argv)
     }
 #endif
 
+    if (test_scores) {
+        check_functions(parasail_nw_table_disp, sequences, sizes, limit, matrixname, matrix, gap);
+        check_functions(parasail_sg_table_disp, sequences, sizes, limit, matrixname, matrix, gap);
+        check_functions(parasail_sw_table_disp, sequences, sizes, limit, matrixname, matrix, gap);
+    }
+    if (test_stats) {
+        check_functions(parasail_nw_stats_table_disp, sequences, sizes, limit, matrixname, matrix, gap);
+        check_functions(parasail_sg_stats_table_disp, sequences, sizes, limit, matrixname, matrix, gap);
+        check_functions(parasail_sw_stats_table_disp, sequences, sizes, limit, matrixname, matrix, gap);
+    }
+
     for (i=0; i<seq_count; ++i) {
         free(sequences[i]);
     }

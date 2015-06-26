@@ -85,6 +85,24 @@ for table in ["_table"]:
                 print "};"
                 print 'static parasail_function_group_t %s_%s = {"%s_%s", %s_%s_functions};' % ((pre, isa)*3)
                 print "#endif"
+            # non-isa-specific functions
+            isa = "disp"
+            print "static parasail_function_info_t %s_%s_functions[] = {" % (pre, isa)
+            print_fmt(pre,         pre,         alg+stats, "orig", "NA", "32", "32", 1, is_table, is_stats, 1)
+            print_fmt(pre+"_scan", pre+"_scan", alg+stats, "scan", "NA", "32", "32", 1, is_table, is_stats, 0)
+            # also print the dispatcher function
+            for par in ["scan", "striped", "diag"]:
+                for width in [64, 32, 16, 8]:
+                    name = "%s_%s_%s" % (pre, par, width)
+                    print_fmt(name, name, alg+stats, par, "disp", "NA", width, -
+1, is_table, is_stats, 0)
+            # also print the saturation check function
+            for par in ["scan", "striped", "diag"]:
+                name = "%s_%s_sat" % (pre, par)
+                print_fmt(name, name, alg+stats, par, "sat", "NA", 8, -1, is_table, is_stats, 0)
+            print "};"
+            print 'static parasail_function_group_t %s_%s = {"%s_%s", %s_%s_functions};' % ((pre, isa)*3)
+
 
 print """
 #endif /* _PARASAIL_FUNCTION_GROUP_TABLE_H_ */

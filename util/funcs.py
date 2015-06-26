@@ -138,7 +138,7 @@ for table in ["", "_table", "_rowcol"]:
                 for par in ["scan_profile", "striped_profile"]:
                     for width in [64, 32, 16, 8]:
                         name = "%s_%s_%s_%s_%s" % (pre, par, isa, bits, width)
-                        creator = "parasail_profile_create_%s_%s_%s" % (isa[:3], bits, width)
+                        creator = "parasail_profile_create%s_%s_%s_%s" % (stats, isa[:3], bits, width)
                         print_pfmt(name, creator, name, alg+stats, par, isa, bits, width, bits/width, is_table, is_rowcol, is_stats, 0)
                 print "#endif"
             for isa in ["knc"]:
@@ -147,15 +147,20 @@ for table in ["", "_table", "_rowcol"]:
                 for par in ["scan_profile", "striped_profile"]:
                     for width in [32]:
                         name = "%s_%s_%s_%s_%s" % (pre, par, isa, bits, width)
-                        creator = "parasail_profile_create_%s_%s_%s" % (isa, bits, width)
+                        creator = "parasail_profile_create%s_%s_%s_%s" % (stats, isa, bits, width)
                         print_pfmt(name, creator, name, alg+stats, par, isa, bits, width, bits/width, is_table, is_rowcol, is_stats, 0)
                 print "#endif"
             # also print the dispatcher function
             for par in ["scan_profile", "striped_profile"]:
                 for width in [64, 32, 16, 8]:
                     name = "%s_%s_%s" % (pre, par, width)
-                    creator = "parasail_profile_create_%s" % width
+                    creator = "parasail_profile_create%s_%s" % (stats, width)
                     print_pfmt(name, creator, name, alg+stats, par, "disp", "NA", width, -1, is_table, is_rowcol, is_stats, 0)
+            # also print the saturation check dispatcher function
+            for par in ["scan_profile", "striped_profile"]:
+                name = "%s_%s_sat" % (pre, par)
+                creator = "parasail_profile_create%s_8_16" % stats
+                print_pfmt(name, creator, name, alg+stats, par, "disp", "NA", width, -1, is_table, is_rowcol, is_stats, 0)
 
 print_pnull()
 print "};"

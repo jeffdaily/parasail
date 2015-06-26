@@ -9,6 +9,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "parasail.h"
 
@@ -386,6 +387,258 @@ parasail_result_t* parasail_sw_stats_rowcol_diag_sat(
     if (result->saturated) {
         parasail_result_free(result);
         result = parasail_sw_stats_rowcol_diag_32(s1, s1Len, s2, s2Len, open, gap, matrix);
+    }
+
+    return result;
+}
+
+parasail_result_t* parasail_sw_scan_profile_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sw_scan_profile_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
+        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
+        copy->profile = copy->profile2;
+        result = parasail_sw_scan_profile_16(copy, s2, s2Len, open, gap);
+        free(copy);
+    }
+
+    return result;
+}
+
+parasail_result_t* parasail_sw_striped_profile_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sw_striped_profile_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
+        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
+        copy->profile = copy->profile2;
+        result = parasail_sw_striped_profile_16(copy, s2, s2Len, open, gap);
+        free(copy);
+    }
+
+    return result;
+}
+
+parasail_result_t* parasail_sw_table_scan_profile_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sw_table_scan_profile_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
+        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
+        copy->profile = copy->profile2;
+        result = parasail_sw_table_scan_profile_16(copy, s2, s2Len, open, gap);
+        free(copy);
+    }
+
+    return result;
+}
+
+parasail_result_t* parasail_sw_table_striped_profile_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sw_table_striped_profile_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
+        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
+        copy->profile = copy->profile2;
+        result = parasail_sw_table_striped_profile_16(copy, s2, s2Len, open, gap);
+        free(copy);
+    }
+
+    return result;
+}
+
+parasail_result_t* parasail_sw_rowcol_scan_profile_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sw_rowcol_scan_profile_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
+        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
+        copy->profile = copy->profile2;
+        result = parasail_sw_rowcol_scan_profile_16(copy, s2, s2Len, open, gap);
+        free(copy);
+    }
+
+    return result;
+}
+
+parasail_result_t* parasail_sw_rowcol_striped_profile_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sw_rowcol_striped_profile_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
+        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
+        copy->profile = copy->profile2;
+        result = parasail_sw_rowcol_striped_profile_16(copy, s2, s2Len, open, gap);
+        free(copy);
+    }
+
+    return result;
+}
+
+parasail_result_t* parasail_sw_stats_scan_profile_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sw_stats_scan_profile_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
+        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
+        copy->profile = copy->profile2;
+        copy->profile_m = copy->profile2_m;
+        copy->profile_s = copy->profile2_s;
+        result = parasail_sw_stats_scan_profile_16(copy, s2, s2Len, open, gap);
+        free(copy);
+    }
+
+    return result;
+}
+
+parasail_result_t* parasail_sw_stats_striped_profile_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sw_stats_striped_profile_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
+        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
+        copy->profile = copy->profile2;
+        copy->profile_m = copy->profile2_m;
+        copy->profile_s = copy->profile2_s;
+        result = parasail_sw_stats_striped_profile_16(copy, s2, s2Len, open, gap);
+        free(copy);
+    }
+
+    return result;
+}
+
+parasail_result_t* parasail_sw_stats_table_scan_profile_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sw_stats_table_scan_profile_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
+        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
+        copy->profile = copy->profile2;
+        copy->profile_m = copy->profile2_m;
+        copy->profile_s = copy->profile2_s;
+        result = parasail_sw_stats_table_scan_profile_16(copy, s2, s2Len, open, gap);
+        free(copy);
+    }
+
+    return result;
+}
+
+parasail_result_t* parasail_sw_stats_table_striped_profile_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sw_stats_table_striped_profile_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
+        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
+        copy->profile = copy->profile2;
+        copy->profile_m = copy->profile2_m;
+        copy->profile_s = copy->profile2_s;
+        result = parasail_sw_stats_table_striped_profile_16(copy, s2, s2Len, open, gap);
+        free(copy);
+    }
+
+    return result;
+}
+
+parasail_result_t* parasail_sw_stats_rowcol_scan_profile_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sw_stats_rowcol_scan_profile_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
+        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
+        copy->profile = copy->profile2;
+        copy->profile_m = copy->profile2_m;
+        copy->profile_s = copy->profile2_s;
+        result = parasail_sw_stats_rowcol_scan_profile_16(copy, s2, s2Len, open, gap);
+        free(copy);
+    }
+
+    return result;
+}
+
+parasail_result_t* parasail_sw_stats_rowcol_striped_profile_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sw_stats_rowcol_striped_profile_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
+        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
+        copy->profile = copy->profile2;
+        copy->profile_m = copy->profile2_m;
+        copy->profile_s = copy->profile2_s;
+        result = parasail_sw_stats_rowcol_striped_profile_16(copy, s2, s2Len, open, gap);
+        free(copy);
     }
 
     return result;

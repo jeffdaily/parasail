@@ -131,8 +131,8 @@ AC_CACHE_CHECK([for SSE4.1],
 int foo() {
     __m128i vOne = _mm_set1_epi8(1);
     __m128i result =  _mm_max_epi8(vOne,vOne);
-    __m128i result2 =  _mm_insert_epi64(vOne,0,0);
-    return _mm_extract_epi8(result, 0);
+    __m128i result2 =  _mm_insert_epi64(result,0,0);
+    return _mm_extract_epi8(result2, 0);
 }
 int main(void) { return foo(); }
 ]])],

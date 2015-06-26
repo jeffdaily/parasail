@@ -37,7 +37,7 @@ Following tables show how much time took for different sequences to be
 aligned against UniProtKB/Swiss-Prot database. All times are in seconds. The times are an average of three runs.
 
 The following tests were performed on a MacBook Pro i5 CPU @ 2.53GHz with 8GB
-RAM (SSE41 support). The compiler was Apple LLVM version 6.0 (clang-600.0.57.
+RAM (SSE4.1 support). The compiler was Apple LLVM version 6.0 (clang-600.0.57.
 
 |                               |O74807  |P19930  |Q3ZAI3  |P18080|
 |-------------------------------|--------|--------|--------|------|
@@ -52,13 +52,13 @@ RAM (SSE41 support). The compiler was Apple LLVM version 6.0 (clang-600.0.57.
 
 \* The parasail SSE2 8-bit implementation is slower than the SSE2 16-bit
 version due to a number of missing SSE2 instructions for 8-bit integer
-elements which were later added in SSE41.
+elements which were later added in SSE4.1.
 
 ![](images/perf_mac.png)
 
 The following tests were performed on an Intel Haswell E5-2670 v3 CPU running
 at 2.3 Ghz with 64 GB 2133 Mhz DDR4 memory. The compiler used was Intel ICC
-15.0.1 us- ing level three optimization (-O3).
+15.0.1 using level three optimization (-O3).
 
 |                               |O74807  |P19930  |Q3ZAI3  |P18080|
 |-------------------------------|--------|--------|--------|------|

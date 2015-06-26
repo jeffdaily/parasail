@@ -47,8 +47,8 @@ How aligners were called:
   * AVX2, 16-bit: -a sw_striped_profile_avx2_256_16
   * AVX2, 8-bit: -a sw_striped_profile_avx2_256_8
 
-Following tables show how much time took for different sequences to be
-aligned against UniProtKB/Swiss-Prot database. All times are in seconds. The times are an average of three runs.
+The following tables show how much time it took for different sequences to be
+aligned against the UniProtKB/Swiss-Prot database. All times are in seconds. The times are an average of three runs.
 
 The following tests were performed on a MacBook Pro i5 CPU @ 2.53GHz with 8GB
 RAM (SSE4.1 support). The compiler was Apple LLVM version 6.0 (clang-600.0.57.
@@ -57,7 +57,7 @@ RAM (SSE4.1 support). The compiler was Apple LLVM version 6.0 (clang-600.0.57.
 |-------------------------------|--------|--------|--------|------|
 | **query length**              |110     |195     |390     |513   |
 | **SSW(SSE2)**                 |14.9    |22.7    |44.4    |54.4  |
-| **ssearch36 (SSE2)            |12.9    |20.4    |29.6    |38.1  |
+| **ssearch36 (SSE2)**          |12.9    |20.4    |29.6    |38.1  |
 | **OpAl(SSE4.1)**              |15.2    |21.5    |35.9    |44.6  |
 | **SWIPE(SSSE3)**              |7.68    |13.3    |24.7    |32.0  |
 | **_parasail(SSE2) 16-bit_**   |10.6    |15.4    |24.3    |31.7  |

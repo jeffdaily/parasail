@@ -37,7 +37,8 @@ Following table shows how much time took for different sequences to be
 aligned against UniProtKB/Swiss-Prot database.
 
 All times are in seconds. Test were performed on a MacBook Pro i5 CPU @ 2.53GHz
-with 8GB RAM (SSE41 support). The times are an average of three runs.
+with 8GB RAM (SSE41 support). The compiler was Apple LLVM version 6.0
+(clang-600.0.57. The times are an average of three runs.
 
 |                               |O74807  |P19930  |Q3ZAI3  |P18080|
 |-------------------------------|--------|--------|--------|------|

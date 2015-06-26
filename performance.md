@@ -54,6 +54,8 @@ RAM (SSE41 support). The compiler was Apple LLVM version 6.0 (clang-600.0.57.
 version due to a number of missing SSE2 instructions for 8-bit integer
 elements which were later added in SSE41.
 
+![](images/perf_mac.png)
+
 The following tests were performed on an Intel Haswell E5-2670 v3 CPU running
 at 2.3 Ghz with 64 GB 2133 Mhz DDR4 memory. The compiler used was Intel ICC
 15.0.1 us- ing level three optimization (-O3).
@@ -66,4 +68,6 @@ at 2.3 Ghz with 64 GB 2133 Mhz DDR4 memory. The compiler used was Intel ICC
 | **SWIPE(SSSE3)**              |9.3     |16.4    |30.8    | 39.9 |
 | **_parasail(AVX2) 16-bit_**   |9.5     |12.2    |17.6    | 21.6 |
 | **_parasail(AVX2) 8-bit_**    |10.1    |11.8    |13.5    | 14.7 |
+
+![](images/perf_haswell.png)
 

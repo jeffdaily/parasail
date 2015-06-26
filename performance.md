@@ -43,10 +43,16 @@ RAM (SSE41 support). The compiler was Apple LLVM version 6.0 (clang-600.0.57.
 |-------------------------------|--------|--------|--------|------|
 | **query length**              |110     |195     |390     |513   |
 | **SSW(SSE2)**                 |14.9    |22.7    |44.4    |54.4  |
+| **_parasail(SSE2) 16-bit_**   |10.6    |15.4    |24.3    |31.7  |
+| **_parasail(SSE2) 8-bit\*_**  |16.7    |24.8    |39.4    |47.8  |
 | **OpAl(SSE4.1)**              |15.2    |21.5    |35.9    |44.6  |
 | **SWIPE(SSSE3)**              |7.68    |13.3    |24.7    |32.0  |
 | **_parasail(SSE4.1) 16-bit_** |10.7    |15.2    |24.8    |30.5  |
 | **_parasail(SSE4.1) 8-bit_**  |9.9     |13.7    |20.0    |23.7  |
+
+\* The parasail SSE2 8-bit implementation is slower than the SSE2 16-bit
+version due to a number of missing SSE2 instructions for 8-bit integer
+elements which were later added in SSE41.
 
 The following tests were performed on an Intel Haswell E5-2670 v3 CPU running
 at 2.3 Ghz with 64 GB 2133 Mhz DDR4 memory. The compiler used was Intel ICC

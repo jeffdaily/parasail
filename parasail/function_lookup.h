@@ -72,6 +72,9 @@ static const parasail_function_info_t functions[] = {
 {parasail_nw_diag_32,                 "parasail_nw_diag_32",                 "nw",    "diag", "disp",   "NA", "32", -1, 0, 0, 0, 0},
 {parasail_nw_diag_16,                 "parasail_nw_diag_16",                 "nw",    "diag", "disp",   "NA", "16", -1, 0, 0, 0, 0},
 {parasail_nw_diag_8,                  "parasail_nw_diag_8",                  "nw",    "diag", "disp",   "NA",  "8", -1, 0, 0, 0, 0},
+{parasail_nw_scan_sat,                "parasail_nw_scan_sat",                "nw",    "scan", "sat",    "NA",  "8", -1, 0, 0, 0, 0},
+{parasail_nw_striped_sat,             "parasail_nw_striped_sat",             "nw", "striped", "sat",    "NA",  "8", -1, 0, 0, 0, 0},
+{parasail_nw_diag_sat,                "parasail_nw_diag_sat",                "nw",    "diag", "sat",    "NA",  "8", -1, 0, 0, 0, 0},
 {parasail_sg,                         "parasail_sg",                         "sg",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 1},
 {parasail_sg_scan,                    "parasail_sg_scan",                    "sg",    "scan", "NA",     "32", "32",  1, 0, 0, 0, 0},
 #if HAVE_SSE2
@@ -133,6 +136,9 @@ static const parasail_function_info_t functions[] = {
 {parasail_sg_diag_32,                 "parasail_sg_diag_32",                 "sg",    "diag", "disp",   "NA", "32", -1, 0, 0, 0, 0},
 {parasail_sg_diag_16,                 "parasail_sg_diag_16",                 "sg",    "diag", "disp",   "NA", "16", -1, 0, 0, 0, 0},
 {parasail_sg_diag_8,                  "parasail_sg_diag_8",                  "sg",    "diag", "disp",   "NA",  "8", -1, 0, 0, 0, 0},
+{parasail_sg_scan_sat,                "parasail_sg_scan_sat",                "sg",    "scan", "sat",    "NA",  "8", -1, 0, 0, 0, 0},
+{parasail_sg_striped_sat,             "parasail_sg_striped_sat",             "sg", "striped", "sat",    "NA",  "8", -1, 0, 0, 0, 0},
+{parasail_sg_diag_sat,                "parasail_sg_diag_sat",                "sg",    "diag", "sat",    "NA",  "8", -1, 0, 0, 0, 0},
 {parasail_sw,                         "parasail_sw",                         "sw",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 1},
 {parasail_sw_scan,                    "parasail_sw_scan",                    "sw",    "scan", "NA",     "32", "32",  1, 0, 0, 0, 0},
 #if HAVE_SSE2
@@ -196,6 +202,9 @@ static const parasail_function_info_t functions[] = {
 {parasail_sw_diag_32,                 "parasail_sw_diag_32",                 "sw",    "diag", "disp",   "NA", "32", -1, 0, 0, 0, 0},
 {parasail_sw_diag_16,                 "parasail_sw_diag_16",                 "sw",    "diag", "disp",   "NA", "16", -1, 0, 0, 0, 0},
 {parasail_sw_diag_8,                  "parasail_sw_diag_8",                  "sw",    "diag", "disp",   "NA",  "8", -1, 0, 0, 0, 0},
+{parasail_sw_scan_sat,                "parasail_sw_scan_sat",                "sw",    "scan", "sat",    "NA",  "8", -1, 0, 0, 0, 0},
+{parasail_sw_striped_sat,             "parasail_sw_striped_sat",             "sw", "striped", "sat",    "NA",  "8", -1, 0, 0, 0, 0},
+{parasail_sw_diag_sat,                "parasail_sw_diag_sat",                "sw",    "diag", "sat",    "NA",  "8", -1, 0, 0, 0, 0},
 {parasail_nw_stats,                   "parasail_nw_stats",                   "nw_stats",    "orig", "NA",     "32", "32",  1, 0, 0, 1, 1},
 {parasail_nw_stats_scan,              "parasail_nw_stats_scan",              "nw_stats",    "scan", "NA",     "32", "32",  1, 0, 0, 1, 0},
 #if HAVE_SSE2
@@ -257,6 +266,9 @@ static const parasail_function_info_t functions[] = {
 {parasail_nw_stats_diag_32,           "parasail_nw_stats_diag_32",           "nw_stats",    "diag", "disp",   "NA", "32", -1, 0, 0, 1, 0},
 {parasail_nw_stats_diag_16,           "parasail_nw_stats_diag_16",           "nw_stats",    "diag", "disp",   "NA", "16", -1, 0, 0, 1, 0},
 {parasail_nw_stats_diag_8,            "parasail_nw_stats_diag_8",            "nw_stats",    "diag", "disp",   "NA",  "8", -1, 0, 0, 1, 0},
+{parasail_nw_stats_scan_sat,          "parasail_nw_stats_scan_sat",          "nw_stats",    "scan", "sat",    "NA",  "8", -1, 0, 0, 1, 0},
+{parasail_nw_stats_striped_sat,       "parasail_nw_stats_striped_sat",       "nw_stats", "striped", "sat",    "NA",  "8", -1, 0, 0, 1, 0},
+{parasail_nw_stats_diag_sat,          "parasail_nw_stats_diag_sat",          "nw_stats",    "diag", "sat",    "NA",  "8", -1, 0, 0, 1, 0},
 {parasail_sg_stats,                   "parasail_sg_stats",                   "sg_stats",    "orig", "NA",     "32", "32",  1, 0, 0, 1, 1},
 {parasail_sg_stats_scan,              "parasail_sg_stats_scan",              "sg_stats",    "scan", "NA",     "32", "32",  1, 0, 0, 1, 0},
 #if HAVE_SSE2
@@ -318,6 +330,9 @@ static const parasail_function_info_t functions[] = {
 {parasail_sg_stats_diag_32,           "parasail_sg_stats_diag_32",           "sg_stats",    "diag", "disp",   "NA", "32", -1, 0, 0, 1, 0},
 {parasail_sg_stats_diag_16,           "parasail_sg_stats_diag_16",           "sg_stats",    "diag", "disp",   "NA", "16", -1, 0, 0, 1, 0},
 {parasail_sg_stats_diag_8,            "parasail_sg_stats_diag_8",            "sg_stats",    "diag", "disp",   "NA",  "8", -1, 0, 0, 1, 0},
+{parasail_sg_stats_scan_sat,          "parasail_sg_stats_scan_sat",          "sg_stats",    "scan", "sat",    "NA",  "8", -1, 0, 0, 1, 0},
+{parasail_sg_stats_striped_sat,       "parasail_sg_stats_striped_sat",       "sg_stats", "striped", "sat",    "NA",  "8", -1, 0, 0, 1, 0},
+{parasail_sg_stats_diag_sat,          "parasail_sg_stats_diag_sat",          "sg_stats",    "diag", "sat",    "NA",  "8", -1, 0, 0, 1, 0},
 {parasail_sw_stats,                   "parasail_sw_stats",                   "sw_stats",    "orig", "NA",     "32", "32",  1, 0, 0, 1, 1},
 {parasail_sw_stats_scan,              "parasail_sw_stats_scan",              "sw_stats",    "scan", "NA",     "32", "32",  1, 0, 0, 1, 0},
 #if HAVE_SSE2
@@ -379,6 +394,9 @@ static const parasail_function_info_t functions[] = {
 {parasail_sw_stats_diag_32,           "parasail_sw_stats_diag_32",           "sw_stats",    "diag", "disp",   "NA", "32", -1, 0, 0, 1, 0},
 {parasail_sw_stats_diag_16,           "parasail_sw_stats_diag_16",           "sw_stats",    "diag", "disp",   "NA", "16", -1, 0, 0, 1, 0},
 {parasail_sw_stats_diag_8,            "parasail_sw_stats_diag_8",            "sw_stats",    "diag", "disp",   "NA",  "8", -1, 0, 0, 1, 0},
+{parasail_sw_stats_scan_sat,          "parasail_sw_stats_scan_sat",          "sw_stats",    "scan", "sat",    "NA",  "8", -1, 0, 0, 1, 0},
+{parasail_sw_stats_striped_sat,       "parasail_sw_stats_striped_sat",       "sw_stats", "striped", "sat",    "NA",  "8", -1, 0, 0, 1, 0},
+{parasail_sw_stats_diag_sat,          "parasail_sw_stats_diag_sat",          "sw_stats",    "diag", "sat",    "NA",  "8", -1, 0, 0, 1, 0},
 {parasail_nw_table,                   "parasail_nw_table",                   "nw",    "orig", "NA",     "32", "32",  1, 1, 0, 0, 1},
 {parasail_nw_table_scan,              "parasail_nw_table_scan",              "nw",    "scan", "NA",     "32", "32",  1, 1, 0, 0, 0},
 #if HAVE_SSE2
@@ -440,6 +458,9 @@ static const parasail_function_info_t functions[] = {
 {parasail_nw_table_diag_32,           "parasail_nw_table_diag_32",           "nw",    "diag", "disp",   "NA", "32", -1, 1, 0, 0, 0},
 {parasail_nw_table_diag_16,           "parasail_nw_table_diag_16",           "nw",    "diag", "disp",   "NA", "16", -1, 1, 0, 0, 0},
 {parasail_nw_table_diag_8,            "parasail_nw_table_diag_8",            "nw",    "diag", "disp",   "NA",  "8", -1, 1, 0, 0, 0},
+{parasail_nw_table_scan_sat,          "parasail_nw_table_scan_sat",          "nw",    "scan", "sat",    "NA",  "8", -1, 1, 0, 0, 0},
+{parasail_nw_table_striped_sat,       "parasail_nw_table_striped_sat",       "nw", "striped", "sat",    "NA",  "8", -1, 1, 0, 0, 0},
+{parasail_nw_table_diag_sat,          "parasail_nw_table_diag_sat",          "nw",    "diag", "sat",    "NA",  "8", -1, 1, 0, 0, 0},
 {parasail_sg_table,                   "parasail_sg_table",                   "sg",    "orig", "NA",     "32", "32",  1, 1, 0, 0, 1},
 {parasail_sg_table_scan,              "parasail_sg_table_scan",              "sg",    "scan", "NA",     "32", "32",  1, 1, 0, 0, 0},
 #if HAVE_SSE2
@@ -501,6 +522,9 @@ static const parasail_function_info_t functions[] = {
 {parasail_sg_table_diag_32,           "parasail_sg_table_diag_32",           "sg",    "diag", "disp",   "NA", "32", -1, 1, 0, 0, 0},
 {parasail_sg_table_diag_16,           "parasail_sg_table_diag_16",           "sg",    "diag", "disp",   "NA", "16", -1, 1, 0, 0, 0},
 {parasail_sg_table_diag_8,            "parasail_sg_table_diag_8",            "sg",    "diag", "disp",   "NA",  "8", -1, 1, 0, 0, 0},
+{parasail_sg_table_scan_sat,          "parasail_sg_table_scan_sat",          "sg",    "scan", "sat",    "NA",  "8", -1, 1, 0, 0, 0},
+{parasail_sg_table_striped_sat,       "parasail_sg_table_striped_sat",       "sg", "striped", "sat",    "NA",  "8", -1, 1, 0, 0, 0},
+{parasail_sg_table_diag_sat,          "parasail_sg_table_diag_sat",          "sg",    "diag", "sat",    "NA",  "8", -1, 1, 0, 0, 0},
 {parasail_sw_table,                   "parasail_sw_table",                   "sw",    "orig", "NA",     "32", "32",  1, 1, 0, 0, 1},
 {parasail_sw_table_scan,              "parasail_sw_table_scan",              "sw",    "scan", "NA",     "32", "32",  1, 1, 0, 0, 0},
 #if HAVE_SSE2
@@ -564,6 +588,9 @@ static const parasail_function_info_t functions[] = {
 {parasail_sw_table_diag_32,           "parasail_sw_table_diag_32",           "sw",    "diag", "disp",   "NA", "32", -1, 1, 0, 0, 0},
 {parasail_sw_table_diag_16,           "parasail_sw_table_diag_16",           "sw",    "diag", "disp",   "NA", "16", -1, 1, 0, 0, 0},
 {parasail_sw_table_diag_8,            "parasail_sw_table_diag_8",            "sw",    "diag", "disp",   "NA",  "8", -1, 1, 0, 0, 0},
+{parasail_sw_table_scan_sat,          "parasail_sw_table_scan_sat",          "sw",    "scan", "sat",    "NA",  "8", -1, 1, 0, 0, 0},
+{parasail_sw_table_striped_sat,       "parasail_sw_table_striped_sat",       "sw", "striped", "sat",    "NA",  "8", -1, 1, 0, 0, 0},
+{parasail_sw_table_diag_sat,          "parasail_sw_table_diag_sat",          "sw",    "diag", "sat",    "NA",  "8", -1, 1, 0, 0, 0},
 {parasail_nw_stats_table,             "parasail_nw_stats_table",             "nw_stats",    "orig", "NA",     "32", "32",  1, 1, 0, 1, 1},
 {parasail_nw_stats_table_scan,        "parasail_nw_stats_table_scan",        "nw_stats",    "scan", "NA",     "32", "32",  1, 1, 0, 1, 0},
 #if HAVE_SSE2
@@ -625,6 +652,9 @@ static const parasail_function_info_t functions[] = {
 {parasail_nw_stats_table_diag_32,     "parasail_nw_stats_table_diag_32",     "nw_stats",    "diag", "disp",   "NA", "32", -1, 1, 0, 1, 0},
 {parasail_nw_stats_table_diag_16,     "parasail_nw_stats_table_diag_16",     "nw_stats",    "diag", "disp",   "NA", "16", -1, 1, 0, 1, 0},
 {parasail_nw_stats_table_diag_8,      "parasail_nw_stats_table_diag_8",      "nw_stats",    "diag", "disp",   "NA",  "8", -1, 1, 0, 1, 0},
+{parasail_nw_stats_table_scan_sat,    "parasail_nw_stats_table_scan_sat",    "nw_stats",    "scan", "sat",    "NA",  "8", -1, 1, 0, 1, 0},
+{parasail_nw_stats_table_striped_sat, "parasail_nw_stats_table_striped_sat", "nw_stats", "striped", "sat",    "NA",  "8", -1, 1, 0, 1, 0},
+{parasail_nw_stats_table_diag_sat,    "parasail_nw_stats_table_diag_sat",    "nw_stats",    "diag", "sat",    "NA",  "8", -1, 1, 0, 1, 0},
 {parasail_sg_stats_table,             "parasail_sg_stats_table",             "sg_stats",    "orig", "NA",     "32", "32",  1, 1, 0, 1, 1},
 {parasail_sg_stats_table_scan,        "parasail_sg_stats_table_scan",        "sg_stats",    "scan", "NA",     "32", "32",  1, 1, 0, 1, 0},
 #if HAVE_SSE2
@@ -686,6 +716,9 @@ static const parasail_function_info_t functions[] = {
 {parasail_sg_stats_table_diag_32,     "parasail_sg_stats_table_diag_32",     "sg_stats",    "diag", "disp",   "NA", "32", -1, 1, 0, 1, 0},
 {parasail_sg_stats_table_diag_16,     "parasail_sg_stats_table_diag_16",     "sg_stats",    "diag", "disp",   "NA", "16", -1, 1, 0, 1, 0},
 {parasail_sg_stats_table_diag_8,      "parasail_sg_stats_table_diag_8",      "sg_stats",    "diag", "disp",   "NA",  "8", -1, 1, 0, 1, 0},
+{parasail_sg_stats_table_scan_sat,    "parasail_sg_stats_table_scan_sat",    "sg_stats",    "scan", "sat",    "NA",  "8", -1, 1, 0, 1, 0},
+{parasail_sg_stats_table_striped_sat, "parasail_sg_stats_table_striped_sat", "sg_stats", "striped", "sat",    "NA",  "8", -1, 1, 0, 1, 0},
+{parasail_sg_stats_table_diag_sat,    "parasail_sg_stats_table_diag_sat",    "sg_stats",    "diag", "sat",    "NA",  "8", -1, 1, 0, 1, 0},
 {parasail_sw_stats_table,             "parasail_sw_stats_table",             "sw_stats",    "orig", "NA",     "32", "32",  1, 1, 0, 1, 1},
 {parasail_sw_stats_table_scan,        "parasail_sw_stats_table_scan",        "sw_stats",    "scan", "NA",     "32", "32",  1, 1, 0, 1, 0},
 #if HAVE_SSE2
@@ -747,6 +780,9 @@ static const parasail_function_info_t functions[] = {
 {parasail_sw_stats_table_diag_32,     "parasail_sw_stats_table_diag_32",     "sw_stats",    "diag", "disp",   "NA", "32", -1, 1, 0, 1, 0},
 {parasail_sw_stats_table_diag_16,     "parasail_sw_stats_table_diag_16",     "sw_stats",    "diag", "disp",   "NA", "16", -1, 1, 0, 1, 0},
 {parasail_sw_stats_table_diag_8,      "parasail_sw_stats_table_diag_8",      "sw_stats",    "diag", "disp",   "NA",  "8", -1, 1, 0, 1, 0},
+{parasail_sw_stats_table_scan_sat,    "parasail_sw_stats_table_scan_sat",    "sw_stats",    "scan", "sat",    "NA",  "8", -1, 1, 0, 1, 0},
+{parasail_sw_stats_table_striped_sat, "parasail_sw_stats_table_striped_sat", "sw_stats", "striped", "sat",    "NA",  "8", -1, 1, 0, 1, 0},
+{parasail_sw_stats_table_diag_sat,    "parasail_sw_stats_table_diag_sat",    "sw_stats",    "diag", "sat",    "NA",  "8", -1, 1, 0, 1, 0},
 {parasail_nw_rowcol,                  "parasail_nw_rowcol",                  "nw",    "orig", "NA",     "32", "32",  1, 0, 1, 0, 1},
 {parasail_nw_rowcol_scan,             "parasail_nw_rowcol_scan",             "nw",    "scan", "NA",     "32", "32",  1, 0, 1, 0, 0},
 #if HAVE_SSE2
@@ -808,6 +844,9 @@ static const parasail_function_info_t functions[] = {
 {parasail_nw_rowcol_diag_32,          "parasail_nw_rowcol_diag_32",          "nw",    "diag", "disp",   "NA", "32", -1, 0, 1, 0, 0},
 {parasail_nw_rowcol_diag_16,          "parasail_nw_rowcol_diag_16",          "nw",    "diag", "disp",   "NA", "16", -1, 0, 1, 0, 0},
 {parasail_nw_rowcol_diag_8,           "parasail_nw_rowcol_diag_8",           "nw",    "diag", "disp",   "NA",  "8", -1, 0, 1, 0, 0},
+{parasail_nw_rowcol_scan_sat,         "parasail_nw_rowcol_scan_sat",         "nw",    "scan", "sat",    "NA",  "8", -1, 0, 1, 0, 0},
+{parasail_nw_rowcol_striped_sat,      "parasail_nw_rowcol_striped_sat",      "nw", "striped", "sat",    "NA",  "8", -1, 0, 1, 0, 0},
+{parasail_nw_rowcol_diag_sat,         "parasail_nw_rowcol_diag_sat",         "nw",    "diag", "sat",    "NA",  "8", -1, 0, 1, 0, 0},
 {parasail_sg_rowcol,                  "parasail_sg_rowcol",                  "sg",    "orig", "NA",     "32", "32",  1, 0, 1, 0, 1},
 {parasail_sg_rowcol_scan,             "parasail_sg_rowcol_scan",             "sg",    "scan", "NA",     "32", "32",  1, 0, 1, 0, 0},
 #if HAVE_SSE2
@@ -869,6 +908,9 @@ static const parasail_function_info_t functions[] = {
 {parasail_sg_rowcol_diag_32,          "parasail_sg_rowcol_diag_32",          "sg",    "diag", "disp",   "NA", "32", -1, 0, 1, 0, 0},
 {parasail_sg_rowcol_diag_16,          "parasail_sg_rowcol_diag_16",          "sg",    "diag", "disp",   "NA", "16", -1, 0, 1, 0, 0},
 {parasail_sg_rowcol_diag_8,           "parasail_sg_rowcol_diag_8",           "sg",    "diag", "disp",   "NA",  "8", -1, 0, 1, 0, 0},
+{parasail_sg_rowcol_scan_sat,         "parasail_sg_rowcol_scan_sat",         "sg",    "scan", "sat",    "NA",  "8", -1, 0, 1, 0, 0},
+{parasail_sg_rowcol_striped_sat,      "parasail_sg_rowcol_striped_sat",      "sg", "striped", "sat",    "NA",  "8", -1, 0, 1, 0, 0},
+{parasail_sg_rowcol_diag_sat,         "parasail_sg_rowcol_diag_sat",         "sg",    "diag", "sat",    "NA",  "8", -1, 0, 1, 0, 0},
 {parasail_sw_rowcol,                  "parasail_sw_rowcol",                  "sw",    "orig", "NA",     "32", "32",  1, 0, 1, 0, 1},
 {parasail_sw_rowcol_scan,             "parasail_sw_rowcol_scan",             "sw",    "scan", "NA",     "32", "32",  1, 0, 1, 0, 0},
 #if HAVE_SSE2
@@ -932,6 +974,9 @@ static const parasail_function_info_t functions[] = {
 {parasail_sw_rowcol_diag_32,          "parasail_sw_rowcol_diag_32",          "sw",    "diag", "disp",   "NA", "32", -1, 0, 1, 0, 0},
 {parasail_sw_rowcol_diag_16,          "parasail_sw_rowcol_diag_16",          "sw",    "diag", "disp",   "NA", "16", -1, 0, 1, 0, 0},
 {parasail_sw_rowcol_diag_8,           "parasail_sw_rowcol_diag_8",           "sw",    "diag", "disp",   "NA",  "8", -1, 0, 1, 0, 0},
+{parasail_sw_rowcol_scan_sat,         "parasail_sw_rowcol_scan_sat",         "sw",    "scan", "sat",    "NA",  "8", -1, 0, 1, 0, 0},
+{parasail_sw_rowcol_striped_sat,      "parasail_sw_rowcol_striped_sat",      "sw", "striped", "sat",    "NA",  "8", -1, 0, 1, 0, 0},
+{parasail_sw_rowcol_diag_sat,         "parasail_sw_rowcol_diag_sat",         "sw",    "diag", "sat",    "NA",  "8", -1, 0, 1, 0, 0},
 {parasail_nw_stats_rowcol,            "parasail_nw_stats_rowcol",            "nw_stats",    "orig", "NA",     "32", "32",  1, 0, 1, 1, 1},
 {parasail_nw_stats_rowcol_scan,       "parasail_nw_stats_rowcol_scan",       "nw_stats",    "scan", "NA",     "32", "32",  1, 0, 1, 1, 0},
 #if HAVE_SSE2
@@ -993,6 +1038,9 @@ static const parasail_function_info_t functions[] = {
 {parasail_nw_stats_rowcol_diag_32,    "parasail_nw_stats_rowcol_diag_32",    "nw_stats",    "diag", "disp",   "NA", "32", -1, 0, 1, 1, 0},
 {parasail_nw_stats_rowcol_diag_16,    "parasail_nw_stats_rowcol_diag_16",    "nw_stats",    "diag", "disp",   "NA", "16", -1, 0, 1, 1, 0},
 {parasail_nw_stats_rowcol_diag_8,     "parasail_nw_stats_rowcol_diag_8",     "nw_stats",    "diag", "disp",   "NA",  "8", -1, 0, 1, 1, 0},
+{parasail_nw_stats_rowcol_scan_sat,   "parasail_nw_stats_rowcol_scan_sat",   "nw_stats",    "scan", "sat",    "NA",  "8", -1, 0, 1, 1, 0},
+{parasail_nw_stats_rowcol_striped_sat, "parasail_nw_stats_rowcol_striped_sat", "nw_stats", "striped", "sat",    "NA",  "8", -1, 0, 1, 1, 0},
+{parasail_nw_stats_rowcol_diag_sat,   "parasail_nw_stats_rowcol_diag_sat",   "nw_stats",    "diag", "sat",    "NA",  "8", -1, 0, 1, 1, 0},
 {parasail_sg_stats_rowcol,            "parasail_sg_stats_rowcol",            "sg_stats",    "orig", "NA",     "32", "32",  1, 0, 1, 1, 1},
 {parasail_sg_stats_rowcol_scan,       "parasail_sg_stats_rowcol_scan",       "sg_stats",    "scan", "NA",     "32", "32",  1, 0, 1, 1, 0},
 #if HAVE_SSE2
@@ -1054,6 +1102,9 @@ static const parasail_function_info_t functions[] = {
 {parasail_sg_stats_rowcol_diag_32,    "parasail_sg_stats_rowcol_diag_32",    "sg_stats",    "diag", "disp",   "NA", "32", -1, 0, 1, 1, 0},
 {parasail_sg_stats_rowcol_diag_16,    "parasail_sg_stats_rowcol_diag_16",    "sg_stats",    "diag", "disp",   "NA", "16", -1, 0, 1, 1, 0},
 {parasail_sg_stats_rowcol_diag_8,     "parasail_sg_stats_rowcol_diag_8",     "sg_stats",    "diag", "disp",   "NA",  "8", -1, 0, 1, 1, 0},
+{parasail_sg_stats_rowcol_scan_sat,   "parasail_sg_stats_rowcol_scan_sat",   "sg_stats",    "scan", "sat",    "NA",  "8", -1, 0, 1, 1, 0},
+{parasail_sg_stats_rowcol_striped_sat, "parasail_sg_stats_rowcol_striped_sat", "sg_stats", "striped", "sat",    "NA",  "8", -1, 0, 1, 1, 0},
+{parasail_sg_stats_rowcol_diag_sat,   "parasail_sg_stats_rowcol_diag_sat",   "sg_stats",    "diag", "sat",    "NA",  "8", -1, 0, 1, 1, 0},
 {parasail_sw_stats_rowcol,            "parasail_sw_stats_rowcol",            "sw_stats",    "orig", "NA",     "32", "32",  1, 0, 1, 1, 1},
 {parasail_sw_stats_rowcol_scan,       "parasail_sw_stats_rowcol_scan",       "sw_stats",    "scan", "NA",     "32", "32",  1, 0, 1, 1, 0},
 #if HAVE_SSE2
@@ -1115,6 +1166,9 @@ static const parasail_function_info_t functions[] = {
 {parasail_sw_stats_rowcol_diag_32,    "parasail_sw_stats_rowcol_diag_32",    "sw_stats",    "diag", "disp",   "NA", "32", -1, 0, 1, 1, 0},
 {parasail_sw_stats_rowcol_diag_16,    "parasail_sw_stats_rowcol_diag_16",    "sw_stats",    "diag", "disp",   "NA", "16", -1, 0, 1, 1, 0},
 {parasail_sw_stats_rowcol_diag_8,     "parasail_sw_stats_rowcol_diag_8",     "sw_stats",    "diag", "disp",   "NA",  "8", -1, 0, 1, 1, 0},
+{parasail_sw_stats_rowcol_scan_sat,   "parasail_sw_stats_rowcol_scan_sat",   "sw_stats",    "scan", "sat",    "NA",  "8", -1, 0, 1, 1, 0},
+{parasail_sw_stats_rowcol_striped_sat, "parasail_sw_stats_rowcol_striped_sat", "sw_stats", "striped", "sat",    "NA",  "8", -1, 0, 1, 1, 0},
+{parasail_sw_stats_rowcol_diag_sat,   "parasail_sw_stats_rowcol_diag_sat",   "sw_stats",    "diag", "sat",    "NA",  "8", -1, 0, 1, 1, 0},
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0}
 };
 

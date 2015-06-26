@@ -108,6 +108,10 @@ for table in ["", "_table", "_rowcol"]:
                 for width in [64, 32, 16, 8]:
                     name = "%s_%s_%s" % (pre, par, width)
                     print_fmt(name, name, alg+stats, par, "disp", "NA", width, -1, is_table, is_rowcol, is_stats, 0)
+            # also print the saturation check function
+            for par in ["scan", "striped", "diag"]:
+                name = "%s_%s_sat" % (pre, par)
+                print_fmt(name, name, alg+stats, par, "sat", "NA", 8, -1, is_table, is_rowcol, is_stats, 0)
 
 print_null()
 print "};"

@@ -149,3 +149,20 @@ for s in stats:
         print " "*8+"const char * const restrict s1, const int s1Len,"
         print " "*8+"const parasail_matrix_t* matrix);"
 
+# saturation check implementations (3x2x3x3 = 54 impl)
+alg = ["nw", "sg", "sw"]
+stats = ["", "_stats"]
+table = ["", "_table", "_rowcol"]
+par = ["_scan", "_striped", "_diag"]
+for a in alg:
+    for s in stats:
+        for t in table:
+            for p in par:
+                print ""
+                print "extern PARASAIL_API"
+                print "parasail_result_t* parasail_"+a+s+t+p+'_sat('
+                print " "*8+"const char * const restrict s1, const int s1Len,"
+                print " "*8+"const char * const restrict s2, const int s2Len,"
+                print " "*8+"const int open, const int gap,"
+                print " "*8+"const parasail_matrix_t* matrix);"
+

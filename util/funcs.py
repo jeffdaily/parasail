@@ -85,9 +85,15 @@ for table in ["", "_table", "_rowcol"]:
                 print "#if HAVE_%s" % isa.upper()
                 bits = isa_to_bits[isa]
                 for par in ["scan", "striped", "diag"]:
-                    for width in [64, 32, 16, 8]:
+                    for width in [64, 32, 16, 8, "sat"]:
+                        elem = 0
+                        if "sat" == width:
+                            elem = bits/8
+                        else:
+                            elem = bits/width
                         name = "%s_%s_%s_%s_%s" % (pre, par, isa, bits, width)
-                        print_fmt(name, name, alg+stats, par, isa, bits, width, bits/width, is_table, is_rowcol, is_stats, 0)
+                        print_fmt(name, name, alg+stats, par, isa, bits,
+                                width, elem, is_table, is_rowcol, is_stats, 0)
                 # blocked implementations only exist for sw sse41 32 and 16 bit
                 if isa == "sse41" and alg == "sw" and not stats:
                     par = "blocked"
@@ -105,13 +111,9 @@ for table in ["", "_table", "_rowcol"]:
                 print "#endif"
             # also print the dispatcher function
             for par in ["scan", "striped", "diag"]:
-                for width in [64, 32, 16, 8]:
+                for width in [64, 32, 16, 8, "sat"]:
                     name = "%s_%s_%s" % (pre, par, width)
                     print_fmt(name, name, alg+stats, par, "disp", "NA", width, -1, is_table, is_rowcol, is_stats, 0)
-            # also print the saturation check function
-            for par in ["scan", "striped", "diag"]:
-                name = "%s_%s_sat" % (pre, par)
-                print_fmt(name, name, alg+stats, par, "sat", "NA", 8, -1, is_table, is_rowcol, is_stats, 0)
 
 print_null()
 print "};"
@@ -136,10 +138,15 @@ for table in ["", "_table", "_rowcol"]:
                 print "#if HAVE_%s" % isa.upper()
                 bits = isa_to_bits[isa]
                 for par in ["scan_profile", "striped_profile"]:
-                    for width in [64, 32, 16, 8]:
+                    for width in [64, 32, 16, 8, "sat"]:
+                        elem = 0
+                        if "sat" == width:
+                            elem = bits/8
+                        else:
+                            elem = bits/width
                         name = "%s_%s_%s_%s_%s" % (pre, par, isa, bits, width)
                         creator = "parasail_profile_create%s_%s_%s_%s" % (stats, isa[:3], bits, width)
-                        print_pfmt(name, creator, name, alg+stats, par, isa, bits, width, bits/width, is_table, is_rowcol, is_stats, 0)
+                        print_pfmt(name, creator, name, alg+stats, par, isa, bits, width, elem, is_table, is_rowcol, is_stats, 0)
                 print "#endif"
             for isa in ["knc"]:
                 print "#if HAVE_%s" % isa.upper()
@@ -152,15 +159,10 @@ for table in ["", "_table", "_rowcol"]:
                 print "#endif"
             # also print the dispatcher function
             for par in ["scan_profile", "striped_profile"]:
-                for width in [64, 32, 16, 8]:
+                for width in [64, 32, 16, 8, "sat"]:
                     name = "%s_%s_%s" % (pre, par, width)
                     creator = "parasail_profile_create%s_%s" % (stats, width)
                     print_pfmt(name, creator, name, alg+stats, par, "disp", "NA", width, -1, is_table, is_rowcol, is_stats, 0)
-            # also print the saturation check dispatcher function
-            for par in ["scan_profile", "striped_profile"]:
-                name = "%s_%s_sat" % (pre, par)
-                creator = "parasail_profile_create%s_8_16" % stats
-                print_pfmt(name, creator, name, alg+stats, par, "disp", "NA", width, -1, is_table, is_rowcol, is_stats, 0)
 
 print_pnull()
 print "};"

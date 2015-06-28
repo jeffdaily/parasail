@@ -5,8 +5,7 @@
 
 import os
 
-def codegen(alg):
-    txt = """/**
+txt = """/**
  * @file
  *
  * @author jeff.daily@pnnl.gov
@@ -22,12 +21,23 @@ def codegen(alg):
 #include "parasail.h"
 
 """
+for alg in ["nw", "sg", "sw"]:
     for table in ["", "_table", "_rowcol"]:
         for stats in ["", "_stats"]:
-            for par in ["scan", "striped", "diag"]:
-                prefix = "parasail_%s%s%s_%s"%(alg, stats, table, par)
-                params = {"PREFIX":prefix}
-                txt += """
+            for par in ["_scan", "_striped", "_diag"]:
+                for isa in ["", "_sse2_128", "_sse41_128", "_avx2_256"]:
+                    prefix = "parasail_%s%s%s%s%s"%(alg, stats, table, par, isa)
+                    if isa:
+                        isa_pre = "#if HAVE_" + isa.split('_')[1].upper()
+                        isa_post = "#endif"
+                    else:
+                        isa_pre = ""
+                        isa_post = ""
+                    params = {"PREFIX":prefix,
+                            "ISA_PRE":isa_pre,
+                            "ISA_POST":isa_post}
+                    txt += """
+%(ISA_PRE)s
 parasail_result_t* %(PREFIX)s_sat(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
@@ -48,14 +58,26 @@ parasail_result_t* %(PREFIX)s_sat(
 
     return result;
 }
+%(ISA_POST)s
 """ % params
 
+for alg in ["nw", "sg", "sw"]:
     for table in ["", "_table", "_rowcol"]:
         for stats in [""]:
-            for par in ["scan_profile", "striped_profile"]:
-                prefix = "parasail_%s%s%s_%s"%(alg, stats, table, par)
-                params = {"PREFIX":prefix}
-                txt += """
+            for par in ["_scan_profile", "_striped_profile"]:
+                for isa in ["", "_sse2_128", "_sse41_128", "_avx2_256"]:
+                    prefix = "parasail_%s%s%s%s%s"%(alg, stats, table, par, isa)
+                    if isa:
+                        isa_pre = "#if HAVE_" + isa.split('_')[1].upper()
+                        isa_post = "#endif"
+                    else:
+                        isa_pre = ""
+                        isa_post = ""
+                    params = {"PREFIX":prefix,
+                            "ISA_PRE":isa_pre,
+                            "ISA_POST":isa_post}
+                    txt += """
+%(ISA_PRE)s
 parasail_result_t* %(PREFIX)s_sat(
         const parasail_profile_t * const restrict profile,
         const char * const restrict s2, const int s2Len,
@@ -75,14 +97,26 @@ parasail_result_t* %(PREFIX)s_sat(
 
     return result;
 }
+%(ISA_POST)s
 """ % params
 
+for alg in ["nw", "sg", "sw"]:
     for table in ["", "_table", "_rowcol"]:
         for stats in ["_stats"]:
-            for par in ["scan_profile", "striped_profile"]:
-                prefix = "parasail_%s%s%s_%s"%(alg, stats, table, par)
-                params = {"PREFIX":prefix}
-                txt += """
+            for par in ["_scan_profile", "_striped_profile"]:
+                for isa in ["", "_sse2_128", "_sse41_128", "_avx2_256"]:
+                    prefix = "parasail_%s%s%s%s%s"%(alg, stats, table, par, isa)
+                    if isa:
+                        isa_pre = "#if HAVE_" + isa.split('_')[1].upper()
+                        isa_post = "#endif"
+                    else:
+                        isa_pre = ""
+                        isa_post = ""
+                    params = {"PREFIX":prefix,
+                            "ISA_PRE":isa_pre,
+                            "ISA_POST":isa_post}
+                    txt += """
+%(ISA_PRE)s
 parasail_result_t* %(PREFIX)s_sat(
         const parasail_profile_t * const restrict profile,
         const char * const restrict s2, const int s2Len,
@@ -104,18 +138,17 @@ parasail_result_t* %(PREFIX)s_sat(
 
     return result;
 }
+%(ISA_POST)s
 """ % params
 
-    return txt
 
 output_dir = "generated/"
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
 
-for alg in ["nw", "sg", "sw"]:
-    output_filename = "%s%s_sat.c" % (output_dir, alg)
-    writer = open(output_filename, "w")
-    writer.write(codegen(alg))
-    writer.write("\n")
-    writer.close()
+output_filename = "%ssatcheck.c" % output_dir
+writer = open(output_filename, "w")
+writer.write(txt)
+writer.write("\n")
+writer.close()
 

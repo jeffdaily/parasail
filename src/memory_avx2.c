@@ -161,6 +161,19 @@ parasail_profile_t * parasail_profile_create_avx_256_64(
     return profile;
 }
 
+parasail_profile_t* parasail_profile_create_avx_256_sat(
+        const char * const restrict s1, const int s1Len,
+        const parasail_matrix_t *matrix)
+{
+    parasail_profile_t *profile8 = parasail_profile_create_avx_256_8(s1, s1Len, matrix);
+    parasail_profile_t *profile16 = parasail_profile_create_avx_256_16(s1, s1Len, matrix);
+    profile8->profile2 = profile16->profile;
+    profile16->profile = NULL;
+    parasail_profile_free(profile16);
+
+    return profile8;
+}
+
 parasail_profile_t * parasail_profile_create_stats_avx_256_8(
         const char * const restrict s1, const int s1Len,
         const parasail_matrix_t *matrix)
@@ -335,6 +348,23 @@ parasail_profile_t * parasail_profile_create_stats_avx_256_64(
     profile->profile_s = vProfileS;
     profile->free = &parasail_profile_free___m256i;
     return profile;
+}
+
+parasail_profile_t* parasail_profile_create_stats_avx_256_sat(
+        const char * const restrict s1, const int s1Len,
+        const parasail_matrix_t *matrix)
+{
+    parasail_profile_t *profile8 = parasail_profile_create_stats_avx_256_8(s1, s1Len, matrix);
+    parasail_profile_t *profile16 = parasail_profile_create_stats_avx_256_16(s1, s1Len, matrix);
+    profile8->profile2 = profile16->profile;
+    profile16->profile = NULL;
+    profile8->profile2_m = profile16->profile_m;
+    profile16->profile_m = NULL;
+    profile8->profile2_s = profile16->profile_s;
+    profile16->profile_s = NULL;
+    parasail_profile_free(profile16);
+
+    return profile8;
 }
 
 void parasail_profile_free___m256i(void *profile)

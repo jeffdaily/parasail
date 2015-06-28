@@ -148,9 +148,7 @@ SRC_CORE += src/nw_dispatch.c
 SRC_CORE += src/sg_dispatch.c
 SRC_CORE += src/sw_dispatch.c
 SRC_CORE += src/dispatch_profile.c
-SRC_CORE += src/nw_sat.c
-SRC_CORE += src/sg_sat.c
-SRC_CORE += src/sw_sat.c
+SRC_CORE += src/satcheck.c
 SRC_CORE += parasail/memory.h
 
 #################

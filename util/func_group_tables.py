@@ -100,6 +100,7 @@ for table in ["_table"]:
             for par in ["scan", "striped", "diag"]:
                 name = "%s_%s_sat" % (pre, par)
                 print_fmt(name, name, alg+stats, par, "sat", "NA", 8, -1, is_table, is_stats, 0)
+            print_null()
             print "};"
             print 'static parasail_function_group_t %s_%s = {"%s_%s", %s_%s_functions};' % ((pre, isa)*3)
 

@@ -104,6 +104,7 @@ static parasail_function_info_t parasail_nw_rowcol_disp_functions[] = {
 {parasail_nw_rowcol_scan_sat,         "parasail_nw_rowcol_scan_sat",         "nw",    "scan", "sat",    "NA",  "8", -1, 0, 1, 0, 0},
 {parasail_nw_rowcol_striped_sat,      "parasail_nw_rowcol_striped_sat",      "nw", "striped", "sat",    "NA",  "8", -1, 0, 1, 0, 0},
 {parasail_nw_rowcol_diag_sat,         "parasail_nw_rowcol_diag_sat",         "nw",    "diag", "sat",    "NA",  "8", -1, 0, 1, 0, 0},
+{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 1, 0, 0}
 };
 static parasail_function_group_t parasail_nw_rowcol_disp = {"parasail_nw_rowcol_disp", parasail_nw_rowcol_disp_functions};
 #if HAVE_SSE2
@@ -195,6 +196,7 @@ static parasail_function_info_t parasail_sg_rowcol_disp_functions[] = {
 {parasail_sg_rowcol_scan_sat,         "parasail_sg_rowcol_scan_sat",         "sg",    "scan", "sat",    "NA",  "8", -1, 0, 1, 0, 0},
 {parasail_sg_rowcol_striped_sat,      "parasail_sg_rowcol_striped_sat",      "sg", "striped", "sat",    "NA",  "8", -1, 0, 1, 0, 0},
 {parasail_sg_rowcol_diag_sat,         "parasail_sg_rowcol_diag_sat",         "sg",    "diag", "sat",    "NA",  "8", -1, 0, 1, 0, 0},
+{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 1, 0, 0}
 };
 static parasail_function_group_t parasail_sg_rowcol_disp = {"parasail_sg_rowcol_disp", parasail_sg_rowcol_disp_functions};
 #if HAVE_SSE2
@@ -286,6 +288,7 @@ static parasail_function_info_t parasail_sw_rowcol_disp_functions[] = {
 {parasail_sw_rowcol_scan_sat,         "parasail_sw_rowcol_scan_sat",         "sw",    "scan", "sat",    "NA",  "8", -1, 0, 1, 0, 0},
 {parasail_sw_rowcol_striped_sat,      "parasail_sw_rowcol_striped_sat",      "sw", "striped", "sat",    "NA",  "8", -1, 0, 1, 0, 0},
 {parasail_sw_rowcol_diag_sat,         "parasail_sw_rowcol_diag_sat",         "sw",    "diag", "sat",    "NA",  "8", -1, 0, 1, 0, 0},
+{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 1, 0, 0}
 };
 static parasail_function_group_t parasail_sw_rowcol_disp = {"parasail_sw_rowcol_disp", parasail_sw_rowcol_disp_functions};
 #if HAVE_SSE2
@@ -377,6 +380,7 @@ static parasail_function_info_t parasail_nw_stats_rowcol_disp_functions[] = {
 {parasail_nw_stats_rowcol_scan_sat,   "parasail_nw_stats_rowcol_scan_sat",   "nw_stats",    "scan", "sat",    "NA",  "8", -1, 0, 1, 1, 0},
 {parasail_nw_stats_rowcol_striped_sat, "parasail_nw_stats_rowcol_striped_sat", "nw_stats", "striped", "sat",    "NA",  "8", -1, 0, 1, 1, 0},
 {parasail_nw_stats_rowcol_diag_sat,   "parasail_nw_stats_rowcol_diag_sat",   "nw_stats",    "diag", "sat",    "NA",  "8", -1, 0, 1, 1, 0},
+{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 1, 0, 0}
 };
 static parasail_function_group_t parasail_nw_stats_rowcol_disp = {"parasail_nw_stats_rowcol_disp", parasail_nw_stats_rowcol_disp_functions};
 #if HAVE_SSE2
@@ -468,6 +472,7 @@ static parasail_function_info_t parasail_sg_stats_rowcol_disp_functions[] = {
 {parasail_sg_stats_rowcol_scan_sat,   "parasail_sg_stats_rowcol_scan_sat",   "sg_stats",    "scan", "sat",    "NA",  "8", -1, 0, 1, 1, 0},
 {parasail_sg_stats_rowcol_striped_sat, "parasail_sg_stats_rowcol_striped_sat", "sg_stats", "striped", "sat",    "NA",  "8", -1, 0, 1, 1, 0},
 {parasail_sg_stats_rowcol_diag_sat,   "parasail_sg_stats_rowcol_diag_sat",   "sg_stats",    "diag", "sat",    "NA",  "8", -1, 0, 1, 1, 0},
+{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 1, 0, 0}
 };
 static parasail_function_group_t parasail_sg_stats_rowcol_disp = {"parasail_sg_stats_rowcol_disp", parasail_sg_stats_rowcol_disp_functions};
 #if HAVE_SSE2
@@ -559,6 +564,7 @@ static parasail_function_info_t parasail_sw_stats_rowcol_disp_functions[] = {
 {parasail_sw_stats_rowcol_scan_sat,   "parasail_sw_stats_rowcol_scan_sat",   "sw_stats",    "scan", "sat",    "NA",  "8", -1, 0, 1, 1, 0},
 {parasail_sw_stats_rowcol_striped_sat, "parasail_sw_stats_rowcol_striped_sat", "sw_stats", "striped", "sat",    "NA",  "8", -1, 0, 1, 1, 0},
 {parasail_sw_stats_rowcol_diag_sat,   "parasail_sw_stats_rowcol_diag_sat",   "sw_stats",    "diag", "sat",    "NA",  "8", -1, 0, 1, 1, 0},
+{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 1, 0, 0}
 };
 static parasail_function_group_t parasail_sw_stats_rowcol_disp = {"parasail_sw_stats_rowcol_disp", parasail_sw_stats_rowcol_disp_functions};
 

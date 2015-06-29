@@ -53,21 +53,26 @@ aligned against the UniProtKB/Swiss-Prot database. All times are in seconds. The
 The following tests were performed on a MacBook Pro i5 CPU @ 2.53GHz with 8GB
 RAM (SSE4.1 support). The compiler was Apple LLVM version 6.0 (clang-600.0.57.
 
-|                               |O74807  |P19930  |Q3ZAI3  |P18080|
-|-------------------------------|--------|--------|--------|------|
-| **query length**              |110     |195     |390     |513   |
-| **SSW(SSE2)**                 |14.9    |22.7    |44.4    |54.4  |
-| **ssearch36 (SSE2)**          |12.9    |20.4    |29.6    |38.1  |
-| **OpAl(SSE4.1)**              |15.2    |21.5    |35.9    |44.6  |
-| **SWIPE(SSSE3)**              |7.68    |13.3    |24.7    |32.0  |
-| **_parasail(SSE2) 16-bit_**   |10.6    |15.4    |24.3    |31.7  |
-| **_parasail(SSE2) 8-bit\*_**  |16.7    |24.8    |39.4    |47.8  |
-| **_parasail(SSE4.1) 16-bit_** |10.7    |15.2    |24.8    |30.5  |
-| **_parasail(SSE4.1) 8-bit_**  |9.9     |13.7    |20.0    |23.7  |
+|                                      |O74807  |P19930  |Q3ZAI3  |P18080|
+|--------------------------------------|--------|--------|--------|------|
+| **query length**                     |110     |195     |390     |513   |
+| **SSW(SSE2)**                        |14.9    |22.7    |44.4    |54.4  |
+| **ssearch36 (SSE2)**                 |12.9    |20.4    |29.6    |38.1  |
+| **OpAl(SSE4.1)**                     |15.2    |21.5    |35.9    |44.6  |
+| **SWIPE(SSSE3)**                     |7.68    |13.3    |24.7    |32.0  |
+| **_parasail(SSE2) 16-bit_**          |10.6    |15.4    |24.3    |31.7  |
+| **_parasail(SSE2) 8-bit_**\* \*\*    |16.7    |24.8    |39.4    |47.8  |
+| **_parasail(SSE4.1) 16-bit_**        |10.7    |15.2    |24.8    |30.5  |
+| **_parasail(SSE4.1) 8-bit_**\*\*     |9.9     |13.7    |20.0    |23.7  |
+| **_parasail(SSE4.1) satcheck_**\*\*\*|9.9     |25.6    |41.8    |51.6  |
 
 \* The parasail SSE2 8-bit implementation is slower than the SSE2 16-bit
 version due to a number of missing SSE2 instructions for 8-bit integer
 elements which were later added in SSE4.1.
+
+\*\* The 8-bit integer range is often not sufficient for large scores and will overflow, so these timings should be used as a lower bound; no overflow detection was applied and accounted for.
+
+\*\*\* The parasail saturation-checking functions are slow when the alignment score is expected to overflow the smaller 8-bit integer range.  As the query length increases, the performance basically becomes the sum of the 8-bit and 16-bit implementations because the 8-bit function will always overflow, causing both functions to execute.  This is wasteful computation.  It is more beneficial in general to use the appropriate bit-width if the score is expected to overflow the 8-bit score.
 
 ![](images/perf_mac.png)
 
@@ -75,18 +80,23 @@ The following tests were performed on an Intel Haswell E5-2670 v3 CPU running
 at 2.3 Ghz with 64 GB 2133 Mhz DDR4 memory. The compiler used was Intel ICC
 15.0.1 using level three optimization (-O3).
 
-|                               |O74807  |P19930  |Q3ZAI3  |P18080|
-|-------------------------------|--------|--------|--------|------|
-| **query length**              |110     |195     |390     |513   |
-| **SSW(SSE2)**                 |13.1    |26.3    |41.8    |49.0  |
-| **ssearch36(SSE2)**           |11.7    |21.1    |30.6    |37.1  |
-| **OpAl(SSE4.1)**              |17.8    |24.2    |38.9    |48.1  |
-| **OpAl(AVX2)**                |12.2    |15.4    |22.8    |28.4  |
-| **SWIPE(SSSE3)**              |9.3     |16.4    |30.8    |39.9  |
-| **_parasail(SSE4.1) 16-bit_** |11.0    |15.7    |27.3    |34.5  |
-| **_parasail(SSE4.1) 8-bit_**  |9.0     |12.6    |19.0    |23.4  |
-| **_parasail(AVX2) 16-bit_**   |9.5     |12.2    |17.6    |21.6  |
-| **_parasail(AVX2) 8-bit_**    |10.1    |11.8    |13.5    |14.7  |
+|                                        |O74807  |P19930  |Q3ZAI3  |P18080|
+|----------------------------------------|--------|--------|--------|------|
+| **query length**                       |110     |195     |390     |513   |
+| **SSW(SSE2)**                          |13.1    |26.3    |41.8    |49.0  |
+| **ssearch36(SSE2)**                    |11.7    |21.1    |30.6    |37.1  |
+| **OpAl(SSE4.1)**                       |17.8    |24.2    |38.9    |48.1  |
+| **OpAl(AVX2)**                         |12.2    |15.4    |22.8    |28.4  |
+| **SWIPE(SSSE3)**                       |9.3     |16.4    |30.8    |39.9  |
+| **_parasail(SSE4.1) 16-bit_**          |11.0    |15.7    |27.3    |34.5  |
+| **_parasail(SSE4.1) 8-bit_**\*\*       |9.0     |12.6    |19.0    |23.4  |
+| **_parasail(AVX2) 16-bit_**            |9.5     |12.2    |17.6    |21.6  |
+| **_parasail(AVX2) 8-bit_**\*\*         |10.1    |11.8    |13.5    |14.7  |
+| **_parasail(AVX2) satcheck_**\*\*\*    |10.1    |21.2    |30.1    |34.7  |
+
+\*\*  See above.
+
+\*\*\* See above.
 
 ![](images/perf_haswell.png)
 

@@ -75,23 +75,24 @@ The following tests were performed on an Intel Haswell E5-2670 v3 CPU running
 at 2.3 Ghz with 64 GB 2133 Mhz DDR4 memory. The compiler used was Intel ICC
 15.0.1 using level three optimization (-O3).
 
-|                                        |O74807  |P19930  |Q3ZAI3  |P18080|
-|----------------------------------------|--------|--------|--------|------|
-| **query length**                       |110     |195     |390     |513   |
-| **SSW(SSE2)**                          |13.1    |26.3    |41.8    |49.0  |
-| **ssearch36(SSE2)**                    |11.7    |21.1    |30.6    |37.1  |
-| **OpAl(SSE4.1)**                       |17.8    |24.2    |38.9    |48.1  |
-| **OpAl(AVX2)**                         |12.2    |15.4    |22.8    |28.4  |
-| **SWIPE(SSSE3)**                       |9.3     |16.4    |30.8    |39.9  |
-| **_parasail(SSE4.1) 16-bit_**          |11.0    |15.7    |27.3    |34.5  |
-| **_parasail(SSE4.1) 8-bit_**\*\*       |9.0     |12.6    |19.0    |23.4  |
-| **_parasail(AVX2) 16-bit_**            |9.5     |12.2    |17.6    |21.6  |
-| **_parasail(AVX2) 8-bit_**\*\*         |10.1    |11.8    |13.5    |14.7  |
-| **_parasail(AVX2) satcheck_**\*\*\*    |10.1    |21.2    |30.1    |34.7  |
+|                                |O74807  |P19930  |Q3ZAI3  |P18080|
+|--------------------------------|--------|--------|--------|------|
+|query length                    |110     |195     |390     |513   |
+|SSW (SSE2) 16-bit only          |13.9    |19.6    |32.4    |39.3  |
+|SSW (SSE2)                      |13.1    |26.3    |41.8    |49.0  |
+|opal (SSE4.1)                   |17.7    |24.2    |38.8    |48.1  |
+|opal (AVX2)                     |12.2    |15.4    |22.8    |28.4  |
+|SWIPE (SSSE3)                   |9.3     |16.4    |30.8    |39.9  |
+|ssearch36 (SSE2)                |11.7    |21.1    |30.6    |37.1  |
+|parasail (SSE4.1) 16-bit        |11.0    |15.7    |27.3    |34.5  |
+|parasail (SSE4.1) 8-bit\*       |9.0     |12.6    |19.0    |23.4  |
+|parasail (AVX2) 16-bit          |9.5     |12.2    |17.6    |21.6  |
+|parasail (AVX2) 8-bit\*         |10.1    |11.8    |13.5    |14.7  |
+|parasail (AVX2) saturation\*\*  |10.1    |21.2    |30.1    |34.7  |
 
-\*\*  See above.
+\*  See above.
 
-\*\*\* See above.
+\*\* See above.
 
 ![](images/perf_haswell.png)
 

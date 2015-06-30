@@ -107,6 +107,7 @@ parasail_result_t* PNAME(
     int16_t score = bias;
     __m128i vBias = _mm_set1_epi16(bias);
     __m128i vMaxH = vBias;
+    __m128i vMaxP = _mm_set1_epi16(INT16_MAX - (int16_t)(matrix->max+1));
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
@@ -216,6 +217,12 @@ end:
             result->score_row[j] = (int16_t) _mm_extract_epi16 (vH, 7) - bias;
         }
 #endif
+
+        /* if score has potential to overflow, abort early */
+        if (_mm_movemask_epi8(_mm_cmpgt_epi16(vMaxH, vMaxP))) {
+            result->saturated = 1;
+            break;
+        }
     }
 
 #ifdef PARASAIL_ROWCOL

@@ -92,6 +92,7 @@ parasail_result_t* PNAME(
     %(INT)s score = bias;
     %(VTYPE)s vBias = %(VSET1)s(bias);
     %(VTYPE)s vMaxH = vBias;
+    %(VTYPE)s vMaxP = %(VSET1)s(INT%(WIDTH)s_MAX - (%(INT)s)(matrix->max+1));
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
@@ -201,6 +202,12 @@ end:
             result->score_row[j] = (%(INT)s) %(VEXTRACT)s (vH, %(LAST_POS)s) - bias;
         }
 #endif
+
+        /* if score has potential to overflow, abort early */
+        if (%(VMOVEMASK)s(%(VCMPGT)s(vMaxH, vMaxP))) {
+            result->saturated = 1;
+            break;
+        }
     }
 
 #ifdef PARASAIL_ROWCOL

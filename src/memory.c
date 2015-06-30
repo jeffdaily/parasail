@@ -312,6 +312,8 @@ parasail_matrix_t* parasail_matrix_create(
     retval->matrix = matrix;
     retval->mapper = mapper;
     retval->size = (int)size1;
+    retval->max = match > mismatch ? match : mismatch;
+    retval->min = match > mismatch ? mismatch : match;
     retval->need_free = 1;
     return retval;
 }

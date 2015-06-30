@@ -101,10 +101,17 @@ for filename in filenames:
     writer.write("static const int parasail_%s_[] = {\n" % filename_lower)
     writer.write("/*     " + ("%4s"*24) % tuple(the_lines[0].split()) + " */\n")
     text = ""
+    biggest = -9999999 # just something really tiny
+    smallest = 9999999 # just something really big
     for line in the_lines[1:]:
         parts = line.split()
         text += "/* %s */ " % parts[0]
         text += ("%3s,"*24) % tuple(parts[1:])
+        # find biggest and smallest value
+        for part in parts[1:]:
+            part = int(part)
+            if part > biggest: biggest = part
+            if part < smallest: smallest = part
         text += "\n"
     writer.write(text[:-2])
     writer.write("\n};\n")
@@ -127,10 +134,12 @@ static const parasail_matrix_t parasail_%s = {
     parasail_%s_,
     parasail_%s_map,
     %d,
+    %d,
+    %d,
     0
 };
 
-""" % (filename_lower, filename_lower, filename_lower, base, count))
+""" % (filename_lower, filename_lower, filename_lower, base, count, biggest, smallest))
     writer.write(footer % filename)
     writer.write("\n")
     writer.close()

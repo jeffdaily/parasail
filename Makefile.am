@@ -680,6 +680,7 @@ check_PROGRAMS += tests/test_isa
 check_PROGRAMS += tests/test_openmp
 check_PROGRAMS += tests/test_query
 check_PROGRAMS += tests/test_scatter
+check_PROGRAMS += tests/test_ssw
 check_PROGRAMS += tests/test_sw_dispatch
 check_PROGRAMS += tests/test_verify
 check_PROGRAMS += tests/test_verify_tables
@@ -736,6 +737,16 @@ tests_test_scatter_LDADD   =
 tests_test_scatter_LDADD   += $(LDADD)
 if HAVE_SSE2
 tests_test_scatter_LDADD   += tests/libssw.la
+endif
+
+tests_test_ssw_SOURCES  = tests/test_ssw.cpp
+tests_test_ssw_CXXFLAGS = $(AM_CXXFLAGS) $(OPENMP_CXXFLAGS)
+tests_test_ssw_LDFLAGS  = $(AM_LDFLAGS) $(OPENMP_CXXFLAGS)
+tests_test_ssw_LDADD    =
+tests_test_ssw_LDADD    += $(LDADD)
+tests_test_ssw_LDADD    += tests/libsais.la
+if HAVE_SSE2
+tests_test_ssw_LDADD    += tests/libssw.la
 endif
 
 tests_test_sw_dispatch_SOURCES = tests/test_sw_dispatch.c

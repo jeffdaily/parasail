@@ -85,8 +85,8 @@ bin_PROGRAMS = apps/parasail_aligner$(EXEEXT) \
 check_PROGRAMS = tests/test_align$(EXEEXT) tests/test_gcups$(EXEEXT) \
 	tests/test_isa$(EXEEXT) tests/test_openmp$(EXEEXT) \
 	tests/test_query$(EXEEXT) tests/test_scatter$(EXEEXT) \
-	tests/test_sw_dispatch$(EXEEXT) tests/test_verify$(EXEEXT) \
-	tests/test_verify_tables$(EXEEXT) \
+	tests/test_ssw$(EXEEXT) tests/test_sw_dispatch$(EXEEXT) \
+	tests/test_verify$(EXEEXT) tests/test_verify_tables$(EXEEXT) \
 	tests/test_verify_rowcols$(EXEEXT)
 @HAVE_SSE_TRUE@am__append_1 = libparasail_sse_memory.la
 @HAVE_SSE2_TRUE@am__append_2 = libparasail_sse2.la \
@@ -117,6 +117,7 @@ check_PROGRAMS = tests/test_align$(EXEEXT) tests/test_gcups$(EXEEXT) \
 @HAVE_SSE2_TRUE@am__append_11 = tests/libssw.la
 @HAVE_SSE2_TRUE@am__append_12 = tests/libssw.la
 @HAVE_SSE2_TRUE@am__append_13 = tests/libssw.la
+@HAVE_SSE2_TRUE@am__append_14 = tests/libssw.la
 subdir = .
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) \
@@ -1183,6 +1184,14 @@ tests_test_scatter_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(tests_test_scatter_CFLAGS) $(CFLAGS) \
 	$(tests_test_scatter_LDFLAGS) $(LDFLAGS) -o $@
+am_tests_test_ssw_OBJECTS = tests/tests_test_ssw-test_ssw.$(OBJEXT)
+tests_test_ssw_OBJECTS = $(am_tests_test_ssw_OBJECTS)
+tests_test_ssw_DEPENDENCIES = $(am__DEPENDENCIES_2) tests/libsais.la \
+	$(am__append_14)
+tests_test_ssw_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
+	$(tests_test_ssw_CXXFLAGS) $(CXXFLAGS) \
+	$(tests_test_ssw_LDFLAGS) $(LDFLAGS) -o $@
 am_tests_test_sw_dispatch_OBJECTS = tests/test_sw_dispatch.$(OBJEXT)
 tests_test_sw_dispatch_OBJECTS = $(am_tests_test_sw_dispatch_OBJECTS)
 tests_test_sw_dispatch_LDADD = $(LDADD)
@@ -1295,7 +1304,7 @@ SOURCES = $(libparasail_la_SOURCES) $(libparasail_avx2_la_SOURCES) \
 	$(apps_parasail_query_SOURCES) $(tests_test_align_SOURCES) \
 	$(tests_test_gcups_SOURCES) $(tests_test_isa_SOURCES) \
 	$(tests_test_openmp_SOURCES) $(tests_test_query_SOURCES) \
-	$(tests_test_scatter_SOURCES) \
+	$(tests_test_scatter_SOURCES) $(tests_test_ssw_SOURCES) \
 	$(tests_test_sw_dispatch_SOURCES) $(tests_test_verify_SOURCES) \
 	$(tests_test_verify_rowcols_SOURCES) \
 	$(tests_test_verify_tables_SOURCES)
@@ -1324,7 +1333,7 @@ DIST_SOURCES = $(libparasail_la_SOURCES) \
 	$(apps_parasail_query_SOURCES) $(tests_test_align_SOURCES) \
 	$(tests_test_gcups_SOURCES) $(tests_test_isa_SOURCES) \
 	$(tests_test_openmp_SOURCES) $(tests_test_query_SOURCES) \
-	$(tests_test_scatter_SOURCES) \
+	$(tests_test_scatter_SOURCES) $(tests_test_ssw_SOURCES) \
 	$(tests_test_sw_dispatch_SOURCES) $(tests_test_verify_SOURCES) \
 	$(tests_test_verify_rowcols_SOURCES) \
 	$(tests_test_verify_tables_SOURCES)
@@ -1940,6 +1949,10 @@ tests_test_scatter_SOURCES = tests/test_scatter.c
 tests_test_scatter_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_test_scatter_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
 tests_test_scatter_LDADD = $(LDADD) $(am__append_13)
+tests_test_ssw_SOURCES = tests/test_ssw.cpp
+tests_test_ssw_CXXFLAGS = $(AM_CXXFLAGS) $(OPENMP_CXXFLAGS)
+tests_test_ssw_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CXXFLAGS)
+tests_test_ssw_LDADD = $(LDADD) tests/libsais.la $(am__append_14)
 tests_test_sw_dispatch_SOURCES = tests/test_sw_dispatch.c
 tests_test_verify_SOURCES = tests/test_verify.c
 tests_test_verify_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)
@@ -3777,6 +3790,12 @@ tests/tests_test_scatter-test_scatter.$(OBJEXT):  \
 tests/test_scatter$(EXEEXT): $(tests_test_scatter_OBJECTS) $(tests_test_scatter_DEPENDENCIES) $(EXTRA_tests_test_scatter_DEPENDENCIES) tests/$(am__dirstamp)
 	@rm -f tests/test_scatter$(EXEEXT)
 	$(AM_V_CCLD)$(tests_test_scatter_LINK) $(tests_test_scatter_OBJECTS) $(tests_test_scatter_LDADD) $(LIBS)
+tests/tests_test_ssw-test_ssw.$(OBJEXT): tests/$(am__dirstamp) \
+	tests/$(DEPDIR)/$(am__dirstamp)
+
+tests/test_ssw$(EXEEXT): $(tests_test_ssw_OBJECTS) $(tests_test_ssw_DEPENDENCIES) $(EXTRA_tests_test_ssw_DEPENDENCIES) tests/$(am__dirstamp)
+	@rm -f tests/test_ssw$(EXEEXT)
+	$(AM_V_CXXLD)$(tests_test_ssw_LINK) $(tests_test_ssw_OBJECTS) $(tests_test_ssw_LDADD) $(LIBS)
 tests/test_sw_dispatch.$(OBJEXT): tests/$(am__dirstamp) \
 	tests/$(DEPDIR)/$(am__dirstamp)
 
@@ -4585,6 +4604,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/tests_test_openmp-test_openmp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/tests_test_query-test_query.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/tests_test_scatter-test_scatter.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/tests_test_ssw-test_ssw.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/tests_test_verify-test_verify.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/tests_test_verify_rowcols-test_verify_rowcols.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/tests_test_verify_tables-test_verify_tables.Po@am__quote@
@@ -9998,6 +10018,20 @@ apps/apps_parasail_query-parasail_query.obj: apps/parasail_query.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='apps/parasail_query.cpp' object='apps/apps_parasail_query-parasail_query.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apps_parasail_query_CXXFLAGS) $(CXXFLAGS) -c -o apps/apps_parasail_query-parasail_query.obj `if test -f 'apps/parasail_query.cpp'; then $(CYGPATH_W) 'apps/parasail_query.cpp'; else $(CYGPATH_W) '$(srcdir)/apps/parasail_query.cpp'; fi`
+
+tests/tests_test_ssw-test_ssw.o: tests/test_ssw.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_test_ssw_CXXFLAGS) $(CXXFLAGS) -MT tests/tests_test_ssw-test_ssw.o -MD -MP -MF tests/$(DEPDIR)/tests_test_ssw-test_ssw.Tpo -c -o tests/tests_test_ssw-test_ssw.o `test -f 'tests/test_ssw.cpp' || echo '$(srcdir)/'`tests/test_ssw.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) tests/$(DEPDIR)/tests_test_ssw-test_ssw.Tpo tests/$(DEPDIR)/tests_test_ssw-test_ssw.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='tests/test_ssw.cpp' object='tests/tests_test_ssw-test_ssw.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_test_ssw_CXXFLAGS) $(CXXFLAGS) -c -o tests/tests_test_ssw-test_ssw.o `test -f 'tests/test_ssw.cpp' || echo '$(srcdir)/'`tests/test_ssw.cpp
+
+tests/tests_test_ssw-test_ssw.obj: tests/test_ssw.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_test_ssw_CXXFLAGS) $(CXXFLAGS) -MT tests/tests_test_ssw-test_ssw.obj -MD -MP -MF tests/$(DEPDIR)/tests_test_ssw-test_ssw.Tpo -c -o tests/tests_test_ssw-test_ssw.obj `if test -f 'tests/test_ssw.cpp'; then $(CYGPATH_W) 'tests/test_ssw.cpp'; else $(CYGPATH_W) '$(srcdir)/tests/test_ssw.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) tests/$(DEPDIR)/tests_test_ssw-test_ssw.Tpo tests/$(DEPDIR)/tests_test_ssw-test_ssw.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='tests/test_ssw.cpp' object='tests/tests_test_ssw-test_ssw.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_test_ssw_CXXFLAGS) $(CXXFLAGS) -c -o tests/tests_test_ssw-test_ssw.obj `if test -f 'tests/test_ssw.cpp'; then $(CYGPATH_W) 'tests/test_ssw.cpp'; else $(CYGPATH_W) '$(srcdir)/tests/test_ssw.cpp'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo

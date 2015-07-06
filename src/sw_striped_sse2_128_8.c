@@ -18,11 +18,10 @@
 
 #define NEG_INF INT8_MIN
 
-static inline __m128i _mm_insert_epi8_rpl(__m128i a, int8_t i, const int imm) {
-    __m128i_8_t A;
-    A.m = a;
-    A.v[imm] = i;
-    return A.m;
+static inline __m128i _mm_blendv_epi8_rpl(__m128i a, __m128i b, __m128i mask) {
+    a = _mm_andnot_si128(mask, a);
+    a = _mm_or_si128(a, _mm_and_si128(mask, b));
+    return a;
 }
 
 static inline __m128i _mm_max_epi8_rpl(__m128i a, __m128i b) {
@@ -36,6 +35,14 @@ static inline int8_t _mm_extract_epi8_rpl(__m128i a, const int imm) {
     __m128i_8_t A;
     A.m = a;
     return A.v[imm];
+}
+
+static inline int8_t _mm_hmax_epi8_rpl(__m128i a) {
+    a = _mm_max_epi8_rpl(a, _mm_srli_si128(a, 8));
+    a = _mm_max_epi8_rpl(a, _mm_srli_si128(a, 4));
+    a = _mm_max_epi8_rpl(a, _mm_srli_si128(a, 2));
+    a = _mm_max_epi8_rpl(a, _mm_srli_si128(a, 1));
+    return _mm_extract_epi8_rpl(a, 0);
 }
 
 
@@ -138,10 +145,14 @@ parasail_result_t* PNAME(
     __m128i* const restrict pvE = parasail_memalign___m128i(16, segLen);
     __m128i vGapO = _mm_set1_epi8(open);
     __m128i vGapE = _mm_set1_epi8(gap);
+    __m128i vZero = _mm_set1_epi8(0);
     int8_t bias = INT8_MIN;
     int8_t score = bias;
     __m128i vBias = _mm_set1_epi8(bias);
     __m128i vMaxH = vBias;
+    __m128i insert_mask = _mm_cmpgt_epi8(
+            _mm_set_epi8(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1),
+            vZero);
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
@@ -179,7 +190,7 @@ parasail_result_t* PNAME(
 
         /* load final segment of pvHStore and shift left by 2 bytes */
         __m128i vH = _mm_slli_si128(pvHStore[segLen - 1], 1);
-        vH = _mm_insert_epi8_rpl(vH, bias, 0);
+        vH = _mm_blendv_epi8_rpl(vH, vBias, insert_mask);
 
         /* Correct part of the vProfile */
         const __m128i* vP = vProfile + matrix->mapper[(unsigned char)s2[j]] * segLen;
@@ -222,7 +233,7 @@ parasail_result_t* PNAME(
          * then deletion, so don't update E(i, i), learn from SWPS3 */
         for (k=0; k<segWidth; ++k) {
             vF = _mm_slli_si128(vF, 1);
-            vF = _mm_insert_epi8_rpl(vF, bias, 0);
+            vF = _mm_blendv_epi8_rpl(vF, vBias, insert_mask);
             for (i=0; i<segLen; ++i) {
                 vH = _mm_load_si128(pvHStore + i);
                 vH = _mm_max_epi8_rpl(vH,vF);
@@ -260,14 +271,7 @@ end:
     }
 #endif
 
-    /* max in vec */
-    for (j=0; j<segWidth; ++j) {
-        int8_t value = (int8_t) _mm_extract_epi8_rpl(vMaxH, 15);
-        if (value > score) {
-            score = value;
-        }
-        vMaxH = _mm_slli_si128(vMaxH, 1);
-    }
+    score = _mm_hmax_epi8_rpl(vMaxH);
 
     if (score == INT8_MAX) {
         result->saturated = 1;

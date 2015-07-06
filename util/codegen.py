@@ -312,6 +312,7 @@ def generated_params_diag(params):
 
 
 def generated_params_striped(params):
+    params["STRIPED_INSERT_MASK"] = "0,"*(params["LANES"]-1)+"1"
     return params
 
 

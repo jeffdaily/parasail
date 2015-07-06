@@ -18,17 +18,6 @@
 
 #define NEG_INF (INT16_MIN/(int16_t)(2))
 
-#if HAVE_AVX2_MM256_INSERT_EPI16
-#define _mm256_insert_epi16_rpl _mm256_insert_epi16
-#else
-static inline __m256i _mm256_insert_epi16_rpl(__m256i a, int16_t i, int imm) {
-    __m256i_16_t A;
-    A.m = a;
-    A.v[imm] = i;
-    return A.m;
-}
-#endif
-
 #if HAVE_AVX2_MM256_EXTRACT_EPI16
 #define _mm256_extract_epi16_rpl _mm256_extract_epi16
 #else
@@ -40,6 +29,14 @@ static inline int16_t _mm256_extract_epi16_rpl(__m256i a, int imm) {
 #endif
 
 #define _mm256_slli_si256_rpl(a,imm) _mm256_alignr_epi8(a, _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,3,0)), 16-imm)
+
+static inline int16_t _mm256_hmax_epi16_rpl(__m256i a) {
+    a = _mm256_max_epi16(a, _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,0,0)));
+    a = _mm256_max_epi16(a, _mm256_slli_si256(a, 8));
+    a = _mm256_max_epi16(a, _mm256_slli_si256(a, 4));
+    a = _mm256_max_epi16(a, _mm256_slli_si256(a, 2));
+    return _mm256_extract_epi16_rpl(a, 15);
+}
 
 
 #ifdef PARASAIL_TABLE
@@ -141,10 +138,14 @@ parasail_result_t* PNAME(
     __m256i* const restrict pvE = parasail_memalign___m256i(32, segLen);
     __m256i vGapO = _mm256_set1_epi16(open);
     __m256i vGapE = _mm256_set1_epi16(gap);
+    __m256i vZero = _mm256_set1_epi16(0);
     int16_t bias = INT16_MIN;
     int16_t score = bias;
     __m256i vBias = _mm256_set1_epi16(bias);
     __m256i vMaxH = vBias;
+    __m256i insert_mask = _mm256_cmpgt_epi16(
+            _mm256_set_epi16(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1),
+            vZero);
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
@@ -182,7 +183,7 @@ parasail_result_t* PNAME(
 
         /* load final segment of pvHStore and shift left by 2 bytes */
         __m256i vH = _mm256_slli_si256_rpl(pvHStore[segLen - 1], 2);
-        vH = _mm256_insert_epi16_rpl(vH, bias, 0);
+        vH = _mm256_blendv_epi8(vH, vBias, insert_mask);
 
         /* Correct part of the vProfile */
         const __m256i* vP = vProfile + matrix->mapper[(unsigned char)s2[j]] * segLen;
@@ -225,7 +226,7 @@ parasail_result_t* PNAME(
          * then deletion, so don't update E(i, i), learn from SWPS3 */
         for (k=0; k<segWidth; ++k) {
             vF = _mm256_slli_si256_rpl(vF, 2);
-            vF = _mm256_insert_epi16_rpl(vF, bias, 0);
+            vF = _mm256_blendv_epi8(vF, vBias, insert_mask);
             for (i=0; i<segLen; ++i) {
                 vH = _mm256_load_si256(pvHStore + i);
                 vH = _mm256_max_epi16(vH,vF);
@@ -263,14 +264,7 @@ end:
     }
 #endif
 
-    /* max in vec */
-    for (j=0; j<segWidth; ++j) {
-        int16_t value = (int16_t) _mm256_extract_epi16_rpl(vMaxH, 15);
-        if (value > score) {
-            score = value;
-        }
-        vMaxH = _mm256_slli_si256_rpl(vMaxH, 2);
-    }
+    score = _mm256_hmax_epi16_rpl(vMaxH);
 
     if (score == INT16_MAX) {
         result->saturated = 1;

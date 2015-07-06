@@ -522,6 +522,35 @@ AC_PROG_CXX
 AX_OPENMP
 AC_SUBST([OPENMP_CXXFLAGS])
 
+AC_CACHE_CHECK([for variadic macros],
+    [pt_cv_variadic],
+    [psl_save_cxx_werror_flag=$ac_cxx_werror_flag
+     ac_cxx_werror_flag=yes
+     AC_LINK_IFELSE([AC_LANG_SOURCE([[
+#include <wchar.h>
+#include <stdio.h>
+#define debug(...) fprintf (stderr, __VA_ARGS__)
+#define showlist(...) puts (#__VA_ARGS__)
+#define report(test,...) ((test) ? puts (#test) : printf (__VA_ARGS__))
+static void
+test_varargs_macros (void)
+{
+  int x = 1234;
+  int y = 5678;
+  debug ("Flag");
+  debug ("X = %d\n", x);
+  showlist (The first, second, and third items.);
+  report (x>y, "x is %d but y is %d", x, y);
+}
+int main(void) { test_varargs_macros(); return 0; }
+]])],
+        [pt_cv_variadic=yes; pt_cv_variadic_val=1],
+        [pt_cv_variadic=no; pt_cv_variadic_val=0])
+     ac_cxx_werror_flag=$psl_save_cxx_werror_flag
+     CXXFLAGS="$save_CXXFLAGS"])
+AC_DEFINE_UNQUOTED([HAVE_VARIADIC_MACROS], [$pt_cv_variadic_val],
+    [define to 1 if the CXX compiler supports variadic macros])
+
 # Checks for library functions.
 
 AC_LANG_POP([C++])

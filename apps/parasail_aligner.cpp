@@ -33,9 +33,21 @@
 #include <omp.h>
 #endif
 
+#ifdef USE_CILK
+#include <cilk/cilk.h>
+#include <cilk/cilk_api.h>
+#include <cilk/reducer_opadd.h> 
+#endif
+
 #include "parasail.h"
 
 #include "sais.h"
+
+#if HAVE_VARIADIC_MACROS
+#define eprintf(STREAM, ...) fprintf(STREAM, __VA_ARGS__); fflush(STREAM)
+#else
+#define eprintf fprintf
+#endif
 
 using ::std::make_pair;
 using ::std::pair;
@@ -93,7 +105,7 @@ inline static void read_and_pack_file(
         const char *progname);
 
 static void print_help(const char *progname, int status) {
-    fprintf(stderr, "\nusage: %s "
+    eprintf(stderr, "\nusage: %s "
             "[-a funcname] "
             "[-c cutoff] "
             "[-x] "
@@ -105,7 +117,7 @@ static void print_help(const char *progname, int status) {
             "[-g output_file] "
             "\n\n",
             progname);
-    fprintf(stderr, "Defaults:\n"
+    eprintf(stderr, "Defaults:\n"
             "   funcname: sw_stats_striped_16\n"
             "     cutoff: 7, must be >= 1, exact match length cutoff\n"
             "         -x: if present, don't use suffix array filter\n"
@@ -148,7 +160,11 @@ int main(int argc, char **argv) {
     PairSet pairs;
     unsigned long count_possible = 0;
     unsigned long count_generated = 0;
+#ifdef USE_CILK
+    cilk::reducer_opadd<unsigned long> work;
+#else
     unsigned long work = 0;
+#endif
     int c = 0;
     const char *funcname = "sw_stats_striped_16";
     parasail_function_t *function = NULL;
@@ -215,22 +231,22 @@ int main(int argc, char **argv) {
                         || optopt == 'o'
                         || optopt == 'q'
                         ) {
-                    fprintf(stderr,
+                    eprintf(stderr,
                             "Option -%c requires an argument.\n",
                             optopt);
                 }
                 else if (isprint(optopt)) {
-                    fprintf(stderr, "Unknown option `-%c'.\n",
+                    eprintf(stderr, "Unknown option `-%c'.\n",
                             optopt);
                 }
                 else {
-                    fprintf(stderr,
+                    eprintf(stderr,
                             "Unknown option character `\\x%x'.\n",
                             optopt);
                 }
                 print_help(progname, EXIT_FAILURE);
             default:
-                fprintf(stderr, "default case in getopt\n");
+                eprintf(stderr, "default case in getopt\n");
                 exit(EXIT_FAILURE);
         }
     }
@@ -240,12 +256,12 @@ int main(int argc, char **argv) {
         if (NULL != strstr(funcname, "profile")) {
             pfunction = parasail_lookup_pfunction(funcname);
             if (NULL == pfunction) {
-                fprintf(stderr, "Specified profile function not found.\n");
+                eprintf(stderr, "Specified profile function not found.\n");
                 exit(EXIT_FAILURE);
             }
             pcreator = parasail_lookup_pcreator(funcname);
             if (NULL == pcreator) {
-                fprintf(stderr, "Specified profile creator function not found.\n");
+                eprintf(stderr, "Specified profile creator function not found.\n");
                 exit(EXIT_FAILURE);
             }
 
@@ -253,13 +269,13 @@ int main(int argc, char **argv) {
         else {
             function = parasail_lookup_function(funcname);
             if (NULL == function) {
-                fprintf(stderr, "Specified function not found.\n");
+                eprintf(stderr, "Specified function not found.\n");
                 exit(EXIT_FAILURE);
             }
         }
     }
     else {
-        fprintf(stderr, "No alignment function specified.\n");
+        eprintf(stderr, "No alignment function specified.\n");
         exit(EXIT_FAILURE);
     }
 
@@ -267,18 +283,18 @@ int main(int argc, char **argv) {
     if (matrixname) {
         matrix = parasail_matrix_lookup(matrixname);
         if (NULL == matrix) {
-            fprintf(stderr, "Specified substitution matrix not found.\n");
+            eprintf(stderr, "Specified substitution matrix not found.\n");
             exit(EXIT_FAILURE);
         }
     }
 
     if (fname == NULL) {
-        fprintf(stderr, "missing input file\n");
+        eprintf(stderr, "missing input file\n");
         print_help(progname, EXIT_FAILURE);
     }
 
     /* print the parameters for reference */
-    fprintf(stdout,
+    eprintf(stdout,
             "%20s: %s\n"
             "%20s: %d\n"
             "%20s: %s\n"
@@ -301,7 +317,7 @@ int main(int argc, char **argv) {
 
     /* Best to know early whether we can open the output file. */
     if((fop = fopen(oname, "w")) == NULL) {
-        fprintf(stderr, "%s: Cannot open output file `%s': ", progname, oname);
+        eprintf(stderr, "%s: Cannot open output file `%s': ", progname, oname);
         perror("fopen");
         exit(EXIT_FAILURE);
     }
@@ -317,7 +333,7 @@ int main(int argc, char **argv) {
         /* realloc T and copy Q into it */
         T = (unsigned char*)realloc(T, (n+1)*sizeof(unsigned char));
         if (T == NULL) {
-            fprintf(stderr, "%s: Cannot reallocate memory.\n", progname);
+            eprintf(stderr, "%s: Cannot reallocate memory.\n", progname);
             perror("realloc");
             exit(EXIT_FAILURE);
         }
@@ -326,12 +342,12 @@ int main(int argc, char **argv) {
     }
     T[n] = '\0';
     finish = parasail_time();
-    fprintf(stdout, "%20s: %.4f seconds\n", "read and pack time", finish-start);
+    eprintf(stdout, "%20s: %.4f seconds\n", "read and pack time", finish-start);
 
     /* Allocate memory for sequence ID array. */
     SID = (int *)malloc((size_t)n * sizeof(int));
     if(SID == NULL) {
-        fprintf(stderr, "%s: Cannot allocate memory.\n", progname);
+        eprintf(stderr, "%s: Cannot allocate memory.\n", progname);
         perror("malloc");
         exit(EXIT_FAILURE);
     }
@@ -370,18 +386,18 @@ int main(int argc, char **argv) {
         }
     }
     if (0 == sid) { /* no sentinal found */
-        fprintf(stderr, "no sentinal(%c) found in input\n", sentinal);
+        eprintf(stderr, "no sentinal(%c) found in input\n", sentinal);
         exit(EXIT_FAILURE);
     }
-    fprintf(stdout, "%20s: %d\n", "number of sequences", sid);
+    eprintf(stdout, "%20s: %d\n", "number of sequences", sid);
     /* if we don't have a query file, clear the DB flags */
     if (qname == NULL) {
         DB.clear();
         sid_crossover = -1;
     }
     else {
-        fprintf(stdout, "%20s: %d\n", "number of queries", sid - sid_crossover);
-        fprintf(stdout, "%20s: %d\n", "number of db seqs", sid_crossover);
+        eprintf(stdout, "%20s: %d\n", "number of queries", sid - sid_crossover);
+        eprintf(stdout, "%20s: %d\n", "number of db seqs", sid_crossover);
     }
 
     /* use the enhanced SA filter */
@@ -392,7 +408,7 @@ int main(int argc, char **argv) {
         BWT = (unsigned char *)malloc((size_t)(n+1) * sizeof(unsigned char));
         if((SA == NULL) || (LCP == NULL) || (BWT == NULL))
         {
-            fprintf(stderr, "%s: Cannot allocate ESA memory.\n", progname);
+            eprintf(stderr, "%s: Cannot allocate ESA memory.\n", progname);
             perror("malloc");
             exit(EXIT_FAILURE);
         }
@@ -401,11 +417,11 @@ int main(int argc, char **argv) {
          * The following sais routine is from Fischer, with bugs fixed. */
         start = parasail_time();
         if(sais(T, SA, LCP, (int)n) != 0) {
-            fprintf(stderr, "%s: Cannot allocate memory.\n", progname);
+            eprintf(stderr, "%s: Cannot allocate memory.\n", progname);
             exit(EXIT_FAILURE);
         }
         finish = parasail_time();
-        fprintf(stdout,"%20s: %.4f seconds\n", "induced SA time", finish-start);
+        eprintf(stdout,"%20s: %.4f seconds\n", "induced SA time", finish-start);
 
         /* construct naive BWT: */
         start = parasail_time();
@@ -413,7 +429,7 @@ int main(int argc, char **argv) {
             BWT[i] = (SA[i] > 0) ? T[SA[i]-1] : sentinal;
         }
         finish = parasail_time();
-        fprintf(stdout, "%20s: %.4f seconds\n", "naive BWT time", finish-start);
+        eprintf(stdout, "%20s: %.4f seconds\n", "naive BWT time", finish-start);
 
         /* "fix" the LCP array to clamp LCP's that are too long */
         start = parasail_time();
@@ -422,7 +438,7 @@ int main(int argc, char **argv) {
             if (LCP[i] > len) LCP[i] = len;
         }
         finish = parasail_time();
-        fprintf(stdout, "%20s: %.4f seconds\n", "clamp LCP time", finish-start);
+        eprintf(stdout, "%20s: %.4f seconds\n", "clamp LCP time", finish-start);
 
         /* The GSA we create will put all sentinals either at the beginning
          * or end of the SA. We don't want to count all of the terminals,
@@ -441,7 +457,7 @@ int main(int argc, char **argv) {
             bup_stop = n-sid;
         }
         else {
-            fprintf(stderr, "sentinals not found at beginning or end of SA\n");
+            eprintf(stderr, "sentinals not found at beginning or end of SA\n");
             exit(EXIT_FAILURE);
         }
 
@@ -483,9 +499,9 @@ int main(int argc, char **argv) {
         }
         finish = parasail_time();
         count_possible = ((unsigned long)sid)*((unsigned long)sid-1)/2;
-        fprintf(stdout, "%20s: %.4f seconds\n", "ESA time", finish-start);
-        fprintf(stdout, "%20s: %lu\n", "possible pairs", count_possible);
-        fprintf(stdout, "%20s: %lu\n", "generated pairs", count_generated);
+        eprintf(stdout, "%20s: %.4f seconds\n", "ESA time", finish-start);
+        eprintf(stdout, "%20s: %lu\n", "possible pairs", count_possible);
+        eprintf(stdout, "%20s: %lu\n", "generated pairs", count_generated);
 
         /* Deallocate memory. */
         free(SA);
@@ -512,9 +528,9 @@ int main(int argc, char **argv) {
             }
         }
         finish = parasail_time();
-        fprintf(stdout, "%20s: %.4f seconds\n", "enumerate time", finish-start);
+        eprintf(stdout, "%20s: %.4f seconds\n", "enumerate time", finish-start);
     }
-    fprintf(stdout, "%20s: %zu\n", "unique pairs", pairs.size());
+    eprintf(stdout, "%20s: %zu\n", "unique pairs", pairs.size());
 
     /* Deallocate memory. */
     free(SID);
@@ -527,10 +543,25 @@ int main(int argc, char **argv) {
         omp_set_num_threads(num_threads);
     }
     else {
-        fprintf(stderr, "invalid number of threads chosen (%d)\n", num_threads);
+        eprintf(stderr, "invalid number of threads chosen (%d)\n", num_threads);
         exit(EXIT_FAILURE);
     }
-    fprintf(stdout, "%20s: %d\n", "omp num threads", num_threads);
+    eprintf(stdout, "%20s: %d\n", "omp num threads", num_threads);
+#endif
+#ifdef USE_CILK
+    if (-1 == num_threads) {
+        /* use defaults */
+    }
+    else if (num_threads >= 1) {
+        char num_threads_str[256];
+        sprintf(num_threads_str, "%d", num_threads);
+        __cilkrts_set_param("nworkers", num_threads_str);
+    }
+    else {
+        eprintf(stderr, "invalid number of threads chosen (%d)\n", num_threads);
+        exit(EXIT_FAILURE);
+    }
+    eprintf(stdout, "%20s: %d\n", "omp num threads", num_threads);
 #endif
 
     /* OpenMP can't iterate over an STL set. Convert to STL vector. */
@@ -538,7 +569,7 @@ int main(int argc, char **argv) {
     vector<Pair> vpairs(pairs.begin(), pairs.end());
     vector<parasail_result_t*> results(vpairs.size(), NULL);
     finish = parasail_time();
-    fprintf(stdout, "%20s: %.4f seconds\n", "openmp prep time", finish-start);
+    eprintf(stdout, "%20s: %.4f seconds\n", "openmp prep time", finish-start);
 
     /* create profiles, if necessary */
     vector<parasail_profile_t*> profiles;
@@ -553,11 +584,11 @@ int main(int argc, char **argv) {
                 profile_indices_set.end());
         profiles.assign(sid, NULL);
         finish = parasail_time();
-        fprintf(stdout, "%20s: %.4f seconds\n", "profile init", finish-start);
+        eprintf(stdout, "%20s: %.4f seconds\n", "profile init", finish-start);
         start = parasail_time();
 #pragma omp parallel
         {
-#pragma omp for schedule(dynamic)
+#pragma omp for schedule(guided)
             for (size_t index=0; index<profile_indices.size(); ++index) {
                 int i = profile_indices[index];
                 int i_beg = BEG[i];
@@ -567,16 +598,21 @@ int main(int argc, char **argv) {
             }
         }
         finish = parasail_time();
-        fprintf(stdout, "%20s: %.4f seconds\n", "profile creation", finish-start);
+        eprintf(stdout, "%20s: %.4f seconds\n", "profile creation", finish-start);
     }
 
     /* align pairs */
     start = parasail_time();
     if (function) {
+#ifdef USE_CILK
+            cilk_for (size_t index=0; index<vpairs.size(); ++index)
+#else
 #pragma omp parallel
         {
-#pragma omp for schedule(dynamic)
-            for (size_t index=0; index<vpairs.size(); ++index) {
+#pragma omp for schedule(guided)
+            for (size_t index=0; index<vpairs.size(); ++index)
+#endif
+            {
                 int i = vpairs[index].first;
                 int j = vpairs[index].second;
                 int i_beg = BEG[i];
@@ -590,17 +626,29 @@ int main(int argc, char **argv) {
                         (const char*)&T[i_beg], i_len,
                         (const char*)&T[j_beg], j_len,
                         gap_open, gap_extend, matrix);
+#ifdef USE_CILK
+                work += local_work;
+#else
 #pragma omp atomic
                 work += local_work;
+#endif
                 results[index] = result;
             }
+#ifdef USE_CILK
+#else
         }
+#endif
     }
     else if (pfunction) {
+#ifdef USE_CILK
+            cilk_for (size_t index=0; index<vpairs.size(); ++index)
+#else
 #pragma omp parallel
         {
-#pragma omp for schedule(dynamic)
-            for (size_t index=0; index<vpairs.size(); ++index) {
+#pragma omp for schedule(guided)
+            for (size_t index=0; index<vpairs.size(); ++index)
+#endif
+            {
                 int i = vpairs[index].first;
                 int j = vpairs[index].second;
                 int j_beg = BEG[j];
@@ -608,34 +656,49 @@ int main(int argc, char **argv) {
                 int j_len = j_end-j_beg;
                 parasail_profile_t *profile = profiles[i];
                 if (NULL == profile) {
-                    fprintf(stderr, "BAD PROFILE %d\n", i);
+                    eprintf(stderr, "BAD PROFILE %d\n", i);
                     exit(EXIT_FAILURE);
                 }
                 unsigned long local_work = profile->s1Len * j_len;
                 parasail_result_t *result = pfunction(
                         profile, (const char*)&T[j_beg], j_len,
                         gap_open, gap_extend);
+#ifdef USE_CILK
+                work += local_work;
+#else
 #pragma omp atomic
                 work += local_work;
+#endif
                 results[index] = result;
             }
+#ifdef USE_CILK
+#else
         }
+#endif
     }
     else {
         /* shouldn't get here */
-        fprintf(stderr, "alignment function was not properly set (shouldn't happen)\n");
+        eprintf(stderr, "alignment function was not properly set (shouldn't happen)\n");
         exit(EXIT_FAILURE);
     }
     finish = parasail_time();
-    fprintf(stdout, "%20s: %lu cells\n", "work", work);
-    fprintf(stdout, "%20s: %.4f seconds\n", "alignment time", finish-start);
-    fprintf(stdout, "%20s: %.4f \n", "gcups", double(work)/(finish-start)/1000000000);
+#ifdef USE_CILK
+    eprintf(stdout, "%20s: %lu cells\n", "work", work.get_value());
+#else
+    eprintf(stdout, "%20s: %lu cells\n", "work", work);
+#endif
+    eprintf(stdout, "%20s: %.4f seconds\n", "alignment time", finish-start);
+#ifdef USE_CILK
+    eprintf(stdout, "%20s: %.4f \n", "gcups", double(work.get_value())/(finish-start)/1000000000);
+#else
+    eprintf(stdout, "%20s: %.4f \n", "gcups", double(work)/(finish-start)/1000000000);
+#endif
 
     if (pfunction) {
         start = parasail_time();
 #pragma omp parallel
         {
-#pragma omp for schedule(dynamic)
+#pragma omp for schedule(guided)
             for (size_t index=0; index<profiles.size(); ++index) {
                 if (NULL != profiles[index]) {
                     parasail_profile_free(profiles[index]);
@@ -644,7 +707,7 @@ int main(int argc, char **argv) {
             profiles.clear();
         }
         finish = parasail_time();
-        fprintf(stdout, "%20s: %.4f seconds\n", "profile cleanup", finish-start);
+        eprintf(stdout, "%20s: %.4f seconds\n", "profile cleanup", finish-start);
     }
 
     /* Output results. */
@@ -655,7 +718,7 @@ int main(int argc, char **argv) {
         int j = vpairs[index].second;
 
         if (is_stats) {
-            fprintf(fop, "%d,%d,%d,%d,%d,%d\n",
+            eprintf(fop, "%d,%d,%d,%d,%d,%d\n",
                     (NULL == qname) ? i : i - sid_crossover,
                     j,
                     result->score,
@@ -664,7 +727,7 @@ int main(int argc, char **argv) {
                     result->length);
         }
         else {
-            fprintf(fop, "%d,%d,%d\n",
+            eprintf(fop, "%d,%d,%d\n",
                     (NULL == qname) ? i : i - sid_crossover,
                     j,
                     result->score);
@@ -781,7 +844,7 @@ inline static void read_and_pack_file(
 
     /* Open a file for reading. */
     if((fip = fopen(fname, "r")) == NULL) {
-        fprintf(stderr, "%s: Cannot open input file `%s': ", progname, fname);
+        eprintf(stderr, "%s: Cannot open input file `%s': ", progname, fname);
         perror("fopen");
         exit(EXIT_FAILURE);
     }
@@ -790,13 +853,13 @@ inline static void read_and_pack_file(
     if(fseek(fip, 0, SEEK_END) == 0) {
         n = ftell(fip);
         if(n < 0) {
-            fprintf(stderr, "%s: Cannot ftell `%s': ", progname, fname);
+            eprintf(stderr, "%s: Cannot ftell `%s': ", progname, fname);
             perror("ftell");
             exit(EXIT_FAILURE);
         }
         rewind(fip);
     } else {
-        fprintf(stderr, "%s: Cannot fseek `%s': ", progname, fname);
+        eprintf(stderr, "%s: Cannot fseek `%s': ", progname, fname);
         perror("fseek");
         exit(EXIT_FAILURE);
     }
@@ -804,12 +867,12 @@ inline static void read_and_pack_file(
     /* Allocate file buffer, read the entire file, then pack it. */
     T = (unsigned char *)malloc((size_t)(n+1) * sizeof(unsigned char));
     if (T == NULL) {
-        fprintf(stderr, "%s: Cannot allocate memory for file.\n", progname);
+        eprintf(stderr, "%s: Cannot allocate memory for file.\n", progname);
         perror("malloc");
         exit(EXIT_FAILURE);
     }
     if(fread(T, sizeof(unsigned char), (size_t)n, fip) != (size_t)n) {
-        fprintf(stderr, "%s: %s `%s': ",
+        eprintf(stderr, "%s: %s `%s': ",
                 progname,
                 (ferror(fip) || !feof(fip)) ? "Cannot read from" : "Unexpected EOF in",
                 fname);
@@ -818,8 +881,8 @@ inline static void read_and_pack_file(
     }
     fclose(fip);
     T[n]='\0'; /* so we can print it */
-    fprintf(stdout, "%20s: %s\n", "filename", fname);
-    fprintf(stdout, "%20s: %ld bytes\n", "original size", n);
+    eprintf(stdout, "%20s: %s\n", "filename", fname);
+    eprintf(stdout, "%20s: %ld bytes\n", "original size", n);
     /* Pack the buffer so it's ready for sais function. */
     {
         long i;
@@ -855,20 +918,20 @@ inline static void read_and_pack_file(
                 if (T[i] == '\r') {
                     ++i;
                     if (i >= n || T[i] != '\n') {
-                        fprintf(stderr, "error: \\r without \\n "
+                        eprintf(stderr, "error: \\r without \\n "
                                 "line %ld in input\n", newlines);
                         exit(EXIT_FAILURE);
                     }
                 }
             }
             else if (isprint(T[i])) {
-                fprintf(stderr, "error: non-alpha character "
+                eprintf(stderr, "error: non-alpha character "
                         "at pos %ld line %ld in input ('%c')\n",
                         i, newlines, T[i]);
                 exit(EXIT_FAILURE);
             }
             else {
-                fprintf(stderr, "error: non-printing character "
+                eprintf(stderr, "error: non-printing character "
                         "at pos %ld line %ld in input ('%d')\n",
                         i, newlines, T[i]);
                 exit(EXIT_FAILURE);
@@ -883,6 +946,6 @@ inline static void read_and_pack_file(
         /* new length */
         n = save;
     }
-    fprintf(stdout, "%20s: %ld bytes\n", "packed size", n);
+    eprintf(stdout, "%20s: %ld bytes\n", "packed size", n);
 }
 

@@ -97,7 +97,6 @@ inline static void read_and_pack_file(
 
 static void print_help(const char *progname, int status) {
     eprintf(stderr, "\nusage: %s "
-            "[-a funcname] "
             "[-c cutoff] "
             "[-x] "
             "[-e gap_extend] "
@@ -109,7 +108,6 @@ static void print_help(const char *progname, int status) {
             "\n\n",
             progname);
     eprintf(stderr, "Defaults:\n"
-            "   funcname: sw_stats_striped_16\n"
             "     cutoff: 7, must be >= 1, exact match length cutoff\n"
             "         -x: if present, don't use suffix array filter\n"
             " gap_extend: 1, must be >= 0\n"
@@ -123,6 +121,7 @@ static void print_help(const char *progname, int status) {
 }
 
 int main(int argc, char **argv) {
+    FILE *fop = NULL;
     const char *fname = NULL;
     const char *qname = NULL;
     const char *oname = "parasail.csv";
@@ -153,7 +152,6 @@ int main(int argc, char **argv) {
     unsigned long count_generated = 0;
     unsigned long work = 0;
     int c = 0;
-    const char *funcname = "sw_stats_striped_16";
     parasail_function_t *function = NULL;
     parasail_pfunction_t *pfunction = NULL;
     parasail_pcreator_t *pcreator = NULL;
@@ -162,14 +160,13 @@ int main(int argc, char **argv) {
     int8_t ssw_matrix[24*24];
     int gap_open = 10;
     int gap_extend = 1;
+    bool use_stats = false;
+    int ssw_flag = 0;
     const char *progname = "parasail_aligner";
 
     /* Check arguments. */
-    while ((c = getopt(argc, argv, "a:c:e:f:g:hm:o:q:t:x")) != -1) {
+    while ((c = getopt(argc, argv, "c:e:f:g:hm:o:q:st:x")) != -1) {
         switch (c) {
-            case 'a':
-                funcname = optarg;
-                break;
             case 'c':
                 cutoff = atoi(optarg);
                 if (cutoff <= 0) {
@@ -203,6 +200,9 @@ int main(int argc, char **argv) {
                     print_help(progname, EXIT_FAILURE);
                 }
                 break;
+            case 's':
+                use_stats = true;
+                break;
             case 't':
                 num_threads = atoi(optarg);
                 break;
@@ -210,8 +210,7 @@ int main(int argc, char **argv) {
                 use_filter = false;
                 break;
             case '?':
-                if (optopt == 'a'
-                        || optopt == 'c'
+                if (optopt == 'c'
                         || optopt == 'e'
                         || optopt == 'f'
                         || optopt == 'g'
@@ -258,7 +257,6 @@ int main(int argc, char **argv) {
 
     /* print the parameters for reference */
     eprintf(stdout,
-            "%20s: %s\n"
             "%20s: %d\n"
             "%20s: %s\n"
             "%20s: %d\n"
@@ -267,7 +265,6 @@ int main(int argc, char **argv) {
             "%20s: %s\n"
             "%20s: %s\n"
             "%20s: %s\n",
-            "funcname", funcname,
             "cutoff", cutoff,
             "use filter", use_filter ? "yes" : "no",
             "gap_extend", gap_extend,
@@ -277,6 +274,13 @@ int main(int argc, char **argv) {
             "query", (NULL == qname) ? "<no query>" : qname,
             "output", oname
             );
+
+    /* Best to know early whether we can open the output file. */
+    if((fop = fopen(oname, "w")) == NULL) {
+        eprintf(stderr, "%s: Cannot open output file `%s': ", progname, oname);
+        perror("fopen");
+        exit(EXIT_FAILURE);
+    }
 
     start = parasail_time();
     if (qname == NULL) {
@@ -561,6 +565,9 @@ int main(int argc, char **argv) {
     }
 
     /* align pairs */
+    if (use_stats) {
+        ssw_flag |= 0x0f;
+    }
     start = parasail_time();
     {
 #pragma omp parallel
@@ -584,7 +591,7 @@ int main(int argc, char **argv) {
                 s_align *result = ssw_align(
                         profile, &Tnum[j_beg], j_len,
                         -gap_open, -gap_extend,
-                        2, 0, 0, i_len/2);
+                        ssw_flag, 0, 0, 0);
 #pragma omp atomic
                 work += local_work;
                 results[index] = result;
@@ -615,8 +622,28 @@ int main(int argc, char **argv) {
     /* Output results. */
     for (size_t index=0; index<results.size(); ++index) {
         s_align *result = results[index];
+        int i = vpairs[index].first;
+        int j = vpairs[index].second;
+
+        if (use_stats) {
+            eprintf(fop, "%d,%d,%d,%d,%d,%d\n",
+                    (NULL == qname) ? i : i - sid_crossover,
+                    j,
+                    result->score1,
+                    0,
+                    0,
+                    0);
+        }
+        else {
+            eprintf(fop, "%d,%d,%d\n",
+                    (NULL == qname) ? i : i - sid_crossover,
+                    j,
+                    result->score1);
+        }
+
         align_destroy(result);
     }
+    fclose(fop);
 
     /* Done with input text. */
     free(T);

@@ -112,6 +112,10 @@ static void print_help(const char *progname, int status) {
             "[-e gap_extend] "
             "[-o gap_open] "
             "[-m matrix] "
+            "[-t threads] "
+            "[-d] "
+            "[-M match] "
+            "[-X mismatch] "
             "-f file "
             "[-q query_file] "
             "[-g output_file] "
@@ -124,6 +128,10 @@ static void print_help(const char *progname, int status) {
             " gap_extend: 1, must be >= 0\n"
             "   gap_open: 10, must be >= 0\n"
             "     matrix: blosum62\n"
+            "         -d: if present, assume DNA alphabet\n"
+            "      match: 1, must be >= 0\n"
+            "   mismatch: 0, must be >= 0\n"
+            "    threads: system-specific default, must be >= 1\n"
             "       file: no default, must be in FASTA format\n"
             " query_file: no default, must be in FASTA format\n"
             "output_file: parasail.csv\n"
@@ -170,14 +178,17 @@ int main(int argc, char **argv) {
     parasail_function_t *function = NULL;
     parasail_pfunction_t *pfunction = NULL;
     parasail_pcreator_t *pcreator = NULL;
-    const char *matrixname = "blosum62";
+    const char *matrixname = NULL;
     const parasail_matrix_t *matrix = NULL;
     int gap_open = 10;
     int gap_extend = 1;
+    int match = 1;
+    int mismatch = 0;
+    bool use_dna = false;
     const char *progname = "parasail_aligner";
 
     /* Check arguments. */
-    while ((c = getopt(argc, argv, "a:c:e:f:g:hm:o:q:t:x")) != -1) {
+    while ((c = getopt(argc, argv, "a:c:de:f:g:hm:M:o:q:t:xX:")) != -1) {
         switch (c) {
             case 'a':
                 funcname = optarg;
@@ -187,6 +198,9 @@ int main(int argc, char **argv) {
                 if (cutoff <= 0) {
                     print_help(progname, EXIT_FAILURE);
                 }
+                break;
+            case 'd':
+                use_dna = true;
                 break;
             case 'e':
                 gap_extend = atoi(optarg);
@@ -209,6 +223,12 @@ int main(int argc, char **argv) {
             case 'm':
                 matrixname = optarg;
                 break;
+            case 'M':
+                match = atoi(optarg);
+                if (match < 0) {
+                    print_help(progname, EXIT_FAILURE);
+                }
+                break;
             case 'o':
                 gap_open = atoi(optarg);
                 if (gap_open < 0) {
@@ -221,6 +241,12 @@ int main(int argc, char **argv) {
             case 'x':
                 use_filter = false;
                 break;
+            case 'X':
+                mismatch = atoi(optarg);
+                if (match < 0) {
+                    print_help(progname, EXIT_FAILURE);
+                }
+                break;
             case '?':
                 if (optopt == 'a'
                         || optopt == 'c'
@@ -228,8 +254,10 @@ int main(int argc, char **argv) {
                         || optopt == 'f'
                         || optopt == 'g'
                         || optopt == 'm'
+                        || optopt == 'M'
                         || optopt == 'o'
                         || optopt == 'q'
+                        || optopt == 'X'
                         ) {
                     eprintf(stderr,
                             "Option -%c requires an argument.\n",
@@ -280,7 +308,17 @@ int main(int argc, char **argv) {
     }
 
     /* select the substitution matrix */
-    if (matrixname) {
+    if (NULL != matrixname && use_dna) {
+        fprintf(stderr, "Cannot specify matrix name for DNA alignments.\n");
+        exit(EXIT_FAILURE);
+    }
+    if (use_dna) {
+        matrix = parasail_matrix_create("ACGT", match, -mismatch);
+    }
+    else {
+        if (NULL == matrixname) {
+            matrixname = "blosum62";
+        }
         matrix = parasail_matrix_lookup(matrixname);
         if (NULL == matrix) {
             eprintf(stderr, "Specified substitution matrix not found.\n");

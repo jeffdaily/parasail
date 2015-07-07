@@ -292,15 +292,15 @@ parasail_matrix_t* parasail_matrix_create(
                 matrix[c++] = mismatch;
             }
         }
-        matrix[c++] = mismatch;
+        matrix[c++] = 0;
     }
     for (j=0; j<size1; ++j) {
-        matrix[c++] = mismatch;
+        matrix[c++] = 0;
     }
 
     mapper = (int*)malloc(sizeof(int)*256);
     assert(mapper);
-    parasail_memset_int(mapper, size, 256);
+    parasail_memset_int(mapper, size, size);
     for (i=0; i<size; ++i) {
         mapper[toupper((unsigned char)alphabet[i])] = (int)i;
         mapper[tolower((unsigned char)alphabet[i])] = (int)i;

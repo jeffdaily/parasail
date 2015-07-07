@@ -340,14 +340,12 @@ int main(int argc, char **argv) {
             "%20s: %d\n"
             "%20s: %s\n"
             "%20s: %s\n"
-            "%20s: %s\n"
             "%20s: %s\n",
             "funcname", funcname,
             "cutoff", cutoff,
             "use filter", use_filter ? "yes" : "no",
             "gap_extend", gap_extend,
             "gap_open", gap_open,
-            "matrix", matrixname,
             "file", fname,
             "query", (NULL == qname) ? "<no query>" : qname,
             "output", oname

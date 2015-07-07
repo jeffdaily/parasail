@@ -81,8 +81,8 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = apps/parasail_aligner$(EXEEXT) \
-	apps/parasail_aligner_cilk$(EXEEXT) apps/parasail_all$(EXEEXT) \
-	apps/parasail_query$(EXEEXT)
+	apps/parasail_all$(EXEEXT) apps/parasail_query$(EXEEXT) \
+	$(am__EXEEXT_1)
 check_PROGRAMS = tests/test_align$(EXEEXT) tests/test_gcups$(EXEEXT) \
 	tests/test_isa$(EXEEXT) tests/test_openmp$(EXEEXT) \
 	tests/test_query$(EXEEXT) tests/test_scatter$(EXEEXT) \
@@ -116,9 +116,10 @@ check_PROGRAMS = tests/test_align$(EXEEXT) tests/test_gcups$(EXEEXT) \
 @HAVE_KNC_TRUE@	libparasail_knc.la libparasail_knc_table.la \
 @HAVE_KNC_TRUE@	libparasail_knc_rowcol.la
 @HAVE_SSE2_TRUE@am__append_11 = tests/libssw.la
-@HAVE_SSE2_TRUE@am__append_12 = tests/libssw.la
+@HAVE_CILK_TRUE@am__append_12 = apps/parasail_aligner_cilk
 @HAVE_SSE2_TRUE@am__append_13 = tests/libssw.la
 @HAVE_SSE2_TRUE@am__append_14 = tests/libssw.la
+@HAVE_SSE2_TRUE@am__append_15 = tests/libssw.la
 subdir = .
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) \
@@ -1112,6 +1113,7 @@ tests_libssw_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(tests_libssw_la_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
 	-o $@
 @HAVE_SSE2_TRUE@am_tests_libssw_la_rpath =
+@HAVE_CILK_TRUE@am__EXEEXT_1 = apps/parasail_aligner_cilk$(EXEEXT)
 PROGRAMS = $(bin_PROGRAMS)
 am_apps_parasail_aligner_OBJECTS =  \
 	apps/apps_parasail_aligner-parasail_aligner.$(OBJEXT)
@@ -1171,7 +1173,7 @@ am_tests_test_openmp_OBJECTS =  \
 	tests/tests_test_openmp-test_openmp.$(OBJEXT)
 tests_test_openmp_OBJECTS = $(am_tests_test_openmp_OBJECTS)
 tests_test_openmp_DEPENDENCIES = $(am__DEPENDENCIES_2) \
-	$(am__append_12)
+	$(am__append_13)
 tests_test_openmp_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(tests_test_openmp_CFLAGS) $(CFLAGS) \
@@ -1190,7 +1192,7 @@ am_tests_test_scatter_OBJECTS =  \
 	tests/tests_test_scatter-test_scatter.$(OBJEXT)
 tests_test_scatter_OBJECTS = $(am_tests_test_scatter_OBJECTS)
 tests_test_scatter_DEPENDENCIES = $(am__DEPENDENCIES_2) \
-	$(am__append_13)
+	$(am__append_14)
 tests_test_scatter_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(tests_test_scatter_CFLAGS) $(CFLAGS) \
@@ -1198,7 +1200,7 @@ tests_test_scatter_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 am_tests_test_ssw_OBJECTS = tests/tests_test_ssw-test_ssw.$(OBJEXT)
 tests_test_ssw_OBJECTS = $(am_tests_test_ssw_OBJECTS)
 tests_test_ssw_DEPENDENCIES = $(am__DEPENDENCIES_2) tests/libsais.la \
-	$(am__append_14)
+	$(am__append_15)
 tests_test_ssw_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
 	$(tests_test_ssw_CXXFLAGS) $(CXXFLAGS) \
@@ -1961,18 +1963,18 @@ tests_test_isa_SOURCES = tests/test_isa.c
 tests_test_openmp_SOURCES = tests/test_openmp.c
 tests_test_openmp_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_test_openmp_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
-tests_test_openmp_LDADD = $(LDADD) $(am__append_12)
+tests_test_openmp_LDADD = $(LDADD) $(am__append_13)
 tests_test_query_SOURCES = tests/test_query.c
 tests_test_query_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_test_query_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
 tests_test_scatter_SOURCES = tests/test_scatter.c
 tests_test_scatter_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_test_scatter_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
-tests_test_scatter_LDADD = $(LDADD) $(am__append_13)
+tests_test_scatter_LDADD = $(LDADD) $(am__append_14)
 tests_test_ssw_SOURCES = tests/test_ssw.cpp
 tests_test_ssw_CXXFLAGS = $(AM_CXXFLAGS) $(OPENMP_CXXFLAGS)
 tests_test_ssw_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CXXFLAGS)
-tests_test_ssw_LDADD = $(LDADD) tests/libsais.la $(am__append_14)
+tests_test_ssw_LDADD = $(LDADD) tests/libsais.la $(am__append_15)
 tests_test_sw_dispatch_SOURCES = tests/test_sw_dispatch.c
 tests_test_verify_SOURCES = tests/test_verify.c
 tests_test_verify_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)

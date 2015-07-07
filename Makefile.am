@@ -671,9 +671,11 @@ tests_libsais_la_SOURCES += contrib/sais-lite-lcp/sais.c
 tests_libsais_la_SOURCES += contrib/sais-lite-lcp/sais.h
 
 bin_PROGRAMS += apps/parasail_aligner
-bin_PROGRAMS += apps/parasail_aligner_cilk
 bin_PROGRAMS += apps/parasail_all
 bin_PROGRAMS += apps/parasail_query
+if HAVE_CILK
+bin_PROGRAMS += apps/parasail_aligner_cilk
+endif
 
 check_PROGRAMS += tests/test_align
 check_PROGRAMS += tests/test_gcups

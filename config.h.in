@@ -30,6 +30,9 @@
 /* define to 1 if the C compiler supports AVX2 _mm256_insert_epi8 */
 #undef HAVE_AVX2_MM256_INSERT_EPI8
 
+/* Define to 1 if you have the <cilk/cilk.h> header file. */
+#undef HAVE_CILK_CILK_H
+
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
 

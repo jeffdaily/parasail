@@ -517,6 +517,9 @@ AC_PROG_CXX
 # Checks for libraries.
 
 # Checks for header files.
+AC_CHECK_HEADERS([cilk/cilk.h])
+
+AM_CONDITIONAL([HAVE_CILK], [test "x$ac_cv_header_cilk_cilk_h" = xyes])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AX_OPENMP

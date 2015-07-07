@@ -16,6 +16,7 @@
  */
 #include "config.h"
 
+#include <errno.h>
 #include <unistd.h>
 
 #include <cctype>
@@ -103,6 +104,12 @@ inline static void read_and_pack_file(
         unsigned char * &T,
         long &n,
         const char *progname);
+
+inline static void print_array(
+        const char * filename_,
+        const int * const restrict array,
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len);
 
 static void print_help(const char *progname, int status) {
     eprintf(stderr, "\nusage: %s "
@@ -748,10 +755,17 @@ int main(int argc, char **argv) {
 
     /* Output results. */
     bool is_stats = (NULL != strstr(funcname, "stats"));
+    bool is_table = (NULL != strstr(funcname, "table"));
     for (size_t index=0; index<results.size(); ++index) {
         parasail_result_t *result = results[index];
         int i = vpairs[index].first;
         int j = vpairs[index].second;
+        int i_beg = BEG[i];
+        int i_end = END[i];
+        int i_len = i_end-i_beg;
+        int j_beg = BEG[j];
+        int j_end = END[j];
+        int j_len = j_end-j_beg;
 
         if (is_stats) {
             eprintf(fop, "%d,%d,%d,%d,%d,%d\n",
@@ -767,6 +781,13 @@ int main(int argc, char **argv) {
                     (NULL == qname) ? i : i - sid_crossover,
                     j,
                     result->score);
+        }
+        if (is_table) {
+            char filename[256] = {'\0'};
+            sprintf(filename, "parasail_%d_%d.txt", i, j);
+            print_array(filename, result->score_table,
+                    (const char*)&T[i_beg], i_len,
+                    (const char*)&T[j_beg], j_len);
         }
 
         parasail_result_free(result);
@@ -983,5 +1004,46 @@ inline static void read_and_pack_file(
         n = save;
     }
     eprintf(stdout, "%20s: %ld bytes\n", "packed size", n);
+}
+
+inline static void print_array(
+        const char * filename_,
+        const int * const restrict array,
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len)
+{
+    int i;
+    int j;
+    FILE *f = NULL;
+#ifdef __MIC__
+    const char *username = get_user_name();
+    char filename[4096] = {0};
+    strcat(filename, "/tmp/");
+    if (username[0] != '\0') {
+        strcat(filename, username);
+        strcat(filename, "/");
+    }
+    strcat(filename, filename_);
+#else
+    const char *filename = filename_;
+#endif
+    f = fopen(filename, "w");
+    if (NULL == f) {
+        printf("fopen(\"%s\") error: %s\n", filename, strerror(errno));
+        exit(-1);
+    }
+    fprintf(f, " ");
+    for (j=0; j<s2Len; ++j) {
+        fprintf(f, "%4c", s2[j]);
+    }
+    fprintf(f, "\n");
+    for (i=0; i<s1Len; ++i) {
+        fprintf(f, "%c", s1[i]);
+        for (j=0; j<s2Len; ++j) {
+            fprintf(f, "%4d", array[i*s2Len + j]);
+        }
+        fprintf(f, "\n");
+    }
+    fclose(f);
 }
 

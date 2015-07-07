@@ -16,6 +16,7 @@
  */
 #include "config.h"
 
+#include <errno.h>
 #include <unistd.h>
 
 #include <cctype>
@@ -50,6 +51,17 @@ using ::std::vector;
 typedef pair<int,int> Pair;
 
 typedef set<Pair> PairSet;
+
+typedef s_align* ssw_func(
+        const s_profile* prof,
+        const int8_t* ref,
+        int32_t refLen,
+        const uint8_t weight_gapO,
+        const uint8_t weight_gapE,
+        const uint8_t flag,
+        const uint16_t filters,
+        const int32_t filterd,
+        const int32_t maskLen);
 
 struct quad {
     int lcp;
@@ -95,6 +107,12 @@ inline static void read_and_pack_file(
         long &n,
         const char *progname);
 
+inline static void print_array(
+        const char * filename_,
+        const int * const restrict array,
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len);
+
 static void print_help(const char *progname, int status) {
     eprintf(stderr, "\nusage: %s "
             "[-c cutoff] "
@@ -102,9 +120,14 @@ static void print_help(const char *progname, int status) {
             "[-e gap_extend] "
             "[-o gap_open] "
             "[-m matrix] "
+            "[-t threads] "
+            "[-d] "
+            "[-M match] "
+            "[-X mismatch] "
             "-f file "
             "[-q query_file] "
             "[-g output_file] "
+            "[-p] "
             "\n\n",
             progname);
     eprintf(stderr, "Defaults:\n"
@@ -113,9 +136,13 @@ static void print_help(const char *progname, int status) {
             " gap_extend: 1, must be >= 0\n"
             "   gap_open: 10, must be >= 0\n"
             "     matrix: blosum62\n"
+            "         -d: if present, assume DNA alphabet\n"
+            "      match: 1, must be >= 0\n"
+            "   mismatch: 0, must be >= 0\n"
             "       file: no default, must be in FASTA format\n"
             " query_file: no default, must be in FASTA format\n"
             "output_file: parasail.csv\n"
+            "         -p: if present, write DP table(s) to file\n"
             );
     exit(status);
 }
@@ -152,10 +179,7 @@ int main(int argc, char **argv) {
     unsigned long count_generated = 0;
     unsigned long work = 0;
     int c = 0;
-    parasail_function_t *function = NULL;
-    parasail_pfunction_t *pfunction = NULL;
-    parasail_pcreator_t *pcreator = NULL;
-    const char *matrixname = "blosum62";
+    const char *matrixname = NULL;
     const parasail_matrix_t *matrix = NULL;
     int8_t ssw_matrix[24*24];
     int gap_open = 10;
@@ -163,15 +187,23 @@ int main(int argc, char **argv) {
     bool use_stats = false;
     int ssw_flag = 0;
     const char *progname = "parasail_aligner";
+    ssw_func *function = ssw_align;
+    int match = 1;
+    int mismatch = 0;
+    bool use_dna = false;
+    bool use_table = false;
 
     /* Check arguments. */
-    while ((c = getopt(argc, argv, "c:e:f:g:hm:o:q:st:x")) != -1) {
+    while ((c = getopt(argc, argv, "c:de:f:g:hm:M:o:pq:st:xX:")) != -1) {
         switch (c) {
             case 'c':
                 cutoff = atoi(optarg);
                 if (cutoff <= 0) {
                     print_help(progname, EXIT_FAILURE);
                 }
+                break;
+            case 'd':
+                use_dna = true;
                 break;
             case 'e':
                 gap_extend = atoi(optarg);
@@ -194,11 +226,21 @@ int main(int argc, char **argv) {
             case 'm':
                 matrixname = optarg;
                 break;
+            case 'M':
+                match = atoi(optarg);
+                if (match < 0) {
+                    print_help(progname, EXIT_FAILURE);
+                }
+                break;
             case 'o':
                 gap_open = atoi(optarg);
                 if (gap_open < 0) {
                     print_help(progname, EXIT_FAILURE);
                 }
+                break;
+            case 'p':
+                use_table = true;
+                function = ssw_align_table;
                 break;
             case 's':
                 use_stats = true;
@@ -209,14 +251,22 @@ int main(int argc, char **argv) {
             case 'x':
                 use_filter = false;
                 break;
+            case 'X':
+                mismatch = atoi(optarg);
+                if (match < 0) {
+                    print_help(progname, EXIT_FAILURE);
+                }
+                break;
             case '?':
                 if (optopt == 'c'
                         || optopt == 'e'
                         || optopt == 'f'
                         || optopt == 'g'
                         || optopt == 'm'
+                        || optopt == 'M'
                         || optopt == 'o'
                         || optopt == 'q'
+                        || optopt == 'X'
                         ) {
                     eprintf(stderr,
                             "Option -%c requires an argument.\n",
@@ -239,14 +289,25 @@ int main(int argc, char **argv) {
     }
 
     /* select the substitution matrix */
-    if (matrixname) {
+    if (NULL != matrixname && use_dna) {
+        fprintf(stderr, "Cannot specify matrix name for DNA alignments.\n");
+        exit(EXIT_FAILURE);
+    }
+    if (use_dna) {
+        matrix = parasail_matrix_create("ACGT", match, -mismatch);
+    }
+    else {
+        if (NULL == matrixname) {
+            matrixname = "blosum62";
+        }
         matrix = parasail_matrix_lookup(matrixname);
         if (NULL == matrix) {
             eprintf(stderr, "Specified substitution matrix not found.\n");
             exit(EXIT_FAILURE);
         }
     }
-    for (i=0; i<24*24; ++i) {
+    /* create the ssw matrix */
+    for (i=0; i<matrix->size*matrix->size; ++i) {
         ssw_matrix[i] = matrix->matrix[i];
     }
 
@@ -588,7 +649,7 @@ int main(int argc, char **argv) {
                     exit(EXIT_FAILURE);
                 }
                 unsigned long local_work = i_len * j_len;
-                s_align *result = ssw_align(
+                s_align *result = function(
                         profile, &Tnum[j_beg], j_len,
                         -gap_open, -gap_extend,
                         ssw_flag, 0, 0, 0);
@@ -603,7 +664,7 @@ int main(int argc, char **argv) {
     eprintf(stdout, "%20s: %.4f seconds\n", "alignment time", finish-start);
     eprintf(stdout, "%20s: %.4f \n", "gcups", double(work)/(finish-start)/1000000000);
 
-    if (pfunction) {
+    {
         start = parasail_time();
 #pragma omp parallel
         {
@@ -624,6 +685,12 @@ int main(int argc, char **argv) {
         s_align *result = results[index];
         int i = vpairs[index].first;
         int j = vpairs[index].second;
+        int i_beg = BEG[i];
+        int i_end = END[i];
+        int i_len = i_end-i_beg;
+        int j_beg = BEG[j];
+        int j_end = END[j];
+        int j_len = j_end-j_beg;
 
         if (use_stats) {
             eprintf(fop, "%d,%d,%d,%d,%d,%d\n",
@@ -640,6 +707,13 @@ int main(int argc, char **argv) {
                     j,
                     result->score1);
         }
+        if (use_table) {
+            char filename[256] = {'\0'};
+            sprintf(filename, "ssw_%d_%d.txt", i, j);
+            print_array(filename, result->score_table,
+                    (const char*)&T[i_beg], i_len,
+                    (const char*)&T[j_beg], j_len);
+        }
 
         align_destroy(result);
     }
@@ -647,6 +721,7 @@ int main(int argc, char **argv) {
 
     /* Done with input text. */
     free(T);
+    free(Tnum);
 
     return 0;
 }
@@ -855,5 +930,46 @@ inline static void read_and_pack_file(
         n = save;
     }
     eprintf(stdout, "%20s: %ld bytes\n", "packed size", n);
+}
+
+inline static void print_array(
+        const char * filename_,
+        const int * const restrict array,
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len)
+{
+    int i;
+    int j;
+    FILE *f = NULL;
+#ifdef __MIC__
+    const char *username = get_user_name();
+    char filename[4096] = {0};
+    strcat(filename, "/tmp/");
+    if (username[0] != '\0') {
+        strcat(filename, username);
+        strcat(filename, "/");
+    }
+    strcat(filename, filename_);
+#else
+    const char *filename = filename_;
+#endif
+    f = fopen(filename, "w");
+    if (NULL == f) {
+        printf("fopen(\"%s\") error: %s\n", filename, strerror(errno));
+        exit(-1);
+    }
+    fprintf(f, " ");
+    for (j=0; j<s2Len; ++j) {
+        fprintf(f, "%4c", s2[j]);
+    }
+    fprintf(f, "\n");
+    for (i=0; i<s1Len; ++i) {
+        fprintf(f, "%c", s1[i]);
+        for (j=0; j<s2Len; ++j) {
+            fprintf(f, "%4d", array[i*s2Len + j]);
+        }
+        fprintf(f, "\n");
+    }
+    fclose(f);
 }
 

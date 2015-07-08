@@ -250,7 +250,7 @@ int main(int argc, char **argv) {
                 break;
             case 'X':
                 mismatch = atoi(optarg);
-                if (match < 0) {
+                if (mismatch < 0) {
                     print_help(progname, EXIT_FAILURE);
                 }
                 break;
@@ -316,7 +316,7 @@ int main(int argc, char **argv) {
 
     /* select the substitution matrix */
     if (NULL != matrixname && use_dna) {
-        fprintf(stderr, "Cannot specify matrix name for DNA alignments.\n");
+        eprintf(stderr, "Cannot specify matrix name for DNA alignments.\n");
         exit(EXIT_FAILURE);
     }
     if (use_dna) {
@@ -347,12 +347,14 @@ int main(int argc, char **argv) {
             "%20s: %d\n"
             "%20s: %s\n"
             "%20s: %s\n"
+            "%20s: %s\n"
             "%20s: %s\n",
             "funcname", funcname,
             "cutoff", cutoff,
             "use filter", use_filter ? "yes" : "no",
             "gap_extend", gap_extend,
             "gap_open", gap_open,
+            "matrix", matrixname,
             "file", fname,
             "query", (NULL == qname) ? "<no query>" : qname,
             "output", oname
@@ -767,9 +769,13 @@ int main(int argc, char **argv) {
         int j_end = END[j];
         int j_len = j_end-j_beg;
 
+        if (NULL != qname) {
+            i = i - sid_crossover;
+        }
+
         if (is_stats) {
             eprintf(fop, "%d,%d,%d,%d,%d,%d\n",
-                    (NULL == qname) ? i : i - sid_crossover,
+                    i,
                     j,
                     result->score,
                     result->matches,
@@ -778,7 +784,7 @@ int main(int argc, char **argv) {
         }
         else {
             eprintf(fop, "%d,%d,%d\n",
-                    (NULL == qname) ? i : i - sid_crossover,
+                    i,
                     j,
                     result->score);
         }

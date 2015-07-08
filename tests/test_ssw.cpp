@@ -614,7 +614,7 @@ int main(int argc, char **argv) {
         start = parasail_time();
 #pragma omp parallel
         {
-#pragma omp for schedule(dynamic)
+#pragma omp for schedule(guided)
             for (size_t index=0; index<profile_indices.size(); ++index) {
                 int i = profile_indices[index];
                 int i_beg = BEG[i];
@@ -636,7 +636,7 @@ int main(int argc, char **argv) {
         {
 #pragma omp parallel
             {
-#pragma omp for schedule(dynamic)
+#pragma omp for schedule(guided)
             for (size_t index=0; index<vpairs.size(); ++index) {
                 int i = vpairs[index].first;
                 int j = vpairs[index].second;
@@ -654,7 +654,7 @@ int main(int argc, char **argv) {
                 unsigned long local_work = i_len * j_len;
                 s_align *result = function(
                         profile, &Tnum[j_beg], j_len,
-                        -gap_open, -gap_extend,
+                        gap_open, gap_extend,
                         ssw_flag, 0, 0, 0);
 #pragma omp atomic
                 work += local_work;
@@ -671,7 +671,7 @@ int main(int argc, char **argv) {
         start = parasail_time();
 #pragma omp parallel
         {
-#pragma omp for schedule(dynamic)
+#pragma omp for schedule(guided)
             for (size_t index=0; index<profiles.size(); ++index) {
                 if (NULL != profiles[index]) {
                     init_destroy(profiles[index]);

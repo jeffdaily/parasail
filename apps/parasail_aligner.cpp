@@ -653,7 +653,7 @@ int main(int argc, char **argv) {
             cilk_for (size_t index=0; index<vpairs.size(); ++index)
 #else
 #pragma omp parallel
-        {
+            {
 #pragma omp for schedule(guided)
             for (size_t index=0; index<vpairs.size(); ++index)
 #endif
@@ -967,7 +967,7 @@ inline static void read_and_pack_file(
                 }
                 newlines++;
                 /* for the case of "\r\n" */
-                if (T[i] == '\n') {
+                if (T[i+1] == '\n' || T[i+1] == '\r') {
                     ++i;
                 }
             }
@@ -978,13 +978,8 @@ inline static void read_and_pack_file(
                 /* ignore newline */
                 newlines++;
                 /* for the case of "\r\n" */
-                if (T[i] == '\r') {
+                if (T[i+1] == '\n' || T[i+1] == '\r') {
                     ++i;
-                    if (i >= n || T[i] != '\n') {
-                        eprintf(stderr, "error: \\r without \\n "
-                                "line %ld in input\n", newlines);
-                        exit(EXIT_FAILURE);
-                    }
                 }
             }
             else if (isprint(T[i])) {

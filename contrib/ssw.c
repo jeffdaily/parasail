@@ -68,6 +68,7 @@ typedef struct {
 	uint16_t score;
 	int32_t ref;	 //0-based position
 	int32_t read;    //alignment ending position on read, 0-based
+    int32_t *score_table;
 } alignment_end;
 
 typedef struct {
@@ -84,6 +85,63 @@ struct _profile{
 	int32_t n;
 	uint8_t bias;
 };
+
+typedef union __m128i_8 {
+    __m128i m;
+    int8_t v[16];
+} __m128i_8_t;
+
+static inline int8_t _mm_extract_epi8_rpl(__m128i a, const int imm) {
+    __m128i_8_t A;
+    A.m = a;
+    return A.v[imm];
+}
+
+static inline void arr_store_epi8(
+        int *array,
+        __m128i vH,
+        int32_t t,
+        int32_t seglen,
+        int32_t d,
+        int32_t dlen,
+        int32_t bias)
+{
+    array[( 0*seglen+t)*dlen + d] = (int8_t)_mm_extract_epi8_rpl(vH,  0) - bias;
+    array[( 1*seglen+t)*dlen + d] = (int8_t)_mm_extract_epi8_rpl(vH,  1) - bias;
+    array[( 2*seglen+t)*dlen + d] = (int8_t)_mm_extract_epi8_rpl(vH,  2) - bias;
+    array[( 3*seglen+t)*dlen + d] = (int8_t)_mm_extract_epi8_rpl(vH,  3) - bias;
+    array[( 4*seglen+t)*dlen + d] = (int8_t)_mm_extract_epi8_rpl(vH,  4) - bias;
+    array[( 5*seglen+t)*dlen + d] = (int8_t)_mm_extract_epi8_rpl(vH,  5) - bias;
+    array[( 6*seglen+t)*dlen + d] = (int8_t)_mm_extract_epi8_rpl(vH,  6) - bias;
+    array[( 7*seglen+t)*dlen + d] = (int8_t)_mm_extract_epi8_rpl(vH,  7) - bias;
+    array[( 8*seglen+t)*dlen + d] = (int8_t)_mm_extract_epi8_rpl(vH,  8) - bias;
+    array[( 9*seglen+t)*dlen + d] = (int8_t)_mm_extract_epi8_rpl(vH,  9) - bias;
+    array[(10*seglen+t)*dlen + d] = (int8_t)_mm_extract_epi8_rpl(vH, 10) - bias;
+    array[(11*seglen+t)*dlen + d] = (int8_t)_mm_extract_epi8_rpl(vH, 11) - bias;
+    array[(12*seglen+t)*dlen + d] = (int8_t)_mm_extract_epi8_rpl(vH, 12) - bias;
+    array[(13*seglen+t)*dlen + d] = (int8_t)_mm_extract_epi8_rpl(vH, 13) - bias;
+    array[(14*seglen+t)*dlen + d] = (int8_t)_mm_extract_epi8_rpl(vH, 14) - bias;
+    array[(15*seglen+t)*dlen + d] = (int8_t)_mm_extract_epi8_rpl(vH, 15) - bias;
+}
+
+static inline void arr_store_epi16(
+        int *array,
+        __m128i vH,
+        int32_t t,
+        int32_t seglen,
+        int32_t d,
+        int32_t dlen,
+        int32_t bias)
+{
+    array[(0*seglen+t)*dlen + d] = (int16_t)_mm_extract_epi16(vH, 0) - bias;
+    array[(1*seglen+t)*dlen + d] = (int16_t)_mm_extract_epi16(vH, 1) - bias;
+    array[(2*seglen+t)*dlen + d] = (int16_t)_mm_extract_epi16(vH, 2) - bias;
+    array[(3*seglen+t)*dlen + d] = (int16_t)_mm_extract_epi16(vH, 3) - bias;
+    array[(4*seglen+t)*dlen + d] = (int16_t)_mm_extract_epi16(vH, 4) - bias;
+    array[(5*seglen+t)*dlen + d] = (int16_t)_mm_extract_epi16(vH, 5) - bias;
+    array[(6*seglen+t)*dlen + d] = (int16_t)_mm_extract_epi16(vH, 6) - bias;
+    array[(7*seglen+t)*dlen + d] = (int16_t)_mm_extract_epi16(vH, 7) - bias;
+}
 
 /* Generate query profile rearrange query sequence & calculate the weight of match/mismatch. */
 static __m128i* qP_byte (const int8_t* read_num,
@@ -344,6 +402,235 @@ static alignment_end* sw_sse2_byte (const int8_t* ref,
 	return bests;
 }
 
+static alignment_end* sw_sse2_byte_table (const int8_t* ref,
+							 int8_t ref_dir,	// 0: forward ref; 1: reverse ref
+							 int32_t refLen,
+							 int32_t readLen,
+							 const uint8_t weight_gapO, /* will be used as - */
+							 const uint8_t weight_gapE, /* will be used as - */
+							 const __m128i* vProfile,
+							 uint8_t terminate,	/* the best alignment score: used to terminate
+												   the matrix calculation when locating the
+												   alignment beginning point. If this score
+												   is set to 0, it will not be used */
+	 						 uint8_t bias,  /* Shift 0 point to a positive value. */
+							 int32_t maskLen) {
+
+#define max16(m, vm) (vm) = _mm_max_epu8((vm), _mm_srli_si128((vm), 8)); \
+					  (vm) = _mm_max_epu8((vm), _mm_srli_si128((vm), 4)); \
+					  (vm) = _mm_max_epu8((vm), _mm_srli_si128((vm), 2)); \
+					  (vm) = _mm_max_epu8((vm), _mm_srli_si128((vm), 1)); \
+					  (m) = _mm_extract_epi16((vm), 0)
+
+	uint8_t max = 0;		                     /* the max alignment score */
+	int32_t end_read = readLen - 1;
+	int32_t end_ref = -1; /* 0_based best alignment ending point; Initialized as isn't aligned -1. */
+	int32_t segLen = (readLen + 15) / 16; /* number of segment */
+
+	/* array to record the largest score of each reference position */
+	uint8_t* maxColumn = (uint8_t*) calloc(refLen, 1);
+
+	/* array to record the alignment read ending position of the largest score of each reference position */
+	int32_t* end_read_column = (int32_t*) calloc(refLen, sizeof(int32_t));
+
+	int32_t* score_table = (int32_t*) calloc(segLen*16*refLen, sizeof(int32_t));
+
+	/* Define 16 byte 0 vector. */
+	__m128i vZero = _mm_set1_epi32(0);
+
+	__m128i* pvHStore = (__m128i*) calloc(segLen, sizeof(__m128i));
+	__m128i* pvHLoad = (__m128i*) calloc(segLen, sizeof(__m128i));
+	__m128i* pvE = (__m128i*) calloc(segLen, sizeof(__m128i));
+	__m128i* pvHmax = (__m128i*) calloc(segLen, sizeof(__m128i));
+
+	int32_t i, j;
+	/* 16 byte insertion begin vector */
+	__m128i vGapO = _mm_set1_epi8(weight_gapO);
+
+	/* 16 byte insertion extension vector */
+	__m128i vGapE = _mm_set1_epi8(weight_gapE);
+
+	/* 16 byte bias vector */
+	__m128i vBias = _mm_set1_epi8(bias);
+
+	__m128i vMaxScore = vZero; /* Trace the highest score of the whole SW matrix. */
+	__m128i vMaxMark = vZero; /* Trace the highest score till the previous column. */
+	__m128i vTemp;
+	int32_t edge, begin = 0, end = refLen, step = 1;
+//	int32_t distance = readLen * 2 / 3;
+//	int32_t distance = readLen / 2;
+//	int32_t distance = readLen;
+
+	/* outer loop to process the reference sequence */
+	if (ref_dir == 1) {
+		begin = refLen - 1;
+		end = -1;
+		step = -1;
+	}
+	for (i = begin; LIKELY(i != end); i += step) {
+		int32_t cmp;
+		__m128i e, vF = vZero, vMaxColumn = vZero; /* Initialize F value to 0.
+							   Any errors to vH values will be corrected in the Lazy_F loop.
+							 */
+//		max16(maxColumn[i], vMaxColumn);
+//		fprintf(stderr, "middle[%d]: %d\n", i, maxColumn[i]);
+
+		__m128i vH = pvHStore[segLen - 1];
+		vH = _mm_slli_si128 (vH, 1); /* Shift the 128-bit value in vH left by 1 byte. */
+		const __m128i* vP = vProfile + ref[i] * segLen; /* Right part of the vProfile */
+
+		/* Swap the 2 H buffers. */
+		__m128i* pv = pvHLoad;
+		pvHLoad = pvHStore;
+		pvHStore = pv;
+
+		/* inner loop to process the query sequence */
+		for (j = 0; LIKELY(j < segLen); ++j) {
+			vH = _mm_adds_epu8(vH, _mm_load_si128(vP + j));
+			vH = _mm_subs_epu8(vH, vBias); /* vH will be always > 0 */
+	//	max16(maxColumn[i], vH);
+	//	fprintf(stderr, "H[%d]: %d\n", i, maxColumn[i]);
+//	int8_t* t;
+//	int32_t ti;
+//for (t = (int8_t*)&vH, ti = 0; ti < 16; ++ti) fprintf(stderr, "%d\t", *t++);
+
+			/* Get max from vH, vE and vF. */
+			e = _mm_load_si128(pvE + j);
+			vH = _mm_max_epu8(vH, e);
+			vH = _mm_max_epu8(vH, vF);
+			vMaxColumn = _mm_max_epu8(vMaxColumn, vH);
+
+	//	max16(maxColumn[i], vMaxColumn);
+	//	fprintf(stderr, "middle[%d]: %d\n", i, maxColumn[i]);
+//	for (t = (int8_t*)&vMaxColumn, ti = 0; ti < 16; ++ti) fprintf(stderr, "%d\t", *t++);
+
+			/* Save vH values. */
+			_mm_store_si128(pvHStore + j, vH);
+            arr_store_epi8(score_table, vH, j, segLen, i, refLen, 0);
+
+			/* Update vE value. */
+			vH = _mm_subs_epu8(vH, vGapO); /* saturation arithmetic, result >= 0 */
+			e = _mm_subs_epu8(e, vGapE);
+			e = _mm_max_epu8(e, vH);
+			_mm_store_si128(pvE + j, e);
+
+			/* Update vF value. */
+			vF = _mm_subs_epu8(vF, vGapE);
+			vF = _mm_max_epu8(vF, vH);
+
+			/* Load the next vH. */
+			vH = _mm_load_si128(pvHLoad + j);
+		}
+
+		/* Lazy_F loop: has been revised to disallow adjecent insertion and then deletion, so don't update E(i, j), learn from SWPS3 */
+        /* reset pointers to the start of the saved data */
+        j = 0;
+        vH = _mm_load_si128 (pvHStore + j);
+
+        /*  the computed vF value is for the given column.  since */
+        /*  we are at the end, we need to shift the vF value over */
+        /*  to the next column. */
+        vF = _mm_slli_si128 (vF, 1);
+        vTemp = _mm_subs_epu8 (vH, vGapO);
+		vTemp = _mm_subs_epu8 (vF, vTemp);
+		vTemp = _mm_cmpeq_epi8 (vTemp, vZero);
+		cmp  = _mm_movemask_epi8 (vTemp);
+
+        while (cmp != 0xffff)
+        {
+            vH = _mm_max_epu8 (vH, vF);
+			vMaxColumn = _mm_max_epu8(vMaxColumn, vH);
+            _mm_store_si128 (pvHStore + j, vH);
+            arr_store_epi8(score_table, vH, j, segLen, i, refLen, 0);
+            vF = _mm_subs_epu8 (vF, vGapE);
+            j++;
+            if (j >= segLen)
+            {
+                j = 0;
+                vF = _mm_slli_si128 (vF, 1);
+            }
+            vH = _mm_load_si128 (pvHStore + j);
+
+            vTemp = _mm_subs_epu8 (vH, vGapO);
+            vTemp = _mm_subs_epu8 (vF, vTemp);
+            vTemp = _mm_cmpeq_epi8 (vTemp, vZero);
+            cmp  = _mm_movemask_epi8 (vTemp);
+        }
+
+		vMaxScore = _mm_max_epu8(vMaxScore, vMaxColumn);
+		vTemp = _mm_cmpeq_epi8(vMaxMark, vMaxScore);
+		cmp = _mm_movemask_epi8(vTemp);
+		if (cmp != 0xffff) {
+			uint8_t temp;
+			vMaxMark = vMaxScore;
+			max16(temp, vMaxScore);
+			vMaxScore = vMaxMark;
+
+			if (LIKELY(temp > max)) {
+				max = temp;
+				if (max + bias >= 255) break;	//overflow
+				end_ref = i;
+
+				/* Store the column with the highest alignment score in order to trace the alignment ending position on read. */
+				for (j = 0; LIKELY(j < segLen); ++j) pvHmax[j] = pvHStore[j];
+			}
+		}
+
+		/* Record the max score of current column. */
+		max16(maxColumn[i], vMaxColumn);
+//		fprintf(stderr, "maxColumn[%d]: %d\n", i, maxColumn[i]);
+		if (maxColumn[i] == terminate) break;
+	}
+
+	/* Trace the alignment ending position on read. */
+	uint8_t *t = (uint8_t*)pvHmax;
+	int32_t column_len = segLen * 16;
+	for (i = 0; LIKELY(i < column_len); ++i, ++t) {
+		int32_t temp;
+		if (*t == max) {
+			temp = i / 16 + i % 16 * segLen;
+			if (temp < end_read) end_read = temp;
+		}
+	}
+
+	free(pvHmax);
+	free(pvE);
+	free(pvHLoad);
+	free(pvHStore);
+
+	/* Find the most possible 2nd best alignment. */
+	alignment_end* bests = (alignment_end*) calloc(2, sizeof(alignment_end));
+    bests[0].score_table = score_table;
+	bests[0].score = max + bias >= 255 ? 255 : max;
+	bests[0].ref = end_ref;
+	bests[0].read = end_read;
+
+	bests[1].score = 0;
+	bests[1].ref = 0;
+	bests[1].read = 0;
+
+	edge = (end_ref - maskLen) > 0 ? (end_ref - maskLen) : 0;
+	for (i = 0; i < edge; i ++) {
+//			fprintf (stderr, "maxColumn[%d]: %d\n", i, maxColumn[i]);
+		if (maxColumn[i] > bests[1].score) {
+			bests[1].score = maxColumn[i];
+			bests[1].ref = i;
+		}
+	}
+	edge = (end_ref + maskLen) > refLen ? refLen : (end_ref + maskLen);
+	for (i = edge + 1; i < refLen; i ++) {
+//			fprintf (stderr, "refLen: %d\tmaxColumn[%d]: %d\n", refLen, i, maxColumn[i]);
+		if (maxColumn[i] > bests[1].score) {
+			bests[1].score = maxColumn[i];
+			bests[1].ref = i;
+		}
+	}
+
+	free(maxColumn);
+	free(end_read_column);
+	return bests;
+}
+
 static __m128i* qP_word (const int8_t* read_num,
 				  const int8_t* mat,
 				  const int32_t readLen,
@@ -517,6 +804,188 @@ end:
 
 	/* Find the most possible 2nd best alignment. */
 	alignment_end* bests = (alignment_end*) calloc(2, sizeof(alignment_end));
+	bests[0].score = max;
+	bests[0].ref = end_ref;
+	bests[0].read = end_read;
+
+	bests[1].score = 0;
+	bests[1].ref = 0;
+	bests[1].read = 0;
+
+	edge = (end_ref - maskLen) > 0 ? (end_ref - maskLen) : 0;
+	for (i = 0; i < edge; i ++) {
+		if (maxColumn[i] > bests[1].score) {
+			bests[1].score = maxColumn[i];
+			bests[1].ref = i;
+		}
+	}
+	edge = (end_ref + maskLen) > refLen ? refLen : (end_ref + maskLen);
+	for (i = edge; i < refLen; i ++) {
+		if (maxColumn[i] > bests[1].score) {
+			bests[1].score = maxColumn[i];
+			bests[1].ref = i;
+		}
+	}
+
+	free(maxColumn);
+	free(end_read_column);
+	return bests;
+}
+
+static alignment_end* sw_sse2_word_table (const int8_t* ref,
+							 int8_t ref_dir,	// 0: forward ref; 1: reverse ref
+							 int32_t refLen,
+							 int32_t readLen,
+							 const uint8_t weight_gapO, /* will be used as - */
+							 const uint8_t weight_gapE, /* will be used as - */
+							 const __m128i* vProfile,
+							 uint16_t terminate,
+							 int32_t maskLen) {
+
+#define max8(m, vm) (vm) = _mm_max_epi16((vm), _mm_srli_si128((vm), 8)); \
+					(vm) = _mm_max_epi16((vm), _mm_srli_si128((vm), 4)); \
+					(vm) = _mm_max_epi16((vm), _mm_srli_si128((vm), 2)); \
+					(m) = _mm_extract_epi16((vm), 0)
+
+	uint16_t max = 0;		                     /* the max alignment score */
+	int32_t end_read = readLen - 1;
+	int32_t end_ref = 0; /* 1_based best alignment ending point; Initialized as isn't aligned - 0. */
+	int32_t segLen = (readLen + 7) / 8; /* number of segment */
+
+	/* array to record the largest score of each reference position */
+	uint16_t* maxColumn = (uint16_t*) calloc(refLen, 2);
+
+	/* array to record the alignment read ending position of the largest score of each reference position */
+	int32_t* end_read_column = (int32_t*) calloc(refLen, sizeof(int32_t));
+
+	int32_t* score_table = (int32_t*) calloc(segLen*8*refLen, sizeof(int32_t));
+
+	/* Define 16 byte 0 vector. */
+	__m128i vZero = _mm_set1_epi32(0);
+
+	__m128i* pvHStore = (__m128i*) calloc(segLen, sizeof(__m128i));
+	__m128i* pvHLoad = (__m128i*) calloc(segLen, sizeof(__m128i));
+	__m128i* pvE = (__m128i*) calloc(segLen, sizeof(__m128i));
+	__m128i* pvHmax = (__m128i*) calloc(segLen, sizeof(__m128i));
+
+	int32_t i, j, k;
+	/* 16 byte insertion begin vector */
+	__m128i vGapO = _mm_set1_epi16(weight_gapO);
+
+	/* 16 byte insertion extension vector */
+	__m128i vGapE = _mm_set1_epi16(weight_gapE);
+
+	__m128i vMaxScore = vZero; /* Trace the highest score of the whole SW matrix. */
+	__m128i vMaxMark = vZero; /* Trace the highest score till the previous column. */
+	__m128i vTemp;
+	int32_t edge, begin = 0, end = refLen, step = 1;
+
+	/* outer loop to process the reference sequence */
+	if (ref_dir == 1) {
+		begin = refLen - 1;
+		end = -1;
+		step = -1;
+	}
+	for (i = begin; LIKELY(i != end); i += step) {
+		int32_t cmp;
+		__m128i e, vF = vZero; /* Initialize F value to 0.
+							   Any errors to vH values will be corrected in the Lazy_F loop.
+							 */
+		__m128i vH = pvHStore[segLen - 1];
+		vH = _mm_slli_si128 (vH, 2); /* Shift the 128-bit value in vH left by 2 byte. */
+
+		/* Swap the 2 H buffers. */
+		__m128i* pv = pvHLoad;
+
+		__m128i vMaxColumn = vZero; /* vMaxColumn is used to record the max values of column i. */
+
+		const __m128i* vP = vProfile + ref[i] * segLen; /* Right part of the vProfile */
+		pvHLoad = pvHStore;
+		pvHStore = pv;
+
+		/* inner loop to process the query sequence */
+		for (j = 0; LIKELY(j < segLen); j ++) {
+			vH = _mm_adds_epi16(vH, _mm_load_si128(vP + j));
+
+			/* Get max from vH, vE and vF. */
+			e = _mm_load_si128(pvE + j);
+			vH = _mm_max_epi16(vH, e);
+			vH = _mm_max_epi16(vH, vF);
+			vMaxColumn = _mm_max_epi16(vMaxColumn, vH);
+
+			/* Save vH values. */
+			_mm_store_si128(pvHStore + j, vH);
+            arr_store_epi16(score_table, vH, j, segLen, i, refLen, 0);
+
+			/* Update vE value. */
+			vH = _mm_subs_epu16(vH, vGapO); /* saturation arithmetic, result >= 0 */
+			e = _mm_subs_epu16(e, vGapE);
+			e = _mm_max_epi16(e, vH);
+			_mm_store_si128(pvE + j, e);
+
+			/* Update vF value. */
+			vF = _mm_subs_epu16(vF, vGapE);
+			vF = _mm_max_epi16(vF, vH);
+
+			/* Load the next vH. */
+			vH = _mm_load_si128(pvHLoad + j);
+		}
+
+		/* Lazy_F loop: has been revised to disallow adjecent insertion and then deletion, so don't update E(i, j), learn from SWPS3 */
+		for (k = 0; LIKELY(k < 8); ++k) {
+			vF = _mm_slli_si128 (vF, 2);
+			for (j = 0; LIKELY(j < segLen); ++j) {
+				vH = _mm_load_si128(pvHStore + j);
+				vH = _mm_max_epi16(vH, vF);
+				_mm_store_si128(pvHStore + j, vH);
+                arr_store_epi16(score_table, vH, j, segLen, i, refLen, 0);
+				vH = _mm_subs_epu16(vH, vGapO);
+				vF = _mm_subs_epu16(vF, vGapE);
+				if (UNLIKELY(! _mm_movemask_epi8(_mm_cmpgt_epi16(vF, vH)))) goto end;
+			}
+		}
+
+end:
+		vMaxScore = _mm_max_epi16(vMaxScore, vMaxColumn);
+		vTemp = _mm_cmpeq_epi16(vMaxMark, vMaxScore);
+		cmp = _mm_movemask_epi8(vTemp);
+		if (cmp != 0xffff) {
+			uint16_t temp;
+			vMaxMark = vMaxScore;
+			max8(temp, vMaxScore);
+			vMaxScore = vMaxMark;
+
+			if (LIKELY(temp > max)) {
+				max = temp;
+				end_ref = i;
+				for (j = 0; LIKELY(j < segLen); ++j) pvHmax[j] = pvHStore[j];
+			}
+		}
+
+		/* Record the max score of current column. */
+		max8(maxColumn[i], vMaxColumn);
+		if (maxColumn[i] == terminate) break;
+	}
+
+	/* Trace the alignment ending position on read. */
+	uint16_t *t = (uint16_t*)pvHmax;
+	int32_t column_len = segLen * 8;
+	for (i = 0; LIKELY(i < column_len); ++i, ++t) {
+		int32_t temp;
+		if (*t == max) {
+			temp = i / 8 + i % 8 * segLen;
+			if (temp < end_read) end_read = temp;
+		}
+	}
+
+	free(pvHmax);
+	free(pvE);
+	free(pvHLoad);
+	free(pvHStore);
+
+	/* Find the most possible 2nd best alignment. */
+	alignment_end* bests = (alignment_end*) calloc(2, sizeof(alignment_end));
+    bests[0].score_table = score_table;
 	bests[0].score = max;
 	bests[0].ref = end_ref;
 	bests[0].read = end_read;
@@ -795,6 +1264,7 @@ s_align* ssw_align (const s_profile* prof,
 	r->read_begin1 = -1;
 	r->cigar = 0;
 	r->cigarLen = 0;
+    r->score_table = NULL;
 #if 0
 	if (maskLen < 15) {
 		fprintf(stderr, "When maskLen < 15, the function ssw_align doesn't return 2nd best alignment information.\n");
@@ -870,7 +1340,107 @@ end:
 	return r;
 }
 
+s_align* ssw_align_table (const s_profile* prof,
+					const int8_t* ref,
+				  	int32_t refLen,
+				  	const uint8_t weight_gapO,
+				  	const uint8_t weight_gapE,
+					const uint8_t flag,	//  (from high to low) bit 5: return the best alignment beginning position; 6: if (ref_end1 - ref_begin1 <= filterd) && (read_end1 - read_begin1 <= filterd), return cigar; 7: if max score >= filters, return cigar; 8: always return cigar; if 6 & 7 are both setted, only return cigar when both filter fulfilled
+					const uint16_t filters,
+					const int32_t filterd,
+					const int32_t maskLen) {
+
+	alignment_end* bests = 0, *bests_reverse = 0;
+	__m128i* vP = 0;
+	int32_t word = 0, band_width = 0, readLen = prof->readLen;
+	int8_t* read_reverse = 0;
+	cigar* path;
+	s_align* r = (s_align*)calloc(1, sizeof(s_align));
+	r->ref_begin1 = -1;
+	r->read_begin1 = -1;
+	r->cigar = 0;
+	r->cigarLen = 0;
+    r->score_table = NULL;
+#if 0
+	if (maskLen < 15) {
+		fprintf(stderr, "When maskLen < 15, the function ssw_align doesn't return 2nd best alignment information.\n");
+	}
+#endif
+
+	// Find the alignment scores and ending positions
+	if (prof->profile_byte) {
+		bests = sw_sse2_byte_table(ref, 0, refLen, readLen, weight_gapO, weight_gapE, prof->profile_byte, -1, prof->bias, maskLen);
+		if (prof->profile_word && bests[0].score == 255) {
+            r->saturated = 1;
+            free(bests[0].score_table);
+			free(bests);
+			bests = sw_sse2_word_table(ref, 0, refLen, readLen, weight_gapO, weight_gapE, prof->profile_word, -1, maskLen);
+			word = 1;
+		} else if (bests[0].score == 255) {
+            free(bests[0].score_table);
+			fprintf(stderr, "Please set 2 to the score_size parameter of the function ssw_init, otherwise the alignment results will be incorrect.\n");
+			free(r);
+			return NULL;
+		}
+	}else if (prof->profile_word) {
+		bests = sw_sse2_word_table(ref, 0, refLen, readLen, weight_gapO, weight_gapE, prof->profile_word, -1, maskLen);
+		word = 1;
+	}else {
+		fprintf(stderr, "Please call the function ssw_init before ssw_align.\n");
+		free(r);
+		return NULL;
+	}
+    r->score_table = bests[0].score_table;
+	r->score1 = bests[0].score;
+	r->ref_end1 = bests[0].ref;
+	r->read_end1 = bests[0].read;
+	if (maskLen >= 15) {
+		r->score2 = bests[1].score;
+		r->ref_end2 = bests[1].ref;
+	} else {
+		r->score2 = 0;
+		r->ref_end2 = -1;
+	}
+	free(bests);
+	if (flag == 0 || (flag == 2 && r->score1 < filters)) goto end;
+
+	// Find the beginning position of the best alignment.
+	read_reverse = seq_reverse(prof->read, r->read_end1);
+	if (word == 0) {
+		vP = qP_byte(read_reverse, prof->mat, r->read_end1 + 1, prof->n, prof->bias);
+		bests_reverse = sw_sse2_byte(ref, 1, r->ref_end1 + 1, r->read_end1 + 1, weight_gapO, weight_gapE, vP, r->score1, prof->bias, maskLen);
+	} else {
+		vP = qP_word(read_reverse, prof->mat, r->read_end1 + 1, prof->n);
+		bests_reverse = sw_sse2_word(ref, 1, r->ref_end1 + 1, r->read_end1 + 1, weight_gapO, weight_gapE, vP, r->score1, maskLen);
+	}
+	free(vP);
+	free(read_reverse);
+	r->ref_begin1 = bests_reverse[0].ref;
+	r->read_begin1 = r->read_end1 - bests_reverse[0].read;
+	free(bests_reverse);
+	if ((7&flag) == 0 || ((2&flag) != 0 && r->score1 < filters) || ((4&flag) != 0 && (r->ref_end1 - r->ref_begin1 > filterd || r->read_end1 - r->read_begin1 > filterd))) goto end;
+
+	// Generate cigar.
+	refLen = r->ref_end1 - r->ref_begin1 + 1;
+	readLen = r->read_end1 - r->read_begin1 + 1;
+	band_width = abs(refLen - readLen) + 1;
+	path = banded_sw(ref + r->ref_begin1, prof->read + r->read_begin1, refLen, readLen, r->score1, weight_gapO, weight_gapE, band_width, prof->mat, prof->n);
+	if (path == 0) {
+		free(r);
+		r = NULL;
+	}
+	else {
+		r->cigar = path->seq;
+		r->cigarLen = path->length;
+		free(path);
+	}
+
+end:
+	return r;
+}
+
 void align_destroy (s_align* a) {
+    if (NULL != a->score_table) free(a->score_table);
 	free(a->cigar);
 	free(a);
 }

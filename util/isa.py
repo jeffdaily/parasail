@@ -35,6 +35,10 @@ sse2 = {
     "VINSERTx32"  : "_mm_insert_epi32_rpl",
     "VINSERTx64"  : "_mm_insert_epi64_rpl",
     "VLOAD"       : "_mm_load_si128",
+    "VHMAXx8"     : "_mm_hmax_epi8_rpl",
+    "VHMAXx16"    : "_mm_hmax_epi16_rpl",
+    "VHMAXx32"    : "_mm_hmax_epi32_rpl",
+    "VHMAXx64"    : "_mm_hmax_epi64_rpl",
     "VMAXx8"      : "_mm_max_epi8_rpl",
     "VMAXx16"     : "_mm_max_epi16",
     "VMAXx32"     : "_mm_max_epi32_rpl",
@@ -152,6 +156,36 @@ static inline __m128i _mm_insert_epi64_rpl(__m128i a, int64_t i, const int imm) 
     return A.m;
 }
 """,
+    "_mm_hmax_epi8_rpl" : """
+static inline int8_t _mm_hmax_epi8_rpl(__m128i a) {
+    a = _mm_max_epi8_rpl(a, _mm_srli_si128(a, 8));
+    a = _mm_max_epi8_rpl(a, _mm_srli_si128(a, 4));
+    a = _mm_max_epi8_rpl(a, _mm_srli_si128(a, 2));
+    a = _mm_max_epi8_rpl(a, _mm_srli_si128(a, 1));
+    return _mm_extract_epi8_rpl(a, 0);
+}
+""",
+    "_mm_hmax_epi16_rpl" : """
+static inline int16_t _mm_hmax_epi16_rpl(__m128i a) {
+    a = _mm_max_epi16(a, _mm_srli_si128(a, 8));
+    a = _mm_max_epi16(a, _mm_srli_si128(a, 4));
+    a = _mm_max_epi16(a, _mm_srli_si128(a, 2));
+    return _mm_extract_epi16(a, 0);
+}
+""",
+    "_mm_hmax_epi32_rpl" : """
+static inline int32_t _mm_hmax_epi32_rpl(__m128i a) {
+    a = _mm_max_epi32_rpl(a, _mm_srli_si128(a, 8));
+    a = _mm_max_epi32_rpl(a, _mm_srli_si128(a, 4));
+    return _mm_extract_epi32_rpl(a, 0);
+}
+""",
+    "_mm_hmax_epi64_rpl" : """
+static inline int64_t _mm_hmax_epi64_rpl(__m128i a) {
+    a = _mm_max_epi64_rpl(a, _mm_srli_si128(a, 8));
+    return _mm_extract_epi64_rpl(a, 0);
+}
+""",
     "_mm_max_epi8_rpl" : """
 static inline __m128i _mm_max_epi8_rpl(__m128i a, __m128i b) {
     __m128i mask = _mm_cmpgt_epi8(a, b);
@@ -246,6 +280,10 @@ sse41 = {
     "VINSERTx32"  : "_mm_insert_epi32",
     "VINSERTx64"  : "_mm_insert_epi64",
     "VLOAD"       : "_mm_load_si128",
+    "VHMAXx8"     : "_mm_hmax_epi8_rpl",
+    "VHMAXx16"    : "_mm_hmax_epi16_rpl",
+    "VHMAXx32"    : "_mm_hmax_epi32_rpl",
+    "VHMAXx64"    : "_mm_hmax_epi64_rpl",
     "VMAXx8"      : "_mm_max_epi8",
     "VMAXx16"     : "_mm_max_epi16",
     "VMAXx32"     : "_mm_max_epi32",
@@ -298,6 +336,36 @@ static inline __m128i _mm_cmplt_epi64_rpl(__m128i a, __m128i b) {
     A.v[0] = (A.v[0]<B.v[0]) ? 0xFFFFFFFFFFFFFFFF : 0;
     A.v[1] = (A.v[1]<B.v[1]) ? 0xFFFFFFFFFFFFFFFF : 0;
     return A.m;
+}
+""",
+    "_mm_hmax_epi8_rpl" : """
+static inline int8_t _mm_hmax_epi8_rpl(__m128i a) {
+    a = _mm_max_epi8(a, _mm_srli_si128(a, 8));
+    a = _mm_max_epi8(a, _mm_srli_si128(a, 4));
+    a = _mm_max_epi8(a, _mm_srli_si128(a, 2));
+    a = _mm_max_epi8(a, _mm_srli_si128(a, 1));
+    return _mm_extract_epi8(a, 0);
+}
+""",
+    "_mm_hmax_epi16_rpl" : """
+static inline int16_t _mm_hmax_epi16_rpl(__m128i a) {
+    a = _mm_max_epi16(a, _mm_srli_si128(a, 8));
+    a = _mm_max_epi16(a, _mm_srli_si128(a, 4));
+    a = _mm_max_epi16(a, _mm_srli_si128(a, 2));
+    return _mm_extract_epi16(a, 0);
+}
+""",
+    "_mm_hmax_epi32_rpl" : """
+static inline int32_t _mm_hmax_epi32_rpl(__m128i a) {
+    a = _mm_max_epi32(a, _mm_srli_si128(a, 8));
+    a = _mm_max_epi32(a, _mm_srli_si128(a, 4));
+    return _mm_extract_epi32(a, 0);
+}
+""",
+    "_mm_hmax_epi64_rpl" : """
+static inline int64_t _mm_hmax_epi64_rpl(__m128i a) {
+    a = _mm_max_epi64_rpl(a, _mm_srli_si128(a, 8));
+    return _mm_extract_epi64(a, 0);
 }
 """,
     "_mm_max_epi64_rpl" : """
@@ -362,6 +430,10 @@ avx2 = {
     "VINSERTx32"  : "_mm256_insert_epi32_rpl",
     "VINSERTx64"  : "_mm256_insert_epi64_rpl",
     "VLOAD"       : "_mm256_load_si256",
+    "VHMAXx8"     : "_mm256_hmax_epi8_rpl",
+    "VHMAXx16"    : "_mm256_hmax_epi16_rpl",
+    "VHMAXx32"    : "_mm256_hmax_epi32_rpl",
+    "VHMAXx64"    : "_mm256_hmax_epi64_rpl",
     "VMAXx8"      : "_mm256_max_epi8",
     "VMAXx16"     : "_mm256_max_epi16",
     "VMAXx32"     : "_mm256_max_epi32",
@@ -405,6 +477,40 @@ avx2 = {
 """,
     "_mm256_cmplt_epi64_rpl" : """
 #define _mm256_cmplt_epi64_rpl(a,b) _mm256_cmpgt_epi64(b,a)
+""",
+    "_mm256_hmax_epi8_rpl" : """
+static inline int8_t _mm256_hmax_epi8_rpl(__m256i a) {
+    a = _mm256_max_epi8(a, _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,0,0)));
+    a = _mm256_max_epi8(a, _mm256_slli_si256(a, 8));
+    a = _mm256_max_epi8(a, _mm256_slli_si256(a, 4));
+    a = _mm256_max_epi8(a, _mm256_slli_si256(a, 2));
+    a = _mm256_max_epi8(a, _mm256_slli_si256(a, 1));
+    return _mm256_extract_epi8_rpl(a, 31);
+}
+""",
+    "_mm256_hmax_epi16_rpl" : """
+static inline int16_t _mm256_hmax_epi16_rpl(__m256i a) {
+    a = _mm256_max_epi16(a, _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,0,0)));
+    a = _mm256_max_epi16(a, _mm256_slli_si256(a, 8));
+    a = _mm256_max_epi16(a, _mm256_slli_si256(a, 4));
+    a = _mm256_max_epi16(a, _mm256_slli_si256(a, 2));
+    return _mm256_extract_epi16_rpl(a, 15);
+}
+""",
+    "_mm256_hmax_epi32_rpl" : """
+static inline int32_t _mm256_hmax_epi32_rpl(__m256i a) {
+    a = _mm256_max_epi32(a, _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,0,0)));
+    a = _mm256_max_epi32(a, _mm256_slli_si256(a, 8));
+    a = _mm256_max_epi32(a, _mm256_slli_si256(a, 4));
+    return _mm256_extract_epi32_rpl(a, 7);
+}
+""",
+    "_mm256_hmax_epi64_rpl" : """
+static inline int64_t _mm256_hmax_epi64_rpl(__m256i a) {
+    a = _mm256_max_epi64_rpl(a, _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,0,0)));
+    a = _mm256_max_epi64_rpl(a, _mm256_slli_si256(a, 8));
+    return _mm256_extract_epi64_rpl(a, 3);
+}
 """,
     "_mm256_max_epi64_rpl" : """
 static inline __m256i _mm256_max_epi64_rpl(__m256i a, __m256i b) {

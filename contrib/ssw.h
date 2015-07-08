@@ -50,6 +50,7 @@ typedef struct {
 	uint32_t* cigar;
 	int32_t cigarLen;
     int32_t saturated;
+    int32_t *score_table;
 } s_align;
 
 /*!	@function	Create the query profile using the query sequence.
@@ -111,6 +112,16 @@ void init_destroy (s_profile* p);
 			0-based coordinate.
 */
 s_align* ssw_align (const s_profile* prof,
+					const int8_t* ref,
+					int32_t refLen,
+					const uint8_t weight_gapO,
+					const uint8_t weight_gapE,
+					const uint8_t flag,
+					const uint16_t filters,
+					const int32_t filterd,
+					const int32_t maskLen);
+
+s_align* ssw_align_table (const s_profile* prof,
 					const int8_t* ref,
 					int32_t refLen,
 					const uint8_t weight_gapO,

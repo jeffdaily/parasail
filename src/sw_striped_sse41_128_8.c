@@ -19,6 +19,14 @@
 
 #define NEG_INF INT8_MIN
 
+static inline int8_t _mm_hmax_epi8_rpl(__m128i a) {
+    a = _mm_max_epi8(a, _mm_srli_si128(a, 8));
+    a = _mm_max_epi8(a, _mm_srli_si128(a, 4));
+    a = _mm_max_epi8(a, _mm_srli_si128(a, 2));
+    a = _mm_max_epi8(a, _mm_srli_si128(a, 1));
+    return _mm_extract_epi8(a, 0);
+}
+
 
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si128(
@@ -119,11 +127,15 @@ parasail_result_t* PNAME(
     __m128i* const restrict pvE = parasail_memalign___m128i(16, segLen);
     __m128i vGapO = _mm_set1_epi8(open);
     __m128i vGapE = _mm_set1_epi8(gap);
+    __m128i vZero = _mm_set1_epi8(0);
     int8_t bias = INT8_MIN;
     int8_t score = bias;
     __m128i vBias = _mm_set1_epi8(bias);
     __m128i vMaxH = vBias;
     __m128i vMaxP = _mm_set1_epi8(INT8_MAX - (int8_t)(matrix->max+1));
+    __m128i insert_mask = _mm_cmpgt_epi8(
+            _mm_set_epi8(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1),
+            vZero);
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
@@ -161,7 +173,7 @@ parasail_result_t* PNAME(
 
         /* load final segment of pvHStore and shift left by 2 bytes */
         __m128i vH = _mm_slli_si128(pvHStore[segLen - 1], 1);
-        vH = _mm_insert_epi8(vH, bias, 0);
+        vH = _mm_blendv_epi8(vH, vBias, insert_mask);
 
         /* Correct part of the vProfile */
         const __m128i* vP = vProfile + matrix->mapper[(unsigned char)s2[j]] * segLen;
@@ -204,7 +216,7 @@ parasail_result_t* PNAME(
          * then deletion, so don't update E(i, i), learn from SWPS3 */
         for (k=0; k<segWidth; ++k) {
             vF = _mm_slli_si128(vF, 1);
-            vF = _mm_insert_epi8(vF, bias, 0);
+            vF = _mm_blendv_epi8(vF, vBias, insert_mask);
             for (i=0; i<segLen; ++i) {
                 vH = _mm_load_si128(pvHStore + i);
                 vH = _mm_max_epi8(vH,vF);
@@ -248,14 +260,7 @@ end:
     }
 #endif
 
-    /* max in vec */
-    for (j=0; j<segWidth; ++j) {
-        int8_t value = (int8_t) _mm_extract_epi8(vMaxH, 15);
-        if (value > score) {
-            score = value;
-        }
-        vMaxH = _mm_slli_si128(vMaxH, 1);
-    }
+    score = _mm_hmax_epi8_rpl(vMaxH);
 
     if (score == INT8_MAX) {
         result->saturated = 1;

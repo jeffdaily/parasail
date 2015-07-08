@@ -88,11 +88,15 @@ parasail_result_t* PNAME(
     %(VTYPE)s* const restrict pvE = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
     %(VTYPE)s vGapO = %(VSET1)s(open);
     %(VTYPE)s vGapE = %(VSET1)s(gap);
+    %(VTYPE)s vZero = %(VSET1)s(0);
     %(INT)s bias = INT%(WIDTH)s_MIN;
     %(INT)s score = bias;
     %(VTYPE)s vBias = %(VSET1)s(bias);
     %(VTYPE)s vMaxH = vBias;
     %(VTYPE)s vMaxP = %(VSET1)s(INT%(WIDTH)s_MAX - (%(INT)s)(matrix->max+1));
+    %(VTYPE)s insert_mask = %(VCMPGT)s(
+            %(VSET)s(%(STRIPED_INSERT_MASK)s),
+            vZero);
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
@@ -130,7 +134,7 @@ parasail_result_t* PNAME(
 
         /* load final segment of pvHStore and shift left by 2 bytes */
         %(VTYPE)s vH = %(VSHIFT)s(pvHStore[segLen - 1], %(BYTES)s);
-        vH = %(VINSERT)s(vH, bias, 0);
+        vH = %(VBLEND)s(vH, vBias, insert_mask);
 
         /* Correct part of the vProfile */
         const %(VTYPE)s* vP = vProfile + matrix->mapper[(unsigned char)s2[j]] * segLen;
@@ -173,7 +177,7 @@ parasail_result_t* PNAME(
          * then deletion, so don't update E(i, i), learn from SWPS3 */
         for (k=0; k<segWidth; ++k) {
             vF = %(VSHIFT)s(vF, %(BYTES)s);
-            vF = %(VINSERT)s(vF, bias, 0);
+            vF = %(VBLEND)s(vF, vBias, insert_mask);
             for (i=0; i<segLen; ++i) {
                 vH = %(VLOAD)s(pvHStore + i);
                 vH = %(VMAX)s(vH,vF);
@@ -217,14 +221,7 @@ end:
     }
 #endif
 
-    /* max in vec */
-    for (j=0; j<segWidth; ++j) {
-        %(INT)s value = (%(INT)s) %(VEXTRACT)s(vMaxH, %(LAST_POS)s);
-        if (value > score) {
-            score = value;
-        }
-        vMaxH = %(VSHIFT)s(vMaxH, %(BYTES)s);
-    }
+    score = %(VHMAX)s(vMaxH);
 
     if (score == INT%(WIDTH)s_MAX) {
         result->saturated = 1;

@@ -673,6 +673,9 @@ tests_libsais_la_SOURCES += contrib/sais-lite-lcp/sais.h
 bin_PROGRAMS += apps/parasail_aligner
 bin_PROGRAMS += apps/parasail_all
 bin_PROGRAMS += apps/parasail_query
+if HAVE_CILK
+bin_PROGRAMS += apps/parasail_aligner_cilk
+endif
 
 check_PROGRAMS += tests/test_align
 check_PROGRAMS += tests/test_gcups
@@ -680,6 +683,7 @@ check_PROGRAMS += tests/test_isa
 check_PROGRAMS += tests/test_openmp
 check_PROGRAMS += tests/test_query
 check_PROGRAMS += tests/test_scatter
+check_PROGRAMS += tests/test_ssw
 check_PROGRAMS += tests/test_sw_dispatch
 check_PROGRAMS += tests/test_verify
 check_PROGRAMS += tests/test_verify_tables
@@ -695,6 +699,14 @@ apps_parasail_aligner_LDFLAGS  = $(AM_LDFLAGS) $(OPENMP_CXXFLAGS)
 apps_parasail_aligner_LDADD =
 apps_parasail_aligner_LDADD += $(LDADD)
 apps_parasail_aligner_LDADD += tests/libsais.la
+
+apps_parasail_aligner_cilk_SOURCES = apps/parasail_aligner.cpp
+apps_parasail_aligner_cilk_CPPFLAGS = $(AM_CPPFLAGS) -DUSE_CILK=1
+apps_parasail_aligner_cilk_CXXFLAGS = $(AM_CXXFLAGS) $(OPENMP_CXXFLAGS)
+apps_parasail_aligner_cilk_LDFLAGS  = $(AM_LDFLAGS) $(OPENMP_CXXFLAGS)
+apps_parasail_aligner_cilk_LDADD =
+apps_parasail_aligner_cilk_LDADD += $(LDADD)
+apps_parasail_aligner_cilk_LDADD += tests/libsais.la
 
 apps_parasail_all_SOURCES = apps/parasail_all.cpp
 apps_parasail_all_CXXFLAGS = $(AM_CXXFLAGS) $(OPENMP_CXXFLAGS)
@@ -736,6 +748,16 @@ tests_test_scatter_LDADD   =
 tests_test_scatter_LDADD   += $(LDADD)
 if HAVE_SSE2
 tests_test_scatter_LDADD   += tests/libssw.la
+endif
+
+tests_test_ssw_SOURCES  = tests/test_ssw.cpp
+tests_test_ssw_CXXFLAGS = $(AM_CXXFLAGS) $(OPENMP_CXXFLAGS)
+tests_test_ssw_LDFLAGS  = $(AM_LDFLAGS) $(OPENMP_CXXFLAGS)
+tests_test_ssw_LDADD    =
+tests_test_ssw_LDADD    += $(LDADD)
+tests_test_ssw_LDADD    += tests/libsais.la
+if HAVE_SSE2
+tests_test_ssw_LDADD    += tests/libssw.la
 endif
 
 tests_test_sw_dispatch_SOURCES = tests/test_sw_dispatch.c

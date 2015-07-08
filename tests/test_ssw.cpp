@@ -34,15 +34,10 @@
 #include <omp.h>
 #endif
 
-#ifdef USE_CILK
-#include <cilk/cilk.h>
-#include <cilk/cilk_api.h>
-#include <cilk/reducer_opadd.h> 
-#endif
-
 #include "parasail.h"
 
 #include "sais.h"
+#include "ssw.h"
 
 #if HAVE_VARIADIC_MACROS
 #define eprintf(STREAM, ...) fprintf(STREAM, __VA_ARGS__); fflush(STREAM)
@@ -60,6 +55,17 @@ using ::std::vector;
 typedef pair<int,int> Pair;
 
 typedef set<Pair> PairSet;
+
+typedef s_align* ssw_func(
+        const s_profile* prof,
+        const int8_t* ref,
+        int32_t refLen,
+        const uint8_t weight_gapO,
+        const uint8_t weight_gapE,
+        const uint8_t flag,
+        const uint16_t filters,
+        const int32_t filterd,
+        const int32_t maskLen);
 
 struct quad {
     int lcp;
@@ -111,11 +117,19 @@ inline static void print_array(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len);
 
+inline static void cigar_to_stats(
+        s_align *a,
+        const int8_t *read_seq,
+        const int8_t *ref_seq,
+        const parasail_matrix_t *matrix,
+        int &matches, int &similarities, int &length);
+
 static void print_help(const char *progname, int status) {
     eprintf(stderr, "\nusage: %s "
-            "[-a funcname] "
             "[-c cutoff] "
             "[-x] "
+            "[-s] "
+            "[-p] "
             "[-e gap_extend] "
             "[-o gap_open] "
             "[-m matrix] "
@@ -129,9 +143,10 @@ static void print_help(const char *progname, int status) {
             "\n\n",
             progname);
     eprintf(stderr, "Defaults:\n"
-            "   funcname: sw_stats_striped_16\n"
             "     cutoff: 7, must be >= 1, exact match length cutoff\n"
             "         -x: if present, don't use suffix array filter\n"
+            "         -s: if present, report alignment statistics\n"
+            "         -p: if present, write DP table(s) to file\n"
             " gap_extend: 1, must be >= 0\n"
             "   gap_open: 10, must be >= 0\n"
             "     matrix: blosum62\n"
@@ -141,7 +156,7 @@ static void print_help(const char *progname, int status) {
             "    threads: system-specific default, must be >= 1\n"
             "       file: no default, must be in FASTA format\n"
             " query_file: no default, must be in FASTA format\n"
-            "output_file: parasail.csv\n"
+            "output_file: ssw.csv\n"
             );
     exit(status);
 }
@@ -150,9 +165,10 @@ int main(int argc, char **argv) {
     FILE *fop = NULL;
     const char *fname = NULL;
     const char *qname = NULL;
-    const char *oname = "parasail.csv";
+    const char *oname = "ssw.csv";
     unsigned char *T = NULL;
     unsigned char *Q = NULL;
+    int8_t *Tnum = NULL;
     int num_threads = -1;
     int *SA = NULL;
     int *LCP = NULL;
@@ -175,31 +191,25 @@ int main(int argc, char **argv) {
     PairSet pairs;
     unsigned long count_possible = 0;
     unsigned long count_generated = 0;
-#ifdef USE_CILK
-    cilk::reducer_opadd<unsigned long> work;
-#else
     unsigned long work = 0;
-#endif
     int c = 0;
-    const char *funcname = "sw_stats_striped_16";
-    parasail_function_t *function = NULL;
-    parasail_pfunction_t *pfunction = NULL;
-    parasail_pcreator_t *pcreator = NULL;
     const char *matrixname = NULL;
     const parasail_matrix_t *matrix = NULL;
+    int8_t ssw_matrix[24*24];
     int gap_open = 10;
     int gap_extend = 1;
     int match = 1;
     int mismatch = 0;
     bool use_dna = false;
+    bool use_stats = false;
+    bool use_table = false;
+    int ssw_flag = 0;
+    ssw_func *function = ssw_align;
     const char *progname = "parasail_aligner";
 
     /* Check arguments. */
-    while ((c = getopt(argc, argv, "a:c:de:f:g:hm:M:o:q:t:xX:")) != -1) {
+    while ((c = getopt(argc, argv, "c:de:f:g:hm:M:o:pq:st:xX:")) != -1) {
         switch (c) {
-            case 'a':
-                funcname = optarg;
-                break;
             case 'c':
                 cutoff = atoi(optarg);
                 if (cutoff <= 0) {
@@ -242,6 +252,13 @@ int main(int argc, char **argv) {
                     print_help(progname, EXIT_FAILURE);
                 }
                 break;
+            case 'p':
+                use_table = true;
+                function = ssw_align_table;
+                break;
+            case 's':
+                use_stats = true;
+                break;
             case 't':
                 num_threads = atoi(optarg);
                 break;
@@ -255,8 +272,7 @@ int main(int argc, char **argv) {
                 }
                 break;
             case '?':
-                if (optopt == 'a'
-                        || optopt == 'c'
+                if (optopt == 'c'
                         || optopt == 'e'
                         || optopt == 'f'
                         || optopt == 'g'
@@ -286,34 +302,6 @@ int main(int argc, char **argv) {
         }
     }
 
-    /* select the function */
-    if (funcname) {
-        if (NULL != strstr(funcname, "profile")) {
-            pfunction = parasail_lookup_pfunction(funcname);
-            if (NULL == pfunction) {
-                eprintf(stderr, "Specified profile function not found.\n");
-                exit(EXIT_FAILURE);
-            }
-            pcreator = parasail_lookup_pcreator(funcname);
-            if (NULL == pcreator) {
-                eprintf(stderr, "Specified profile creator function not found.\n");
-                exit(EXIT_FAILURE);
-            }
-
-        }
-        else {
-            function = parasail_lookup_function(funcname);
-            if (NULL == function) {
-                eprintf(stderr, "Specified function not found.\n");
-                exit(EXIT_FAILURE);
-            }
-        }
-    }
-    else {
-        eprintf(stderr, "No alignment function specified.\n");
-        exit(EXIT_FAILURE);
-    }
-
     /* select the substitution matrix */
     if (NULL != matrixname && use_dna) {
         eprintf(stderr, "Cannot specify matrix name for DNA alignments.\n");
@@ -332,6 +320,10 @@ int main(int argc, char **argv) {
             exit(EXIT_FAILURE);
         }
     }
+    /* create the ssw matrix */
+    for (i=0; i<matrix->size*matrix->size; ++i) {
+        ssw_matrix[i] = matrix->matrix[i];
+    }
 
     if (fname == NULL) {
         eprintf(stderr, "missing input file\n");
@@ -340,7 +332,6 @@ int main(int argc, char **argv) {
 
     /* print the parameters for reference */
     eprintf(stdout,
-            "%20s: %s\n"
             "%20s: %d\n"
             "%20s: %s\n"
             "%20s: %d\n"
@@ -349,7 +340,6 @@ int main(int argc, char **argv) {
             "%20s: %s\n"
             "%20s: %s\n"
             "%20s: %s\n",
-            "funcname", funcname,
             "cutoff", cutoff,
             "use filter", use_filter ? "yes" : "no",
             "gap_extend", gap_extend,
@@ -388,6 +378,12 @@ int main(int argc, char **argv) {
     T[n] = '\0';
     finish = parasail_time();
     eprintf(stdout, "%20s: %.4f seconds\n", "read and pack time", finish-start);
+
+    /* Convert to int8_t */
+    Tnum = (int8_t*)malloc(sizeof(int8_t)*(n+1));
+    for (i=0; i<n; ++i) {
+        Tnum[i] = matrix->mapper[(int)T[i]];
+    }
 
     /* Allocate memory for sequence ID array. */
     SID = (int *)malloc((size_t)n * sizeof(int));
@@ -593,32 +589,17 @@ int main(int argc, char **argv) {
     }
     eprintf(stdout, "%20s: %d\n", "omp num threads", num_threads);
 #endif
-#ifdef USE_CILK
-    if (-1 == num_threads) {
-        /* use defaults */
-    }
-    else if (num_threads >= 1) {
-        char num_threads_str[256];
-        sprintf(num_threads_str, "%d", num_threads);
-        __cilkrts_set_param("nworkers", num_threads_str);
-    }
-    else {
-        eprintf(stderr, "invalid number of threads chosen (%d)\n", num_threads);
-        exit(EXIT_FAILURE);
-    }
-    eprintf(stdout, "%20s: %d\n", "omp num threads", num_threads);
-#endif
 
     /* OpenMP can't iterate over an STL set. Convert to STL vector. */
     start = parasail_time();
     vector<Pair> vpairs(pairs.begin(), pairs.end());
-    vector<parasail_result_t*> results(vpairs.size(), NULL);
+    vector<s_align*> results(vpairs.size(), NULL);
     finish = parasail_time();
     eprintf(stdout, "%20s: %.4f seconds\n", "openmp prep time", finish-start);
 
     /* create profiles, if necessary */
-    vector<parasail_profile_t*> profiles;
-    if (pfunction) {
+    vector<s_profile*> profiles;
+    {
         start = parasail_time();
         set<int> profile_indices_set;
         for (size_t index=0; index<vpairs.size(); ++index) {
@@ -639,7 +620,7 @@ int main(int argc, char **argv) {
                 int i_beg = BEG[i];
                 int i_end = END[i];
                 int i_len = i_end-i_beg;
-                profiles[i] = pcreator((const char*)&T[i_beg], i_len, matrix);
+                profiles[i] = ssw_init(&Tnum[i_beg], i_len, ssw_matrix, matrix->size, 2);
             }
         }
         finish = parasail_time();
@@ -647,17 +628,16 @@ int main(int argc, char **argv) {
     }
 
     /* align pairs */
+    if (use_stats) {
+        //ssw_flag |= 0x0f;
+        ssw_flag = 2;
+    }
     start = parasail_time();
-    if (function) {
-#ifdef USE_CILK
-            cilk_for (size_t index=0; index<vpairs.size(); ++index)
-#else
+        {
 #pragma omp parallel
             {
 #pragma omp for schedule(guided)
-            for (size_t index=0; index<vpairs.size(); ++index)
-#endif
-            {
+            for (size_t index=0; index<vpairs.size(); ++index) {
                 int i = vpairs[index].first;
                 int j = vpairs[index].second;
                 int i_beg = BEG[i];
@@ -666,87 +646,35 @@ int main(int argc, char **argv) {
                 int j_beg = BEG[j];
                 int j_end = END[j];
                 int j_len = j_end-j_beg;
-                unsigned long local_work = i_len * j_len;
-                parasail_result_t *result = function(
-                        (const char*)&T[i_beg], i_len,
-                        (const char*)&T[j_beg], j_len,
-                        gap_open, gap_extend, matrix);
-#ifdef USE_CILK
-                work += local_work;
-#else
-#pragma omp atomic
-                work += local_work;
-#endif
-                results[index] = result;
-            }
-#ifdef USE_CILK
-#else
-        }
-#endif
-    }
-    else if (pfunction) {
-#ifdef USE_CILK
-            cilk_for (size_t index=0; index<vpairs.size(); ++index)
-#else
-#pragma omp parallel
-        {
-#pragma omp for schedule(guided)
-            for (size_t index=0; index<vpairs.size(); ++index)
-#endif
-            {
-                int i = vpairs[index].first;
-                int j = vpairs[index].second;
-                int j_beg = BEG[j];
-                int j_end = END[j];
-                int j_len = j_end-j_beg;
-                parasail_profile_t *profile = profiles[i];
+                s_profile *profile = profiles[i];
                 if (NULL == profile) {
                     eprintf(stderr, "BAD PROFILE %d\n", i);
                     exit(EXIT_FAILURE);
                 }
-                unsigned long local_work = profile->s1Len * j_len;
-                parasail_result_t *result = pfunction(
-                        profile, (const char*)&T[j_beg], j_len,
-                        gap_open, gap_extend);
-#ifdef USE_CILK
-                work += local_work;
-#else
+                unsigned long local_work = i_len * j_len;
+                s_align *result = function(
+                        profile, &Tnum[j_beg], j_len,
+                        gap_open, gap_extend,
+                        ssw_flag, 0, 0, 0);
 #pragma omp atomic
                 work += local_work;
-#endif
                 results[index] = result;
             }
-#ifdef USE_CILK
-#else
         }
-#endif
-    }
-    else {
-        /* shouldn't get here */
-        eprintf(stderr, "alignment function was not properly set (shouldn't happen)\n");
-        exit(EXIT_FAILURE);
     }
     finish = parasail_time();
-#ifdef USE_CILK
-    eprintf(stdout, "%20s: %lu cells\n", "work", work.get_value());
-#else
     eprintf(stdout, "%20s: %lu cells\n", "work", work);
-#endif
     eprintf(stdout, "%20s: %.4f seconds\n", "alignment time", finish-start);
-#ifdef USE_CILK
-    eprintf(stdout, "%20s: %.4f \n", "gcups", double(work.get_value())/(finish-start)/1000000000);
-#else
     eprintf(stdout, "%20s: %.4f \n", "gcups", double(work)/(finish-start)/1000000000);
-#endif
 
-    if (pfunction) {
+    {
         start = parasail_time();
 #pragma omp parallel
         {
 #pragma omp for schedule(guided)
             for (size_t index=0; index<profiles.size(); ++index) {
                 if (NULL != profiles[index]) {
-                    parasail_profile_free(profiles[index]);
+                    init_destroy(profiles[index]);
                 }
             }
             profiles.clear();
@@ -756,10 +684,8 @@ int main(int argc, char **argv) {
     }
 
     /* Output results. */
-    bool is_stats = (NULL != strstr(funcname, "stats"));
-    bool is_table = (NULL != strstr(funcname, "table"));
     for (size_t index=0; index<results.size(); ++index) {
-        parasail_result_t *result = results[index];
+        s_align *result = results[index];
         int i = vpairs[index].first;
         int j = vpairs[index].second;
         int i_beg = BEG[i];
@@ -773,35 +699,38 @@ int main(int argc, char **argv) {
             i = i - sid_crossover;
         }
 
-        if (is_stats) {
+        if (use_stats) {
+            int matches, similarities, length;
+            cigar_to_stats(result, &Tnum[i_beg], &Tnum[j_beg], matrix, matches, similarities, length);
             eprintf(fop, "%d,%d,%d,%d,%d,%d\n",
                     i,
                     j,
-                    result->score,
-                    result->matches,
-                    result->similar,
-                    result->length);
+                    result->score1,
+                    matches,
+                    similarities,
+                    length);
         }
         else {
             eprintf(fop, "%d,%d,%d\n",
                     i,
                     j,
-                    result->score);
+                    result->score1);
         }
-        if (is_table) {
+        if (use_table) {
             char filename[256] = {'\0'};
-            sprintf(filename, "parasail_%d_%d.txt", i, j);
+            sprintf(filename, "ssw_%d_%d.txt", i, j);
             print_array(filename, result->score_table,
                     (const char*)&T[i_beg], i_len,
                     (const char*)&T[j_beg], j_len);
         }
 
-        parasail_result_free(result);
+        align_destroy(result);
     }
     fclose(fop);
 
     /* Done with input text. */
     free(T);
+    free(Tnum);
 
     return 0;
 }
@@ -1046,5 +975,49 @@ inline static void print_array(
         fprintf(f, "\n");
     }
     fclose(f);
+}
+
+inline static void cigar_to_stats(
+        s_align *a,
+        const int8_t *read_seq,
+        const int8_t *ref_seq,
+        const parasail_matrix_t *matrix,
+        int &matches, int &similarities, int &length)
+{
+    matches = 0;
+    similarities = 0;
+    length = 0;
+    if (a->cigar) {
+        int32_t i, c = 0, qb = a->ref_begin1, pb = a->read_begin1;
+        int32_t q = qb;
+        int32_t p = pb;
+        for (c = 0; c < a->cigarLen; ++c) {
+            char letter = cigar_int_to_op(a->cigar[c]);
+            uint32_t l = cigar_int_to_len(a->cigar[c]);
+            for (i = 0; i < l; ++i){
+                if (letter == 'M') {
+                    int8_t t1 = ref_seq[q];
+                    int8_t t2 = read_seq[p];
+                    if (t1 == t2) {
+                        matches += 1;
+                        similarities += 1;
+                    }
+                    else if (matrix->matrix[t1*matrix->size+t2] > 0) {
+                        similarities += 1;
+                    }
+                    ++q;
+                    ++p;
+                } else {
+                    if (letter == 'I') ++p;
+                    else ++q;
+                }
+                length += 1;
+            }
+        }
+    }
+    else {
+        eprintf(stderr, "failed to produce cigar\n");
+        exit(EXIT_FAILURE);
+    }
 }
 

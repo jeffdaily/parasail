@@ -53,21 +53,22 @@ aligned against the UniProtKB/Swiss-Prot database. All times are in seconds. The
 The following tests were performed on a MacBook Pro i5 CPU @ 2.53GHz with 8GB
 RAM (SSE4.1 support). The compiler was Apple LLVM version 6.0 (clang-600.0.57.
 
-|                                |O74807  |P19930  |Q3ZAI3  |P18080|
-|--------------------------------|--------|--------|--------|------|
-|query length                    |110     |195     |390     |513   |
-|SSW (SSE2) 16-bit only          |13.9    |19.4    |29.9    |39.7  |
-|SSW (SSE2) saturation           |14.9    |22.7    |44.4    |54.4  |
-|opal (SSE4.1)                   |15.2    |21.5    |35.9    |44.6  |
-|SWIPE (SSSE3)                   |7.6     |13.3    |24.7    |32.0  |
-|ssearch36 (SSE2)                |12.9    |20.4    |29.6    |38.1  |
-|parasail (SSE4.1) 16-bit        |10.7    |15.2    |24.8    |30.5  |
-|parasail (SSE4.1) 8-bit\*       |9.9     |13.7    |20.0    |23.7  |
-|parasail (SSE4.1) saturation\*\*|10.3    |25.9    |43.1    |52.2  |
+|                                      |O74807  |P19930  |Q3ZAI3  |P18080|
+|--------------------------------------|--------|--------|--------|------|
+|query length                          |110     |195     |390     |513   |
+|SSW (SSE2) 16-bit only                |13.9    |19.4    |29.9    |39.7  |
+|SSW (SSE2) saturation                 |14.9    |22.7    |44.4    |54.4  |
+|opal (SSE4.1)                         |15.2    |21.5    |35.9    |44.6  |
+|SWIPE (SSSE3)                         |7.6     |13.3    |24.7    |32.0  |
+|ssearch36 (SSE2)                      |12.9    |20.4    |29.6    |38.1  |
+|parasail (SSE4.1) 16-bit              |10.7    |15.2    |24.8    |30.5  |
+|parasail (SSE4.1) 8-bit\*             |9.9     |13.7    |20.0    |23.7  |
+|parasail (SSE4.1) saturation abort\*\*|10.3    |20.9    |31.9    |39.5  |
+|parasail (SSE4.1) saturation cont\*\* |9.9     |15.9    |25.6    |31.3  |
 
-\* The 8-bit integer range is often not sufficient for large scores and will overflow, so these timings should be used as a lower bound; no overflow detection was applied and accounted for.
+\* The 8-bit integer range is often not sufficient for large scores and will overflow, so these timings should be used as a lower bound; no overflow detection was applied and accounted for and the returned scores are likely incorrect.
 
-\*\* The parasail saturation-checking functions are slow when the alignment score is expected to overflow the smaller 8-bit integer range.  As the query length increases, the performance basically becomes the sum of the 8-bit and 16-bit implementations because the 8-bit function will always overflow, causing both functions to execute.  This is wasteful computation.  It is more beneficial in general to use the appropriate bit-width if the score is expected to overflow the 8-bit score.
+\*\* The parasail saturation-checking functions are slow when the alignment score is expected to overflow the smaller 8-bit integer range.  There are two options when overflow is detected, either aborting the 8-bit computation and restarting the 16-bit version, or copying enough state from the 8-bit computation to continue where it left off for the 16-bit version.  We see from these numbers that in most cases the 16-bit implementation alone is fastest.
 
 ![](images/perf_mac.png)
 

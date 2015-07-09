@@ -17,7 +17,9 @@
 #include "config.h"
 
 #include <errno.h>
+#include <pwd.h>
 #include <unistd.h>
+#include <sys/types.h>
 
 #include <cctype>
 #include <cfloat>
@@ -1006,6 +1008,18 @@ inline static void read_and_pack_file(
     }
     eprintf(stdout, "%20s: %ld bytes\n", "packed size", n);
 }
+
+#ifdef __MIC__
+static const char *get_user_name()
+{
+    uid_t uid = geteuid();
+    struct passwd *pw = getpwuid(uid);
+    if (pw) {
+        return pw->pw_name;
+    }
+    return "";
+}
+#endif
 
 inline static void print_array(
         const char * filename_,

@@ -8,7 +8,7 @@
 #include <errno.h>
 #include <unistd.h>
 
-#define USE_ZLIB 1
+#define USE_ZLIB 0
 
 #include "kseq.h"
 

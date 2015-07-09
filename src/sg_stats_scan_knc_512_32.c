@@ -15,9 +15,8 @@
 #include "parasail.h"
 #include "parasail/memory.h"
 #include "parasail/internal_knc.h"
-#include "parasail/matrices/blosum_map.h"
 
-#define NEG_INF_32 (INT32_MIN/(int32_t)(2))
+#define NEG_INF (INT32_MIN/(int32_t)(2))
 #define MAX(a,b) ((a)>(b)?(a):(b))
 
 static inline __m512i insert(__m512i a, int32_t b, int imm) {
@@ -61,11 +60,43 @@ static inline void arr_store_si512(
 }
 #endif
 
+#ifdef PARASAIL_ROWCOL
+static inline void arr_store_col(
+        int *col,
+        __m512i vH,
+        int32_t t,
+        int32_t seglen)
+{
+    col[ 0*seglen+t] = (int32_t)extract(vH,  0);
+    col[ 1*seglen+t] = (int32_t)extract(vH,  1);
+    col[ 2*seglen+t] = (int32_t)extract(vH,  2);
+    col[ 3*seglen+t] = (int32_t)extract(vH,  3);
+    col[ 4*seglen+t] = (int32_t)extract(vH,  4);
+    col[ 5*seglen+t] = (int32_t)extract(vH,  5);
+    col[ 6*seglen+t] = (int32_t)extract(vH,  6);
+    col[ 7*seglen+t] = (int32_t)extract(vH,  7);
+    col[ 8*seglen+t] = (int32_t)extract(vH,  8);
+    col[ 9*seglen+t] = (int32_t)extract(vH,  9);
+    col[10*seglen+t] = (int32_t)extract(vH, 10);
+    col[11*seglen+t] = (int32_t)extract(vH, 11);
+    col[12*seglen+t] = (int32_t)extract(vH, 12);
+    col[13*seglen+t] = (int32_t)extract(vH, 13);
+    col[14*seglen+t] = (int32_t)extract(vH, 14);
+    col[15*seglen+t] = (int32_t)extract(vH, 15);
+}
+#endif
 
 #ifdef PARASAIL_TABLE
-#define FNAME sg_stats_table_scan_knc_512_32
+#define FNAME parasail_sg_stats_table_scan_knc_512_32
+#define PNAME parasail_sg_stats_table_scan_profile_knc_512_32
 #else
-#define FNAME sg_stats_scan_knc_512_32
+#ifdef PARASAIL_ROWCOL
+#define FNAME parasail_sg_stats_rowcol_scan_knc_512_32
+#define PNAME parasail_sg_stats_rowcol_scan_profile_knc_512_32
+#else
+#define FNAME parasail_sg_stats_scan_knc_512_32
+#define PNAME parasail_sg_stats_scan_profile_knc_512_32
+#endif
 #endif
 
 parasail_result_t* FNAME(
@@ -73,75 +104,70 @@ parasail_result_t* FNAME(
         const char * const restrict s2, const int s2Len,
         const int open, const int gap, const parasail_matrix_t *matrix)
 {
+    parasail_profile_t *profile = parasail_profile_create_stats_knc_512_32(s1, s1Len, matrix);
+    parasail_result_t *result = PNAME(profile, s2, s2Len, open, gap);
+    parasail_profile_free(profile);
+    return result;
+}
+
+parasail_result_t* PNAME(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
     int32_t i = 0;
     int32_t j = 0;
     int32_t k = 0;
-    const int32_t n = 24; /* number of amino acids in table */
-    const int32_t segWidth = 16; /* number of values in vector unit */
     int32_t segNum = 0;
+    const int s1Len = profile->s1Len;
+    const parasail_matrix_t *matrix = profile->matrix;
+    const int32_t segWidth = 16;
     const int32_t segLen = (s1Len + segWidth - 1) / segWidth;
     const int32_t offset = (s1Len - 1) % segLen;
     const int32_t position = (segWidth - 1) - (s1Len - 1) / segLen;
-    __m512i* const restrict pvP  = parasail_memalign_m512i(64, n * segLen);
-    __m512i* const restrict pvPm = parasail_memalign_m512i(64, n * segLen);
-    __m512i* const restrict pvE  = parasail_memalign_m512i(64, segLen);
-    __m512i* const restrict pvHt = parasail_memalign_m512i(64, segLen);
-    __m512i* const restrict pvFt = parasail_memalign_m512i(64, segLen);
-    __m512i* const restrict pvMt = parasail_memalign_m512i(64, segLen);
-    __m512i* const restrict pvLt = parasail_memalign_m512i(64, segLen);
+    __m512i* const restrict pvP  = (__m512i*)profile->profile;
+    __m512i* const restrict pvPm = (__m512i*)profile->profile_m;
+    __m512i* const restrict pvPs = (__m512i*)profile->profile_s;
+    __m512i* const restrict pvE  = parasail_memalign___m512i(64, segLen);
+    __m512i* const restrict pvHt = parasail_memalign___m512i(64, segLen);
+    __m512i* const restrict pvFt = parasail_memalign___m512i(64, segLen);
+    __m512i* const restrict pvMt = parasail_memalign___m512i(64, segLen);
+    __m512i* const restrict pvSt = parasail_memalign___m512i(64, segLen);
+    __m512i* const restrict pvLt = parasail_memalign___m512i(64, segLen);
     int*     const restrict pvEx = parasail_memalign_int(64, segLen);
-    __m512i* const restrict pvH  = parasail_memalign_m512i(64, segLen);
-    __m512i* const restrict pvM  = parasail_memalign_m512i(64, segLen);
-    __m512i* const restrict pvL  = parasail_memalign_m512i(64, segLen);
+    __m512i* const restrict pvH  = parasail_memalign___m512i(64, segLen);
+    __m512i* const restrict pvM  = parasail_memalign___m512i(64, segLen);
+    __m512i* const restrict pvS  = parasail_memalign___m512i(64, segLen);
+    __m512i* const restrict pvL  = parasail_memalign___m512i(64, segLen);
     __m512i vGapO = _mm512_set1_epi32(open);
     __m512i vGapE = _mm512_set1_epi32(gap);
     __m512i vZero = _mm512_set1_epi32(0);
     __m512i vOne = _mm512_set1_epi32(1);
-    __m512i vNegInf = _mm512_set1_epi32(NEG_INF_32);
-    __m512i vSegLimit = _mm512_set1_epi32(segWidth-1);
-    int score = NEG_INF_32;
+    __m512i vNegInf = _mm512_set1_epi32(NEG_INF);
+    int score = NEG_INF;
     int matches = 0;
+    int similar = 0;
     int length = 0;
     __m512i vMaxH = vNegInf;
     __m512i vMaxM = vZero;
+    __m512i vMaxS = vZero;
     __m512i vMaxL = vZero;
     __m512i permute_idx = _mm512_set_16to16_pi(14,13,12,11,10,9,8,7,6,5,4,3,2,1,0,15);
+    __m512i vSegLimit = _mm512_set1_epi32(segWidth-1);
     __mmask16 permute_mask = _mm512_cmplt_epi32_mask(permute_idx, vSegLimit);
-    __m512i segLenXgap_reset = _mm512_set_16to16_pi(
-            NEG_INF_32, NEG_INF_32, NEG_INF_32, NEG_INF_32,
-            NEG_INF_32, NEG_INF_32, NEG_INF_32, NEG_INF_32,
-            NEG_INF_32, NEG_INF_32, NEG_INF_32, NEG_INF_32,
-            NEG_INF_32, NEG_INF_32, NEG_INF_32, -segLen*gap);
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table3(segLen*segWidth, s2Len);
 #else
+#ifdef PARASAIL_ROWCOL
+    parasail_result_t *result = parasail_result_new_rowcol3(segLen*segWidth, s2Len);
+#else
     parasail_result_t *result = parasail_result_new();
 #endif
+#endif
 
-    parasail_memset_m512i(pvM, vZero, segLen);
-    parasail_memset_m512i(pvL, vZero, segLen);
-
-    /* Generate query profile and match profile.
-     * Rearrange query sequence & calculate the weight of match/mismatch.
-     * Don't alias. */
-    {
-        int32_t index = 0;
-        for (k=0; k<n; ++k) {
-            for (i=0; i<segLen; ++i) {
-                __m512i_32_t t;
-                __m512i_32_t s;
-                j = i;
-                for (segNum=0; segNum<segWidth; ++segNum) {
-                    t.v[segNum] = j >= s1Len ? 0 : matrix[k][parasail_blosum_map[(unsigned char)s1[j]]];
-                    s.v[segNum] = j >= s1Len ? 0 : (k == parasail_blosum_map[(unsigned char)s1[j]]);
-                    j += segLen;
-                }
-                _mm512_store_epi32(&pvP[index], t.m);
-                _mm512_store_epi32(&pvPm[index], s.m);
-                ++index;
-            }
-        }
-    }
+    parasail_memset___m512i(pvM, vZero, segLen);
+    parasail_memset___m512i(pvS, vZero, segLen);
+    parasail_memset___m512i(pvL, vZero, segLen);
 
     /* initialize H and E */
     {
@@ -151,7 +177,7 @@ parasail_result_t* FNAME(
             __m512i_32_t e;
             for (segNum=0; segNum<segWidth; ++segNum) {
                 h.v[segNum] = 0;
-                e.v[segNum] = NEG_INF_32;
+                e.v[segNum] = NEG_INF;
             }
             _mm512_store_epi32(&pvH[index], h.m);
             _mm512_store_epi32(&pvE[index], e.m);
@@ -168,10 +194,15 @@ parasail_result_t* FNAME(
         __m512i *pvW;
         __m512i vW;
         __m512i *pvC;
+        __m512i *pvD;
         __m512i vC;
+        __m512i vD;
         __m512i vM;
         __m512i vMp;
         __m512i vMt;
+        __m512i vS;
+        __m512i vSp;
+        __m512i vSt;
         __m512i vL;
         __m512i vLp;
         __m512i vLt;
@@ -195,12 +226,16 @@ parasail_result_t* FNAME(
         vMp= _mm512_load_epi32(pvM+(segLen-1));
         vMp= _mm512_mask_permutevar_epi32(
                 vZero, permute_mask, permute_idx, vMp);
+        vSp= _mm512_load_epi32(pvS+(segLen-1));
+        vSp= _mm512_mask_permutevar_epi32(
+                vZero, permute_mask, permute_idx, vSp);
         vLp= _mm512_load_epi32(pvL+(segLen-1));
         vLp= _mm512_mask_permutevar_epi32(
                 vZero, permute_mask, permute_idx, vLp);
         vLp= _mm512_add_epi32(vLp, vOne);
-        pvW = pvP + parasail_blosum_map[(unsigned char)s2[j]]*segLen;
-        pvC = pvPm+ parasail_blosum_map[(unsigned char)s2[j]]*segLen;
+        pvW = pvP + matrix->mapper[(unsigned char)s2[j]]*segLen;
+        pvC = pvPm+ matrix->mapper[(unsigned char)s2[j]]*segLen;
+        pvD = pvPs+ matrix->mapper[(unsigned char)s2[j]]*segLen;
         for (i=0; i<segLen; ++i) {
             /* load values we need */
             vE = _mm512_load_epi32(pvE+i);
@@ -210,21 +245,27 @@ parasail_result_t* FNAME(
             vHt = _mm512_max_epi32(vH, vE);
             /* statistics */
             vC = _mm512_load_epi32(pvC+i);
+            vD = _mm512_load_epi32(pvD+i);
             vMp = _mm512_add_epi32(vMp, vC);
+            vSp = _mm512_add_epi32(vSp, vD);
             vEx = _mm512_cmpgt_epi32_mask(vE, vH);
             vM = _mm512_load_epi32(pvM+i);
+            vS = _mm512_load_epi32(pvS+i);
             vL = _mm512_load_epi32(pvL+i);
             vL = _mm512_add_epi32(vL, vOne);
             vMt = _mm512_mask_blend_epi32(vEx, vMp, vM);
+            vSt = _mm512_mask_blend_epi32(vEx, vSp, vS);
             vLt = _mm512_mask_blend_epi32(vEx, vLp, vL);
             /* store results */
             _mm512_store_epi32(pvHt+i, vHt);
             pvEx[i] = _mm512_mask2int(vEx);
             _mm512_store_epi32(pvMt+i, vMt);
+            _mm512_store_epi32(pvSt+i, vSt);
             _mm512_store_epi32(pvLt+i, vLt);
             /* prep for next iteration */
             vH = _mm512_load_epi32(pvH+i);
             vMp = vM;
+            vSp = vS;
             vLp = vL;
         }
 
@@ -272,6 +313,7 @@ parasail_result_t* FNAME(
 
         /* calculate H,M,L */
         vMp = vZero;
+        vSp = vZero;
         vLp = vOne;
         vCx = permute_mask;
         for (i=0; i<segLen; ++i) {
@@ -284,13 +326,16 @@ parasail_result_t* FNAME(
             /* statistics */
             vEx = _mm512_int2mask(pvEx[i]);
             vMt = _mm512_load_epi32(pvMt+i);
+            vSt = _mm512_load_epi32(pvSt+i);
             vLt = _mm512_load_epi32(pvLt+i);
             vEx = _mm512_kor(
                     _mm512_kand(vEx, _mm512_cmpeq_epi32_mask(vHt, vFt)),
                     _mm512_cmplt_epi32_mask(vHt, vFt));
             vM = _mm512_mask_blend_epi32(vEx, vMt, vMp);
+            vS = _mm512_mask_blend_epi32(vEx, vSt, vSp);
             vL = _mm512_mask_blend_epi32(vEx, vLt, vLp);
             vMp = vM;
+            vSp = vS;
             vLp = _mm512_add_epi32(vL, vOne);
             vCx = _mm512_kand(vCx, vEx);
             /* store results */
@@ -303,7 +348,7 @@ parasail_result_t* FNAME(
         {
             vLp = _mm512_sub_epi32(vLp, vOne);
             {
-                __m512i_32_t uMp, uLp;
+                __m512i_32_t uMp, uSp, uLp;
                 int uC = _mm512_mask2int(vCx);
                 uMp.m = vMp;
                 uMp.v[ 1] = (uC&((int)1<< 1)) ? uMp.v[ 0] : uMp.v[ 1];
@@ -322,6 +367,23 @@ parasail_result_t* FNAME(
                 uMp.v[14] = (uC&((int)1<<14)) ? uMp.v[13] : uMp.v[14];
                 uMp.v[15] = (uC&((int)1<<15)) ? uMp.v[14] : uMp.v[15];
                 vMp = uMp.m;
+                uSp.m = vSp;
+                uSp.v[ 1] = (uC&((int)1<< 1)) ? uSp.v[ 0] : uSp.v[ 1];
+                uSp.v[ 2] = (uC&((int)1<< 2)) ? uSp.v[ 1] : uSp.v[ 2];
+                uSp.v[ 3] = (uC&((int)1<< 3)) ? uSp.v[ 2] : uSp.v[ 3];
+                uSp.v[ 4] = (uC&((int)1<< 4)) ? uSp.v[ 3] : uSp.v[ 4];
+                uSp.v[ 5] = (uC&((int)1<< 5)) ? uSp.v[ 4] : uSp.v[ 5];
+                uSp.v[ 6] = (uC&((int)1<< 6)) ? uSp.v[ 5] : uSp.v[ 6];
+                uSp.v[ 7] = (uC&((int)1<< 7)) ? uSp.v[ 6] : uSp.v[ 7];
+                uSp.v[ 8] = (uC&((int)1<< 8)) ? uSp.v[ 7] : uSp.v[ 8];
+                uSp.v[ 9] = (uC&((int)1<< 9)) ? uSp.v[ 8] : uSp.v[ 9];
+                uSp.v[10] = (uC&((int)1<<10)) ? uSp.v[ 9] : uSp.v[10];
+                uSp.v[11] = (uC&((int)1<<11)) ? uSp.v[10] : uSp.v[11];
+                uSp.v[12] = (uC&((int)1<<12)) ? uSp.v[11] : uSp.v[12];
+                uSp.v[13] = (uC&((int)1<<13)) ? uSp.v[12] : uSp.v[13];
+                uSp.v[14] = (uC&((int)1<<14)) ? uSp.v[13] : uSp.v[14];
+                uSp.v[15] = (uC&((int)1<<15)) ? uSp.v[14] : uSp.v[15];
+                vSp = uSp.m;
                 uLp.m = vLp;
                 uLp.v[ 1] = (uC&((int)1<< 1))?uLp.v[ 1] + uLp.v[ 0] : uLp.v[ 1];
                 uLp.v[ 2] = (uC&((int)1<< 2))?uLp.v[ 2] + uLp.v[ 1] : uLp.v[ 2];
@@ -345,22 +407,29 @@ parasail_result_t* FNAME(
         /* final pass for M,L */
         vMp = _mm512_mask_permutevar_epi32(
                 vZero, permute_mask, permute_idx, vMp);
+        vSp = _mm512_mask_permutevar_epi32(
+                vZero, permute_mask, permute_idx, vSp);
         vLp = _mm512_mask_permutevar_epi32(
                 vZero, permute_mask, permute_idx, vLp);
         for (i=0; i<segLen; ++i) {
             /* statistics */
             vEx = _mm512_int2mask(pvEx[i]);
             vMt = _mm512_load_epi32(pvMt+i);
+            vSt = _mm512_load_epi32(pvSt+i);
             vLt = _mm512_load_epi32(pvLt+i);
             vM = _mm512_mask_blend_epi32(vEx, vMt, vMp);
+            vS = _mm512_mask_blend_epi32(vEx, vSt, vSp);
             vL = _mm512_mask_blend_epi32(vEx, vLt, vLp);
             vMp = vM;
+            vSp = vS;
             vLp = _mm512_add_epi32(vL, vOne);
             /* store results */
             _mm512_store_epi32(pvM+i, vM);
+            _mm512_store_epi32(pvS+i, vS);
             _mm512_store_epi32(pvL+i, vL);
 #ifdef PARASAIL_TABLE
             arr_store_si512(result->matches_table, vM, i, segLen, j, s2Len);
+            arr_store_si512(result->similar_table, vS, i, segLen, j, s2Len);
             arr_store_si512(result->length_table, vL, i, segLen, j, s2Len);
 #endif
         }
@@ -370,11 +439,25 @@ parasail_result_t* FNAME(
             __mmask16 cond_max;
             vH = _mm512_load_epi32(pvH + offset);
             vM = _mm512_load_epi32(pvM + offset);
+            vS = _mm512_load_epi32(pvS + offset);
             vL = _mm512_load_epi32(pvL + offset);
             cond_max = _mm512_cmpgt_epi32_mask(vH, vMaxH);
             vMaxH = _mm512_mask_blend_epi32(cond_max, vMaxH, vH);
             vMaxM = _mm512_mask_blend_epi32(cond_max, vMaxM, vM);
+            vMaxS = _mm512_mask_blend_epi32(cond_max, vMaxS, vS);
             vMaxL = _mm512_mask_blend_epi32(cond_max, vMaxL, vL);
+#ifdef PARASAIL_ROWCOL
+            for (k=0; k<position; ++k) {
+                vH = _mm512_permutevar_epi32(permute_idx, vH);
+                vM = _mm512_permutevar_epi32(permute_idx, vM);
+                vS = _mm512_permutevar_epi32(permute_idx, vS);
+                vL = _mm512_permutevar_epi32(permute_idx, vL);
+            }
+            result->score_row[j] = (int32_t) extract (vH, 15);
+            result->matches_row[j] = (int32_t) extract (vM, 15);
+            result->similar_row[j] = (int32_t) extract (vS, 15);
+            result->length_row[j] = (int32_t) extract (vL, 15);
+#endif
         }
     }
 
@@ -384,12 +467,14 @@ parasail_result_t* FNAME(
         for (k=0; k<position; ++k) {
             vMaxH = _mm512_permutevar_epi32(permute_idx, vMaxH);
             vMaxM = _mm512_permutevar_epi32(permute_idx, vMaxM);
+            vMaxS = _mm512_permutevar_epi32(permute_idx, vMaxS);
             vMaxL = _mm512_permutevar_epi32(permute_idx, vMaxL);
         }
         value = (int32_t) extract(vMaxH, 15);
         if (value > score) {
             score = value;
             matches = (int32_t)extract(vMaxM, 15);
+            similar = (int32_t)extract(vMaxS, 15);
             length = (int32_t)extract(vMaxL, 15);
         }
     }
@@ -398,17 +483,26 @@ parasail_result_t* FNAME(
     {
         vMaxH = vNegInf;
         vMaxM = vZero;
+        vMaxS = vZero;
         vMaxL = vZero;
 
         for (i=0; i<segLen; ++i) {
             /* load the last stored values */
             __m512i vH = _mm512_load_epi32(pvH + i);
             __m512i vM = _mm512_load_epi32(pvM + i);
+            __m512i vS = _mm512_load_epi32(pvS + i);
             __m512i vL = _mm512_load_epi32(pvL + i);
             __mmask16 cond_max = _mm512_cmpgt_epi32_mask(vH, vMaxH);
             vMaxH = _mm512_mask_blend_epi32(cond_max, vMaxH, vH);
             vMaxM = _mm512_mask_blend_epi32(cond_max, vMaxM, vM);
+            vMaxS = _mm512_mask_blend_epi32(cond_max, vMaxS, vS);
             vMaxL = _mm512_mask_blend_epi32(cond_max, vMaxL, vL);
+#ifdef PARASAIL_ROWCOL
+            arr_store_col(result->score_col, vH, i, segLen);
+            arr_store_col(result->matches_col, vM, i, segLen);
+            arr_store_col(result->similar_col, vS, i, segLen);
+            arr_store_col(result->length_col, vL, i, segLen);
+#endif
         }
 
         /* max in vec */
@@ -417,29 +511,32 @@ parasail_result_t* FNAME(
             if (value > score) {
                 score = value;
                 matches = (int32_t)extract(vMaxM, 15);
+                similar = (int32_t)extract(vMaxS, 15);
                 length = (int32_t)extract(vMaxL, 15);
             }
             vMaxH = _mm512_permutevar_epi32(permute_idx, vMaxH);
             vMaxM = _mm512_permutevar_epi32(permute_idx, vMaxM);
+            vMaxS = _mm512_permutevar_epi32(permute_idx, vMaxS);
             vMaxL = _mm512_permutevar_epi32(permute_idx, vMaxL);
         }
     }
 
     result->score = score;
     result->matches = matches;
+    result->similar = similar;
     result->length = length;
 
     parasail_free(pvL);
+    parasail_free(pvS);
     parasail_free(pvM);
     parasail_free(pvH);
     parasail_free(pvEx);
     parasail_free(pvLt);
+    parasail_free(pvSt);
     parasail_free(pvMt);
     parasail_free(pvFt);
     parasail_free(pvHt);
     parasail_free(pvE);
-    parasail_free(pvPm);
-    parasail_free(pvP);
 
     return result;
 }

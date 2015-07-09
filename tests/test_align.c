@@ -8,6 +8,7 @@
 #include <string.h>
 
 #include <errno.h>
+#include <pwd.h>
 #include <unistd.h>
 #include <sys/types.h>
 

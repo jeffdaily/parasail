@@ -549,8 +549,7 @@ int main(void) { test_varargs_macros(); return 0; }
 ]])],
         [pt_cv_variadic=yes; pt_cv_variadic_val=1],
         [pt_cv_variadic=no; pt_cv_variadic_val=0])
-     ac_cxx_werror_flag=$psl_save_cxx_werror_flag
-     CXXFLAGS="$save_CXXFLAGS"])
+     ac_cxx_werror_flag=$psl_save_cxx_werror_flag])
 AC_DEFINE_UNQUOTED([HAVE_VARIADIC_MACROS], [$pt_cv_variadic_val],
     [define to 1 if the CXX compiler supports variadic macros])
 

@@ -185,7 +185,7 @@ static void check_functions(
                     unsigned long a = 0;
                     unsigned long b = 1;
                     k_combination2(pair_index, &a, &b);
-                    //printf("\t\t\t\tpair=%lu (%lu,%lu)\n", pair_index, a, b);
+                    if (verbose) printf("\t\t\t\tpair=%lu (%lu,%lu)\n", pair_index, a, b);
                     reference_result = reference_function(
                             sequences[a], sizes[a],
                             sequences[b], sizes[b],

@@ -91,7 +91,10 @@ parasail_result_t* %(PREFIX)s_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    %(PREFIX)s_pointer = %(PREFIX2)s_knc_512_32;
+    if (1) {
+        %(PREFIX)s_pointer = %(PREFIX2)s_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -143,7 +146,10 @@ parasail_result_t* %(PREFIX)s_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    %(PREFIX)s_pointer = %(PREFIX2)s_knc_512_32;
+    if (1) {
+        %(PREFIX)s_pointer = %(PREFIX2)s_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {

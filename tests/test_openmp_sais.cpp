@@ -38,7 +38,7 @@
 #endif
 
 #include "parasail.h"
-#include "stats.h"
+#include "parasail/stats.h"
 #include "timer_real.h"
 
 #include "sais.h"

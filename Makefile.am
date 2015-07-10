@@ -141,6 +141,8 @@ SRC_KNC =
 
 SRC_CORE += src/cpuid.c
 SRC_CORE += src/function_lookup.c
+SRC_CORE += src/io.c
+SRC_CORE += src/io.h
 SRC_CORE += src/matrix_lookup.c
 SRC_CORE += src/memory.c
 SRC_CORE += src/time.c
@@ -150,6 +152,7 @@ SRC_CORE += src/sw_dispatch.c
 SRC_CORE += src/dispatch_profile.c
 SRC_CORE += src/satcheck.c
 SRC_CORE += parasail/memory.h
+SRC_CORE += parasail/stats.h
 
 #################
 # vector memory
@@ -673,6 +676,7 @@ tests_libsais_la_SOURCES += contrib/sais-lite-lcp/sais.h
 bin_PROGRAMS += apps/parasail_aligner
 bin_PROGRAMS += apps/parasail_all
 bin_PROGRAMS += apps/parasail_query
+bin_PROGRAMS += apps/parasail_stats
 if HAVE_CILK
 bin_PROGRAMS += apps/parasail_aligner_cilk
 endif
@@ -723,6 +727,8 @@ apps_parasail_query_LDFLAGS  = $(AM_LDFLAGS) $(OPENMP_CXXFLAGS)
 apps_parasail_query_LDADD =
 apps_parasail_query_LDADD += $(LDADD)
 apps_parasail_query_LDADD += tests/libsais.la
+
+apps_parasail_stats_SOURCES = apps/parasail_stats.c
 
 tests_test_align_SOURCES = tests/test_align.c
 

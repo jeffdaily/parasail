@@ -82,7 +82,7 @@ build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = apps/parasail_aligner$(EXEEXT) \
 	apps/parasail_all$(EXEEXT) apps/parasail_query$(EXEEXT) \
-	$(am__EXEEXT_1)
+	apps/parasail_stats$(EXEEXT) $(am__EXEEXT_1)
 check_PROGRAMS = tests/test_align$(EXEEXT) tests/test_gcups$(EXEEXT) \
 	tests/test_isa$(EXEEXT) tests/test_openmp$(EXEEXT) \
 	tests/test_query$(EXEEXT) tests/test_scatter$(EXEEXT) \
@@ -183,7 +183,7 @@ libparasail_la_DEPENDENCIES = libparasail_novec.la \
 	$(am__append_6) $(am__append_7) $(am__append_8) \
 	$(am__append_9) $(am__append_10) $(am__DEPENDENCIES_1)
 am__dirstamp = $(am__leading_dot)dirstamp
-am__objects_1 = src/cpuid.lo src/function_lookup.lo \
+am__objects_1 = src/cpuid.lo src/function_lookup.lo src/io.lo \
 	src/matrix_lookup.lo src/memory.lo src/time.lo \
 	src/nw_dispatch.lo src/sg_dispatch.lo src/sw_dispatch.lo \
 	src/dispatch_profile.lo src/satcheck.lo
@@ -1155,6 +1155,11 @@ apps_parasail_query_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
 	$(apps_parasail_query_CXXFLAGS) $(CXXFLAGS) \
 	$(apps_parasail_query_LDFLAGS) $(LDFLAGS) -o $@
+am_apps_parasail_stats_OBJECTS = apps/parasail_stats.$(OBJEXT)
+apps_parasail_stats_OBJECTS = $(am_apps_parasail_stats_OBJECTS)
+apps_parasail_stats_LDADD = $(LDADD)
+apps_parasail_stats_DEPENDENCIES = libparasail.la \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 am_tests_test_align_OBJECTS = tests/test_align.$(OBJEXT)
 tests_test_align_OBJECTS = $(am_tests_test_align_OBJECTS)
 tests_test_align_LDADD = $(LDADD)
@@ -1317,11 +1322,11 @@ SOURCES = $(libparasail_la_SOURCES) $(libparasail_avx2_la_SOURCES) \
 	$(apps_parasail_aligner_SOURCES) \
 	$(apps_parasail_aligner_cilk_SOURCES) \
 	$(apps_parasail_all_SOURCES) $(apps_parasail_query_SOURCES) \
-	$(tests_test_align_SOURCES) $(tests_test_gcups_SOURCES) \
-	$(tests_test_isa_SOURCES) $(tests_test_openmp_SOURCES) \
-	$(tests_test_query_SOURCES) $(tests_test_scatter_SOURCES) \
-	$(tests_test_ssw_SOURCES) $(tests_test_sw_dispatch_SOURCES) \
-	$(tests_test_verify_SOURCES) \
+	$(apps_parasail_stats_SOURCES) $(tests_test_align_SOURCES) \
+	$(tests_test_gcups_SOURCES) $(tests_test_isa_SOURCES) \
+	$(tests_test_openmp_SOURCES) $(tests_test_query_SOURCES) \
+	$(tests_test_scatter_SOURCES) $(tests_test_ssw_SOURCES) \
+	$(tests_test_sw_dispatch_SOURCES) $(tests_test_verify_SOURCES) \
 	$(tests_test_verify_rowcols_SOURCES) \
 	$(tests_test_verify_tables_SOURCES)
 DIST_SOURCES = $(libparasail_la_SOURCES) \
@@ -1348,11 +1353,11 @@ DIST_SOURCES = $(libparasail_la_SOURCES) \
 	$(apps_parasail_aligner_SOURCES) \
 	$(apps_parasail_aligner_cilk_SOURCES) \
 	$(apps_parasail_all_SOURCES) $(apps_parasail_query_SOURCES) \
-	$(tests_test_align_SOURCES) $(tests_test_gcups_SOURCES) \
-	$(tests_test_isa_SOURCES) $(tests_test_openmp_SOURCES) \
-	$(tests_test_query_SOURCES) $(tests_test_scatter_SOURCES) \
-	$(tests_test_ssw_SOURCES) $(tests_test_sw_dispatch_SOURCES) \
-	$(tests_test_verify_SOURCES) \
+	$(apps_parasail_stats_SOURCES) $(tests_test_align_SOURCES) \
+	$(tests_test_gcups_SOURCES) $(tests_test_isa_SOURCES) \
+	$(tests_test_openmp_SOURCES) $(tests_test_query_SOURCES) \
+	$(tests_test_scatter_SOURCES) $(tests_test_ssw_SOURCES) \
+	$(tests_test_sw_dispatch_SOURCES) $(tests_test_verify_SOURCES) \
 	$(tests_test_verify_rowcols_SOURCES) \
 	$(tests_test_verify_tables_SOURCES)
 am__can_run_installinfo = \
@@ -1637,10 +1642,10 @@ EXTRA_DIST = version.sh DISCLAIMER README.md \
 #################
 # core sources
 #################
-SRC_CORE = src/cpuid.c src/function_lookup.c src/matrix_lookup.c \
-	src/memory.c src/time.c src/nw_dispatch.c src/sg_dispatch.c \
-	src/sw_dispatch.c src/dispatch_profile.c src/satcheck.c \
-	parasail/memory.h
+SRC_CORE = src/cpuid.c src/function_lookup.c src/io.c src/io.h \
+	src/matrix_lookup.c src/memory.c src/time.c src/nw_dispatch.c \
+	src/sg_dispatch.c src/sw_dispatch.c src/dispatch_profile.c \
+	src/satcheck.c parasail/memory.h parasail/stats.h
 
 #################
 # vector memory
@@ -1958,6 +1963,7 @@ apps_parasail_query_SOURCES = apps/parasail_query.cpp
 apps_parasail_query_CXXFLAGS = $(AM_CXXFLAGS) $(OPENMP_CXXFLAGS)
 apps_parasail_query_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CXXFLAGS)
 apps_parasail_query_LDADD = $(LDADD) tests/libsais.la
+apps_parasail_stats_SOURCES = apps/parasail_stats.c
 tests_test_align_SOURCES = tests/test_align.c
 tests_test_gcups_SOURCES = tests/test_gcups.c
 tests_test_isa_SOURCES = tests/test_isa.c
@@ -2106,6 +2112,7 @@ src/$(DEPDIR)/$(am__dirstamp):
 src/cpuid.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/function_lookup.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
+src/io.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/matrix_lookup.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/memory.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
@@ -3780,6 +3787,12 @@ apps/apps_parasail_query-parasail_query.$(OBJEXT):  \
 apps/parasail_query$(EXEEXT): $(apps_parasail_query_OBJECTS) $(apps_parasail_query_DEPENDENCIES) $(EXTRA_apps_parasail_query_DEPENDENCIES) apps/$(am__dirstamp)
 	@rm -f apps/parasail_query$(EXEEXT)
 	$(AM_V_CXXLD)$(apps_parasail_query_LINK) $(apps_parasail_query_OBJECTS) $(apps_parasail_query_LDADD) $(LIBS)
+apps/parasail_stats.$(OBJEXT): apps/$(am__dirstamp) \
+	apps/$(DEPDIR)/$(am__dirstamp)
+
+apps/parasail_stats$(EXEEXT): $(apps_parasail_stats_OBJECTS) $(apps_parasail_stats_DEPENDENCIES) $(EXTRA_apps_parasail_stats_DEPENDENCIES) apps/$(am__dirstamp)
+	@rm -f apps/parasail_stats$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(apps_parasail_stats_OBJECTS) $(apps_parasail_stats_LDADD) $(LIBS)
 tests/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) tests/$(DEPDIR)
 	@: > tests/$(DEPDIR)/$(am__dirstamp)
@@ -3868,11 +3881,13 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@apps/$(DEPDIR)/apps_parasail_aligner_cilk-parasail_aligner.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@apps/$(DEPDIR)/apps_parasail_all-parasail_all.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@apps/$(DEPDIR)/apps_parasail_query-parasail_query.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@apps/$(DEPDIR)/parasail_stats.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@contrib/$(DEPDIR)/tests_libssw_la-ssw.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@contrib/sais-lite-lcp/$(DEPDIR)/sais.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/cpuid.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/dispatch_profile.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/function_lookup.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/io.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_avx2_la-nw_diag_avx2_256_16.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_avx2_la-nw_diag_avx2_256_32.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_avx2_la-nw_diag_avx2_256_64.Plo@am__quote@

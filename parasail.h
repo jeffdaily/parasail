@@ -88,16 +88,20 @@ typedef struct parasail_matrix {
     int need_free;
 } parasail_matrix_t;
 
+typedef struct parasail_profile_data {
+    void * score;
+    void * matches;
+    void * similar;
+} parasail_profile_data_t;
+
 typedef struct parasail_profile {
     const char *s1;
     int s1Len;
     const parasail_matrix_t *matrix;
-    void * profile;
-    void * profile_m;
-    void * profile_s;
-    void * profile2;
-    void * profile2_m;
-    void * profile2_s;
+    struct parasail_profile_data profile8;
+    struct parasail_profile_data profile16;
+    struct parasail_profile_data profile32;
+    struct parasail_profile_data profile64;
     void (*free)(void * profile);
 } parasail_profile_t;
 

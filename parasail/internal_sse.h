@@ -41,6 +41,6 @@ extern PARASAIL_LOCAL
 void parasail_memset___m128i(__m128i *b, __m128i c, size_t len);
 
 extern PARASAIL_LOCAL
-void parasail_profile_free___m128i(void *profile);
+void parasail_free___m128i(void *ptr);
 
 #endif /* _PARASAIL_INTERNAL_SSE_H_ */

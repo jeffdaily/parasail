@@ -41,6 +41,6 @@ extern PARASAIL_LOCAL
 void parasail_memset___m256i(__m256i *b, __m256i c, size_t len);
 
 extern PARASAIL_LOCAL
-void parasail_profile_free___m256i(void *profile);
+void parasail_free___m256i(void *ptr);
 
 #endif /* _PARASAIL_INTERNAL_AVX_H_ */

@@ -17,8 +17,6 @@
 
 #define NEG_INF (INT32_MIN/(int32_t)(2))
 
-#define _mm256_cmplt_epi32_rpl(a,b) _mm256_cmpgt_epi32(b,a)
-
 #if HAVE_AVX2_MM256_INSERT_EPI32
 #define _mm256_insert_epi32_rpl _mm256_insert_epi32
 #else
@@ -39,6 +37,8 @@ static inline int32_t _mm256_extract_epi32_rpl(__m256i a, int imm) {
     return A.v[imm];
 }
 #endif
+
+#define _mm256_cmplt_epi32_rpl(a,b) _mm256_cmpgt_epi32(b,a)
 
 #define _mm256_srli_si256_rpl(a,imm) _mm256_or_si256(_mm256_slli_si256(_mm256_permute2x128_si256(a, a, _MM_SHUFFLE(3,0,0,1)), 16-imm), _mm256_srli_si256(a, imm))
 

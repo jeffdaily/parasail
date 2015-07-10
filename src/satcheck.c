@@ -4993,11 +4993,11 @@ parasail_result_t* parasail_nw_scan_profile_sat(
     result = parasail_nw_scan_profile_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_nw_scan_profile_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_nw_scan_profile_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_scan_profile_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -5015,11 +5015,11 @@ parasail_result_t* parasail_nw_scan_profile_sse2_128_sat(
     result = parasail_nw_scan_profile_sse2_128_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_nw_scan_profile_sse2_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_nw_scan_profile_sse2_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_scan_profile_sse2_128_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -5037,11 +5037,11 @@ parasail_result_t* parasail_nw_scan_profile_sse41_128_sat(
     result = parasail_nw_scan_profile_sse41_128_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_nw_scan_profile_sse41_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_nw_scan_profile_sse41_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_scan_profile_sse41_128_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -5059,11 +5059,11 @@ parasail_result_t* parasail_nw_scan_profile_avx2_256_sat(
     result = parasail_nw_scan_profile_avx2_256_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_nw_scan_profile_avx2_256_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_nw_scan_profile_avx2_256_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_scan_profile_avx2_256_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -5081,11 +5081,11 @@ parasail_result_t* parasail_nw_striped_profile_sat(
     result = parasail_nw_striped_profile_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_nw_striped_profile_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_nw_striped_profile_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_striped_profile_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -5103,11 +5103,11 @@ parasail_result_t* parasail_nw_striped_profile_sse2_128_sat(
     result = parasail_nw_striped_profile_sse2_128_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_nw_striped_profile_sse2_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_nw_striped_profile_sse2_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_striped_profile_sse2_128_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -5125,11 +5125,11 @@ parasail_result_t* parasail_nw_striped_profile_sse41_128_sat(
     result = parasail_nw_striped_profile_sse41_128_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_nw_striped_profile_sse41_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_nw_striped_profile_sse41_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_striped_profile_sse41_128_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -5147,1419 +5147,11 @@ parasail_result_t* parasail_nw_striped_profile_avx2_256_sat(
     result = parasail_nw_striped_profile_avx2_256_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_nw_striped_profile_avx2_256_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_nw_striped_profile_avx2_256_16(profile, s2, s2Len, open, gap);
     }
-
-    return result;
-}
-#endif
-
-
-parasail_result_t* parasail_nw_table_scan_profile_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_nw_table_scan_profile_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_nw_table_scan_profile_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-
-
-#if HAVE_SSE2
-parasail_result_t* parasail_nw_table_scan_profile_sse2_128_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_nw_table_scan_profile_sse2_128_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_nw_table_scan_profile_sse2_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-#endif
-
-#if HAVE_SSE41
-parasail_result_t* parasail_nw_table_scan_profile_sse41_128_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_nw_table_scan_profile_sse41_128_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_nw_table_scan_profile_sse41_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-#endif
-
-#if HAVE_AVX2
-parasail_result_t* parasail_nw_table_scan_profile_avx2_256_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_nw_table_scan_profile_avx2_256_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_nw_table_scan_profile_avx2_256_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-#endif
-
-
-parasail_result_t* parasail_nw_table_striped_profile_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_nw_table_striped_profile_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_nw_table_striped_profile_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-
-
-#if HAVE_SSE2
-parasail_result_t* parasail_nw_table_striped_profile_sse2_128_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_nw_table_striped_profile_sse2_128_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_nw_table_striped_profile_sse2_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-#endif
-
-#if HAVE_SSE41
-parasail_result_t* parasail_nw_table_striped_profile_sse41_128_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_nw_table_striped_profile_sse41_128_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_nw_table_striped_profile_sse41_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-#endif
-
-#if HAVE_AVX2
-parasail_result_t* parasail_nw_table_striped_profile_avx2_256_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_nw_table_striped_profile_avx2_256_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_nw_table_striped_profile_avx2_256_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-#endif
-
-
-parasail_result_t* parasail_nw_rowcol_scan_profile_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_nw_rowcol_scan_profile_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_nw_rowcol_scan_profile_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-
-
-#if HAVE_SSE2
-parasail_result_t* parasail_nw_rowcol_scan_profile_sse2_128_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_nw_rowcol_scan_profile_sse2_128_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_nw_rowcol_scan_profile_sse2_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-#endif
-
-#if HAVE_SSE41
-parasail_result_t* parasail_nw_rowcol_scan_profile_sse41_128_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_nw_rowcol_scan_profile_sse41_128_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_nw_rowcol_scan_profile_sse41_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-#endif
-
-#if HAVE_AVX2
-parasail_result_t* parasail_nw_rowcol_scan_profile_avx2_256_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_nw_rowcol_scan_profile_avx2_256_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_nw_rowcol_scan_profile_avx2_256_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-#endif
-
-
-parasail_result_t* parasail_nw_rowcol_striped_profile_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_nw_rowcol_striped_profile_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_nw_rowcol_striped_profile_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-
-
-#if HAVE_SSE2
-parasail_result_t* parasail_nw_rowcol_striped_profile_sse2_128_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_nw_rowcol_striped_profile_sse2_128_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_nw_rowcol_striped_profile_sse2_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-#endif
-
-#if HAVE_SSE41
-parasail_result_t* parasail_nw_rowcol_striped_profile_sse41_128_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_nw_rowcol_striped_profile_sse41_128_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_nw_rowcol_striped_profile_sse41_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-#endif
-
-#if HAVE_AVX2
-parasail_result_t* parasail_nw_rowcol_striped_profile_avx2_256_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_nw_rowcol_striped_profile_avx2_256_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_nw_rowcol_striped_profile_avx2_256_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-#endif
-
-
-parasail_result_t* parasail_sg_scan_profile_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sg_scan_profile_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sg_scan_profile_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-
-
-#if HAVE_SSE2
-parasail_result_t* parasail_sg_scan_profile_sse2_128_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sg_scan_profile_sse2_128_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sg_scan_profile_sse2_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-#endif
-
-#if HAVE_SSE41
-parasail_result_t* parasail_sg_scan_profile_sse41_128_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sg_scan_profile_sse41_128_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sg_scan_profile_sse41_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-#endif
-
-#if HAVE_AVX2
-parasail_result_t* parasail_sg_scan_profile_avx2_256_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sg_scan_profile_avx2_256_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sg_scan_profile_avx2_256_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-#endif
-
-
-parasail_result_t* parasail_sg_striped_profile_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sg_striped_profile_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sg_striped_profile_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-
-
-#if HAVE_SSE2
-parasail_result_t* parasail_sg_striped_profile_sse2_128_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sg_striped_profile_sse2_128_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sg_striped_profile_sse2_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-#endif
-
-#if HAVE_SSE41
-parasail_result_t* parasail_sg_striped_profile_sse41_128_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sg_striped_profile_sse41_128_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sg_striped_profile_sse41_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-#endif
-
-#if HAVE_AVX2
-parasail_result_t* parasail_sg_striped_profile_avx2_256_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sg_striped_profile_avx2_256_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sg_striped_profile_avx2_256_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-#endif
-
-
-parasail_result_t* parasail_sg_table_scan_profile_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sg_table_scan_profile_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sg_table_scan_profile_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-
-
-#if HAVE_SSE2
-parasail_result_t* parasail_sg_table_scan_profile_sse2_128_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sg_table_scan_profile_sse2_128_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sg_table_scan_profile_sse2_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-#endif
-
-#if HAVE_SSE41
-parasail_result_t* parasail_sg_table_scan_profile_sse41_128_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sg_table_scan_profile_sse41_128_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sg_table_scan_profile_sse41_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-#endif
-
-#if HAVE_AVX2
-parasail_result_t* parasail_sg_table_scan_profile_avx2_256_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sg_table_scan_profile_avx2_256_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sg_table_scan_profile_avx2_256_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-#endif
-
-
-parasail_result_t* parasail_sg_table_striped_profile_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sg_table_striped_profile_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sg_table_striped_profile_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-
-
-#if HAVE_SSE2
-parasail_result_t* parasail_sg_table_striped_profile_sse2_128_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sg_table_striped_profile_sse2_128_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sg_table_striped_profile_sse2_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-#endif
-
-#if HAVE_SSE41
-parasail_result_t* parasail_sg_table_striped_profile_sse41_128_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sg_table_striped_profile_sse41_128_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sg_table_striped_profile_sse41_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-#endif
-
-#if HAVE_AVX2
-parasail_result_t* parasail_sg_table_striped_profile_avx2_256_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sg_table_striped_profile_avx2_256_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sg_table_striped_profile_avx2_256_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-#endif
-
-
-parasail_result_t* parasail_sg_rowcol_scan_profile_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sg_rowcol_scan_profile_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sg_rowcol_scan_profile_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-
-
-#if HAVE_SSE2
-parasail_result_t* parasail_sg_rowcol_scan_profile_sse2_128_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sg_rowcol_scan_profile_sse2_128_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sg_rowcol_scan_profile_sse2_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-#endif
-
-#if HAVE_SSE41
-parasail_result_t* parasail_sg_rowcol_scan_profile_sse41_128_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sg_rowcol_scan_profile_sse41_128_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sg_rowcol_scan_profile_sse41_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-#endif
-
-#if HAVE_AVX2
-parasail_result_t* parasail_sg_rowcol_scan_profile_avx2_256_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sg_rowcol_scan_profile_avx2_256_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sg_rowcol_scan_profile_avx2_256_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-#endif
-
-
-parasail_result_t* parasail_sg_rowcol_striped_profile_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sg_rowcol_striped_profile_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sg_rowcol_striped_profile_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-
-
-#if HAVE_SSE2
-parasail_result_t* parasail_sg_rowcol_striped_profile_sse2_128_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sg_rowcol_striped_profile_sse2_128_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sg_rowcol_striped_profile_sse2_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-#endif
-
-#if HAVE_SSE41
-parasail_result_t* parasail_sg_rowcol_striped_profile_sse41_128_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sg_rowcol_striped_profile_sse41_128_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sg_rowcol_striped_profile_sse41_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-#endif
-
-#if HAVE_AVX2
-parasail_result_t* parasail_sg_rowcol_striped_profile_avx2_256_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sg_rowcol_striped_profile_avx2_256_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sg_rowcol_striped_profile_avx2_256_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-#endif
-
-
-parasail_result_t* parasail_sw_scan_profile_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sw_scan_profile_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sw_scan_profile_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-
-
-#if HAVE_SSE2
-parasail_result_t* parasail_sw_scan_profile_sse2_128_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sw_scan_profile_sse2_128_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sw_scan_profile_sse2_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-#endif
-
-#if HAVE_SSE41
-parasail_result_t* parasail_sw_scan_profile_sse41_128_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sw_scan_profile_sse41_128_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sw_scan_profile_sse41_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-#endif
-
-#if HAVE_AVX2
-parasail_result_t* parasail_sw_scan_profile_avx2_256_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sw_scan_profile_avx2_256_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sw_scan_profile_avx2_256_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-#endif
-
-
-parasail_result_t* parasail_sw_striped_profile_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sw_striped_profile_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sw_striped_profile_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-
-
-#if HAVE_SSE2
-parasail_result_t* parasail_sw_striped_profile_sse2_128_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sw_striped_profile_sse2_128_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sw_striped_profile_sse2_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-#endif
-
-#if HAVE_SSE41
-parasail_result_t* parasail_sw_striped_profile_sse41_128_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sw_striped_profile_sse41_128_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sw_striped_profile_sse41_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-#endif
-
-#if HAVE_AVX2
-parasail_result_t* parasail_sw_striped_profile_avx2_256_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sw_striped_profile_avx2_256_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sw_striped_profile_avx2_256_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-#endif
-
-
-parasail_result_t* parasail_sw_table_scan_profile_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sw_table_scan_profile_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sw_table_scan_profile_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-
-
-#if HAVE_SSE2
-parasail_result_t* parasail_sw_table_scan_profile_sse2_128_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sw_table_scan_profile_sse2_128_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sw_table_scan_profile_sse2_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-#endif
-
-#if HAVE_SSE41
-parasail_result_t* parasail_sw_table_scan_profile_sse41_128_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sw_table_scan_profile_sse41_128_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sw_table_scan_profile_sse41_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-#endif
-
-#if HAVE_AVX2
-parasail_result_t* parasail_sw_table_scan_profile_avx2_256_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sw_table_scan_profile_avx2_256_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sw_table_scan_profile_avx2_256_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-#endif
-
-
-parasail_result_t* parasail_sw_table_striped_profile_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sw_table_striped_profile_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sw_table_striped_profile_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-
-
-#if HAVE_SSE2
-parasail_result_t* parasail_sw_table_striped_profile_sse2_128_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sw_table_striped_profile_sse2_128_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sw_table_striped_profile_sse2_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-#endif
-
-#if HAVE_SSE41
-parasail_result_t* parasail_sw_table_striped_profile_sse41_128_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sw_table_striped_profile_sse41_128_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sw_table_striped_profile_sse41_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-#endif
-
-#if HAVE_AVX2
-parasail_result_t* parasail_sw_table_striped_profile_avx2_256_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sw_table_striped_profile_avx2_256_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sw_table_striped_profile_avx2_256_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-#endif
-
-
-parasail_result_t* parasail_sw_rowcol_scan_profile_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sw_rowcol_scan_profile_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sw_rowcol_scan_profile_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-
-
-#if HAVE_SSE2
-parasail_result_t* parasail_sw_rowcol_scan_profile_sse2_128_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sw_rowcol_scan_profile_sse2_128_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sw_rowcol_scan_profile_sse2_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-#endif
-
-#if HAVE_SSE41
-parasail_result_t* parasail_sw_rowcol_scan_profile_sse41_128_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sw_rowcol_scan_profile_sse41_128_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sw_rowcol_scan_profile_sse41_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-#endif
-
-#if HAVE_AVX2
-parasail_result_t* parasail_sw_rowcol_scan_profile_avx2_256_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sw_rowcol_scan_profile_avx2_256_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sw_rowcol_scan_profile_avx2_256_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-#endif
-
-
-parasail_result_t* parasail_sw_rowcol_striped_profile_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sw_rowcol_striped_profile_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sw_rowcol_striped_profile_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-
-
-#if HAVE_SSE2
-parasail_result_t* parasail_sw_rowcol_striped_profile_sse2_128_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sw_rowcol_striped_profile_sse2_128_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sw_rowcol_striped_profile_sse2_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-#endif
-
-#if HAVE_SSE41
-parasail_result_t* parasail_sw_rowcol_striped_profile_sse41_128_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sw_rowcol_striped_profile_sse41_128_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sw_rowcol_striped_profile_sse41_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
-    }
-
-    return result;
-}
-#endif
-
-#if HAVE_AVX2
-parasail_result_t* parasail_sw_rowcol_striped_profile_avx2_256_sat(
-        const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
-{
-    parasail_result_t * result = NULL;
-    
-    result = parasail_sw_rowcol_striped_profile_avx2_256_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
-        parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        result = parasail_sw_rowcol_striped_profile_avx2_256_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_nw_striped_profile_avx2_256_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -6577,13 +5169,11 @@ parasail_result_t* parasail_nw_stats_scan_profile_sat(
     result = parasail_nw_stats_scan_profile_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_nw_stats_scan_profile_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_nw_stats_scan_profile_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_stats_scan_profile_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -6601,13 +5191,11 @@ parasail_result_t* parasail_nw_stats_scan_profile_sse2_128_sat(
     result = parasail_nw_stats_scan_profile_sse2_128_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_nw_stats_scan_profile_sse2_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_nw_stats_scan_profile_sse2_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_stats_scan_profile_sse2_128_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -6625,13 +5213,11 @@ parasail_result_t* parasail_nw_stats_scan_profile_sse41_128_sat(
     result = parasail_nw_stats_scan_profile_sse41_128_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_nw_stats_scan_profile_sse41_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_nw_stats_scan_profile_sse41_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_stats_scan_profile_sse41_128_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -6649,13 +5235,11 @@ parasail_result_t* parasail_nw_stats_scan_profile_avx2_256_sat(
     result = parasail_nw_stats_scan_profile_avx2_256_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_nw_stats_scan_profile_avx2_256_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_nw_stats_scan_profile_avx2_256_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_stats_scan_profile_avx2_256_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -6673,13 +5257,11 @@ parasail_result_t* parasail_nw_stats_striped_profile_sat(
     result = parasail_nw_stats_striped_profile_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_nw_stats_striped_profile_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_nw_stats_striped_profile_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_stats_striped_profile_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -6697,13 +5279,11 @@ parasail_result_t* parasail_nw_stats_striped_profile_sse2_128_sat(
     result = parasail_nw_stats_striped_profile_sse2_128_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_nw_stats_striped_profile_sse2_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_nw_stats_striped_profile_sse2_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_stats_striped_profile_sse2_128_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -6721,13 +5301,11 @@ parasail_result_t* parasail_nw_stats_striped_profile_sse41_128_sat(
     result = parasail_nw_stats_striped_profile_sse41_128_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_nw_stats_striped_profile_sse41_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_nw_stats_striped_profile_sse41_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_stats_striped_profile_sse41_128_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -6745,13 +5323,187 @@ parasail_result_t* parasail_nw_stats_striped_profile_avx2_256_sat(
     result = parasail_nw_stats_striped_profile_avx2_256_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_nw_stats_striped_profile_avx2_256_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_nw_stats_striped_profile_avx2_256_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_stats_striped_profile_avx2_256_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+
+parasail_result_t* parasail_nw_table_scan_profile_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_nw_table_scan_profile_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_table_scan_profile_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_table_scan_profile_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+
+
+#if HAVE_SSE2
+parasail_result_t* parasail_nw_table_scan_profile_sse2_128_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_nw_table_scan_profile_sse2_128_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_table_scan_profile_sse2_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_table_scan_profile_sse2_128_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+#if HAVE_SSE41
+parasail_result_t* parasail_nw_table_scan_profile_sse41_128_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_nw_table_scan_profile_sse41_128_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_table_scan_profile_sse41_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_table_scan_profile_sse41_128_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+#if HAVE_AVX2
+parasail_result_t* parasail_nw_table_scan_profile_avx2_256_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_nw_table_scan_profile_avx2_256_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_table_scan_profile_avx2_256_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_table_scan_profile_avx2_256_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+
+parasail_result_t* parasail_nw_table_striped_profile_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_nw_table_striped_profile_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_table_striped_profile_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_table_striped_profile_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+
+
+#if HAVE_SSE2
+parasail_result_t* parasail_nw_table_striped_profile_sse2_128_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_nw_table_striped_profile_sse2_128_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_table_striped_profile_sse2_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_table_striped_profile_sse2_128_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+#if HAVE_SSE41
+parasail_result_t* parasail_nw_table_striped_profile_sse41_128_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_nw_table_striped_profile_sse41_128_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_table_striped_profile_sse41_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_table_striped_profile_sse41_128_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+#if HAVE_AVX2
+parasail_result_t* parasail_nw_table_striped_profile_avx2_256_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_nw_table_striped_profile_avx2_256_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_table_striped_profile_avx2_256_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_table_striped_profile_avx2_256_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -6769,13 +5521,11 @@ parasail_result_t* parasail_nw_stats_table_scan_profile_sat(
     result = parasail_nw_stats_table_scan_profile_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_nw_stats_table_scan_profile_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_nw_stats_table_scan_profile_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_stats_table_scan_profile_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -6793,13 +5543,11 @@ parasail_result_t* parasail_nw_stats_table_scan_profile_sse2_128_sat(
     result = parasail_nw_stats_table_scan_profile_sse2_128_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_nw_stats_table_scan_profile_sse2_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_nw_stats_table_scan_profile_sse2_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_stats_table_scan_profile_sse2_128_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -6817,13 +5565,11 @@ parasail_result_t* parasail_nw_stats_table_scan_profile_sse41_128_sat(
     result = parasail_nw_stats_table_scan_profile_sse41_128_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_nw_stats_table_scan_profile_sse41_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_nw_stats_table_scan_profile_sse41_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_stats_table_scan_profile_sse41_128_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -6841,13 +5587,11 @@ parasail_result_t* parasail_nw_stats_table_scan_profile_avx2_256_sat(
     result = parasail_nw_stats_table_scan_profile_avx2_256_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_nw_stats_table_scan_profile_avx2_256_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_nw_stats_table_scan_profile_avx2_256_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_stats_table_scan_profile_avx2_256_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -6865,13 +5609,11 @@ parasail_result_t* parasail_nw_stats_table_striped_profile_sat(
     result = parasail_nw_stats_table_striped_profile_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_nw_stats_table_striped_profile_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_nw_stats_table_striped_profile_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_stats_table_striped_profile_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -6889,13 +5631,11 @@ parasail_result_t* parasail_nw_stats_table_striped_profile_sse2_128_sat(
     result = parasail_nw_stats_table_striped_profile_sse2_128_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_nw_stats_table_striped_profile_sse2_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_nw_stats_table_striped_profile_sse2_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_stats_table_striped_profile_sse2_128_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -6913,13 +5653,11 @@ parasail_result_t* parasail_nw_stats_table_striped_profile_sse41_128_sat(
     result = parasail_nw_stats_table_striped_profile_sse41_128_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_nw_stats_table_striped_profile_sse41_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_nw_stats_table_striped_profile_sse41_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_stats_table_striped_profile_sse41_128_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -6937,13 +5675,187 @@ parasail_result_t* parasail_nw_stats_table_striped_profile_avx2_256_sat(
     result = parasail_nw_stats_table_striped_profile_avx2_256_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_nw_stats_table_striped_profile_avx2_256_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_nw_stats_table_striped_profile_avx2_256_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_stats_table_striped_profile_avx2_256_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+
+parasail_result_t* parasail_nw_rowcol_scan_profile_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_nw_rowcol_scan_profile_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_rowcol_scan_profile_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_rowcol_scan_profile_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+
+
+#if HAVE_SSE2
+parasail_result_t* parasail_nw_rowcol_scan_profile_sse2_128_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_nw_rowcol_scan_profile_sse2_128_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_rowcol_scan_profile_sse2_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_rowcol_scan_profile_sse2_128_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+#if HAVE_SSE41
+parasail_result_t* parasail_nw_rowcol_scan_profile_sse41_128_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_nw_rowcol_scan_profile_sse41_128_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_rowcol_scan_profile_sse41_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_rowcol_scan_profile_sse41_128_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+#if HAVE_AVX2
+parasail_result_t* parasail_nw_rowcol_scan_profile_avx2_256_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_nw_rowcol_scan_profile_avx2_256_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_rowcol_scan_profile_avx2_256_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_rowcol_scan_profile_avx2_256_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+
+parasail_result_t* parasail_nw_rowcol_striped_profile_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_nw_rowcol_striped_profile_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_rowcol_striped_profile_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_rowcol_striped_profile_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+
+
+#if HAVE_SSE2
+parasail_result_t* parasail_nw_rowcol_striped_profile_sse2_128_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_nw_rowcol_striped_profile_sse2_128_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_rowcol_striped_profile_sse2_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_rowcol_striped_profile_sse2_128_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+#if HAVE_SSE41
+parasail_result_t* parasail_nw_rowcol_striped_profile_sse41_128_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_nw_rowcol_striped_profile_sse41_128_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_rowcol_striped_profile_sse41_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_rowcol_striped_profile_sse41_128_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+#if HAVE_AVX2
+parasail_result_t* parasail_nw_rowcol_striped_profile_avx2_256_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_nw_rowcol_striped_profile_avx2_256_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_rowcol_striped_profile_avx2_256_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_rowcol_striped_profile_avx2_256_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -6961,13 +5873,11 @@ parasail_result_t* parasail_nw_stats_rowcol_scan_profile_sat(
     result = parasail_nw_stats_rowcol_scan_profile_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_nw_stats_rowcol_scan_profile_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_nw_stats_rowcol_scan_profile_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_stats_rowcol_scan_profile_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -6985,13 +5895,11 @@ parasail_result_t* parasail_nw_stats_rowcol_scan_profile_sse2_128_sat(
     result = parasail_nw_stats_rowcol_scan_profile_sse2_128_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_nw_stats_rowcol_scan_profile_sse2_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_nw_stats_rowcol_scan_profile_sse2_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_stats_rowcol_scan_profile_sse2_128_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -7009,13 +5917,11 @@ parasail_result_t* parasail_nw_stats_rowcol_scan_profile_sse41_128_sat(
     result = parasail_nw_stats_rowcol_scan_profile_sse41_128_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_nw_stats_rowcol_scan_profile_sse41_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_nw_stats_rowcol_scan_profile_sse41_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_stats_rowcol_scan_profile_sse41_128_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -7033,13 +5939,11 @@ parasail_result_t* parasail_nw_stats_rowcol_scan_profile_avx2_256_sat(
     result = parasail_nw_stats_rowcol_scan_profile_avx2_256_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_nw_stats_rowcol_scan_profile_avx2_256_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_nw_stats_rowcol_scan_profile_avx2_256_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_stats_rowcol_scan_profile_avx2_256_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -7057,13 +5961,11 @@ parasail_result_t* parasail_nw_stats_rowcol_striped_profile_sat(
     result = parasail_nw_stats_rowcol_striped_profile_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_nw_stats_rowcol_striped_profile_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_nw_stats_rowcol_striped_profile_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_stats_rowcol_striped_profile_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -7081,13 +5983,11 @@ parasail_result_t* parasail_nw_stats_rowcol_striped_profile_sse2_128_sat(
     result = parasail_nw_stats_rowcol_striped_profile_sse2_128_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_nw_stats_rowcol_striped_profile_sse2_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_nw_stats_rowcol_striped_profile_sse2_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_stats_rowcol_striped_profile_sse2_128_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -7105,13 +6005,11 @@ parasail_result_t* parasail_nw_stats_rowcol_striped_profile_sse41_128_sat(
     result = parasail_nw_stats_rowcol_striped_profile_sse41_128_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_nw_stats_rowcol_striped_profile_sse41_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_nw_stats_rowcol_striped_profile_sse41_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_stats_rowcol_striped_profile_sse41_128_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -7129,13 +6027,187 @@ parasail_result_t* parasail_nw_stats_rowcol_striped_profile_avx2_256_sat(
     result = parasail_nw_stats_rowcol_striped_profile_avx2_256_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_nw_stats_rowcol_striped_profile_avx2_256_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_nw_stats_rowcol_striped_profile_avx2_256_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_nw_stats_rowcol_striped_profile_avx2_256_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+
+parasail_result_t* parasail_sg_scan_profile_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sg_scan_profile_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_scan_profile_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_scan_profile_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+
+
+#if HAVE_SSE2
+parasail_result_t* parasail_sg_scan_profile_sse2_128_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sg_scan_profile_sse2_128_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_scan_profile_sse2_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_scan_profile_sse2_128_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+#if HAVE_SSE41
+parasail_result_t* parasail_sg_scan_profile_sse41_128_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sg_scan_profile_sse41_128_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_scan_profile_sse41_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_scan_profile_sse41_128_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+#if HAVE_AVX2
+parasail_result_t* parasail_sg_scan_profile_avx2_256_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sg_scan_profile_avx2_256_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_scan_profile_avx2_256_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_scan_profile_avx2_256_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+
+parasail_result_t* parasail_sg_striped_profile_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sg_striped_profile_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_striped_profile_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_striped_profile_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+
+
+#if HAVE_SSE2
+parasail_result_t* parasail_sg_striped_profile_sse2_128_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sg_striped_profile_sse2_128_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_striped_profile_sse2_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_striped_profile_sse2_128_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+#if HAVE_SSE41
+parasail_result_t* parasail_sg_striped_profile_sse41_128_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sg_striped_profile_sse41_128_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_striped_profile_sse41_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_striped_profile_sse41_128_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+#if HAVE_AVX2
+parasail_result_t* parasail_sg_striped_profile_avx2_256_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sg_striped_profile_avx2_256_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_striped_profile_avx2_256_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_striped_profile_avx2_256_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -7153,13 +6225,11 @@ parasail_result_t* parasail_sg_stats_scan_profile_sat(
     result = parasail_sg_stats_scan_profile_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sg_stats_scan_profile_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sg_stats_scan_profile_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_stats_scan_profile_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -7177,13 +6247,11 @@ parasail_result_t* parasail_sg_stats_scan_profile_sse2_128_sat(
     result = parasail_sg_stats_scan_profile_sse2_128_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sg_stats_scan_profile_sse2_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sg_stats_scan_profile_sse2_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_stats_scan_profile_sse2_128_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -7201,13 +6269,11 @@ parasail_result_t* parasail_sg_stats_scan_profile_sse41_128_sat(
     result = parasail_sg_stats_scan_profile_sse41_128_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sg_stats_scan_profile_sse41_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sg_stats_scan_profile_sse41_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_stats_scan_profile_sse41_128_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -7225,13 +6291,11 @@ parasail_result_t* parasail_sg_stats_scan_profile_avx2_256_sat(
     result = parasail_sg_stats_scan_profile_avx2_256_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sg_stats_scan_profile_avx2_256_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sg_stats_scan_profile_avx2_256_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_stats_scan_profile_avx2_256_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -7249,13 +6313,11 @@ parasail_result_t* parasail_sg_stats_striped_profile_sat(
     result = parasail_sg_stats_striped_profile_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sg_stats_striped_profile_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sg_stats_striped_profile_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_stats_striped_profile_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -7273,13 +6335,11 @@ parasail_result_t* parasail_sg_stats_striped_profile_sse2_128_sat(
     result = parasail_sg_stats_striped_profile_sse2_128_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sg_stats_striped_profile_sse2_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sg_stats_striped_profile_sse2_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_stats_striped_profile_sse2_128_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -7297,13 +6357,11 @@ parasail_result_t* parasail_sg_stats_striped_profile_sse41_128_sat(
     result = parasail_sg_stats_striped_profile_sse41_128_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sg_stats_striped_profile_sse41_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sg_stats_striped_profile_sse41_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_stats_striped_profile_sse41_128_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -7321,13 +6379,187 @@ parasail_result_t* parasail_sg_stats_striped_profile_avx2_256_sat(
     result = parasail_sg_stats_striped_profile_avx2_256_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sg_stats_striped_profile_avx2_256_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sg_stats_striped_profile_avx2_256_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_stats_striped_profile_avx2_256_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+
+parasail_result_t* parasail_sg_table_scan_profile_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sg_table_scan_profile_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_table_scan_profile_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_table_scan_profile_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+
+
+#if HAVE_SSE2
+parasail_result_t* parasail_sg_table_scan_profile_sse2_128_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sg_table_scan_profile_sse2_128_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_table_scan_profile_sse2_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_table_scan_profile_sse2_128_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+#if HAVE_SSE41
+parasail_result_t* parasail_sg_table_scan_profile_sse41_128_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sg_table_scan_profile_sse41_128_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_table_scan_profile_sse41_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_table_scan_profile_sse41_128_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+#if HAVE_AVX2
+parasail_result_t* parasail_sg_table_scan_profile_avx2_256_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sg_table_scan_profile_avx2_256_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_table_scan_profile_avx2_256_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_table_scan_profile_avx2_256_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+
+parasail_result_t* parasail_sg_table_striped_profile_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sg_table_striped_profile_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_table_striped_profile_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_table_striped_profile_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+
+
+#if HAVE_SSE2
+parasail_result_t* parasail_sg_table_striped_profile_sse2_128_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sg_table_striped_profile_sse2_128_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_table_striped_profile_sse2_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_table_striped_profile_sse2_128_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+#if HAVE_SSE41
+parasail_result_t* parasail_sg_table_striped_profile_sse41_128_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sg_table_striped_profile_sse41_128_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_table_striped_profile_sse41_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_table_striped_profile_sse41_128_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+#if HAVE_AVX2
+parasail_result_t* parasail_sg_table_striped_profile_avx2_256_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sg_table_striped_profile_avx2_256_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_table_striped_profile_avx2_256_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_table_striped_profile_avx2_256_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -7345,13 +6577,11 @@ parasail_result_t* parasail_sg_stats_table_scan_profile_sat(
     result = parasail_sg_stats_table_scan_profile_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sg_stats_table_scan_profile_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sg_stats_table_scan_profile_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_stats_table_scan_profile_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -7369,13 +6599,11 @@ parasail_result_t* parasail_sg_stats_table_scan_profile_sse2_128_sat(
     result = parasail_sg_stats_table_scan_profile_sse2_128_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sg_stats_table_scan_profile_sse2_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sg_stats_table_scan_profile_sse2_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_stats_table_scan_profile_sse2_128_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -7393,13 +6621,11 @@ parasail_result_t* parasail_sg_stats_table_scan_profile_sse41_128_sat(
     result = parasail_sg_stats_table_scan_profile_sse41_128_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sg_stats_table_scan_profile_sse41_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sg_stats_table_scan_profile_sse41_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_stats_table_scan_profile_sse41_128_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -7417,13 +6643,11 @@ parasail_result_t* parasail_sg_stats_table_scan_profile_avx2_256_sat(
     result = parasail_sg_stats_table_scan_profile_avx2_256_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sg_stats_table_scan_profile_avx2_256_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sg_stats_table_scan_profile_avx2_256_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_stats_table_scan_profile_avx2_256_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -7441,13 +6665,11 @@ parasail_result_t* parasail_sg_stats_table_striped_profile_sat(
     result = parasail_sg_stats_table_striped_profile_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sg_stats_table_striped_profile_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sg_stats_table_striped_profile_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_stats_table_striped_profile_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -7465,13 +6687,11 @@ parasail_result_t* parasail_sg_stats_table_striped_profile_sse2_128_sat(
     result = parasail_sg_stats_table_striped_profile_sse2_128_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sg_stats_table_striped_profile_sse2_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sg_stats_table_striped_profile_sse2_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_stats_table_striped_profile_sse2_128_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -7489,13 +6709,11 @@ parasail_result_t* parasail_sg_stats_table_striped_profile_sse41_128_sat(
     result = parasail_sg_stats_table_striped_profile_sse41_128_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sg_stats_table_striped_profile_sse41_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sg_stats_table_striped_profile_sse41_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_stats_table_striped_profile_sse41_128_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -7513,13 +6731,187 @@ parasail_result_t* parasail_sg_stats_table_striped_profile_avx2_256_sat(
     result = parasail_sg_stats_table_striped_profile_avx2_256_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sg_stats_table_striped_profile_avx2_256_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sg_stats_table_striped_profile_avx2_256_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_stats_table_striped_profile_avx2_256_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+
+parasail_result_t* parasail_sg_rowcol_scan_profile_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sg_rowcol_scan_profile_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_rowcol_scan_profile_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_rowcol_scan_profile_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+
+
+#if HAVE_SSE2
+parasail_result_t* parasail_sg_rowcol_scan_profile_sse2_128_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sg_rowcol_scan_profile_sse2_128_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_rowcol_scan_profile_sse2_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_rowcol_scan_profile_sse2_128_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+#if HAVE_SSE41
+parasail_result_t* parasail_sg_rowcol_scan_profile_sse41_128_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sg_rowcol_scan_profile_sse41_128_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_rowcol_scan_profile_sse41_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_rowcol_scan_profile_sse41_128_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+#if HAVE_AVX2
+parasail_result_t* parasail_sg_rowcol_scan_profile_avx2_256_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sg_rowcol_scan_profile_avx2_256_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_rowcol_scan_profile_avx2_256_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_rowcol_scan_profile_avx2_256_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+
+parasail_result_t* parasail_sg_rowcol_striped_profile_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sg_rowcol_striped_profile_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_rowcol_striped_profile_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_rowcol_striped_profile_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+
+
+#if HAVE_SSE2
+parasail_result_t* parasail_sg_rowcol_striped_profile_sse2_128_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sg_rowcol_striped_profile_sse2_128_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_rowcol_striped_profile_sse2_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_rowcol_striped_profile_sse2_128_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+#if HAVE_SSE41
+parasail_result_t* parasail_sg_rowcol_striped_profile_sse41_128_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sg_rowcol_striped_profile_sse41_128_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_rowcol_striped_profile_sse41_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_rowcol_striped_profile_sse41_128_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+#if HAVE_AVX2
+parasail_result_t* parasail_sg_rowcol_striped_profile_avx2_256_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sg_rowcol_striped_profile_avx2_256_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_rowcol_striped_profile_avx2_256_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_rowcol_striped_profile_avx2_256_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -7537,13 +6929,11 @@ parasail_result_t* parasail_sg_stats_rowcol_scan_profile_sat(
     result = parasail_sg_stats_rowcol_scan_profile_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sg_stats_rowcol_scan_profile_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sg_stats_rowcol_scan_profile_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_stats_rowcol_scan_profile_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -7561,13 +6951,11 @@ parasail_result_t* parasail_sg_stats_rowcol_scan_profile_sse2_128_sat(
     result = parasail_sg_stats_rowcol_scan_profile_sse2_128_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sg_stats_rowcol_scan_profile_sse2_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sg_stats_rowcol_scan_profile_sse2_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_stats_rowcol_scan_profile_sse2_128_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -7585,13 +6973,11 @@ parasail_result_t* parasail_sg_stats_rowcol_scan_profile_sse41_128_sat(
     result = parasail_sg_stats_rowcol_scan_profile_sse41_128_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sg_stats_rowcol_scan_profile_sse41_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sg_stats_rowcol_scan_profile_sse41_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_stats_rowcol_scan_profile_sse41_128_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -7609,13 +6995,11 @@ parasail_result_t* parasail_sg_stats_rowcol_scan_profile_avx2_256_sat(
     result = parasail_sg_stats_rowcol_scan_profile_avx2_256_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sg_stats_rowcol_scan_profile_avx2_256_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sg_stats_rowcol_scan_profile_avx2_256_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_stats_rowcol_scan_profile_avx2_256_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -7633,13 +7017,11 @@ parasail_result_t* parasail_sg_stats_rowcol_striped_profile_sat(
     result = parasail_sg_stats_rowcol_striped_profile_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sg_stats_rowcol_striped_profile_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sg_stats_rowcol_striped_profile_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_stats_rowcol_striped_profile_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -7657,13 +7039,11 @@ parasail_result_t* parasail_sg_stats_rowcol_striped_profile_sse2_128_sat(
     result = parasail_sg_stats_rowcol_striped_profile_sse2_128_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sg_stats_rowcol_striped_profile_sse2_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sg_stats_rowcol_striped_profile_sse2_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_stats_rowcol_striped_profile_sse2_128_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -7681,13 +7061,11 @@ parasail_result_t* parasail_sg_stats_rowcol_striped_profile_sse41_128_sat(
     result = parasail_sg_stats_rowcol_striped_profile_sse41_128_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sg_stats_rowcol_striped_profile_sse41_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sg_stats_rowcol_striped_profile_sse41_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_stats_rowcol_striped_profile_sse41_128_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -7705,13 +7083,187 @@ parasail_result_t* parasail_sg_stats_rowcol_striped_profile_avx2_256_sat(
     result = parasail_sg_stats_rowcol_striped_profile_avx2_256_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sg_stats_rowcol_striped_profile_avx2_256_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sg_stats_rowcol_striped_profile_avx2_256_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sg_stats_rowcol_striped_profile_avx2_256_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+
+parasail_result_t* parasail_sw_scan_profile_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sw_scan_profile_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_scan_profile_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_scan_profile_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+
+
+#if HAVE_SSE2
+parasail_result_t* parasail_sw_scan_profile_sse2_128_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sw_scan_profile_sse2_128_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_scan_profile_sse2_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_scan_profile_sse2_128_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+#if HAVE_SSE41
+parasail_result_t* parasail_sw_scan_profile_sse41_128_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sw_scan_profile_sse41_128_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_scan_profile_sse41_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_scan_profile_sse41_128_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+#if HAVE_AVX2
+parasail_result_t* parasail_sw_scan_profile_avx2_256_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sw_scan_profile_avx2_256_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_scan_profile_avx2_256_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_scan_profile_avx2_256_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+
+parasail_result_t* parasail_sw_striped_profile_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sw_striped_profile_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_striped_profile_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_striped_profile_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+
+
+#if HAVE_SSE2
+parasail_result_t* parasail_sw_striped_profile_sse2_128_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sw_striped_profile_sse2_128_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_striped_profile_sse2_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_striped_profile_sse2_128_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+#if HAVE_SSE41
+parasail_result_t* parasail_sw_striped_profile_sse41_128_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sw_striped_profile_sse41_128_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_striped_profile_sse41_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_striped_profile_sse41_128_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+#if HAVE_AVX2
+parasail_result_t* parasail_sw_striped_profile_avx2_256_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sw_striped_profile_avx2_256_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_striped_profile_avx2_256_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_striped_profile_avx2_256_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -7729,13 +7281,11 @@ parasail_result_t* parasail_sw_stats_scan_profile_sat(
     result = parasail_sw_stats_scan_profile_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sw_stats_scan_profile_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sw_stats_scan_profile_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_stats_scan_profile_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -7753,13 +7303,11 @@ parasail_result_t* parasail_sw_stats_scan_profile_sse2_128_sat(
     result = parasail_sw_stats_scan_profile_sse2_128_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sw_stats_scan_profile_sse2_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sw_stats_scan_profile_sse2_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_stats_scan_profile_sse2_128_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -7777,13 +7325,11 @@ parasail_result_t* parasail_sw_stats_scan_profile_sse41_128_sat(
     result = parasail_sw_stats_scan_profile_sse41_128_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sw_stats_scan_profile_sse41_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sw_stats_scan_profile_sse41_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_stats_scan_profile_sse41_128_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -7801,13 +7347,11 @@ parasail_result_t* parasail_sw_stats_scan_profile_avx2_256_sat(
     result = parasail_sw_stats_scan_profile_avx2_256_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sw_stats_scan_profile_avx2_256_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sw_stats_scan_profile_avx2_256_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_stats_scan_profile_avx2_256_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -7825,13 +7369,11 @@ parasail_result_t* parasail_sw_stats_striped_profile_sat(
     result = parasail_sw_stats_striped_profile_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sw_stats_striped_profile_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sw_stats_striped_profile_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_stats_striped_profile_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -7849,13 +7391,11 @@ parasail_result_t* parasail_sw_stats_striped_profile_sse2_128_sat(
     result = parasail_sw_stats_striped_profile_sse2_128_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sw_stats_striped_profile_sse2_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sw_stats_striped_profile_sse2_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_stats_striped_profile_sse2_128_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -7873,13 +7413,11 @@ parasail_result_t* parasail_sw_stats_striped_profile_sse41_128_sat(
     result = parasail_sw_stats_striped_profile_sse41_128_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sw_stats_striped_profile_sse41_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sw_stats_striped_profile_sse41_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_stats_striped_profile_sse41_128_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -7897,13 +7435,187 @@ parasail_result_t* parasail_sw_stats_striped_profile_avx2_256_sat(
     result = parasail_sw_stats_striped_profile_avx2_256_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sw_stats_striped_profile_avx2_256_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sw_stats_striped_profile_avx2_256_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_stats_striped_profile_avx2_256_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+
+parasail_result_t* parasail_sw_table_scan_profile_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sw_table_scan_profile_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_table_scan_profile_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_table_scan_profile_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+
+
+#if HAVE_SSE2
+parasail_result_t* parasail_sw_table_scan_profile_sse2_128_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sw_table_scan_profile_sse2_128_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_table_scan_profile_sse2_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_table_scan_profile_sse2_128_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+#if HAVE_SSE41
+parasail_result_t* parasail_sw_table_scan_profile_sse41_128_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sw_table_scan_profile_sse41_128_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_table_scan_profile_sse41_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_table_scan_profile_sse41_128_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+#if HAVE_AVX2
+parasail_result_t* parasail_sw_table_scan_profile_avx2_256_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sw_table_scan_profile_avx2_256_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_table_scan_profile_avx2_256_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_table_scan_profile_avx2_256_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+
+parasail_result_t* parasail_sw_table_striped_profile_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sw_table_striped_profile_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_table_striped_profile_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_table_striped_profile_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+
+
+#if HAVE_SSE2
+parasail_result_t* parasail_sw_table_striped_profile_sse2_128_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sw_table_striped_profile_sse2_128_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_table_striped_profile_sse2_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_table_striped_profile_sse2_128_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+#if HAVE_SSE41
+parasail_result_t* parasail_sw_table_striped_profile_sse41_128_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sw_table_striped_profile_sse41_128_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_table_striped_profile_sse41_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_table_striped_profile_sse41_128_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+#if HAVE_AVX2
+parasail_result_t* parasail_sw_table_striped_profile_avx2_256_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sw_table_striped_profile_avx2_256_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_table_striped_profile_avx2_256_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_table_striped_profile_avx2_256_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -7921,13 +7633,11 @@ parasail_result_t* parasail_sw_stats_table_scan_profile_sat(
     result = parasail_sw_stats_table_scan_profile_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sw_stats_table_scan_profile_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sw_stats_table_scan_profile_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_stats_table_scan_profile_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -7945,13 +7655,11 @@ parasail_result_t* parasail_sw_stats_table_scan_profile_sse2_128_sat(
     result = parasail_sw_stats_table_scan_profile_sse2_128_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sw_stats_table_scan_profile_sse2_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sw_stats_table_scan_profile_sse2_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_stats_table_scan_profile_sse2_128_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -7969,13 +7677,11 @@ parasail_result_t* parasail_sw_stats_table_scan_profile_sse41_128_sat(
     result = parasail_sw_stats_table_scan_profile_sse41_128_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sw_stats_table_scan_profile_sse41_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sw_stats_table_scan_profile_sse41_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_stats_table_scan_profile_sse41_128_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -7993,13 +7699,11 @@ parasail_result_t* parasail_sw_stats_table_scan_profile_avx2_256_sat(
     result = parasail_sw_stats_table_scan_profile_avx2_256_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sw_stats_table_scan_profile_avx2_256_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sw_stats_table_scan_profile_avx2_256_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_stats_table_scan_profile_avx2_256_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -8017,13 +7721,11 @@ parasail_result_t* parasail_sw_stats_table_striped_profile_sat(
     result = parasail_sw_stats_table_striped_profile_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sw_stats_table_striped_profile_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sw_stats_table_striped_profile_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_stats_table_striped_profile_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -8041,13 +7743,11 @@ parasail_result_t* parasail_sw_stats_table_striped_profile_sse2_128_sat(
     result = parasail_sw_stats_table_striped_profile_sse2_128_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sw_stats_table_striped_profile_sse2_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sw_stats_table_striped_profile_sse2_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_stats_table_striped_profile_sse2_128_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -8065,13 +7765,11 @@ parasail_result_t* parasail_sw_stats_table_striped_profile_sse41_128_sat(
     result = parasail_sw_stats_table_striped_profile_sse41_128_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sw_stats_table_striped_profile_sse41_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sw_stats_table_striped_profile_sse41_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_stats_table_striped_profile_sse41_128_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -8089,13 +7787,187 @@ parasail_result_t* parasail_sw_stats_table_striped_profile_avx2_256_sat(
     result = parasail_sw_stats_table_striped_profile_avx2_256_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sw_stats_table_striped_profile_avx2_256_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sw_stats_table_striped_profile_avx2_256_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_stats_table_striped_profile_avx2_256_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+
+parasail_result_t* parasail_sw_rowcol_scan_profile_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sw_rowcol_scan_profile_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_rowcol_scan_profile_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_rowcol_scan_profile_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+
+
+#if HAVE_SSE2
+parasail_result_t* parasail_sw_rowcol_scan_profile_sse2_128_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sw_rowcol_scan_profile_sse2_128_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_rowcol_scan_profile_sse2_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_rowcol_scan_profile_sse2_128_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+#if HAVE_SSE41
+parasail_result_t* parasail_sw_rowcol_scan_profile_sse41_128_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sw_rowcol_scan_profile_sse41_128_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_rowcol_scan_profile_sse41_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_rowcol_scan_profile_sse41_128_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+#if HAVE_AVX2
+parasail_result_t* parasail_sw_rowcol_scan_profile_avx2_256_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sw_rowcol_scan_profile_avx2_256_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_rowcol_scan_profile_avx2_256_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_rowcol_scan_profile_avx2_256_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+
+parasail_result_t* parasail_sw_rowcol_striped_profile_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sw_rowcol_striped_profile_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_rowcol_striped_profile_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_rowcol_striped_profile_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+
+
+#if HAVE_SSE2
+parasail_result_t* parasail_sw_rowcol_striped_profile_sse2_128_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sw_rowcol_striped_profile_sse2_128_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_rowcol_striped_profile_sse2_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_rowcol_striped_profile_sse2_128_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+#if HAVE_SSE41
+parasail_result_t* parasail_sw_rowcol_striped_profile_sse41_128_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sw_rowcol_striped_profile_sse41_128_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_rowcol_striped_profile_sse41_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_rowcol_striped_profile_sse41_128_32(profile, s2, s2Len, open, gap);
+    }
+
+    return result;
+}
+#endif
+
+#if HAVE_AVX2
+parasail_result_t* parasail_sw_rowcol_striped_profile_avx2_256_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    parasail_result_t * result = NULL;
+    
+    result = parasail_sw_rowcol_striped_profile_avx2_256_8(profile, s2, s2Len, open, gap);
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_rowcol_striped_profile_avx2_256_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_rowcol_striped_profile_avx2_256_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -8113,13 +7985,11 @@ parasail_result_t* parasail_sw_stats_rowcol_scan_profile_sat(
     result = parasail_sw_stats_rowcol_scan_profile_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sw_stats_rowcol_scan_profile_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sw_stats_rowcol_scan_profile_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_stats_rowcol_scan_profile_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -8137,13 +8007,11 @@ parasail_result_t* parasail_sw_stats_rowcol_scan_profile_sse2_128_sat(
     result = parasail_sw_stats_rowcol_scan_profile_sse2_128_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sw_stats_rowcol_scan_profile_sse2_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sw_stats_rowcol_scan_profile_sse2_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_stats_rowcol_scan_profile_sse2_128_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -8161,13 +8029,11 @@ parasail_result_t* parasail_sw_stats_rowcol_scan_profile_sse41_128_sat(
     result = parasail_sw_stats_rowcol_scan_profile_sse41_128_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sw_stats_rowcol_scan_profile_sse41_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sw_stats_rowcol_scan_profile_sse41_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_stats_rowcol_scan_profile_sse41_128_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -8185,13 +8051,11 @@ parasail_result_t* parasail_sw_stats_rowcol_scan_profile_avx2_256_sat(
     result = parasail_sw_stats_rowcol_scan_profile_avx2_256_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sw_stats_rowcol_scan_profile_avx2_256_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sw_stats_rowcol_scan_profile_avx2_256_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_stats_rowcol_scan_profile_avx2_256_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -8209,13 +8073,11 @@ parasail_result_t* parasail_sw_stats_rowcol_striped_profile_sat(
     result = parasail_sw_stats_rowcol_striped_profile_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sw_stats_rowcol_striped_profile_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sw_stats_rowcol_striped_profile_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_stats_rowcol_striped_profile_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -8233,13 +8095,11 @@ parasail_result_t* parasail_sw_stats_rowcol_striped_profile_sse2_128_sat(
     result = parasail_sw_stats_rowcol_striped_profile_sse2_128_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sw_stats_rowcol_striped_profile_sse2_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sw_stats_rowcol_striped_profile_sse2_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_stats_rowcol_striped_profile_sse2_128_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -8257,13 +8117,11 @@ parasail_result_t* parasail_sw_stats_rowcol_striped_profile_sse41_128_sat(
     result = parasail_sw_stats_rowcol_striped_profile_sse41_128_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sw_stats_rowcol_striped_profile_sse41_128_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sw_stats_rowcol_striped_profile_sse41_128_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_stats_rowcol_striped_profile_sse41_128_32(profile, s2, s2Len, open, gap);
     }
 
     return result;
@@ -8281,13 +8139,11 @@ parasail_result_t* parasail_sw_stats_rowcol_striped_profile_avx2_256_sat(
     result = parasail_sw_stats_rowcol_striped_profile_avx2_256_8(profile, s2, s2Len, open, gap);
     if (result->saturated) {
         parasail_result_free(result);
-        parasail_profile_t *copy = (parasail_profile_t*)malloc(sizeof(parasail_profile_t));
-        (void)memcpy(copy, profile, sizeof(parasail_profile_t));
-        copy->profile = copy->profile2;
-        copy->profile_m = copy->profile2_m;
-        copy->profile_s = copy->profile2_s;
-        result = parasail_sw_stats_rowcol_striped_profile_avx2_256_16(copy, s2, s2Len, open, gap);
-        free(copy);
+        result = parasail_sw_stats_rowcol_striped_profile_avx2_256_16(profile, s2, s2Len, open, gap);
+    }
+    if (result->saturated) {
+        parasail_result_free(result);
+        result = parasail_sw_stats_rowcol_striped_profile_avx2_256_32(profile, s2, s2Len, open, gap);
     }
 
     return result;

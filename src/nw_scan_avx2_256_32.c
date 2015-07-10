@@ -121,7 +121,7 @@ parasail_result_t* PNAME(
     const int32_t segLen = (s1Len + segWidth - 1) / segWidth;
     const int32_t offset = (s1Len - 1) % segLen;
     const int32_t position = (segWidth - 1) - (s1Len - 1) / segLen;
-    __m256i* const restrict pvP = (__m256i*)profile->profile;
+    __m256i* const restrict pvP = (__m256i*)profile->profile32.score;
     __m256i* const restrict pvE = parasail_memalign___m256i(32, segLen);
     int32_t* const restrict boundary = parasail_memalign_int32_t(32, s2Len+1);
     __m256i* const restrict pvHt= parasail_memalign___m256i(32, segLen);

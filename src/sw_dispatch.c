@@ -266,7 +266,10 @@ parasail_result_t* parasail_sw_scan_64_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_scan_64_pointer = parasail_sw_scan_knc_512_32;
+    if (1) {
+        parasail_sw_scan_64_pointer = parasail_sw_scan_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -300,7 +303,10 @@ parasail_result_t* parasail_sw_scan_32_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_scan_32_pointer = parasail_sw_scan_knc_512_32;
+    if (1) {
+        parasail_sw_scan_32_pointer = parasail_sw_scan_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -334,7 +340,10 @@ parasail_result_t* parasail_sw_scan_16_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_scan_16_pointer = parasail_sw_scan_knc_512_32;
+    if (1) {
+        parasail_sw_scan_16_pointer = parasail_sw_scan_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -368,7 +377,10 @@ parasail_result_t* parasail_sw_scan_8_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_scan_8_pointer = parasail_sw_scan_knc_512_32;
+    if (1) {
+        parasail_sw_scan_8_pointer = parasail_sw_scan_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -402,7 +414,10 @@ parasail_result_t* parasail_sw_striped_64_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_striped_64_pointer = parasail_sw_striped_knc_512_32;
+    if (1) {
+        parasail_sw_striped_64_pointer = parasail_sw_striped_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -436,7 +451,10 @@ parasail_result_t* parasail_sw_striped_32_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_striped_32_pointer = parasail_sw_striped_knc_512_32;
+    if (1) {
+        parasail_sw_striped_32_pointer = parasail_sw_striped_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -470,7 +488,10 @@ parasail_result_t* parasail_sw_striped_16_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_striped_16_pointer = parasail_sw_striped_knc_512_32;
+    if (1) {
+        parasail_sw_striped_16_pointer = parasail_sw_striped_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -504,7 +525,10 @@ parasail_result_t* parasail_sw_striped_8_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_striped_8_pointer = parasail_sw_striped_knc_512_32;
+    if (1) {
+        parasail_sw_striped_8_pointer = parasail_sw_striped_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -538,7 +562,10 @@ parasail_result_t* parasail_sw_diag_64_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_diag_64_pointer = parasail_sw_diag_knc_512_32;
+    if (1) {
+        parasail_sw_diag_64_pointer = parasail_sw_diag_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -572,7 +599,10 @@ parasail_result_t* parasail_sw_diag_32_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_diag_32_pointer = parasail_sw_diag_knc_512_32;
+    if (1) {
+        parasail_sw_diag_32_pointer = parasail_sw_diag_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -606,7 +636,10 @@ parasail_result_t* parasail_sw_diag_16_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_diag_16_pointer = parasail_sw_diag_knc_512_32;
+    if (1) {
+        parasail_sw_diag_16_pointer = parasail_sw_diag_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -640,7 +673,10 @@ parasail_result_t* parasail_sw_diag_8_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_diag_8_pointer = parasail_sw_diag_knc_512_32;
+    if (1) {
+        parasail_sw_diag_8_pointer = parasail_sw_diag_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -674,7 +710,10 @@ parasail_result_t* parasail_sw_stats_scan_64_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_stats_scan_64_pointer = parasail_sw_stats_scan_knc_512_32;
+    if (1) {
+        parasail_sw_stats_scan_64_pointer = parasail_sw_stats_scan_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -708,7 +747,10 @@ parasail_result_t* parasail_sw_stats_scan_32_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_stats_scan_32_pointer = parasail_sw_stats_scan_knc_512_32;
+    if (1) {
+        parasail_sw_stats_scan_32_pointer = parasail_sw_stats_scan_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -742,7 +784,10 @@ parasail_result_t* parasail_sw_stats_scan_16_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_stats_scan_16_pointer = parasail_sw_stats_scan_knc_512_32;
+    if (1) {
+        parasail_sw_stats_scan_16_pointer = parasail_sw_stats_scan_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -776,7 +821,10 @@ parasail_result_t* parasail_sw_stats_scan_8_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_stats_scan_8_pointer = parasail_sw_stats_scan_knc_512_32;
+    if (1) {
+        parasail_sw_stats_scan_8_pointer = parasail_sw_stats_scan_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -810,7 +858,10 @@ parasail_result_t* parasail_sw_stats_striped_64_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_stats_striped_64_pointer = parasail_sw_stats_striped_knc_512_32;
+    if (1) {
+        parasail_sw_stats_striped_64_pointer = parasail_sw_stats_striped_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -844,7 +895,10 @@ parasail_result_t* parasail_sw_stats_striped_32_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_stats_striped_32_pointer = parasail_sw_stats_striped_knc_512_32;
+    if (1) {
+        parasail_sw_stats_striped_32_pointer = parasail_sw_stats_striped_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -878,7 +932,10 @@ parasail_result_t* parasail_sw_stats_striped_16_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_stats_striped_16_pointer = parasail_sw_stats_striped_knc_512_32;
+    if (1) {
+        parasail_sw_stats_striped_16_pointer = parasail_sw_stats_striped_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -912,7 +969,10 @@ parasail_result_t* parasail_sw_stats_striped_8_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_stats_striped_8_pointer = parasail_sw_stats_striped_knc_512_32;
+    if (1) {
+        parasail_sw_stats_striped_8_pointer = parasail_sw_stats_striped_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -946,7 +1006,10 @@ parasail_result_t* parasail_sw_stats_diag_64_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_stats_diag_64_pointer = parasail_sw_stats_diag_knc_512_32;
+    if (1) {
+        parasail_sw_stats_diag_64_pointer = parasail_sw_stats_diag_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -980,7 +1043,10 @@ parasail_result_t* parasail_sw_stats_diag_32_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_stats_diag_32_pointer = parasail_sw_stats_diag_knc_512_32;
+    if (1) {
+        parasail_sw_stats_diag_32_pointer = parasail_sw_stats_diag_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -1014,7 +1080,10 @@ parasail_result_t* parasail_sw_stats_diag_16_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_stats_diag_16_pointer = parasail_sw_stats_diag_knc_512_32;
+    if (1) {
+        parasail_sw_stats_diag_16_pointer = parasail_sw_stats_diag_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -1048,7 +1117,10 @@ parasail_result_t* parasail_sw_stats_diag_8_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_stats_diag_8_pointer = parasail_sw_stats_diag_knc_512_32;
+    if (1) {
+        parasail_sw_stats_diag_8_pointer = parasail_sw_stats_diag_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -1082,7 +1154,10 @@ parasail_result_t* parasail_sw_table_scan_64_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_table_scan_64_pointer = parasail_sw_table_scan_knc_512_32;
+    if (1) {
+        parasail_sw_table_scan_64_pointer = parasail_sw_table_scan_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -1116,7 +1191,10 @@ parasail_result_t* parasail_sw_table_scan_32_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_table_scan_32_pointer = parasail_sw_table_scan_knc_512_32;
+    if (1) {
+        parasail_sw_table_scan_32_pointer = parasail_sw_table_scan_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -1150,7 +1228,10 @@ parasail_result_t* parasail_sw_table_scan_16_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_table_scan_16_pointer = parasail_sw_table_scan_knc_512_32;
+    if (1) {
+        parasail_sw_table_scan_16_pointer = parasail_sw_table_scan_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -1184,7 +1265,10 @@ parasail_result_t* parasail_sw_table_scan_8_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_table_scan_8_pointer = parasail_sw_table_scan_knc_512_32;
+    if (1) {
+        parasail_sw_table_scan_8_pointer = parasail_sw_table_scan_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -1218,7 +1302,10 @@ parasail_result_t* parasail_sw_table_striped_64_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_table_striped_64_pointer = parasail_sw_table_striped_knc_512_32;
+    if (1) {
+        parasail_sw_table_striped_64_pointer = parasail_sw_table_striped_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -1252,7 +1339,10 @@ parasail_result_t* parasail_sw_table_striped_32_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_table_striped_32_pointer = parasail_sw_table_striped_knc_512_32;
+    if (1) {
+        parasail_sw_table_striped_32_pointer = parasail_sw_table_striped_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -1286,7 +1376,10 @@ parasail_result_t* parasail_sw_table_striped_16_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_table_striped_16_pointer = parasail_sw_table_striped_knc_512_32;
+    if (1) {
+        parasail_sw_table_striped_16_pointer = parasail_sw_table_striped_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -1320,7 +1413,10 @@ parasail_result_t* parasail_sw_table_striped_8_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_table_striped_8_pointer = parasail_sw_table_striped_knc_512_32;
+    if (1) {
+        parasail_sw_table_striped_8_pointer = parasail_sw_table_striped_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -1354,7 +1450,10 @@ parasail_result_t* parasail_sw_table_diag_64_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_table_diag_64_pointer = parasail_sw_table_diag_knc_512_32;
+    if (1) {
+        parasail_sw_table_diag_64_pointer = parasail_sw_table_diag_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -1388,7 +1487,10 @@ parasail_result_t* parasail_sw_table_diag_32_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_table_diag_32_pointer = parasail_sw_table_diag_knc_512_32;
+    if (1) {
+        parasail_sw_table_diag_32_pointer = parasail_sw_table_diag_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -1422,7 +1524,10 @@ parasail_result_t* parasail_sw_table_diag_16_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_table_diag_16_pointer = parasail_sw_table_diag_knc_512_32;
+    if (1) {
+        parasail_sw_table_diag_16_pointer = parasail_sw_table_diag_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -1456,7 +1561,10 @@ parasail_result_t* parasail_sw_table_diag_8_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_table_diag_8_pointer = parasail_sw_table_diag_knc_512_32;
+    if (1) {
+        parasail_sw_table_diag_8_pointer = parasail_sw_table_diag_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -1490,7 +1598,10 @@ parasail_result_t* parasail_sw_stats_table_scan_64_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_stats_table_scan_64_pointer = parasail_sw_stats_table_scan_knc_512_32;
+    if (1) {
+        parasail_sw_stats_table_scan_64_pointer = parasail_sw_stats_table_scan_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -1524,7 +1635,10 @@ parasail_result_t* parasail_sw_stats_table_scan_32_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_stats_table_scan_32_pointer = parasail_sw_stats_table_scan_knc_512_32;
+    if (1) {
+        parasail_sw_stats_table_scan_32_pointer = parasail_sw_stats_table_scan_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -1558,7 +1672,10 @@ parasail_result_t* parasail_sw_stats_table_scan_16_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_stats_table_scan_16_pointer = parasail_sw_stats_table_scan_knc_512_32;
+    if (1) {
+        parasail_sw_stats_table_scan_16_pointer = parasail_sw_stats_table_scan_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -1592,7 +1709,10 @@ parasail_result_t* parasail_sw_stats_table_scan_8_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_stats_table_scan_8_pointer = parasail_sw_stats_table_scan_knc_512_32;
+    if (1) {
+        parasail_sw_stats_table_scan_8_pointer = parasail_sw_stats_table_scan_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -1626,7 +1746,10 @@ parasail_result_t* parasail_sw_stats_table_striped_64_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_stats_table_striped_64_pointer = parasail_sw_stats_table_striped_knc_512_32;
+    if (1) {
+        parasail_sw_stats_table_striped_64_pointer = parasail_sw_stats_table_striped_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -1660,7 +1783,10 @@ parasail_result_t* parasail_sw_stats_table_striped_32_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_stats_table_striped_32_pointer = parasail_sw_stats_table_striped_knc_512_32;
+    if (1) {
+        parasail_sw_stats_table_striped_32_pointer = parasail_sw_stats_table_striped_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -1694,7 +1820,10 @@ parasail_result_t* parasail_sw_stats_table_striped_16_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_stats_table_striped_16_pointer = parasail_sw_stats_table_striped_knc_512_32;
+    if (1) {
+        parasail_sw_stats_table_striped_16_pointer = parasail_sw_stats_table_striped_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -1728,7 +1857,10 @@ parasail_result_t* parasail_sw_stats_table_striped_8_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_stats_table_striped_8_pointer = parasail_sw_stats_table_striped_knc_512_32;
+    if (1) {
+        parasail_sw_stats_table_striped_8_pointer = parasail_sw_stats_table_striped_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -1762,7 +1894,10 @@ parasail_result_t* parasail_sw_stats_table_diag_64_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_stats_table_diag_64_pointer = parasail_sw_stats_table_diag_knc_512_32;
+    if (1) {
+        parasail_sw_stats_table_diag_64_pointer = parasail_sw_stats_table_diag_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -1796,7 +1931,10 @@ parasail_result_t* parasail_sw_stats_table_diag_32_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_stats_table_diag_32_pointer = parasail_sw_stats_table_diag_knc_512_32;
+    if (1) {
+        parasail_sw_stats_table_diag_32_pointer = parasail_sw_stats_table_diag_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -1830,7 +1968,10 @@ parasail_result_t* parasail_sw_stats_table_diag_16_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_stats_table_diag_16_pointer = parasail_sw_stats_table_diag_knc_512_32;
+    if (1) {
+        parasail_sw_stats_table_diag_16_pointer = parasail_sw_stats_table_diag_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -1864,7 +2005,10 @@ parasail_result_t* parasail_sw_stats_table_diag_8_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_stats_table_diag_8_pointer = parasail_sw_stats_table_diag_knc_512_32;
+    if (1) {
+        parasail_sw_stats_table_diag_8_pointer = parasail_sw_stats_table_diag_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -1898,7 +2042,10 @@ parasail_result_t* parasail_sw_rowcol_scan_64_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_rowcol_scan_64_pointer = parasail_sw_rowcol_scan_knc_512_32;
+    if (1) {
+        parasail_sw_rowcol_scan_64_pointer = parasail_sw_rowcol_scan_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -1932,7 +2079,10 @@ parasail_result_t* parasail_sw_rowcol_scan_32_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_rowcol_scan_32_pointer = parasail_sw_rowcol_scan_knc_512_32;
+    if (1) {
+        parasail_sw_rowcol_scan_32_pointer = parasail_sw_rowcol_scan_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -1966,7 +2116,10 @@ parasail_result_t* parasail_sw_rowcol_scan_16_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_rowcol_scan_16_pointer = parasail_sw_rowcol_scan_knc_512_32;
+    if (1) {
+        parasail_sw_rowcol_scan_16_pointer = parasail_sw_rowcol_scan_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -2000,7 +2153,10 @@ parasail_result_t* parasail_sw_rowcol_scan_8_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_rowcol_scan_8_pointer = parasail_sw_rowcol_scan_knc_512_32;
+    if (1) {
+        parasail_sw_rowcol_scan_8_pointer = parasail_sw_rowcol_scan_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -2034,7 +2190,10 @@ parasail_result_t* parasail_sw_rowcol_striped_64_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_rowcol_striped_64_pointer = parasail_sw_rowcol_striped_knc_512_32;
+    if (1) {
+        parasail_sw_rowcol_striped_64_pointer = parasail_sw_rowcol_striped_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -2068,7 +2227,10 @@ parasail_result_t* parasail_sw_rowcol_striped_32_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_rowcol_striped_32_pointer = parasail_sw_rowcol_striped_knc_512_32;
+    if (1) {
+        parasail_sw_rowcol_striped_32_pointer = parasail_sw_rowcol_striped_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -2102,7 +2264,10 @@ parasail_result_t* parasail_sw_rowcol_striped_16_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_rowcol_striped_16_pointer = parasail_sw_rowcol_striped_knc_512_32;
+    if (1) {
+        parasail_sw_rowcol_striped_16_pointer = parasail_sw_rowcol_striped_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -2136,7 +2301,10 @@ parasail_result_t* parasail_sw_rowcol_striped_8_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_rowcol_striped_8_pointer = parasail_sw_rowcol_striped_knc_512_32;
+    if (1) {
+        parasail_sw_rowcol_striped_8_pointer = parasail_sw_rowcol_striped_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -2170,7 +2338,10 @@ parasail_result_t* parasail_sw_rowcol_diag_64_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_rowcol_diag_64_pointer = parasail_sw_rowcol_diag_knc_512_32;
+    if (1) {
+        parasail_sw_rowcol_diag_64_pointer = parasail_sw_rowcol_diag_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -2204,7 +2375,10 @@ parasail_result_t* parasail_sw_rowcol_diag_32_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_rowcol_diag_32_pointer = parasail_sw_rowcol_diag_knc_512_32;
+    if (1) {
+        parasail_sw_rowcol_diag_32_pointer = parasail_sw_rowcol_diag_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -2238,7 +2412,10 @@ parasail_result_t* parasail_sw_rowcol_diag_16_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_rowcol_diag_16_pointer = parasail_sw_rowcol_diag_knc_512_32;
+    if (1) {
+        parasail_sw_rowcol_diag_16_pointer = parasail_sw_rowcol_diag_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -2272,7 +2449,10 @@ parasail_result_t* parasail_sw_rowcol_diag_8_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_rowcol_diag_8_pointer = parasail_sw_rowcol_diag_knc_512_32;
+    if (1) {
+        parasail_sw_rowcol_diag_8_pointer = parasail_sw_rowcol_diag_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -2306,7 +2486,10 @@ parasail_result_t* parasail_sw_stats_rowcol_scan_64_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_stats_rowcol_scan_64_pointer = parasail_sw_stats_rowcol_scan_knc_512_32;
+    if (1) {
+        parasail_sw_stats_rowcol_scan_64_pointer = parasail_sw_stats_rowcol_scan_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -2340,7 +2523,10 @@ parasail_result_t* parasail_sw_stats_rowcol_scan_32_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_stats_rowcol_scan_32_pointer = parasail_sw_stats_rowcol_scan_knc_512_32;
+    if (1) {
+        parasail_sw_stats_rowcol_scan_32_pointer = parasail_sw_stats_rowcol_scan_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -2374,7 +2560,10 @@ parasail_result_t* parasail_sw_stats_rowcol_scan_16_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_stats_rowcol_scan_16_pointer = parasail_sw_stats_rowcol_scan_knc_512_32;
+    if (1) {
+        parasail_sw_stats_rowcol_scan_16_pointer = parasail_sw_stats_rowcol_scan_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -2408,7 +2597,10 @@ parasail_result_t* parasail_sw_stats_rowcol_scan_8_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_stats_rowcol_scan_8_pointer = parasail_sw_stats_rowcol_scan_knc_512_32;
+    if (1) {
+        parasail_sw_stats_rowcol_scan_8_pointer = parasail_sw_stats_rowcol_scan_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -2442,7 +2634,10 @@ parasail_result_t* parasail_sw_stats_rowcol_striped_64_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_stats_rowcol_striped_64_pointer = parasail_sw_stats_rowcol_striped_knc_512_32;
+    if (1) {
+        parasail_sw_stats_rowcol_striped_64_pointer = parasail_sw_stats_rowcol_striped_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -2476,7 +2671,10 @@ parasail_result_t* parasail_sw_stats_rowcol_striped_32_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_stats_rowcol_striped_32_pointer = parasail_sw_stats_rowcol_striped_knc_512_32;
+    if (1) {
+        parasail_sw_stats_rowcol_striped_32_pointer = parasail_sw_stats_rowcol_striped_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -2510,7 +2708,10 @@ parasail_result_t* parasail_sw_stats_rowcol_striped_16_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_stats_rowcol_striped_16_pointer = parasail_sw_stats_rowcol_striped_knc_512_32;
+    if (1) {
+        parasail_sw_stats_rowcol_striped_16_pointer = parasail_sw_stats_rowcol_striped_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -2544,7 +2745,10 @@ parasail_result_t* parasail_sw_stats_rowcol_striped_8_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_stats_rowcol_striped_8_pointer = parasail_sw_stats_rowcol_striped_knc_512_32;
+    if (1) {
+        parasail_sw_stats_rowcol_striped_8_pointer = parasail_sw_stats_rowcol_striped_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -2578,7 +2782,10 @@ parasail_result_t* parasail_sw_stats_rowcol_diag_64_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_stats_rowcol_diag_64_pointer = parasail_sw_stats_rowcol_diag_knc_512_32;
+    if (1) {
+        parasail_sw_stats_rowcol_diag_64_pointer = parasail_sw_stats_rowcol_diag_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -2612,7 +2819,10 @@ parasail_result_t* parasail_sw_stats_rowcol_diag_32_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_stats_rowcol_diag_32_pointer = parasail_sw_stats_rowcol_diag_knc_512_32;
+    if (1) {
+        parasail_sw_stats_rowcol_diag_32_pointer = parasail_sw_stats_rowcol_diag_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -2646,7 +2856,10 @@ parasail_result_t* parasail_sw_stats_rowcol_diag_16_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_stats_rowcol_diag_16_pointer = parasail_sw_stats_rowcol_diag_knc_512_32;
+    if (1) {
+        parasail_sw_stats_rowcol_diag_16_pointer = parasail_sw_stats_rowcol_diag_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -2680,7 +2893,10 @@ parasail_result_t* parasail_sw_stats_rowcol_diag_8_dispatcher(
         const parasail_matrix_t *matrix)
 {
 #if HAVE_KNC
-    parasail_sw_stats_rowcol_diag_8_pointer = parasail_sw_stats_rowcol_diag_knc_512_32;
+    if (1) {
+        parasail_sw_stats_rowcol_diag_8_pointer = parasail_sw_stats_rowcol_diag_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -2713,7 +2929,10 @@ parasail_result_t* parasail_sw_scan_profile_64_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_scan_profile_64_pointer = parasail_sw_scan_profile_knc_512_32;
+    if (1) {
+        parasail_sw_scan_profile_64_pointer = parasail_sw_scan_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -2746,7 +2965,10 @@ parasail_result_t* parasail_sw_scan_profile_32_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_scan_profile_32_pointer = parasail_sw_scan_profile_knc_512_32;
+    if (1) {
+        parasail_sw_scan_profile_32_pointer = parasail_sw_scan_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -2779,7 +3001,10 @@ parasail_result_t* parasail_sw_scan_profile_16_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_scan_profile_16_pointer = parasail_sw_scan_profile_knc_512_32;
+    if (1) {
+        parasail_sw_scan_profile_16_pointer = parasail_sw_scan_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -2812,7 +3037,10 @@ parasail_result_t* parasail_sw_scan_profile_8_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_scan_profile_8_pointer = parasail_sw_scan_profile_knc_512_32;
+    if (1) {
+        parasail_sw_scan_profile_8_pointer = parasail_sw_scan_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -2845,7 +3073,10 @@ parasail_result_t* parasail_sw_striped_profile_64_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_striped_profile_64_pointer = parasail_sw_striped_profile_knc_512_32;
+    if (1) {
+        parasail_sw_striped_profile_64_pointer = parasail_sw_striped_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -2878,7 +3109,10 @@ parasail_result_t* parasail_sw_striped_profile_32_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_striped_profile_32_pointer = parasail_sw_striped_profile_knc_512_32;
+    if (1) {
+        parasail_sw_striped_profile_32_pointer = parasail_sw_striped_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -2911,7 +3145,10 @@ parasail_result_t* parasail_sw_striped_profile_16_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_striped_profile_16_pointer = parasail_sw_striped_profile_knc_512_32;
+    if (1) {
+        parasail_sw_striped_profile_16_pointer = parasail_sw_striped_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -2944,7 +3181,10 @@ parasail_result_t* parasail_sw_striped_profile_8_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_striped_profile_8_pointer = parasail_sw_striped_profile_knc_512_32;
+    if (1) {
+        parasail_sw_striped_profile_8_pointer = parasail_sw_striped_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -2977,7 +3217,10 @@ parasail_result_t* parasail_sw_stats_scan_profile_64_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_stats_scan_profile_64_pointer = parasail_sw_stats_scan_profile_knc_512_32;
+    if (1) {
+        parasail_sw_stats_scan_profile_64_pointer = parasail_sw_stats_scan_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -3010,7 +3253,10 @@ parasail_result_t* parasail_sw_stats_scan_profile_32_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_stats_scan_profile_32_pointer = parasail_sw_stats_scan_profile_knc_512_32;
+    if (1) {
+        parasail_sw_stats_scan_profile_32_pointer = parasail_sw_stats_scan_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -3043,7 +3289,10 @@ parasail_result_t* parasail_sw_stats_scan_profile_16_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_stats_scan_profile_16_pointer = parasail_sw_stats_scan_profile_knc_512_32;
+    if (1) {
+        parasail_sw_stats_scan_profile_16_pointer = parasail_sw_stats_scan_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -3076,7 +3325,10 @@ parasail_result_t* parasail_sw_stats_scan_profile_8_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_stats_scan_profile_8_pointer = parasail_sw_stats_scan_profile_knc_512_32;
+    if (1) {
+        parasail_sw_stats_scan_profile_8_pointer = parasail_sw_stats_scan_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -3109,7 +3361,10 @@ parasail_result_t* parasail_sw_stats_striped_profile_64_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_stats_striped_profile_64_pointer = parasail_sw_stats_striped_profile_knc_512_32;
+    if (1) {
+        parasail_sw_stats_striped_profile_64_pointer = parasail_sw_stats_striped_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -3142,7 +3397,10 @@ parasail_result_t* parasail_sw_stats_striped_profile_32_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_stats_striped_profile_32_pointer = parasail_sw_stats_striped_profile_knc_512_32;
+    if (1) {
+        parasail_sw_stats_striped_profile_32_pointer = parasail_sw_stats_striped_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -3175,7 +3433,10 @@ parasail_result_t* parasail_sw_stats_striped_profile_16_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_stats_striped_profile_16_pointer = parasail_sw_stats_striped_profile_knc_512_32;
+    if (1) {
+        parasail_sw_stats_striped_profile_16_pointer = parasail_sw_stats_striped_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -3208,7 +3469,10 @@ parasail_result_t* parasail_sw_stats_striped_profile_8_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_stats_striped_profile_8_pointer = parasail_sw_stats_striped_profile_knc_512_32;
+    if (1) {
+        parasail_sw_stats_striped_profile_8_pointer = parasail_sw_stats_striped_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -3241,7 +3505,10 @@ parasail_result_t* parasail_sw_table_scan_profile_64_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_table_scan_profile_64_pointer = parasail_sw_table_scan_profile_knc_512_32;
+    if (1) {
+        parasail_sw_table_scan_profile_64_pointer = parasail_sw_table_scan_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -3274,7 +3541,10 @@ parasail_result_t* parasail_sw_table_scan_profile_32_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_table_scan_profile_32_pointer = parasail_sw_table_scan_profile_knc_512_32;
+    if (1) {
+        parasail_sw_table_scan_profile_32_pointer = parasail_sw_table_scan_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -3307,7 +3577,10 @@ parasail_result_t* parasail_sw_table_scan_profile_16_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_table_scan_profile_16_pointer = parasail_sw_table_scan_profile_knc_512_32;
+    if (1) {
+        parasail_sw_table_scan_profile_16_pointer = parasail_sw_table_scan_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -3340,7 +3613,10 @@ parasail_result_t* parasail_sw_table_scan_profile_8_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_table_scan_profile_8_pointer = parasail_sw_table_scan_profile_knc_512_32;
+    if (1) {
+        parasail_sw_table_scan_profile_8_pointer = parasail_sw_table_scan_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -3373,7 +3649,10 @@ parasail_result_t* parasail_sw_table_striped_profile_64_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_table_striped_profile_64_pointer = parasail_sw_table_striped_profile_knc_512_32;
+    if (1) {
+        parasail_sw_table_striped_profile_64_pointer = parasail_sw_table_striped_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -3406,7 +3685,10 @@ parasail_result_t* parasail_sw_table_striped_profile_32_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_table_striped_profile_32_pointer = parasail_sw_table_striped_profile_knc_512_32;
+    if (1) {
+        parasail_sw_table_striped_profile_32_pointer = parasail_sw_table_striped_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -3439,7 +3721,10 @@ parasail_result_t* parasail_sw_table_striped_profile_16_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_table_striped_profile_16_pointer = parasail_sw_table_striped_profile_knc_512_32;
+    if (1) {
+        parasail_sw_table_striped_profile_16_pointer = parasail_sw_table_striped_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -3472,7 +3757,10 @@ parasail_result_t* parasail_sw_table_striped_profile_8_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_table_striped_profile_8_pointer = parasail_sw_table_striped_profile_knc_512_32;
+    if (1) {
+        parasail_sw_table_striped_profile_8_pointer = parasail_sw_table_striped_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -3505,7 +3793,10 @@ parasail_result_t* parasail_sw_stats_table_scan_profile_64_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_stats_table_scan_profile_64_pointer = parasail_sw_stats_table_scan_profile_knc_512_32;
+    if (1) {
+        parasail_sw_stats_table_scan_profile_64_pointer = parasail_sw_stats_table_scan_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -3538,7 +3829,10 @@ parasail_result_t* parasail_sw_stats_table_scan_profile_32_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_stats_table_scan_profile_32_pointer = parasail_sw_stats_table_scan_profile_knc_512_32;
+    if (1) {
+        parasail_sw_stats_table_scan_profile_32_pointer = parasail_sw_stats_table_scan_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -3571,7 +3865,10 @@ parasail_result_t* parasail_sw_stats_table_scan_profile_16_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_stats_table_scan_profile_16_pointer = parasail_sw_stats_table_scan_profile_knc_512_32;
+    if (1) {
+        parasail_sw_stats_table_scan_profile_16_pointer = parasail_sw_stats_table_scan_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -3604,7 +3901,10 @@ parasail_result_t* parasail_sw_stats_table_scan_profile_8_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_stats_table_scan_profile_8_pointer = parasail_sw_stats_table_scan_profile_knc_512_32;
+    if (1) {
+        parasail_sw_stats_table_scan_profile_8_pointer = parasail_sw_stats_table_scan_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -3637,7 +3937,10 @@ parasail_result_t* parasail_sw_stats_table_striped_profile_64_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_stats_table_striped_profile_64_pointer = parasail_sw_stats_table_striped_profile_knc_512_32;
+    if (1) {
+        parasail_sw_stats_table_striped_profile_64_pointer = parasail_sw_stats_table_striped_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -3670,7 +3973,10 @@ parasail_result_t* parasail_sw_stats_table_striped_profile_32_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_stats_table_striped_profile_32_pointer = parasail_sw_stats_table_striped_profile_knc_512_32;
+    if (1) {
+        parasail_sw_stats_table_striped_profile_32_pointer = parasail_sw_stats_table_striped_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -3703,7 +4009,10 @@ parasail_result_t* parasail_sw_stats_table_striped_profile_16_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_stats_table_striped_profile_16_pointer = parasail_sw_stats_table_striped_profile_knc_512_32;
+    if (1) {
+        parasail_sw_stats_table_striped_profile_16_pointer = parasail_sw_stats_table_striped_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -3736,7 +4045,10 @@ parasail_result_t* parasail_sw_stats_table_striped_profile_8_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_stats_table_striped_profile_8_pointer = parasail_sw_stats_table_striped_profile_knc_512_32;
+    if (1) {
+        parasail_sw_stats_table_striped_profile_8_pointer = parasail_sw_stats_table_striped_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -3769,7 +4081,10 @@ parasail_result_t* parasail_sw_rowcol_scan_profile_64_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_rowcol_scan_profile_64_pointer = parasail_sw_rowcol_scan_profile_knc_512_32;
+    if (1) {
+        parasail_sw_rowcol_scan_profile_64_pointer = parasail_sw_rowcol_scan_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -3802,7 +4117,10 @@ parasail_result_t* parasail_sw_rowcol_scan_profile_32_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_rowcol_scan_profile_32_pointer = parasail_sw_rowcol_scan_profile_knc_512_32;
+    if (1) {
+        parasail_sw_rowcol_scan_profile_32_pointer = parasail_sw_rowcol_scan_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -3835,7 +4153,10 @@ parasail_result_t* parasail_sw_rowcol_scan_profile_16_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_rowcol_scan_profile_16_pointer = parasail_sw_rowcol_scan_profile_knc_512_32;
+    if (1) {
+        parasail_sw_rowcol_scan_profile_16_pointer = parasail_sw_rowcol_scan_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -3868,7 +4189,10 @@ parasail_result_t* parasail_sw_rowcol_scan_profile_8_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_rowcol_scan_profile_8_pointer = parasail_sw_rowcol_scan_profile_knc_512_32;
+    if (1) {
+        parasail_sw_rowcol_scan_profile_8_pointer = parasail_sw_rowcol_scan_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -3901,7 +4225,10 @@ parasail_result_t* parasail_sw_rowcol_striped_profile_64_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_rowcol_striped_profile_64_pointer = parasail_sw_rowcol_striped_profile_knc_512_32;
+    if (1) {
+        parasail_sw_rowcol_striped_profile_64_pointer = parasail_sw_rowcol_striped_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -3934,7 +4261,10 @@ parasail_result_t* parasail_sw_rowcol_striped_profile_32_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_rowcol_striped_profile_32_pointer = parasail_sw_rowcol_striped_profile_knc_512_32;
+    if (1) {
+        parasail_sw_rowcol_striped_profile_32_pointer = parasail_sw_rowcol_striped_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -3967,7 +4297,10 @@ parasail_result_t* parasail_sw_rowcol_striped_profile_16_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_rowcol_striped_profile_16_pointer = parasail_sw_rowcol_striped_profile_knc_512_32;
+    if (1) {
+        parasail_sw_rowcol_striped_profile_16_pointer = parasail_sw_rowcol_striped_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -4000,7 +4333,10 @@ parasail_result_t* parasail_sw_rowcol_striped_profile_8_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_rowcol_striped_profile_8_pointer = parasail_sw_rowcol_striped_profile_knc_512_32;
+    if (1) {
+        parasail_sw_rowcol_striped_profile_8_pointer = parasail_sw_rowcol_striped_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -4033,7 +4369,10 @@ parasail_result_t* parasail_sw_stats_rowcol_scan_profile_64_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_stats_rowcol_scan_profile_64_pointer = parasail_sw_stats_rowcol_scan_profile_knc_512_32;
+    if (1) {
+        parasail_sw_stats_rowcol_scan_profile_64_pointer = parasail_sw_stats_rowcol_scan_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -4066,7 +4405,10 @@ parasail_result_t* parasail_sw_stats_rowcol_scan_profile_32_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_stats_rowcol_scan_profile_32_pointer = parasail_sw_stats_rowcol_scan_profile_knc_512_32;
+    if (1) {
+        parasail_sw_stats_rowcol_scan_profile_32_pointer = parasail_sw_stats_rowcol_scan_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -4099,7 +4441,10 @@ parasail_result_t* parasail_sw_stats_rowcol_scan_profile_16_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_stats_rowcol_scan_profile_16_pointer = parasail_sw_stats_rowcol_scan_profile_knc_512_32;
+    if (1) {
+        parasail_sw_stats_rowcol_scan_profile_16_pointer = parasail_sw_stats_rowcol_scan_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -4132,7 +4477,10 @@ parasail_result_t* parasail_sw_stats_rowcol_scan_profile_8_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_stats_rowcol_scan_profile_8_pointer = parasail_sw_stats_rowcol_scan_profile_knc_512_32;
+    if (1) {
+        parasail_sw_stats_rowcol_scan_profile_8_pointer = parasail_sw_stats_rowcol_scan_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -4165,7 +4513,10 @@ parasail_result_t* parasail_sw_stats_rowcol_striped_profile_64_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_stats_rowcol_striped_profile_64_pointer = parasail_sw_stats_rowcol_striped_profile_knc_512_32;
+    if (1) {
+        parasail_sw_stats_rowcol_striped_profile_64_pointer = parasail_sw_stats_rowcol_striped_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -4198,7 +4549,10 @@ parasail_result_t* parasail_sw_stats_rowcol_striped_profile_32_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_stats_rowcol_striped_profile_32_pointer = parasail_sw_stats_rowcol_striped_profile_knc_512_32;
+    if (1) {
+        parasail_sw_stats_rowcol_striped_profile_32_pointer = parasail_sw_stats_rowcol_striped_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -4231,7 +4585,10 @@ parasail_result_t* parasail_sw_stats_rowcol_striped_profile_16_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_stats_rowcol_striped_profile_16_pointer = parasail_sw_stats_rowcol_striped_profile_knc_512_32;
+    if (1) {
+        parasail_sw_stats_rowcol_striped_profile_16_pointer = parasail_sw_stats_rowcol_striped_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
@@ -4264,7 +4621,10 @@ parasail_result_t* parasail_sw_stats_rowcol_striped_profile_8_dispatcher(
         const int open, const int gap)
 {
 #if HAVE_KNC
-    parasail_sw_stats_rowcol_striped_profile_8_pointer = parasail_sw_stats_rowcol_striped_profile_knc_512_32;
+    if (1) {
+        parasail_sw_stats_rowcol_striped_profile_8_pointer = parasail_sw_stats_rowcol_striped_profile_knc_512_32;
+    }
+    else
 #else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {

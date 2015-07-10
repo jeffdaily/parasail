@@ -18,8 +18,6 @@
 
 #define NEG_INF (INT32_MIN/(int32_t)(2))
 
-#define _mm256_cmplt_epi32_rpl(a,b) _mm256_cmpgt_epi32(b,a)
-
 #if HAVE_AVX2_MM256_EXTRACT_EPI32
 #define _mm256_extract_epi32_rpl _mm256_extract_epi32
 #else
@@ -29,6 +27,8 @@ static inline int32_t _mm256_extract_epi32_rpl(__m256i a, int imm) {
     return A.v[imm];
 }
 #endif
+
+#define _mm256_cmplt_epi32_rpl(a,b) _mm256_cmpgt_epi32(b,a)
 
 #define _mm256_slli_si256_rpl(a,imm) _mm256_alignr_epi8(a, _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,3,0)), 16-imm)
 
@@ -108,9 +108,9 @@ parasail_result_t* PNAME(
     const parasail_matrix_t *matrix = profile->matrix;
     const int32_t segWidth = 8; /* number of values in vector unit */
     const int32_t segLen = (s1Len + segWidth - 1) / segWidth;
-    __m256i* const restrict vProfile  = (__m256i*)profile->profile;
-    __m256i* const restrict vProfileM = (__m256i*)profile->profile_m;
-    __m256i* const restrict vProfileS = (__m256i*)profile->profile_s;
+    __m256i* const restrict vProfile  = (__m256i*)profile->profile32.score;
+    __m256i* const restrict vProfileM = (__m256i*)profile->profile32.matches;
+    __m256i* const restrict vProfileS = (__m256i*)profile->profile32.similar;
     __m256i* restrict pvHStore        = parasail_memalign___m256i(32, segLen);
     __m256i* restrict pvHLoad         = parasail_memalign___m256i(32, segLen);
     __m256i* restrict pvHMStore       = parasail_memalign___m256i(32, segLen);

@@ -82,7 +82,7 @@ parasail_result_t* PNAME(
     const %(INDEX)s segLen = (s1Len + segWidth - 1) / segWidth;
     const %(INDEX)s offset = (s1Len - 1) %% segLen;
     const %(INDEX)s position = (segWidth - 1) - (s1Len - 1) / segLen;
-    %(VTYPE)s* const restrict pvP = (%(VTYPE)s*)profile->profile;
+    %(VTYPE)s* const restrict pvP = (%(VTYPE)s*)profile->profile%(WIDTH)s.score;
     %(VTYPE)s* const restrict pvE = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
     %(INT)s* const restrict boundary = parasail_memalign_%(INT)s(%(ALIGNMENT)s, s2Len+1);
     %(VTYPE)s* const restrict pvHt= parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);

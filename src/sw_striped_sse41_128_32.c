@@ -87,7 +87,7 @@ parasail_result_t* PNAME(
     const parasail_matrix_t *matrix = profile->matrix;
     const int32_t segWidth = 4; /* number of values in vector unit */
     const int32_t segLen = (s1Len + segWidth - 1) / segWidth;
-    __m128i* const restrict vProfile = (__m128i*)profile->profile;
+    __m128i* const restrict vProfile = (__m128i*)profile->profile32.score;
     __m128i* restrict pvHStore = parasail_memalign___m128i(16, segLen);
     __m128i* restrict pvHLoad =  parasail_memalign___m128i(16, segLen);
     __m128i* const restrict pvE = parasail_memalign___m128i(16, segLen);

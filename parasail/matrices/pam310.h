@@ -15,6 +15,10 @@
 #include "parasail.h"
 #include "pam_map.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* # */
 /* # This matrix was produced by "pam" Version 1.0.6 [28-Jul-93] */
 /* # */
@@ -63,4 +67,9 @@ static const parasail_matrix_t parasail_pam310 = {
     0
 };
 
+#ifdef __cplusplus
+}
+#endif
+
 #endif /* _PARASAIL_PAM310_H_ */
+

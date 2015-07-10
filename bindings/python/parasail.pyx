@@ -38,7 +38,10 @@ cdef extern from "parasail.h":
         const char *s1
         int s1Len
         const parasail_matrix_t *matrix
-        #void * profile
+        #parasail_profile_data_t * profile8;
+        #parasail_profile_data_t * profile16;
+        #parasail_profile_data_t * profile32;
+        #parasail_profile_data_t * profile64;
         #void (*free)(void * profile)
 
     void parasail_result_free(parasail_result_t * result)
@@ -61,6 +64,30 @@ cdef extern from "parasail.h":
             const parasail_matrix_t *matrix);
 
     parasail_profile_t * parasail_profile_create_64(
+            const char * s1, const int s1Len,
+            const parasail_matrix_t *matrix);
+
+    parasail_profile_t * parasail_profile_create_sat(
+            const char * s1, const int s1Len,
+            const parasail_matrix_t *matrix);
+
+    parasail_profile_t * parasail_profile_create_stats_8(
+            const char * s1, const int s1Len,
+            const parasail_matrix_t *matrix);
+
+    parasail_profile_t * parasail_profile_create_stats_16(
+            const char * s1, const int s1Len,
+            const parasail_matrix_t *matrix);
+
+    parasail_profile_t * parasail_profile_create_stats_32(
+            const char * s1, const int s1Len,
+            const parasail_matrix_t *matrix);
+
+    parasail_profile_t * parasail_profile_create_stats_64(
+            const char * s1, const int s1Len,
+            const parasail_matrix_t *matrix);
+
+    parasail_profile_t * parasail_profile_create_stats_sat(
             const char * s1, const int s1Len,
             const parasail_matrix_t *matrix);
 
@@ -307,6 +334,12 @@ cdef extern from "parasail.h":
         const int open, const int gap,
         const parasail_matrix_t* matrix);
 
+    parasail_result_t* parasail_nw_scan_sat(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
     parasail_result_t* parasail_nw_striped_64(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
@@ -326,6 +359,12 @@ cdef extern from "parasail.h":
         const parasail_matrix_t* matrix);
 
     parasail_result_t* parasail_nw_striped_8(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_nw_striped_sat(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
         const int open, const int gap,
@@ -355,6 +394,12 @@ cdef extern from "parasail.h":
         const int open, const int gap,
         const parasail_matrix_t* matrix);
 
+    parasail_result_t* parasail_nw_diag_sat(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
     parasail_result_t* parasail_nw_table_scan_64(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
@@ -374,6 +419,12 @@ cdef extern from "parasail.h":
         const parasail_matrix_t* matrix);
 
     parasail_result_t* parasail_nw_table_scan_8(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_nw_table_scan_sat(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
         const int open, const int gap,
@@ -403,6 +454,12 @@ cdef extern from "parasail.h":
         const int open, const int gap,
         const parasail_matrix_t* matrix);
 
+    parasail_result_t* parasail_nw_table_striped_sat(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
     parasail_result_t* parasail_nw_table_diag_64(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
@@ -422,6 +479,12 @@ cdef extern from "parasail.h":
         const parasail_matrix_t* matrix);
 
     parasail_result_t* parasail_nw_table_diag_8(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_nw_table_diag_sat(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
         const int open, const int gap,
@@ -451,6 +514,12 @@ cdef extern from "parasail.h":
         const int open, const int gap,
         const parasail_matrix_t* matrix);
 
+    parasail_result_t* parasail_nw_rowcol_scan_sat(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
     parasail_result_t* parasail_nw_rowcol_striped_64(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
@@ -470,6 +539,12 @@ cdef extern from "parasail.h":
         const parasail_matrix_t* matrix);
 
     parasail_result_t* parasail_nw_rowcol_striped_8(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_nw_rowcol_striped_sat(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
         const int open, const int gap,
@@ -499,6 +574,12 @@ cdef extern from "parasail.h":
         const int open, const int gap,
         const parasail_matrix_t* matrix);
 
+    parasail_result_t* parasail_nw_rowcol_diag_sat(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
     parasail_result_t* parasail_nw_stats_scan_64(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
@@ -518,6 +599,12 @@ cdef extern from "parasail.h":
         const parasail_matrix_t* matrix);
 
     parasail_result_t* parasail_nw_stats_scan_8(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_nw_stats_scan_sat(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
         const int open, const int gap,
@@ -547,6 +634,12 @@ cdef extern from "parasail.h":
         const int open, const int gap,
         const parasail_matrix_t* matrix);
 
+    parasail_result_t* parasail_nw_stats_striped_sat(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
     parasail_result_t* parasail_nw_stats_diag_64(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
@@ -566,6 +659,12 @@ cdef extern from "parasail.h":
         const parasail_matrix_t* matrix);
 
     parasail_result_t* parasail_nw_stats_diag_8(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_nw_stats_diag_sat(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
         const int open, const int gap,
@@ -595,6 +694,12 @@ cdef extern from "parasail.h":
         const int open, const int gap,
         const parasail_matrix_t* matrix);
 
+    parasail_result_t* parasail_nw_stats_table_scan_sat(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
     parasail_result_t* parasail_nw_stats_table_striped_64(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
@@ -614,6 +719,12 @@ cdef extern from "parasail.h":
         const parasail_matrix_t* matrix);
 
     parasail_result_t* parasail_nw_stats_table_striped_8(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_nw_stats_table_striped_sat(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
         const int open, const int gap,
@@ -643,6 +754,12 @@ cdef extern from "parasail.h":
         const int open, const int gap,
         const parasail_matrix_t* matrix);
 
+    parasail_result_t* parasail_nw_stats_table_diag_sat(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
     parasail_result_t* parasail_nw_stats_rowcol_scan_64(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
@@ -662,6 +779,12 @@ cdef extern from "parasail.h":
         const parasail_matrix_t* matrix);
 
     parasail_result_t* parasail_nw_stats_rowcol_scan_8(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_nw_stats_rowcol_scan_sat(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
         const int open, const int gap,
@@ -691,6 +814,12 @@ cdef extern from "parasail.h":
         const int open, const int gap,
         const parasail_matrix_t* matrix);
 
+    parasail_result_t* parasail_nw_stats_rowcol_striped_sat(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
     parasail_result_t* parasail_nw_stats_rowcol_diag_64(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
@@ -710,6 +839,12 @@ cdef extern from "parasail.h":
         const parasail_matrix_t* matrix);
 
     parasail_result_t* parasail_nw_stats_rowcol_diag_8(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_nw_stats_rowcol_diag_sat(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
         const int open, const int gap,
@@ -739,6 +874,12 @@ cdef extern from "parasail.h":
         const int open, const int gap,
         const parasail_matrix_t* matrix);
 
+    parasail_result_t* parasail_sg_scan_sat(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
     parasail_result_t* parasail_sg_striped_64(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
@@ -758,6 +899,12 @@ cdef extern from "parasail.h":
         const parasail_matrix_t* matrix);
 
     parasail_result_t* parasail_sg_striped_8(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sg_striped_sat(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
         const int open, const int gap,
@@ -787,6 +934,12 @@ cdef extern from "parasail.h":
         const int open, const int gap,
         const parasail_matrix_t* matrix);
 
+    parasail_result_t* parasail_sg_diag_sat(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
     parasail_result_t* parasail_sg_table_scan_64(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
@@ -806,6 +959,12 @@ cdef extern from "parasail.h":
         const parasail_matrix_t* matrix);
 
     parasail_result_t* parasail_sg_table_scan_8(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sg_table_scan_sat(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
         const int open, const int gap,
@@ -835,6 +994,12 @@ cdef extern from "parasail.h":
         const int open, const int gap,
         const parasail_matrix_t* matrix);
 
+    parasail_result_t* parasail_sg_table_striped_sat(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
     parasail_result_t* parasail_sg_table_diag_64(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
@@ -854,6 +1019,12 @@ cdef extern from "parasail.h":
         const parasail_matrix_t* matrix);
 
     parasail_result_t* parasail_sg_table_diag_8(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sg_table_diag_sat(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
         const int open, const int gap,
@@ -883,6 +1054,12 @@ cdef extern from "parasail.h":
         const int open, const int gap,
         const parasail_matrix_t* matrix);
 
+    parasail_result_t* parasail_sg_rowcol_scan_sat(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
     parasail_result_t* parasail_sg_rowcol_striped_64(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
@@ -902,6 +1079,12 @@ cdef extern from "parasail.h":
         const parasail_matrix_t* matrix);
 
     parasail_result_t* parasail_sg_rowcol_striped_8(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sg_rowcol_striped_sat(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
         const int open, const int gap,
@@ -931,6 +1114,12 @@ cdef extern from "parasail.h":
         const int open, const int gap,
         const parasail_matrix_t* matrix);
 
+    parasail_result_t* parasail_sg_rowcol_diag_sat(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
     parasail_result_t* parasail_sg_stats_scan_64(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
@@ -950,6 +1139,12 @@ cdef extern from "parasail.h":
         const parasail_matrix_t* matrix);
 
     parasail_result_t* parasail_sg_stats_scan_8(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sg_stats_scan_sat(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
         const int open, const int gap,
@@ -979,6 +1174,12 @@ cdef extern from "parasail.h":
         const int open, const int gap,
         const parasail_matrix_t* matrix);
 
+    parasail_result_t* parasail_sg_stats_striped_sat(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
     parasail_result_t* parasail_sg_stats_diag_64(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
@@ -998,6 +1199,12 @@ cdef extern from "parasail.h":
         const parasail_matrix_t* matrix);
 
     parasail_result_t* parasail_sg_stats_diag_8(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sg_stats_diag_sat(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
         const int open, const int gap,
@@ -1027,6 +1234,12 @@ cdef extern from "parasail.h":
         const int open, const int gap,
         const parasail_matrix_t* matrix);
 
+    parasail_result_t* parasail_sg_stats_table_scan_sat(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
     parasail_result_t* parasail_sg_stats_table_striped_64(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
@@ -1046,6 +1259,12 @@ cdef extern from "parasail.h":
         const parasail_matrix_t* matrix);
 
     parasail_result_t* parasail_sg_stats_table_striped_8(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sg_stats_table_striped_sat(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
         const int open, const int gap,
@@ -1075,6 +1294,12 @@ cdef extern from "parasail.h":
         const int open, const int gap,
         const parasail_matrix_t* matrix);
 
+    parasail_result_t* parasail_sg_stats_table_diag_sat(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
     parasail_result_t* parasail_sg_stats_rowcol_scan_64(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
@@ -1094,6 +1319,12 @@ cdef extern from "parasail.h":
         const parasail_matrix_t* matrix);
 
     parasail_result_t* parasail_sg_stats_rowcol_scan_8(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sg_stats_rowcol_scan_sat(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
         const int open, const int gap,
@@ -1123,6 +1354,12 @@ cdef extern from "parasail.h":
         const int open, const int gap,
         const parasail_matrix_t* matrix);
 
+    parasail_result_t* parasail_sg_stats_rowcol_striped_sat(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
     parasail_result_t* parasail_sg_stats_rowcol_diag_64(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
@@ -1142,6 +1379,12 @@ cdef extern from "parasail.h":
         const parasail_matrix_t* matrix);
 
     parasail_result_t* parasail_sg_stats_rowcol_diag_8(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sg_stats_rowcol_diag_sat(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
         const int open, const int gap,
@@ -1171,6 +1414,12 @@ cdef extern from "parasail.h":
         const int open, const int gap,
         const parasail_matrix_t* matrix);
 
+    parasail_result_t* parasail_sw_scan_sat(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
     parasail_result_t* parasail_sw_striped_64(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
@@ -1190,6 +1439,12 @@ cdef extern from "parasail.h":
         const parasail_matrix_t* matrix);
 
     parasail_result_t* parasail_sw_striped_8(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sw_striped_sat(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
         const int open, const int gap,
@@ -1219,6 +1474,12 @@ cdef extern from "parasail.h":
         const int open, const int gap,
         const parasail_matrix_t* matrix);
 
+    parasail_result_t* parasail_sw_diag_sat(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
     parasail_result_t* parasail_sw_table_scan_64(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
@@ -1238,6 +1499,12 @@ cdef extern from "parasail.h":
         const parasail_matrix_t* matrix);
 
     parasail_result_t* parasail_sw_table_scan_8(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sw_table_scan_sat(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
         const int open, const int gap,
@@ -1267,6 +1534,12 @@ cdef extern from "parasail.h":
         const int open, const int gap,
         const parasail_matrix_t* matrix);
 
+    parasail_result_t* parasail_sw_table_striped_sat(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
     parasail_result_t* parasail_sw_table_diag_64(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
@@ -1286,6 +1559,12 @@ cdef extern from "parasail.h":
         const parasail_matrix_t* matrix);
 
     parasail_result_t* parasail_sw_table_diag_8(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sw_table_diag_sat(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
         const int open, const int gap,
@@ -1315,6 +1594,12 @@ cdef extern from "parasail.h":
         const int open, const int gap,
         const parasail_matrix_t* matrix);
 
+    parasail_result_t* parasail_sw_rowcol_scan_sat(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
     parasail_result_t* parasail_sw_rowcol_striped_64(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
@@ -1334,6 +1619,12 @@ cdef extern from "parasail.h":
         const parasail_matrix_t* matrix);
 
     parasail_result_t* parasail_sw_rowcol_striped_8(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sw_rowcol_striped_sat(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
         const int open, const int gap,
@@ -1363,6 +1654,12 @@ cdef extern from "parasail.h":
         const int open, const int gap,
         const parasail_matrix_t* matrix);
 
+    parasail_result_t* parasail_sw_rowcol_diag_sat(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
     parasail_result_t* parasail_sw_stats_scan_64(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
@@ -1382,6 +1679,12 @@ cdef extern from "parasail.h":
         const parasail_matrix_t* matrix);
 
     parasail_result_t* parasail_sw_stats_scan_8(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sw_stats_scan_sat(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
         const int open, const int gap,
@@ -1411,6 +1714,12 @@ cdef extern from "parasail.h":
         const int open, const int gap,
         const parasail_matrix_t* matrix);
 
+    parasail_result_t* parasail_sw_stats_striped_sat(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
     parasail_result_t* parasail_sw_stats_diag_64(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
@@ -1430,6 +1739,12 @@ cdef extern from "parasail.h":
         const parasail_matrix_t* matrix);
 
     parasail_result_t* parasail_sw_stats_diag_8(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sw_stats_diag_sat(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
         const int open, const int gap,
@@ -1459,6 +1774,12 @@ cdef extern from "parasail.h":
         const int open, const int gap,
         const parasail_matrix_t* matrix);
 
+    parasail_result_t* parasail_sw_stats_table_scan_sat(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
     parasail_result_t* parasail_sw_stats_table_striped_64(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
@@ -1478,6 +1799,12 @@ cdef extern from "parasail.h":
         const parasail_matrix_t* matrix);
 
     parasail_result_t* parasail_sw_stats_table_striped_8(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sw_stats_table_striped_sat(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
         const int open, const int gap,
@@ -1507,6 +1834,12 @@ cdef extern from "parasail.h":
         const int open, const int gap,
         const parasail_matrix_t* matrix);
 
+    parasail_result_t* parasail_sw_stats_table_diag_sat(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
     parasail_result_t* parasail_sw_stats_rowcol_scan_64(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
@@ -1526,6 +1859,12 @@ cdef extern from "parasail.h":
         const parasail_matrix_t* matrix);
 
     parasail_result_t* parasail_sw_stats_rowcol_scan_8(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sw_stats_rowcol_scan_sat(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
         const int open, const int gap,
@@ -1555,6 +1894,12 @@ cdef extern from "parasail.h":
         const int open, const int gap,
         const parasail_matrix_t* matrix);
 
+    parasail_result_t* parasail_sw_stats_rowcol_striped_sat(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
     parasail_result_t* parasail_sw_stats_rowcol_diag_64(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
@@ -1574,6 +1919,12 @@ cdef extern from "parasail.h":
         const parasail_matrix_t* matrix);
 
     parasail_result_t* parasail_sw_stats_rowcol_diag_8(
+        const_char * s1, const int s1Len,
+        const_char * s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+    parasail_result_t* parasail_sw_stats_rowcol_diag_sat(
         const_char * s1, const int s1Len,
         const_char * s2, const int s2Len,
         const int open, const int gap,
@@ -1599,6 +1950,11 @@ cdef extern from "parasail.h":
         const_char * s2, const int s2Len,
         const int open, const int gap);
 
+    parasail_result_t* parasail_nw_scan_profile_sat(
+        const parasail_profile_t* profile,
+        const_char * s2, const int s2Len,
+        const int open, const int gap);
+
     parasail_result_t* parasail_nw_striped_profile_64(
         const parasail_profile_t* profile,
         const_char * s2, const int s2Len,
@@ -1615,6 +1971,11 @@ cdef extern from "parasail.h":
         const int open, const int gap);
 
     parasail_result_t* parasail_nw_striped_profile_8(
+        const parasail_profile_t* profile,
+        const_char * s2, const int s2Len,
+        const int open, const int gap);
+
+    parasail_result_t* parasail_nw_striped_profile_sat(
         const parasail_profile_t* profile,
         const_char * s2, const int s2Len,
         const int open, const int gap);
@@ -1639,6 +2000,11 @@ cdef extern from "parasail.h":
         const_char * s2, const int s2Len,
         const int open, const int gap);
 
+    parasail_result_t* parasail_nw_table_scan_profile_sat(
+        const parasail_profile_t* profile,
+        const_char * s2, const int s2Len,
+        const int open, const int gap);
+
     parasail_result_t* parasail_nw_table_striped_profile_64(
         const parasail_profile_t* profile,
         const_char * s2, const int s2Len,
@@ -1655,6 +2021,11 @@ cdef extern from "parasail.h":
         const int open, const int gap);
 
     parasail_result_t* parasail_nw_table_striped_profile_8(
+        const parasail_profile_t* profile,
+        const_char * s2, const int s2Len,
+        const int open, const int gap);
+
+    parasail_result_t* parasail_nw_table_striped_profile_sat(
         const parasail_profile_t* profile,
         const_char * s2, const int s2Len,
         const int open, const int gap);
@@ -1679,6 +2050,11 @@ cdef extern from "parasail.h":
         const_char * s2, const int s2Len,
         const int open, const int gap);
 
+    parasail_result_t* parasail_nw_rowcol_scan_profile_sat(
+        const parasail_profile_t* profile,
+        const_char * s2, const int s2Len,
+        const int open, const int gap);
+
     parasail_result_t* parasail_nw_rowcol_striped_profile_64(
         const parasail_profile_t* profile,
         const_char * s2, const int s2Len,
@@ -1695,6 +2071,11 @@ cdef extern from "parasail.h":
         const int open, const int gap);
 
     parasail_result_t* parasail_nw_rowcol_striped_profile_8(
+        const parasail_profile_t* profile,
+        const_char * s2, const int s2Len,
+        const int open, const int gap);
+
+    parasail_result_t* parasail_nw_rowcol_striped_profile_sat(
         const parasail_profile_t* profile,
         const_char * s2, const int s2Len,
         const int open, const int gap);
@@ -1719,6 +2100,11 @@ cdef extern from "parasail.h":
         const_char * s2, const int s2Len,
         const int open, const int gap);
 
+    parasail_result_t* parasail_nw_stats_scan_profile_sat(
+        const parasail_profile_t* profile,
+        const_char * s2, const int s2Len,
+        const int open, const int gap);
+
     parasail_result_t* parasail_nw_stats_striped_profile_64(
         const parasail_profile_t* profile,
         const_char * s2, const int s2Len,
@@ -1735,6 +2121,11 @@ cdef extern from "parasail.h":
         const int open, const int gap);
 
     parasail_result_t* parasail_nw_stats_striped_profile_8(
+        const parasail_profile_t* profile,
+        const_char * s2, const int s2Len,
+        const int open, const int gap);
+
+    parasail_result_t* parasail_nw_stats_striped_profile_sat(
         const parasail_profile_t* profile,
         const_char * s2, const int s2Len,
         const int open, const int gap);
@@ -1759,6 +2150,11 @@ cdef extern from "parasail.h":
         const_char * s2, const int s2Len,
         const int open, const int gap);
 
+    parasail_result_t* parasail_nw_stats_table_scan_profile_sat(
+        const parasail_profile_t* profile,
+        const_char * s2, const int s2Len,
+        const int open, const int gap);
+
     parasail_result_t* parasail_nw_stats_table_striped_profile_64(
         const parasail_profile_t* profile,
         const_char * s2, const int s2Len,
@@ -1775,6 +2171,11 @@ cdef extern from "parasail.h":
         const int open, const int gap);
 
     parasail_result_t* parasail_nw_stats_table_striped_profile_8(
+        const parasail_profile_t* profile,
+        const_char * s2, const int s2Len,
+        const int open, const int gap);
+
+    parasail_result_t* parasail_nw_stats_table_striped_profile_sat(
         const parasail_profile_t* profile,
         const_char * s2, const int s2Len,
         const int open, const int gap);
@@ -1799,6 +2200,11 @@ cdef extern from "parasail.h":
         const_char * s2, const int s2Len,
         const int open, const int gap);
 
+    parasail_result_t* parasail_nw_stats_rowcol_scan_profile_sat(
+        const parasail_profile_t* profile,
+        const_char * s2, const int s2Len,
+        const int open, const int gap);
+
     parasail_result_t* parasail_nw_stats_rowcol_striped_profile_64(
         const parasail_profile_t* profile,
         const_char * s2, const int s2Len,
@@ -1815,6 +2221,11 @@ cdef extern from "parasail.h":
         const int open, const int gap);
 
     parasail_result_t* parasail_nw_stats_rowcol_striped_profile_8(
+        const parasail_profile_t* profile,
+        const_char * s2, const int s2Len,
+        const int open, const int gap);
+
+    parasail_result_t* parasail_nw_stats_rowcol_striped_profile_sat(
         const parasail_profile_t* profile,
         const_char * s2, const int s2Len,
         const int open, const int gap);
@@ -1839,6 +2250,11 @@ cdef extern from "parasail.h":
         const_char * s2, const int s2Len,
         const int open, const int gap);
 
+    parasail_result_t* parasail_sg_scan_profile_sat(
+        const parasail_profile_t* profile,
+        const_char * s2, const int s2Len,
+        const int open, const int gap);
+
     parasail_result_t* parasail_sg_striped_profile_64(
         const parasail_profile_t* profile,
         const_char * s2, const int s2Len,
@@ -1855,6 +2271,11 @@ cdef extern from "parasail.h":
         const int open, const int gap);
 
     parasail_result_t* parasail_sg_striped_profile_8(
+        const parasail_profile_t* profile,
+        const_char * s2, const int s2Len,
+        const int open, const int gap);
+
+    parasail_result_t* parasail_sg_striped_profile_sat(
         const parasail_profile_t* profile,
         const_char * s2, const int s2Len,
         const int open, const int gap);
@@ -1879,6 +2300,11 @@ cdef extern from "parasail.h":
         const_char * s2, const int s2Len,
         const int open, const int gap);
 
+    parasail_result_t* parasail_sg_table_scan_profile_sat(
+        const parasail_profile_t* profile,
+        const_char * s2, const int s2Len,
+        const int open, const int gap);
+
     parasail_result_t* parasail_sg_table_striped_profile_64(
         const parasail_profile_t* profile,
         const_char * s2, const int s2Len,
@@ -1895,6 +2321,11 @@ cdef extern from "parasail.h":
         const int open, const int gap);
 
     parasail_result_t* parasail_sg_table_striped_profile_8(
+        const parasail_profile_t* profile,
+        const_char * s2, const int s2Len,
+        const int open, const int gap);
+
+    parasail_result_t* parasail_sg_table_striped_profile_sat(
         const parasail_profile_t* profile,
         const_char * s2, const int s2Len,
         const int open, const int gap);
@@ -1919,6 +2350,11 @@ cdef extern from "parasail.h":
         const_char * s2, const int s2Len,
         const int open, const int gap);
 
+    parasail_result_t* parasail_sg_rowcol_scan_profile_sat(
+        const parasail_profile_t* profile,
+        const_char * s2, const int s2Len,
+        const int open, const int gap);
+
     parasail_result_t* parasail_sg_rowcol_striped_profile_64(
         const parasail_profile_t* profile,
         const_char * s2, const int s2Len,
@@ -1935,6 +2371,11 @@ cdef extern from "parasail.h":
         const int open, const int gap);
 
     parasail_result_t* parasail_sg_rowcol_striped_profile_8(
+        const parasail_profile_t* profile,
+        const_char * s2, const int s2Len,
+        const int open, const int gap);
+
+    parasail_result_t* parasail_sg_rowcol_striped_profile_sat(
         const parasail_profile_t* profile,
         const_char * s2, const int s2Len,
         const int open, const int gap);
@@ -1959,6 +2400,11 @@ cdef extern from "parasail.h":
         const_char * s2, const int s2Len,
         const int open, const int gap);
 
+    parasail_result_t* parasail_sg_stats_scan_profile_sat(
+        const parasail_profile_t* profile,
+        const_char * s2, const int s2Len,
+        const int open, const int gap);
+
     parasail_result_t* parasail_sg_stats_striped_profile_64(
         const parasail_profile_t* profile,
         const_char * s2, const int s2Len,
@@ -1975,6 +2421,11 @@ cdef extern from "parasail.h":
         const int open, const int gap);
 
     parasail_result_t* parasail_sg_stats_striped_profile_8(
+        const parasail_profile_t* profile,
+        const_char * s2, const int s2Len,
+        const int open, const int gap);
+
+    parasail_result_t* parasail_sg_stats_striped_profile_sat(
         const parasail_profile_t* profile,
         const_char * s2, const int s2Len,
         const int open, const int gap);
@@ -1999,6 +2450,11 @@ cdef extern from "parasail.h":
         const_char * s2, const int s2Len,
         const int open, const int gap);
 
+    parasail_result_t* parasail_sg_stats_table_scan_profile_sat(
+        const parasail_profile_t* profile,
+        const_char * s2, const int s2Len,
+        const int open, const int gap);
+
     parasail_result_t* parasail_sg_stats_table_striped_profile_64(
         const parasail_profile_t* profile,
         const_char * s2, const int s2Len,
@@ -2015,6 +2471,11 @@ cdef extern from "parasail.h":
         const int open, const int gap);
 
     parasail_result_t* parasail_sg_stats_table_striped_profile_8(
+        const parasail_profile_t* profile,
+        const_char * s2, const int s2Len,
+        const int open, const int gap);
+
+    parasail_result_t* parasail_sg_stats_table_striped_profile_sat(
         const parasail_profile_t* profile,
         const_char * s2, const int s2Len,
         const int open, const int gap);
@@ -2039,6 +2500,11 @@ cdef extern from "parasail.h":
         const_char * s2, const int s2Len,
         const int open, const int gap);
 
+    parasail_result_t* parasail_sg_stats_rowcol_scan_profile_sat(
+        const parasail_profile_t* profile,
+        const_char * s2, const int s2Len,
+        const int open, const int gap);
+
     parasail_result_t* parasail_sg_stats_rowcol_striped_profile_64(
         const parasail_profile_t* profile,
         const_char * s2, const int s2Len,
@@ -2055,6 +2521,11 @@ cdef extern from "parasail.h":
         const int open, const int gap);
 
     parasail_result_t* parasail_sg_stats_rowcol_striped_profile_8(
+        const parasail_profile_t* profile,
+        const_char * s2, const int s2Len,
+        const int open, const int gap);
+
+    parasail_result_t* parasail_sg_stats_rowcol_striped_profile_sat(
         const parasail_profile_t* profile,
         const_char * s2, const int s2Len,
         const int open, const int gap);
@@ -2079,6 +2550,11 @@ cdef extern from "parasail.h":
         const_char * s2, const int s2Len,
         const int open, const int gap);
 
+    parasail_result_t* parasail_sw_scan_profile_sat(
+        const parasail_profile_t* profile,
+        const_char * s2, const int s2Len,
+        const int open, const int gap);
+
     parasail_result_t* parasail_sw_striped_profile_64(
         const parasail_profile_t* profile,
         const_char * s2, const int s2Len,
@@ -2095,6 +2571,11 @@ cdef extern from "parasail.h":
         const int open, const int gap);
 
     parasail_result_t* parasail_sw_striped_profile_8(
+        const parasail_profile_t* profile,
+        const_char * s2, const int s2Len,
+        const int open, const int gap);
+
+    parasail_result_t* parasail_sw_striped_profile_sat(
         const parasail_profile_t* profile,
         const_char * s2, const int s2Len,
         const int open, const int gap);
@@ -2119,6 +2600,11 @@ cdef extern from "parasail.h":
         const_char * s2, const int s2Len,
         const int open, const int gap);
 
+    parasail_result_t* parasail_sw_table_scan_profile_sat(
+        const parasail_profile_t* profile,
+        const_char * s2, const int s2Len,
+        const int open, const int gap);
+
     parasail_result_t* parasail_sw_table_striped_profile_64(
         const parasail_profile_t* profile,
         const_char * s2, const int s2Len,
@@ -2135,6 +2621,11 @@ cdef extern from "parasail.h":
         const int open, const int gap);
 
     parasail_result_t* parasail_sw_table_striped_profile_8(
+        const parasail_profile_t* profile,
+        const_char * s2, const int s2Len,
+        const int open, const int gap);
+
+    parasail_result_t* parasail_sw_table_striped_profile_sat(
         const parasail_profile_t* profile,
         const_char * s2, const int s2Len,
         const int open, const int gap);
@@ -2159,6 +2650,11 @@ cdef extern from "parasail.h":
         const_char * s2, const int s2Len,
         const int open, const int gap);
 
+    parasail_result_t* parasail_sw_rowcol_scan_profile_sat(
+        const parasail_profile_t* profile,
+        const_char * s2, const int s2Len,
+        const int open, const int gap);
+
     parasail_result_t* parasail_sw_rowcol_striped_profile_64(
         const parasail_profile_t* profile,
         const_char * s2, const int s2Len,
@@ -2175,6 +2671,11 @@ cdef extern from "parasail.h":
         const int open, const int gap);
 
     parasail_result_t* parasail_sw_rowcol_striped_profile_8(
+        const parasail_profile_t* profile,
+        const_char * s2, const int s2Len,
+        const int open, const int gap);
+
+    parasail_result_t* parasail_sw_rowcol_striped_profile_sat(
         const parasail_profile_t* profile,
         const_char * s2, const int s2Len,
         const int open, const int gap);
@@ -2199,6 +2700,11 @@ cdef extern from "parasail.h":
         const_char * s2, const int s2Len,
         const int open, const int gap);
 
+    parasail_result_t* parasail_sw_stats_scan_profile_sat(
+        const parasail_profile_t* profile,
+        const_char * s2, const int s2Len,
+        const int open, const int gap);
+
     parasail_result_t* parasail_sw_stats_striped_profile_64(
         const parasail_profile_t* profile,
         const_char * s2, const int s2Len,
@@ -2215,6 +2721,11 @@ cdef extern from "parasail.h":
         const int open, const int gap);
 
     parasail_result_t* parasail_sw_stats_striped_profile_8(
+        const parasail_profile_t* profile,
+        const_char * s2, const int s2Len,
+        const int open, const int gap);
+
+    parasail_result_t* parasail_sw_stats_striped_profile_sat(
         const parasail_profile_t* profile,
         const_char * s2, const int s2Len,
         const int open, const int gap);
@@ -2239,6 +2750,11 @@ cdef extern from "parasail.h":
         const_char * s2, const int s2Len,
         const int open, const int gap);
 
+    parasail_result_t* parasail_sw_stats_table_scan_profile_sat(
+        const parasail_profile_t* profile,
+        const_char * s2, const int s2Len,
+        const int open, const int gap);
+
     parasail_result_t* parasail_sw_stats_table_striped_profile_64(
         const parasail_profile_t* profile,
         const_char * s2, const int s2Len,
@@ -2255,6 +2771,11 @@ cdef extern from "parasail.h":
         const int open, const int gap);
 
     parasail_result_t* parasail_sw_stats_table_striped_profile_8(
+        const parasail_profile_t* profile,
+        const_char * s2, const int s2Len,
+        const int open, const int gap);
+
+    parasail_result_t* parasail_sw_stats_table_striped_profile_sat(
         const parasail_profile_t* profile,
         const_char * s2, const int s2Len,
         const int open, const int gap);
@@ -2279,6 +2800,11 @@ cdef extern from "parasail.h":
         const_char * s2, const int s2Len,
         const int open, const int gap);
 
+    parasail_result_t* parasail_sw_stats_rowcol_scan_profile_sat(
+        const parasail_profile_t* profile,
+        const_char * s2, const int s2Len,
+        const int open, const int gap);
+
     parasail_result_t* parasail_sw_stats_rowcol_striped_profile_64(
         const parasail_profile_t* profile,
         const_char * s2, const int s2Len,
@@ -2295,6 +2821,11 @@ cdef extern from "parasail.h":
         const int open, const int gap);
 
     parasail_result_t* parasail_sw_stats_rowcol_striped_profile_8(
+        const parasail_profile_t* profile,
+        const_char * s2, const int s2Len,
+        const int open, const int gap);
+
+    parasail_result_t* parasail_sw_stats_rowcol_striped_profile_sat(
         const parasail_profile_t* profile,
         const_char * s2, const int s2Len,
         const int open, const int gap);
@@ -2655,14 +3186,14 @@ pam90 = Matrix.create(&parasail_pam90)
 cdef class Profile:
     cdef parasail_profile_t *_c_object
     cdef Matrix matrix
-    def __init__(self, const_char * s1, Matrix matrix not None, int bits):
-        if bits not in [8,16,32,64]:
-            raise ValueError("bits must be one of [8,16,32,64]")
+    def __init__(self, const_char * s1, Matrix matrix not None, bits):
+        if bits not in [8,16,32,64,"sat"]:
+            raise ValueError('bits must be one of [8,16,32,64,"sat"]')
         self.create(s1, matrix, bits)
     def __dealloc__(self):
         if self._c_object is not NULL:
             parasail_profile_free(self._c_object)
-    cdef create(self, const_char * s1, Matrix matrix, int bits):
+    cdef create(self, const_char * s1, Matrix matrix, bits):
         cdef size_t t1 = len(s1)
         cdef int l1 = <int>t1
         if 8 == bits:
@@ -2673,6 +3204,8 @@ cdef class Profile:
             self._c_object = parasail_profile_create_32(s1, l1, matrix._c_object)
         elif 64 == bits:
             self._c_object = parasail_profile_create_64(s1, l1, matrix._c_object)
+        elif "sat" == bits:
+            self._c_object = parasail_profile_create_sat(s1, l1, matrix._c_object)
         self.matrix = matrix
     property s1:
         def __get__(self): return self._c_object.s1
@@ -3201,6 +3734,19 @@ def nw_scan_8(
     assert l2 == t2
     return Result.create(parasail_nw_scan_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
+def nw_scan_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_nw_scan_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
 def nw_striped_64(
         const_char * s1,
         const_char * s2,
@@ -3252,6 +3798,19 @@ def nw_striped_8(
     assert l1 == t1
     assert l2 == t2
     return Result.create(parasail_nw_striped_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
+def nw_striped_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_nw_striped_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
 def nw_diag_64(
         const_char * s1,
@@ -3305,6 +3864,19 @@ def nw_diag_8(
     assert l2 == t2
     return Result.create(parasail_nw_diag_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
+def nw_diag_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_nw_diag_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
 def nw_table_scan_64(
         const_char * s1,
         const_char * s2,
@@ -3356,6 +3928,19 @@ def nw_table_scan_8(
     assert l1 == t1
     assert l2 == t2
     return Result.create(parasail_nw_table_scan_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
+def nw_table_scan_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_nw_table_scan_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
 def nw_table_striped_64(
         const_char * s1,
@@ -3409,6 +3994,19 @@ def nw_table_striped_8(
     assert l2 == t2
     return Result.create(parasail_nw_table_striped_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
+def nw_table_striped_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_nw_table_striped_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
 def nw_table_diag_64(
         const_char * s1,
         const_char * s2,
@@ -3460,6 +4058,19 @@ def nw_table_diag_8(
     assert l1 == t1
     assert l2 == t2
     return Result.create(parasail_nw_table_diag_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
+def nw_table_diag_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_nw_table_diag_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
 def nw_rowcol_scan_64(
         const_char * s1,
@@ -3513,6 +4124,19 @@ def nw_rowcol_scan_8(
     assert l2 == t2
     return Result.create(parasail_nw_rowcol_scan_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
+def nw_rowcol_scan_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_nw_rowcol_scan_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
 def nw_rowcol_striped_64(
         const_char * s1,
         const_char * s2,
@@ -3564,6 +4188,19 @@ def nw_rowcol_striped_8(
     assert l1 == t1
     assert l2 == t2
     return Result.create(parasail_nw_rowcol_striped_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
+def nw_rowcol_striped_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_nw_rowcol_striped_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
 def nw_rowcol_diag_64(
         const_char * s1,
@@ -3617,6 +4254,19 @@ def nw_rowcol_diag_8(
     assert l2 == t2
     return Result.create(parasail_nw_rowcol_diag_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
+def nw_rowcol_diag_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_nw_rowcol_diag_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
 def nw_stats_scan_64(
         const_char * s1,
         const_char * s2,
@@ -3668,6 +4318,19 @@ def nw_stats_scan_8(
     assert l1 == t1
     assert l2 == t2
     return Result.create(parasail_nw_stats_scan_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
+def nw_stats_scan_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_nw_stats_scan_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
 def nw_stats_striped_64(
         const_char * s1,
@@ -3721,6 +4384,19 @@ def nw_stats_striped_8(
     assert l2 == t2
     return Result.create(parasail_nw_stats_striped_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
+def nw_stats_striped_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_nw_stats_striped_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
 def nw_stats_diag_64(
         const_char * s1,
         const_char * s2,
@@ -3772,6 +4448,19 @@ def nw_stats_diag_8(
     assert l1 == t1
     assert l2 == t2
     return Result.create(parasail_nw_stats_diag_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
+def nw_stats_diag_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_nw_stats_diag_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
 def nw_stats_table_scan_64(
         const_char * s1,
@@ -3825,6 +4514,19 @@ def nw_stats_table_scan_8(
     assert l2 == t2
     return Result.create(parasail_nw_stats_table_scan_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
+def nw_stats_table_scan_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_nw_stats_table_scan_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
 def nw_stats_table_striped_64(
         const_char * s1,
         const_char * s2,
@@ -3876,6 +4578,19 @@ def nw_stats_table_striped_8(
     assert l1 == t1
     assert l2 == t2
     return Result.create(parasail_nw_stats_table_striped_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
+def nw_stats_table_striped_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_nw_stats_table_striped_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
 def nw_stats_table_diag_64(
         const_char * s1,
@@ -3929,6 +4644,19 @@ def nw_stats_table_diag_8(
     assert l2 == t2
     return Result.create(parasail_nw_stats_table_diag_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
+def nw_stats_table_diag_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_nw_stats_table_diag_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
 def nw_stats_rowcol_scan_64(
         const_char * s1,
         const_char * s2,
@@ -3980,6 +4708,19 @@ def nw_stats_rowcol_scan_8(
     assert l1 == t1
     assert l2 == t2
     return Result.create(parasail_nw_stats_rowcol_scan_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
+def nw_stats_rowcol_scan_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_nw_stats_rowcol_scan_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
 def nw_stats_rowcol_striped_64(
         const_char * s1,
@@ -4033,6 +4774,19 @@ def nw_stats_rowcol_striped_8(
     assert l2 == t2
     return Result.create(parasail_nw_stats_rowcol_striped_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
+def nw_stats_rowcol_striped_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_nw_stats_rowcol_striped_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
 def nw_stats_rowcol_diag_64(
         const_char * s1,
         const_char * s2,
@@ -4084,6 +4838,19 @@ def nw_stats_rowcol_diag_8(
     assert l1 == t1
     assert l2 == t2
     return Result.create(parasail_nw_stats_rowcol_diag_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
+def nw_stats_rowcol_diag_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_nw_stats_rowcol_diag_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
 def sg_scan_64(
         const_char * s1,
@@ -4137,6 +4904,19 @@ def sg_scan_8(
     assert l2 == t2
     return Result.create(parasail_sg_scan_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
+def sg_scan_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sg_scan_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
 def sg_striped_64(
         const_char * s1,
         const_char * s2,
@@ -4188,6 +4968,19 @@ def sg_striped_8(
     assert l1 == t1
     assert l2 == t2
     return Result.create(parasail_sg_striped_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
+def sg_striped_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sg_striped_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
 def sg_diag_64(
         const_char * s1,
@@ -4241,6 +5034,19 @@ def sg_diag_8(
     assert l2 == t2
     return Result.create(parasail_sg_diag_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
+def sg_diag_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sg_diag_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
 def sg_table_scan_64(
         const_char * s1,
         const_char * s2,
@@ -4292,6 +5098,19 @@ def sg_table_scan_8(
     assert l1 == t1
     assert l2 == t2
     return Result.create(parasail_sg_table_scan_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
+def sg_table_scan_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sg_table_scan_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
 def sg_table_striped_64(
         const_char * s1,
@@ -4345,6 +5164,19 @@ def sg_table_striped_8(
     assert l2 == t2
     return Result.create(parasail_sg_table_striped_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
+def sg_table_striped_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sg_table_striped_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
 def sg_table_diag_64(
         const_char * s1,
         const_char * s2,
@@ -4396,6 +5228,19 @@ def sg_table_diag_8(
     assert l1 == t1
     assert l2 == t2
     return Result.create(parasail_sg_table_diag_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
+def sg_table_diag_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sg_table_diag_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
 def sg_rowcol_scan_64(
         const_char * s1,
@@ -4449,6 +5294,19 @@ def sg_rowcol_scan_8(
     assert l2 == t2
     return Result.create(parasail_sg_rowcol_scan_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
+def sg_rowcol_scan_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sg_rowcol_scan_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
 def sg_rowcol_striped_64(
         const_char * s1,
         const_char * s2,
@@ -4500,6 +5358,19 @@ def sg_rowcol_striped_8(
     assert l1 == t1
     assert l2 == t2
     return Result.create(parasail_sg_rowcol_striped_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
+def sg_rowcol_striped_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sg_rowcol_striped_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
 def sg_rowcol_diag_64(
         const_char * s1,
@@ -4553,6 +5424,19 @@ def sg_rowcol_diag_8(
     assert l2 == t2
     return Result.create(parasail_sg_rowcol_diag_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
+def sg_rowcol_diag_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sg_rowcol_diag_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
 def sg_stats_scan_64(
         const_char * s1,
         const_char * s2,
@@ -4604,6 +5488,19 @@ def sg_stats_scan_8(
     assert l1 == t1
     assert l2 == t2
     return Result.create(parasail_sg_stats_scan_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
+def sg_stats_scan_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sg_stats_scan_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
 def sg_stats_striped_64(
         const_char * s1,
@@ -4657,6 +5554,19 @@ def sg_stats_striped_8(
     assert l2 == t2
     return Result.create(parasail_sg_stats_striped_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
+def sg_stats_striped_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sg_stats_striped_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
 def sg_stats_diag_64(
         const_char * s1,
         const_char * s2,
@@ -4708,6 +5618,19 @@ def sg_stats_diag_8(
     assert l1 == t1
     assert l2 == t2
     return Result.create(parasail_sg_stats_diag_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
+def sg_stats_diag_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sg_stats_diag_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
 def sg_stats_table_scan_64(
         const_char * s1,
@@ -4761,6 +5684,19 @@ def sg_stats_table_scan_8(
     assert l2 == t2
     return Result.create(parasail_sg_stats_table_scan_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
+def sg_stats_table_scan_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sg_stats_table_scan_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
 def sg_stats_table_striped_64(
         const_char * s1,
         const_char * s2,
@@ -4812,6 +5748,19 @@ def sg_stats_table_striped_8(
     assert l1 == t1
     assert l2 == t2
     return Result.create(parasail_sg_stats_table_striped_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
+def sg_stats_table_striped_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sg_stats_table_striped_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
 def sg_stats_table_diag_64(
         const_char * s1,
@@ -4865,6 +5814,19 @@ def sg_stats_table_diag_8(
     assert l2 == t2
     return Result.create(parasail_sg_stats_table_diag_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
+def sg_stats_table_diag_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sg_stats_table_diag_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
 def sg_stats_rowcol_scan_64(
         const_char * s1,
         const_char * s2,
@@ -4916,6 +5878,19 @@ def sg_stats_rowcol_scan_8(
     assert l1 == t1
     assert l2 == t2
     return Result.create(parasail_sg_stats_rowcol_scan_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
+def sg_stats_rowcol_scan_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sg_stats_rowcol_scan_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
 def sg_stats_rowcol_striped_64(
         const_char * s1,
@@ -4969,6 +5944,19 @@ def sg_stats_rowcol_striped_8(
     assert l2 == t2
     return Result.create(parasail_sg_stats_rowcol_striped_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
+def sg_stats_rowcol_striped_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sg_stats_rowcol_striped_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
 def sg_stats_rowcol_diag_64(
         const_char * s1,
         const_char * s2,
@@ -5020,6 +6008,19 @@ def sg_stats_rowcol_diag_8(
     assert l1 == t1
     assert l2 == t2
     return Result.create(parasail_sg_stats_rowcol_diag_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
+def sg_stats_rowcol_diag_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sg_stats_rowcol_diag_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
 def sw_scan_64(
         const_char * s1,
@@ -5073,6 +6074,19 @@ def sw_scan_8(
     assert l2 == t2
     return Result.create(parasail_sw_scan_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
+def sw_scan_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sw_scan_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
 def sw_striped_64(
         const_char * s1,
         const_char * s2,
@@ -5124,6 +6138,19 @@ def sw_striped_8(
     assert l1 == t1
     assert l2 == t2
     return Result.create(parasail_sw_striped_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
+def sw_striped_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sw_striped_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
 def sw_diag_64(
         const_char * s1,
@@ -5177,6 +6204,19 @@ def sw_diag_8(
     assert l2 == t2
     return Result.create(parasail_sw_diag_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
+def sw_diag_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sw_diag_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
 def sw_table_scan_64(
         const_char * s1,
         const_char * s2,
@@ -5228,6 +6268,19 @@ def sw_table_scan_8(
     assert l1 == t1
     assert l2 == t2
     return Result.create(parasail_sw_table_scan_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
+def sw_table_scan_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sw_table_scan_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
 def sw_table_striped_64(
         const_char * s1,
@@ -5281,6 +6334,19 @@ def sw_table_striped_8(
     assert l2 == t2
     return Result.create(parasail_sw_table_striped_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
+def sw_table_striped_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sw_table_striped_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
 def sw_table_diag_64(
         const_char * s1,
         const_char * s2,
@@ -5332,6 +6398,19 @@ def sw_table_diag_8(
     assert l1 == t1
     assert l2 == t2
     return Result.create(parasail_sw_table_diag_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
+def sw_table_diag_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sw_table_diag_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
 def sw_rowcol_scan_64(
         const_char * s1,
@@ -5385,6 +6464,19 @@ def sw_rowcol_scan_8(
     assert l2 == t2
     return Result.create(parasail_sw_rowcol_scan_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
+def sw_rowcol_scan_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sw_rowcol_scan_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
 def sw_rowcol_striped_64(
         const_char * s1,
         const_char * s2,
@@ -5436,6 +6528,19 @@ def sw_rowcol_striped_8(
     assert l1 == t1
     assert l2 == t2
     return Result.create(parasail_sw_rowcol_striped_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
+def sw_rowcol_striped_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sw_rowcol_striped_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
 def sw_rowcol_diag_64(
         const_char * s1,
@@ -5489,6 +6594,19 @@ def sw_rowcol_diag_8(
     assert l2 == t2
     return Result.create(parasail_sw_rowcol_diag_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
+def sw_rowcol_diag_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sw_rowcol_diag_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
 def sw_stats_scan_64(
         const_char * s1,
         const_char * s2,
@@ -5540,6 +6658,19 @@ def sw_stats_scan_8(
     assert l1 == t1
     assert l2 == t2
     return Result.create(parasail_sw_stats_scan_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
+def sw_stats_scan_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sw_stats_scan_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
 def sw_stats_striped_64(
         const_char * s1,
@@ -5593,6 +6724,19 @@ def sw_stats_striped_8(
     assert l2 == t2
     return Result.create(parasail_sw_stats_striped_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
+def sw_stats_striped_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sw_stats_striped_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
 def sw_stats_diag_64(
         const_char * s1,
         const_char * s2,
@@ -5644,6 +6788,19 @@ def sw_stats_diag_8(
     assert l1 == t1
     assert l2 == t2
     return Result.create(parasail_sw_stats_diag_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
+def sw_stats_diag_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sw_stats_diag_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
 def sw_stats_table_scan_64(
         const_char * s1,
@@ -5697,6 +6854,19 @@ def sw_stats_table_scan_8(
     assert l2 == t2
     return Result.create(parasail_sw_stats_table_scan_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
+def sw_stats_table_scan_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sw_stats_table_scan_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
 def sw_stats_table_striped_64(
         const_char * s1,
         const_char * s2,
@@ -5748,6 +6918,19 @@ def sw_stats_table_striped_8(
     assert l1 == t1
     assert l2 == t2
     return Result.create(parasail_sw_stats_table_striped_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
+def sw_stats_table_striped_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sw_stats_table_striped_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
 def sw_stats_table_diag_64(
         const_char * s1,
@@ -5801,6 +6984,19 @@ def sw_stats_table_diag_8(
     assert l2 == t2
     return Result.create(parasail_sw_stats_table_diag_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
+def sw_stats_table_diag_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sw_stats_table_diag_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
 def sw_stats_rowcol_scan_64(
         const_char * s1,
         const_char * s2,
@@ -5852,6 +7048,19 @@ def sw_stats_rowcol_scan_8(
     assert l1 == t1
     assert l2 == t2
     return Result.create(parasail_sw_stats_rowcol_scan_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
+def sw_stats_rowcol_scan_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sw_stats_rowcol_scan_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
 def sw_stats_rowcol_striped_64(
         const_char * s1,
@@ -5905,6 +7114,19 @@ def sw_stats_rowcol_striped_8(
     assert l2 == t2
     return Result.create(parasail_sw_stats_rowcol_striped_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
+def sw_stats_rowcol_striped_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sw_stats_rowcol_striped_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
 def sw_stats_rowcol_diag_64(
         const_char * s1,
         const_char * s2,
@@ -5957,6 +7179,19 @@ def sw_stats_rowcol_diag_8(
     assert l2 == t2
     return Result.create(parasail_sw_stats_rowcol_diag_8(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
 
+def sw_stats_rowcol_diag_sat(
+        const_char * s1,
+        const_char * s2,
+        const int open, const int gap,
+        Matrix matrix not None):
+    cdef size_t t1 = len(s1)
+    cdef size_t t2 = len(s2)
+    cdef int l1 = <int>t1
+    cdef int l2 = <int>t2
+    assert l1 == t1
+    assert l2 == t2
+    return Result.create(parasail_sw_stats_rowcol_diag_sat(s1,l1,s2,l2,open,gap,matrix._c_object), l1, l2)
+
 def nw_scan_profile_64(
         Profile profile not None,
         const_char * s2,
@@ -5996,6 +7231,16 @@ def nw_scan_profile_8(
     cdef int l2 = <int>t2
     assert l2 == t2
     return Result.create(parasail_nw_scan_profile_8(profile._c_object,s2,l2,open,gap), l1, l2)
+
+def nw_scan_profile_sat(
+        Profile profile not None,
+        const_char * s2,
+        const int open, const int gap):
+    cdef size_t t2 = len(s2)
+    cdef int l1 = profile._c_object.s1Len
+    cdef int l2 = <int>t2
+    assert l2 == t2
+    return Result.create(parasail_nw_scan_profile_sat(profile._c_object,s2,l2,open,gap), l1, l2)
 
 def nw_striped_profile_64(
         Profile profile not None,
@@ -6037,6 +7282,16 @@ def nw_striped_profile_8(
     assert l2 == t2
     return Result.create(parasail_nw_striped_profile_8(profile._c_object,s2,l2,open,gap), l1, l2)
 
+def nw_striped_profile_sat(
+        Profile profile not None,
+        const_char * s2,
+        const int open, const int gap):
+    cdef size_t t2 = len(s2)
+    cdef int l1 = profile._c_object.s1Len
+    cdef int l2 = <int>t2
+    assert l2 == t2
+    return Result.create(parasail_nw_striped_profile_sat(profile._c_object,s2,l2,open,gap), l1, l2)
+
 def nw_table_scan_profile_64(
         Profile profile not None,
         const_char * s2,
@@ -6076,6 +7331,16 @@ def nw_table_scan_profile_8(
     cdef int l2 = <int>t2
     assert l2 == t2
     return Result.create(parasail_nw_table_scan_profile_8(profile._c_object,s2,l2,open,gap), l1, l2)
+
+def nw_table_scan_profile_sat(
+        Profile profile not None,
+        const_char * s2,
+        const int open, const int gap):
+    cdef size_t t2 = len(s2)
+    cdef int l1 = profile._c_object.s1Len
+    cdef int l2 = <int>t2
+    assert l2 == t2
+    return Result.create(parasail_nw_table_scan_profile_sat(profile._c_object,s2,l2,open,gap), l1, l2)
 
 def nw_table_striped_profile_64(
         Profile profile not None,
@@ -6117,6 +7382,16 @@ def nw_table_striped_profile_8(
     assert l2 == t2
     return Result.create(parasail_nw_table_striped_profile_8(profile._c_object,s2,l2,open,gap), l1, l2)
 
+def nw_table_striped_profile_sat(
+        Profile profile not None,
+        const_char * s2,
+        const int open, const int gap):
+    cdef size_t t2 = len(s2)
+    cdef int l1 = profile._c_object.s1Len
+    cdef int l2 = <int>t2
+    assert l2 == t2
+    return Result.create(parasail_nw_table_striped_profile_sat(profile._c_object,s2,l2,open,gap), l1, l2)
+
 def nw_rowcol_scan_profile_64(
         Profile profile not None,
         const_char * s2,
@@ -6156,6 +7431,16 @@ def nw_rowcol_scan_profile_8(
     cdef int l2 = <int>t2
     assert l2 == t2
     return Result.create(parasail_nw_rowcol_scan_profile_8(profile._c_object,s2,l2,open,gap), l1, l2)
+
+def nw_rowcol_scan_profile_sat(
+        Profile profile not None,
+        const_char * s2,
+        const int open, const int gap):
+    cdef size_t t2 = len(s2)
+    cdef int l1 = profile._c_object.s1Len
+    cdef int l2 = <int>t2
+    assert l2 == t2
+    return Result.create(parasail_nw_rowcol_scan_profile_sat(profile._c_object,s2,l2,open,gap), l1, l2)
 
 def nw_rowcol_striped_profile_64(
         Profile profile not None,
@@ -6197,6 +7482,16 @@ def nw_rowcol_striped_profile_8(
     assert l2 == t2
     return Result.create(parasail_nw_rowcol_striped_profile_8(profile._c_object,s2,l2,open,gap), l1, l2)
 
+def nw_rowcol_striped_profile_sat(
+        Profile profile not None,
+        const_char * s2,
+        const int open, const int gap):
+    cdef size_t t2 = len(s2)
+    cdef int l1 = profile._c_object.s1Len
+    cdef int l2 = <int>t2
+    assert l2 == t2
+    return Result.create(parasail_nw_rowcol_striped_profile_sat(profile._c_object,s2,l2,open,gap), l1, l2)
+
 def nw_stats_scan_profile_64(
         Profile profile not None,
         const_char * s2,
@@ -6236,6 +7531,16 @@ def nw_stats_scan_profile_8(
     cdef int l2 = <int>t2
     assert l2 == t2
     return Result.create(parasail_nw_stats_scan_profile_8(profile._c_object,s2,l2,open,gap), l1, l2)
+
+def nw_stats_scan_profile_sat(
+        Profile profile not None,
+        const_char * s2,
+        const int open, const int gap):
+    cdef size_t t2 = len(s2)
+    cdef int l1 = profile._c_object.s1Len
+    cdef int l2 = <int>t2
+    assert l2 == t2
+    return Result.create(parasail_nw_stats_scan_profile_sat(profile._c_object,s2,l2,open,gap), l1, l2)
 
 def nw_stats_striped_profile_64(
         Profile profile not None,
@@ -6277,6 +7582,16 @@ def nw_stats_striped_profile_8(
     assert l2 == t2
     return Result.create(parasail_nw_stats_striped_profile_8(profile._c_object,s2,l2,open,gap), l1, l2)
 
+def nw_stats_striped_profile_sat(
+        Profile profile not None,
+        const_char * s2,
+        const int open, const int gap):
+    cdef size_t t2 = len(s2)
+    cdef int l1 = profile._c_object.s1Len
+    cdef int l2 = <int>t2
+    assert l2 == t2
+    return Result.create(parasail_nw_stats_striped_profile_sat(profile._c_object,s2,l2,open,gap), l1, l2)
+
 def nw_stats_table_scan_profile_64(
         Profile profile not None,
         const_char * s2,
@@ -6316,6 +7631,16 @@ def nw_stats_table_scan_profile_8(
     cdef int l2 = <int>t2
     assert l2 == t2
     return Result.create(parasail_nw_stats_table_scan_profile_8(profile._c_object,s2,l2,open,gap), l1, l2)
+
+def nw_stats_table_scan_profile_sat(
+        Profile profile not None,
+        const_char * s2,
+        const int open, const int gap):
+    cdef size_t t2 = len(s2)
+    cdef int l1 = profile._c_object.s1Len
+    cdef int l2 = <int>t2
+    assert l2 == t2
+    return Result.create(parasail_nw_stats_table_scan_profile_sat(profile._c_object,s2,l2,open,gap), l1, l2)
 
 def nw_stats_table_striped_profile_64(
         Profile profile not None,
@@ -6357,6 +7682,16 @@ def nw_stats_table_striped_profile_8(
     assert l2 == t2
     return Result.create(parasail_nw_stats_table_striped_profile_8(profile._c_object,s2,l2,open,gap), l1, l2)
 
+def nw_stats_table_striped_profile_sat(
+        Profile profile not None,
+        const_char * s2,
+        const int open, const int gap):
+    cdef size_t t2 = len(s2)
+    cdef int l1 = profile._c_object.s1Len
+    cdef int l2 = <int>t2
+    assert l2 == t2
+    return Result.create(parasail_nw_stats_table_striped_profile_sat(profile._c_object,s2,l2,open,gap), l1, l2)
+
 def nw_stats_rowcol_scan_profile_64(
         Profile profile not None,
         const_char * s2,
@@ -6396,6 +7731,16 @@ def nw_stats_rowcol_scan_profile_8(
     cdef int l2 = <int>t2
     assert l2 == t2
     return Result.create(parasail_nw_stats_rowcol_scan_profile_8(profile._c_object,s2,l2,open,gap), l1, l2)
+
+def nw_stats_rowcol_scan_profile_sat(
+        Profile profile not None,
+        const_char * s2,
+        const int open, const int gap):
+    cdef size_t t2 = len(s2)
+    cdef int l1 = profile._c_object.s1Len
+    cdef int l2 = <int>t2
+    assert l2 == t2
+    return Result.create(parasail_nw_stats_rowcol_scan_profile_sat(profile._c_object,s2,l2,open,gap), l1, l2)
 
 def nw_stats_rowcol_striped_profile_64(
         Profile profile not None,
@@ -6437,6 +7782,16 @@ def nw_stats_rowcol_striped_profile_8(
     assert l2 == t2
     return Result.create(parasail_nw_stats_rowcol_striped_profile_8(profile._c_object,s2,l2,open,gap), l1, l2)
 
+def nw_stats_rowcol_striped_profile_sat(
+        Profile profile not None,
+        const_char * s2,
+        const int open, const int gap):
+    cdef size_t t2 = len(s2)
+    cdef int l1 = profile._c_object.s1Len
+    cdef int l2 = <int>t2
+    assert l2 == t2
+    return Result.create(parasail_nw_stats_rowcol_striped_profile_sat(profile._c_object,s2,l2,open,gap), l1, l2)
+
 def sg_scan_profile_64(
         Profile profile not None,
         const_char * s2,
@@ -6476,6 +7831,16 @@ def sg_scan_profile_8(
     cdef int l2 = <int>t2
     assert l2 == t2
     return Result.create(parasail_sg_scan_profile_8(profile._c_object,s2,l2,open,gap), l1, l2)
+
+def sg_scan_profile_sat(
+        Profile profile not None,
+        const_char * s2,
+        const int open, const int gap):
+    cdef size_t t2 = len(s2)
+    cdef int l1 = profile._c_object.s1Len
+    cdef int l2 = <int>t2
+    assert l2 == t2
+    return Result.create(parasail_sg_scan_profile_sat(profile._c_object,s2,l2,open,gap), l1, l2)
 
 def sg_striped_profile_64(
         Profile profile not None,
@@ -6517,6 +7882,16 @@ def sg_striped_profile_8(
     assert l2 == t2
     return Result.create(parasail_sg_striped_profile_8(profile._c_object,s2,l2,open,gap), l1, l2)
 
+def sg_striped_profile_sat(
+        Profile profile not None,
+        const_char * s2,
+        const int open, const int gap):
+    cdef size_t t2 = len(s2)
+    cdef int l1 = profile._c_object.s1Len
+    cdef int l2 = <int>t2
+    assert l2 == t2
+    return Result.create(parasail_sg_striped_profile_sat(profile._c_object,s2,l2,open,gap), l1, l2)
+
 def sg_table_scan_profile_64(
         Profile profile not None,
         const_char * s2,
@@ -6556,6 +7931,16 @@ def sg_table_scan_profile_8(
     cdef int l2 = <int>t2
     assert l2 == t2
     return Result.create(parasail_sg_table_scan_profile_8(profile._c_object,s2,l2,open,gap), l1, l2)
+
+def sg_table_scan_profile_sat(
+        Profile profile not None,
+        const_char * s2,
+        const int open, const int gap):
+    cdef size_t t2 = len(s2)
+    cdef int l1 = profile._c_object.s1Len
+    cdef int l2 = <int>t2
+    assert l2 == t2
+    return Result.create(parasail_sg_table_scan_profile_sat(profile._c_object,s2,l2,open,gap), l1, l2)
 
 def sg_table_striped_profile_64(
         Profile profile not None,
@@ -6597,6 +7982,16 @@ def sg_table_striped_profile_8(
     assert l2 == t2
     return Result.create(parasail_sg_table_striped_profile_8(profile._c_object,s2,l2,open,gap), l1, l2)
 
+def sg_table_striped_profile_sat(
+        Profile profile not None,
+        const_char * s2,
+        const int open, const int gap):
+    cdef size_t t2 = len(s2)
+    cdef int l1 = profile._c_object.s1Len
+    cdef int l2 = <int>t2
+    assert l2 == t2
+    return Result.create(parasail_sg_table_striped_profile_sat(profile._c_object,s2,l2,open,gap), l1, l2)
+
 def sg_rowcol_scan_profile_64(
         Profile profile not None,
         const_char * s2,
@@ -6636,6 +8031,16 @@ def sg_rowcol_scan_profile_8(
     cdef int l2 = <int>t2
     assert l2 == t2
     return Result.create(parasail_sg_rowcol_scan_profile_8(profile._c_object,s2,l2,open,gap), l1, l2)
+
+def sg_rowcol_scan_profile_sat(
+        Profile profile not None,
+        const_char * s2,
+        const int open, const int gap):
+    cdef size_t t2 = len(s2)
+    cdef int l1 = profile._c_object.s1Len
+    cdef int l2 = <int>t2
+    assert l2 == t2
+    return Result.create(parasail_sg_rowcol_scan_profile_sat(profile._c_object,s2,l2,open,gap), l1, l2)
 
 def sg_rowcol_striped_profile_64(
         Profile profile not None,
@@ -6677,6 +8082,16 @@ def sg_rowcol_striped_profile_8(
     assert l2 == t2
     return Result.create(parasail_sg_rowcol_striped_profile_8(profile._c_object,s2,l2,open,gap), l1, l2)
 
+def sg_rowcol_striped_profile_sat(
+        Profile profile not None,
+        const_char * s2,
+        const int open, const int gap):
+    cdef size_t t2 = len(s2)
+    cdef int l1 = profile._c_object.s1Len
+    cdef int l2 = <int>t2
+    assert l2 == t2
+    return Result.create(parasail_sg_rowcol_striped_profile_sat(profile._c_object,s2,l2,open,gap), l1, l2)
+
 def sg_stats_scan_profile_64(
         Profile profile not None,
         const_char * s2,
@@ -6716,6 +8131,16 @@ def sg_stats_scan_profile_8(
     cdef int l2 = <int>t2
     assert l2 == t2
     return Result.create(parasail_sg_stats_scan_profile_8(profile._c_object,s2,l2,open,gap), l1, l2)
+
+def sg_stats_scan_profile_sat(
+        Profile profile not None,
+        const_char * s2,
+        const int open, const int gap):
+    cdef size_t t2 = len(s2)
+    cdef int l1 = profile._c_object.s1Len
+    cdef int l2 = <int>t2
+    assert l2 == t2
+    return Result.create(parasail_sg_stats_scan_profile_sat(profile._c_object,s2,l2,open,gap), l1, l2)
 
 def sg_stats_striped_profile_64(
         Profile profile not None,
@@ -6757,6 +8182,16 @@ def sg_stats_striped_profile_8(
     assert l2 == t2
     return Result.create(parasail_sg_stats_striped_profile_8(profile._c_object,s2,l2,open,gap), l1, l2)
 
+def sg_stats_striped_profile_sat(
+        Profile profile not None,
+        const_char * s2,
+        const int open, const int gap):
+    cdef size_t t2 = len(s2)
+    cdef int l1 = profile._c_object.s1Len
+    cdef int l2 = <int>t2
+    assert l2 == t2
+    return Result.create(parasail_sg_stats_striped_profile_sat(profile._c_object,s2,l2,open,gap), l1, l2)
+
 def sg_stats_table_scan_profile_64(
         Profile profile not None,
         const_char * s2,
@@ -6796,6 +8231,16 @@ def sg_stats_table_scan_profile_8(
     cdef int l2 = <int>t2
     assert l2 == t2
     return Result.create(parasail_sg_stats_table_scan_profile_8(profile._c_object,s2,l2,open,gap), l1, l2)
+
+def sg_stats_table_scan_profile_sat(
+        Profile profile not None,
+        const_char * s2,
+        const int open, const int gap):
+    cdef size_t t2 = len(s2)
+    cdef int l1 = profile._c_object.s1Len
+    cdef int l2 = <int>t2
+    assert l2 == t2
+    return Result.create(parasail_sg_stats_table_scan_profile_sat(profile._c_object,s2,l2,open,gap), l1, l2)
 
 def sg_stats_table_striped_profile_64(
         Profile profile not None,
@@ -6837,6 +8282,16 @@ def sg_stats_table_striped_profile_8(
     assert l2 == t2
     return Result.create(parasail_sg_stats_table_striped_profile_8(profile._c_object,s2,l2,open,gap), l1, l2)
 
+def sg_stats_table_striped_profile_sat(
+        Profile profile not None,
+        const_char * s2,
+        const int open, const int gap):
+    cdef size_t t2 = len(s2)
+    cdef int l1 = profile._c_object.s1Len
+    cdef int l2 = <int>t2
+    assert l2 == t2
+    return Result.create(parasail_sg_stats_table_striped_profile_sat(profile._c_object,s2,l2,open,gap), l1, l2)
+
 def sg_stats_rowcol_scan_profile_64(
         Profile profile not None,
         const_char * s2,
@@ -6876,6 +8331,16 @@ def sg_stats_rowcol_scan_profile_8(
     cdef int l2 = <int>t2
     assert l2 == t2
     return Result.create(parasail_sg_stats_rowcol_scan_profile_8(profile._c_object,s2,l2,open,gap), l1, l2)
+
+def sg_stats_rowcol_scan_profile_sat(
+        Profile profile not None,
+        const_char * s2,
+        const int open, const int gap):
+    cdef size_t t2 = len(s2)
+    cdef int l1 = profile._c_object.s1Len
+    cdef int l2 = <int>t2
+    assert l2 == t2
+    return Result.create(parasail_sg_stats_rowcol_scan_profile_sat(profile._c_object,s2,l2,open,gap), l1, l2)
 
 def sg_stats_rowcol_striped_profile_64(
         Profile profile not None,
@@ -6917,6 +8382,16 @@ def sg_stats_rowcol_striped_profile_8(
     assert l2 == t2
     return Result.create(parasail_sg_stats_rowcol_striped_profile_8(profile._c_object,s2,l2,open,gap), l1, l2)
 
+def sg_stats_rowcol_striped_profile_sat(
+        Profile profile not None,
+        const_char * s2,
+        const int open, const int gap):
+    cdef size_t t2 = len(s2)
+    cdef int l1 = profile._c_object.s1Len
+    cdef int l2 = <int>t2
+    assert l2 == t2
+    return Result.create(parasail_sg_stats_rowcol_striped_profile_sat(profile._c_object,s2,l2,open,gap), l1, l2)
+
 def sw_scan_profile_64(
         Profile profile not None,
         const_char * s2,
@@ -6956,6 +8431,16 @@ def sw_scan_profile_8(
     cdef int l2 = <int>t2
     assert l2 == t2
     return Result.create(parasail_sw_scan_profile_8(profile._c_object,s2,l2,open,gap), l1, l2)
+
+def sw_scan_profile_sat(
+        Profile profile not None,
+        const_char * s2,
+        const int open, const int gap):
+    cdef size_t t2 = len(s2)
+    cdef int l1 = profile._c_object.s1Len
+    cdef int l2 = <int>t2
+    assert l2 == t2
+    return Result.create(parasail_sw_scan_profile_sat(profile._c_object,s2,l2,open,gap), l1, l2)
 
 def sw_striped_profile_64(
         Profile profile not None,
@@ -6997,6 +8482,16 @@ def sw_striped_profile_8(
     assert l2 == t2
     return Result.create(parasail_sw_striped_profile_8(profile._c_object,s2,l2,open,gap), l1, l2)
 
+def sw_striped_profile_sat(
+        Profile profile not None,
+        const_char * s2,
+        const int open, const int gap):
+    cdef size_t t2 = len(s2)
+    cdef int l1 = profile._c_object.s1Len
+    cdef int l2 = <int>t2
+    assert l2 == t2
+    return Result.create(parasail_sw_striped_profile_sat(profile._c_object,s2,l2,open,gap), l1, l2)
+
 def sw_table_scan_profile_64(
         Profile profile not None,
         const_char * s2,
@@ -7036,6 +8531,16 @@ def sw_table_scan_profile_8(
     cdef int l2 = <int>t2
     assert l2 == t2
     return Result.create(parasail_sw_table_scan_profile_8(profile._c_object,s2,l2,open,gap), l1, l2)
+
+def sw_table_scan_profile_sat(
+        Profile profile not None,
+        const_char * s2,
+        const int open, const int gap):
+    cdef size_t t2 = len(s2)
+    cdef int l1 = profile._c_object.s1Len
+    cdef int l2 = <int>t2
+    assert l2 == t2
+    return Result.create(parasail_sw_table_scan_profile_sat(profile._c_object,s2,l2,open,gap), l1, l2)
 
 def sw_table_striped_profile_64(
         Profile profile not None,
@@ -7077,6 +8582,16 @@ def sw_table_striped_profile_8(
     assert l2 == t2
     return Result.create(parasail_sw_table_striped_profile_8(profile._c_object,s2,l2,open,gap), l1, l2)
 
+def sw_table_striped_profile_sat(
+        Profile profile not None,
+        const_char * s2,
+        const int open, const int gap):
+    cdef size_t t2 = len(s2)
+    cdef int l1 = profile._c_object.s1Len
+    cdef int l2 = <int>t2
+    assert l2 == t2
+    return Result.create(parasail_sw_table_striped_profile_sat(profile._c_object,s2,l2,open,gap), l1, l2)
+
 def sw_rowcol_scan_profile_64(
         Profile profile not None,
         const_char * s2,
@@ -7116,6 +8631,16 @@ def sw_rowcol_scan_profile_8(
     cdef int l2 = <int>t2
     assert l2 == t2
     return Result.create(parasail_sw_rowcol_scan_profile_8(profile._c_object,s2,l2,open,gap), l1, l2)
+
+def sw_rowcol_scan_profile_sat(
+        Profile profile not None,
+        const_char * s2,
+        const int open, const int gap):
+    cdef size_t t2 = len(s2)
+    cdef int l1 = profile._c_object.s1Len
+    cdef int l2 = <int>t2
+    assert l2 == t2
+    return Result.create(parasail_sw_rowcol_scan_profile_sat(profile._c_object,s2,l2,open,gap), l1, l2)
 
 def sw_rowcol_striped_profile_64(
         Profile profile not None,
@@ -7157,6 +8682,16 @@ def sw_rowcol_striped_profile_8(
     assert l2 == t2
     return Result.create(parasail_sw_rowcol_striped_profile_8(profile._c_object,s2,l2,open,gap), l1, l2)
 
+def sw_rowcol_striped_profile_sat(
+        Profile profile not None,
+        const_char * s2,
+        const int open, const int gap):
+    cdef size_t t2 = len(s2)
+    cdef int l1 = profile._c_object.s1Len
+    cdef int l2 = <int>t2
+    assert l2 == t2
+    return Result.create(parasail_sw_rowcol_striped_profile_sat(profile._c_object,s2,l2,open,gap), l1, l2)
+
 def sw_stats_scan_profile_64(
         Profile profile not None,
         const_char * s2,
@@ -7196,6 +8731,16 @@ def sw_stats_scan_profile_8(
     cdef int l2 = <int>t2
     assert l2 == t2
     return Result.create(parasail_sw_stats_scan_profile_8(profile._c_object,s2,l2,open,gap), l1, l2)
+
+def sw_stats_scan_profile_sat(
+        Profile profile not None,
+        const_char * s2,
+        const int open, const int gap):
+    cdef size_t t2 = len(s2)
+    cdef int l1 = profile._c_object.s1Len
+    cdef int l2 = <int>t2
+    assert l2 == t2
+    return Result.create(parasail_sw_stats_scan_profile_sat(profile._c_object,s2,l2,open,gap), l1, l2)
 
 def sw_stats_striped_profile_64(
         Profile profile not None,
@@ -7237,6 +8782,16 @@ def sw_stats_striped_profile_8(
     assert l2 == t2
     return Result.create(parasail_sw_stats_striped_profile_8(profile._c_object,s2,l2,open,gap), l1, l2)
 
+def sw_stats_striped_profile_sat(
+        Profile profile not None,
+        const_char * s2,
+        const int open, const int gap):
+    cdef size_t t2 = len(s2)
+    cdef int l1 = profile._c_object.s1Len
+    cdef int l2 = <int>t2
+    assert l2 == t2
+    return Result.create(parasail_sw_stats_striped_profile_sat(profile._c_object,s2,l2,open,gap), l1, l2)
+
 def sw_stats_table_scan_profile_64(
         Profile profile not None,
         const_char * s2,
@@ -7276,6 +8831,16 @@ def sw_stats_table_scan_profile_8(
     cdef int l2 = <int>t2
     assert l2 == t2
     return Result.create(parasail_sw_stats_table_scan_profile_8(profile._c_object,s2,l2,open,gap), l1, l2)
+
+def sw_stats_table_scan_profile_sat(
+        Profile profile not None,
+        const_char * s2,
+        const int open, const int gap):
+    cdef size_t t2 = len(s2)
+    cdef int l1 = profile._c_object.s1Len
+    cdef int l2 = <int>t2
+    assert l2 == t2
+    return Result.create(parasail_sw_stats_table_scan_profile_sat(profile._c_object,s2,l2,open,gap), l1, l2)
 
 def sw_stats_table_striped_profile_64(
         Profile profile not None,
@@ -7317,6 +8882,16 @@ def sw_stats_table_striped_profile_8(
     assert l2 == t2
     return Result.create(parasail_sw_stats_table_striped_profile_8(profile._c_object,s2,l2,open,gap), l1, l2)
 
+def sw_stats_table_striped_profile_sat(
+        Profile profile not None,
+        const_char * s2,
+        const int open, const int gap):
+    cdef size_t t2 = len(s2)
+    cdef int l1 = profile._c_object.s1Len
+    cdef int l2 = <int>t2
+    assert l2 == t2
+    return Result.create(parasail_sw_stats_table_striped_profile_sat(profile._c_object,s2,l2,open,gap), l1, l2)
+
 def sw_stats_rowcol_scan_profile_64(
         Profile profile not None,
         const_char * s2,
@@ -7357,6 +8932,16 @@ def sw_stats_rowcol_scan_profile_8(
     assert l2 == t2
     return Result.create(parasail_sw_stats_rowcol_scan_profile_8(profile._c_object,s2,l2,open,gap), l1, l2)
 
+def sw_stats_rowcol_scan_profile_sat(
+        Profile profile not None,
+        const_char * s2,
+        const int open, const int gap):
+    cdef size_t t2 = len(s2)
+    cdef int l1 = profile._c_object.s1Len
+    cdef int l2 = <int>t2
+    assert l2 == t2
+    return Result.create(parasail_sw_stats_rowcol_scan_profile_sat(profile._c_object,s2,l2,open,gap), l1, l2)
+
 def sw_stats_rowcol_striped_profile_64(
         Profile profile not None,
         const_char * s2,
@@ -7396,3 +8981,13 @@ def sw_stats_rowcol_striped_profile_8(
     cdef int l2 = <int>t2
     assert l2 == t2
     return Result.create(parasail_sw_stats_rowcol_striped_profile_8(profile._c_object,s2,l2,open,gap), l1, l2)
+
+def sw_stats_rowcol_striped_profile_sat(
+        Profile profile not None,
+        const_char * s2,
+        const int open, const int gap):
+    cdef size_t t2 = len(s2)
+    cdef int l1 = profile._c_object.s1Len
+    cdef int l2 = <int>t2
+    assert l2 == t2
+    return Result.create(parasail_sw_stats_rowcol_striped_profile_sat(profile._c_object,s2,l2,open,gap), l1, l2)

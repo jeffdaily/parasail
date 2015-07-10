@@ -50,19 +50,29 @@ AC_MSG_NOTICE
 AC_PROG_CC
 
 # Checks for header files.
+AC_CHECK_HEADERS([ctype.h])
+AC_CHECK_HEADERS([errno.h])
+AC_CHECK_HEADERS([fcntl.h])
 AC_CHECK_HEADERS([limits.h])
 AC_CHECK_HEADERS([malloc.h])
 AC_CHECK_HEADERS([sched.h])
 AC_CHECK_HEADERS([stddef.h])
+AC_CHECK_HEADERS([stdio.h])
 AC_CHECK_HEADERS([stdlib.h])
+AC_CHECK_HEADERS([sys/mman.h])
+AC_CHECK_HEADERS([sys/stat.h])
+AC_CHECK_HEADERS([sys/types.h])
+AC_CHECK_HEADERS([unistd.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_INLINE
 AC_C_RESTRICT
+AC_SYS_LARGEFILE
 AC_TYPE_INT8_T
 AC_TYPE_INT16_T
 AC_TYPE_INT32_T
 AC_TYPE_INT64_T
+AC_TYPE_OFF_T
 AC_TYPE_SIZE_T
 AX_OPENMP
 AC_SUBST([OPENMP_CFLAGS])
@@ -549,8 +559,7 @@ int main(void) { test_varargs_macros(); return 0; }
 ]])],
         [pt_cv_variadic=yes; pt_cv_variadic_val=1],
         [pt_cv_variadic=no; pt_cv_variadic_val=0])
-     ac_cxx_werror_flag=$psl_save_cxx_werror_flag
-     CXXFLAGS="$save_CXXFLAGS"])
+     ac_cxx_werror_flag=$psl_save_cxx_werror_flag])
 AC_DEFINE_UNQUOTED([HAVE_VARIADIC_MACROS], [$pt_cv_variadic_val],
     [define to 1 if the CXX compiler supports variadic macros])
 

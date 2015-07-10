@@ -42,6 +42,16 @@ static inline __m128i _mm_insert_epi64_rpl(__m128i a, int64_t i, const int imm) 
     return A.m;
 }
 
+static inline __m128i _mm_cmpeq_epi64_rpl(__m128i a, __m128i b) {
+    __m128i_64_t A;
+    __m128i_64_t B;
+    A.m = a;
+    B.m = b;
+    A.v[0] = (A.v[0]==B.v[0]) ? 0xFFFFFFFFFFFFFFFF : 0;
+    A.v[1] = (A.v[1]==B.v[1]) ? 0xFFFFFFFFFFFFFFFF : 0;
+    return A.m;
+}
+
 static inline __m128i _mm_max_epi64_rpl(__m128i a, __m128i b) {
     __m128i_64_t A;
     __m128i_64_t B;
@@ -67,16 +77,6 @@ static inline __m128i _mm_cmplt_epi64_rpl(__m128i a, __m128i b) {
     B.m = b;
     A.v[0] = (A.v[0]<B.v[0]) ? 0xFFFFFFFFFFFFFFFF : 0;
     A.v[1] = (A.v[1]<B.v[1]) ? 0xFFFFFFFFFFFFFFFF : 0;
-    return A.m;
-}
-
-static inline __m128i _mm_cmpeq_epi64_rpl(__m128i a, __m128i b) {
-    __m128i_64_t A;
-    __m128i_64_t B;
-    A.m = a;
-    B.m = b;
-    A.v[0] = (A.v[0]==B.v[0]) ? 0xFFFFFFFFFFFFFFFF : 0;
-    A.v[1] = (A.v[1]==B.v[1]) ? 0xFFFFFFFFFFFFFFFF : 0;
     return A.m;
 }
 
@@ -143,9 +143,9 @@ parasail_result_t* PNAME(
     const parasail_matrix_t *matrix = profile->matrix;
     const int32_t segWidth = 2;
     const int32_t segLen = (s1Len + segWidth - 1) / segWidth;
-    __m128i* const restrict pvP  = (__m128i*)profile->profile;
-    __m128i* const restrict pvPm = (__m128i*)profile->profile_m;
-    __m128i* const restrict pvPs = (__m128i*)profile->profile_s;
+    __m128i* const restrict pvP  = (__m128i*)profile->profile64.score;
+    __m128i* const restrict pvPm = (__m128i*)profile->profile64.matches;
+    __m128i* const restrict pvPs = (__m128i*)profile->profile64.similar;
     __m128i* const restrict pvE  = parasail_memalign___m128i(16, segLen);
     __m128i* const restrict pvHt = parasail_memalign___m128i(16, segLen);
     __m128i* const restrict pvFt = parasail_memalign___m128i(16, segLen);

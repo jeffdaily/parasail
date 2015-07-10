@@ -113,9 +113,9 @@ parasail_result_t* PNAME(
     const parasail_matrix_t *matrix = profile->matrix;
     const int32_t segWidth = 2; /* number of values in vector unit */
     const int32_t segLen = (s1Len + segWidth - 1) / segWidth;
-    __m128i* const restrict vProfile  = (__m128i*)profile->profile;
-    __m128i* const restrict vProfileM = (__m128i*)profile->profile_m;
-    __m128i* const restrict vProfileS = (__m128i*)profile->profile_s;
+    __m128i* const restrict vProfile  = (__m128i*)profile->profile64.score;
+    __m128i* const restrict vProfileM = (__m128i*)profile->profile64.matches;
+    __m128i* const restrict vProfileS = (__m128i*)profile->profile64.similar;
     __m128i* restrict pvHStore        = parasail_memalign___m128i(16, segLen);
     __m128i* restrict pvHLoad         = parasail_memalign___m128i(16, segLen);
     __m128i* restrict pvHMStore       = parasail_memalign___m128i(16, segLen);

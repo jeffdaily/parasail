@@ -45,7 +45,10 @@ cdef extern from "parasail.h":
         const char *s1
         int s1Len
         const parasail_matrix_t *matrix
-        #void * profile
+        #parasail_profile_data_t * profile8;
+        #parasail_profile_data_t * profile16;
+        #parasail_profile_data_t * profile32;
+        #parasail_profile_data_t * profile64;
         #void (*free)(void * profile)
 
     void parasail_result_free(parasail_result_t * result)
@@ -68,6 +71,30 @@ cdef extern from "parasail.h":
             const parasail_matrix_t *matrix);
 
     parasail_profile_t * parasail_profile_create_64(
+            const char * s1, const int s1Len,
+            const parasail_matrix_t *matrix);
+
+    parasail_profile_t * parasail_profile_create_sat(
+            const char * s1, const int s1Len,
+            const parasail_matrix_t *matrix);
+
+    parasail_profile_t * parasail_profile_create_stats_8(
+            const char * s1, const int s1Len,
+            const parasail_matrix_t *matrix);
+
+    parasail_profile_t * parasail_profile_create_stats_16(
+            const char * s1, const int s1Len,
+            const parasail_matrix_t *matrix);
+
+    parasail_profile_t * parasail_profile_create_stats_32(
+            const char * s1, const int s1Len,
+            const parasail_matrix_t *matrix);
+
+    parasail_profile_t * parasail_profile_create_stats_64(
+            const char * s1, const int s1Len,
+            const parasail_matrix_t *matrix);
+
+    parasail_profile_t * parasail_profile_create_stats_sat(
             const char * s1, const int s1Len,
             const parasail_matrix_t *matrix);
 
@@ -107,7 +134,7 @@ alg = ["nw", "sg", "sw"]
 stats = ["", "_stats"]
 table = ["", "_table", "_rowcol"]
 par = ["_scan", "_striped", "_diag"]
-width = ["_64","_32","_16","_8"]
+width = ["_64","_32","_16","_8","_sat"]
 for a in alg:
     for s in stats:
         for t in table:
@@ -125,7 +152,7 @@ alg = ["nw", "sg", "sw"]
 stats = ["", "_stats"]
 table = ["", "_table", "_rowcol"]
 par = ["_scan_profile", "_striped_profile"]
-width = ["_64","_32","_16","_8"]
+width = ["_64","_32","_16","_8","_sat"]
 for a in alg:
     for s in stats:
         for t in table:
@@ -298,14 +325,14 @@ print """
 cdef class Profile:
     cdef parasail_profile_t *_c_object
     cdef Matrix matrix
-    def __init__(self, const_char * s1, Matrix matrix not None, int bits):
-        if bits not in [8,16,32,64]:
-            raise ValueError("bits must be one of [8,16,32,64]")
+    def __init__(self, const_char * s1, Matrix matrix not None, bits):
+        if bits not in [8,16,32,64,"sat"]:
+            raise ValueError('bits must be one of [8,16,32,64,"sat"]')
         self.create(s1, matrix, bits)
     def __dealloc__(self):
         if self._c_object is not NULL:
             parasail_profile_free(self._c_object)
-    cdef create(self, const_char * s1, Matrix matrix, int bits):
+    cdef create(self, const_char * s1, Matrix matrix, bits):
         cdef size_t t1 = len(s1)
         cdef int l1 = <int>t1
         if 8 == bits:
@@ -316,6 +343,8 @@ cdef class Profile:
             self._c_object = parasail_profile_create_32(s1, l1, matrix._c_object)
         elif 64 == bits:
             self._c_object = parasail_profile_create_64(s1, l1, matrix._c_object)
+        elif "sat" == bits:
+            self._c_object = parasail_profile_create_sat(s1, l1, matrix._c_object)
         self.matrix = matrix
     property s1:
         def __get__(self): return self._c_object.s1
@@ -353,7 +382,7 @@ alg = ["nw", "sg", "sw"]
 stats = ["", "_stats"]
 table = ["", "_table", "_rowcol"]
 par = ["_scan", "_striped", "_diag"]
-width = ["_64","_32","_16","_8"]
+width = ["_64","_32","_16","_8","_sat"]
 for a in alg:
     for s in stats:
         for t in table:
@@ -379,7 +408,7 @@ alg = ["nw", "sg", "sw"]
 stats = ["", "_stats"]
 table = ["", "_table", "_rowcol"]
 par = ["_scan_profile", "_striped_profile"]
-width = ["_64","_32","_16","_8"]
+width = ["_64","_32","_16","_8","_sat"]
 for a in alg:
     for s in stats:
         for t in table:

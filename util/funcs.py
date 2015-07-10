@@ -11,6 +11,10 @@ print """/**
 #define _PARASAIL_FUNCTION_TYPE_H_
 
 #include "parasail.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 """
 
 
@@ -168,5 +172,9 @@ print_pnull()
 print "};"
 
 print """
+#ifdef __cplusplus
+}
+#endif
+
 #endif /* _PARASAIL_FUNCTION_TYPE_H_ */
 """

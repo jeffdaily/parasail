@@ -14,6 +14,10 @@
 
 #include "parasail.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef union __m256i_8 {
     __m256i m;
     int8_t v[32];
@@ -41,6 +45,10 @@ extern PARASAIL_LOCAL
 void parasail_memset___m256i(__m256i *b, __m256i c, size_t len);
 
 extern PARASAIL_LOCAL
-void parasail_profile_free___m256i(void *profile);
+void parasail_free___m256i(void *ptr);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _PARASAIL_INTERNAL_AVX_H_ */

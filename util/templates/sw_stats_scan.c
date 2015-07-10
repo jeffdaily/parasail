@@ -80,9 +80,9 @@ parasail_result_t* PNAME(
     const parasail_matrix_t *matrix = profile->matrix;
     const %(INDEX)s segWidth = %(LANES)s;
     const %(INDEX)s segLen = (s1Len + segWidth - 1) / segWidth;
-    %(VTYPE)s* const restrict pvP  = (%(VTYPE)s*)profile->profile;
-    %(VTYPE)s* const restrict pvPm = (%(VTYPE)s*)profile->profile_m;
-    %(VTYPE)s* const restrict pvPs = (%(VTYPE)s*)profile->profile_s;
+    %(VTYPE)s* const restrict pvP  = (%(VTYPE)s*)profile->profile%(WIDTH)s.score;
+    %(VTYPE)s* const restrict pvPm = (%(VTYPE)s*)profile->profile%(WIDTH)s.matches;
+    %(VTYPE)s* const restrict pvPs = (%(VTYPE)s*)profile->profile%(WIDTH)s.similar;
     %(VTYPE)s* const restrict pvE  = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
     %(VTYPE)s* const restrict pvHt = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
     %(VTYPE)s* const restrict pvFt = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);

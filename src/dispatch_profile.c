@@ -349,9 +349,11 @@ parasail_profile_t* parasail_profile_create_sat(
 {
     parasail_profile_t *profile8 = parasail_profile_create_8(s1, s1Len, matrix);
     parasail_profile_t *profile16 = parasail_profile_create_16(s1, s1Len, matrix);
-    profile8->profile2 = profile16->profile;
-    profile16->profile = NULL;
-    parasail_profile_free(profile16);
+    parasail_profile_t *profile32 = parasail_profile_create_32(s1, s1Len, matrix);
+    profile8->profile16 = profile16->profile16;
+    profile8->profile32 = profile32->profile32;
+    free(profile16);
+    free(profile32);
 
     return profile8;
 }
@@ -390,13 +392,11 @@ parasail_profile_t* parasail_profile_create_stats_sat(
 {
     parasail_profile_t *profile8 = parasail_profile_create_stats_8(s1, s1Len, matrix);
     parasail_profile_t *profile16 = parasail_profile_create_stats_16(s1, s1Len, matrix);
-    profile8->profile2 = profile16->profile;
-    profile16->profile = NULL;
-    profile8->profile2_m = profile16->profile_m;
-    profile16->profile_m = NULL;
-    profile8->profile2_s = profile16->profile_s;
-    profile16->profile_s = NULL;
-    parasail_profile_free(profile16);
+    parasail_profile_t *profile32 = parasail_profile_create_stats_32(s1, s1Len, matrix);
+    profile8->profile16 = profile16->profile16;
+    profile8->profile32 = profile32->profile32;
+    free(profile16);
+    free(profile32);
 
     return profile8;
 }

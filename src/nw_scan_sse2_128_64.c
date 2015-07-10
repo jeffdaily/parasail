@@ -31,6 +31,16 @@ static inline __m128i _mm_insert_epi64_rpl(__m128i a, int64_t i, const int imm) 
     return A.m;
 }
 
+static inline __m128i _mm_cmpeq_epi64_rpl(__m128i a, __m128i b) {
+    __m128i_64_t A;
+    __m128i_64_t B;
+    A.m = a;
+    B.m = b;
+    A.v[0] = (A.v[0]==B.v[0]) ? 0xFFFFFFFFFFFFFFFF : 0;
+    A.v[1] = (A.v[1]==B.v[1]) ? 0xFFFFFFFFFFFFFFFF : 0;
+    return A.m;
+}
+
 static inline __m128i _mm_max_epi64_rpl(__m128i a, __m128i b) {
     __m128i_64_t A;
     __m128i_64_t B;
@@ -48,16 +58,6 @@ static inline int64_t _mm_extract_epi64_rpl(__m128i a, const int imm) {
 }
 
 #define _mm_rlli_si128_rpl(a,imm) _mm_or_si128(_mm_slli_si128(a,imm),_mm_srli_si128(a,16-imm))
-
-static inline __m128i _mm_cmpeq_epi64_rpl(__m128i a, __m128i b) {
-    __m128i_64_t A;
-    __m128i_64_t B;
-    A.m = a;
-    B.m = b;
-    A.v[0] = (A.v[0]==B.v[0]) ? 0xFFFFFFFFFFFFFFFF : 0;
-    A.v[1] = (A.v[1]==B.v[1]) ? 0xFFFFFFFFFFFFFFFF : 0;
-    return A.m;
-}
 
 
 #ifdef PARASAIL_TABLE
@@ -125,7 +125,7 @@ parasail_result_t* PNAME(
     const int32_t segLen = (s1Len + segWidth - 1) / segWidth;
     const int32_t offset = (s1Len - 1) % segLen;
     const int32_t position = (segWidth - 1) - (s1Len - 1) / segLen;
-    __m128i* const restrict pvP = (__m128i*)profile->profile;
+    __m128i* const restrict pvP = (__m128i*)profile->profile64.score;
     __m128i* const restrict pvE = parasail_memalign___m128i(16, segLen);
     int64_t* const restrict boundary = parasail_memalign_int64_t(16, s2Len+1);
     __m128i* const restrict pvHt= parasail_memalign___m128i(16, segLen);

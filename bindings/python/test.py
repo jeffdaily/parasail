@@ -108,4 +108,22 @@ print result
 print result.saturated
 print result.score
 
-profile = parasail.Profile("asdf", parasail.blosum62, 1234)
+try:
+    profile = parasail.Profile("asdf", parasail.blosum62, "sa")
+except ValueError, e:
+    print "caught ValueError as expected:", e
+
+profile = parasail.Profile("asdf", parasail.blosum62, "sat")
+print profile
+print profile.s1
+print profile.matrix
+
+result = parasail.sw_striped_profile_sat(profile,"asdf",10,1)
+print result
+print result.saturated
+print result.score
+
+try:
+    profile = parasail.Profile("asdf", parasail.blosum62, 1234)
+except ValueError, e:
+    print "caught ValueError as expected:", e

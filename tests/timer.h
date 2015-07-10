@@ -10,6 +10,10 @@
 #ifndef __TIMER_H__
 #define __TIMER_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define FORCE_SYS_TIME 1
 
 #if (defined(__i386__) || defined(__x86_64__) || defined(__powerpc__)) && !defined(_CRAYC) && !defined(FORCE_SYS_TIME)
@@ -110,5 +114,9 @@ static const char *timer_name()
 #endif
 }
 */
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __TIMER_H__ */

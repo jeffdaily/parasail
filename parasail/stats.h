@@ -12,6 +12,10 @@
 
 /** http://en.wikipedia.org/wiki/Algorithms_for_calculating_variance */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct stats {
     unsigned long _n;
     double _mean;
@@ -57,6 +61,10 @@ static inline double stats_variance(const stats_t * const stats) {
 static inline double stats_stddev(const stats_t * const stats) {
     return pow(stats_variance(stats),0.5);
 }
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _STATS_H_ */
 

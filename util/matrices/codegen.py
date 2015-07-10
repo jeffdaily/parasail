@@ -24,9 +24,18 @@ header = """/**
 #include "parasail.h"
 #include "%(BASE)s_map.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 """
 
-footer = "#endif /* _PARASAIL_%s_H_ */"
+footer = """#ifdef __cplusplus
+}
+#endif
+
+#endif /* _PARASAIL_%s_H_ */
+"""
 
 output_dir = "generated/"
 if not os.path.exists(output_dir):
@@ -58,6 +67,10 @@ def generate_mapper(name, line):
 #ifndef _PARASAIL_%s_MAP_H_
 #define _PARASAIL_%s_MAP_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 static const int parasail_%s_map[256] = {
 """ % (name, name, name.lower())
     parts = line.split()
@@ -77,6 +90,10 @@ static const int parasail_%s_map[256] = {
             text += "%3d," % limit
     text += """
 };
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _PARASAIL_%s_MAP_H_ */
 """ % name
@@ -161,29 +178,18 @@ text = """/**
 #include "parasail/matrices/blosum_map.h"
 #include "parasail/matrices/pam_map.h"
 
-const parasail_matrix_t * parasail_matrices[] = {
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+static const parasail_matrix_t * parasail_matrices[] = {
 %(MATRICES)s
     NULL
 };
 
-const parasail_matrix_t* parasail_matrix_lookup(const char *matrixname)
-{
-    const parasail_matrix_t *matrix = NULL;
-
-    if (matrixname) {
-        int index = 0;
-        const parasail_matrix_t *current = parasail_matrices[index++];
-        while (current) {
-            if (0 == strcmp(matrixname, current->name)) {
-                matrix = current;
-                break;
-            }
-            current = parasail_matrices[index++];
-        }
-    }
-
-    return matrix;
+#ifdef __cplusplus
 }
+#endif
 
 #endif /* _PARASAIL_MATRIX_LOOKUP_H_ */
 """

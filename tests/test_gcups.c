@@ -43,8 +43,8 @@ static inline void parse_sequences(
         exit(1);
     }
 #endif
-    strings = malloc(sizeof(char*) * memory);
-    sizes = malloc(sizeof(size_t) * memory);
+    strings = (char**)malloc(sizeof(char*) * memory);
+    sizes = (size_t*)malloc(sizeof(size_t) * memory);
 #if USE_ZLIB
     seq = kseq_init(fp);
 #else

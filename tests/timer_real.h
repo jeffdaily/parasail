@@ -19,6 +19,10 @@
 
 #include <assert.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 inline static double timer_real()
 {
 #ifdef __MACH__
@@ -43,3 +47,8 @@ inline static double timer_real()
     return (double)(ts.tv_sec) + (double)(ts.tv_nsec)/1000000000.0;
 #endif
 }
+
+#ifdef __cplusplus
+}
+#endif
+

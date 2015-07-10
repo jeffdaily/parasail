@@ -10,6 +10,10 @@
 
 #include <sys/stat.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct parasail_file {
     int fd;
     off_t size;
@@ -39,5 +43,9 @@ parasail_file_stat_t* parasail_stat(const parasail_file_t *pf);
 parasail_file_stat_t* parasail_stat_fasta(const parasail_file_t *pf);
 
 parasail_file_stat_t* parasail_stat_fastq(const parasail_file_t *pf);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _PARASAIL_IO_H_ */

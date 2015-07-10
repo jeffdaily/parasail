@@ -40,14 +40,14 @@ parasail_file_t* parasail_open(const char *fname)
         exit(EXIT_FAILURE);
     }
 
-    buf = mmap(NULL, fs.st_size, PROT_READ, MAP_SHARED, fd, 0);
+    buf = (char*)mmap(NULL, fs.st_size, PROT_READ, MAP_SHARED, fd, 0);
     if (MAP_FAILED == buf) {
         fprintf(stderr, "Cannont mmap input file `%s': ", fname);
         perror("mmap");
         exit(EXIT_FAILURE);
     }
 
-    pf = malloc(sizeof(parasail_file_t));
+    pf = (parasail_file_t*)malloc(sizeof(parasail_file_t));
     if (NULL == pf) {
         fprintf(stderr, "Cannont allocate parasail_file_t");
         perror("malloc");
@@ -191,7 +191,7 @@ parasail_file_stat_t* parasail_stat_fasta(const parasail_file_t *pf)
     }
     stats_sample_value(&stats, c);
 
-    pfs = malloc(sizeof(parasail_file_stat_t));
+    pfs = (parasail_file_stat_t*)malloc(sizeof(parasail_file_stat_t));
     if (NULL == pfs) {
         fprintf(stderr, "Cannont allocate parasail_file_stat_t");
         perror("malloc");
@@ -315,7 +315,7 @@ parasail_file_stat_t* parasail_stat_fastq(const parasail_file_t *pf)
         ++line;
     }
 
-    pfs = malloc(sizeof(parasail_file_stat_t));
+    pfs = (parasail_file_stat_t*)malloc(sizeof(parasail_file_stat_t));
     if (NULL == pfs) {
         fprintf(stderr, "Cannont allocate parasail_file_stat_t");
         perror("malloc");

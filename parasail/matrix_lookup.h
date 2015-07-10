@@ -76,6 +76,10 @@
 #include "parasail/matrices/blosum_map.h"
 #include "parasail/matrices/pam_map.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 static const parasail_matrix_t * parasail_matrices[] = {
     &parasail_blosum100,
     &parasail_blosum30,
@@ -144,6 +148,10 @@ static const parasail_matrix_t * parasail_matrices[] = {
     &parasail_pam90,
     NULL
 };
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _PARASAIL_MATRIX_LOOKUP_H_ */
 

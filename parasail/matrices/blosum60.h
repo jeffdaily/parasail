@@ -15,6 +15,10 @@
 #include "parasail.h"
 #include "blosum_map.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* #  Matrix made by matblas from blosum60.iij */
 /* #  * column uses minimum score */
 /* #  BLOSUM Clustered Scoring Matrix in 1/2 Bit Units */
@@ -58,4 +62,9 @@ static const parasail_matrix_t parasail_blosum60 = {
     0
 };
 
+#ifdef __cplusplus
+}
+#endif
+
 #endif /* _PARASAIL_BLOSUM60_H_ */
+

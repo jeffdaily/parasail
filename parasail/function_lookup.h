@@ -10,6 +10,10 @@
 
 #include "parasail.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 static const parasail_function_info_t functions[] = {
 {parasail_nw,                         "parasail_nw",                         "nw",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 1},
 {parasail_nw_scan,                    "parasail_nw_scan",                    "nw",    "scan", "NA",     "32", "32",  1, 0, 0, 0, 0},
@@ -2237,6 +2241,10 @@ static const parasail_pfunction_info_t pfunctions[] = {
 {parasail_sw_stats_rowcol_striped_profile_sat, parasail_profile_create_stats_sat,   "parasail_sw_stats_rowcol_striped_profile_sat", "sw_stats", "striped_profile", "disp",   "NA", "sat", -1, 0, 1, 1, 0},
 {NULL, NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0}
 };
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _PARASAIL_FUNCTION_TYPE_H_ */
 

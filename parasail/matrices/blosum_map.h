@@ -8,6 +8,10 @@
 #ifndef _PARASAIL_BLOSUM_MAP_H_
 #define _PARASAIL_BLOSUM_MAP_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 static const int parasail_blosum_map[256] = {
      23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,
      23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,
@@ -26,5 +30,9 @@ static const int parasail_blosum_map[256] = {
      23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,
      23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23,
 };
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _PARASAIL_BLOSUM_MAP_H_ */

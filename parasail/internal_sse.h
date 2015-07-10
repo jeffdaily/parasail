@@ -14,6 +14,10 @@
 
 #include "parasail.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef union __m128i_8 {
     __m128i m;
     int8_t v[16];
@@ -42,5 +46,9 @@ void parasail_memset___m128i(__m128i *b, __m128i c, size_t len);
 
 extern PARASAIL_LOCAL
 void parasail_free___m128i(void *ptr);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* _PARASAIL_INTERNAL_SSE_H_ */

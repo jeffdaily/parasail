@@ -71,25 +71,24 @@ The following tests were performed on an Intel Haswell E5-2670 v3 CPU running
 at 2.3 Ghz with 64 GB 2133 Mhz DDR4 memory. The compiler used was Intel ICC
 15.0.1 using level three optimization (-O3).
 
-|                                    |O74807  |P19930  |Q3ZAI3  |P18080|
-|------------------------------------|--------|--------|--------|------|
-|query length                        |110     |195     |390     |513   |
-|SSW (SSE2) 16-bit only              |13.9    |19.6    |32.4    |39.3  |
-|SSW (SSE2)                          |13.1    |26.3    |41.8    |49.0  |
-|opal (SSE4.1)                       |17.7    |24.2    |38.8    |48.1  |
-|opal (AVX2)                         |12.2    |15.4    |22.8    |28.4  |
-|SWIPE (SSSE3)                       |9.3     |16.4    |30.8    |39.9  |
-|ssearch36 (SSE2)                    |11.7    |21.1    |30.6    |37.1  |
-|parasail (SSE4.1) 16-bit            |11.0    |15.7    |27.3    |34.5  |
-|parasail (SSE4.1) 8-bit\*           |9.0     |12.6    |19.0    |23.4  |
-|parasail (AVX2) 16-bit              |9.5     |12.2    |17.6    |21.6  |
-|parasail (AVX2) 8-bit\*             |10.1    |11.8    |13.5    |14.7  |
-|parasail (AVX2) saturation abort\*\*|10.3    |17.8    |23.1    |26.9  |
-|parasail (AVX2) saturation cont\*\* |10.1    |14.3    |19.8    |23.3  |
+| |O74807  |P19930  |Q3ZAI3  |P18080|
+|-|--------|--------|--------|------|
+|query length|110.0|195.0|390.0|513.0|
+|SSW (SSE2)|12.0|25.6|41.5|48.7|
+|opal (SSE4.1)|17.8|24.2|38.9|48.2|
+|opal (AVX2)|12.2|15.4|22.9|28.4|
+|SWIPE (SSSE3)|9.6|16.5|30.9|39.9|
+|ssearch36 (SSE2)|11.7|21.1|30.6|37.2|
+|parasail (SSE41) 16-bit|10.8|15.9|27.4|33.8|
+|parasail (SSE41) sat|8.9|25.2|44.4|55.2|
+|parasail (SSE41) satabort|9.2|20.7|33.8|41.5|
+|parasail (SSE41) satcont|9.1|15.7|26.7|33.3|
+|parasail (AVX2) 16-bit|9.3|12.0|17.4|21.5|
+|parasail (AVX2) sat|9.5|20.6|29.4|35.2|
+|parasail (AVX2) satabort|9.3|16.8|22.7|27.5|
+|parasail (AVX2) satcont|9.6|13.5|19.5|24.0|
 
-\*  See above.
-
-\*\* See above.
+There are a number of alternatives to evaluate, namely what to do once the 8-bit calculation overflows. The 8-bit calculation can be allowed to finish ("sat"), abort as soon as overflow occurs ("satabort"), or abort early while copying enough state to restart from where it left off ("satcont"). Each approach has different performance characteristics.
 
 ![](images/perf_haswell.png)
 

@@ -71,8 +71,8 @@ The following tests were performed on an Intel Haswell E5-2670 v3 CPU running
 at 2.3 Ghz with 64 GB 2133 Mhz DDR4 memory. The compiler used was Intel ICC
 15.0.1 using level three optimization (-O3).
 
-| |O74807  |P19930  |Q3ZAI3  |P18080|
-|-|--------|--------|--------|------|
+|                                      |O74807  |P19930  |Q3ZAI3  |P18080|
+|--------------------------------------|--------|--------|--------|------|
 |query length|110.0|195.0|390.0|513.0|
 |SSW (SSE2)|12.0|25.6|41.5|48.7|
 |opal (SSE4.1)|17.8|24.2|38.9|48.2|

@@ -405,9 +405,6 @@ char * parasail_pack_fastq(const parasail_file_t *pf, long * size)
     int first = 1;
     off_t i = 0;
     off_t w = 0;
-    unsigned long seq = 0;
-    unsigned long c = 0;
-    unsigned long c_tot = 0;
     unsigned long line = 0;
     parasail_file_stat_t *pfs = NULL;
 

@@ -35,6 +35,7 @@
 #endif
 
 #include "parasail.h"
+#include "parasail/io.h"
 
 #include "sais.h"
 
@@ -89,12 +90,6 @@ inline static int self_score(
         const char * const restrict seq,
         int len,
         const parasail_matrix_t *matrix);
-
-inline static void read_and_pack_file(
-        const char *fname, 
-        unsigned char * &T,
-        long &n,
-        const char *progname);
 
 static void print_help(const char *progname, int status) {
     fprintf(stderr, "\nusage: %s "
@@ -314,7 +309,11 @@ int main(int argc, char **argv) {
     }
     
     start = parasail_time();
-    read_and_pack_file(fname, T, n, progname);
+    {
+        parasail_file_t *pf = parasail_open(fname);
+        T = (unsigned char*)parasail_pack(pf, &n);
+        parasail_close(pf);
+    }
     finish = parasail_time();
     fprintf(stdout, "%20s: %.4f seconds\n", "read and pack time", finish-start);
 
@@ -661,110 +660,5 @@ inline static int self_score(
         score += matrix->matrix[matrix->size*mapped+mapped];
     }
     return score;
-}
-
-inline static void read_and_pack_file(
-        const char *fname, 
-        unsigned char * &T,
-        long &n,
-        const char *progname)
-{
-    FILE *fip = NULL;
-
-    /* Open a file for reading. */
-    if((fip = fopen(fname, "r")) == NULL) {
-        fprintf(stderr, "%s: Cannot open input file `%s': ", progname, fname);
-        perror("fopen");
-        exit(EXIT_FAILURE);
-    }
-
-    /* Get the database file size. */
-    if(fseek(fip, 0, SEEK_END) == 0) {
-        n = ftell(fip);
-        if(n < 0) {
-            fprintf(stderr, "%s: Cannot ftell `%s': ", progname, fname);
-            perror("ftell");
-            exit(EXIT_FAILURE);
-        }
-        rewind(fip);
-    } else {
-        fprintf(stderr, "%s: Cannot fseek `%s': ", progname, fname);
-        perror("fseek");
-        exit(EXIT_FAILURE);
-    }
-
-    /* Allocate file buffer, read the entire file, then pack it. */
-    T = (unsigned char *)malloc((size_t)(n+1) * sizeof(unsigned char));
-    if(fread(T, sizeof(unsigned char), (size_t)n, fip) != (size_t)n) {
-        fprintf(stderr, "%s: %s `%s': ",
-                progname,
-                (ferror(fip) || !feof(fip)) ? "Cannot read from" : "Unexpected EOF in",
-                fname);
-        perror("fread");
-        exit(EXIT_FAILURE);
-    }
-    fclose(fip);
-    T[n]='\0'; /* so we can print it */
-    fprintf(stdout, "%20s: %s\n", "filename", fname);
-    fprintf(stdout, "%20s: %ld bytes\n", "original size", n);
-    /* Pack the buffer so it's ready for sais function. */
-    {
-        long i;
-        char first = 1;
-        long w = 0;
-        long save = 0;
-        long newlines = 0;
-        for (i=0; i<n; ++i) { 
-            if (T[i] == '>') {
-                if (first) {
-                    first = 0;
-                }
-                else {
-                    T[w++] = '$';
-                }
-                /* skip rest of this line */
-                while (T[i] != '\n' && T[i] != '\r') {
-                    ++i;
-                }
-                newlines++;
-                /* for the case of "\r\n" */
-                if (T[i+1] == '\n' || T[i+1] == '\r') {
-                    ++i;
-                }
-            }
-            else if (isalpha(T[i])) {
-                T[w++] = T[i];
-            }
-            else if (T[i] == '\n' || T[i] == '\r') {
-                /* ignore newline */
-                newlines++;
-                /* for the case of "\r\n" */
-                if (T[i+1] == '\n' || T[i+1] == '\r') {
-                    ++i;
-                }
-            }
-            else if (isprint(T[i])) {
-                fprintf(stderr, "error: non-alpha character "
-                        "at pos %ld line %ld in input ('%c')\n",
-                        i, newlines, T[i]);
-                exit(EXIT_FAILURE);
-            }
-            else {
-                fprintf(stderr, "error: non-printing character "
-                        "at pos %ld line %ld in input ('%d')\n",
-                        i, newlines, T[i]);
-                exit(EXIT_FAILURE);
-            }
-        }
-        T[w++] = '$';
-        save = w;
-        /* nullifiy rest of buffer */
-        while (w < n) {
-            T[w++] = '\0';
-        }
-        /* new length */
-        n = save;
-    }
-    fprintf(stdout, "%20s: %ld bytes\n", "packed size", n);
 }
 

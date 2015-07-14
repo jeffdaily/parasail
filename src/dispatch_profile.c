@@ -18,20 +18,24 @@ parasail_pcreator_t parasail_profile_create_64_dispatcher;
 parasail_pcreator_t parasail_profile_create_32_dispatcher;
 parasail_pcreator_t parasail_profile_create_16_dispatcher;
 parasail_pcreator_t parasail_profile_create_8_dispatcher;
+parasail_pcreator_t parasail_profile_create_sat_dispatcher;
 parasail_pcreator_t parasail_profile_create_stats_64_dispatcher;
 parasail_pcreator_t parasail_profile_create_stats_32_dispatcher;
 parasail_pcreator_t parasail_profile_create_stats_16_dispatcher;
 parasail_pcreator_t parasail_profile_create_stats_8_dispatcher;
+parasail_pcreator_t parasail_profile_create_stats_sat_dispatcher;
 
 /* declare and initialize the pointer to the dispatcher function */
 parasail_pcreator_t * parasail_profile_create_64_pointer = parasail_profile_create_64_dispatcher;
 parasail_pcreator_t * parasail_profile_create_32_pointer = parasail_profile_create_32_dispatcher;
 parasail_pcreator_t * parasail_profile_create_16_pointer = parasail_profile_create_16_dispatcher;
 parasail_pcreator_t * parasail_profile_create_8_pointer = parasail_profile_create_8_dispatcher;
+parasail_pcreator_t * parasail_profile_create_sat_pointer = parasail_profile_create_sat_dispatcher;
 parasail_pcreator_t * parasail_profile_create_stats_64_pointer = parasail_profile_create_stats_64_dispatcher;
 parasail_pcreator_t * parasail_profile_create_stats_32_pointer = parasail_profile_create_stats_32_dispatcher;
 parasail_pcreator_t * parasail_profile_create_stats_16_pointer = parasail_profile_create_stats_16_dispatcher;
 parasail_pcreator_t * parasail_profile_create_stats_8_pointer = parasail_profile_create_stats_8_dispatcher;
+parasail_pcreator_t * parasail_profile_create_stats_sat_pointer = parasail_profile_create_stats_sat_dispatcher;
 
 /* dispatcher function implementations */
 
@@ -175,6 +179,41 @@ parasail_profile_t* parasail_profile_create_8_dispatcher(
     return parasail_profile_create_8_pointer(s1, s1Len, matrix);
 }
 
+parasail_profile_t* parasail_profile_create_sat_dispatcher(
+        const char * const restrict s1, const int s1Len,
+        const parasail_matrix_t *matrix)
+{
+#if HAVE_KNC
+    if (1) {
+        parasail_profile_create_sat_pointer = parasail_profile_create_knc_512_32;
+    }
+    else
+#endif
+#if HAVE_AVX2
+    if (parasail_can_use_avx2()) {
+        parasail_profile_create_sat_pointer = parasail_profile_create_avx_256_sat;
+    }
+    else
+#endif
+#if HAVE_SSE41
+    if (parasail_can_use_sse41()) {
+        parasail_profile_create_sat_pointer = parasail_profile_create_sse_128_sat;
+    }
+    else
+#endif
+#if HAVE_SSE2
+    if (parasail_can_use_sse2()) {
+        parasail_profile_create_sat_pointer = parasail_profile_create_sse_128_sat;
+    }
+    else
+#endif
+    {
+        /* no fallback */
+        parasail_profile_create_sat_pointer = NULL;
+    }
+    return parasail_profile_create_sat_pointer(s1, s1Len, matrix);
+}
+
 parasail_profile_t* parasail_profile_create_stats_64_dispatcher(
         const char * const restrict s1, const int s1Len,
         const parasail_matrix_t *matrix)
@@ -315,6 +354,41 @@ parasail_profile_t* parasail_profile_create_stats_8_dispatcher(
     return parasail_profile_create_stats_8_pointer(s1, s1Len, matrix);
 }
 
+parasail_profile_t* parasail_profile_create_stats_sat_dispatcher(
+        const char * const restrict s1, const int s1Len,
+        const parasail_matrix_t *matrix)
+{
+#if HAVE_KNC
+    if (1) {
+        parasail_profile_create_stats_sat_pointer = parasail_profile_create_stats_knc_512_32;
+    }
+    else
+#endif
+#if HAVE_AVX2
+    if (parasail_can_use_avx2()) {
+        parasail_profile_create_stats_sat_pointer = parasail_profile_create_stats_avx_256_sat;
+    }
+    else
+#endif
+#if HAVE_SSE41
+    if (parasail_can_use_sse41()) {
+        parasail_profile_create_stats_sat_pointer = parasail_profile_create_stats_sse_128_sat;
+    }
+    else
+#endif
+#if HAVE_SSE2
+    if (parasail_can_use_sse2()) {
+        parasail_profile_create_stats_sat_pointer = parasail_profile_create_stats_sse_128_sat;
+    }
+    else
+#endif
+    {
+        /* no fallback */
+        parasail_profile_create_stats_sat_pointer = NULL;
+    }
+    return parasail_profile_create_stats_sat_pointer(s1, s1Len, matrix);
+}
+
 parasail_profile_t* parasail_profile_create_64(
         const char * const restrict s1, const int s1Len,
         const parasail_matrix_t *matrix)
@@ -347,15 +421,7 @@ parasail_profile_t* parasail_profile_create_sat(
         const char * const restrict s1, const int s1Len,
         const parasail_matrix_t *matrix)
 {
-    parasail_profile_t *profile8 = parasail_profile_create_8(s1, s1Len, matrix);
-    parasail_profile_t *profile16 = parasail_profile_create_16(s1, s1Len, matrix);
-    parasail_profile_t *profile32 = parasail_profile_create_32(s1, s1Len, matrix);
-    profile8->profile16 = profile16->profile16;
-    profile8->profile32 = profile32->profile32;
-    free(profile16);
-    free(profile32);
-
-    return profile8;
+    return parasail_profile_create_sat_pointer(s1, s1Len, matrix);
 }
 
 parasail_profile_t* parasail_profile_create_stats_64(
@@ -390,14 +456,6 @@ parasail_profile_t* parasail_profile_create_stats_sat(
         const char * const restrict s1, const int s1Len,
         const parasail_matrix_t *matrix)
 {
-    parasail_profile_t *profile8 = parasail_profile_create_stats_8(s1, s1Len, matrix);
-    parasail_profile_t *profile16 = parasail_profile_create_stats_16(s1, s1Len, matrix);
-    parasail_profile_t *profile32 = parasail_profile_create_stats_32(s1, s1Len, matrix);
-    profile8->profile16 = profile16->profile16;
-    profile8->profile32 = profile32->profile32;
-    free(profile16);
-    free(profile32);
-
-    return profile8;
+    return parasail_profile_create_stats_sat_pointer(s1, s1Len, matrix);
 }
 

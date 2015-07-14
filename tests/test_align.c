@@ -198,13 +198,6 @@ static inline void parse_sequences(
 }
 
 
-static inline int elem(parasail_function_info_t f) {
-    int i_bits = atoi(f.bits);
-    int i_width = atoi(f.width);
-    return i_bits / i_width;
-}
-
-
 int main(int argc, char **argv)
 {
     long seqA_index = LONG_MAX;
@@ -550,7 +543,7 @@ int main(int argc, char **argv)
                 "%-15s %8s %6s %4s %5s %5d "
                 "%8d %8d %8d %8d "
                 "%8.1f %5.1f %8.1f %8.0f %8.0f\n",
-                name, f.type, f.isa, f.bits, f.width, elem(f),
+                name, f.type, f.isa, f.bits, f.width, f.lanes,
                 score, matches, similar, length,
                 saturated ? 0 : stats_rdtsc._mean,
                 saturated ? 0 : pctf(timer_rdtsc_ref_mean, stats_rdtsc._mean),
@@ -563,7 +556,7 @@ int main(int argc, char **argv)
                 "%-15s %8s %6s %4s %5s %5d "
                 "%8d %8d %8d %8d "
                 "%8.3f %5.2f %8.3f %8.3f %8.3f\n",
-                name, f.type, f.isa, f.bits, f.width, elem(f),
+                name, f.type, f.isa, f.bits, f.width, f.lanes,
                 score, matches, similar, length,
                 saturated ? 0 : stats_nsecs._mean,
                 saturated ? 0 : pctf(timer_nsecs_ref_mean, stats_nsecs._mean),

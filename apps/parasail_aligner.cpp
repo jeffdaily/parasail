@@ -778,19 +778,23 @@ int main(int argc, char **argv) {
         }
 
         if (is_stats) {
-            eprintf(fop, "%d,%d,%d,%d,%d,%d\n",
+            eprintf(fop, "%d,%d,%d,%d,%d,%d,%d,%d\n",
                     i,
                     j,
                     result->score,
+                    result->end_query,
+                    result->end_ref,
                     result->matches,
                     result->similar,
                     result->length);
         }
         else {
-            eprintf(fop, "%d,%d,%d\n",
+            eprintf(fop, "%d,%d,%d,%d,%d\n",
                     i,
                     j,
-                    result->score);
+                    result->score,
+                    result->end_query,
+                    result->end_ref);
         }
         if (is_table) {
             char filename[256] = {'\0'};

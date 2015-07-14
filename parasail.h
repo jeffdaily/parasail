@@ -66,6 +66,8 @@ typedef struct parasail_result {
     int matches;    /* number of exactly matching characters in the alignment */
     int similar;    /* number of similar characters (positive substitutions) in the alignment */
     int length;     /* length of the alignment */
+    int end_query;  /* end position of query sequence */
+    int end_ref;    /* end position of reference sequence */
     int * restrict score_table;     /* DP table of scores */
     int * restrict matches_table;   /* DP table of exact match counts */
     int * restrict similar_table;   /* DP table of similar substitution counts */

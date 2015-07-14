@@ -9,6 +9,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <emmintrin.h>
 #include <smmintrin.h>
@@ -116,6 +117,8 @@ parasail_result_t* PNAME(
     int32_t i = 0;
     int32_t j = 0;
     int32_t k = 0;
+    int32_t end_query = 0;
+    int32_t end_ref = 0;
     int32_t segNum = 0;
     const int s1Len = profile->s1Len;
     const parasail_matrix_t *matrix = profile->matrix;
@@ -125,6 +128,7 @@ parasail_result_t* PNAME(
     __m128i* restrict pvHStore = parasail_memalign___m128i(16, segLen);
     __m128i* restrict pvHLoad =  parasail_memalign___m128i(16, segLen);
     __m128i* const restrict pvE = parasail_memalign___m128i(16, segLen);
+    __m128i* const restrict pvHMax = parasail_memalign___m128i(16, segLen);
     __m128i vGapO = _mm_set1_epi8(open);
     __m128i vGapE = _mm_set1_epi8(gap);
     __m128i vZero = _mm_set1_epi8(0);
@@ -132,6 +136,7 @@ parasail_result_t* PNAME(
     int8_t score = bias;
     __m128i vBias = _mm_set1_epi8(bias);
     __m128i vMaxH = vBias;
+    __m128i vMaxHUnit = vBias;
     __m128i insert_mask = _mm_cmpgt_epi8(
             _mm_set_epi8(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1),
             vZero);
@@ -234,6 +239,15 @@ end:
         {
         }
 
+        {
+            __m128i vCompare = _mm_cmpgt_epi8(vMaxH, vMaxHUnit);
+            if (_mm_movemask_epi8(vCompare)) {
+                vMaxHUnit = _mm_set1_epi8(_mm_hmax_epi8_rpl(vMaxH));
+                end_ref = j;
+                (void)memcpy(pvHMax, pvHStore, sizeof(__m128i)*segLen);
+            }
+        }
+
 #ifdef PARASAIL_ROWCOL
         /* extract last value from the column */
         {
@@ -244,6 +258,23 @@ end:
             result->score_row[j] = (int8_t) _mm_extract_epi8 (vH, 15) - bias;
         }
 #endif
+    }
+
+    /* Trace the alignment ending position on read. */
+    {
+        int8_t *t = (int8_t*)pvHMax;
+        int32_t column_len = segLen * segWidth;
+        int8_t max = _mm_extract_epi8(vMaxHUnit, 0);
+        end_query = s1Len - 1;
+        for (i = 0; i<column_len; ++i, ++t) {
+            int32_t temp;
+            if (*t == max) {
+                temp = i / 8 + i % 8 * segLen;
+                if (temp < end_query) {
+                    end_query = temp;
+                }
+            }
+        }
     }
 
 #ifdef PARASAIL_ROWCOL
@@ -261,7 +292,10 @@ end:
     }
 
     result->score = score - bias;
+    result->end_query = end_query;
+    result->end_ref = end_ref;
 
+    parasail_free(pvHMax);
     parasail_free(pvE);
     parasail_free(pvHLoad);
     parasail_free(pvHStore);

@@ -9,6 +9,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 %(HEADER)s
 
@@ -77,6 +78,8 @@ parasail_result_t* PNAME(
     %(INDEX)s i = 0;
     %(INDEX)s j = 0;
     %(INDEX)s k = 0;
+    %(INDEX)s end_query = 0;
+    %(INDEX)s end_ref = 0;
     %(INDEX)s segNum = 0;
     const int s1Len = profile->s1Len;
     const parasail_matrix_t *matrix = profile->matrix;
@@ -98,8 +101,13 @@ parasail_result_t* PNAME(
     %(VTYPE)s* const restrict pvEM      = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
     %(VTYPE)s* const restrict pvES      = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
     %(VTYPE)s* const restrict pvEL      = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
+    %(VTYPE)s* restrict pvHMax          = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
+    %(VTYPE)s* restrict pvHMMax          = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
+    %(VTYPE)s* restrict pvHSMax          = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
+    %(VTYPE)s* restrict pvHLMax          = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
     %(VTYPE)s vGapO = %(VSET1)s(open);
     %(VTYPE)s vGapE = %(VSET1)s(gap);
+    %(VTYPE)s vZero = %(VSET1)s(0);
     %(VTYPE)s vOne = %(VSET1)s(1);
     %(INT)s bias = INT%(WIDTH)s_MIN;
     %(INT)s score = bias;
@@ -111,6 +119,10 @@ parasail_result_t* PNAME(
     %(VTYPE)s vMaxHM = vBias;
     %(VTYPE)s vMaxHS = vBias;
     %(VTYPE)s vMaxHL = vBias;
+    %(VTYPE)s vMaxHUnit = vBias;
+    %(VTYPE)s insert_mask = %(VCMPGT)s(
+            %(VSET)s(%(STRIPED_INSERT_MASK)s),
+            vZero);
     %(VTYPE)s vSaturationCheckMax = vBias;
     %(VTYPE)s vPosLimit = %(VSET1)s(INT%(WIDTH)s_MAX);
 #ifdef PARASAIL_TABLE
@@ -176,10 +188,10 @@ parasail_result_t* PNAME(
         vHM = %(VSHIFT)s(pvHMStore[segLen - 1], %(BYTES)s);
         vHS = %(VSHIFT)s(pvHSStore[segLen - 1], %(BYTES)s);
         vHL = %(VSHIFT)s(pvHLStore[segLen - 1], %(BYTES)s);
-        vH = %(VINSERT)s(vH, bias, 0);
-        vHM = %(VINSERT)s(vHM, bias, 0);
-        vHS = %(VINSERT)s(vHS, bias, 0);
-        vHL = %(VINSERT)s(vHL, bias, 0);
+        vH = %(VBLEND)s(vH, vBias, insert_mask);
+        vHM = %(VBLEND)s(vHM, vBias, insert_mask);
+        vHS = %(VBLEND)s(vHS, vBias, insert_mask);
+        vHL = %(VBLEND)s(vHL, vBias, insert_mask);
 
         /* Correct part of the vProfile */
         vP = vProfile + matrix->mapper[(unsigned char)s2[j]] * segLen;
@@ -310,11 +322,11 @@ parasail_result_t* PNAME(
             vFM = %(VSHIFT)s(vFM, %(BYTES)s);
             vFS = %(VSHIFT)s(vFS, %(BYTES)s);
             vFL = %(VSHIFT)s(vFL, %(BYTES)s);
-            vHp = %(VINSERT)s(vHp, bias, 0);
-            vF  = %(VINSERT)s(vF,  bias, 0);
-            vFM = %(VINSERT)s(vFM, bias, 0);
-            vFS = %(VINSERT)s(vFS, bias, 0);
-            vFL = %(VINSERT)s(vFL, bias, 0);
+            vHp = %(VBLEND)s(vHp, vBias, insert_mask);
+            vF = %(VBLEND)s(vF, vBias, insert_mask);
+            vFM = %(VBLEND)s(vFM, vBias, insert_mask);
+            vFS = %(VBLEND)s(vFS, vBias, insert_mask);
+            vFL = %(VBLEND)s(vFL, vBias, insert_mask);
             for (i=0; i<segLen; ++i) {
                 %(VTYPE)s case1not;
                 %(VTYPE)s case2not;
@@ -376,6 +388,18 @@ end:
         {
         }
 
+        {
+            %(VTYPE)s vCompare = %(VCMPGT)s(vMaxH, vMaxHUnit);
+            if (%(VMOVEMASK)s(vCompare)) {
+                vMaxHUnit = %(VSET1)s(%(VHMAX)s(vMaxH));
+                end_ref = j;
+                (void)memcpy(pvHMax, pvHStore, sizeof(%(VTYPE)s)*segLen);
+                (void)memcpy(pvHMMax, pvHMStore, sizeof(%(VTYPE)s)*segLen);
+                (void)memcpy(pvHSMax, pvHSStore, sizeof(%(VTYPE)s)*segLen);
+                (void)memcpy(pvHLMax, pvHLStore, sizeof(%(VTYPE)s)*segLen);
+            }
+        }
+
 #ifdef PARASAIL_ROWCOL
         /* extract last value from the column */
         {
@@ -397,6 +421,29 @@ end:
 #endif
     }
 
+    /* Trace the alignment ending position on read. */
+    {
+        %(INT)s *t = (%(INT)s*)pvHMax;
+        %(INT)s *m = (%(INT)s*)pvHMMax;
+        %(INT)s *s = (%(INT)s*)pvHSMax;
+        %(INT)s *l = (%(INT)s*)pvHLMax;
+        %(INDEX)s column_len = segLen * segWidth;
+        score = %(VEXTRACT)s(vMaxHUnit, 0);
+        end_query = s1Len - 1;
+        for (i = 0; i<column_len; ++i, ++t, ++m, ++s, ++l) {
+            %(INDEX)s temp;
+            if (*t == score) {
+                temp = i / segWidth + i %% segWidth * segLen;
+                if (temp < end_query) {
+                    end_query = temp;
+                    matches = *m;
+                    similar = *s;
+                    length = *l;
+                }
+            }
+        }
+    }
+
 #ifdef PARASAIL_ROWCOL
     for (i=0; i<segLen; ++i) {
         %(VTYPE)s vH = %(VLOAD)s(pvHStore+i);
@@ -410,6 +457,7 @@ end:
     }
 #endif
 
+#if 0
     /* max in vec */
     for (j=0; j<segWidth; ++j) {
         %(INT)s value = (%(INT)s) %(VEXTRACT)s(vMaxH, %(LAST_POS)s);
@@ -424,6 +472,7 @@ end:
         vMaxHS = %(VSHIFT)s(vMaxHS, %(BYTES)s);
         vMaxHL = %(VSHIFT)s(vMaxHL, %(BYTES)s);
     }
+#endif
 
     if (score == INT%(WIDTH)s_MAX
             || %(VMOVEMASK)s(%(VCMPEQ)s(vSaturationCheckMax,vPosLimit))) {
@@ -438,7 +487,13 @@ end:
     result->matches = matches - bias;
     result->similar = similar - bias;
     result->length = length - bias;
+    result->end_query = end_query;
+    result->end_ref = end_ref;
 
+    parasail_free(pvHLMax);
+    parasail_free(pvHSMax);
+    parasail_free(pvHMMax);
+    parasail_free(pvHMax);
     parasail_free(pvEL);
     parasail_free(pvES);
     parasail_free(pvEM);
@@ -455,4 +510,3 @@ end:
 
     return result;
 }
-

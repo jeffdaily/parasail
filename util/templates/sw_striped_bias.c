@@ -132,19 +132,24 @@ parasail_result_t* PNAME(
     /* outer loop over database sequence */
     for (j=0; j<s2Len; ++j) {
         %(VTYPE)s vE;
+        %(VTYPE)s vF;
+        %(VTYPE)s vH;
+        const %(VTYPE)s* vP = NULL;
+        %(VTYPE)s* pv = NULL;
+
         /* Initialize F value to 0.  Any errors to vH values will be
          * corrected in the Lazy_F loop.  */
-        %(VTYPE)s vF = vBias;
+        vF = vBias;
 
         /* load final segment of pvHStore and shift left by 2 bytes */
-        %(VTYPE)s vH = %(VSHIFT)s(pvHStore[segLen - 1], %(BYTES)s);
+        vH = %(VSHIFT)s(pvHStore[segLen - 1], %(BYTES)s);
         vH = %(VBLEND)s(vH, vBias, insert_mask);
 
         /* Correct part of the vProfile */
-        const %(VTYPE)s* vP = vProfile + matrix->mapper[(unsigned char)s2[j]] * segLen;
+        vP = vProfile + matrix->mapper[(unsigned char)s2[j]] * segLen;
 
         /* Swap the 2 H buffers. */
-        %(VTYPE)s* pv = pvHLoad;
+        pv = pvHLoad;
         pvHLoad = pvHStore;
         pvHStore = pv;
 
@@ -225,11 +230,11 @@ end:
     {
         %(INT)s *t = (%(INT)s*)pvHMax;
         %(INDEX)s column_len = segLen * segWidth;
-        %(INT)s max = %(VEXTRACT)s(vMaxHUnit, 0);
+        score = %(VEXTRACT)s(vMaxHUnit, 0);
         end_query = s1Len - 1;
         for (i = 0; i<column_len; ++i, ++t) {
             %(INDEX)s temp;
-            if (*t == max) {
+            if (*t == score) {
                 temp = i / segWidth + i %% segWidth * segLen;
                 if (temp < end_query) {
                     end_query = temp;
@@ -244,8 +249,6 @@ end:
         arr_store_col(result->score_col, vH, i, segLen, bias);
     }
 #endif
-
-    score = %(VHMAX)s(vMaxH);
 
     if (score == INT%(WIDTH)s_MAX) {
         result->saturated = 1;

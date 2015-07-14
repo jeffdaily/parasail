@@ -9,6 +9,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <immintrin.h>
 
@@ -19,17 +20,6 @@
 #define NEG_INF (INT16_MIN/(int16_t)(2))
 
 #define _mm256_cmplt_epi16_rpl(a,b) _mm256_cmpgt_epi16(b,a)
-
-#if HAVE_AVX2_MM256_INSERT_EPI16
-#define _mm256_insert_epi16_rpl _mm256_insert_epi16
-#else
-static inline __m256i _mm256_insert_epi16_rpl(__m256i a, int16_t i, int imm) {
-    __m256i_16_t A;
-    A.m = a;
-    A.v[imm] = i;
-    return A.m;
-}
-#endif
 
 #if HAVE_AVX2_MM256_EXTRACT_EPI16
 #define _mm256_extract_epi16_rpl _mm256_extract_epi16
@@ -42,6 +32,14 @@ static inline int16_t _mm256_extract_epi16_rpl(__m256i a, int imm) {
 #endif
 
 #define _mm256_slli_si256_rpl(a,imm) _mm256_alignr_epi8(a, _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,3,0)), 16-imm)
+
+static inline int16_t _mm256_hmax_epi16_rpl(__m256i a) {
+    a = _mm256_max_epi16(a, _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,0,0)));
+    a = _mm256_max_epi16(a, _mm256_slli_si256(a, 8));
+    a = _mm256_max_epi16(a, _mm256_slli_si256(a, 4));
+    a = _mm256_max_epi16(a, _mm256_slli_si256(a, 2));
+    return _mm256_extract_epi16_rpl(a, 15);
+}
 
 
 #ifdef PARASAIL_TABLE
@@ -132,6 +130,8 @@ parasail_result_t* PNAME(
     int32_t i = 0;
     int32_t j = 0;
     int32_t k = 0;
+    int32_t end_query = 0;
+    int32_t end_ref = 0;
     int32_t segNum = 0;
     const int s1Len = profile->s1Len;
     const parasail_matrix_t *matrix = profile->matrix;
@@ -153,8 +153,13 @@ parasail_result_t* PNAME(
     __m256i* const restrict pvEM      = parasail_memalign___m256i(32, segLen);
     __m256i* const restrict pvES      = parasail_memalign___m256i(32, segLen);
     __m256i* const restrict pvEL      = parasail_memalign___m256i(32, segLen);
+    __m256i* restrict pvHMax          = parasail_memalign___m256i(32, segLen);
+    __m256i* restrict pvHMMax          = parasail_memalign___m256i(32, segLen);
+    __m256i* restrict pvHSMax          = parasail_memalign___m256i(32, segLen);
+    __m256i* restrict pvHLMax          = parasail_memalign___m256i(32, segLen);
     __m256i vGapO = _mm256_set1_epi16(open);
     __m256i vGapE = _mm256_set1_epi16(gap);
+    __m256i vZero = _mm256_set1_epi16(0);
     __m256i vOne = _mm256_set1_epi16(1);
     int16_t bias = INT16_MIN;
     int16_t score = bias;
@@ -166,6 +171,10 @@ parasail_result_t* PNAME(
     __m256i vMaxHM = vBias;
     __m256i vMaxHS = vBias;
     __m256i vMaxHL = vBias;
+    __m256i vMaxHUnit = vBias;
+    __m256i insert_mask = _mm256_cmpgt_epi16(
+            _mm256_set_epi16(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1),
+            vZero);
     __m256i vSaturationCheckMax = vBias;
     __m256i vPosLimit = _mm256_set1_epi16(INT16_MAX);
 #ifdef PARASAIL_TABLE
@@ -231,10 +240,10 @@ parasail_result_t* PNAME(
         vHM = _mm256_slli_si256_rpl(pvHMStore[segLen - 1], 2);
         vHS = _mm256_slli_si256_rpl(pvHSStore[segLen - 1], 2);
         vHL = _mm256_slli_si256_rpl(pvHLStore[segLen - 1], 2);
-        vH = _mm256_insert_epi16_rpl(vH, bias, 0);
-        vHM = _mm256_insert_epi16_rpl(vHM, bias, 0);
-        vHS = _mm256_insert_epi16_rpl(vHS, bias, 0);
-        vHL = _mm256_insert_epi16_rpl(vHL, bias, 0);
+        vH = _mm256_blendv_epi8(vH, vBias, insert_mask);
+        vHM = _mm256_blendv_epi8(vHM, vBias, insert_mask);
+        vHS = _mm256_blendv_epi8(vHS, vBias, insert_mask);
+        vHL = _mm256_blendv_epi8(vHL, vBias, insert_mask);
 
         /* Correct part of the vProfile */
         vP = vProfile + matrix->mapper[(unsigned char)s2[j]] * segLen;
@@ -365,11 +374,11 @@ parasail_result_t* PNAME(
             vFM = _mm256_slli_si256_rpl(vFM, 2);
             vFS = _mm256_slli_si256_rpl(vFS, 2);
             vFL = _mm256_slli_si256_rpl(vFL, 2);
-            vHp = _mm256_insert_epi16_rpl(vHp, bias, 0);
-            vF  = _mm256_insert_epi16_rpl(vF,  bias, 0);
-            vFM = _mm256_insert_epi16_rpl(vFM, bias, 0);
-            vFS = _mm256_insert_epi16_rpl(vFS, bias, 0);
-            vFL = _mm256_insert_epi16_rpl(vFL, bias, 0);
+            vHp = _mm256_blendv_epi8(vHp, vBias, insert_mask);
+            vF = _mm256_blendv_epi8(vF, vBias, insert_mask);
+            vFM = _mm256_blendv_epi8(vFM, vBias, insert_mask);
+            vFS = _mm256_blendv_epi8(vFS, vBias, insert_mask);
+            vFL = _mm256_blendv_epi8(vFL, vBias, insert_mask);
             for (i=0; i<segLen; ++i) {
                 __m256i case1not;
                 __m256i case2not;
@@ -431,6 +440,18 @@ end:
         {
         }
 
+        {
+            __m256i vCompare = _mm256_cmpgt_epi16(vMaxH, vMaxHUnit);
+            if (_mm256_movemask_epi8(vCompare)) {
+                vMaxHUnit = _mm256_set1_epi16(_mm256_hmax_epi16_rpl(vMaxH));
+                end_ref = j;
+                (void)memcpy(pvHMax, pvHStore, sizeof(__m256i)*segLen);
+                (void)memcpy(pvHMMax, pvHMStore, sizeof(__m256i)*segLen);
+                (void)memcpy(pvHSMax, pvHSStore, sizeof(__m256i)*segLen);
+                (void)memcpy(pvHLMax, pvHLStore, sizeof(__m256i)*segLen);
+            }
+        }
+
 #ifdef PARASAIL_ROWCOL
         /* extract last value from the column */
         {
@@ -452,6 +473,29 @@ end:
 #endif
     }
 
+    /* Trace the alignment ending position on read. */
+    {
+        int16_t *t = (int16_t*)pvHMax;
+        int16_t *m = (int16_t*)pvHMMax;
+        int16_t *s = (int16_t*)pvHSMax;
+        int16_t *l = (int16_t*)pvHLMax;
+        int32_t column_len = segLen * segWidth;
+        score = _mm256_extract_epi16_rpl(vMaxHUnit, 0);
+        end_query = s1Len - 1;
+        for (i = 0; i<column_len; ++i, ++t, ++m, ++s, ++l) {
+            int32_t temp;
+            if (*t == score) {
+                temp = i / segWidth + i % segWidth * segLen;
+                if (temp < end_query) {
+                    end_query = temp;
+                    matches = *m;
+                    similar = *s;
+                    length = *l;
+                }
+            }
+        }
+    }
+
 #ifdef PARASAIL_ROWCOL
     for (i=0; i<segLen; ++i) {
         __m256i vH = _mm256_load_si256(pvHStore+i);
@@ -465,6 +509,7 @@ end:
     }
 #endif
 
+#if 0
     /* max in vec */
     for (j=0; j<segWidth; ++j) {
         int16_t value = (int16_t) _mm256_extract_epi16_rpl(vMaxH, 15);
@@ -479,6 +524,7 @@ end:
         vMaxHS = _mm256_slli_si256_rpl(vMaxHS, 2);
         vMaxHL = _mm256_slli_si256_rpl(vMaxHL, 2);
     }
+#endif
 
     if (score == INT16_MAX
             || _mm256_movemask_epi8(_mm256_cmpeq_epi16(vSaturationCheckMax,vPosLimit))) {
@@ -493,7 +539,13 @@ end:
     result->matches = matches - bias;
     result->similar = similar - bias;
     result->length = length - bias;
+    result->end_query = end_query;
+    result->end_ref = end_ref;
 
+    parasail_free(pvHLMax);
+    parasail_free(pvHSMax);
+    parasail_free(pvHMMax);
+    parasail_free(pvHMax);
     parasail_free(pvEL);
     parasail_free(pvES);
     parasail_free(pvEM);
@@ -510,5 +562,4 @@ end:
 
     return result;
 }
-
 

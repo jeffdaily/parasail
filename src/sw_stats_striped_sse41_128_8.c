@@ -9,6 +9,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <emmintrin.h>
 #include <smmintrin.h>
@@ -18,6 +19,14 @@
 #include "parasail/internal_sse.h"
 
 #define NEG_INF INT8_MIN
+
+static inline int8_t _mm_hmax_epi8_rpl(__m128i a) {
+    a = _mm_max_epi8(a, _mm_srli_si128(a, 8));
+    a = _mm_max_epi8(a, _mm_srli_si128(a, 4));
+    a = _mm_max_epi8(a, _mm_srli_si128(a, 2));
+    a = _mm_max_epi8(a, _mm_srli_si128(a, 1));
+    return _mm_extract_epi8(a, 0);
+}
 
 
 #ifdef PARASAIL_TABLE
@@ -108,6 +117,8 @@ parasail_result_t* PNAME(
     int32_t i = 0;
     int32_t j = 0;
     int32_t k = 0;
+    int32_t end_query = 0;
+    int32_t end_ref = 0;
     int32_t segNum = 0;
     const int s1Len = profile->s1Len;
     const parasail_matrix_t *matrix = profile->matrix;
@@ -129,8 +140,13 @@ parasail_result_t* PNAME(
     __m128i* const restrict pvEM      = parasail_memalign___m128i(16, segLen);
     __m128i* const restrict pvES      = parasail_memalign___m128i(16, segLen);
     __m128i* const restrict pvEL      = parasail_memalign___m128i(16, segLen);
+    __m128i* restrict pvHMax          = parasail_memalign___m128i(16, segLen);
+    __m128i* restrict pvHMMax          = parasail_memalign___m128i(16, segLen);
+    __m128i* restrict pvHSMax          = parasail_memalign___m128i(16, segLen);
+    __m128i* restrict pvHLMax          = parasail_memalign___m128i(16, segLen);
     __m128i vGapO = _mm_set1_epi8(open);
     __m128i vGapE = _mm_set1_epi8(gap);
+    __m128i vZero = _mm_set1_epi8(0);
     __m128i vOne = _mm_set1_epi8(1);
     int8_t bias = INT8_MIN;
     int8_t score = bias;
@@ -142,6 +158,10 @@ parasail_result_t* PNAME(
     __m128i vMaxHM = vBias;
     __m128i vMaxHS = vBias;
     __m128i vMaxHL = vBias;
+    __m128i vMaxHUnit = vBias;
+    __m128i insert_mask = _mm_cmpgt_epi8(
+            _mm_set_epi8(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1),
+            vZero);
     __m128i vSaturationCheckMax = vBias;
     __m128i vPosLimit = _mm_set1_epi8(INT8_MAX);
 #ifdef PARASAIL_TABLE
@@ -207,10 +227,10 @@ parasail_result_t* PNAME(
         vHM = _mm_slli_si128(pvHMStore[segLen - 1], 1);
         vHS = _mm_slli_si128(pvHSStore[segLen - 1], 1);
         vHL = _mm_slli_si128(pvHLStore[segLen - 1], 1);
-        vH = _mm_insert_epi8(vH, bias, 0);
-        vHM = _mm_insert_epi8(vHM, bias, 0);
-        vHS = _mm_insert_epi8(vHS, bias, 0);
-        vHL = _mm_insert_epi8(vHL, bias, 0);
+        vH = _mm_blendv_epi8(vH, vBias, insert_mask);
+        vHM = _mm_blendv_epi8(vHM, vBias, insert_mask);
+        vHS = _mm_blendv_epi8(vHS, vBias, insert_mask);
+        vHL = _mm_blendv_epi8(vHL, vBias, insert_mask);
 
         /* Correct part of the vProfile */
         vP = vProfile + matrix->mapper[(unsigned char)s2[j]] * segLen;
@@ -341,11 +361,11 @@ parasail_result_t* PNAME(
             vFM = _mm_slli_si128(vFM, 1);
             vFS = _mm_slli_si128(vFS, 1);
             vFL = _mm_slli_si128(vFL, 1);
-            vHp = _mm_insert_epi8(vHp, bias, 0);
-            vF  = _mm_insert_epi8(vF,  bias, 0);
-            vFM = _mm_insert_epi8(vFM, bias, 0);
-            vFS = _mm_insert_epi8(vFS, bias, 0);
-            vFL = _mm_insert_epi8(vFL, bias, 0);
+            vHp = _mm_blendv_epi8(vHp, vBias, insert_mask);
+            vF = _mm_blendv_epi8(vF, vBias, insert_mask);
+            vFM = _mm_blendv_epi8(vFM, vBias, insert_mask);
+            vFS = _mm_blendv_epi8(vFS, vBias, insert_mask);
+            vFL = _mm_blendv_epi8(vFL, vBias, insert_mask);
             for (i=0; i<segLen; ++i) {
                 __m128i case1not;
                 __m128i case2not;
@@ -407,6 +427,18 @@ end:
         {
         }
 
+        {
+            __m128i vCompare = _mm_cmpgt_epi8(vMaxH, vMaxHUnit);
+            if (_mm_movemask_epi8(vCompare)) {
+                vMaxHUnit = _mm_set1_epi8(_mm_hmax_epi8_rpl(vMaxH));
+                end_ref = j;
+                (void)memcpy(pvHMax, pvHStore, sizeof(__m128i)*segLen);
+                (void)memcpy(pvHMMax, pvHMStore, sizeof(__m128i)*segLen);
+                (void)memcpy(pvHSMax, pvHSStore, sizeof(__m128i)*segLen);
+                (void)memcpy(pvHLMax, pvHLStore, sizeof(__m128i)*segLen);
+            }
+        }
+
 #ifdef PARASAIL_ROWCOL
         /* extract last value from the column */
         {
@@ -428,6 +460,29 @@ end:
 #endif
     }
 
+    /* Trace the alignment ending position on read. */
+    {
+        int8_t *t = (int8_t*)pvHMax;
+        int8_t *m = (int8_t*)pvHMMax;
+        int8_t *s = (int8_t*)pvHSMax;
+        int8_t *l = (int8_t*)pvHLMax;
+        int32_t column_len = segLen * segWidth;
+        score = _mm_extract_epi8(vMaxHUnit, 0);
+        end_query = s1Len - 1;
+        for (i = 0; i<column_len; ++i, ++t, ++m, ++s, ++l) {
+            int32_t temp;
+            if (*t == score) {
+                temp = i / segWidth + i % segWidth * segLen;
+                if (temp < end_query) {
+                    end_query = temp;
+                    matches = *m;
+                    similar = *s;
+                    length = *l;
+                }
+            }
+        }
+    }
+
 #ifdef PARASAIL_ROWCOL
     for (i=0; i<segLen; ++i) {
         __m128i vH = _mm_load_si128(pvHStore+i);
@@ -441,6 +496,7 @@ end:
     }
 #endif
 
+#if 0
     /* max in vec */
     for (j=0; j<segWidth; ++j) {
         int8_t value = (int8_t) _mm_extract_epi8(vMaxH, 15);
@@ -455,6 +511,7 @@ end:
         vMaxHS = _mm_slli_si128(vMaxHS, 1);
         vMaxHL = _mm_slli_si128(vMaxHL, 1);
     }
+#endif
 
     if (score == INT8_MAX
             || _mm_movemask_epi8(_mm_cmpeq_epi8(vSaturationCheckMax,vPosLimit))) {
@@ -469,7 +526,13 @@ end:
     result->matches = matches - bias;
     result->similar = similar - bias;
     result->length = length - bias;
+    result->end_query = end_query;
+    result->end_ref = end_ref;
 
+    parasail_free(pvHLMax);
+    parasail_free(pvHSMax);
+    parasail_free(pvHMMax);
+    parasail_free(pvHMax);
     parasail_free(pvEL);
     parasail_free(pvES);
     parasail_free(pvEM);
@@ -486,5 +549,4 @@ end:
 
     return result;
 }
-
 

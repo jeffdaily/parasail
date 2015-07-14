@@ -230,7 +230,7 @@ end:
         for (i = 0; i<column_len; ++i, ++t) {
             %(INDEX)s temp;
             if (*t == max) {
-                temp = i / 8 + i %% 8 * segLen;
+                temp = i / segWidth + i %% segWidth * segLen;
                 if (temp < end_query) {
                     end_query = temp;
                 }

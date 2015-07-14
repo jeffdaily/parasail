@@ -9,6 +9,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 %(HEADER)s
 
@@ -75,6 +76,8 @@ parasail_result_t* PNAME(
     %(INDEX)s i = 0;
     %(INDEX)s j = 0;
     %(INDEX)s k = 0;
+    %(INDEX)s end_query = 0;
+    %(INDEX)s end_ref = 0;
     %(INDEX)s segNum = 0;
     const int s1Len = profile->s1Len;
     const parasail_matrix_t *matrix = profile->matrix;
@@ -84,12 +87,14 @@ parasail_result_t* PNAME(
     %(VTYPE)s* restrict pvHStore = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
     %(VTYPE)s* restrict pvHLoad =  parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
     %(VTYPE)s* const restrict pvE = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
+    %(VTYPE)s* const restrict pvHMax = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
     %(VTYPE)s vGapO = %(VSET1)s(open);
     %(VTYPE)s vGapE = %(VSET1)s(gap);
     %(VTYPE)s vZero = %(VSET0)s();
     %(VTYPE)s vNegInf = %(VSET1)s(NEG_INF);
     %(INT)s score = NEG_INF;
     %(VTYPE)s vMaxH = vNegInf;
+    %(VTYPE)s vMaxHUnit = vNegInf;
     %(SATURATION_CHECK_INIT)s
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
@@ -191,6 +196,15 @@ end:
         {
         }
 
+        {
+            %(VTYPE)s vCompare = %(VCMPGT)s(vMaxH, vMaxHUnit);
+            if (%(VMOVEMASK)s(vCompare)) {
+                vMaxHUnit = %(VSET1)s(%(VHMAX)s(vMaxH));
+                end_ref = j;
+                (void)memcpy(pvHMax, pvHStore, sizeof(%(VTYPE)s)*segLen);
+            }
+        }
+
 #ifdef PARASAIL_ROWCOL
         /* extract last value from the column */
         {
@@ -201,6 +215,23 @@ end:
             result->score_row[j] = (%(INT)s) %(VEXTRACT)s (vH, %(LAST_POS)s);
         }
 #endif
+    }
+
+    /* Trace the alignment ending position on read. */
+    {
+        %(INT)s *t = (%(INT)s*)pvHMax;
+        %(INDEX)s column_len = segLen * segWidth;
+        %(INT)s max = %(VEXTRACT)s(vMaxHUnit, 0);
+        end_query = s1Len - 1;
+        for (i = 0; i<column_len; ++i, ++t) {
+            %(INDEX)s temp;
+            if (*t == max) {
+                temp = i / segWidth + i %% segWidth * segLen;
+                if (temp < end_query) {
+                    end_query = temp;
+                }
+            }
+        }
     }
 
 #ifdef PARASAIL_ROWCOL
@@ -222,7 +253,10 @@ end:
     %(SATURATION_CHECK_FINAL)s
 
     result->score = score;
+    result->end_query = end_query;
+    result->end_ref = end_ref;
 
+    parasail_free(pvHMax);
     parasail_free(pvE);
     parasail_free(pvHLoad);
     parasail_free(pvHStore);

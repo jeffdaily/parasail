@@ -52,6 +52,15 @@ static inline __m256i _mm256_packs_epi16_rpl(__m256i a, __m256i b) {
 
 #define _mm256_slli_si256_rpl(a,imm) _mm256_alignr_epi8(a, _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,3,0)), 16-imm)
 
+static inline int8_t _mm256_hmax_epi8_rpl(__m256i a) {
+    a = _mm256_max_epi8(a, _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,0,0)));
+    a = _mm256_max_epi8(a, _mm256_slli_si256(a, 8));
+    a = _mm256_max_epi8(a, _mm256_slli_si256(a, 4));
+    a = _mm256_max_epi8(a, _mm256_slli_si256(a, 2));
+    a = _mm256_max_epi8(a, _mm256_slli_si256(a, 1));
+    return _mm256_extract_epi8_rpl(a, 31);
+}
+
 
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si256(
@@ -404,6 +413,8 @@ parasail_result_t* FNAME(
 #endif
     int32_t i = 0;
     int32_t j = 0;
+    int8_t end_query = 0;
+    int8_t end_ref = 0;
     int8_t score = NEG_INF;
     __m256i vNegInf = _mm256_set1_epi8(NEG_INF);
     __m256i vNegInf0 = _mm256_srli_si256_rpl(vNegInf, 1); /* shift in a 0 */
@@ -418,6 +429,12 @@ parasail_result_t* FNAME(
     __m256i vJresetLo16 = _mm256_set_epi16(-16,-17,-18,-19,-20,-21,-22,-23,-24,-25,-26,-27,-28,-29,-30,-31);
     __m256i vJresetHi16 = _mm256_set_epi16(0,-1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11,-12,-13,-14,-15);
     __m256i vMax = vNegInf;
+    __m256i vMaxUnit = vNegInf;
+    __m256i vEndH = vNegInf;
+    __m256i vEndILo = vNegInf;
+    __m256i vEndIHi = vNegInf;
+    __m256i vEndJLo = vNegInf;
+    __m256i vEndJHi = vNegInf;
     __m256i vILimit16 = _mm256_set1_epi16(s1Len);
     __m256i vJLimit16 = _mm256_set1_epi16(s2Len);
     __m256i vNegLimit = _mm256_set1_epi8(INT8_MIN);
@@ -584,6 +601,7 @@ parasail_result_t* FNAME(
             /* as minor diagonal vector passes across table, extract
              * max values within the i,j bounds */
             {
+                __m256i vCompare;
                 __m256i cond_valid_J = _mm256_and_si256(
                         _mm256_packs_epi16_rpl(
                             _mm256_cmpgt_epi16(vJLo16, vNegOne16),
@@ -595,12 +613,44 @@ parasail_result_t* FNAME(
                 __m256i cond_all = _mm256_and_si256(cond_max,
                         _mm256_and_si256(vIltLimit, cond_valid_J));
                 vMax = _mm256_blendv_epi8(vMax, vWscore, cond_all);
+                vCompare = _mm256_cmpgt_epi8(vMax, vMaxUnit);
+                if (_mm256_movemask_epi8(vCompare)) {
+                    score = _mm256_hmax_epi8_rpl(vMax);
+                    vMaxUnit = _mm256_set1_epi8(score);
+                    vEndH = vMax;
+                    vEndILo = vILo16;
+                    vEndIHi = vIHi16;
+                    vEndJLo = vJLo16;
+                    vEndJHi = vJHi16;
+                }
             }
             vJLo16 = _mm256_add_epi16(vJLo16, vOne16);
             vJHi16 = _mm256_add_epi16(vJHi16, vOne16);
         }
         vILo16 = _mm256_add_epi16(vILo16, vN16);
         vIHi16 = _mm256_add_epi16(vIHi16, vN16);
+    }
+
+    /* alignment ending position */
+    {
+        int8_t *t = (int8_t*)&vEndH;
+        int16_t *ilo = (int16_t*)&vEndILo;
+        int16_t *jlo = (int16_t*)&vEndJLo;
+        int16_t *ihi = (int16_t*)&vEndIHi;
+        int16_t *jhi = (int16_t*)&vEndJHi;
+        int32_t k;
+        for (k=0; k<N/2; ++k, ++t, ++ilo, ++jlo) {
+            if (*t == score && *ilo < s1Len && *jlo > -1 && *jlo < s2Len) {
+                end_query = *ilo;
+                end_ref = *jlo;
+            }
+        }
+        for (k=N/2; k<N; ++k, ++t, ++ihi, ++jhi) {
+            if (*t == score && *ihi < s1Len && *jhi > -1 && *jhi < s2Len) {
+                end_query = *ihi;
+                end_ref = *jhi;
+            }
+        }
     }
 
     /* max in vMax */
@@ -621,6 +671,8 @@ parasail_result_t* FNAME(
     }
 
     result->score = score;
+    result->end_query = end_query;
+    result->end_ref = end_ref;
 
     parasail_free(_del_pr);
     parasail_free(_tbl_pr);

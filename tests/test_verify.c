@@ -206,6 +206,26 @@ static void check_functions(
                                     reference_result->score, result->score);
                         }
                     }
+                    if (reference_result->end_query != result->end_query) {
+#pragma omp critical(printer)
+                        {
+                            printf("%s(%lu,%lu,%d,%d,%s) wrong end_query (%d!=%d)\n",
+                                    functions[function_index].name,
+                                    a, b, open, extend,
+                                    matrixname,
+                                    reference_result->end_query, result->end_query);
+                        }
+                    }
+                    if (reference_result->end_ref != result->end_ref) {
+#pragma omp critical(printer)
+                        {
+                            printf("%s(%lu,%lu,%d,%d,%s) wrong end_ref (%d!=%d)\n",
+                                    functions[function_index].name,
+                                    a, b, open, extend,
+                                    matrixname,
+                                    reference_result->end_ref, result->end_ref);
+                        }
+                    }
                     parasail_result_free(reference_result);
                     parasail_result_free(result);
                 }

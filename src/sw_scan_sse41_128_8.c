@@ -9,6 +9,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <emmintrin.h>
 #include <smmintrin.h>
@@ -20,6 +21,14 @@
 #define NEG_INF INT8_MIN
 
 #define _mm_rlli_si128_rpl(a,imm) _mm_alignr_epi8(a, a, 16-imm)
+
+static inline int8_t _mm_hmax_epi8_rpl(__m128i a) {
+    a = _mm_max_epi8(a, _mm_srli_si128(a, 8));
+    a = _mm_max_epi8(a, _mm_srli_si128(a, 4));
+    a = _mm_max_epi8(a, _mm_srli_si128(a, 2));
+    a = _mm_max_epi8(a, _mm_srli_si128(a, 1));
+    return _mm_extract_epi8(a, 0);
+}
 
 
 #ifdef PARASAIL_TABLE
@@ -107,6 +116,8 @@ parasail_result_t* PNAME(
 {
     int32_t i = 0;
     int32_t j = 0;
+    int32_t end_query = 0;
+    int32_t end_ref = 0;
     int32_t segNum = 0;
     const int s1Len = profile->s1Len;
     const parasail_matrix_t *matrix = profile->matrix;
@@ -116,12 +127,14 @@ parasail_result_t* PNAME(
     __m128i* const restrict pvE = parasail_memalign___m128i(16, segLen);
     __m128i* const restrict pvHt= parasail_memalign___m128i(16, segLen);
     __m128i* const restrict pvH = parasail_memalign___m128i(16, segLen);
+    __m128i* const restrict pvHMax = parasail_memalign___m128i(16, segLen);
     __m128i vGapO = _mm_set1_epi8(open);
     __m128i vGapE = _mm_set1_epi8(gap);
     __m128i vNegInf = _mm_set1_epi8(NEG_INF);
     __m128i vZero = _mm_setzero_si128();
     int8_t score = NEG_INF;
     __m128i vMaxH = vNegInf;
+    __m128i vMaxHUnit = vNegInf;
     const int8_t segLenXgap = -segLen*gap;
     __m128i insert_mask = _mm_cmpeq_epi8(vZero,
             _mm_set_epi8(1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0));
@@ -229,6 +242,16 @@ parasail_result_t* PNAME(
             vMaxH = _mm_max_epi8(vH, vMaxH);
         }
 
+        {
+            __m128i vCompare = _mm_cmpgt_epi8(vMaxH, vMaxHUnit);
+            if (_mm_movemask_epi8(vCompare)) {
+                score = _mm_hmax_epi8_rpl(vMaxH);
+                vMaxHUnit = _mm_set1_epi8(score);
+                end_ref = j;
+                (void)memcpy(pvHMax, pvH, sizeof(__m128i)*segLen);
+            }
+        }
+
 #ifdef PARASAIL_ROWCOL
         /* extract last value from the column */
         {
@@ -240,6 +263,21 @@ parasail_result_t* PNAME(
             result->score_row[j] = (int8_t) _mm_extract_epi8 (vH, 15);
         }
 #endif
+    }
+
+    /* Trace the alignment ending position on read. */
+    {
+        int8_t *t = (int8_t*)pvHMax;
+        int32_t column_len = segLen * segWidth;
+        end_query = s1Len - 1;
+        for (i = 0; i<column_len; ++i, ++t) {
+            if (*t == score) {
+                int32_t temp = i / segWidth + i % segWidth * segLen;
+                if (temp < end_query) {
+                    end_query = temp;
+                }
+            }
+        }
     }
 
 #ifdef PARASAIL_ROWCOL
@@ -266,7 +304,10 @@ parasail_result_t* PNAME(
     }
 
     result->score = score;
+    result->end_query = end_query;
+    result->end_ref = end_ref;
 
+    parasail_free(pvHMax);
     parasail_free(pvH);
     parasail_free(pvHt);
     parasail_free(pvE);

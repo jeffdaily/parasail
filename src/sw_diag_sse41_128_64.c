@@ -48,6 +48,11 @@ static inline __m128i _mm_cmplt_epi64_rpl(__m128i a, __m128i b) {
     return A.m;
 }
 
+static inline int64_t _mm_hmax_epi64_rpl(__m128i a) {
+    a = _mm_max_epi64_rpl(a, _mm_srli_si128(a, 8));
+    return _mm_extract_epi64(a, 0);
+}
+
 
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si128(
@@ -130,6 +135,8 @@ parasail_result_t* FNAME(
 #endif
     int32_t i = 0;
     int32_t j = 0;
+    int64_t end_query = 0;
+    int64_t end_ref = 0;
     int64_t score = NEG_INF;
     __m128i vNegInf = _mm_set1_epi64x(NEG_INF);
     __m128i vNegInf0 = _mm_srli_si128(vNegInf, 8); /* shift in a 0 */
@@ -142,6 +149,10 @@ parasail_result_t* FNAME(
     __m128i vI = _mm_set_epi64x(0,1);
     __m128i vJreset = _mm_set_epi64x(0,-1);
     __m128i vMax = vNegInf;
+    __m128i vMaxUnit = vNegInf;
+    __m128i vEndH = vNegInf;
+    __m128i vEndI = vNegInf;
+    __m128i vEndJ = vNegInf;
     __m128i vILimit = _mm_set1_epi64x(s1Len);
     __m128i vJLimit = _mm_set1_epi64x(s2Len);
     
@@ -236,17 +247,40 @@ parasail_result_t* FNAME(
             /* as minor diagonal vector passes across table, extract
              * max values within the i,j bounds */
             {
+                __m128i vCompare;
                 __m128i cond_valid_J = _mm_and_si128(
                         _mm_cmpgt_epi64_rpl(vJ, vNegOne),
                         _mm_cmplt_epi64_rpl(vJ, vJLimit));
+                __m128i cond_valid_IJ = _mm_and_si128(cond_valid_J, vIltLimit);
                 __m128i cond_max = _mm_cmpgt_epi64_rpl(vWscore, vMax);
-                __m128i cond_all = _mm_and_si128(cond_max,
-                        _mm_and_si128(vIltLimit, cond_valid_J));
+                __m128i cond_all = _mm_and_si128(cond_max, cond_valid_IJ);
                 vMax = _mm_blendv_epi8(vMax, vWscore, cond_all);
+                vCompare = _mm_cmpgt_epi64_rpl(vMax, vMaxUnit);
+                if (_mm_movemask_epi8(vCompare)) {
+                    score = _mm_hmax_epi64_rpl(vMax);
+                    vMaxUnit = _mm_set1_epi64x(score);
+                    vEndH = vMax;
+                    vEndI = vI;
+                    vEndJ = vJ;
+                }
             }
             vJ = _mm_add_epi64(vJ, vOne);
         }
         vI = _mm_add_epi64(vI, vN);
+    }
+
+    /* alignment ending position */
+    {
+        int64_t *t = (int64_t*)&vEndH;
+        int64_t *i = (int64_t*)&vEndI;
+        int64_t *j = (int64_t*)&vEndJ;
+        int32_t k;
+        for (k=0; k<N; ++k, ++t, ++i, ++j) {
+            if (*t == score && *i < s1Len && *j > -1 && *j < s2Len) {
+                end_query = *i;
+                end_ref = *j;
+            }
+        }
     }
 
     /* max in vMax */
@@ -262,6 +296,8 @@ parasail_result_t* FNAME(
     
 
     result->score = score;
+    result->end_query = end_query;
+    result->end_ref = end_ref;
 
     parasail_free(_del_pr);
     parasail_free(_tbl_pr);

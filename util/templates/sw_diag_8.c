@@ -83,6 +83,8 @@ parasail_result_t* FNAME(
 #endif
     %(INDEX)s i = 0;
     %(INDEX)s j = 0;
+    %(INT)s end_query = 0;
+    %(INT)s end_ref = 0;
     %(INT)s score = NEG_INF;
     %(VTYPE)s vNegInf = %(VSET1)s(NEG_INF);
     %(VTYPE)s vNegInf0 = %(VRSHIFT)s(vNegInf, %(BYTES)s); /* shift in a 0 */
@@ -97,6 +99,12 @@ parasail_result_t* FNAME(
     %(VTYPE)s vJresetLo16 = %(VSETx16)s(%(DIAG_JLO)s);
     %(VTYPE)s vJresetHi16 = %(VSETx16)s(%(DIAG_JHI)s);
     %(VTYPE)s vMax = vNegInf;
+    %(VTYPE)s vMaxUnit = vNegInf;
+    %(VTYPE)s vEndH = vNegInf;
+    %(VTYPE)s vEndILo = vNegInf;
+    %(VTYPE)s vEndIHi = vNegInf;
+    %(VTYPE)s vEndJLo = vNegInf;
+    %(VTYPE)s vEndJHi = vNegInf;
     %(VTYPE)s vILimit16 = %(VSET1x16)s(s1Len);
     %(VTYPE)s vJLimit16 = %(VSET1x16)s(s2Len);
     %(SATURATION_CHECK_INIT)s
@@ -194,6 +202,7 @@ parasail_result_t* FNAME(
             /* as minor diagonal vector passes across table, extract
              * max values within the i,j bounds */
             {
+                %(VTYPE)s vCompare;
                 %(VTYPE)s cond_valid_J = %(VAND)s(
                         %(VPACKS)s(
                             %(VCMPGTx16)s(vJLo16, vNegOne16),
@@ -205,12 +214,44 @@ parasail_result_t* FNAME(
                 %(VTYPE)s cond_all = %(VAND)s(cond_max,
                         %(VAND)s(vIltLimit, cond_valid_J));
                 vMax = %(VBLEND)s(vMax, vWscore, cond_all);
+                vCompare = %(VCMPGT)s(vMax, vMaxUnit);
+                if (%(VMOVEMASK)s(vCompare)) {
+                    score = %(VHMAX)s(vMax);
+                    vMaxUnit = %(VSET1)s(score);
+                    vEndH = vMax;
+                    vEndILo = vILo16;
+                    vEndIHi = vIHi16;
+                    vEndJLo = vJLo16;
+                    vEndJHi = vJHi16;
+                }
             }
             vJLo16 = %(VADDx16)s(vJLo16, vOne16);
             vJHi16 = %(VADDx16)s(vJHi16, vOne16);
         }
         vILo16 = %(VADDx16)s(vILo16, vN16);
         vIHi16 = %(VADDx16)s(vIHi16, vN16);
+    }
+
+    /* alignment ending position */
+    {
+        %(INT)s *t = (%(INT)s*)&vEndH;
+        int16_t *ilo = (int16_t*)&vEndILo;
+        int16_t *jlo = (int16_t*)&vEndJLo;
+        int16_t *ihi = (int16_t*)&vEndIHi;
+        int16_t *jhi = (int16_t*)&vEndJHi;
+        %(INDEX)s k;
+        for (k=0; k<N/2; ++k, ++t, ++ilo, ++jlo) {
+            if (*t == score && *ilo < s1Len && *jlo > -1 && *jlo < s2Len) {
+                end_query = *ilo;
+                end_ref = *jlo;
+            }
+        }
+        for (k=N/2; k<N; ++k, ++t, ++ihi, ++jhi) {
+            if (*t == score && *ihi < s1Len && *jhi > -1 && *jhi < s2Len) {
+                end_query = *ihi;
+                end_ref = *jhi;
+            }
+        }
     }
 
     /* max in vMax */
@@ -226,6 +267,8 @@ parasail_result_t* FNAME(
     %(SATURATION_CHECK_FINAL)s
 
     result->score = score;
+    result->end_query = end_query;
+    result->end_ref = end_ref;
 
     parasail_free(_del_pr);
     parasail_free(_tbl_pr);

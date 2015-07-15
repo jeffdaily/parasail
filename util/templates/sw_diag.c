@@ -83,6 +83,8 @@ parasail_result_t* FNAME(
 #endif
     %(INDEX)s i = 0;
     %(INDEX)s j = 0;
+    %(INT)s end_query = 0;
+    %(INT)s end_ref = 0;
     %(INT)s score = NEG_INF;
     %(VTYPE)s vNegInf = %(VSET1)s(NEG_INF);
     %(VTYPE)s vNegInf0 = %(VRSHIFT)s(vNegInf, %(BYTES)s); /* shift in a 0 */
@@ -95,6 +97,10 @@ parasail_result_t* FNAME(
     %(VTYPE)s vI = %(VSET)s(%(DIAG_I)s);
     %(VTYPE)s vJreset = %(VSET)s(%(DIAG_J)s);
     %(VTYPE)s vMax = vNegInf;
+    %(VTYPE)s vMaxUnit = vNegInf;
+    %(VTYPE)s vEndH = vNegInf;
+    %(VTYPE)s vEndI = vNegInf;
+    %(VTYPE)s vEndJ = vNegInf;
     %(VTYPE)s vILimit = %(VSET1)s(s1Len);
     %(VTYPE)s vJLimit = %(VSET1)s(s2Len);
     %(SATURATION_CHECK_INIT)s
@@ -187,17 +193,40 @@ parasail_result_t* FNAME(
             /* as minor diagonal vector passes across table, extract
              * max values within the i,j bounds */
             {
+                %(VTYPE)s vCompare;
                 %(VTYPE)s cond_valid_J = %(VAND)s(
                         %(VCMPGT)s(vJ, vNegOne),
                         %(VCMPLT)s(vJ, vJLimit));
+                %(VTYPE)s cond_valid_IJ = %(VAND)s(cond_valid_J, vIltLimit);
                 %(VTYPE)s cond_max = %(VCMPGT)s(vWscore, vMax);
-                %(VTYPE)s cond_all = %(VAND)s(cond_max,
-                        %(VAND)s(vIltLimit, cond_valid_J));
+                %(VTYPE)s cond_all = %(VAND)s(cond_max, cond_valid_IJ);
                 vMax = %(VBLEND)s(vMax, vWscore, cond_all);
+                vCompare = %(VCMPGT)s(vMax, vMaxUnit);
+                if (%(VMOVEMASK)s(vCompare)) {
+                    score = %(VHMAX)s(vMax);
+                    vMaxUnit = %(VSET1)s(score);
+                    vEndH = vMax;
+                    vEndI = vI;
+                    vEndJ = vJ;
+                }
             }
             vJ = %(VADD)s(vJ, vOne);
         }
         vI = %(VADD)s(vI, vN);
+    }
+
+    /* alignment ending position */
+    {
+        %(INT)s *t = (%(INT)s*)&vEndH;
+        %(INT)s *i = (%(INT)s*)&vEndI;
+        %(INT)s *j = (%(INT)s*)&vEndJ;
+        %(INDEX)s k;
+        for (k=0; k<N; ++k, ++t, ++i, ++j) {
+            if (*t == score && *i < s1Len && *j > -1 && *j < s2Len) {
+                end_query = *i;
+                end_ref = *j;
+            }
+        }
     }
 
     /* max in vMax */
@@ -213,6 +242,8 @@ parasail_result_t* FNAME(
     %(SATURATION_CHECK_FINAL)s
 
     result->score = score;
+    result->end_query = end_query;
+    result->end_ref = end_ref;
 
     parasail_free(_del_pr);
     parasail_free(_tbl_pr);

@@ -867,42 +867,109 @@ inline static void cigar_to_stats(
         const int8_t *read_seq,
         const int8_t *ref_seq,
         const parasail_matrix_t *matrix,
-        int &matches, int &similarities, int &length)
+        int &matches, int &similarities, int &length_)
 {
     matches = 0;
     similarities = 0;
-    length = 0;
+    length_ = 0;
     if (a->cigar) {
+        int32_t c = 0, left = 0, e = 0, qb = a->ref_begin1, pb = a->read_begin1;
         uint32_t i;
-        int32_t c = 0, qb = a->ref_begin1, pb = a->read_begin1;
-        int32_t q = qb;
-        int32_t p = pb;
-        for (c = 0; c < a->cigarLen; ++c) {
-            char letter = cigar_int_to_op(a->cigar[c]);
-            uint32_t l = cigar_int_to_len(a->cigar[c]);
-            for (i = 0; i < l; ++i){
-                if (letter == 'M') {
-                    int8_t t1 = ref_seq[q];
-                    int8_t t2 = read_seq[p];
-                    if (t1 == t2) {
-                        matches += 1;
-                        similarities += 1;
+        while (e < a->cigarLen || left > 0) {
+            int32_t count = 0;
+            int32_t q = qb;
+            int32_t p = pb;
+            //fprintf(stdout, "Target: %8d    ", q + 1);
+            for (c = e; c < a->cigarLen; ++c) {
+                char letter = cigar_int_to_op(a->cigar[c]);
+                uint32_t length = cigar_int_to_len(a->cigar[c]);
+                uint32_t l = (count == 0 && left > 0) ? left: length;
+                for (i = 0; i < l; ++i) {
+                    if (letter == 'I') {
+                        //fprintf(stdout, "-");
                     }
-                    else if (matrix->matrix[t1*matrix->size+t2] > 0) {
-                        similarities += 1;
+                    else {
+                        //fprintf(stdout, "%c", *(ref_seq->seq.s + q));
+                        ++ q;
                     }
-                    ++q;
-                    ++p;
-                } else {
-                    if (letter == 'I') ++p;
-                    else ++q;
+                    ++ count;
+                    if (count == 60) goto step2;
                 }
-                length += 1;
+            }
+step2:
+            //fprintf(stdout, "    %d\n                    ", q);
+            q = qb;
+            count = 0;
+            for (c = e; c < a->cigarLen; ++c) {
+                char letter = cigar_int_to_op(a->cigar[c]);
+                uint32_t length = cigar_int_to_len(a->cigar[c]);
+                uint32_t l = (count == 0 && left > 0) ? left: length;
+                for (i = 0; i < l; ++i){
+                    if (letter == 'M') {
+                        int t1 = (int)*(ref_seq + q);
+                        int t2 = (int)*(read_seq + p);
+                        if (t1 == t2) {
+                            //fprintf(stdout, "|");
+                            matches += 1;
+                            similarities += 1;
+                        }
+                        else if (matrix->matrix[t1*matrix->size+t2] > 0) {
+                            similarities += 1;
+                            //fprintf(stdout, "*");
+                        }
+                        else {
+                            //fprintf(stdout, "*");
+                        }
+                        ++q;
+                        ++p;
+                    } else {
+                        //fprintf(stdout, " ");
+                        if (letter == 'I') ++p;
+                        else ++q;
+                    }
+                    length_ += 1;
+                    ++ count;
+                    if (count == 60) {
+                        qb = q;
+                        goto step3;
+                    }
+                }
+            }
+step3:
+            p = pb;
+            //fprintf(stdout, "\nQuery:  %8d    ", p + 1);
+            count = 0;
+            for (c = e; c < a->cigarLen; ++c) {
+                char letter = cigar_int_to_op(a->cigar[c]);
+                uint32_t length = cigar_int_to_len(a->cigar[c]);
+                uint32_t l = (count == 0 && left > 0) ? left: length;
+                for (i = 0; i < l; ++i) {
+                    if (letter == 'D') {
+                        //fprintf(stdout, "-");
+                    }
+                    else {
+                        //fprintf(stdout, "%c", *(read_seq + p));
+                        ++p;
+                    }
+                    ++ count;
+                    if (count == 60) {
+                        pb = p;
+                        left = l - i - 1;
+                        e = (left == 0) ? (c + 1) : c;
+                        goto end;
+                    }
+                }
+            }
+            e = c;
+            left = 0;
+end:
+            {
+                //fprintf(stdout, "    %d\n\n", p);
             }
         }
     }
     else {
-        eprintf(stderr, "failed to produce cigar\n");
+        //eprintf(stderr, "failed to produce cigar\n");
         exit(EXIT_FAILURE);
     }
 }

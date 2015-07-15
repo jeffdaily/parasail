@@ -168,9 +168,6 @@ parasail_result_t* PNAME(
     int16_t length = bias;
     __m256i vBias = _mm256_set1_epi16(bias);
     __m256i vMaxH = vBias;
-    __m256i vMaxHM = vBias;
-    __m256i vMaxHS = vBias;
-    __m256i vMaxHL = vBias;
     __m256i vMaxHUnit = vBias;
     __m256i insert_mask = _mm256_cmpgt_epi16(
             _mm256_set_epi16(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1),
@@ -334,14 +331,7 @@ parasail_result_t* PNAME(
             arr_store_si256(result->length_table, vHL, i, segLen, j, s2Len, bias);
             arr_store_si256(result->score_table, vH, i, segLen, j, s2Len, bias);
 #endif
-            /* update max vector seen so far */
-            {
-                __m256i cond_max = _mm256_cmpgt_epi16(vH, vMaxH);
-                vMaxH = _mm256_blendv_epi8(vMaxH, vH,  cond_max);
-                vMaxHM = _mm256_blendv_epi8(vMaxHM, vHM, cond_max);
-                vMaxHS = _mm256_blendv_epi8(vMaxHS, vHS, cond_max);
-                vMaxHL = _mm256_blendv_epi8(vMaxHL, vHL, cond_max);
-            }
+            vMaxH = _mm256_max_epi16(vH, vMaxH);
 
             /* Update vE value. */
             vH = _mm256_subs_epi16(vH, vGapO);
@@ -426,6 +416,7 @@ parasail_result_t* PNAME(
                 arr_store_si256(result->length_table, vHL, i, segLen, j, s2Len, bias);
                 arr_store_si256(result->score_table, vH, i, segLen, j, s2Len, bias);
 #endif
+                vMaxH = _mm256_max_epi16(vH, vMaxH);
                 vH = _mm256_subs_epi16(vH, vGapO);
                 vF = _mm256_subs_epi16(vF, vGapE);
                 if (! _mm256_movemask_epi8(_mm256_cmpgt_epi16(vF, vH))) goto end;
@@ -443,7 +434,8 @@ end:
         {
             __m256i vCompare = _mm256_cmpgt_epi16(vMaxH, vMaxHUnit);
             if (_mm256_movemask_epi8(vCompare)) {
-                vMaxHUnit = _mm256_set1_epi16(_mm256_hmax_epi16_rpl(vMaxH));
+                score = _mm256_hmax_epi16_rpl(vMaxH);
+                vMaxHUnit = _mm256_set1_epi16(score);
                 end_ref = j;
                 (void)memcpy(pvHMax, pvHStore, sizeof(__m256i)*segLen);
                 (void)memcpy(pvHMMax, pvHMStore, sizeof(__m256i)*segLen);
@@ -480,12 +472,10 @@ end:
         int16_t *s = (int16_t*)pvHSMax;
         int16_t *l = (int16_t*)pvHLMax;
         int32_t column_len = segLen * segWidth;
-        score = _mm256_extract_epi16_rpl(vMaxHUnit, 0);
-        end_query = s1Len - 1;
+        end_query = s1Len;
         for (i = 0; i<column_len; ++i, ++t, ++m, ++s, ++l) {
-            int32_t temp;
             if (*t == score) {
-                temp = i / segWidth + i % segWidth * segLen;
+                int32_t temp = i / segWidth + i % segWidth * segLen;
                 if (temp < end_query) {
                     end_query = temp;
                     matches = *m;
@@ -506,23 +496,6 @@ end:
         arr_store_col(result->matches_col, vHM, i, segLen, bias);
         arr_store_col(result->similar_col, vHS, i, segLen, bias);
         arr_store_col(result->length_col, vHL, i, segLen, bias);
-    }
-#endif
-
-#if 0
-    /* max in vec */
-    for (j=0; j<segWidth; ++j) {
-        int16_t value = (int16_t) _mm256_extract_epi16_rpl(vMaxH, 15);
-        if (value > score) {
-            score = value;
-            matches = (int16_t)_mm256_extract_epi16_rpl(vMaxHM, 15);
-            similar = (int16_t)_mm256_extract_epi16_rpl(vMaxHS, 15);
-            length = (int16_t)_mm256_extract_epi16_rpl(vMaxHL, 15);
-        }
-        vMaxH = _mm256_slli_si256_rpl(vMaxH, 2);
-        vMaxHM = _mm256_slli_si256_rpl(vMaxHM, 2);
-        vMaxHS = _mm256_slli_si256_rpl(vMaxHS, 2);
-        vMaxHL = _mm256_slli_si256_rpl(vMaxHL, 2);
     }
 #endif
 

@@ -152,18 +152,23 @@ parasail_result_t* PNAME(
     /* outer loop over database sequence */
     for (j=0; j<s2Len; ++j) {
         __m128i vE;
+        __m128i vF;
+        __m128i vH;
+        const __m128i* vP = NULL;
+        __m128i* pv = NULL;
+
         /* Initialize F value to 0.  Any errors to vH values will be
          * corrected in the Lazy_F loop.  */
-        __m128i vF = vZero;
+        vF = vZero;
 
         /* load final segment of pvHStore and shift left by 2 bytes */
-        __m128i vH = _mm_slli_si128(pvHStore[segLen - 1], 4);
+        vH = _mm_slli_si128(pvHStore[segLen - 1], 4);
 
         /* Correct part of the vProfile */
-        const __m128i* vP = vProfile + matrix->mapper[(unsigned char)s2[j]] * segLen;
+        vP = vProfile + matrix->mapper[(unsigned char)s2[j]] * segLen;
 
         /* Swap the 2 H buffers. */
-        __m128i* pv = pvHLoad;
+        pv = pvHLoad;
         pvHLoad = pvHStore;
         pvHStore = pv;
 
@@ -224,7 +229,8 @@ end:
         {
             __m128i vCompare = _mm_cmpgt_epi32(vMaxH, vMaxHUnit);
             if (_mm_movemask_epi8(vCompare)) {
-                vMaxHUnit = _mm_set1_epi32(_mm_hmax_epi32_rpl(vMaxH));
+                score = _mm_hmax_epi32_rpl(vMaxH);
+                vMaxHUnit = _mm_set1_epi32(score);
                 end_ref = j;
                 (void)memcpy(pvHMax, pvHStore, sizeof(__m128i)*segLen);
             }
@@ -246,12 +252,10 @@ end:
     {
         int32_t *t = (int32_t*)pvHMax;
         int32_t column_len = segLen * segWidth;
-        int32_t max = _mm_extract_epi32_rpl(vMaxHUnit, 0);
         end_query = s1Len - 1;
         for (i = 0; i<column_len; ++i, ++t) {
-            int32_t temp;
-            if (*t == max) {
-                temp = i / segWidth + i % segWidth * segLen;
+            if (*t == score) {
+                int32_t temp = i / segWidth + i % segWidth * segLen;
                 if (temp < end_query) {
                     end_query = temp;
                 }
@@ -265,15 +269,6 @@ end:
         arr_store_col(result->score_col, vH, i, segLen);
     }
 #endif
-
-    /* max in vec */
-    for (j=0; j<segWidth; ++j) {
-        int32_t value = (int32_t) _mm_extract_epi32_rpl(vMaxH, 3);
-        if (value > score) {
-            score = value;
-        }
-        vMaxH = _mm_slli_si128(vMaxH, 4);
-    }
 
     
 

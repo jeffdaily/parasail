@@ -9,6 +9,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <emmintrin.h>
 
@@ -70,6 +71,11 @@ static inline __m128i _mm_cmplt_epi64_rpl(__m128i a, __m128i b) {
     return A.m;
 }
 
+static inline int64_t _mm_hmax_epi64_rpl(__m128i a) {
+    a = _mm_max_epi64_rpl(a, _mm_srli_si128(a, 8));
+    return _mm_extract_epi64_rpl(a, 0);
+}
+
 
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si128(
@@ -129,6 +135,8 @@ parasail_result_t* PNAME(
     int32_t i = 0;
     int32_t j = 0;
     int32_t k = 0;
+    int32_t end_query = 0;
+    int32_t end_ref = 0;
     int32_t segNum = 0;
     const int s1Len = profile->s1Len;
     const parasail_matrix_t *matrix = profile->matrix;
@@ -150,6 +158,10 @@ parasail_result_t* PNAME(
     __m128i* const restrict pvEM      = parasail_memalign___m128i(16, segLen);
     __m128i* const restrict pvES      = parasail_memalign___m128i(16, segLen);
     __m128i* const restrict pvEL      = parasail_memalign___m128i(16, segLen);
+    __m128i* restrict pvHMax          = parasail_memalign___m128i(16, segLen);
+    __m128i* restrict pvHMMax          = parasail_memalign___m128i(16, segLen);
+    __m128i* restrict pvHSMax          = parasail_memalign___m128i(16, segLen);
+    __m128i* restrict pvHLMax          = parasail_memalign___m128i(16, segLen);
     __m128i vGapO = _mm_set1_epi64x(open);
     __m128i vGapE = _mm_set1_epi64x(gap);
     __m128i vZero = _mm_setzero_si128();
@@ -160,9 +172,7 @@ parasail_result_t* PNAME(
     int64_t length = NEG_INF;
     
     __m128i vMaxH = vZero;
-    __m128i vMaxHM = vZero;
-    __m128i vMaxHS = vZero;
-    __m128i vMaxHL = vZero;
+    __m128i vMaxHUnit = vZero;
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table3(segLen*segWidth, s2Len);
 #else
@@ -315,14 +325,7 @@ parasail_result_t* PNAME(
             arr_store_si128(result->length_table, vHL, i, segLen, j, s2Len);
             arr_store_si128(result->score_table, vH, i, segLen, j, s2Len);
 #endif
-            /* update max vector seen so far */
-            {
-                __m128i cond_max = _mm_cmpgt_epi64_rpl(vH, vMaxH);
-                vMaxH = _mm_blendv_epi8_rpl(vMaxH, vH,  cond_max);
-                vMaxHM = _mm_blendv_epi8_rpl(vMaxHM, vHM, cond_max);
-                vMaxHS = _mm_blendv_epi8_rpl(vMaxHS, vHS, cond_max);
-                vMaxHL = _mm_blendv_epi8_rpl(vMaxHL, vHL, cond_max);
-            }
+            vMaxH = _mm_max_epi64_rpl(vH, vMaxH);
 
             /* Update vE value. */
             vH = _mm_sub_epi64(vH, vGapO);
@@ -399,6 +402,7 @@ parasail_result_t* PNAME(
                 arr_store_si128(result->length_table, vHL, i, segLen, j, s2Len);
                 arr_store_si128(result->score_table, vH, i, segLen, j, s2Len);
 #endif
+                vMaxH = _mm_max_epi64_rpl(vH, vMaxH);
                 vH = _mm_sub_epi64(vH, vGapO);
                 vF = _mm_sub_epi64(vF, vGapE);
                 if (! _mm_movemask_epi8(_mm_cmpgt_epi64_rpl(vF, vH))) goto end;
@@ -411,6 +415,19 @@ parasail_result_t* PNAME(
         }
 end:
         {
+        }
+
+        {
+            __m128i vCompare = _mm_cmpgt_epi64_rpl(vMaxH, vMaxHUnit);
+            if (_mm_movemask_epi8(vCompare)) {
+                score = _mm_hmax_epi64_rpl(vMaxH);
+                vMaxHUnit = _mm_set1_epi64x(score);
+                end_ref = j;
+                (void)memcpy(pvHMax, pvHStore, sizeof(__m128i)*segLen);
+                (void)memcpy(pvHMMax, pvHMStore, sizeof(__m128i)*segLen);
+                (void)memcpy(pvHSMax, pvHSStore, sizeof(__m128i)*segLen);
+                (void)memcpy(pvHLMax, pvHLStore, sizeof(__m128i)*segLen);
+            }
         }
 
 #ifdef PARASAIL_ROWCOL
@@ -434,6 +451,27 @@ end:
 #endif
     }
 
+    /* Trace the alignment ending position on read. */
+    {
+        int64_t *t = (int64_t*)pvHMax;
+        int64_t *m = (int64_t*)pvHMMax;
+        int64_t *s = (int64_t*)pvHSMax;
+        int64_t *l = (int64_t*)pvHLMax;
+        int32_t column_len = segLen * segWidth;
+        end_query = s1Len;
+        for (i = 0; i<column_len; ++i, ++t, ++m, ++s, ++l) {
+            if (*t == score) {
+                int32_t temp = i / segWidth + i % segWidth * segLen;
+                if (temp < end_query) {
+                    end_query = temp;
+                    matches = *m;
+                    similar = *s;
+                    length = *l;
+                }
+            }
+        }
+    }
+
 #ifdef PARASAIL_ROWCOL
     for (i=0; i<segLen; ++i) {
         __m128i vH = _mm_load_si128(pvHStore+i);
@@ -447,28 +485,19 @@ end:
     }
 #endif
 
-    /* max in vec */
-    for (j=0; j<segWidth; ++j) {
-        int64_t value = (int64_t) _mm_extract_epi64_rpl(vMaxH, 1);
-        if (value > score) {
-            score = value;
-            matches = (int64_t)_mm_extract_epi64_rpl(vMaxHM, 1);
-            similar = (int64_t)_mm_extract_epi64_rpl(vMaxHS, 1);
-            length = (int64_t)_mm_extract_epi64_rpl(vMaxHL, 1);
-        }
-        vMaxH = _mm_slli_si128(vMaxH, 8);
-        vMaxHM = _mm_slli_si128(vMaxHM, 8);
-        vMaxHS = _mm_slli_si128(vMaxHS, 8);
-        vMaxHL = _mm_slli_si128(vMaxHL, 8);
-    }
-
     
 
     result->score = score;
     result->matches = matches;
     result->similar = similar;
     result->length = length;
+    result->end_query = end_query;
+    result->end_ref = end_ref;
 
+    parasail_free(pvHLMax);
+    parasail_free(pvHSMax);
+    parasail_free(pvHMMax);
+    parasail_free(pvHMax);
     parasail_free(pvEL);
     parasail_free(pvES);
     parasail_free(pvEM);

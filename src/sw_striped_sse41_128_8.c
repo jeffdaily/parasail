@@ -247,7 +247,8 @@ end:
         {
             __m128i vCompare = _mm_cmpgt_epi8(vMaxH, vMaxHUnit);
             if (_mm_movemask_epi8(vCompare)) {
-                vMaxHUnit = _mm_set1_epi8(_mm_hmax_epi8_rpl(vMaxH));
+                score = _mm_hmax_epi8_rpl(vMaxH);
+                vMaxHUnit = _mm_set1_epi8(score);
                 end_ref = j;
                 (void)memcpy(pvHMax, pvHStore, sizeof(__m128i)*segLen);
             }
@@ -269,12 +270,10 @@ end:
     {
         int8_t *t = (int8_t*)pvHMax;
         int32_t column_len = segLen * segWidth;
-        score = _mm_extract_epi8(vMaxHUnit, 0);
         end_query = s1Len - 1;
         for (i = 0; i<column_len; ++i, ++t) {
-            int32_t temp;
             if (*t == score) {
-                temp = i / segWidth + i % segWidth * segLen;
+                int32_t temp = i / segWidth + i % segWidth * segLen;
                 if (temp < end_query) {
                     end_query = temp;
                 }

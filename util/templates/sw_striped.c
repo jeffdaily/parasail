@@ -127,18 +127,23 @@ parasail_result_t* PNAME(
     /* outer loop over database sequence */
     for (j=0; j<s2Len; ++j) {
         %(VTYPE)s vE;
+        %(VTYPE)s vF;
+        %(VTYPE)s vH;
+        const %(VTYPE)s* vP = NULL;
+        %(VTYPE)s* pv = NULL;
+
         /* Initialize F value to 0.  Any errors to vH values will be
          * corrected in the Lazy_F loop.  */
-        %(VTYPE)s vF = vZero;
+        vF = vZero;
 
         /* load final segment of pvHStore and shift left by 2 bytes */
-        %(VTYPE)s vH = %(VSHIFT)s(pvHStore[segLen - 1], %(BYTES)s);
+        vH = %(VSHIFT)s(pvHStore[segLen - 1], %(BYTES)s);
 
         /* Correct part of the vProfile */
-        const %(VTYPE)s* vP = vProfile + matrix->mapper[(unsigned char)s2[j]] * segLen;
+        vP = vProfile + matrix->mapper[(unsigned char)s2[j]] * segLen;
 
         /* Swap the 2 H buffers. */
-        %(VTYPE)s* pv = pvHLoad;
+        pv = pvHLoad;
         pvHLoad = pvHStore;
         pvHStore = pv;
 
@@ -199,7 +204,8 @@ end:
         {
             %(VTYPE)s vCompare = %(VCMPGT)s(vMaxH, vMaxHUnit);
             if (%(VMOVEMASK)s(vCompare)) {
-                vMaxHUnit = %(VSET1)s(%(VHMAX)s(vMaxH));
+                score = %(VHMAX)s(vMaxH);
+                vMaxHUnit = %(VSET1)s(score);
                 end_ref = j;
                 (void)memcpy(pvHMax, pvHStore, sizeof(%(VTYPE)s)*segLen);
             }
@@ -221,12 +227,10 @@ end:
     {
         %(INT)s *t = (%(INT)s*)pvHMax;
         %(INDEX)s column_len = segLen * segWidth;
-        %(INT)s max = %(VEXTRACT)s(vMaxHUnit, 0);
         end_query = s1Len - 1;
         for (i = 0; i<column_len; ++i, ++t) {
-            %(INDEX)s temp;
-            if (*t == max) {
-                temp = i / segWidth + i %% segWidth * segLen;
+            if (*t == score) {
+                %(INDEX)s temp = i / segWidth + i %% segWidth * segLen;
                 if (temp < end_query) {
                     end_query = temp;
                 }
@@ -240,15 +244,6 @@ end:
         arr_store_col(result->score_col, vH, i, segLen);
     }
 #endif
-
-    /* max in vec */
-    for (j=0; j<segWidth; ++j) {
-        %(INT)s value = (%(INT)s) %(VEXTRACT)s(vMaxH, %(LAST_POS)s);
-        if (value > score) {
-            score = value;
-        }
-        vMaxH = %(VSHIFT)s(vMaxH, %(BYTES)s);
-    }
 
     %(SATURATION_CHECK_FINAL)s
 

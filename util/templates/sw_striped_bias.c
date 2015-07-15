@@ -208,7 +208,8 @@ end:
         {
             %(VTYPE)s vCompare = %(VCMPGT)s(vMaxH, vMaxHUnit);
             if (%(VMOVEMASK)s(vCompare)) {
-                vMaxHUnit = %(VSET1)s(%(VHMAX)s(vMaxH));
+                score = %(VHMAX)s(vMaxH);
+                vMaxHUnit = %(VSET1)s(score);
                 end_ref = j;
                 (void)memcpy(pvHMax, pvHStore, sizeof(%(VTYPE)s)*segLen);
             }
@@ -230,12 +231,10 @@ end:
     {
         %(INT)s *t = (%(INT)s*)pvHMax;
         %(INDEX)s column_len = segLen * segWidth;
-        score = %(VEXTRACT)s(vMaxHUnit, 0);
         end_query = s1Len - 1;
         for (i = 0; i<column_len; ++i, ++t) {
-            %(INDEX)s temp;
             if (*t == score) {
-                temp = i / segWidth + i %% segWidth * segLen;
+                %(INDEX)s temp = i / segWidth + i %% segWidth * segLen;
                 if (temp < end_query) {
                     end_query = temp;
                 }

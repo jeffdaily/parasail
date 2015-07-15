@@ -116,9 +116,6 @@ parasail_result_t* PNAME(
     %(INT)s length = bias;
     %(VTYPE)s vBias = %(VSET1)s(bias);
     %(VTYPE)s vMaxH = vBias;
-    %(VTYPE)s vMaxHM = vBias;
-    %(VTYPE)s vMaxHS = vBias;
-    %(VTYPE)s vMaxHL = vBias;
     %(VTYPE)s vMaxHUnit = vBias;
     %(VTYPE)s insert_mask = %(VCMPGT)s(
             %(VSET)s(%(STRIPED_INSERT_MASK)s),
@@ -282,14 +279,7 @@ parasail_result_t* PNAME(
             arr_store_si%(BITS)s(result->length_table, vHL, i, segLen, j, s2Len, bias);
             arr_store_si%(BITS)s(result->score_table, vH, i, segLen, j, s2Len, bias);
 #endif
-            /* update max vector seen so far */
-            {
-                %(VTYPE)s cond_max = %(VCMPGT)s(vH, vMaxH);
-                vMaxH = %(VBLEND)s(vMaxH, vH,  cond_max);
-                vMaxHM = %(VBLEND)s(vMaxHM, vHM, cond_max);
-                vMaxHS = %(VBLEND)s(vMaxHS, vHS, cond_max);
-                vMaxHL = %(VBLEND)s(vMaxHL, vHL, cond_max);
-            }
+            vMaxH = %(VMAX)s(vH, vMaxH);
 
             /* Update vE value. */
             vH = %(VSUB)s(vH, vGapO);
@@ -374,6 +364,7 @@ parasail_result_t* PNAME(
                 arr_store_si%(BITS)s(result->length_table, vHL, i, segLen, j, s2Len, bias);
                 arr_store_si%(BITS)s(result->score_table, vH, i, segLen, j, s2Len, bias);
 #endif
+                vMaxH = %(VMAX)s(vH, vMaxH);
                 vH = %(VSUB)s(vH, vGapO);
                 vF = %(VSUB)s(vF, vGapE);
                 if (! %(VMOVEMASK)s(%(VCMPGT)s(vF, vH))) goto end;
@@ -391,7 +382,8 @@ end:
         {
             %(VTYPE)s vCompare = %(VCMPGT)s(vMaxH, vMaxHUnit);
             if (%(VMOVEMASK)s(vCompare)) {
-                vMaxHUnit = %(VSET1)s(%(VHMAX)s(vMaxH));
+                score = %(VHMAX)s(vMaxH);
+                vMaxHUnit = %(VSET1)s(score);
                 end_ref = j;
                 (void)memcpy(pvHMax, pvHStore, sizeof(%(VTYPE)s)*segLen);
                 (void)memcpy(pvHMMax, pvHMStore, sizeof(%(VTYPE)s)*segLen);
@@ -428,12 +420,10 @@ end:
         %(INT)s *s = (%(INT)s*)pvHSMax;
         %(INT)s *l = (%(INT)s*)pvHLMax;
         %(INDEX)s column_len = segLen * segWidth;
-        score = %(VEXTRACT)s(vMaxHUnit, 0);
-        end_query = s1Len - 1;
+        end_query = s1Len;
         for (i = 0; i<column_len; ++i, ++t, ++m, ++s, ++l) {
-            %(INDEX)s temp;
             if (*t == score) {
-                temp = i / segWidth + i %% segWidth * segLen;
+                %(INDEX)s temp = i / segWidth + i %% segWidth * segLen;
                 if (temp < end_query) {
                     end_query = temp;
                     matches = *m;
@@ -454,23 +444,6 @@ end:
         arr_store_col(result->matches_col, vHM, i, segLen, bias);
         arr_store_col(result->similar_col, vHS, i, segLen, bias);
         arr_store_col(result->length_col, vHL, i, segLen, bias);
-    }
-#endif
-
-#if 0
-    /* max in vec */
-    for (j=0; j<segWidth; ++j) {
-        %(INT)s value = (%(INT)s) %(VEXTRACT)s(vMaxH, %(LAST_POS)s);
-        if (value > score) {
-            score = value;
-            matches = (%(INT)s)%(VEXTRACT)s(vMaxHM, %(LAST_POS)s);
-            similar = (%(INT)s)%(VEXTRACT)s(vMaxHS, %(LAST_POS)s);
-            length = (%(INT)s)%(VEXTRACT)s(vMaxHL, %(LAST_POS)s);
-        }
-        vMaxH = %(VSHIFT)s(vMaxH, %(BYTES)s);
-        vMaxHM = %(VSHIFT)s(vMaxHM, %(BYTES)s);
-        vMaxHS = %(VSHIFT)s(vMaxHS, %(BYTES)s);
-        vMaxHL = %(VSHIFT)s(vMaxHL, %(BYTES)s);
     }
 #endif
 

@@ -16,7 +16,6 @@
 #include "parasail.h"
 #include "parasail/memory.h"
 #include "parasail/internal_sse.h"
-#include "parasail/matrices/blosum_map.h"
 
 #define NEG_INF_16 (INT16_MIN/(int16_t)(2))
 
@@ -140,7 +139,7 @@ parasail_result_t* FNAME(
     for (j=0; j<s2Len; ++j) {
         __m128i vX = vZero;
         __m128i vF = vNegInf;
-        const __m128i* pvP = vProfile + parasail_blosum_map[(unsigned char)s2[j]] * segLen;
+        const __m128i* pvP = vProfile + matrix->mapper[(unsigned char)s2[j]] * segLen;
         for (i=0; i<segLen; ++i) {
             __m128i vP;
             __m128i vH;

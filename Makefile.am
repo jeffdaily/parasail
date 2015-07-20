@@ -22,6 +22,7 @@ libparasail_la_LDFLAGS = $(AM_LDFLAGS) -version-info @LTVER@
 endif
 
 nobase_include_HEADERS += parasail/cpuid.h
+nobase_include_HEADERS += parasail/io.h
 nobase_include_HEADERS += parasail/function_lookup.h
 nobase_include_HEADERS += parasail/matrix_lookup.h
 
@@ -142,7 +143,6 @@ SRC_KNC =
 SRC_CORE += src/cpuid.c
 SRC_CORE += src/function_lookup.c
 SRC_CORE += src/io.c
-SRC_CORE += src/io.h
 SRC_CORE += src/matrix_lookup.c
 SRC_CORE += src/memory.c
 SRC_CORE += src/time.c

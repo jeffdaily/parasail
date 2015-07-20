@@ -97,8 +97,6 @@ parasail_result_t* FNAME(
     %(VTYPE)s vI = %(VSET)s(%(DIAG_I)s);
     %(VTYPE)s vJreset = %(VSET)s(%(DIAG_J)s);
     %(VTYPE)s vMax = vNegInf;
-    %(VTYPE)s vMaxUnit = vNegInf;
-    %(VTYPE)s vEndH = vNegInf;
     %(VTYPE)s vEndI = vNegInf;
     %(VTYPE)s vEndJ = vNegInf;
     %(VTYPE)s vILimit = %(VSET1)s(s1Len);
@@ -193,7 +191,6 @@ parasail_result_t* FNAME(
             /* as minor diagonal vector passes across table, extract
              * max values within the i,j bounds */
             {
-                %(VTYPE)s vCompare;
                 %(VTYPE)s cond_valid_J = %(VAND)s(
                         %(VCMPGT)s(vJ, vNegOne),
                         %(VCMPLT)s(vJ, vJLimit));
@@ -201,14 +198,8 @@ parasail_result_t* FNAME(
                 %(VTYPE)s cond_max = %(VCMPGT)s(vWscore, vMax);
                 %(VTYPE)s cond_all = %(VAND)s(cond_max, cond_valid_IJ);
                 vMax = %(VBLEND)s(vMax, vWscore, cond_all);
-                vCompare = %(VCMPGT)s(vMax, vMaxUnit);
-                if (%(VMOVEMASK)s(vCompare)) {
-                    score = %(VHMAX)s(vMax);
-                    vMaxUnit = %(VSET1)s(score);
-                    vEndH = vMax;
-                    vEndI = vI;
-                    vEndJ = vJ;
-                }
+                vEndI = %(VBLEND)s(vEndI, vI, cond_all);
+                vEndJ = %(VBLEND)s(vEndJ, vJ, cond_all);
             }
             vJ = %(VADD)s(vJ, vOne);
         }
@@ -217,26 +208,21 @@ parasail_result_t* FNAME(
 
     /* alignment ending position */
     {
-        %(INT)s *t = (%(INT)s*)&vEndH;
+        %(INT)s *t = (%(INT)s*)&vMax;
         %(INT)s *i = (%(INT)s*)&vEndI;
         %(INT)s *j = (%(INT)s*)&vEndJ;
         %(INDEX)s k;
         for (k=0; k<N; ++k, ++t, ++i, ++j) {
-            if (*t == score && *i < s1Len && *j > -1 && *j < s2Len) {
+            if (*t > score) {
+                score = *t;
+                end_query = *i;
+                end_ref = *j;
+            }
+            else if (*t == score && *i < end_query) {
                 end_query = *i;
                 end_ref = *j;
             }
         }
-    }
-
-    /* max in vMax */
-    for (i=0; i<N; ++i) {
-        %(INT)s value;
-        value = (%(INT)s) %(VEXTRACT)s(vMax, %(LAST_POS)s);
-        if (value > score) {
-            score = value;
-        }
-        vMax = %(VSHIFT)s(vMax, %(BYTES)s);
     }
 
     %(SATURATION_CHECK_FINAL)s

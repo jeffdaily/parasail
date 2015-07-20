@@ -83,8 +83,8 @@ parasail_result_t* FNAME(
 #endif
     %(INDEX)s i = 0;
     %(INDEX)s j = 0;
-    %(INT)s end_query = 0;
-    %(INT)s end_ref = 0;
+    %(INDEX)s end_query = 0;
+    %(INDEX)s end_ref = 0;
     %(INT)s score = NEG_INF;
     %(VTYPE)s vNegInf = %(VSET1)s(NEG_INF);
     %(VTYPE)s vNegInf0 = %(VRSHIFT)s(vNegInf, %(BYTES)s); /* shift in a 0 */
@@ -99,8 +99,6 @@ parasail_result_t* FNAME(
     %(VTYPE)s vJresetLo16 = %(VSETx16)s(%(DIAG_JLO)s);
     %(VTYPE)s vJresetHi16 = %(VSETx16)s(%(DIAG_JHI)s);
     %(VTYPE)s vMax = vNegInf;
-    %(VTYPE)s vMaxUnit = vNegInf;
-    %(VTYPE)s vEndH = vNegInf;
     %(VTYPE)s vEndILo = vNegInf;
     %(VTYPE)s vEndIHi = vNegInf;
     %(VTYPE)s vEndJLo = vNegInf;
@@ -202,7 +200,6 @@ parasail_result_t* FNAME(
             /* as minor diagonal vector passes across table, extract
              * max values within the i,j bounds */
             {
-                %(VTYPE)s vCompare;
                 %(VTYPE)s cond_valid_J = %(VAND)s(
                         %(VPACKS)s(
                             %(VCMPGTx16)s(vJLo16, vNegOne16),
@@ -214,16 +211,12 @@ parasail_result_t* FNAME(
                 %(VTYPE)s cond_all = %(VAND)s(cond_max,
                         %(VAND)s(vIltLimit, cond_valid_J));
                 vMax = %(VBLEND)s(vMax, vWscore, cond_all);
-                vCompare = %(VCMPGT)s(vMax, vMaxUnit);
-                if (%(VMOVEMASK)s(vCompare)) {
-                    score = %(VHMAX)s(vMax);
-                    vMaxUnit = %(VSET1)s(score);
-                    vEndH = vMax;
-                    vEndILo = vILo16;
-                    vEndIHi = vIHi16;
-                    vEndJLo = vJLo16;
-                    vEndJHi = vJHi16;
-                }
+                %(VTYPE)s cond_lo = %(VUNPACKLO)s(cond_all, cond_all);
+                %(VTYPE)s cond_hi = %(VUNPACKHI)s(cond_all, cond_all);
+                vEndILo = %(VBLEND)s(vEndILo, vILo16, cond_lo);
+                vEndIHi = %(VBLEND)s(vEndIHi, vIHi16, cond_hi);
+                vEndJLo = %(VBLEND)s(vEndJLo, vJLo16, cond_lo);
+                vEndJHi = %(VBLEND)s(vEndJHi, vJHi16, cond_hi);
             }
             vJLo16 = %(VADDx16)s(vJLo16, vOne16);
             vJHi16 = %(VADDx16)s(vJHi16, vOne16);
@@ -234,34 +227,34 @@ parasail_result_t* FNAME(
 
     /* alignment ending position */
     {
-        %(INT)s *t = (%(INT)s*)&vEndH;
+        %(INT)s *t = (%(INT)s*)&vMax;
         int16_t *ilo = (int16_t*)&vEndILo;
         int16_t *jlo = (int16_t*)&vEndJLo;
         int16_t *ihi = (int16_t*)&vEndIHi;
         int16_t *jhi = (int16_t*)&vEndJHi;
         %(INDEX)s k;
         for (k=0; k<N/2; ++k, ++t, ++ilo, ++jlo) {
-            if (*t == score && *ilo < s1Len && *jlo > -1 && *jlo < s2Len) {
+            if (*t > score) {
+                score = *t;
+                end_query = *ilo;
+                end_ref = *jlo;
+            }
+            else if (*t == score && *ilo < end_query) {
                 end_query = *ilo;
                 end_ref = *jlo;
             }
         }
         for (k=N/2; k<N; ++k, ++t, ++ihi, ++jhi) {
-            if (*t == score && *ihi < s1Len && *jhi > -1 && *jhi < s2Len) {
+            if (*t > score) {
+                score = *t;
+                end_query = *ihi;
+                end_ref = *jhi;
+            }
+            else if (*t == score && *ihi < end_query) {
                 end_query = *ihi;
                 end_ref = *jhi;
             }
         }
-    }
-
-    /* max in vMax */
-    for (i=0; i<N; ++i) {
-        %(INT)s value;
-        value = (%(INT)s) %(VEXTRACT)s(vMax, %(LAST_POS)s);
-        if (value > score) {
-            score = value;
-        }
-        vMax = %(VSHIFT)s(vMax, %(BYTES)s);
     }
 
     %(SATURATION_CHECK_FINAL)s

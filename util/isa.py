@@ -49,6 +49,8 @@ sse2 = {
     "VMINx64"     : "_mm_min_epi64_rpl",
     "VMOVEMASK"   : "_mm_movemask_epi8",
     "VPACKS"      : "_mm_packs_epi16",
+    "VUNPACKLO"   : "_mm_unpacklo_epi8",
+    "VUNPACKHI"   : "_mm_unpackhi_epi8",
     "VAND"        : "_mm_and_si128",
     "VANDNOT"     : "_mm_andnot_si128",
     "VOR"         : "_mm_or_si128",
@@ -294,6 +296,8 @@ sse41 = {
     "VMINx64"     : "_mm_min_epi64_rpl",
     "VMOVEMASK"   : "_mm_movemask_epi8",
     "VPACKS"      : "_mm_packs_epi16",
+    "VUNPACKLO"   : "_mm_unpacklo_epi8",
+    "VUNPACKHI"   : "_mm_unpackhi_epi8",
     "VAND"        : "_mm_and_si128",
     "VANDNOT"     : "_mm_andnot_si128",
     "VOR"         : "_mm_or_si128",
@@ -444,6 +448,8 @@ avx2 = {
     "VMINx64"     : "_mm256_min_epi64_rpl",
     "VMOVEMASK"   : "_mm256_movemask_epi8",
     "VPACKS"      : "_mm256_packs_epi16_rpl",
+    "VUNPACKLO"   : "_mm256_unpacklo_epi8_rpl",
+    "VUNPACKHI"   : "_mm256_unpackhi_epi8_rpl",
     "VAND"        : "_mm256_and_si256",
     "VANDNOT"     : "_mm256_andnot_si256",
     "VOR"         : "_mm256_or_si256",
@@ -543,6 +549,20 @@ static inline __m256i _mm256_packs_epi16_rpl(__m256i a, __m256i b) {
     return _mm256_permute4x64_epi64(
             _mm256_packs_epi16(a, b),
             _MM_SHUFFLE(3,1,2,0));
+}
+""",
+    "_mm256_unpacklo_epi8_rpl" : """
+static inline __m256i _mm256_unpacklo_epi8_rpl(__m256i a, __m256i b) {
+    __m256i an = _mm256_permute4x64_epi64(a, _MM_SHUFFLE(1,1,0,0));
+    __m256i bn = _mm256_permute4x64_epi64(b, _MM_SHUFFLE(1,1,0,0));
+    return _mm256_unpacklo_epi8(an, bn);
+}
+""",
+    "_mm256_unpackhi_epi8_rpl" : """
+static inline __m256i _mm256_unpackhi_epi8_rpl(__m256i a, __m256i b) {
+    __m256i an = _mm256_permute4x64_epi64(a, _MM_SHUFFLE(3,3,2,2));
+    __m256i bn = _mm256_permute4x64_epi64(b, _MM_SHUFFLE(3,3,2,2));
+    return _mm256_unpackhi_epi8(an, bn);
 }
 """,
     "_mm256_srli_si256_rpl" : """

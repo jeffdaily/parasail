@@ -18,12 +18,6 @@
 
 #define NEG_INF (INT32_MIN/(int32_t)(2))
 
-static inline int32_t _mm_hmax_epi32_rpl(__m128i a) {
-    a = _mm_max_epi32(a, _mm_srli_si128(a, 8));
-    a = _mm_max_epi32(a, _mm_srli_si128(a, 4));
-    return _mm_extract_epi32(a, 0);
-}
-
 
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si128(
@@ -138,8 +132,6 @@ parasail_result_t* FNAME(
     __m128i vI = _mm_set_epi32(0,1,2,3);
     __m128i vJreset = _mm_set_epi32(0,-1,-2,-3);
     __m128i vMax = vNegInf;
-    __m128i vMaxUnit = vNegInf;
-    __m128i vEndH = vNegInf;
     __m128i vEndI = vNegInf;
     __m128i vEndJ = vNegInf;
     __m128i vILimit = _mm_set1_epi32(s1Len);
@@ -240,7 +232,6 @@ parasail_result_t* FNAME(
             /* as minor diagonal vector passes across table, extract
              * max values within the i,j bounds */
             {
-                __m128i vCompare;
                 __m128i cond_valid_J = _mm_and_si128(
                         _mm_cmpgt_epi32(vJ, vNegOne),
                         _mm_cmplt_epi32(vJ, vJLimit));
@@ -248,14 +239,8 @@ parasail_result_t* FNAME(
                 __m128i cond_max = _mm_cmpgt_epi32(vWscore, vMax);
                 __m128i cond_all = _mm_and_si128(cond_max, cond_valid_IJ);
                 vMax = _mm_blendv_epi8(vMax, vWscore, cond_all);
-                vCompare = _mm_cmpgt_epi32(vMax, vMaxUnit);
-                if (_mm_movemask_epi8(vCompare)) {
-                    score = _mm_hmax_epi32_rpl(vMax);
-                    vMaxUnit = _mm_set1_epi32(score);
-                    vEndH = vMax;
-                    vEndI = vI;
-                    vEndJ = vJ;
-                }
+                vEndI = _mm_blendv_epi8(vEndI, vI, cond_all);
+                vEndJ = _mm_blendv_epi8(vEndJ, vJ, cond_all);
             }
             vJ = _mm_add_epi32(vJ, vOne);
         }
@@ -264,26 +249,21 @@ parasail_result_t* FNAME(
 
     /* alignment ending position */
     {
-        int32_t *t = (int32_t*)&vEndH;
+        int32_t *t = (int32_t*)&vMax;
         int32_t *i = (int32_t*)&vEndI;
         int32_t *j = (int32_t*)&vEndJ;
         int32_t k;
         for (k=0; k<N; ++k, ++t, ++i, ++j) {
-            if (*t == score && *i < s1Len && *j > -1 && *j < s2Len) {
+            if (*t > score) {
+                score = *t;
+                end_query = *i;
+                end_ref = *j;
+            }
+            else if (*t == score && *i < end_query) {
                 end_query = *i;
                 end_ref = *j;
             }
         }
-    }
-
-    /* max in vMax */
-    for (i=0; i<N; ++i) {
-        int32_t value;
-        value = (int32_t) _mm_extract_epi32(vMax, 3);
-        if (value > score) {
-            score = value;
-        }
-        vMax = _mm_slli_si128(vMax, 4);
     }
 
     

@@ -18,14 +18,6 @@
 
 #define NEG_INF INT8_MIN
 
-static inline int8_t _mm_hmax_epi8_rpl(__m128i a) {
-    a = _mm_max_epi8(a, _mm_srli_si128(a, 8));
-    a = _mm_max_epi8(a, _mm_srli_si128(a, 4));
-    a = _mm_max_epi8(a, _mm_srli_si128(a, 2));
-    a = _mm_max_epi8(a, _mm_srli_si128(a, 1));
-    return _mm_extract_epi8(a, 0);
-}
-
 
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si128(
@@ -234,8 +226,8 @@ parasail_result_t* FNAME(
 #endif
     int32_t i = 0;
     int32_t j = 0;
-    int8_t end_query = 0;
-    int8_t end_ref = 0;
+    int32_t end_query = 0;
+    int32_t end_ref = 0;
     int8_t score = NEG_INF;
     __m128i vNegInf = _mm_set1_epi8(NEG_INF);
     __m128i vNegInf0 = _mm_srli_si128(vNegInf, 1); /* shift in a 0 */
@@ -250,8 +242,6 @@ parasail_result_t* FNAME(
     __m128i vJresetLo16 = _mm_set_epi16(-8,-9,-10,-11,-12,-13,-14,-15);
     __m128i vJresetHi16 = _mm_set_epi16(0,-1,-2,-3,-4,-5,-6,-7);
     __m128i vMax = vNegInf;
-    __m128i vMaxUnit = vNegInf;
-    __m128i vEndH = vNegInf;
     __m128i vEndILo = vNegInf;
     __m128i vEndIHi = vNegInf;
     __m128i vEndJLo = vNegInf;
@@ -390,7 +380,6 @@ parasail_result_t* FNAME(
             /* as minor diagonal vector passes across table, extract
              * max values within the i,j bounds */
             {
-                __m128i vCompare;
                 __m128i cond_valid_J = _mm_and_si128(
                         _mm_packs_epi16(
                             _mm_cmpgt_epi16(vJLo16, vNegOne16),
@@ -402,16 +391,12 @@ parasail_result_t* FNAME(
                 __m128i cond_all = _mm_and_si128(cond_max,
                         _mm_and_si128(vIltLimit, cond_valid_J));
                 vMax = _mm_blendv_epi8(vMax, vWscore, cond_all);
-                vCompare = _mm_cmpgt_epi8(vMax, vMaxUnit);
-                if (_mm_movemask_epi8(vCompare)) {
-                    score = _mm_hmax_epi8_rpl(vMax);
-                    vMaxUnit = _mm_set1_epi8(score);
-                    vEndH = vMax;
-                    vEndILo = vILo16;
-                    vEndIHi = vIHi16;
-                    vEndJLo = vJLo16;
-                    vEndJHi = vJHi16;
-                }
+                __m128i cond_lo = _mm_unpacklo_epi8(cond_all, cond_all);
+                __m128i cond_hi = _mm_unpackhi_epi8(cond_all, cond_all);
+                vEndILo = _mm_blendv_epi8(vEndILo, vILo16, cond_lo);
+                vEndIHi = _mm_blendv_epi8(vEndIHi, vIHi16, cond_hi);
+                vEndJLo = _mm_blendv_epi8(vEndJLo, vJLo16, cond_lo);
+                vEndJHi = _mm_blendv_epi8(vEndJHi, vJHi16, cond_hi);
             }
             vJLo16 = _mm_add_epi16(vJLo16, vOne16);
             vJHi16 = _mm_add_epi16(vJHi16, vOne16);
@@ -422,34 +407,34 @@ parasail_result_t* FNAME(
 
     /* alignment ending position */
     {
-        int8_t *t = (int8_t*)&vEndH;
+        int8_t *t = (int8_t*)&vMax;
         int16_t *ilo = (int16_t*)&vEndILo;
         int16_t *jlo = (int16_t*)&vEndJLo;
         int16_t *ihi = (int16_t*)&vEndIHi;
         int16_t *jhi = (int16_t*)&vEndJHi;
         int32_t k;
         for (k=0; k<N/2; ++k, ++t, ++ilo, ++jlo) {
-            if (*t == score && *ilo < s1Len && *jlo > -1 && *jlo < s2Len) {
+            if (*t > score) {
+                score = *t;
+                end_query = *ilo;
+                end_ref = *jlo;
+            }
+            else if (*t == score && *ilo < end_query) {
                 end_query = *ilo;
                 end_ref = *jlo;
             }
         }
         for (k=N/2; k<N; ++k, ++t, ++ihi, ++jhi) {
-            if (*t == score && *ihi < s1Len && *jhi > -1 && *jhi < s2Len) {
+            if (*t > score) {
+                score = *t;
+                end_query = *ihi;
+                end_ref = *jhi;
+            }
+            else if (*t == score && *ihi < end_query) {
                 end_query = *ihi;
                 end_ref = *jhi;
             }
         }
-    }
-
-    /* max in vMax */
-    for (i=0; i<N; ++i) {
-        int8_t value;
-        value = (int8_t) _mm_extract_epi8(vMax, 15);
-        if (value > score) {
-            score = value;
-        }
-        vMax = _mm_slli_si128(vMax, 1);
     }
 
     if (_mm_movemask_epi8(_mm_or_si128(

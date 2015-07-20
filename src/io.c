@@ -233,7 +233,7 @@ parasail_file_stat_t* parasail_stat_fasta_buffer(const char *T, off_t size)
         else if (T[i] == '\n' || T[i] == '\r') {
             /* ignore newline */
             /* for the case of "\r\n" or "\n\r" */
-            if (T[i+1] == '\n' || T[i+1] == '\r') {
+            if (i+1<size && (T[i+1] == '\n' || T[i+1] == '\r')) {
                 ++i;
             }
         }
@@ -343,7 +343,7 @@ parasail_file_stat_t* parasail_stat_fastq_buffer(const char *T, off_t size)
         }
 
         /* for the case of "\r\n" or "\n\r" */
-        if (T[i+1] == '\n' || T[i+1] == '\r') {
+        if (i+1<size && (T[i+1] == '\n' || T[i+1] == '\r')) {
             ++i;
         }
 
@@ -494,7 +494,7 @@ char * parasail_pack_fasta_buffer(const char *T, off_t size, long * packed_size)
         else if (T[i] == '\n' || T[i] == '\r') {
             /* ignore newline */
             /* for the case of "\r\n" or "\n\r" */
-            if (T[i+1] == '\n' || T[i+1] == '\r') {
+            if (i+1<size && (T[i+1] == '\n' || T[i+1] == '\r')) {
                 ++i;
             }
         }
@@ -584,7 +584,7 @@ char * parasail_pack_fastq_buffer(const char *T, off_t size, long * packed_size)
         }
 
         /* for the case of "\r\n" or "\n\r" */
-        if (T[i+1] == '\n' || T[i+1] == '\r') {
+        if (i+1<size && (T[i+1] == '\n' || T[i+1] == '\r')) {
             ++i;
         }
 

@@ -17,7 +17,7 @@ extern "C" {
 typedef struct parasail_file {
     int fd;
     off_t size;
-    char *buf;
+    const char *buf;
 } parasail_file_t;
 
 typedef struct parasail_file_stat {
@@ -49,6 +49,25 @@ char * parasail_pack(const parasail_file_t *pf, long * size);
 char * parasail_pack_fasta(const parasail_file_t *pf, long * size);
 
 char * parasail_pack_fastq(const parasail_file_t *pf, long * size);
+
+
+/* char buffer versions of io functions */
+
+int parasail_is_fasta_buffer(const char *, off_t size);
+
+int parasail_is_fastq_buffer(const char *pf, off_t size);
+
+parasail_file_stat_t* parasail_stat_buffer(const char *buffer, off_t size);
+
+parasail_file_stat_t* parasail_stat_fasta_buffer(const char *buffer, off_t size);
+
+parasail_file_stat_t* parasail_stat_fastq_buffer(const char *buffer, off_t size);
+
+char * parasail_pack_buffer(const char *buffer, off_t size, long * packed_size);
+
+char * parasail_pack_fasta_buffer(const char *buffer, off_t size, long * packed_size);
+
+char * parasail_pack_fastq_buffer(const char *buffer, off_t size, long * packed_size);
 
 #ifdef __cplusplus
 }

@@ -42,6 +42,12 @@ static inline int64_t _mm256_extract_epi64_rpl(__m256i a, int imm) {
 
 #define _mm256_slli_si256_rpl(a,imm) _mm256_alignr_epi8(a, _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,3,0)), 16-imm)
 
+static inline int64_t _mm256_hmax_epi64_rpl(__m256i a) {
+    a = _mm256_max_epi64_rpl(a, _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,0,0)));
+    a = _mm256_max_epi64_rpl(a, _mm256_slli_si256(a, 8));
+    return _mm256_extract_epi64_rpl(a, 3);
+}
+
 
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si256(
@@ -120,7 +126,6 @@ parasail_result_t* PNAME(
     __m256i vNegInf = _mm256_set1_epi64x(NEG_INF);
     int64_t score = NEG_INF;
     __m256i vMaxH = vNegInf;
-    
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
@@ -178,7 +183,6 @@ parasail_result_t* PNAME(
             vH = _mm256_max_epi64_rpl(vH, vZero);
             /* Save vH values. */
             _mm256_store_si256(pvHStore + i, vH);
-            
 #ifdef PARASAIL_TABLE
             arr_store_si256(result->score_table, vH, i, segLen, j, s2Len);
 #endif
@@ -206,7 +210,6 @@ parasail_result_t* PNAME(
                 vH = _mm256_load_si256(pvHStore + i);
                 vH = _mm256_max_epi64_rpl(vH,vF);
                 _mm256_store_si256(pvHStore + i, vH);
-                
 #ifdef PARASAIL_TABLE
                 arr_store_si256(result->score_table, vH, i, segLen, j, s2Len);
 #endif
@@ -240,16 +243,12 @@ end:
     }
 #endif
 
-    /* max in vec */
-    for (j=0; j<segWidth; ++j) {
-        int64_t value = (int64_t) _mm256_extract_epi64_rpl(vMaxH, 3);
-        if (value > score) {
-            score = value;
-        }
-        vMaxH = _mm256_slli_si256_rpl(vMaxH, 8);
-    }
+    score = _mm256_hmax_epi64_rpl(vMaxH);
 
-    
+    if (score == INT64_MAX) {
+        result->saturated = 1;
+        score = INT64_MAX;
+    }
 
     result->score = score;
 

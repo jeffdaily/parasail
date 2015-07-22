@@ -90,7 +90,6 @@ parasail_result_t* PNAME(
     %(VTYPE)s vNegInf = %(VSET1)s(NEG_INF);
     %(INT)s score = NEG_INF;
     %(VTYPE)s vMaxH = vNegInf;
-    %(SATURATION_CHECK_INIT)s
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
@@ -148,7 +147,6 @@ parasail_result_t* PNAME(
             vH = %(VMAX)s(vH, vZero);
             /* Save vH values. */
             %(VSTORE)s(pvHStore + i, vH);
-            %(SATURATION_CHECK_MID)s
 #ifdef PARASAIL_TABLE
             arr_store_si%(BITS)s(result->score_table, vH, i, segLen, j, s2Len);
 #endif
@@ -176,7 +174,6 @@ parasail_result_t* PNAME(
                 vH = %(VLOAD)s(pvHStore + i);
                 vH = %(VMAX)s(vH,vF);
                 %(VSTORE)s(pvHStore + i, vH);
-                %(SATURATION_CHECK_MID)s
 #ifdef PARASAIL_TABLE
                 arr_store_si%(BITS)s(result->score_table, vH, i, segLen, j, s2Len);
 #endif
@@ -210,16 +207,12 @@ end:
     }
 #endif
 
-    /* max in vec */
-    for (j=0; j<segWidth; ++j) {
-        %(INT)s value = (%(INT)s) %(VEXTRACT)s(vMaxH, %(LAST_POS)s);
-        if (value > score) {
-            score = value;
-        }
-        vMaxH = %(VSHIFT)s(vMaxH, %(BYTES)s);
-    }
+    score = %(VHMAX)s(vMaxH);
 
-    %(SATURATION_CHECK_FINAL)s
+    if (score == INT%(WIDTH)s_MAX) {
+        result->saturated = 1;
+        score = INT%(WIDTH)s_MAX;
+    }
 
     result->score = score;
 

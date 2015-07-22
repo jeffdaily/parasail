@@ -207,12 +207,24 @@ parasail_result_t* FNAME(
                         %(VPACKS)s(
                             %(VCMPLTx16)s(vJLo16, vJLimit16),
                             %(VCMPLTx16)s(vJHi16, vJLimit16)));
+                %(VTYPE)s cond_valid_IJ = %(VAND)s(cond_valid_J, vIltLimit);
+                %(VTYPE)s cond_eq = %(VCMPEQ)s(vWscore, vMax);
                 %(VTYPE)s cond_max = %(VCMPGT)s(vWscore, vMax);
-                %(VTYPE)s cond_all = %(VAND)s(cond_max,
-                        %(VAND)s(vIltLimit, cond_valid_J));
-                vMax = %(VBLEND)s(vMax, vWscore, cond_all);
+                %(VTYPE)s cond_all = %(VAND)s(cond_max, cond_valid_IJ);
+                %(VTYPE)s cond_Jlt = %(VPACKS)s(
+                        %(VCMPLTx16)s(vJLo16, vEndJLo),
+                        %(VCMPLTx16)s(vJHi16, vEndJHi));
                 %(VTYPE)s cond_lo = %(VUNPACKLO)s(cond_all, cond_all);
                 %(VTYPE)s cond_hi = %(VUNPACKHI)s(cond_all, cond_all);
+                vMax = %(VBLEND)s(vMax, vWscore, cond_all);
+                vEndILo = %(VBLEND)s(vEndILo, vILo16, cond_lo);
+                vEndIHi = %(VBLEND)s(vEndIHi, vIHi16, cond_hi);
+                vEndJLo = %(VBLEND)s(vEndJLo, vJLo16, cond_lo);
+                vEndJHi = %(VBLEND)s(vEndJHi, vJHi16, cond_hi);
+                cond_all = %(VAND)s(cond_Jlt, cond_eq);
+                cond_all = %(VAND)s(cond_all, cond_valid_IJ);
+                cond_lo = %(VUNPACKLO)s(cond_all, cond_all);
+                cond_hi = %(VUNPACKHI)s(cond_all, cond_all);
                 vEndILo = %(VBLEND)s(vEndILo, vILo16, cond_lo);
                 vEndIHi = %(VBLEND)s(vEndIHi, vIHi16, cond_hi);
                 vEndJLo = %(VBLEND)s(vEndJLo, vJLo16, cond_lo);
@@ -239,9 +251,15 @@ parasail_result_t* FNAME(
                 end_query = *ilo;
                 end_ref = *jlo;
             }
-            else if (*t == score && *ilo < end_query) {
-                end_query = *ilo;
-                end_ref = *jlo;
+            else if (*t == score) {
+                if (*jlo < end_ref) {
+                    end_query = *ilo;
+                    end_ref = *jlo;
+                }
+                else if (*jlo == end_ref && *ilo < end_query) {
+                    end_query = *ilo;
+                    end_ref = *jlo;
+                }
             }
         }
         for (k=N/2; k<N; ++k, ++t, ++ihi, ++jhi) {
@@ -250,9 +268,15 @@ parasail_result_t* FNAME(
                 end_query = *ihi;
                 end_ref = *jhi;
             }
-            else if (*t == score && *ihi < end_query) {
-                end_query = *ihi;
-                end_ref = *jhi;
+            else if (*t == score) {
+                if (*jhi < end_ref) {
+                    end_query = *ihi;
+                    end_ref = *jhi;
+                }
+                else if (*jhi == end_ref && *ihi < end_query) {
+                    end_query = *ihi;
+                    end_ref = *jhi;
+                }
             }
         }
     }

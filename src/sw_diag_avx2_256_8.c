@@ -607,12 +607,24 @@ parasail_result_t* FNAME(
                         _mm256_packs_epi16_rpl(
                             _mm256_cmplt_epi16_rpl(vJLo16, vJLimit16),
                             _mm256_cmplt_epi16_rpl(vJHi16, vJLimit16)));
+                __m256i cond_valid_IJ = _mm256_and_si256(cond_valid_J, vIltLimit);
+                __m256i cond_eq = _mm256_cmpeq_epi8(vWscore, vMax);
                 __m256i cond_max = _mm256_cmpgt_epi8(vWscore, vMax);
-                __m256i cond_all = _mm256_and_si256(cond_max,
-                        _mm256_and_si256(vIltLimit, cond_valid_J));
-                vMax = _mm256_blendv_epi8(vMax, vWscore, cond_all);
+                __m256i cond_all = _mm256_and_si256(cond_max, cond_valid_IJ);
+                __m256i cond_Jlt = _mm256_packs_epi16_rpl(
+                        _mm256_cmplt_epi16_rpl(vJLo16, vEndJLo),
+                        _mm256_cmplt_epi16_rpl(vJHi16, vEndJHi));
                 __m256i cond_lo = _mm256_unpacklo_epi8_rpl(cond_all, cond_all);
                 __m256i cond_hi = _mm256_unpackhi_epi8_rpl(cond_all, cond_all);
+                vMax = _mm256_blendv_epi8(vMax, vWscore, cond_all);
+                vEndILo = _mm256_blendv_epi8(vEndILo, vILo16, cond_lo);
+                vEndIHi = _mm256_blendv_epi8(vEndIHi, vIHi16, cond_hi);
+                vEndJLo = _mm256_blendv_epi8(vEndJLo, vJLo16, cond_lo);
+                vEndJHi = _mm256_blendv_epi8(vEndJHi, vJHi16, cond_hi);
+                cond_all = _mm256_and_si256(cond_Jlt, cond_eq);
+                cond_all = _mm256_and_si256(cond_all, cond_valid_IJ);
+                cond_lo = _mm256_unpacklo_epi8_rpl(cond_all, cond_all);
+                cond_hi = _mm256_unpackhi_epi8_rpl(cond_all, cond_all);
                 vEndILo = _mm256_blendv_epi8(vEndILo, vILo16, cond_lo);
                 vEndIHi = _mm256_blendv_epi8(vEndIHi, vIHi16, cond_hi);
                 vEndJLo = _mm256_blendv_epi8(vEndJLo, vJLo16, cond_lo);
@@ -639,9 +651,15 @@ parasail_result_t* FNAME(
                 end_query = *ilo;
                 end_ref = *jlo;
             }
-            else if (*t == score && *ilo < end_query) {
-                end_query = *ilo;
-                end_ref = *jlo;
+            else if (*t == score) {
+                if (*jlo < end_ref) {
+                    end_query = *ilo;
+                    end_ref = *jlo;
+                }
+                else if (*jlo == end_ref && *ilo < end_query) {
+                    end_query = *ilo;
+                    end_ref = *jlo;
+                }
             }
         }
         for (k=N/2; k<N; ++k, ++t, ++ihi, ++jhi) {
@@ -650,9 +668,15 @@ parasail_result_t* FNAME(
                 end_query = *ihi;
                 end_ref = *jhi;
             }
-            else if (*t == score && *ihi < end_query) {
-                end_query = *ihi;
-                end_ref = *jhi;
+            else if (*t == score) {
+                if (*jhi < end_ref) {
+                    end_query = *ihi;
+                    end_ref = *jhi;
+                }
+                else if (*jhi == end_ref && *ihi < end_query) {
+                    end_query = *ihi;
+                    end_ref = *jhi;
+                }
             }
         }
     }

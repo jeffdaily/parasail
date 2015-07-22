@@ -55,20 +55,15 @@ RAM (SSE4.1 support). The compiler was Apple LLVM version 6.0 (clang-600.0.57.
 
 |                                      |O74807  |P19930  |Q3ZAI3  |P18080|
 |--------------------------------------|--------|--------|--------|------|
-|query length                          |110     |195     |390     |513   |
-|SSW (SSE2) 16-bit only                |13.9    |19.4    |29.9    |39.7  |
-|SSW (SSE2) saturation                 |14.9    |22.7    |44.4    |54.4  |
-|opal (SSE4.1)                         |15.2    |21.5    |35.9    |44.6  |
-|SWIPE (SSSE3)                         |7.6     |13.3    |24.7    |32.0  |
-|ssearch36 (SSE2)                      |12.9    |20.4    |29.6    |38.1  |
-|parasail (SSE4.1) 16-bit              |10.7    |15.2    |24.8    |30.5  |
-|parasail (SSE4.1) 8-bit\*             |9.9     |13.7    |20.0    |23.7  |
-|parasail (SSE4.1) saturation abort\*\*|10.3    |20.9    |31.9    |39.5  |
-|parasail (SSE4.1) saturation cont\*\* |9.9     |15.9    |25.6    |31.3  |
+|query length|110|195|390|513|
+|SSW (SSE2)|13.2|27.1|41.7|52.4|
+|opal (SSE4.1)|15.2|21.5|35.9|44.6|
+|SWIPE (SSSE3)|7.6|13.3|24.7|32.0|
+|ssearch36 (SSE2)|12.9|20.4|29.6|38.1|
+|parasail (SSE4.1) 16-bit|11.3|15.9|25.8|36.9|
+|parasail (SSE4.1) sat|10.1|21.2|32.1|43.1|
 
-\* The 8-bit integer range is often not sufficient for large scores and will overflow, so these timings should be used as a lower bound; no overflow detection was applied and accounted for and the returned scores are likely incorrect.
-
-\*\* The parasail saturation-checking functions are slow when the alignment score is expected to overflow the smaller 8-bit integer range.  There are two options when overflow is detected, either aborting the 8-bit computation and restarting the 16-bit version, or copying enough state from the 8-bit computation to continue where it left off for the 16-bit version.  We see from these numbers that in most cases the 16-bit implementation alone is fastest.
+The parasail saturation-checking function, like SSW, starts by trying the 8-bit precision implementation. If saturation/overflow is detected, the 8-bit function aborts early and the 16-bit implementation will then run. On this particular platform, running the 16-bit version alone is the fastest pairwise implementation. SWIPE remains fastest for this database search problem, though parasail is not far behind.
 
 ![](images/perf_mac.png)
 
@@ -76,25 +71,24 @@ The following tests were performed on an Intel Haswell E5-2670 v3 CPU running
 at 2.3 Ghz with 64 GB 2133 Mhz DDR4 memory. The compiler used was Intel ICC
 15.0.1 using level three optimization (-O3).
 
-|                                    |O74807  |P19930  |Q3ZAI3  |P18080|
-|------------------------------------|--------|--------|--------|------|
-|query length                        |110     |195     |390     |513   |
-|SSW (SSE2) 16-bit only              |13.9    |19.6    |32.4    |39.3  |
-|SSW (SSE2)                          |13.1    |26.3    |41.8    |49.0  |
-|opal (SSE4.1)                       |17.7    |24.2    |38.8    |48.1  |
-|opal (AVX2)                         |12.2    |15.4    |22.8    |28.4  |
-|SWIPE (SSSE3)                       |9.3     |16.4    |30.8    |39.9  |
-|ssearch36 (SSE2)                    |11.7    |21.1    |30.6    |37.1  |
-|parasail (SSE4.1) 16-bit            |11.0    |15.7    |27.3    |34.5  |
-|parasail (SSE4.1) 8-bit\*           |9.0     |12.6    |19.0    |23.4  |
-|parasail (AVX2) 16-bit              |9.5     |12.2    |17.6    |21.6  |
-|parasail (AVX2) 8-bit\*             |10.1    |11.8    |13.5    |14.7  |
-|parasail (AVX2) saturation abort\*\*|10.3    |17.8    |23.1    |26.9  |
-|parasail (AVX2) saturation cont\*\* |10.1    |14.3    |19.8    |23.3  |
+|                                      |O74807  |P19930  |Q3ZAI3  |P18080|
+|--------------------------------------|--------|--------|--------|------|
+|query length|110.0|195.0|390.0|513.0|
+|SSW (SSE2)|12.0|25.6|41.5|48.7|
+|opal (SSE4.1)|17.8|24.2|38.9|48.2|
+|opal (AVX2)|12.2|15.4|22.9|28.4|
+|SWIPE (SSSE3)|9.6|16.5|30.9|39.9|
+|ssearch36 (SSE2)|11.7|21.1|30.6|37.2|
+|parasail (SSE41) 16-bit|10.8|15.9|27.4|33.8|
+|parasail (SSE41) sat|8.9|25.2|44.4|55.2|
+|parasail (SSE41) satabort|9.2|20.7|33.8|41.5|
+|parasail (SSE41) satcont|9.1|15.7|26.7|33.3|
+|parasail (AVX2) 16-bit|9.3|12.0|17.4|21.5|
+|parasail (AVX2) sat|9.5|20.6|29.4|35.2|
+|parasail (AVX2) satabort|9.3|16.8|22.7|27.5|
+|parasail (AVX2) satcont|9.6|13.5|19.5|24.0|
 
-\*  See above.
-
-\*\* See above.
+There are a number of alternatives to evaluate, namely what to do once the 8-bit calculation overflows. The 8-bit calculation can be allowed to finish ("sat"), abort as soon as overflow occurs ("satabort"), or abort early while copying enough state to restart from where it left off ("satcont"). Each approach has different performance characteristics.
 
 ![](images/perf_haswell.png)
 

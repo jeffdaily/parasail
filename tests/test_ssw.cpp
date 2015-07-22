@@ -977,7 +977,8 @@ inline static void cigar_to_stats(
     similarities = 0;
     length = 0;
     if (a->cigar) {
-        int32_t i, c = 0, qb = a->ref_begin1, pb = a->read_begin1;
+        uint32_t i;
+        int32_t c = 0, qb = a->ref_begin1, pb = a->read_begin1;
         int32_t q = qb;
         int32_t p = pb;
         for (c = 0; c < a->cigarLen; ++c) {

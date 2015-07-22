@@ -43,6 +43,7 @@
 #endif
 
 #include "parasail.h"
+#include "parasail/io.h"
 
 #include "sais.h"
 
@@ -100,12 +101,6 @@ inline static void process(
         const vector<int> &DB,
         const char &sentinal,
         const int &cutoff);
-
-inline static void read_and_pack_file(
-        const char *fname, 
-        unsigned char * &T,
-        long &n,
-        const char *progname);
 
 inline static void print_array(
         const char * filename_,
@@ -371,11 +366,18 @@ int main(int argc, char **argv) {
     
     start = parasail_time();
     if (qname == NULL) {
-        read_and_pack_file(fname, T, n, progname);
+        parasail_file_t *pf = parasail_open(fname);
+        T = (unsigned char*)parasail_pack(pf, &n);
+        parasail_close(pf);
     }
     else {
-        read_and_pack_file(fname, T, t, progname);
-        read_and_pack_file(qname, Q, q, progname);
+        parasail_file_t *pf = NULL;
+        pf = parasail_open(fname);
+        T = (unsigned char*)parasail_pack(pf, &t);
+        parasail_close(pf);
+        pf = parasail_open(qname);
+        Q = (unsigned char*)parasail_pack(pf, &q);
+        parasail_close(pf);
         n = t+q;
         /* realloc T and copy Q into it */
         T = (unsigned char*)realloc(T, (n+1)*sizeof(unsigned char));
@@ -545,7 +547,11 @@ int main(int argc, char **argv) {
             process(count_generated, pairs, the_stack.top(), SA, BWT, SID, DB, sentinal, cutoff);
         }
         finish = parasail_time();
-        count_possible = ((unsigned long)sid)*((unsigned long)sid-1)/2;
+        if (qname == NULL) {
+            count_possible = ((unsigned long)sid)*((unsigned long)sid-1)/2;
+        } else {
+            count_possible = (sid-sid_crossover)*sid_crossover;
+        }
         eprintf(stdout, "%20s: %.4f seconds\n", "ESA time", finish-start);
         eprintf(stdout, "%20s: %lu\n", "possible pairs", count_possible);
         eprintf(stdout, "%20s: %lu\n", "generated pairs", count_generated);
@@ -897,116 +903,6 @@ inline static void process(
             }
         }
     }
-}
-
-inline static void read_and_pack_file(
-        const char *fname, 
-        unsigned char * &T,
-        long &n,
-        const char *progname)
-{
-    FILE *fip = NULL;
-
-    /* Open a file for reading. */
-    if((fip = fopen(fname, "r")) == NULL) {
-        eprintf(stderr, "%s: Cannot open input file `%s': ", progname, fname);
-        perror("fopen");
-        exit(EXIT_FAILURE);
-    }
-
-    /* Get the database file size. */
-    if(fseek(fip, 0, SEEK_END) == 0) {
-        n = ftell(fip);
-        if(n < 0) {
-            eprintf(stderr, "%s: Cannot ftell `%s': ", progname, fname);
-            perror("ftell");
-            exit(EXIT_FAILURE);
-        }
-        rewind(fip);
-    } else {
-        eprintf(stderr, "%s: Cannot fseek `%s': ", progname, fname);
-        perror("fseek");
-        exit(EXIT_FAILURE);
-    }
-
-    /* Allocate file buffer, read the entire file, then pack it. */
-    T = (unsigned char *)malloc((size_t)(n+1) * sizeof(unsigned char));
-    if (T == NULL) {
-        eprintf(stderr, "%s: Cannot allocate memory for file.\n", progname);
-        perror("malloc");
-        exit(EXIT_FAILURE);
-    }
-    if(fread(T, sizeof(unsigned char), (size_t)n, fip) != (size_t)n) {
-        eprintf(stderr, "%s: %s `%s': ",
-                progname,
-                (ferror(fip) || !feof(fip)) ? "Cannot read from" : "Unexpected EOF in",
-                fname);
-        perror("fread");
-        exit(EXIT_FAILURE);
-    }
-    fclose(fip);
-    T[n]='\0'; /* so we can print it */
-    eprintf(stdout, "%20s: %s\n", "filename", fname);
-    eprintf(stdout, "%20s: %ld bytes\n", "original size", n);
-    /* Pack the buffer so it's ready for sais function. */
-    {
-        long i;
-        char first = 1;
-        long w = 0;
-        long save = 0;
-        long newlines = 0;
-        for (i=0; i<n; ++i) { 
-            if (T[i] == '>') {
-                if (first) {
-                    first = 0;
-                }
-                else {
-                    T[w++] = '$';
-                }
-                /* skip rest of this line */
-                while (T[i] != '\n' && T[i] != '\r') {
-                    ++i;
-                }
-                newlines++;
-                /* for the case of "\r\n" */
-                if (T[i+1] == '\n' || T[i+1] == '\r') {
-                    ++i;
-                }
-            }
-            else if (isalpha(T[i])) {
-                T[w++] = T[i];
-            }
-            else if (T[i] == '\n' || T[i] == '\r') {
-                /* ignore newline */
-                newlines++;
-                /* for the case of "\r\n" */
-                if (T[i+1] == '\n' || T[i+1] == '\r') {
-                    ++i;
-                }
-            }
-            else if (isprint(T[i])) {
-                eprintf(stderr, "error: non-alpha character "
-                        "at pos %ld line %ld in input ('%c')\n",
-                        i, newlines, T[i]);
-                exit(EXIT_FAILURE);
-            }
-            else {
-                eprintf(stderr, "error: non-printing character "
-                        "at pos %ld line %ld in input ('%d')\n",
-                        i, newlines, T[i]);
-                exit(EXIT_FAILURE);
-            }
-        }
-        T[w++] = '$';
-        save = w;
-        /* nullifiy rest of buffer */
-        while (w < n) {
-            T[w++] = '\0';
-        }
-        /* new length */
-        n = save;
-    }
-    eprintf(stdout, "%20s: %ld bytes\n", "packed size", n);
 }
 
 #ifdef __MIC__

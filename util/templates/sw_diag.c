@@ -195,9 +195,15 @@ parasail_result_t* FNAME(
                         %(VCMPGT)s(vJ, vNegOne),
                         %(VCMPLT)s(vJ, vJLimit));
                 %(VTYPE)s cond_valid_IJ = %(VAND)s(cond_valid_J, vIltLimit);
+                %(VTYPE)s cond_eq = %(VCMPEQ)s(vWscore, vMax);
                 %(VTYPE)s cond_max = %(VCMPGT)s(vWscore, vMax);
                 %(VTYPE)s cond_all = %(VAND)s(cond_max, cond_valid_IJ);
+                %(VTYPE)s cond_Jlt = %(VCMPLT)s(vJ, vEndJ);
                 vMax = %(VBLEND)s(vMax, vWscore, cond_all);
+                vEndI = %(VBLEND)s(vEndI, vI, cond_all);
+                vEndJ = %(VBLEND)s(vEndJ, vJ, cond_all);
+                cond_all = %(VAND)s(cond_Jlt, cond_eq);
+                cond_all = %(VAND)s(cond_all, cond_valid_IJ);
                 vEndI = %(VBLEND)s(vEndI, vI, cond_all);
                 vEndJ = %(VBLEND)s(vEndJ, vJ, cond_all);
             }
@@ -218,9 +224,15 @@ parasail_result_t* FNAME(
                 end_query = *i;
                 end_ref = *j;
             }
-            else if (*t == score && *i < end_query) {
-                end_query = *i;
-                end_ref = *j;
+            else if (*t == score) {
+                if (*j < end_ref) {
+                    end_query = *i;
+                    end_ref = *j;
+                }
+                else if (*j == end_ref && *i < end_query) {
+                    end_query = *i;
+                    end_ref = *j;
+                }
             }
         }
     }

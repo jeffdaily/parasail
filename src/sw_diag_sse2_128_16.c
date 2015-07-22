@@ -285,9 +285,15 @@ parasail_result_t* FNAME(
                         _mm_cmpgt_epi16(vJ, vNegOne),
                         _mm_cmplt_epi16(vJ, vJLimit));
                 __m128i cond_valid_IJ = _mm_and_si128(cond_valid_J, vIltLimit);
+                __m128i cond_eq = _mm_cmpeq_epi16(vWscore, vMax);
                 __m128i cond_max = _mm_cmpgt_epi16(vWscore, vMax);
                 __m128i cond_all = _mm_and_si128(cond_max, cond_valid_IJ);
+                __m128i cond_Jlt = _mm_cmplt_epi16(vJ, vEndJ);
                 vMax = _mm_blendv_epi8_rpl(vMax, vWscore, cond_all);
+                vEndI = _mm_blendv_epi8_rpl(vEndI, vI, cond_all);
+                vEndJ = _mm_blendv_epi8_rpl(vEndJ, vJ, cond_all);
+                cond_all = _mm_and_si128(cond_Jlt, cond_eq);
+                cond_all = _mm_and_si128(cond_all, cond_valid_IJ);
                 vEndI = _mm_blendv_epi8_rpl(vEndI, vI, cond_all);
                 vEndJ = _mm_blendv_epi8_rpl(vEndJ, vJ, cond_all);
             }
@@ -308,9 +314,15 @@ parasail_result_t* FNAME(
                 end_query = *i;
                 end_ref = *j;
             }
-            else if (*t == score && *i < end_query) {
-                end_query = *i;
-                end_ref = *j;
+            else if (*t == score) {
+                if (*j < end_ref) {
+                    end_query = *i;
+                    end_ref = *j;
+                }
+                else if (*j == end_ref && *i < end_query) {
+                    end_query = *i;
+                    end_ref = *j;
+                }
             }
         }
     }

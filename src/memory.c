@@ -407,3 +407,18 @@ void parasail_profile_free(parasail_profile_t *profile)
     free(profile);
 }
 
+char* parasail_reverse(const char *s, int length)
+{
+    char *r = NULL;
+    int i = 0;
+    int j = 0;
+
+    r = (char*)malloc(sizeof(char)*(length + 1));
+    r[length] = '\0';
+    for (i=0,j=length-1; i<length; ++i,--j) {
+        r[i] = s[j];
+    }
+
+    return r;
+}
+

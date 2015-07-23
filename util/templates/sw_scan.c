@@ -221,7 +221,7 @@ parasail_result_t* PNAME(
     {
         %(INT)s *t = (%(INT)s*)pvHMax;
         %(INDEX)s column_len = segLen * segWidth;
-        end_query = s1Len - 1;
+        end_query = s1Len;
         for (i = 0; i<column_len; ++i, ++t) {
             if (*t == score) {
                 %(INDEX)s temp = i / segWidth + i %% segWidth * segLen;
@@ -238,15 +238,6 @@ parasail_result_t* PNAME(
         arr_store_col(result->score_col, vH, i, segLen);
     }
 #endif
-
-    /* max in vec */
-    for (j=0; j<segWidth; ++j) {
-        %(INT)s value = (%(INT)s) %(VEXTRACT)s(vMaxH, %(LAST_POS)s);
-        if (value > score) {
-            score = value;
-        }
-        vMaxH = %(VSHIFT)s(vMaxH, %(BYTES)s);
-    }
 
     %(SATURATION_CHECK_FINAL)s
 

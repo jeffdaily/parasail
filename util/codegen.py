@@ -11,6 +11,7 @@
 
 import copy
 import os
+import string
 import sys
 
 from isa import sse2
@@ -416,9 +417,11 @@ for template_filename in template_filenames:
             function_rowcol_pname = "%s_%s%s_%s_%s" % (rowcol_prefix_prof,
                     isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
             params["NAME"] = "parasail_"+function_name
+            params["NAME_BASE"] = string.replace(params["NAME"], "_stats", "")
             params["NAME_TABLE"] = "parasail_"+function_table_name
             params["NAME_ROWCOL"] = "parasail_"+function_rowcol_name
             params["PNAME"] = "parasail_"+function_pname
+            params["PNAME_BASE"] = string.replace(params["PNAME"], "_stats", "")
             params["PNAME_TABLE"] = "parasail_"+function_table_pname
             params["PNAME_ROWCOL"] = "parasail_"+function_rowcol_pname
             params = generated_params(params)
@@ -501,9 +504,11 @@ for template_filename in bias_templates:
             function_rowcol_pname = "%s_%s%s_%s_%s" % (rowcol_prefix_prof,
                     isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
             params["NAME"] = "parasail_"+function_name
+            params["NAME_BASE"] = string.replace(params["NAME"], "_stats", "")
             params["NAME_TABLE"] = "parasail_"+function_table_name
             params["NAME_ROWCOL"] = "parasail_"+function_rowcol_name
             params["PNAME"] = "parasail_"+function_pname
+            params["PNAME_BASE"] = string.replace(params["PNAME"], "_stats", "")
             params["PNAME_TABLE"] = "parasail_"+function_table_pname
             params["PNAME_ROWCOL"] = "parasail_"+function_rowcol_pname
             params = generated_params(params)

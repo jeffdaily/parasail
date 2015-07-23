@@ -58,6 +58,12 @@ static inline void arr_store_col(
 #define PNAME %(PNAME)s
 #endif
 #endif
+#define INAME PNAME##_internal
+
+static parasail_result_t* INAME(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap, %(INT)s stop);
 
 parasail_result_t* FNAME(
         const char * const restrict s1, const int s1Len,
@@ -70,10 +76,59 @@ parasail_result_t* FNAME(
     return result;
 }
 
+#include <assert.h>
 parasail_result_t* PNAME(
         const parasail_profile_t * const restrict profile,
         const char * const restrict s2, const int s2Len,
         const int open, const int gap)
+{
+#ifdef PARASAIL_TABLE
+    return INAME(profile, s2, s2Len, open, gap, INT%(WIDTH)s_MAX);
+#else
+#ifdef PARASAIL_ROWCOL
+    return INAME(profile, s2, s2Len, open, gap, INT%(WIDTH)s_MAX);
+#else
+    const char *s1 = profile->s1;
+    const parasail_matrix_t *matrix = profile->matrix;
+    /* find the end loc first with the faster implementation */
+    parasail_result_t *result = %(PNAME_BASE)s(profile, s2, s2Len, open, gap);
+    if (!result->saturated) {
+        /* using the end loc, reverse the inputs and find the beg loc */
+        int s1Len_new = result->end_query+1;
+        int s2Len_new = result->end_ref+1;
+        char *s1_new = parasail_reverse(s1, s1Len_new);
+        char *s2_new = parasail_reverse(s2, s2Len_new);
+        parasail_result_t *result_new = %(NAME_BASE)s(
+                s1_new, s1Len_new, s2_new, s2Len_new, open, gap, matrix);
+        /* using both the beg and end loc, call the original */
+        int s1_begin = s1Len_new - result_new->end_query - 1;
+        int s2_begin = s2Len_new - result_new->end_ref - 1;
+        int s1Len_final = s1Len_new - s1_begin;
+        int s2Len_final = s2Len_new - s2_begin;
+        assert(s1_begin >= 0);
+        assert(s2_begin >= 0);
+        assert(s1Len_new > s1_begin);
+        assert(s2Len_new > s2_begin);
+        parasail_profile_t *profile_final = parasail_profile_create_stats_%(ISA)s_%(BITS)s_%(WIDTH)s(&s1[s1_begin], s1Len_final, matrix);
+        parasail_result_t *result_final = INAME(profile_final, &s2[s2_begin], s2Len_final, open, gap, result->score + INT%(WIDTH)s_MIN);
+        free(s1_new);
+        free(s2_new);
+        parasail_profile_free(profile_final);
+        parasail_result_free(result);
+        parasail_result_free(result_new);
+        return result_final;
+    }
+    else {
+        return result;
+    }
+#endif
+#endif
+}
+
+static parasail_result_t* INAME(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap, %(INT)s stop)
 {
     %(INDEX)s i = 0;
     %(INDEX)s j = 0;
@@ -411,6 +466,8 @@ end:
             result->length_row[j] = (%(INT)s) %(VEXTRACT)s (vHL, %(LAST_POS)s) - bias;
         }
 #endif
+
+        if (score == stop) break;
     }
 
     /* Trace the alignment ending position on read. */

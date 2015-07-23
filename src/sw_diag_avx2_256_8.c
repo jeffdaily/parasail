@@ -17,6 +17,12 @@
 
 #define NEG_INF INT8_MIN
 
+static inline __m256i _mm256_unpacklo_epi8_rpl(__m256i a, __m256i b) {
+    __m256i an = _mm256_permute4x64_epi64(a, _MM_SHUFFLE(1,1,0,0));
+    __m256i bn = _mm256_permute4x64_epi64(b, _MM_SHUFFLE(1,1,0,0));
+    return _mm256_unpacklo_epi8(an, bn);
+}
+
 #if HAVE_AVX2_MM256_INSERT_EPI8
 #define _mm256_insert_epi8_rpl _mm256_insert_epi8
 #else
@@ -38,6 +44,12 @@ static inline int8_t _mm256_extract_epi8_rpl(__m256i a, int imm) {
 }
 #endif
 
+static inline __m256i _mm256_unpackhi_epi8_rpl(__m256i a, __m256i b) {
+    __m256i an = _mm256_permute4x64_epi64(a, _MM_SHUFFLE(3,3,2,2));
+    __m256i bn = _mm256_permute4x64_epi64(b, _MM_SHUFFLE(3,3,2,2));
+    return _mm256_unpackhi_epi8(an, bn);
+}
+
 #define _mm256_cmplt_epi8_rpl(a,b) _mm256_cmpgt_epi8(b,a)
 
 #define _mm256_srli_si256_rpl(a,imm) _mm256_or_si256(_mm256_slli_si256(_mm256_permute2x128_si256(a, a, _MM_SHUFFLE(3,0,0,1)), 16-imm), _mm256_srli_si256(a, imm))
@@ -49,8 +61,6 @@ static inline __m256i _mm256_packs_epi16_rpl(__m256i a, __m256i b) {
 }
 
 #define _mm256_cmplt_epi16_rpl(a,b) _mm256_cmpgt_epi16(b,a)
-
-#define _mm256_slli_si256_rpl(a,imm) _mm256_alignr_epi8(a, _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,3,0)), 16-imm)
 
 
 #ifdef PARASAIL_TABLE
@@ -404,6 +414,8 @@ parasail_result_t* FNAME(
 #endif
     int32_t i = 0;
     int32_t j = 0;
+    int32_t end_query = 0;
+    int32_t end_ref = 0;
     int8_t score = NEG_INF;
     __m256i vNegInf = _mm256_set1_epi8(NEG_INF);
     __m256i vNegInf0 = _mm256_srli_si256_rpl(vNegInf, 1); /* shift in a 0 */
@@ -418,6 +430,10 @@ parasail_result_t* FNAME(
     __m256i vJresetLo16 = _mm256_set_epi16(-16,-17,-18,-19,-20,-21,-22,-23,-24,-25,-26,-27,-28,-29,-30,-31);
     __m256i vJresetHi16 = _mm256_set_epi16(0,-1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11,-12,-13,-14,-15);
     __m256i vMax = vNegInf;
+    __m256i vEndILo = vNegInf;
+    __m256i vEndIHi = vNegInf;
+    __m256i vEndJLo = vNegInf;
+    __m256i vEndJHi = vNegInf;
     __m256i vILimit16 = _mm256_set1_epi16(s1Len);
     __m256i vJLimit16 = _mm256_set1_epi16(s2Len);
     __m256i vNegLimit = _mm256_set1_epi8(INT8_MIN);
@@ -591,10 +607,28 @@ parasail_result_t* FNAME(
                         _mm256_packs_epi16_rpl(
                             _mm256_cmplt_epi16_rpl(vJLo16, vJLimit16),
                             _mm256_cmplt_epi16_rpl(vJHi16, vJLimit16)));
+                __m256i cond_valid_IJ = _mm256_and_si256(cond_valid_J, vIltLimit);
+                __m256i cond_eq = _mm256_cmpeq_epi8(vWscore, vMax);
                 __m256i cond_max = _mm256_cmpgt_epi8(vWscore, vMax);
-                __m256i cond_all = _mm256_and_si256(cond_max,
-                        _mm256_and_si256(vIltLimit, cond_valid_J));
+                __m256i cond_all = _mm256_and_si256(cond_max, cond_valid_IJ);
+                __m256i cond_Jlt = _mm256_packs_epi16_rpl(
+                        _mm256_cmplt_epi16_rpl(vJLo16, vEndJLo),
+                        _mm256_cmplt_epi16_rpl(vJHi16, vEndJHi));
+                __m256i cond_lo = _mm256_unpacklo_epi8_rpl(cond_all, cond_all);
+                __m256i cond_hi = _mm256_unpackhi_epi8_rpl(cond_all, cond_all);
                 vMax = _mm256_blendv_epi8(vMax, vWscore, cond_all);
+                vEndILo = _mm256_blendv_epi8(vEndILo, vILo16, cond_lo);
+                vEndIHi = _mm256_blendv_epi8(vEndIHi, vIHi16, cond_hi);
+                vEndJLo = _mm256_blendv_epi8(vEndJLo, vJLo16, cond_lo);
+                vEndJHi = _mm256_blendv_epi8(vEndJHi, vJHi16, cond_hi);
+                cond_all = _mm256_and_si256(cond_Jlt, cond_eq);
+                cond_all = _mm256_and_si256(cond_all, cond_valid_IJ);
+                cond_lo = _mm256_unpacklo_epi8_rpl(cond_all, cond_all);
+                cond_hi = _mm256_unpackhi_epi8_rpl(cond_all, cond_all);
+                vEndILo = _mm256_blendv_epi8(vEndILo, vILo16, cond_lo);
+                vEndIHi = _mm256_blendv_epi8(vEndIHi, vIHi16, cond_hi);
+                vEndJLo = _mm256_blendv_epi8(vEndJLo, vJLo16, cond_lo);
+                vEndJHi = _mm256_blendv_epi8(vEndJHi, vJHi16, cond_hi);
             }
             vJLo16 = _mm256_add_epi16(vJLo16, vOne16);
             vJHi16 = _mm256_add_epi16(vJHi16, vOne16);
@@ -603,14 +637,48 @@ parasail_result_t* FNAME(
         vIHi16 = _mm256_add_epi16(vIHi16, vN16);
     }
 
-    /* max in vMax */
-    for (i=0; i<N; ++i) {
-        int8_t value;
-        value = (int8_t) _mm256_extract_epi8_rpl(vMax, 31);
-        if (value > score) {
-            score = value;
+    /* alignment ending position */
+    {
+        int8_t *t = (int8_t*)&vMax;
+        int16_t *ilo = (int16_t*)&vEndILo;
+        int16_t *jlo = (int16_t*)&vEndJLo;
+        int16_t *ihi = (int16_t*)&vEndIHi;
+        int16_t *jhi = (int16_t*)&vEndJHi;
+        int32_t k;
+        for (k=0; k<N/2; ++k, ++t, ++ilo, ++jlo) {
+            if (*t > score) {
+                score = *t;
+                end_query = *ilo;
+                end_ref = *jlo;
+            }
+            else if (*t == score) {
+                if (*jlo < end_ref) {
+                    end_query = *ilo;
+                    end_ref = *jlo;
+                }
+                else if (*jlo == end_ref && *ilo < end_query) {
+                    end_query = *ilo;
+                    end_ref = *jlo;
+                }
+            }
         }
-        vMax = _mm256_slli_si256_rpl(vMax, 1);
+        for (k=N/2; k<N; ++k, ++t, ++ihi, ++jhi) {
+            if (*t > score) {
+                score = *t;
+                end_query = *ihi;
+                end_ref = *jhi;
+            }
+            else if (*t == score) {
+                if (*jhi < end_ref) {
+                    end_query = *ihi;
+                    end_ref = *jhi;
+                }
+                else if (*jhi == end_ref && *ihi < end_query) {
+                    end_query = *ihi;
+                    end_ref = *jhi;
+                }
+            }
+        }
     }
 
     if (_mm256_movemask_epi8(_mm256_or_si256(
@@ -621,6 +689,8 @@ parasail_result_t* FNAME(
     }
 
     result->score = score;
+    result->end_query = end_query;
+    result->end_ref = end_ref;
 
     parasail_free(_del_pr);
     parasail_free(_tbl_pr);

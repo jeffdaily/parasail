@@ -12,7 +12,6 @@
 
 #include "parasail.h"
 #include "parasail/memory.h"
-#include "parasail/matrices/blosum_map.h"
 
 #define NEG_INF_32 (INT32_MIN/2)
 #define MAX(a,b) ((a)>(b)?(a):(b))
@@ -52,10 +51,10 @@ parasail_result_t* ENAME(
     int end_ref = s2Len;
 
     for (i=0; i<s1Len; ++i) {
-        s1[i] = parasail_blosum_map[(unsigned char)_s1[i]];
+        s1[i] = matrix->mapper[(unsigned char)_s1[i]];
     }
     for (j=0; j<s2Len; ++j) {
-        s2[j] = parasail_blosum_map[(unsigned char)_s2[j]];
+        s2[j] = matrix->mapper[(unsigned char)_s2[j]];
     }
 
     /* upper left corner */
@@ -87,11 +86,9 @@ parasail_result_t* ENAME(
                 end_query = i-1;
                 end_ref = j-1;
             }
-            else if (score == Wscore) {
-                if (j-1 < end_ref) {
-                    end_query = i-1;
-                    end_ref = j-1;
-                }
+            else if (score == Wscore && j-1 < end_ref) {
+                end_query = i-1;
+                end_ref = j-1;
             }
             score = MAX(score,Wscore);
 #ifdef PARASAIL_TABLE

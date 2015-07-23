@@ -9,6 +9,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 %(HEADER)s
 
@@ -74,6 +75,8 @@ parasail_result_t* PNAME(
 {
     %(INDEX)s i = 0;
     %(INDEX)s j = 0;
+    %(INDEX)s end_query = 0;
+    %(INDEX)s end_ref = 0;
     %(INDEX)s segNum = 0;
     const int s1Len = profile->s1Len;
     const parasail_matrix_t *matrix = profile->matrix;
@@ -83,12 +86,14 @@ parasail_result_t* PNAME(
     %(VTYPE)s* const restrict pvE = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
     %(VTYPE)s* const restrict pvHt= parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
     %(VTYPE)s* const restrict pvH = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
+    %(VTYPE)s* const restrict pvHMax = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
     %(VTYPE)s vGapO = %(VSET1)s(open);
     %(VTYPE)s vGapE = %(VSET1)s(gap);
     %(VTYPE)s vNegInf = %(VSET1)s(NEG_INF);
     %(VTYPE)s vZero = %(VSET0)s();
     %(INT)s score = NEG_INF;
     %(VTYPE)s vMaxH = vNegInf;
+    %(VTYPE)s vMaxHUnit = vNegInf;
     const %(INT)s segLenXgap = -segLen*gap;
     %(VTYPE)s insert_mask = %(VCMPEQ)s(vZero,
             %(VSET)s(%(SCAN_INSERT_MASK)s));
@@ -189,6 +194,16 @@ parasail_result_t* PNAME(
             vMaxH = %(VMAX)s(vH, vMaxH);
         }
 
+        {
+            %(VTYPE)s vCompare = %(VCMPGT)s(vMaxH, vMaxHUnit);
+            if (%(VMOVEMASK)s(vCompare)) {
+                score = %(VHMAX)s(vMaxH);
+                vMaxHUnit = %(VSET1)s(score);
+                end_ref = j;
+                (void)memcpy(pvHMax, pvH, sizeof(%(VTYPE)s)*segLen);
+            }
+        }
+
 #ifdef PARASAIL_ROWCOL
         /* extract last value from the column */
         {
@@ -200,6 +215,21 @@ parasail_result_t* PNAME(
             result->score_row[j] = (%(INT)s) %(VEXTRACT)s (vH, %(LAST_POS)s);
         }
 #endif
+    }
+
+    /* Trace the alignment ending position on read. */
+    {
+        %(INT)s *t = (%(INT)s*)pvHMax;
+        %(INDEX)s column_len = segLen * segWidth;
+        end_query = s1Len - 1;
+        for (i = 0; i<column_len; ++i, ++t) {
+            if (*t == score) {
+                %(INDEX)s temp = i / segWidth + i %% segWidth * segLen;
+                if (temp < end_query) {
+                    end_query = temp;
+                }
+            }
+        }
     }
 
 #ifdef PARASAIL_ROWCOL
@@ -221,7 +251,10 @@ parasail_result_t* PNAME(
     %(SATURATION_CHECK_FINAL)s
 
     result->score = score;
+    result->end_query = end_query;
+    result->end_ref = end_ref;
 
+    parasail_free(pvHMax);
     parasail_free(pvH);
     parasail_free(pvHt);
     parasail_free(pvE);

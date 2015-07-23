@@ -41,6 +41,8 @@ extern PARASAIL_LOCAL parasail_result_t* parasail_result_new_rowcol3(const int a
 extern PARASAIL_LOCAL parasail_profile_t* parasail_profile_new(
         const char * s1, const int s1Len, const parasail_matrix_t *matrix);
 
+extern PARASAIL_LOCAL char* parasail_reverse(const char *s, int end);
+
 #ifdef __cplusplus
 }
 #endif

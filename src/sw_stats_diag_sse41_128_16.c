@@ -160,6 +160,8 @@ parasail_result_t* FNAME(
 #endif
     int32_t i = 0;
     int32_t j = 0;
+    int16_t end_query = 0;
+    int16_t end_ref = 0;
     int16_t score = NEG_INF;
     int16_t matches = NEG_INF;
     int16_t similar = NEG_INF;
@@ -179,6 +181,8 @@ parasail_result_t* FNAME(
     __m128i vMaxMatch = vNegInf;
     __m128i vMaxSimilar = vNegInf;
     __m128i vMaxLength = vNegInf;
+    __m128i vEndI = vNegInf;
+    __m128i vEndJ = vNegInf;
     __m128i vILimit = _mm_set1_epi16(s1Len);
     __m128i vJLimit = _mm_set1_epi16(s2Len);
 
@@ -379,33 +383,56 @@ parasail_result_t* FNAME(
                 __m128i cond_valid_J = _mm_and_si128(
                         _mm_cmpgt_epi16(vJ, vNegOne),
                         _mm_cmplt_epi16(vJ, vJLimit));
+                __m128i cond_valid_IJ = _mm_and_si128(cond_valid_J, vIltLimit);
+                __m128i cond_eq = _mm_cmpeq_epi16(vWscore, vMaxScore);
                 __m128i cond_max = _mm_cmpgt_epi16(vWscore, vMaxScore);
-                __m128i cond_all = _mm_and_si128(cond_max,
-                        _mm_and_si128(vIltLimit, cond_valid_J));
+                __m128i cond_all = _mm_and_si128(cond_max, cond_valid_IJ);
+                __m128i cond_Jlt = _mm_cmplt_epi16(vJ, vEndJ);
                 vMaxScore = _mm_blendv_epi8(vMaxScore, vWscore, cond_all);
                 vMaxMatch = _mm_blendv_epi8(vMaxMatch, vWmatch, cond_all);
                 vMaxSimilar = _mm_blendv_epi8(vMaxSimilar, vWsimilar, cond_all);
                 vMaxLength = _mm_blendv_epi8(vMaxLength, vWlength, cond_all);
+                vEndI = _mm_blendv_epi8(vEndI, vI, cond_all);
+                vEndJ = _mm_blendv_epi8(vEndJ, vJ, cond_all);
+                cond_all = _mm_and_si128(cond_Jlt, cond_eq);
+                cond_all = _mm_and_si128(cond_all, cond_valid_IJ);
+                vEndI = _mm_blendv_epi8(vEndI, vI, cond_all);
+                vEndJ = _mm_blendv_epi8(vEndJ, vJ, cond_all);
             }
             vJ = _mm_add_epi16(vJ, vOne);
         }
         vI = _mm_add_epi16(vI, vN);
     }
 
-    /* max in vMaxScore */
-    for (i=0; i<N; ++i) {
-        int16_t value;
-        value = (int16_t) _mm_extract_epi16(vMaxScore, 7);
-        if (value > score) {
-            score = value;
-            matches = (int16_t) _mm_extract_epi16(vMaxMatch, 7);
-            similar = (int16_t) _mm_extract_epi16(vMaxSimilar, 7);
-            length= (int16_t) _mm_extract_epi16(vMaxLength, 7);
+    /* alignment ending position */
+    {
+        int16_t *t = (int16_t*)&vMaxScore;
+        int16_t *m = (int16_t*)&vMaxMatch;
+        int16_t *s = (int16_t*)&vMaxSimilar;
+        int16_t *l = (int16_t*)&vMaxLength;
+        int16_t *i = (int16_t*)&vEndI;
+        int16_t *j = (int16_t*)&vEndJ;
+        int32_t k;
+        for (k=0; k<N; ++k, ++t, ++m, ++s, ++l, ++i, ++j) {
+            if (*t > score) {
+                score = *t;
+                matches = *m;
+                similar = *s;
+                length = *l;
+                end_query = *i;
+                end_ref = *j;
+            }
+            else if (*t == score) {
+                if (*j < end_ref) {
+                    end_query = *i;
+                    end_ref = *j;
+                }
+                else if (*j == end_ref && *i < end_query) {
+                    end_query = *i;
+                    end_ref = *j;
+                }
+            }
         }
-        vMaxScore = _mm_slli_si128(vMaxScore, 2);
-        vMaxMatch = _mm_slli_si128(vMaxMatch, 2);
-        vMaxSimilar = _mm_slli_si128(vMaxSimilar, 2);
-        vMaxLength = _mm_slli_si128(vMaxLength, 2);
     }
 
     
@@ -414,6 +441,8 @@ parasail_result_t* FNAME(
     result->matches = matches;
     result->similar = similar;
     result->length = length;
+    result->end_query = end_query;
+    result->end_ref = end_ref;
 
     parasail_free(_len_pr);
     parasail_free(_sim_pr);

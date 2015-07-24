@@ -269,7 +269,7 @@ parasail_result_t* PNAME(
     {
         int8_t *t = (int8_t*)pvHMax;
         int32_t column_len = segLen * segWidth;
-        end_query = s1Len - 1;
+        end_query = s1Len;
         for (i = 0; i<column_len; ++i, ++t) {
             if (*t == score) {
                 int32_t temp = i / segWidth + i % segWidth * segLen;
@@ -286,15 +286,6 @@ parasail_result_t* PNAME(
         arr_store_col(result->score_col, vH, i, segLen);
     }
 #endif
-
-    /* max in vec */
-    for (j=0; j<segWidth; ++j) {
-        int8_t value = (int8_t) _mm_extract_epi8(vMaxH, 15);
-        if (value > score) {
-            score = value;
-        }
-        vMaxH = _mm_slli_si128(vMaxH, 1);
-    }
 
     if (_mm_movemask_epi8(_mm_or_si128(
             _mm_cmpeq_epi8(vSaturationCheckMin, vNegLimit),

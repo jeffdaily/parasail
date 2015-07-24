@@ -98,9 +98,9 @@ parasail_result_t* ENAME(
             result->score_table[i*s2Len + j] = H[i];
 #endif
             if (H[i] > score) {
+                score = H[i];
                 end_query = i;
                 end_ref = j;
-                score = H[i];
             }
         }
 #ifdef PARASAIL_ROWCOL

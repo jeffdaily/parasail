@@ -184,7 +184,7 @@ parasail_result_t* PNAME(
     __m256i insert_mask = _mm256_cmpgt_epi8(
             _mm256_set_epi8(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1),
             vZero);
-    int8_t stop = profile->stop == INT32_MAX ?  INT8_MAX : (int8_t)profile->stop;
+    int8_t stop = profile->stop == INT32_MAX ?  INT8_MAX : (int8_t)profile->stop-bias;
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else

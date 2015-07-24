@@ -524,6 +524,10 @@ parasail_result_t* INAME(
         parasail_profile_free(profile_final);
         parasail_result_free(result);
         parasail_result_free(result_new);
+
+        /* correct the end locations before returning */
+        result_final->end_query = s1Len_new-1;
+        result_final->end_ref = s2Len_new-1;
         return result_final;
     }
     else {

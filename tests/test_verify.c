@@ -345,7 +345,7 @@ int main(int argc, char **argv)
     printf("%lu choose 2 is %lu\n", seq_count, limit);
 
 
-#if HAVE_SSE2 && 0
+#if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         if (test_scores) {
             check_functions(parasail_nw_sse2, sequences, sizes, limit, matrix, gap);
@@ -363,13 +363,13 @@ int main(int argc, char **argv)
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
         if (test_scores) {
-            //check_functions(parasail_nw_sse41, sequences, sizes, limit, matrix, gap);
-            //check_functions(parasail_sg_sse41, sequences, sizes, limit, matrix, gap);
+            check_functions(parasail_nw_sse41, sequences, sizes, limit, matrix, gap);
+            check_functions(parasail_sg_sse41, sequences, sizes, limit, matrix, gap);
             check_functions(parasail_sw_sse41, sequences, sizes, limit, matrix, gap);
         }
         if (test_stats) {
-            //check_functions(parasail_nw_stats_sse41, sequences, sizes, limit, matrix, gap);
-            //check_functions(parasail_sg_stats_sse41, sequences, sizes, limit, matrix, gap);
+            check_functions(parasail_nw_stats_sse41, sequences, sizes, limit, matrix, gap);
+            check_functions(parasail_sg_stats_sse41, sequences, sizes, limit, matrix, gap);
             check_functions(parasail_sw_stats_sse41, sequences, sizes, limit, matrix, gap);
         }
     }

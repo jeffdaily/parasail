@@ -101,7 +101,7 @@ parasail_result_t* PNAME(
     %(VTYPE)s insert_mask = %(VCMPGT)s(
             %(VSET)s(%(STRIPED_INSERT_MASK)s),
             vZero);
-    %(INT)s stop = profile->stop == INT32_MAX ?  INT%(WIDTH)s_MAX : (%(INT)s)profile->stop;
+    %(INT)s stop = profile->stop == INT32_MAX ?  INT%(WIDTH)s_MAX : (%(INT)s)profile->stop-bias;
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else

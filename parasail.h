@@ -105,6 +105,7 @@ typedef struct parasail_profile {
     struct parasail_profile_data profile32;
     struct parasail_profile_data profile64;
     void (*free)(void * profile);
+    int stop;
 } parasail_profile_t;
 
 extern PARASAIL_API

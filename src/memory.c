@@ -358,6 +358,7 @@ parasail_profile_t* parasail_profile_new(
     profile->profile64.matches = NULL;
     profile->profile64.similar = NULL;
     profile->free = NULL;
+    profile->stop = INT32_MAX;
 
     return profile;
 }

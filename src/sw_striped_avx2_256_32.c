@@ -129,6 +129,7 @@ parasail_result_t* PNAME(
     __m256i vMaxH = vNegInf;
     __m256i vMaxHUnit = vNegInf;
     
+    int32_t stop = profile->stop == INT32_MAX ?  INT32_MAX : (int32_t)profile->stop;
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
@@ -254,6 +255,8 @@ end:
             result->score_row[j] = (int32_t) _mm256_extract_epi32_rpl (vH, 7);
         }
 #endif
+
+        if (score == stop) break;
     }
 
     /* Trace the alignment ending position on read. */

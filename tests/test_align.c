@@ -23,8 +23,6 @@ KSEQ_INIT(int, read)
 #include "timer.h"
 #include "timer_real.h"
 
-#define USE_TIMER_REAL 1
-
 static double pctf(double orig, double new)
 {
     return orig / new;

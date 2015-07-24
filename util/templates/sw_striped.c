@@ -96,6 +96,7 @@ parasail_result_t* PNAME(
     %(VTYPE)s vMaxH = vNegInf;
     %(VTYPE)s vMaxHUnit = vNegInf;
     %(SATURATION_CHECK_INIT)s
+    %(INT)s stop = profile->stop == INT32_MAX ?  INT%(WIDTH)s_MAX : (%(INT)s)profile->stop;
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
@@ -221,6 +222,8 @@ end:
             result->score_row[j] = (%(INT)s) %(VEXTRACT)s (vH, %(LAST_POS)s);
         }
 #endif
+
+        if (score == stop) break;
     }
 
     /* Trace the alignment ending position on read. */

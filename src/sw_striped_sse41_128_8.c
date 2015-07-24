@@ -140,6 +140,7 @@ parasail_result_t* PNAME(
     __m128i insert_mask = _mm_cmpgt_epi8(
             _mm_set_epi8(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1),
             vZero);
+    int8_t stop = profile->stop == INT32_MAX ?  INT8_MAX : (int8_t)profile->stop;
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
@@ -264,6 +265,8 @@ end:
             result->score_row[j] = (int8_t) _mm_extract_epi8 (vH, 15) - bias;
         }
 #endif
+
+        if (score == stop) break;
     }
 
     /* Trace the alignment ending position on read. */

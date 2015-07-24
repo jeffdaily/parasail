@@ -136,7 +136,7 @@ ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ax_openmp.m4 \
 	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/ltoptions.m4 \
 	$(top_srcdir)/m4/ltsugar.m4 $(top_srcdir)/m4/ltversion.m4 \
-	$(top_srcdir)/m4/lt~obsolete.m4 \
+	$(top_srcdir)/m4/lt~obsolete.m4 $(top_srcdir)/m4/ps_cilk.m4 \
 	$(top_srcdir)/m4/ps_compiler_vendor.m4 \
 	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -1132,7 +1132,7 @@ am_apps_parasail_aligner_cilk_OBJECTS =  \
 apps_parasail_aligner_cilk_OBJECTS =  \
 	$(am_apps_parasail_aligner_cilk_OBJECTS)
 apps_parasail_aligner_cilk_DEPENDENCIES = $(am__DEPENDENCIES_2) \
-	tests/libsais.la
+	$(am__DEPENDENCIES_1) tests/libsais.la
 apps_parasail_aligner_cilk_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
 	$(apps_parasail_aligner_cilk_CXXFLAGS) $(CXXFLAGS) \
@@ -1418,6 +1418,8 @@ AWK = @AWK@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
+CILK_CXXFLAGS = @CILK_CXXFLAGS@
+CILK_LIBS = @CILK_LIBS@
 CLOCK_LIBS = @CLOCK_LIBS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
@@ -1953,9 +1955,10 @@ apps_parasail_aligner_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CXXFLAGS)
 apps_parasail_aligner_LDADD = $(LDADD) tests/libsais.la
 apps_parasail_aligner_cilk_SOURCES = apps/parasail_aligner.cpp
 apps_parasail_aligner_cilk_CPPFLAGS = $(AM_CPPFLAGS) -DUSE_CILK=1
-apps_parasail_aligner_cilk_CXXFLAGS = $(AM_CXXFLAGS) $(OPENMP_CXXFLAGS)
-apps_parasail_aligner_cilk_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CXXFLAGS)
-apps_parasail_aligner_cilk_LDADD = $(LDADD) tests/libsais.la
+apps_parasail_aligner_cilk_CXXFLAGS = $(AM_CXXFLAGS) $(CILK_CXXFLAGS)
+apps_parasail_aligner_cilk_LDFLAGS = $(AM_LDFLAGS) $(CILK_CXXFLAGS)
+apps_parasail_aligner_cilk_LDADD = $(LDADD) $(CILK_LIBS) \
+	tests/libsais.la
 apps_parasail_all_SOURCES = apps/parasail_all.cpp
 apps_parasail_all_CXXFLAGS = $(AM_CXXFLAGS) $(OPENMP_CXXFLAGS)
 apps_parasail_all_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CXXFLAGS)

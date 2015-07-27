@@ -83,6 +83,8 @@ parasail_result_t* FNAME(
 #endif
     %(INDEX)s i = 0;
     %(INDEX)s j = 0;
+    %(INDEX)s end_query = 0;
+    %(INDEX)s end_ref = 0;
     %(INT)s score = NEG_INF;
     %(VTYPE)s vNegInf = %(VSET1)s(NEG_INF);
     %(VTYPE)s vNegInf0 = %(VRSHIFT)s(vNegInf, %(BYTES)s); /* shift in a 0 */
@@ -94,6 +96,8 @@ parasail_result_t* FNAME(
     %(VTYPE)s vI = %(VSET)s(%(DIAG_I)s);
     %(VTYPE)s vJreset = %(VSET)s(%(DIAG_J)s);
     %(VTYPE)s vMaxScore = vNegInf;
+    %(VTYPE)s vEndI = vNegInf;
+    %(VTYPE)s vEndJ = vNegInf;
     %(VTYPE)s vILimit = %(VSET1)s(s1Len);
     %(VTYPE)s vILimit1 = %(VSUB)s(vILimit, vOne);
     %(VTYPE)s vJLimit = %(VSET1)s(s2Len);
@@ -194,29 +198,54 @@ parasail_result_t* FNAME(
                 %(VTYPE)s cond_j = %(VAND)s(vIltLimit, vJeqLimit1);
                 %(VTYPE)s cond_i = %(VAND)s(vIeqLimit1,
                         %(VAND)s(vJgtNegOne, vJltLimit));
+                %(VTYPE)s cond_ij = %(VOR)s(cond_i, cond_j);
                 %(VTYPE)s cond_max = %(VCMPGT)s(vWscore, vMaxScore);
-                %(VTYPE)s cond_all = %(VAND)s(cond_max,
-                        %(VOR)s(cond_i, cond_j));
+                %(VTYPE)s cond_eq = %(VCMPEQ)s(vWscore, vMaxScore);
+                %(VTYPE)s cond_all = %(VAND)s(cond_max, cond_ij);
+                %(VTYPE)s cond_Jlt = %(VCMPLT)s(vJ, vEndJ);
                 vMaxScore = %(VBLEND)s(vMaxScore, vWscore, cond_all);
+                vEndI = %(VBLEND)s(vEndI, vI, cond_all);
+                vEndJ = %(VBLEND)s(vEndJ, vJ, cond_all);
+                cond_all = %(VAND)s(cond_Jlt, cond_eq);
+                cond_all = %(VAND)s(cond_all, cond_ij);
+                vEndI = %(VBLEND)s(vEndI, vI, cond_all);
+                vEndJ = %(VBLEND)s(vEndJ, vJ, cond_all);
             }
             vJ = %(VADD)s(vJ, vOne);
         }
         vI = %(VADD)s(vI, vN);
     }
 
-    /* max in vMaxScore */
-    for (i=0; i<N; ++i) {
-        %(INT)s value;
-        value = (%(INT)s) %(VEXTRACT)s(vMaxScore, %(LAST_POS)s);
-        if (value > score) {
-            score = value;
+    /* alignment ending position */
+    {
+        %(INT)s *t = (%(INT)s*)&vMaxScore;
+        %(INT)s *i = (%(INT)s*)&vEndI;
+        %(INT)s *j = (%(INT)s*)&vEndJ;
+        %(INDEX)s k;
+        for (k=0; k<N; ++k, ++t, ++i, ++j) {
+            if (*t > score) {
+                score = *t;
+                end_query = *i;
+                end_ref = *j;
+            }
+            else if (*t == score) {
+                if (*j < end_ref) {
+                    end_query = *i;
+                    end_ref = *j;
+                }
+                else if (*j == end_ref && *i < end_query) {
+                    end_query = *i;
+                    end_ref = *j;
+                }
+            }
         }
-        vMaxScore = %(VSHIFT)s(vMaxScore, %(BYTES)s);
     }
 
     %(SATURATION_CHECK_FINAL)s
 
     result->score = score;
+    result->end_query = end_query;
+    result->end_ref = end_ref;
 
     parasail_free(_del_pr);
     parasail_free(_tbl_pr);

@@ -154,6 +154,8 @@ parasail_result_t* FNAME(
 #endif
     int32_t i = 0;
     int32_t j = 0;
+    int32_t end_query = 0;
+    int32_t end_ref = 0;
     int16_t score = NEG_INF;
     __m128i vNegInf = _mm_set1_epi16(NEG_INF);
     __m128i vNegInf0 = _mm_srli_si128(vNegInf, 2); /* shift in a 0 */
@@ -165,6 +167,8 @@ parasail_result_t* FNAME(
     __m128i vI = _mm_set_epi16(0,1,2,3,4,5,6,7);
     __m128i vJreset = _mm_set_epi16(0,-1,-2,-3,-4,-5,-6,-7);
     __m128i vMaxScore = vNegInf;
+    __m128i vEndI = vNegInf;
+    __m128i vEndJ = vNegInf;
     __m128i vILimit = _mm_set1_epi16(s1Len);
     __m128i vILimit1 = _mm_sub_epi16(vILimit, vOne);
     __m128i vJLimit = _mm_set1_epi16(s2Len);
@@ -279,29 +283,54 @@ parasail_result_t* FNAME(
                 __m128i cond_j = _mm_and_si128(vIltLimit, vJeqLimit1);
                 __m128i cond_i = _mm_and_si128(vIeqLimit1,
                         _mm_and_si128(vJgtNegOne, vJltLimit));
+                __m128i cond_ij = _mm_or_si128(cond_i, cond_j);
                 __m128i cond_max = _mm_cmpgt_epi16(vWscore, vMaxScore);
-                __m128i cond_all = _mm_and_si128(cond_max,
-                        _mm_or_si128(cond_i, cond_j));
+                __m128i cond_eq = _mm_cmpeq_epi16(vWscore, vMaxScore);
+                __m128i cond_all = _mm_and_si128(cond_max, cond_ij);
+                __m128i cond_Jlt = _mm_cmplt_epi16(vJ, vEndJ);
                 vMaxScore = _mm_blendv_epi8(vMaxScore, vWscore, cond_all);
+                vEndI = _mm_blendv_epi8(vEndI, vI, cond_all);
+                vEndJ = _mm_blendv_epi8(vEndJ, vJ, cond_all);
+                cond_all = _mm_and_si128(cond_Jlt, cond_eq);
+                cond_all = _mm_and_si128(cond_all, cond_ij);
+                vEndI = _mm_blendv_epi8(vEndI, vI, cond_all);
+                vEndJ = _mm_blendv_epi8(vEndJ, vJ, cond_all);
             }
             vJ = _mm_add_epi16(vJ, vOne);
         }
         vI = _mm_add_epi16(vI, vN);
     }
 
-    /* max in vMaxScore */
-    for (i=0; i<N; ++i) {
-        int16_t value;
-        value = (int16_t) _mm_extract_epi16(vMaxScore, 7);
-        if (value > score) {
-            score = value;
+    /* alignment ending position */
+    {
+        int16_t *t = (int16_t*)&vMaxScore;
+        int16_t *i = (int16_t*)&vEndI;
+        int16_t *j = (int16_t*)&vEndJ;
+        int32_t k;
+        for (k=0; k<N; ++k, ++t, ++i, ++j) {
+            if (*t > score) {
+                score = *t;
+                end_query = *i;
+                end_ref = *j;
+            }
+            else if (*t == score) {
+                if (*j < end_ref) {
+                    end_query = *i;
+                    end_ref = *j;
+                }
+                else if (*j == end_ref && *i < end_query) {
+                    end_query = *i;
+                    end_ref = *j;
+                }
+            }
         }
-        vMaxScore = _mm_slli_si128(vMaxScore, 2);
     }
 
     
 
     result->score = score;
+    result->end_query = end_query;
+    result->end_ref = end_ref;
 
     parasail_free(_del_pr);
     parasail_free(_tbl_pr);

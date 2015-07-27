@@ -314,6 +314,7 @@ def generated_params_diag(params):
 
 def generated_params_striped(params):
     params["STRIPED_INSERT_MASK"] = "0,"*(params["LANES"]-1)+"1"
+    params["POSITION_MASK"] = ",".join([str(i) for i in range(params["LANES"])])
     return params
 
 
@@ -349,6 +350,7 @@ def generated_params_scan(params):
                     for i in range(1,lanes)])[:-1]
     params["STATS_SCAN_INSERT_MASK"] = "0,"*(params["LANES"]-1)+"1"
     params["SCAN_INSERT_MASK"] = "1"+",0"*(params["LANES"]-1)
+    params["POSITION_MASK"] = ",".join([str(i) for i in range(params["LANES"])])
     return params
 
 

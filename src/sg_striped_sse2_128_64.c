@@ -35,6 +35,16 @@ static inline __m128i _mm_insert_epi64_rpl(__m128i a, int64_t i, const int imm) 
     return A.m;
 }
 
+static inline __m128i _mm_cmpeq_epi64_rpl(__m128i a, __m128i b) {
+    __m128i_64_t A;
+    __m128i_64_t B;
+    A.m = a;
+    B.m = b;
+    A.v[0] = (A.v[0]==B.v[0]) ? 0xFFFFFFFFFFFFFFFF : 0;
+    A.v[1] = (A.v[1]==B.v[1]) ? 0xFFFFFFFFFFFFFFFF : 0;
+    return A.m;
+}
+
 static inline __m128i _mm_max_epi64_rpl(__m128i a, __m128i b) {
     __m128i_64_t A;
     __m128i_64_t B;
@@ -49,6 +59,11 @@ static inline int64_t _mm_extract_epi64_rpl(__m128i a, const int imm) {
     __m128i_64_t A;
     A.m = a;
     return A.v[imm];
+}
+
+static inline int64_t _mm_hmax_epi64_rpl(__m128i a) {
+    a = _mm_max_epi64_rpl(a, _mm_srli_si128(a, 8));
+    return _mm_extract_epi64_rpl(a, 0);
 }
 
 
@@ -110,6 +125,8 @@ parasail_result_t* PNAME(
     int32_t i = 0;
     int32_t j = 0;
     int32_t k = 0;
+    int32_t end_query = 0;
+    int32_t end_ref = 0;
     int32_t segNum = 0;
     const int s1Len = profile->s1Len;
     const parasail_matrix_t *matrix = profile->matrix;
@@ -126,6 +143,8 @@ parasail_result_t* PNAME(
     __m128i vNegInf = _mm_set1_epi64x(NEG_INF);
     int64_t score = NEG_INF;
     __m128i vMaxH = vNegInf;
+    __m128i vPosMask = _mm_cmpeq_epi64_rpl(_mm_set1_epi64x(position),
+            _mm_set_epi64x(0,1));
     
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
@@ -222,8 +241,14 @@ parasail_result_t* PNAME(
 end:
         {
             /* extract vector containing last value from the column */
+            __m128i vCompare;
             vH = _mm_load_si128(pvHStore + offset);
+            vCompare = _mm_and_si128(vPosMask, _mm_cmpgt_epi64_rpl(vH, vMaxH));
             vMaxH = _mm_max_epi64_rpl(vH, vMaxH);
+            if (_mm_movemask_epi8(vCompare)) {
+                end_ref = j;
+                end_query = s1Len - 1;
+            }
 #ifdef PARASAIL_ROWCOL
             for (k=0; k<position; ++k) {
                 vH = _mm_slli_si128(vH, 8);
@@ -247,6 +272,7 @@ end:
 
     /* max of last column */
     {
+        int64_t score_last;
         vMaxH = vNegInf;
 
         for (i=0; i<segLen; ++i) {
@@ -258,18 +284,32 @@ end:
         }
 
         /* max in vec */
-        for (j=0; j<segWidth; ++j) {
-            int64_t value = (int64_t) _mm_extract_epi64_rpl(vMaxH, 1);
-            if (value > score) {
-                score = value;
+        score_last = _mm_hmax_epi64_rpl(vMaxH);
+        if (score_last > score) {
+            score = score_last;
+            end_ref = s2Len - 1;
+            end_query = s1Len;
+            /* Trace the alignment ending position on read. */
+            {
+                int64_t *t = (int64_t*)pvHStore;
+                int32_t column_len = segLen * segWidth;
+                for (i = 0; i<column_len; ++i, ++t) {
+                    if (*t == score) {
+                        int32_t temp = i / segWidth + i % segWidth * segLen;
+                        if (temp < end_query) {
+                            end_query = temp;
+                        }
+                    }
+                }
             }
-            vMaxH = _mm_slli_si128(vMaxH, 8);
         }
     }
 
     
 
     result->score = score;
+    result->end_query = end_query;
+    result->end_ref = end_ref;
 
     parasail_free(pvE);
     parasail_free(pvHLoad);

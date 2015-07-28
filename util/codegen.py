@@ -214,6 +214,8 @@ def generate_saturation_check(params):
             %(VCMPEQ)s(vSaturationCheckMax, vPosLimit)))) {
         result->saturated = 1;
         score = INT8_MAX;
+        end_query = 0;
+        end_ref = 0;
     }""".strip() % params
 
         params["STATS_SATURATION_CHECK_INIT"] = """
@@ -265,6 +267,8 @@ def generate_saturation_check(params):
         matches = 0;
         similar = 0;
         length = 0;
+        end_query = 0;
+        end_ref = 0;
     }""".strip() % params
 
         params["NEG_INF"] = "INT8_MIN"

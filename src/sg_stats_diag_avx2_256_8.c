@@ -744,10 +744,16 @@ parasail_result_t* FNAME(
             }
             else if (*t == score) {
                 if (*j < end_ref) {
+                    matches = *m;
+                    similar = *s;
+                    length = *l;
                     end_query = *i;
                     end_ref = *j;
                 }
                 else if (*j == end_ref && *i < end_query) {
+                    matches = *m;
+                    similar = *s;
+                    length = *l;
                     end_query = *i;
                     end_ref = *j;
                 }
@@ -763,6 +769,8 @@ parasail_result_t* FNAME(
         matches = 0;
         similar = 0;
         length = 0;
+        end_query = 0;
+        end_ref = 0;
     }
 
     result->score = score;

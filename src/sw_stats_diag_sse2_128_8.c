@@ -629,6 +629,8 @@ parasail_result_t* FNAME(
         matches = 0;
         similar = 0;
         length = 0;
+        end_query = 0;
+        end_ref = 0;
     }
 
     result->score = score;

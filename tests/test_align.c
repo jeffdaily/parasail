@@ -208,6 +208,8 @@ int main(int argc, char **argv)
     int matches = 0;
     int similar = 0;
     int length = 0;
+    int end_query = 0;
+    int end_ref = 0;
     unsigned long long timer_rdtsc = 0;
     unsigned long long timer_rdtsc_single = 0;
     double timer_nsecs = 0.0;
@@ -371,9 +373,11 @@ int main(int argc, char **argv)
     printf("gap extend: %d\n", extend);
     printf("seq pair %lu,%lu\n", seqA_index, seqB_index);
 
-    printf("%-15s %8s %6s %4s %5s %5s %8s %8s %8s %8s %8s %5s %8s %8s %8s\n",
+    printf("%-15s %8s %6s %4s %5s %5s "
+           "%8s %8s %8s %8s %8s %8s "
+           "%8s %5s %8s %8s %8s\n",
             "name", "type", "isa", "bits", "width", "elem",
-            "score", "matches", "similar", "length",
+            "score", "matches", "similar", "length", "end_query", "end_ref",
             "avg", "imp", "stddev", "min", "max");
 
     stats_clear(&stats_rdtsc);
@@ -419,6 +423,8 @@ int main(int argc, char **argv)
             similar = result->similar;
             matches = result->matches;
             length = result->length;
+            end_query = result->end_query;
+            end_ref = result->end_ref;
             saturated = result->saturated;
             parasail_result_free(result);
         }
@@ -540,9 +546,11 @@ int main(int argc, char **argv)
             printf(
                 "%-15s %8s %6s %4s %5s %5d "
                 "%8d %8d %8d %8d "
+                "%8d %8d "
                 "%8.1f %5.1f %8.1f %8.0f %8.0f\n",
                 name, f.type, f.isa, f.bits, f.width, f.lanes,
                 score, matches, similar, length,
+                end_query, end_ref,
                 saturated ? 0 : stats_rdtsc._mean,
                 saturated ? 0 : pctf(timer_rdtsc_ref_mean, stats_rdtsc._mean),
                 saturated ? 0 : stats_stddev(&stats_rdtsc),
@@ -553,9 +561,11 @@ int main(int argc, char **argv)
             printf(
                 "%-15s %8s %6s %4s %5s %5d "
                 "%8d %8d %8d %8d "
+                "%8d %8d "
                 "%8.3f %5.2f %8.3f %8.3f %8.3f\n",
                 name, f.type, f.isa, f.bits, f.width, f.lanes,
                 score, matches, similar, length,
+                end_query, end_ref,
                 saturated ? 0 : stats_nsecs._mean,
                 saturated ? 0 : pctf(timer_nsecs_ref_mean, stats_nsecs._mean),
                 saturated ? 0 : stats_stddev(&stats_nsecs),

@@ -466,6 +466,8 @@ parasail_result_t* FNAME(
             _mm_cmpeq_epi8(vSaturationCheckMax, vPosLimit)))) {
         result->saturated = 1;
         score = INT8_MAX;
+        end_query = 0;
+        end_ref = 0;
     }
 
     result->score = score;

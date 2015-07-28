@@ -159,7 +159,6 @@ parasail_result_t* PNAME(
             vH = %(VMAX)s(vH, vZero);
             /* Save vH values. */
             %(VSTORE)s(pvHStore + i, vH);
-            %(SATURATION_CHECK_MID)s
 #ifdef PARASAIL_TABLE
             arr_store_si%(BITS)s(result->score_table, vH, i, segLen, j, s2Len);
 #endif
@@ -187,7 +186,6 @@ parasail_result_t* PNAME(
                 vH = %(VLOAD)s(pvHStore + i);
                 vH = %(VMAX)s(vH,vF);
                 %(VSTORE)s(pvHStore + i, vH);
-                %(SATURATION_CHECK_MID)s
 #ifdef PARASAIL_TABLE
                 arr_store_si%(BITS)s(result->score_table, vH, i, segLen, j, s2Len);
 #endif
@@ -248,7 +246,12 @@ end:
     }
 #endif
 
-    %(SATURATION_CHECK_FINAL)s
+    score = %(VHMAX)s(vMaxH);
+
+    if (score == INT%(WIDTH)s_MAX) {
+        result->saturated = 1;
+        score = INT%(WIDTH)s_MAX;
+    }
 
     result->score = score;
     result->end_query = end_query;
@@ -261,3 +264,4 @@ end:
 
     return result;
 }
+

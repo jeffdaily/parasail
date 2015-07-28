@@ -184,7 +184,6 @@ parasail_result_t* PNAME(
             vH = _mm_max_epi32_rpl(vH, vZero);
             /* Save vH values. */
             _mm_store_si128(pvHStore + i, vH);
-            
 #ifdef PARASAIL_TABLE
             arr_store_si128(result->score_table, vH, i, segLen, j, s2Len);
 #endif
@@ -212,7 +211,6 @@ parasail_result_t* PNAME(
                 vH = _mm_load_si128(pvHStore + i);
                 vH = _mm_max_epi32_rpl(vH,vF);
                 _mm_store_si128(pvHStore + i, vH);
-                
 #ifdef PARASAIL_TABLE
                 arr_store_si128(result->score_table, vH, i, segLen, j, s2Len);
 #endif
@@ -273,7 +271,12 @@ end:
     }
 #endif
 
-    
+    score = _mm_hmax_epi32_rpl(vMaxH);
+
+    if (score == INT32_MAX) {
+        result->saturated = 1;
+        score = INT32_MAX;
+    }
 
     result->score = score;
     result->end_query = end_query;
@@ -286,4 +289,5 @@ end:
 
     return result;
 }
+
 

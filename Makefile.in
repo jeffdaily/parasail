@@ -136,7 +136,7 @@ ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ax_openmp.m4 \
 	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/ltoptions.m4 \
 	$(top_srcdir)/m4/ltsugar.m4 $(top_srcdir)/m4/ltversion.m4 \
-	$(top_srcdir)/m4/lt~obsolete.m4 \
+	$(top_srcdir)/m4/lt~obsolete.m4 $(top_srcdir)/m4/ps_cilk.m4 \
 	$(top_srcdir)/m4/ps_compiler_vendor.m4 \
 	$(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
@@ -1132,7 +1132,7 @@ am_apps_parasail_aligner_cilk_OBJECTS =  \
 apps_parasail_aligner_cilk_OBJECTS =  \
 	$(am_apps_parasail_aligner_cilk_OBJECTS)
 apps_parasail_aligner_cilk_DEPENDENCIES = $(am__DEPENDENCIES_2) \
-	tests/libsais.la
+	$(am__DEPENDENCIES_1) tests/libsais.la
 apps_parasail_aligner_cilk_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
 	$(apps_parasail_aligner_cilk_CXXFLAGS) $(CXXFLAGS) \
@@ -1418,6 +1418,8 @@ AWK = @AWK@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
+CILK_CXXFLAGS = @CILK_CXXFLAGS@
+CILK_LIBS = @CILK_LIBS@
 CLOCK_LIBS = @CLOCK_LIBS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
@@ -1538,41 +1540,42 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I m4
 include_HEADERS = parasail.h
-nobase_include_HEADERS = parasail/cpuid.h parasail/function_lookup.h \
-	parasail/matrix_lookup.h parasail/matrices/blosum100.h \
-	parasail/matrices/blosum30.h parasail/matrices/blosum35.h \
-	parasail/matrices/blosum40.h parasail/matrices/blosum45.h \
-	parasail/matrices/blosum50.h parasail/matrices/blosum55.h \
-	parasail/matrices/blosum60.h parasail/matrices/blosum62.h \
-	parasail/matrices/blosum65.h parasail/matrices/blosum70.h \
-	parasail/matrices/blosum75.h parasail/matrices/blosum80.h \
-	parasail/matrices/blosum85.h parasail/matrices/blosum90.h \
-	parasail/matrices/blosum_map.h parasail/matrices/pam10.h \
-	parasail/matrices/pam100.h parasail/matrices/pam110.h \
-	parasail/matrices/pam120.h parasail/matrices/pam130.h \
-	parasail/matrices/pam140.h parasail/matrices/pam150.h \
-	parasail/matrices/pam160.h parasail/matrices/pam170.h \
-	parasail/matrices/pam180.h parasail/matrices/pam190.h \
-	parasail/matrices/pam20.h parasail/matrices/pam200.h \
-	parasail/matrices/pam210.h parasail/matrices/pam220.h \
-	parasail/matrices/pam230.h parasail/matrices/pam240.h \
-	parasail/matrices/pam250.h parasail/matrices/pam260.h \
-	parasail/matrices/pam270.h parasail/matrices/pam280.h \
-	parasail/matrices/pam290.h parasail/matrices/pam30.h \
-	parasail/matrices/pam300.h parasail/matrices/pam310.h \
-	parasail/matrices/pam320.h parasail/matrices/pam330.h \
-	parasail/matrices/pam340.h parasail/matrices/pam350.h \
-	parasail/matrices/pam360.h parasail/matrices/pam370.h \
-	parasail/matrices/pam380.h parasail/matrices/pam390.h \
-	parasail/matrices/pam40.h parasail/matrices/pam400.h \
-	parasail/matrices/pam410.h parasail/matrices/pam420.h \
-	parasail/matrices/pam430.h parasail/matrices/pam440.h \
-	parasail/matrices/pam450.h parasail/matrices/pam460.h \
-	parasail/matrices/pam470.h parasail/matrices/pam480.h \
-	parasail/matrices/pam490.h parasail/matrices/pam50.h \
-	parasail/matrices/pam500.h parasail/matrices/pam60.h \
-	parasail/matrices/pam70.h parasail/matrices/pam80.h \
-	parasail/matrices/pam90.h parasail/matrices/pam_map.h
+nobase_include_HEADERS = parasail/cpuid.h parasail/io.h \
+	parasail/function_lookup.h parasail/matrix_lookup.h \
+	parasail/matrices/blosum100.h parasail/matrices/blosum30.h \
+	parasail/matrices/blosum35.h parasail/matrices/blosum40.h \
+	parasail/matrices/blosum45.h parasail/matrices/blosum50.h \
+	parasail/matrices/blosum55.h parasail/matrices/blosum60.h \
+	parasail/matrices/blosum62.h parasail/matrices/blosum65.h \
+	parasail/matrices/blosum70.h parasail/matrices/blosum75.h \
+	parasail/matrices/blosum80.h parasail/matrices/blosum85.h \
+	parasail/matrices/blosum90.h parasail/matrices/blosum_map.h \
+	parasail/matrices/pam10.h parasail/matrices/pam100.h \
+	parasail/matrices/pam110.h parasail/matrices/pam120.h \
+	parasail/matrices/pam130.h parasail/matrices/pam140.h \
+	parasail/matrices/pam150.h parasail/matrices/pam160.h \
+	parasail/matrices/pam170.h parasail/matrices/pam180.h \
+	parasail/matrices/pam190.h parasail/matrices/pam20.h \
+	parasail/matrices/pam200.h parasail/matrices/pam210.h \
+	parasail/matrices/pam220.h parasail/matrices/pam230.h \
+	parasail/matrices/pam240.h parasail/matrices/pam250.h \
+	parasail/matrices/pam260.h parasail/matrices/pam270.h \
+	parasail/matrices/pam280.h parasail/matrices/pam290.h \
+	parasail/matrices/pam30.h parasail/matrices/pam300.h \
+	parasail/matrices/pam310.h parasail/matrices/pam320.h \
+	parasail/matrices/pam330.h parasail/matrices/pam340.h \
+	parasail/matrices/pam350.h parasail/matrices/pam360.h \
+	parasail/matrices/pam370.h parasail/matrices/pam380.h \
+	parasail/matrices/pam390.h parasail/matrices/pam40.h \
+	parasail/matrices/pam400.h parasail/matrices/pam410.h \
+	parasail/matrices/pam420.h parasail/matrices/pam430.h \
+	parasail/matrices/pam440.h parasail/matrices/pam450.h \
+	parasail/matrices/pam460.h parasail/matrices/pam470.h \
+	parasail/matrices/pam480.h parasail/matrices/pam490.h \
+	parasail/matrices/pam50.h parasail/matrices/pam500.h \
+	parasail/matrices/pam60.h parasail/matrices/pam70.h \
+	parasail/matrices/pam80.h parasail/matrices/pam90.h \
+	parasail/matrices/pam_map.h
 lib_LTLIBRARIES = libparasail.la
 noinst_LTLIBRARIES = libparasail_novec.la libparasail_novec_table.la \
 	libparasail_novec_rowcol.la $(am__append_1) $(am__append_2) \
@@ -1642,7 +1645,7 @@ EXTRA_DIST = version.sh DISCLAIMER README.md \
 #################
 # core sources
 #################
-SRC_CORE = src/cpuid.c src/function_lookup.c src/io.c src/io.h \
+SRC_CORE = src/cpuid.c src/function_lookup.c src/io.c \
 	src/matrix_lookup.c src/memory.c src/time.c src/nw_dispatch.c \
 	src/sg_dispatch.c src/sw_dispatch.c src/dispatch_profile.c \
 	src/satcheck.c parasail/memory.h parasail/stats.h
@@ -1952,9 +1955,10 @@ apps_parasail_aligner_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CXXFLAGS)
 apps_parasail_aligner_LDADD = $(LDADD) tests/libsais.la
 apps_parasail_aligner_cilk_SOURCES = apps/parasail_aligner.cpp
 apps_parasail_aligner_cilk_CPPFLAGS = $(AM_CPPFLAGS) -DUSE_CILK=1
-apps_parasail_aligner_cilk_CXXFLAGS = $(AM_CXXFLAGS) $(OPENMP_CXXFLAGS)
-apps_parasail_aligner_cilk_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CXXFLAGS)
-apps_parasail_aligner_cilk_LDADD = $(LDADD) tests/libsais.la
+apps_parasail_aligner_cilk_CXXFLAGS = $(AM_CXXFLAGS) $(CILK_CXXFLAGS)
+apps_parasail_aligner_cilk_LDFLAGS = $(AM_LDFLAGS) $(CILK_CXXFLAGS)
+apps_parasail_aligner_cilk_LDADD = $(LDADD) $(CILK_LIBS) \
+	tests/libsais.la
 apps_parasail_all_SOURCES = apps/parasail_all.cpp
 apps_parasail_all_CXXFLAGS = $(AM_CXXFLAGS) $(OPENMP_CXXFLAGS)
 apps_parasail_all_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CXXFLAGS)

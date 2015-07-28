@@ -547,7 +547,11 @@ int main(int argc, char **argv) {
             process(count_generated, pairs, the_stack.top(), SA, BWT, SID, DB, sentinal, cutoff);
         }
         finish = parasail_time();
-        count_possible = ((unsigned long)sid)*((unsigned long)sid-1)/2;
+        if (qname == NULL) {
+            count_possible = ((unsigned long)sid)*((unsigned long)sid-1)/2;
+        } else {
+            count_possible = (sid-sid_crossover)*sid_crossover;
+        }
         eprintf(stdout, "%20s: %.4f seconds\n", "ESA time", finish-start);
         eprintf(stdout, "%20s: %lu\n", "possible pairs", count_possible);
         eprintf(stdout, "%20s: %lu\n", "generated pairs", count_generated);

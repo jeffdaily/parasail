@@ -527,9 +527,6 @@ AC_PROG_CXX
 # Checks for libraries.
 
 # Checks for header files.
-AC_CHECK_HEADERS([cilk/cilk.h])
-
-AM_CONDITIONAL([HAVE_CILK], [test "x$ac_cv_header_cilk_cilk_h" = xyes])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AX_OPENMP
@@ -562,6 +559,11 @@ int main(void) { test_varargs_macros(); return 0; }
      ac_cxx_werror_flag=$psl_save_cxx_werror_flag])
 AC_DEFINE_UNQUOTED([HAVE_VARIADIC_MACROS], [$pt_cv_variadic_val],
     [define to 1 if the CXX compiler supports variadic macros])
+
+PSL_CILK
+AM_CONDITIONAL([HAVE_CILK], [test "x$psl_cv_[]_AC_LANG_ABBREV[]_cilk" != "xunknown"])
+AC_SUBST([CILK_CXXFLAGS])
+AC_SUBST([CILK_LIBS])
 
 # Checks for library functions.
 
@@ -598,6 +600,8 @@ AC_MSG_NOTICE([           AVX2_CFLAGS=$AVX2_CFLAGS])
 AC_MSG_NOTICE([                   CXX=$CXX])
 AC_MSG_NOTICE([              CXXFLAGS=$CXXFLAGS])
 AC_MSG_NOTICE([       OPENMP_CXXFLAGS=$OPENMP_CXXFLAGS])
+AC_MSG_NOTICE([         CILK_CXXFLAGS=$CILK_CXXFLAGS])
+AC_MSG_NOTICE([             CILK_LIBS=$CILK_LIBS])
 AC_MSG_NOTICE([                   CPP=$CPP])
 AC_MSG_NOTICE([              CPPFLAGS=$CPPFLAGS])
 AC_MSG_NOTICE([               LDFLAGS=$LDFLAGS])

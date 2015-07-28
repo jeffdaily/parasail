@@ -44,6 +44,11 @@ static inline int64_t _mm_extract_epi64_rpl(__m128i a, const int imm) {
     return A.v[imm];
 }
 
+static inline int64_t _mm_hmax_epi64_rpl(__m128i a) {
+    a = _mm_max_epi64_rpl(a, _mm_srli_si128(a, 8));
+    return _mm_extract_epi64_rpl(a, 0);
+}
+
 
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si128(
@@ -118,7 +123,6 @@ parasail_result_t* PNAME(
     __m128i vNegInf = _mm_set1_epi64x(NEG_INF);
     int64_t score = NEG_INF;
     __m128i vMaxH = vNegInf;
-    
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
@@ -176,7 +180,6 @@ parasail_result_t* PNAME(
             vH = _mm_max_epi64_rpl(vH, vZero);
             /* Save vH values. */
             _mm_store_si128(pvHStore + i, vH);
-            
 #ifdef PARASAIL_TABLE
             arr_store_si128(result->score_table, vH, i, segLen, j, s2Len);
 #endif
@@ -204,7 +207,6 @@ parasail_result_t* PNAME(
                 vH = _mm_load_si128(pvHStore + i);
                 vH = _mm_max_epi64_rpl(vH,vF);
                 _mm_store_si128(pvHStore + i, vH);
-                
 #ifdef PARASAIL_TABLE
                 arr_store_si128(result->score_table, vH, i, segLen, j, s2Len);
 #endif
@@ -238,16 +240,12 @@ end:
     }
 #endif
 
-    /* max in vec */
-    for (j=0; j<segWidth; ++j) {
-        int64_t value = (int64_t) _mm_extract_epi64_rpl(vMaxH, 1);
-        if (value > score) {
-            score = value;
-        }
-        vMaxH = _mm_slli_si128(vMaxH, 8);
-    }
+    score = _mm_hmax_epi64_rpl(vMaxH);
 
-    
+    if (score == INT64_MAX) {
+        result->saturated = 1;
+        score = INT64_MAX;
+    }
 
     result->score = score;
 

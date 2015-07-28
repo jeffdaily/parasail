@@ -409,7 +409,7 @@ int main(int argc, char **argv)
             local_timer = timer_real();
 #pragma omp parallel
             {
-#pragma omp for schedule(dynamic)
+#pragma omp for schedule(guided)
                 for (j=0; j<seq_count_database; ++j) {
                     parasail_result_t *result = function(
                             sequences_queries[i], sizes_queries[i],
@@ -438,7 +438,7 @@ int main(int argc, char **argv)
                 unsigned long a=0;
                 unsigned long b=1;
                 unsigned long swap=0;
-#pragma omp for schedule(dynamic)
+#pragma omp for schedule(guided)
                 for (i=0; i<limit; ++i) {
                     parasail_function_t *function = function1;
                     parasail_result_t *result = NULL;

@@ -708,10 +708,11 @@ apps_parasail_aligner_LDADD += tests/libsais.la
 
 apps_parasail_aligner_cilk_SOURCES = apps/parasail_aligner.cpp
 apps_parasail_aligner_cilk_CPPFLAGS = $(AM_CPPFLAGS) -DUSE_CILK=1
-apps_parasail_aligner_cilk_CXXFLAGS = $(AM_CXXFLAGS) $(OPENMP_CXXFLAGS)
-apps_parasail_aligner_cilk_LDFLAGS  = $(AM_LDFLAGS) $(OPENMP_CXXFLAGS)
+apps_parasail_aligner_cilk_CXXFLAGS = $(AM_CXXFLAGS) $(CILK_CXXFLAGS)
+apps_parasail_aligner_cilk_LDFLAGS  = $(AM_LDFLAGS) $(CILK_CXXFLAGS)
 apps_parasail_aligner_cilk_LDADD =
 apps_parasail_aligner_cilk_LDADD += $(LDADD)
+apps_parasail_aligner_cilk_LDADD += $(CILK_LIBS)
 apps_parasail_aligner_cilk_LDADD += tests/libsais.la
 
 apps_parasail_all_SOURCES = apps/parasail_all.cpp

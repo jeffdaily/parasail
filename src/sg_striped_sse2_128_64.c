@@ -260,14 +260,10 @@ end:
 
     /* max last value from all columns */
     {
-        int64_t value;
         for (k=0; k<position; ++k) {
             vMaxH = _mm_slli_si128(vMaxH, 8);
         }
-        value = (int64_t) _mm_extract_epi64_rpl(vMaxH, 1);
-        if (value > score) {
-            score = value;
-        }
+        score = (int64_t) _mm_extract_epi64_rpl(vMaxH, 1);
     }
 
     /* max of last column */

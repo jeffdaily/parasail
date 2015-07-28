@@ -210,14 +210,10 @@ end:
 
     /* max last value from all columns */
     {
-        %(INT)s value;
         for (k=0; k<position; ++k) {
             vMaxH = %(VSHIFT)s(vMaxH, %(BYTES)s);
         }
-        value = (%(INT)s) %(VEXTRACT)s(vMaxH, %(LAST_POS)s);
-        if (value > score) {
-            score = value;
-        }
+        score = (%(INT)s) %(VEXTRACT)s(vMaxH, %(LAST_POS)s);
     }
 
     /* max of last column */

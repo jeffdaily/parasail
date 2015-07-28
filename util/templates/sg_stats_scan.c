@@ -76,6 +76,8 @@ parasail_result_t* PNAME(
     %(INDEX)s i = 0;
     %(INDEX)s j = 0;
     %(INDEX)s k = 0;
+    %(INDEX)s end_query = 0;
+    %(INDEX)s end_ref = 0;
     %(INDEX)s segNum = 0;
     const int s1Len = profile->s1Len;
     const parasail_matrix_t *matrix = profile->matrix;
@@ -110,6 +112,8 @@ parasail_result_t* PNAME(
     %(VTYPE)s vMaxM = vZero;
     %(VTYPE)s vMaxS = vZero;
     %(VTYPE)s vMaxL = vZero;
+    %(VTYPE)s vPosMask = %(VCMPEQ)s(%(VSET1)s(position),
+            %(VSET)s(%(POSITION_MASK)s));
     const %(INT)s segLenXgap = -segLen*gap;
     %(VTYPE)s insert_mask = %(VCMPEQ)s(%(VSET0)s(),
             %(VSET)s(%(STATS_SCAN_INSERT_MASK)s));
@@ -344,6 +348,10 @@ parasail_result_t* PNAME(
             vMaxM = %(VBLEND)s(vMaxM, vM, cond_max);
             vMaxS = %(VBLEND)s(vMaxS, vS, cond_max);
             vMaxL = %(VBLEND)s(vMaxL, vL, cond_max);
+            if (%(VMOVEMASK)s(%(VAND)s(vPosMask, cond_max))) {
+                end_ref = j;
+                end_query = s1Len - 1;
+            }
 #ifdef PARASAIL_ROWCOL
             for (k=0; k<position; ++k) {
                 vH = %(VSHIFT)s(vH, %(BYTES)s);
@@ -361,60 +369,63 @@ parasail_result_t* PNAME(
 
     /* max last value from all columns */
     {
-        %(INT)s value;
         for (k=0; k<position; ++k) {
             vMaxH = %(VSHIFT)s(vMaxH, %(BYTES)s);
             vMaxM = %(VSHIFT)s(vMaxM, %(BYTES)s);
             vMaxS = %(VSHIFT)s(vMaxS, %(BYTES)s);
             vMaxL = %(VSHIFT)s(vMaxL, %(BYTES)s);
         }
-        value = (%(INT)s) %(VEXTRACT)s(vMaxH, %(LAST_POS)s);
-        if (value > score) {
-            score = value;
-            matches = (%(INT)s) %(VEXTRACT)s(vMaxM, %(LAST_POS)s);
-            similar = (%(INT)s) %(VEXTRACT)s(vMaxS, %(LAST_POS)s);
-            length = (%(INT)s) %(VEXTRACT)s(vMaxL, %(LAST_POS)s);
-        }
+        score = (%(INT)s) %(VEXTRACT)s(vMaxH, %(LAST_POS)s);
+        matches = (%(INT)s) %(VEXTRACT)s(vMaxM, %(LAST_POS)s);
+        similar = (%(INT)s) %(VEXTRACT)s(vMaxS, %(LAST_POS)s);
+        length = (%(INT)s) %(VEXTRACT)s(vMaxL, %(LAST_POS)s);
     }
 
     /* max of last column */
     {
+        %(INT)s score_last;
         vMaxH = vNegInf;
-        vMaxM = vZero;
-        vMaxS = vZero;
-        vMaxL = vZero;
 
         for (i=0; i<segLen; ++i) {
+            /* load the last stored values */
             %(VTYPE)s vH = %(VLOAD)s(pvH + i);
+#ifdef PARASAIL_ROWCOL
             %(VTYPE)s vM = %(VLOAD)s(pvM + i);
             %(VTYPE)s vS = %(VLOAD)s(pvS + i);
             %(VTYPE)s vL = %(VLOAD)s(pvL + i);
-            %(VTYPE)s cond_max = %(VCMPGT)s(vH, vMaxH);
-            vMaxH = %(VBLEND)s(vMaxH, vH, cond_max);
-            vMaxM = %(VBLEND)s(vMaxM, vM, cond_max);
-            vMaxS = %(VBLEND)s(vMaxS, vS, cond_max);
-            vMaxL = %(VBLEND)s(vMaxL, vL, cond_max);
-#ifdef PARASAIL_ROWCOL
             arr_store_col(result->score_col, vH, i, segLen);
             arr_store_col(result->matches_col, vM, i, segLen);
             arr_store_col(result->similar_col, vS, i, segLen);
             arr_store_col(result->length_col, vL, i, segLen);
 #endif
+            vMaxH = %(VMAX)s(vH, vMaxH);
         }
 
         /* max in vec */
-        for (j=0; j<segWidth; ++j) {
-            %(INT)s value = (%(INT)s) %(VEXTRACT)s(vMaxH, %(LAST_POS)s);
-            if (value > score) {
-                score = value;
-                matches = (%(INT)s) %(VEXTRACT)s(vMaxM, %(LAST_POS)s);
-                similar = (%(INT)s) %(VEXTRACT)s(vMaxS, %(LAST_POS)s);
-                length = (%(INT)s) %(VEXTRACT)s(vMaxL, %(LAST_POS)s);
+        score_last = %(VHMAX)s(vMaxH);
+        if (score_last > score) {
+            score = score_last;
+            end_ref = s2Len - 1;
+            end_query = s1Len;
+            /* Trace the alignment ending position on read. */
+            {
+                %(INT)s *t = (%(INT)s*)pvH;
+                %(INT)s *m = (%(INT)s*)pvM;
+                %(INT)s *s = (%(INT)s*)pvS;
+                %(INT)s *l = (%(INT)s*)pvL;
+                %(INDEX)s column_len = segLen * segWidth;
+                for (i = 0; i<column_len; ++i, ++t, ++m, ++s, ++l) {
+                    if (*t == score) {
+                        %(INDEX)s temp = i / segWidth + i %% segWidth * segLen;
+                        if (temp < end_query) {
+                            end_query = temp;
+                            matches = *m;
+                            similar = *s;
+                            length = *l;
+                        }
+                    }
+                }
             }
-            vMaxH = %(VSHIFT)s(vMaxH, %(BYTES)s);
-            vMaxM = %(VSHIFT)s(vMaxM, %(BYTES)s);
-            vMaxS = %(VSHIFT)s(vMaxS, %(BYTES)s);
-            vMaxL = %(VSHIFT)s(vMaxL, %(BYTES)s);
         }
     }
 
@@ -424,6 +435,8 @@ parasail_result_t* PNAME(
     result->matches = matches;
     result->similar = similar;
     result->length = length;
+    result->end_query = end_query;
+    result->end_ref = end_ref;
 
     parasail_free(pvL);
     parasail_free(pvS);

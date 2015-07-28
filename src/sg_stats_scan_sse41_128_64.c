@@ -52,6 +52,11 @@ static inline __m128i _mm_cmplt_epi64_rpl(__m128i a, __m128i b) {
     return A.m;
 }
 
+static inline int64_t _mm_hmax_epi64_rpl(__m128i a) {
+    a = _mm_max_epi64_rpl(a, _mm_srli_si128(a, 8));
+    return _mm_extract_epi64(a, 0);
+}
+
 
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si128(
@@ -111,6 +116,8 @@ parasail_result_t* PNAME(
     int32_t i = 0;
     int32_t j = 0;
     int32_t k = 0;
+    int32_t end_query = 0;
+    int32_t end_ref = 0;
     int32_t segNum = 0;
     const int s1Len = profile->s1Len;
     const parasail_matrix_t *matrix = profile->matrix;
@@ -145,6 +152,8 @@ parasail_result_t* PNAME(
     __m128i vMaxM = vZero;
     __m128i vMaxS = vZero;
     __m128i vMaxL = vZero;
+    __m128i vPosMask = _mm_cmpeq_epi64(_mm_set1_epi64x(position),
+            _mm_set_epi64x(0,1));
     const int64_t segLenXgap = -segLen*gap;
     __m128i insert_mask = _mm_cmpeq_epi64(_mm_setzero_si128(),
             _mm_set_epi64x(0,1));
@@ -379,6 +388,10 @@ parasail_result_t* PNAME(
             vMaxM = _mm_blendv_epi8(vMaxM, vM, cond_max);
             vMaxS = _mm_blendv_epi8(vMaxS, vS, cond_max);
             vMaxL = _mm_blendv_epi8(vMaxL, vL, cond_max);
+            if (_mm_movemask_epi8(_mm_and_si128(vPosMask, cond_max))) {
+                end_ref = j;
+                end_query = s1Len - 1;
+            }
 #ifdef PARASAIL_ROWCOL
             for (k=0; k<position; ++k) {
                 vH = _mm_slli_si128(vH, 8);
@@ -396,60 +409,63 @@ parasail_result_t* PNAME(
 
     /* max last value from all columns */
     {
-        int64_t value;
         for (k=0; k<position; ++k) {
             vMaxH = _mm_slli_si128(vMaxH, 8);
             vMaxM = _mm_slli_si128(vMaxM, 8);
             vMaxS = _mm_slli_si128(vMaxS, 8);
             vMaxL = _mm_slli_si128(vMaxL, 8);
         }
-        value = (int64_t) _mm_extract_epi64(vMaxH, 1);
-        if (value > score) {
-            score = value;
-            matches = (int64_t) _mm_extract_epi64(vMaxM, 1);
-            similar = (int64_t) _mm_extract_epi64(vMaxS, 1);
-            length = (int64_t) _mm_extract_epi64(vMaxL, 1);
-        }
+        score = (int64_t) _mm_extract_epi64(vMaxH, 1);
+        matches = (int64_t) _mm_extract_epi64(vMaxM, 1);
+        similar = (int64_t) _mm_extract_epi64(vMaxS, 1);
+        length = (int64_t) _mm_extract_epi64(vMaxL, 1);
     }
 
     /* max of last column */
     {
+        int64_t score_last;
         vMaxH = vNegInf;
-        vMaxM = vZero;
-        vMaxS = vZero;
-        vMaxL = vZero;
 
         for (i=0; i<segLen; ++i) {
+            /* load the last stored values */
             __m128i vH = _mm_load_si128(pvH + i);
+#ifdef PARASAIL_ROWCOL
             __m128i vM = _mm_load_si128(pvM + i);
             __m128i vS = _mm_load_si128(pvS + i);
             __m128i vL = _mm_load_si128(pvL + i);
-            __m128i cond_max = _mm_cmpgt_epi64_rpl(vH, vMaxH);
-            vMaxH = _mm_blendv_epi8(vMaxH, vH, cond_max);
-            vMaxM = _mm_blendv_epi8(vMaxM, vM, cond_max);
-            vMaxS = _mm_blendv_epi8(vMaxS, vS, cond_max);
-            vMaxL = _mm_blendv_epi8(vMaxL, vL, cond_max);
-#ifdef PARASAIL_ROWCOL
             arr_store_col(result->score_col, vH, i, segLen);
             arr_store_col(result->matches_col, vM, i, segLen);
             arr_store_col(result->similar_col, vS, i, segLen);
             arr_store_col(result->length_col, vL, i, segLen);
 #endif
+            vMaxH = _mm_max_epi64_rpl(vH, vMaxH);
         }
 
         /* max in vec */
-        for (j=0; j<segWidth; ++j) {
-            int64_t value = (int64_t) _mm_extract_epi64(vMaxH, 1);
-            if (value > score) {
-                score = value;
-                matches = (int64_t) _mm_extract_epi64(vMaxM, 1);
-                similar = (int64_t) _mm_extract_epi64(vMaxS, 1);
-                length = (int64_t) _mm_extract_epi64(vMaxL, 1);
+        score_last = _mm_hmax_epi64_rpl(vMaxH);
+        if (score_last > score) {
+            score = score_last;
+            end_ref = s2Len - 1;
+            end_query = s1Len;
+            /* Trace the alignment ending position on read. */
+            {
+                int64_t *t = (int64_t*)pvH;
+                int64_t *m = (int64_t*)pvM;
+                int64_t *s = (int64_t*)pvS;
+                int64_t *l = (int64_t*)pvL;
+                int32_t column_len = segLen * segWidth;
+                for (i = 0; i<column_len; ++i, ++t, ++m, ++s, ++l) {
+                    if (*t == score) {
+                        int32_t temp = i / segWidth + i % segWidth * segLen;
+                        if (temp < end_query) {
+                            end_query = temp;
+                            matches = *m;
+                            similar = *s;
+                            length = *l;
+                        }
+                    }
+                }
             }
-            vMaxH = _mm_slli_si128(vMaxH, 8);
-            vMaxM = _mm_slli_si128(vMaxM, 8);
-            vMaxS = _mm_slli_si128(vMaxS, 8);
-            vMaxL = _mm_slli_si128(vMaxL, 8);
         }
     }
 
@@ -459,6 +475,8 @@ parasail_result_t* PNAME(
     result->matches = matches;
     result->similar = similar;
     result->length = length;
+    result->end_query = end_query;
+    result->end_ref = end_ref;
 
     parasail_free(pvL);
     parasail_free(pvS);

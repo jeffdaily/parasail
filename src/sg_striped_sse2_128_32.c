@@ -242,14 +242,10 @@ end:
 
     /* max last value from all columns */
     {
-        int32_t value;
         for (k=0; k<position; ++k) {
             vMaxH = _mm_slli_si128(vMaxH, 4);
         }
-        value = (int32_t) _mm_extract_epi32_rpl(vMaxH, 3);
-        if (value > score) {
-            score = value;
-        }
+        score = (int32_t) _mm_extract_epi32_rpl(vMaxH, 3);
     }
 
     /* max of last column */

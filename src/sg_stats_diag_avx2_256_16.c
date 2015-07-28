@@ -42,8 +42,6 @@ static inline int16_t _mm256_extract_epi16_rpl(__m256i a, int imm) {
 
 #define _mm256_srli_si256_rpl(a,imm) _mm256_or_si256(_mm256_slli_si256(_mm256_permute2x128_si256(a, a, _MM_SHUFFLE(3,0,0,1)), 16-imm), _mm256_srli_si256(a, imm))
 
-#define _mm256_slli_si256_rpl(a,imm) _mm256_alignr_epi8(a, _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,3,0)), 16-imm)
-
 
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si256(
@@ -258,6 +256,8 @@ parasail_result_t* FNAME(
 #endif
     int32_t i = 0;
     int32_t j = 0;
+    int32_t end_query = 0;
+    int32_t end_ref = 0;
     int16_t score = NEG_INF;
     int16_t matches = NEG_INF;
     int16_t similar = NEG_INF;
@@ -277,6 +277,8 @@ parasail_result_t* FNAME(
     __m256i vMaxMatch = vNegInf;
     __m256i vMaxSimilar = vNegInf;
     __m256i vMaxLength = vNegInf;
+    __m256i vEndI = vNegInf;
+    __m256i vEndJ = vNegInf;
     __m256i vILimit = _mm256_set1_epi16(s1Len);
     __m256i vILimit1 = _mm256_sub_epi16(vILimit, vOne);
     __m256i vJLimit = _mm256_set1_epi16(s2Len);
@@ -499,33 +501,56 @@ parasail_result_t* FNAME(
                 __m256i cond_j = _mm256_and_si256(vIltLimit, vJeqLimit1);
                 __m256i cond_i = _mm256_and_si256(vIeqLimit1,
                         _mm256_and_si256(vJgtNegOne, vJltLimit));
+                __m256i cond_ij = _mm256_or_si256(cond_i, cond_j);
                 __m256i cond_max = _mm256_cmpgt_epi16(vWscore, vMaxScore);
-                __m256i cond_all = _mm256_and_si256(cond_max,
-                        _mm256_or_si256(cond_i, cond_j));
+                __m256i cond_eq = _mm256_cmpeq_epi16(vWscore, vMaxScore);
+                __m256i cond_all = _mm256_and_si256(cond_max, cond_ij);
+                __m256i cond_Jlt = _mm256_cmplt_epi16_rpl(vJ, vEndJ);
                 vMaxScore = _mm256_blendv_epi8(vMaxScore, vWscore, cond_all);
                 vMaxMatch = _mm256_blendv_epi8(vMaxMatch, vWmatch, cond_all);
                 vMaxSimilar = _mm256_blendv_epi8(vMaxSimilar, vWsimilar, cond_all);
                 vMaxLength = _mm256_blendv_epi8(vMaxLength, vWlength, cond_all);
+                vEndI = _mm256_blendv_epi8(vEndI, vI, cond_all);
+                vEndJ = _mm256_blendv_epi8(vEndJ, vJ, cond_all);
+                cond_all = _mm256_and_si256(cond_Jlt, cond_eq);
+                cond_all = _mm256_and_si256(cond_all, cond_ij);
+                vEndI = _mm256_blendv_epi8(vEndI, vI, cond_all);
+                vEndJ = _mm256_blendv_epi8(vEndJ, vJ, cond_all);
             }
             vJ = _mm256_add_epi16(vJ, vOne);
         }
         vI = _mm256_add_epi16(vI, vN);
     }
 
-    /* max in vMaxScore */
-    for (i=0; i<N; ++i) {
-        int16_t value;
-        value = (int16_t) _mm256_extract_epi16_rpl(vMaxScore, 15);
-        if (value > score) {
-            score = value;
-            matches = (int16_t) _mm256_extract_epi16_rpl(vMaxMatch, 15);
-            similar = (int16_t) _mm256_extract_epi16_rpl(vMaxSimilar, 15);
-            length= (int16_t) _mm256_extract_epi16_rpl(vMaxLength, 15);
+    /* alignment ending position */
+    {
+        int16_t *t = (int16_t*)&vMaxScore;
+        int16_t *m = (int16_t*)&vMaxMatch;
+        int16_t *s = (int16_t*)&vMaxSimilar;
+        int16_t *l = (int16_t*)&vMaxLength;
+        int16_t *i = (int16_t*)&vEndI;
+        int16_t *j = (int16_t*)&vEndJ;
+        int32_t k;
+        for (k=0; k<N; ++k, ++t, ++m, ++s, ++l, ++i, ++j) {
+            if (*t > score) {
+                score = *t;
+                matches = *m;
+                similar = *s;
+                length = *l;
+                end_query = *i;
+                end_ref = *j;
+            }
+            else if (*t == score) {
+                if (*j < end_ref) {
+                    end_query = *i;
+                    end_ref = *j;
+                }
+                else if (*j == end_ref && *i < end_query) {
+                    end_query = *i;
+                    end_ref = *j;
+                }
+            }
         }
-        vMaxScore = _mm256_slli_si256_rpl(vMaxScore, 2);
-        vMaxMatch = _mm256_slli_si256_rpl(vMaxMatch, 2);
-        vMaxSimilar = _mm256_slli_si256_rpl(vMaxSimilar, 2);
-        vMaxLength = _mm256_slli_si256_rpl(vMaxLength, 2);
     }
 
     
@@ -534,6 +559,8 @@ parasail_result_t* FNAME(
     result->matches = matches;
     result->similar = similar;
     result->length = length;
+    result->end_query = end_query;
+    result->end_ref = end_ref;
 
     parasail_free(_len_pr);
     parasail_free(_sim_pr);

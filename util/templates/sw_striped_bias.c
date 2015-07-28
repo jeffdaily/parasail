@@ -98,6 +98,7 @@ parasail_result_t* PNAME(
     %(VTYPE)s vBias = %(VSET1)s(bias);
     %(VTYPE)s vMaxH = vBias;
     %(VTYPE)s vMaxHUnit = vBias;
+    %(INT)s maxp = INT%(WIDTH)s_MAX - (%(INT)s)(matrix->max+1);
     %(VTYPE)s insert_mask = %(VCMPGT)s(
             %(VSET)s(%(STRIPED_INSERT_MASK)s),
             vZero);
@@ -210,6 +211,11 @@ end:
             %(VTYPE)s vCompare = %(VCMPGT)s(vMaxH, vMaxHUnit);
             if (%(VMOVEMASK)s(vCompare)) {
                 score = %(VHMAX)s(vMaxH);
+                /* if score has potential to overflow, abort early */
+                if (score > maxp) {
+                    result->saturated = 1;
+                    break;
+                }
                 vMaxHUnit = %(VSET1)s(score);
                 end_ref = j;
                 (void)memcpy(pvHMax, pvHStore, sizeof(%(VTYPE)s)*segLen);

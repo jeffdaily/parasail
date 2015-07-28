@@ -87,6 +87,8 @@ typedef struct parasail_matrix {
     const int *matrix;
     const int *mapper;
     int size;
+    int max;
+    int min;
     int need_free;
 } parasail_matrix_t;
 

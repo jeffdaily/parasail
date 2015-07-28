@@ -120,6 +120,7 @@ parasail_result_t* PNAME(
     __m128i vBias = _mm_set1_epi16(bias);
     __m128i vMaxH = vBias;
     __m128i vMaxHUnit = vBias;
+    int16_t maxp = INT16_MAX - (int16_t)(matrix->max+1);
     __m128i insert_mask = _mm_cmpgt_epi16(
             _mm_set_epi16(0,0,0,0,0,0,0,1),
             vZero);
@@ -232,6 +233,11 @@ end:
             __m128i vCompare = _mm_cmpgt_epi16(vMaxH, vMaxHUnit);
             if (_mm_movemask_epi8(vCompare)) {
                 score = _mm_hmax_epi16_rpl(vMaxH);
+                /* if score has potential to overflow, abort early */
+                if (score > maxp) {
+                    result->saturated = 1;
+                    break;
+                }
                 vMaxHUnit = _mm_set1_epi16(score);
                 end_ref = j;
                 (void)memcpy(pvHMax, pvHStore, sizeof(__m128i)*segLen);

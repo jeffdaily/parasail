@@ -181,6 +181,7 @@ parasail_result_t* PNAME(
     __m256i vBias = _mm256_set1_epi8(bias);
     __m256i vMaxH = vBias;
     __m256i vMaxHUnit = vBias;
+    int8_t maxp = INT8_MAX - (int8_t)(matrix->max+1);
     __m256i insert_mask = _mm256_cmpgt_epi8(
             _mm256_set_epi8(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1),
             vZero);
@@ -293,6 +294,11 @@ end:
             __m256i vCompare = _mm256_cmpgt_epi8(vMaxH, vMaxHUnit);
             if (_mm256_movemask_epi8(vCompare)) {
                 score = _mm256_hmax_epi8_rpl(vMaxH);
+                /* if score has potential to overflow, abort early */
+                if (score > maxp) {
+                    result->saturated = 1;
+                    break;
+                }
                 vMaxHUnit = _mm256_set1_epi8(score);
                 end_ref = j;
                 (void)memcpy(pvHMax, pvHStore, sizeof(__m256i)*segLen);

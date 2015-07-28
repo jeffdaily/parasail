@@ -6845,7 +6845,10 @@ $as_echo_n "checking for Cilk flag of C++ compiler... " >&6; }
 if ${psl_cv_cxx_cilk+:} false; then :
   $as_echo_n "(cached) " >&6
 else
-  saveCXXFLAGS=$CXXFLAGS
+
+savecxx_werror_flag=$ac_cxx_werror_flag
+ac_cxx_werror_flag=yes
+saveCXXFLAGS=$CXXFLAGS
 psl_cv_cxx_cilk=unknown
 # Flags to try:  -fcilkplus (gcc), none
 psl_cilk_flags="-fcilkplus none"
@@ -6938,6 +6941,7 @@ rm -f core conftest.err conftest.$ac_objext \
 fi
 done
 CXXFLAGS=$saveCXXFLAGS
+ac_cxx_werror_flag=$savecxx_werror_flag
 
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $psl_cv_cxx_cilk" >&5

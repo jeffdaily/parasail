@@ -639,17 +639,25 @@ int main(int argc, char **argv) {
         finish = parasail_time();
         eprintf(stdout, "%20s: %.4f seconds\n", "profile init", finish-start);
         start = parasail_time();
+#ifdef USE_CILK
+        cilk_for (size_t index=0; index<profile_indices.size(); ++index)
+#else
 #pragma omp parallel
         {
 #pragma omp for schedule(guided)
-            for (size_t index=0; index<profile_indices.size(); ++index) {
+            for (size_t index=0; index<profile_indices.size(); ++index)
+#endif
+            {
                 int i = profile_indices[index];
                 int i_beg = BEG[i];
                 int i_end = END[i];
                 int i_len = i_end-i_beg;
                 profiles[i] = pcreator((const char*)&T[i_beg], i_len, matrix);
             }
+#ifdef USE_CILK
+#else
         }
+#endif
         finish = parasail_time();
         eprintf(stdout, "%20s: %.4f seconds\n", "profile creation", finish-start);
     }
@@ -749,16 +757,24 @@ int main(int argc, char **argv) {
 
     if (pfunction) {
         start = parasail_time();
+#ifdef USE_CILK
+            cilk_for (size_t index=0; index<profiles.size(); ++index)
+#else
 #pragma omp parallel
         {
 #pragma omp for schedule(guided)
-            for (size_t index=0; index<profiles.size(); ++index) {
+            for (size_t index=0; index<profiles.size(); ++index)
+#endif
+            {
                 if (NULL != profiles[index]) {
                     parasail_profile_free(profiles[index]);
                 }
             }
             profiles.clear();
+#ifdef USE_CILK
+#else
         }
+#endif
         finish = parasail_time();
         eprintf(stdout, "%20s: %.4f seconds\n", "profile cleanup", finish-start);
     }

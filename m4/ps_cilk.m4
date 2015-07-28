@@ -65,7 +65,10 @@
 AC_DEFUN([PSL_CILK], [
 AC_PREREQ([2.69]) dnl for _AC_LANG_PREFIX
 
-AC_CACHE_CHECK([for Cilk flag of _AC_LANG compiler], psl_cv_[]_AC_LANG_ABBREV[]_cilk, [save[]_AC_LANG_PREFIX[]FLAGS=$[]_AC_LANG_PREFIX[]FLAGS
+AC_CACHE_CHECK([for Cilk flag of _AC_LANG compiler], psl_cv_[]_AC_LANG_ABBREV[]_cilk, [
+save[]_AC_LANG_ABBREV[]_werror_flag=$ac_[]_AC_LANG_ABBREV[]_werror_flag
+ac_[]_AC_LANG_ABBREV[]_werror_flag=yes
+save[]_AC_LANG_PREFIX[]FLAGS=$[]_AC_LANG_PREFIX[]FLAGS
 psl_cv_[]_AC_LANG_ABBREV[]_cilk=unknown
 # Flags to try:  -fcilkplus (gcc), none
 psl_cilk_flags="-fcilkplus none"
@@ -138,6 +141,7 @@ int main(){
   ])
 done
 []_AC_LANG_PREFIX[]FLAGS=$save[]_AC_LANG_PREFIX[]FLAGS
+ac_[]_AC_LANG_ABBREV[]_werror_flag=$save[]_AC_LANG_ABBREV[]_werror_flag
 ])
 if test "x$psl_cv_[]_AC_LANG_ABBREV[]_cilk" = "xunknown"; then
   m4_default([$2],:)

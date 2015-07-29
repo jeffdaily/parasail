@@ -184,22 +184,11 @@ parasail_result_t* PNAME(
     parasail_memset___m128i(pvHMStore, vBias, segLen);
     parasail_memset___m128i(pvHSStore, vBias, segLen);
     parasail_memset___m128i(pvHLStore, vBias, segLen);
-
-    /* initialize H and E */
-    {
-        int32_t index = 0;
-        for (i=0; i<segLen; ++i) {
-            __m128i_8_t h;
-            __m128i_8_t e;
-            for (segNum=0; segNum<segWidth; ++segNum) {
-                h.v[segNum] = bias;
-                e.v[segNum] = bias;
-            }
-            _mm_store_si128(&pvHStore[index], h.m);
-            _mm_store_si128(&pvEStore[index], e.m);
-            ++index;
-        }
-    }
+    parasail_memset___m128i(pvEM, vBias, segLen);
+    parasail_memset___m128i(pvES, vBias, segLen);
+    parasail_memset___m128i(pvEL, vBias, segLen);
+    parasail_memset___m128i(pvHStore, vBias, segLen);
+    parasail_memset___m128i(pvEStore, vBias, segLen);
 
     /* outer loop over database sequence */
     for (j=0; j<s2Len; ++j) {

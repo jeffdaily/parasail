@@ -228,22 +228,11 @@ STATIC parasail_result_t* PNAME(
     parasail_memset___m256i(pvHMStore, vBias, segLen);
     parasail_memset___m256i(pvHSStore, vBias, segLen);
     parasail_memset___m256i(pvHLStore, vBias, segLen);
-
-    /* initialize H and E */
-    {
-        int32_t index = 0;
-        for (i=0; i<segLen; ++i) {
-            __m256i_8_t h;
-            __m256i_8_t e;
-            for (segNum=0; segNum<segWidth; ++segNum) {
-                h.v[segNum] = bias;
-                e.v[segNum] = bias;
-            }
-            _mm256_store_si256(&pvHStore[index], h.m);
-            _mm256_store_si256(&pvEStore[index], e.m);
-            ++index;
-        }
-    }
+    parasail_memset___m256i(pvEM, vBias, segLen);
+    parasail_memset___m256i(pvES, vBias, segLen);
+    parasail_memset___m256i(pvEL, vBias, segLen);
+    parasail_memset___m256i(pvHStore, vBias, segLen);
+    parasail_memset___m256i(pvEStore, vBias, segLen);
 
     /* outer loop over database sequence */
     for (j=0; j<s2Len; ++j) {

@@ -108,6 +108,11 @@ inline static void print_array(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len);
 
+inline static int self_score(
+        const char * const restrict seq,
+        int len,
+        const parasail_matrix_t *matrix);
+
 static void print_help(const char *progname, int status) {
     eprintf(stderr, "\nusage: %s "
             "[-a funcname] "
@@ -120,6 +125,9 @@ static void print_help(const char *progname, int status) {
             "[-d] "
             "[-M match] "
             "[-X mismatch] "
+            "[-l AOL] "
+            "[-s SIM] "
+            "[-i OS] "
             "-f file "
             "[-q query_file] "
             "[-g output_file] "
@@ -136,6 +144,9 @@ static void print_help(const char *progname, int status) {
             "      match: 1, must be >= 0\n"
             "   mismatch: 0, must be >= 0\n"
             "    threads: system-specific default, must be >= 1\n"
+            "        AOL: 80, must be 0 <= AOL <= 100, percent alignment length\n"
+            "        SIM: 40, must be 0 <= SIM <= 100, percent exact matches\n"
+            "         OS: 30, must be 0 <= OS <= 100, percent optimal score over self score\n"
             "       file: no default, must be in FASTA format\n"
             " query_file: no default, must be in FASTA format\n"
             "output_file: parasail.csv\n"
@@ -189,10 +200,15 @@ int main(int argc, char **argv) {
     int match = 1;
     int mismatch = 0;
     bool use_dna = false;
+    bool pairs_only = false;
+    bool edge_output = false;
     const char *progname = "parasail_aligner";
+    int AOL = 80;
+    int SIM = 40;
+    int OS = 30;
 
     /* Check arguments. */
-    while ((c = getopt(argc, argv, "a:c:de:f:g:hm:M:o:q:t:xX:")) != -1) {
+    while ((c = getopt(argc, argv, "a:c:de:f:g:hm:M:o:pq:t:xX:El:s:i:")) != -1) {
         switch (c) {
             case 'a':
                 funcname = optarg;
@@ -205,6 +221,9 @@ int main(int argc, char **argv) {
                 break;
             case 'd':
                 use_dna = true;
+                break;
+            case 'E':
+                edge_output = true;
                 break;
             case 'e':
                 gap_extend = atoi(optarg);
@@ -239,8 +258,29 @@ int main(int argc, char **argv) {
                     print_help(progname, EXIT_FAILURE);
                 }
                 break;
+            case 'p':
+                pairs_only = true;
+                break;
             case 't':
                 num_threads = atoi(optarg);
+                break;
+            case 'l':
+                AOL = atoi(optarg);
+                if (AOL < 0 || AOL > 100) {
+                    print_help(progname, EXIT_FAILURE);
+                }
+                break;
+            case 's':
+                SIM = atoi(optarg);
+                if (SIM < 0 || SIM > 100) {
+                    print_help(progname, EXIT_FAILURE);
+                }
+                break;
+            case 'i':
+                OS = atoi(optarg);
+                if (OS < 0 || OS > 100) {
+                    print_help(progname, EXIT_FAILURE);
+                }
                 break;
             case 'x':
                 use_filter = false;
@@ -262,6 +302,10 @@ int main(int argc, char **argv) {
                         || optopt == 'o'
                         || optopt == 'q'
                         || optopt == 'X'
+                        || optopt == 'E'
+                        || optopt == 'l'
+                        || optopt == 's'
+                        || optopt == 'i'
                         ) {
                     eprintf(stderr,
                             "Option -%c requires an argument.\n",
@@ -343,6 +387,9 @@ int main(int argc, char **argv) {
             "%20s: %d\n"
             "%20s: %d\n"
             "%20s: %s\n"
+            "%20s: %d\n"
+            "%20s: %d\n"
+            "%20s: %d\n"
             "%20s: %s\n"
             "%20s: %s\n"
             "%20s: %s\n",
@@ -352,6 +399,9 @@ int main(int argc, char **argv) {
             "gap_extend", gap_extend,
             "gap_open", gap_open,
             "matrix", matrixname,
+            "AOL", AOL,
+            "SIM", SIM,
+            "OS", OS,
             "file", fname,
             "query", (NULL == qname) ? "<no query>" : qname,
             "output", oname
@@ -588,6 +638,18 @@ int main(int argc, char **argv) {
     /* Deallocate memory. */
     free(SID);
 
+    if (pairs_only) {
+        /* Done with input text. */
+        free(T);
+        for (PairSet::iterator it=pairs.begin(); it!=pairs.end(); ++it) {
+            int i = it->first;
+            int j = it->second;
+            eprintf(fop, "%d,%d\n", i, j);
+        }
+        fclose(fop);
+        return 0;
+    }
+
 #ifdef _OPENMP
     if (-1 == num_threads) {
         num_threads = omp_get_max_threads();
@@ -782,6 +844,7 @@ int main(int argc, char **argv) {
     /* Output results. */
     bool is_stats = (NULL != strstr(funcname, "stats"));
     bool is_table = (NULL != strstr(funcname, "table"));
+    unsigned long edge_count = 0;
     for (size_t index=0; index<results.size(); ++index) {
         parasail_result_t *result = results[index];
         int i = vpairs[index].first;
@@ -798,20 +861,54 @@ int main(int argc, char **argv) {
         }
 
         if (is_stats) {
-            eprintf(fop, "%d,%d,%d,%d,%d,%d,%d,%d\n",
-                    i,
-                    j,
-                    result->score,
-                    result->end_query,
-                    result->end_ref,
-                    result->matches,
-                    result->similar,
-                    result->length);
+            if (edge_output) {
+                int self_score_ = 0;
+                int max_len = 0;
+                int i_self_score = self_score(
+                        (const char*)&T[i_beg], i_len, matrix);
+                int j_self_score = self_score(
+                        (const char*)&T[j_beg], j_len, matrix);
+
+                if (i_len > j_len) {
+                    max_len = i_len;
+                    self_score_ = i_self_score;
+                }
+                else {
+                    max_len = j_len;
+                    self_score_ = j_self_score;
+                }
+
+                if ((result->length * 100 >= AOL * int(max_len))
+                        && (result->matches * 100 >= SIM * result->length)
+                        && (result->score * 100 >= OS * self_score_)) {
+                    ++edge_count;
+                    fprintf(fop, "%d,%d,%f,%f,%f\n",
+                            i, j,
+                            1.0*result->length/max_len,
+                            1.0*result->matches/result->length,
+                            1.0*result->score/self_score_);
+                }
+            }
+            else {
+                eprintf(fop, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
+                        i,
+                        j,
+                        i_len,
+                        j_len,
+                        result->score,
+                        result->end_query,
+                        result->end_ref,
+                        result->matches,
+                        result->similar,
+                        result->length);
+            }
         }
         else {
-            eprintf(fop, "%d,%d,%d,%d,%d\n",
+            eprintf(fop, "%d,%d,%d,%d,%d,%d,%d\n",
                     i,
                     j,
+                    i_len,
+                    j_len,
                     result->score,
                     result->end_query,
                     result->end_ref);
@@ -827,6 +924,10 @@ int main(int argc, char **argv) {
         parasail_result_free(result);
     }
     fclose(fop);
+
+    if (is_stats && edge_output) {
+        fprintf(stdout, "%20s: %lu\n", "edges count", edge_count);
+    }
 
     /* Done with input text. */
     free(T);
@@ -976,5 +1077,18 @@ inline static void print_array(
         fprintf(f, "\n");
     }
     fclose(f);
+}
+
+inline static int self_score(
+        const char * const restrict seq,
+        int len,
+        const parasail_matrix_t *matrix)
+{
+    int score = 0;
+    for (int i=0; i<len; ++i) {
+        unsigned char mapped = matrix->mapper[(unsigned char)seq[i]];
+        score += matrix->matrix[matrix->size*mapped+mapped];
+    }
+    return score;
 }
 

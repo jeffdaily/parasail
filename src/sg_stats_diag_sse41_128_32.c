@@ -346,6 +346,9 @@ parasail_result_t* FNAME(
                 vEndJ = _mm_blendv_epi8(vEndJ, vJ, cond_all);
                 cond_all = _mm_and_si128(cond_Jlt, cond_eq);
                 cond_all = _mm_and_si128(cond_all, cond_ij);
+                vMaxMatch = _mm_blendv_epi8(vMaxMatch, vWmatch, cond_all);
+                vMaxSimilar = _mm_blendv_epi8(vMaxSimilar, vWsimilar, cond_all);
+                vMaxLength = _mm_blendv_epi8(vMaxLength, vWlength, cond_all);
                 vEndI = _mm_blendv_epi8(vEndI, vI, cond_all);
                 vEndJ = _mm_blendv_epi8(vEndJ, vJ, cond_all);
             }

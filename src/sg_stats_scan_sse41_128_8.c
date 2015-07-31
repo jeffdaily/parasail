@@ -396,12 +396,12 @@ parasail_result_t* PNAME(
                 uLp.v[15] = uC.v[15] ? uLp.v[15] + uLp.v[14] : uLp.v[15];
                 vLp = uLp.m;
             }
-            vLp = _mm_adds_epi8(vLp, vOne);
         }
         /* final pass for M,L */
         vMp = _mm_slli_si128(vMp, 1);
         vSp = _mm_slli_si128(vSp, 1);
         vLp = _mm_slli_si128(vLp, 1);
+        vLp = _mm_adds_epi8(vLp, vOne);
         for (i=0; i<segLen; ++i) {
             /* statistics */
             vEx = _mm_load_si128(pvEx+i);

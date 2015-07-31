@@ -415,12 +415,12 @@ parasail_result_t* PNAME(
                 uLp.v[15] = uC.v[15] ? uLp.v[15] + uLp.v[14] : uLp.v[15];
                 vLp = uLp.m;
             }
-            vLp = _mm256_add_epi16(vLp, vOne);
         }
         /* final pass for M,L */
         vMp = _mm256_slli_si256_rpl(vMp, 2);
         vSp = _mm256_slli_si256_rpl(vSp, 2);
         vLp = _mm256_slli_si256_rpl(vLp, 2);
+        vLp = _mm256_add_epi16(vLp, vOne);
         for (i=0; i<segLen; ++i) {
             /* statistics */
             vEx = _mm256_load_si256(pvEx+i);

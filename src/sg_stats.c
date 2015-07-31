@@ -220,6 +220,9 @@ parasail_result_t* ENAME(
                 end_ref = j-1;
             }
             else if (Wscore == score && j-1 < end_ref) {
+                matches = Wmatches;
+                similar = Wsimilar;
+                length = Wlength;
                 end_query = s1Len-1;
                 end_ref = j-1;
             }

@@ -306,12 +306,12 @@ parasail_result_t* PNAME(
                 %(STATS_SCAN_ULP)s
                 vLp = uLp.m;
             }
-            vLp = %(VADD)s(vLp, vOne);
         }
         /* final pass for M,L */
         vMp = %(VSHIFT)s(vMp, %(BYTES)s);
         vSp = %(VSHIFT)s(vSp, %(BYTES)s);
         vLp = %(VSHIFT)s(vLp, %(BYTES)s);
+        vLp = %(VADD)s(vLp, vOne);
         for (i=0; i<segLen; ++i) {
             /* statistics */
             vEx = %(VLOAD)s(pvEx+i);

@@ -90,6 +90,8 @@ parasail_result_t* PNAME(
     int32_t i = 0;
     int32_t j = 0;
     int32_t k = 0;
+    int32_t end_query = 0;
+    int32_t end_ref = 0;
     int32_t segNum = 0;
     const int s1Len = profile->s1Len;
     const parasail_matrix_t *matrix = profile->matrix;
@@ -137,6 +139,9 @@ parasail_result_t* PNAME(
     parasail_memset___m128i(pvHMStore, vZero, segLen);
     parasail_memset___m128i(pvHSStore, vZero, segLen);
     parasail_memset___m128i(pvHLStore, vZero, segLen);
+    parasail_memset___m128i(pvEM, vZero, segLen);
+    parasail_memset___m128i(pvES, vZero, segLen);
+    parasail_memset___m128i(pvEL, vZero, segLen);
 
     /* initialize H and E */
     {
@@ -428,6 +433,8 @@ end:
     result->matches = matches;
     result->similar = similar;
     result->length = length;
+    result->end_query = end_query;
+    result->end_ref = end_ref;
 
     parasail_free(boundary);
     parasail_free(pvEL);

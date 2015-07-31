@@ -716,6 +716,9 @@ parasail_result_t* FNAME(
                 vEndJ = _mm256_blendv_epi8(vEndJ, vJ, cond_all);
                 cond_all = _mm256_and_si256(cond_Jlt, cond_eq);
                 cond_all = _mm256_and_si256(cond_all, cond_ij);
+                vMaxMatch = _mm256_blendv_epi8(vMaxMatch, vWmatch, cond_all);
+                vMaxSimilar = _mm256_blendv_epi8(vMaxSimilar, vWsimilar, cond_all);
+                vMaxLength = _mm256_blendv_epi8(vMaxLength, vWlength, cond_all);
                 vEndI = _mm256_blendv_epi8(vEndI, vI, cond_all);
                 vEndJ = _mm256_blendv_epi8(vEndJ, vJ, cond_all);
             }

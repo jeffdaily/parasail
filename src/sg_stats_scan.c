@@ -190,6 +190,13 @@ parasail_result_t* ENAME(
             end_query = i;
             end_ref = s2Len-1;
         }
+        else if (H[i] == score && end_ref == s2Len-1 && i < end_query) {
+            matches = M[i];
+            similar = S[i];
+            length = L[i];
+            end_query = i;
+            end_ref = s2Len-1;
+        }
     }
 
     result->score = score;

@@ -402,6 +402,8 @@ parasail_result_t* FNAME(
 #endif
     int32_t i = 0;
     int32_t j = 0;
+    int32_t end_query = 0;
+    int32_t end_ref = 0;
     int8_t score = NEG_INF;
     int8_t matches = NEG_INF;
     int8_t similar = NEG_INF;
@@ -781,12 +783,16 @@ parasail_result_t* FNAME(
         matches = 0;
         similar = 0;
         length = 0;
+        end_query = 0;
+        end_ref = 0;
     }
 
     result->score = score;
     result->matches = matches;
     result->similar = similar;
     result->length = length;
+    result->end_query = end_query;
+    result->end_ref = end_ref;
 
     parasail_free(_len_pr);
     parasail_free(_sim_pr);

@@ -479,6 +479,8 @@ parasail_result_t* FNAME(
     }
 
     result->score = score;
+    result->end_query = end_query;
+    result->end_ref = end_ref;
 
     parasail_free(_del_pr);
     parasail_free(_tbl_pr);

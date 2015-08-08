@@ -234,11 +234,14 @@ int main(int argc, char **argv)
     const parasail_matrix_t *matrix = NULL;
     int open = 10;
     int extend = 1;
+    int do_normal = 1;
+    int do_stats = 1;
+    int do_nonstats = 1;
     int do_table = 1;
     int do_rowcol = 1;
     int use_rdtsc = 0;
 
-    while ((c = getopt(argc, argv, "a:b:f:m:n:o:e:rRT")) != -1) {
+    while ((c = getopt(argc, argv, "a:b:f:m:n:o:e:rRTNSs")) != -1) {
         switch (c) {
             case 'a':
                 errno = 0;
@@ -295,6 +298,15 @@ int main(int argc, char **argv)
                 break;
             case 'T':
                 do_table = 0;
+                break;
+            case 'N':
+                do_normal = 0;
+                break;
+            case 'S':
+                do_stats = 0;
+                break;
+            case 's':
+                do_nonstats = 0;
                 break;
             case '?':
                 if (optopt == 'a'
@@ -400,13 +412,40 @@ int main(int argc, char **argv)
             f = functions[index++];
             continue;
         }
-        if (f.is_table && !do_table) {
+        /* TEMPORARY HACK FOR SW TESTING -- REMOVE ME */
+        if (!strstr(f.name, "sw")) {
             f = functions[index++];
             continue;
         }
-        if (f.is_rowcol && !do_rowcol) {
-            f = functions[index++];
-            continue;
+        if (f.is_stats) {
+            if (!do_stats) {
+                f = functions[index++];
+                continue;
+            }
+        }
+        else {
+            if (!do_nonstats) {
+                f = functions[index++];
+                continue;
+            }
+        }
+        if (f.is_table) {
+            if (!do_table) {
+                f = functions[index++];
+                continue;
+            }
+        }
+        else if (f.is_rowcol) {
+            if (!do_rowcol) {
+                f = functions[index++];
+                continue;
+            }
+        }
+        else {
+            if (!do_normal) {
+                f = functions[index++];
+                continue;
+            }
         }
         stats_clear(&stats_rdtsc);
         timer_rdtsc = timer_start();

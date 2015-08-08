@@ -144,9 +144,15 @@ static inline void arr_store_col(
 #define STATIC
 #else
 #define FNAME parasail_sw_stats_striped_avx2_256_8
+#ifdef FASTSTATS
 #define PNAME parasail_sw_stats_striped_profile_avx2_256_8_internal
 #define INAME parasail_sw_stats_striped_profile_avx2_256_8
 #define STATIC static
+#else
+#define PNAME parasail_sw_stats_striped_profile_avx2_256_8
+#define INAME PNAME
+#define STATIC
+#endif
 #endif
 #endif
 
@@ -564,6 +570,7 @@ end:
     return result;
 }
 
+#ifdef FASTSTATS
 #ifdef PARASAIL_TABLE
 #else
 #ifdef PARASAIL_ROWCOL
@@ -580,6 +587,7 @@ parasail_result_t* INAME(
     /* find the end loc first with the faster implementation */
     parasail_result_t *result = parasail_sw_striped_profile_avx2_256_8(profile, s2, s2Len, open, gap);
     if (!result->saturated) {
+#if 0
         int s1Len_new = 0;
         int s2Len_new = 0;
         char *s1_new = NULL;
@@ -631,11 +639,36 @@ parasail_result_t* INAME(
         result_final->end_query = s1Len_new-1;
         result_final->end_ref = s2Len_new-1;
         return result_final;
+#else
+        int s1Len_new = 0;
+        int s2Len_new = 0;
+        parasail_profile_t *profile_final = NULL;
+        parasail_result_t *result_final = NULL;
+
+        /* using the end loc and the non-stats version of the function,
+         * reverse the inputs and find the beg loc */
+        s1Len_new = result->end_query+1;
+        s2Len_new = result->end_ref+1;
+        profile_final = parasail_profile_create_stats_avx_256_8(
+                s1, s1Len_new, matrix);
+        result_final = PNAME(
+                profile_final, s2, s2Len_new, open, gap);
+
+        /* clean up all the temporary profiles, sequences, and results */
+        parasail_profile_free(profile_final);
+        parasail_result_free(result);
+
+        /* correct the end locations before returning */
+        result_final->end_query = s1Len_new-1;
+        result_final->end_ref = s2Len_new-1;
+        return result_final;
+#endif
     }
     else {
         return result;
     }
 }
+#endif
 #endif
 #endif
 

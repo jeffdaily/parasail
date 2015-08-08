@@ -326,6 +326,9 @@ parasail_result_t* FNAME(
                 cond_all = %(VAND)s(cond_all, cond_valid_IJ);
                 cond_lo = %(VUNPACKLO)s(cond_all, cond_all);
                 cond_hi = %(VUNPACKHI)s(cond_all, cond_all);
+                vMaxMatch = %(VBLEND)s(vMaxMatch, vWmatch, cond_all);
+                vMaxSimilar = %(VBLEND)s(vMaxSimilar, vWsimilar, cond_all);
+                vMaxLength = %(VBLEND)s(vMaxLength, vWlength, cond_all);
                 vEndILo = %(VBLEND)s(vEndILo, vILo16, cond_lo);
                 vEndIHi = %(VBLEND)s(vEndIHi, vIHi16, cond_hi);
                 vEndJLo = %(VBLEND)s(vEndJLo, vJLo16, cond_lo);
@@ -360,10 +363,16 @@ parasail_result_t* FNAME(
             }
             else if (*t == score) {
                 if (*jlo < end_ref) {
+                    matches = *m;
+                    similar = *s;
+                    length = *l;
                     end_query = *ilo;
                     end_ref = *jlo;
                 }
                 else if (*jlo == end_ref && *ilo < end_query) {
+                    matches = *m;
+                    similar = *s;
+                    length = *l;
                     end_query = *ilo;
                     end_ref = *jlo;
                 }
@@ -380,10 +389,16 @@ parasail_result_t* FNAME(
             }
             else if (*t == score) {
                 if (*jhi < end_ref) {
+                    matches = *m;
+                    similar = *s;
+                    length = *l;
                     end_query = *ihi;
                     end_ref = *jhi;
                 }
                 else if (*jhi == end_ref && *ihi < end_query) {
+                    matches = *m;
+                    similar = *s;
+                    length = *l;
                     end_query = *ihi;
                     end_ref = *jhi;
                 }

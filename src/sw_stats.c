@@ -144,11 +144,14 @@ parasail_result_t* ENAME(
                 score = Wscore;
                 matches = Wmatches;
                 similar = Wsimilar;
-                length= Wlength;
+                length = Wlength;
                 end_query = i-1;
                 end_ref = j-1;
             }
             else if (score == Wscore && j-1 < end_ref) {
+                matches = Wmatches;
+                similar = Wsimilar;
+                length = Wlength;
                 end_query = i-1;
                 end_ref = j-1;
             }

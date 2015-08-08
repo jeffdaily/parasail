@@ -304,6 +304,9 @@ parasail_result_t* FNAME(
                 vEndJ = %(VBLEND)s(vEndJ, vJ, cond_all);
                 cond_all = %(VAND)s(cond_Jlt, cond_eq);
                 cond_all = %(VAND)s(cond_all, cond_valid_IJ);
+                vMaxMatch = %(VBLEND)s(vMaxMatch, vWmatch, cond_all);
+                vMaxSimilar = %(VBLEND)s(vMaxSimilar, vWsimilar, cond_all);
+                vMaxLength = %(VBLEND)s(vMaxLength, vWlength, cond_all);
                 vEndI = %(VBLEND)s(vEndI, vI, cond_all);
                 vEndJ = %(VBLEND)s(vEndJ, vJ, cond_all);
             }

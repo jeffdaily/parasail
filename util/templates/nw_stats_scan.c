@@ -76,6 +76,8 @@ parasail_result_t* PNAME(
     %(INDEX)s i = 0;
     %(INDEX)s j = 0;
     %(INDEX)s k = 0;
+    %(INDEX)s end_query = 0;
+    %(INDEX)s end_ref = 0;
     %(INDEX)s segNum = 0;
     const int s1Len = profile->s1Len;
     const parasail_matrix_t *matrix = profile->matrix;
@@ -389,6 +391,8 @@ parasail_result_t* PNAME(
     result->matches = matches;
     result->similar = similar;
     result->length = length;
+    result->end_query = end_query;
+    result->end_ref = end_ref;
 
     parasail_free(boundary);
     parasail_free(pvL);

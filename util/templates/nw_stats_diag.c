@@ -89,6 +89,8 @@ parasail_result_t* FNAME(
 #endif
     %(INDEX)s i = 0;
     %(INDEX)s j = 0;
+    %(INDEX)s end_query = 0;
+    %(INDEX)s end_ref = 0;
     %(INT)s score = NEG_INF;
     %(INT)s matches = NEG_INF;
     %(INT)s similar = NEG_INF;
@@ -332,6 +334,8 @@ parasail_result_t* FNAME(
     result->matches = matches;
     result->similar = similar;
     result->length = length;
+    result->end_query = end_query;
+    result->end_ref = end_ref;
 
     parasail_free(_len_pr);
     parasail_free(_sim_pr);

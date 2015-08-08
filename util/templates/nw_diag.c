@@ -83,6 +83,8 @@ parasail_result_t* FNAME(
 #endif
     %(INDEX)s i = 0;
     %(INDEX)s j = 0;
+    %(INDEX)s end_query = 0;
+    %(INDEX)s end_ref = 0;
     %(INT)s score = NEG_INF;
     %(VTYPE)s vNegInf = %(VSET1)s(NEG_INF);
     %(VTYPE)s vOpen = %(VSET1)s(open);
@@ -219,6 +221,8 @@ parasail_result_t* FNAME(
     %(SATURATION_CHECK_FINAL)s
 
     result->score = score;
+    result->end_query = end_query;
+    result->end_ref = end_ref;
 
     parasail_free(_del_pr);
     parasail_free(_tbl_pr);

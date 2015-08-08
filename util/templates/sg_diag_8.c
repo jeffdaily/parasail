@@ -292,6 +292,8 @@ parasail_result_t* FNAME(
     %(SATURATION_CHECK_FINAL)s
 
     result->score = score;
+    result->end_query = end_query;
+    result->end_ref = end_ref;
 
     parasail_free(_del_pr);
     parasail_free(_tbl_pr);

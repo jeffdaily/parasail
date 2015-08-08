@@ -516,6 +516,9 @@ parasail_result_t* FNAME(
                 vEndJ = _mm256_blendv_epi8(vEndJ, vJ, cond_all);
                 cond_all = _mm256_and_si256(cond_Jlt, cond_eq);
                 cond_all = _mm256_and_si256(cond_all, cond_valid_IJ);
+                vMaxMatch = _mm256_blendv_epi8(vMaxMatch, vWmatch, cond_all);
+                vMaxSimilar = _mm256_blendv_epi8(vMaxSimilar, vWsimilar, cond_all);
+                vMaxLength = _mm256_blendv_epi8(vMaxLength, vWlength, cond_all);
                 vEndI = _mm256_blendv_epi8(vEndI, vI, cond_all);
                 vEndJ = _mm256_blendv_epi8(vEndJ, vJ, cond_all);
             }
@@ -544,10 +547,16 @@ parasail_result_t* FNAME(
             }
             else if (*t == score) {
                 if (*j < end_ref) {
+                    matches = *m;
+                    similar = *s;
+                    length = *l;
                     end_query = *i;
                     end_ref = *j;
                 }
                 else if (*j == end_ref && *i < end_query) {
+                    matches = *m;
+                    similar = *s;
+                    length = *l;
                     end_query = *i;
                     end_ref = *j;
                 }

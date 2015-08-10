@@ -17,6 +17,8 @@
 #include "parasail/memory.h"
 #include "parasail/internal_avx.h"
 
+#define FASTSTATS
+
 #define NEG_INF (INT64_MIN/(int64_t)(2))
 
 static inline __m256i _mm256_max_epi64_rpl(__m256i a, __m256i b) {
@@ -570,8 +572,7 @@ parasail_result_t* INAME(
         parasail_profile_t *profile_final = NULL;
         parasail_result_t *result_final = NULL;
 
-        /* using the end loc and the non-stats version of the function,
-         * reverse the inputs and find the beg loc */
+        /* using the end loc, call the original stats function */
         s1Len_new = result->end_query+1;
         s2Len_new = result->end_ref+1;
         profile_final = parasail_profile_create_stats_avx_256_64(

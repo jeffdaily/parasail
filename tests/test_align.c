@@ -412,11 +412,6 @@ int main(int argc, char **argv)
             f = functions[index++];
             continue;
         }
-        /* TEMPORARY HACK FOR SW TESTING -- REMOVE ME */
-        if (!strstr(f.name, "sw")) {
-            f = functions[index++];
-            continue;
-        }
         if (f.is_stats) {
             if (!do_stats) {
                 f = functions[index++];

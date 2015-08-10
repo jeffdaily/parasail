@@ -17,6 +17,8 @@
 #include "parasail/memory.h"
 #include "parasail/internal_avx.h"
 
+#define FASTSTATS
+
 #define NEG_INF (INT16_MIN/(int16_t)(2))
 
 #define _mm256_cmplt_epi16_rpl(a,b) _mm256_cmpgt_epi16(b,a)
@@ -612,8 +614,7 @@ parasail_result_t* INAME(
         parasail_profile_t *profile_final = NULL;
         parasail_result_t *result_final = NULL;
 
-        /* using the end loc and the non-stats version of the function,
-         * reverse the inputs and find the beg loc */
+        /* using the end loc, call the original stats function */
         s1Len_new = result->end_query+1;
         s2Len_new = result->end_ref+1;
         profile_final = parasail_profile_create_stats_avx_256_16(

@@ -17,6 +17,8 @@
 #include "parasail/memory.h"
 #include "parasail/internal_sse.h"
 
+#define FASTSTATS
+
 #define NEG_INF (INT32_MIN/(int32_t)(2))
 
 static inline __m128i _mm_blendv_epi8_rpl(__m128i a, __m128i b, __m128i mask) {
@@ -563,8 +565,7 @@ parasail_result_t* INAME(
         parasail_profile_t *profile_final = NULL;
         parasail_result_t *result_final = NULL;
 
-        /* using the end loc and the non-stats version of the function,
-         * reverse the inputs and find the beg loc */
+        /* using the end loc, call the original stats function */
         s1Len_new = result->end_query+1;
         s2Len_new = result->end_ref+1;
         profile_final = parasail_profile_create_stats_sse_128_32(

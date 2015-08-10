@@ -17,6 +17,8 @@
 #include "parasail/memory.h"
 #include "parasail/internal_%(ISA)s.h"
 
+#define FASTSTATS
+
 #define NEG_INF %(NEG_INF)s
 %(FIXES)s
 
@@ -532,8 +534,7 @@ parasail_result_t* INAME(
         parasail_profile_t *profile_final = NULL;
         parasail_result_t *result_final = NULL;
 
-        /* using the end loc and the non-stats version of the function,
-         * reverse the inputs and find the beg loc */
+        /* using the end loc, call the original stats function */
         s1Len_new = result->end_query+1;
         s2Len_new = result->end_ref+1;
         profile_final = parasail_profile_create_stats_%(ISA)s_%(BITS)s_%(WIDTH)s(

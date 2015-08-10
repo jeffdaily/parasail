@@ -1,0 +1,12 @@
+#cmakedefine HAVE__ALIGNED_MALLOC
+#cmakedefine HAVE_POSIX_MEMALIGN
+#cmakedefine HAVE_ALIGNED_ALLOC
+#cmakedefine HAVE_MEMALIGN
+#cmakedefine01 HAVE_XGETBV
+#cmakedefine01 HAVE_SSE2
+#cmakedefine01 HAVE_SSE41
+#cmakedefine01 HAVE_AVX2
+#ifndef __cplusplus
+#cmakedefine inline ${inline}
+#endif
+#cmakedefine restrict ${restrict}

@@ -1595,38 +1595,41 @@ EXTRA_DIST = version.sh DISCLAIMER README.md \
 	contrib/sais-lite-lcp/Makefile contrib/sais-lite-lcp/README \
 	contrib/sais-lite-lcp/sais.c contrib/sais-lite-lcp/sais.h \
 	contrib/sais-lite-lcp/sais.hxx contrib/sais-lite-lcp/suftest.c \
-	contrib/sais-lite-lcp/test.c util/codegen.py util/diff_all.sh \
-	util/dispatcher.py util/func_group_tables.py \
-	util/func_groups.py util/funcs.py util/gap_tester.py \
-	util/isa.py util/isa.pyc util/names.py util/pygen.py \
-	util/tester.py util/matrices/BLOSUM100 util/matrices/BLOSUM30 \
-	util/matrices/BLOSUM35 util/matrices/BLOSUM40 \
-	util/matrices/BLOSUM45 util/matrices/BLOSUM50 \
-	util/matrices/BLOSUM55 util/matrices/BLOSUM60 \
-	util/matrices/BLOSUM62 util/matrices/BLOSUM65 \
-	util/matrices/BLOSUM70 util/matrices/BLOSUM75 \
-	util/matrices/BLOSUM80 util/matrices/BLOSUM85 \
-	util/matrices/BLOSUM90 util/matrices/DAYHOFF \
-	util/matrices/GONNET util/matrices/PAM10 util/matrices/PAM100 \
-	util/matrices/PAM110 util/matrices/PAM120 util/matrices/PAM130 \
-	util/matrices/PAM140 util/matrices/PAM150 util/matrices/PAM160 \
-	util/matrices/PAM170 util/matrices/PAM180 util/matrices/PAM190 \
-	util/matrices/PAM20 util/matrices/PAM200 util/matrices/PAM210 \
-	util/matrices/PAM220 util/matrices/PAM230 util/matrices/PAM240 \
-	util/matrices/PAM250 util/matrices/PAM260 util/matrices/PAM270 \
-	util/matrices/PAM280 util/matrices/PAM290 util/matrices/PAM30 \
-	util/matrices/PAM300 util/matrices/PAM310 util/matrices/PAM320 \
-	util/matrices/PAM330 util/matrices/PAM340 util/matrices/PAM350 \
-	util/matrices/PAM360 util/matrices/PAM370 util/matrices/PAM380 \
-	util/matrices/PAM390 util/matrices/PAM40 util/matrices/PAM400 \
-	util/matrices/PAM410 util/matrices/PAM420 util/matrices/PAM430 \
-	util/matrices/PAM440 util/matrices/PAM450 util/matrices/PAM460 \
-	util/matrices/PAM470 util/matrices/PAM480 util/matrices/PAM490 \
-	util/matrices/PAM50 util/matrices/PAM500 util/matrices/PAM60 \
-	util/matrices/PAM70 util/matrices/PAM80 util/matrices/PAM90 \
-	util/matrices/README util/matrices/codegen.py \
-	util/templates/nw_diag.c util/templates/nw_scan.c \
-	util/templates/nw_stats_diag.c util/templates/nw_stats_scan.c \
+	contrib/sais-lite-lcp/test.c CMakeLists.txt \
+	cmake/FindAVX2.cmake cmake/FindSSE2.cmake \
+	cmake/FindSSE41.cmake cmake/Findxgetbv.cmake cmake/config.h.in \
+	util/codegen.py util/diff_all.sh util/dispatcher.py \
+	util/func_group_tables.py util/func_groups.py util/funcs.py \
+	util/gap_tester.py util/isa.py util/isa.pyc util/names.py \
+	util/pygen.py util/tester.py util/matrices/BLOSUM100 \
+	util/matrices/BLOSUM30 util/matrices/BLOSUM35 \
+	util/matrices/BLOSUM40 util/matrices/BLOSUM45 \
+	util/matrices/BLOSUM50 util/matrices/BLOSUM55 \
+	util/matrices/BLOSUM60 util/matrices/BLOSUM62 \
+	util/matrices/BLOSUM65 util/matrices/BLOSUM70 \
+	util/matrices/BLOSUM75 util/matrices/BLOSUM80 \
+	util/matrices/BLOSUM85 util/matrices/BLOSUM90 \
+	util/matrices/DAYHOFF util/matrices/GONNET util/matrices/PAM10 \
+	util/matrices/PAM100 util/matrices/PAM110 util/matrices/PAM120 \
+	util/matrices/PAM130 util/matrices/PAM140 util/matrices/PAM150 \
+	util/matrices/PAM160 util/matrices/PAM170 util/matrices/PAM180 \
+	util/matrices/PAM190 util/matrices/PAM20 util/matrices/PAM200 \
+	util/matrices/PAM210 util/matrices/PAM220 util/matrices/PAM230 \
+	util/matrices/PAM240 util/matrices/PAM250 util/matrices/PAM260 \
+	util/matrices/PAM270 util/matrices/PAM280 util/matrices/PAM290 \
+	util/matrices/PAM30 util/matrices/PAM300 util/matrices/PAM310 \
+	util/matrices/PAM320 util/matrices/PAM330 util/matrices/PAM340 \
+	util/matrices/PAM350 util/matrices/PAM360 util/matrices/PAM370 \
+	util/matrices/PAM380 util/matrices/PAM390 util/matrices/PAM40 \
+	util/matrices/PAM400 util/matrices/PAM410 util/matrices/PAM420 \
+	util/matrices/PAM430 util/matrices/PAM440 util/matrices/PAM450 \
+	util/matrices/PAM460 util/matrices/PAM470 util/matrices/PAM480 \
+	util/matrices/PAM490 util/matrices/PAM50 util/matrices/PAM500 \
+	util/matrices/PAM60 util/matrices/PAM70 util/matrices/PAM80 \
+	util/matrices/PAM90 util/matrices/README \
+	util/matrices/codegen.py util/templates/nw_diag.c \
+	util/templates/nw_scan.c util/templates/nw_stats_diag.c \
+	util/templates/nw_stats_scan.c \
 	util/templates/nw_stats_striped.c util/templates/nw_striped.c \
 	util/templates/sg_diag.c util/templates/sg_diag_8.c \
 	util/templates/sg_scan.c util/templates/sg_stats_diag.c \

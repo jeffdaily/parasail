@@ -6845,60 +6845,26 @@ $as_echo_n "checking for Cilk flag of C++ compiler... " >&6; }
 if ${psl_cv_cxx_cilk+:} false; then :
   $as_echo_n "(cached) " >&6
 else
-  saveCXXFLAGS=$CXXFLAGS
+
+savecxx_werror_flag=$ac_cxx_werror_flag
+ac_cxx_werror_flag=yes
+saveCXXFLAGS=$CXXFLAGS
 psl_cv_cxx_cilk=unknown
 # Flags to try:  -fcilkplus (gcc), none
 psl_cilk_flags="-fcilkplus none"
-if test "x$CILK_CXXFLAGS" != x; then
+if test "x$CILK_CXXFLAGS" != x; then :
   psl_cilk_flags="$CILK_CXXFLAGS $psl_cilk_flags"
 fi
 for psl_cilk_flag in $psl_cilk_flags; do
-  case $psl_cilk_flag in
-    none) CXXFLAGS=$saveCXX ;;
-    *) CXXFLAGS="$saveCXXFLAGS $psl_cilk_flag" ;;
-  esac
+  case $psl_cilk_flag in #(
+  none) :
+    CXXFLAGS=$saveCXX ;; #(
+  *) :
+    CXXFLAGS="$saveCXXFLAGS $psl_cilk_flag" ;;
+esac
   try_again=0
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-
-#include <stdio.h>
-#include <cilk/cilk.h>
-
-static void hello(){
-    int i=0;
-    for(i=0;i<1000000;i++)
-        printf("");
-    printf("Hello ");
-}
-
-static void world(){
-    int i=0;
-    for(i=0;i<1000000;i++)
-        printf("");
-    printf("world! ");
-}
-
-int main(){
-    cilk_spawn hello();
-    cilk_spawn world();
-    printf("Done! ");
-}
-
-_ACEOF
-if ac_fn_cxx_try_link "$LINENO"; then :
-  psl_cv_cxx_cilk=$psl_cilk_flag; break
-else
-  try_again=1
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-  if test "x$try_again" = x1; then :
-
-  save_LIBS="$LIBS"
-  LIBS="$LIBS -lcilkrts"
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
 #include <stdio.h>
 #include <cilk/cilk.h>
 
@@ -6923,31 +6889,68 @@ int main(){
     cilk_for(long i=0;i<1000000;i++)
         printf("");
 }
-
 _ACEOF
-if ac_fn_cxx_try_link "$LINENO"; then :
+  if ac_fn_cxx_try_link "$LINENO"; then :
+  psl_cv_cxx_cilk=$psl_cilk_flag; break
+else
+  try_again=1
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext
+  if test "x$try_again" = x1; then :
+
+    save_LIBS="$LIBS"
+    LIBS="$LIBS -lcilkrts"
+    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+#include <stdio.h>
+#include <cilk/cilk.h>
+
+static void hello(){
+    int i=0;
+    for(i=0;i<1000000;i++)
+        printf("");
+    printf("Hello ");
+}
+
+static void world(){
+    int i=0;
+    for(i=0;i<1000000;i++)
+        printf("");
+    printf("world! ");
+}
+
+int main(){
+    cilk_spawn hello();
+    cilk_spawn world();
+    printf("Done! ");
+    cilk_for(long i=0;i<1000000;i++)
+        printf("");
+}
+_ACEOF
+    if ac_fn_cxx_try_link "$LINENO"; then :
   psl_cv_cxx_cilk=$psl_cilk_flag; CILK_LIBS=-lcilkrts
 fi
 rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-  LIBS="$save_LIBS"
-  if test "x$psl_cv_cxx_cilk" != "xunknown"; then
-    break
-  fi
-
+    conftest$ac_exeext
+    LIBS="$save_LIBS"
+    if test "x$psl_cv_cxx_cilk" != "xunknown"; then :
+  break
+fi
 fi
 done
 CXXFLAGS=$saveCXXFLAGS
+ac_cxx_werror_flag=$savecxx_werror_flag
 
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $psl_cv_cxx_cilk" >&5
 $as_echo "$psl_cv_cxx_cilk" >&6; }
-if test "x$psl_cv_cxx_cilk" = "xunknown"; then
+if test "x$psl_cv_cxx_cilk" = "xunknown"; then :
   :
 else
-  if test "x$psl_cv_cxx_cilk" != "xnone"; then
-    CILK_CXXFLAGS=$psl_cv_cxx_cilk
-  fi
+  if test "x$psl_cv_cxx_cilk" != "xnone"; then :
+  CILK_CXXFLAGS=$psl_cv_cxx_cilk
+fi
 
 $as_echo "#define HAVE_CILK 1" >>confdefs.h
 

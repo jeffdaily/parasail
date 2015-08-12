@@ -30,83 +30,9 @@
 #   not found. If ACTION-IF-FOUND is not specified, the default action will
 #   define HAVE_CILK.
 #
-# LICENSE
-#
-#   Copyright (c) 2008 Steven G. Johnson <stevenj@alum.mit.edu>
-#
-#   This program is free software: you can redistribute it and/or modify it
-#   under the terms of the GNU General Public License as published by the
-#   Free Software Foundation, either version 3 of the License, or (at your
-#   option) any later version.
-#
-#   This program is distributed in the hope that it will be useful, but
-#   WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
-#   Public License for more details.
-#
-#   You should have received a copy of the GNU General Public License along
-#   with this program. If not, see <http://www.gnu.org/licenses/>.
-#
-#   As a special exception, the respective Autoconf Macro's copyright owner
-#   gives unlimited permission to copy, distribute and modify the configure
-#   scripts that are the output of Autoconf when processing the Macro. You
-#   need not follow the terms of the GNU General Public License when using
-#   or distributing such scripts, even though portions of the text of the
-#   Macro appear in them. The GNU General Public License (GPL) does govern
-#   all other use of the material that constitutes the Autoconf Macro.
-#
-#   This special exception to the GPL applies to versions of the Autoconf
-#   Macro released by the Autoconf Archive. When you make and distribute a
-#   modified version of the Autoconf Macro, you may extend this special
-#   exception to the GPL to apply to your modified version as well.
 
-#serial 10
-
-AC_DEFUN([PSL_CILK], [
-AC_PREREQ([2.69]) dnl for _AC_LANG_PREFIX
-
-AC_CACHE_CHECK([for Cilk flag of _AC_LANG compiler], psl_cv_[]_AC_LANG_ABBREV[]_cilk, [save[]_AC_LANG_PREFIX[]FLAGS=$[]_AC_LANG_PREFIX[]FLAGS
-psl_cv_[]_AC_LANG_ABBREV[]_cilk=unknown
-# Flags to try:  -fcilkplus (gcc), none
-psl_cilk_flags="-fcilkplus none"
-if test "x$CILK_[]_AC_LANG_PREFIX[]FLAGS" != x; then
-  psl_cilk_flags="$CILK_[]_AC_LANG_PREFIX[]FLAGS $psl_cilk_flags"
-fi
-for psl_cilk_flag in $psl_cilk_flags; do
-  case $psl_cilk_flag in
-    none) []_AC_LANG_PREFIX[]FLAGS=$save[]_AC_LANG_PREFIX[] ;;
-    *) []_AC_LANG_PREFIX[]FLAGS="$save[]_AC_LANG_PREFIX[]FLAGS $psl_cilk_flag" ;;
-  esac
-  try_again=0
-  AC_LINK_IFELSE([AC_LANG_SOURCE([[
-#include <stdio.h>
-#include <cilk/cilk.h>
-
-static void hello(){
-    int i=0;
-    for(i=0;i<1000000;i++)
-        printf("");
-    printf("Hello ");
-}
-
-static void world(){
-    int i=0;
-    for(i=0;i<1000000;i++)
-        printf("");
-    printf("world! ");
-}
-
-int main(){
-    cilk_spawn hello();
-    cilk_spawn world();
-    printf("Done! ");
-} 
-]])],[psl_cv_[]_AC_LANG_ABBREV[]_cilk=$psl_cilk_flag; break],[try_again=1])
-  AS_IF([test "x$try_again" = x1],[
-  save_LIBS="$LIBS"
-  LIBS="$LIBS -lcilkrts"
-  AC_LINK_IFELSE([AC_LANG_SOURCE([[
-#include <stdio.h>
+AC_DEFUN([PSL_CILK_SOURCE], [AC_LANG_CONFTEST([AC_LANG_SOURCE(
+[[#include <stdio.h>
 #include <cilk/cilk.h>
 
 static void hello(){
@@ -129,22 +55,45 @@ int main(){
     printf("Done! ");
     cilk_for(long i=0;i<1000000;i++)
         printf("");
-} 
-]])],[psl_cv_[]_AC_LANG_ABBREV[]_cilk=$psl_cilk_flag; CILK_LIBS=-lcilkrts],[])
-  LIBS="$save_LIBS"
-  if test "x$psl_cv_[]_AC_LANG_ABBREV[]_cilk" != "xunknown"; then
-    break
-  fi
-  ])
+}]])])])
+
+AC_DEFUN([PSL_CILK], [
+AC_PREREQ([2.69]) dnl for _AC_LANG_PREFIX
+
+AC_CACHE_CHECK([for Cilk flag of _AC_LANG compiler], psl_cv_[]_AC_LANG_ABBREV[]_cilk, [
+save[]_AC_LANG_ABBREV[]_werror_flag=$ac_[]_AC_LANG_ABBREV[]_werror_flag
+ac_[]_AC_LANG_ABBREV[]_werror_flag=yes
+save[]_AC_LANG_PREFIX[]FLAGS=$[]_AC_LANG_PREFIX[]FLAGS
+psl_cv_[]_AC_LANG_ABBREV[]_cilk=unknown
+# Flags to try:  -fcilkplus (gcc), none
+psl_cilk_flags="-fcilkplus none"
+AS_IF([test "x$CILK_[]_AC_LANG_PREFIX[]FLAGS" != x],
+  [psl_cilk_flags="$CILK_[]_AC_LANG_PREFIX[]FLAGS $psl_cilk_flags"])
+for psl_cilk_flag in $psl_cilk_flags; do
+  AS_CASE([$psl_cilk_flag],
+    [none], [[]_AC_LANG_PREFIX[]FLAGS=$save[]_AC_LANG_PREFIX[]],
+            [[]_AC_LANG_PREFIX[]FLAGS="$save[]_AC_LANG_PREFIX[]FLAGS $psl_cilk_flag"])
+  try_again=0
+  PSL_CILK_SOURCE
+  AC_LINK_IFELSE([],
+    [psl_cv_[]_AC_LANG_ABBREV[]_cilk=$psl_cilk_flag; break],
+    [try_again=1])
+  AS_IF([test "x$try_again" = x1],[
+    save_LIBS="$LIBS"
+    LIBS="$LIBS -lcilkrts"
+    PSL_CILK_SOURCE
+    AC_LINK_IFELSE([],
+      [psl_cv_[]_AC_LANG_ABBREV[]_cilk=$psl_cilk_flag; CILK_LIBS=-lcilkrts],
+      [])
+    LIBS="$save_LIBS"
+    AS_IF([test "x$psl_cv_[]_AC_LANG_ABBREV[]_cilk" != "xunknown"], [break])])
 done
 []_AC_LANG_PREFIX[]FLAGS=$save[]_AC_LANG_PREFIX[]FLAGS
+ac_[]_AC_LANG_ABBREV[]_werror_flag=$save[]_AC_LANG_ABBREV[]_werror_flag
 ])
-if test "x$psl_cv_[]_AC_LANG_ABBREV[]_cilk" = "xunknown"; then
-  m4_default([$2],:)
-else
-  if test "x$psl_cv_[]_AC_LANG_ABBREV[]_cilk" != "xnone"; then
-    CILK_[]_AC_LANG_PREFIX[]FLAGS=$psl_cv_[]_AC_LANG_ABBREV[]_cilk
-  fi
-  m4_default([$1], [AC_DEFINE(HAVE_CILK,1,[Define if Cilk is enabled])])
-fi
+AS_IF([test "x$psl_cv_[]_AC_LANG_ABBREV[]_cilk" = "xunknown"],
+  [m4_default([$2],:)],
+  [AS_IF([test "x$psl_cv_[]_AC_LANG_ABBREV[]_cilk" != "xnone"],
+    [CILK_[]_AC_LANG_PREFIX[]FLAGS=$psl_cv_[]_AC_LANG_ABBREV[]_cilk])
+   m4_default([$1], [AC_DEFINE(HAVE_CILK,1,[Define if Cilk is enabled])])])
 ])dnl PSL_CILK

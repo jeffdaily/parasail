@@ -138,7 +138,6 @@ parasail_result_t* PNAME(
     int32_t k = 0;
     int32_t end_query = 0;
     int32_t end_ref = 0;
-    int32_t segNum = 0;
     const int s1Len = profile->s1Len;
     const parasail_matrix_t *matrix = profile->matrix;
     const int32_t segWidth = 16; /* number of values in vector unit */
@@ -168,20 +167,8 @@ parasail_result_t* PNAME(
 #endif
 
     /* initialize H and E */
-    {
-        int32_t index = 0;
-        for (i=0; i<segLen; ++i) {
-            __m256i_16_t h;
-            __m256i_16_t e;
-            for (segNum=0; segNum<segWidth; ++segNum) {
-                h.v[segNum] = 0;
-                e.v[segNum] = -open;
-            }
-            _mm256_store_si256(&pvHStore[index], h.m);
-            _mm256_store_si256(&pvE[index], e.m);
-            ++index;
-        }
-    }
+    parasail_memset___m256i(pvHStore, _mm256_set1_epi16(0), segLen);
+    parasail_memset___m256i(pvE, _mm256_set1_epi16(-open), segLen);
 
     /* outer loop over database sequence */
     for (j=0; j<s2Len; ++j) {

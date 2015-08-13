@@ -94,7 +94,6 @@ STATIC parasail_result_t* PNAME(
     %(INDEX)s k = 0;
     %(INDEX)s end_query = 0;
     %(INDEX)s end_ref = 0;
-    %(INDEX)s segNum = 0;
     const int s1Len = profile->s1Len;
     const parasail_matrix_t *matrix = profile->matrix;
     const %(INDEX)s segWidth = %(LANES)s; /* number of values in vector unit */

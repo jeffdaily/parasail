@@ -80,16 +80,15 @@ parasail_result_t* PNAME(
     %(INDEX)s k = 0;
     %(INDEX)s end_query = 0;
     %(INDEX)s end_ref = 0;
-    %(INDEX)s segNum = 0;
     const int s1Len = profile->s1Len;
     const parasail_matrix_t *matrix = profile->matrix;
     const %(INDEX)s segWidth = %(LANES)s; /* number of values in vector unit */
     const %(INDEX)s segLen = (s1Len + segWidth - 1) / segWidth;
     %(VTYPE)s* const restrict vProfile = (%(VTYPE)s*)profile->profile%(WIDTH)s.score;
     %(VTYPE)s* restrict pvHStore = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
-    %(VTYPE)s* restrict pvHLoad =  parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
+    %(VTYPE)s* restrict pvHLoad = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
+    %(VTYPE)s* restrict pvHMax = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
     %(VTYPE)s* const restrict pvE = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
-    %(VTYPE)s* const restrict pvHMax = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
     %(VTYPE)s vGapO = %(VSET1)s(open);
     %(VTYPE)s vGapE = %(VSET1)s(gap);
     %(VTYPE)s vZero = %(VSET1)s(0);
@@ -102,7 +101,7 @@ parasail_result_t* PNAME(
     %(VTYPE)s insert_mask = %(VCMPGT)s(
             %(VSET)s(%(STRIPED_INSERT_MASK)s),
             vZero);
-    %(INT)s stop = profile->stop == INT32_MAX ?  INT%(WIDTH)s_MAX : (%(INT)s)profile->stop-bias;
+    /*%(INT)s stop = profile->stop == INT32_MAX ?  INT%(WIDTH)s_MAX : (%(INT)s)profile->stop-bias;*/
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
@@ -116,20 +115,8 @@ parasail_result_t* PNAME(
 #endif
 
     /* initialize H and E */
-    {
-        %(INDEX)s index = 0;
-        for (i=0; i<segLen; ++i) {
-            %(VTYPE)s_%(WIDTH)s_t h;
-            %(VTYPE)s_%(WIDTH)s_t e;
-            for (segNum=0; segNum<segWidth; ++segNum) {
-                h.v[segNum] = bias;
-                e.v[segNum] = bias;
-            }
-            %(VSTORE)s(&pvHStore[index], h.m);
-            %(VSTORE)s(&pvE[index], e.m);
-            ++index;
-        }
-    }
+    parasail_memset_%(VTYPE)s(pvHStore, vBias, segLen);
+    parasail_memset_%(VTYPE)s(pvE, vBias, segLen);
 
     /* outer loop over database sequence */
     for (j=0; j<s2Len; ++j) {
@@ -150,10 +137,19 @@ parasail_result_t* PNAME(
         /* Correct part of the vProfile */
         vP = vProfile + matrix->mapper[(unsigned char)s2[j]] * segLen;
 
-        /* Swap the 2 H buffers. */
-        pv = pvHLoad;
-        pvHLoad = pvHStore;
-        pvHStore = pv;
+        if (end_ref == j-2) {
+            /* Swap in the max buffer. */
+            pv = pvHMax;
+            pvHMax = pvHLoad;
+            pvHLoad = pvHStore;
+            pvHStore = pv;
+        }
+        else {
+            /* Swap the 2 H buffers. */
+            pv = pvHLoad;
+            pvHLoad = pvHStore;
+            pvHStore = pv;
+        }
 
         /* inner loop to process the query sequence */
         for (i=0; i<segLen; ++i) {
@@ -207,21 +203,6 @@ end:
         {
         }
 
-        {
-            %(VTYPE)s vCompare = %(VCMPGT)s(vMaxH, vMaxHUnit);
-            if (%(VMOVEMASK)s(vCompare)) {
-                score = %(VHMAX)s(vMaxH);
-                /* if score has potential to overflow, abort early */
-                if (score > maxp) {
-                    result->saturated = 1;
-                    break;
-                }
-                vMaxHUnit = %(VSET1)s(score);
-                end_ref = j;
-                (void)memcpy(pvHMax, pvHStore, sizeof(%(VTYPE)s)*segLen);
-            }
-        }
-
 #ifdef PARASAIL_ROWCOL
         /* extract last value from the column */
         {
@@ -233,22 +214,21 @@ end:
         }
 #endif
 
-        if (score == stop) break;
-    }
-
-    /* Trace the alignment ending position on read. */
-    {
-        %(INT)s *t = (%(INT)s*)pvHMax;
-        %(INDEX)s column_len = segLen * segWidth;
-        end_query = s1Len - 1;
-        for (i = 0; i<column_len; ++i, ++t) {
-            if (*t == score) {
-                %(INDEX)s temp = i / segWidth + i %% segWidth * segLen;
-                if (temp < end_query) {
-                    end_query = temp;
+        {
+            %(VTYPE)s vCompare = %(VCMPGT)s(vMaxH, vMaxHUnit);
+            if (%(VMOVEMASK)s(vCompare)) {
+                score = %(VHMAX)s(vMaxH);
+                /* if score has potential to overflow, abort early */
+                if (score > maxp) {
+                    result->saturated = 1;
+                    break;
                 }
+                vMaxHUnit = %(VSET1)s(score);
+                end_ref = j;
             }
         }
+
+        /*if (score == stop) break;*/
     }
 
 #ifdef PARASAIL_ROWCOL
@@ -260,15 +240,48 @@ end:
 
     if (score == INT%(WIDTH)s_MAX) {
         result->saturated = 1;
+    }
+
+    if (result->saturated) {
         score = INT%(WIDTH)s_MAX;
+        end_query = 0;
+        end_ref = 0;
+    }
+    else {
+        if (end_ref == j-1) {
+            /* end_ref was the last store column */
+            %(VTYPE)s *pv = pvHMax;
+            pvHMax = pvHStore;
+            pvHStore = pv;
+        }
+        else if (end_ref == j-2) {
+            /* end_ref was the last load column */
+            %(VTYPE)s *pv = pvHMax;
+            pvHMax = pvHLoad;
+            pvHLoad = pv;
+        }
+        /* Trace the alignment ending position on read. */
+        {
+            %(INT)s *t = (%(INT)s*)pvHMax;
+            %(INDEX)s column_len = segLen * segWidth;
+            end_query = s1Len - 1;
+            for (i = 0; i<column_len; ++i, ++t) {
+                if (*t == score) {
+                    %(INDEX)s temp = i / segWidth + i %% segWidth * segLen;
+                    if (temp < end_query) {
+                        end_query = temp;
+                    }
+                }
+            }
+        }
     }
 
     result->score = score - bias;
     result->end_query = end_query;
     result->end_ref = end_ref;
 
-    parasail_free(pvHMax);
     parasail_free(pvE);
+    parasail_free(pvHMax);
     parasail_free(pvHLoad);
     parasail_free(pvHStore);
 

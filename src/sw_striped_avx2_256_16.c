@@ -130,16 +130,15 @@ parasail_result_t* PNAME(
     int32_t k = 0;
     int32_t end_query = 0;
     int32_t end_ref = 0;
-    int32_t segNum = 0;
     const int s1Len = profile->s1Len;
     const parasail_matrix_t *matrix = profile->matrix;
     const int32_t segWidth = 16; /* number of values in vector unit */
     const int32_t segLen = (s1Len + segWidth - 1) / segWidth;
     __m256i* const restrict vProfile = (__m256i*)profile->profile16.score;
     __m256i* restrict pvHStore = parasail_memalign___m256i(32, segLen);
-    __m256i* restrict pvHLoad =  parasail_memalign___m256i(32, segLen);
+    __m256i* restrict pvHLoad = parasail_memalign___m256i(32, segLen);
+    __m256i* restrict pvHMax = parasail_memalign___m256i(32, segLen);
     __m256i* const restrict pvE = parasail_memalign___m256i(32, segLen);
-    __m256i* const restrict pvHMax = parasail_memalign___m256i(32, segLen);
     __m256i vGapO = _mm256_set1_epi16(open);
     __m256i vGapE = _mm256_set1_epi16(gap);
     __m256i vZero = _mm256_set1_epi16(0);
@@ -152,7 +151,7 @@ parasail_result_t* PNAME(
     __m256i insert_mask = _mm256_cmpgt_epi16(
             _mm256_set_epi16(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1),
             vZero);
-    int16_t stop = profile->stop == INT32_MAX ?  INT16_MAX : (int16_t)profile->stop-bias;
+    /*int16_t stop = profile->stop == INT32_MAX ?  INT16_MAX : (int16_t)profile->stop-bias;*/
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
@@ -166,20 +165,8 @@ parasail_result_t* PNAME(
 #endif
 
     /* initialize H and E */
-    {
-        int32_t index = 0;
-        for (i=0; i<segLen; ++i) {
-            __m256i_16_t h;
-            __m256i_16_t e;
-            for (segNum=0; segNum<segWidth; ++segNum) {
-                h.v[segNum] = bias;
-                e.v[segNum] = bias;
-            }
-            _mm256_store_si256(&pvHStore[index], h.m);
-            _mm256_store_si256(&pvE[index], e.m);
-            ++index;
-        }
-    }
+    parasail_memset___m256i(pvHStore, vBias, segLen);
+    parasail_memset___m256i(pvE, vBias, segLen);
 
     /* outer loop over database sequence */
     for (j=0; j<s2Len; ++j) {
@@ -200,10 +187,19 @@ parasail_result_t* PNAME(
         /* Correct part of the vProfile */
         vP = vProfile + matrix->mapper[(unsigned char)s2[j]] * segLen;
 
-        /* Swap the 2 H buffers. */
-        pv = pvHLoad;
-        pvHLoad = pvHStore;
-        pvHStore = pv;
+        if (end_ref == j-2) {
+            /* Swap in the max buffer. */
+            pv = pvHMax;
+            pvHMax = pvHLoad;
+            pvHLoad = pvHStore;
+            pvHStore = pv;
+        }
+        else {
+            /* Swap the 2 H buffers. */
+            pv = pvHLoad;
+            pvHLoad = pvHStore;
+            pvHStore = pv;
+        }
 
         /* inner loop to process the query sequence */
         for (i=0; i<segLen; ++i) {
@@ -257,21 +253,6 @@ end:
         {
         }
 
-        {
-            __m256i vCompare = _mm256_cmpgt_epi16(vMaxH, vMaxHUnit);
-            if (_mm256_movemask_epi8(vCompare)) {
-                score = _mm256_hmax_epi16_rpl(vMaxH);
-                /* if score has potential to overflow, abort early */
-                if (score > maxp) {
-                    result->saturated = 1;
-                    break;
-                }
-                vMaxHUnit = _mm256_set1_epi16(score);
-                end_ref = j;
-                (void)memcpy(pvHMax, pvHStore, sizeof(__m256i)*segLen);
-            }
-        }
-
 #ifdef PARASAIL_ROWCOL
         /* extract last value from the column */
         {
@@ -283,22 +264,21 @@ end:
         }
 #endif
 
-        if (score == stop) break;
-    }
-
-    /* Trace the alignment ending position on read. */
-    {
-        int16_t *t = (int16_t*)pvHMax;
-        int32_t column_len = segLen * segWidth;
-        end_query = s1Len - 1;
-        for (i = 0; i<column_len; ++i, ++t) {
-            if (*t == score) {
-                int32_t temp = i / segWidth + i % segWidth * segLen;
-                if (temp < end_query) {
-                    end_query = temp;
+        {
+            __m256i vCompare = _mm256_cmpgt_epi16(vMaxH, vMaxHUnit);
+            if (_mm256_movemask_epi8(vCompare)) {
+                score = _mm256_hmax_epi16_rpl(vMaxH);
+                /* if score has potential to overflow, abort early */
+                if (score > maxp) {
+                    result->saturated = 1;
+                    break;
                 }
+                vMaxHUnit = _mm256_set1_epi16(score);
+                end_ref = j;
             }
         }
+
+        /*if (score == stop) break;*/
     }
 
 #ifdef PARASAIL_ROWCOL
@@ -310,15 +290,48 @@ end:
 
     if (score == INT16_MAX) {
         result->saturated = 1;
+    }
+
+    if (result->saturated) {
         score = INT16_MAX;
+        end_query = 0;
+        end_ref = 0;
+    }
+    else {
+        if (end_ref == j-1) {
+            /* end_ref was the last store column */
+            __m256i *pv = pvHMax;
+            pvHMax = pvHStore;
+            pvHStore = pv;
+        }
+        else if (end_ref == j-2) {
+            /* end_ref was the last load column */
+            __m256i *pv = pvHMax;
+            pvHMax = pvHLoad;
+            pvHLoad = pv;
+        }
+        /* Trace the alignment ending position on read. */
+        {
+            int16_t *t = (int16_t*)pvHMax;
+            int32_t column_len = segLen * segWidth;
+            end_query = s1Len - 1;
+            for (i = 0; i<column_len; ++i, ++t) {
+                if (*t == score) {
+                    int32_t temp = i / segWidth + i % segWidth * segLen;
+                    if (temp < end_query) {
+                        end_query = temp;
+                    }
+                }
+            }
+        }
     }
 
     result->score = score - bias;
     result->end_query = end_query;
     result->end_ref = end_ref;
 
-    parasail_free(pvHMax);
     parasail_free(pvE);
+    parasail_free(pvHMax);
     parasail_free(pvHLoad);
     parasail_free(pvHStore);
 

@@ -8,7 +8,8 @@ Author: Jeff Daily (jeff.daily@pnnl.gov)
   * [A Note About Instruction Sets and CPU Dispatching](#a-note-about-instruction-sets-and-cpu-dispatching)
   * [Installing](#installing)
   * [C Interface Example](#c-interface-example)
-    * [Function Naming Convention](#function-naming-convention)
+    * [Standard Function Naming Convention](#standard-function-naming-convention)
+    * [Profile Function Naming Convention](#profile-function-naming-convention)
     * [Substitution Matrices](#substitution-matrices)
     * [Function Lookup](#function-lookup)
   * [Language Bindings](#language-bindings)
@@ -25,7 +26,7 @@ Author: Jeff Daily (jeff.daily@pnnl.gov)
 
 parasail is a SIMD C (C99) library containing implementations of the Smith-Waterman (local), Needleman-Wunsch (global), and semi-global pairwise sequence alignment algorithms.  Here, semi-global means insertions before the start or after the end of either the query or target sequence are not penalized.  parasail implements most known algorithms for vectorized pairwise sequence alignment, including diagonal [Wozniak, 1997], blocked [Rognes and Seeberg, 2000], striped [Farrar, 2007], and prefix scan [Daily, 2015].  Therefore, parasail is a reference implementation for these algorithms in addition to providing an implementation of the best-performing algorithm(s) to date on today's most advanced CPUs.
 
-parasail implements the above algorithms currently in two variants, 1) returning only the alignment score, and 2) returning the alignment score with additional alignment statistics (number of exact matches, number of similarities, and alignment length).  The two variants exist because parasail is intended to be high-performing and caculating additional statistics is not free. Select the appropriate implementation for your needs.
+parasail implements the above algorithms currently in two variants, 1) returning the alignment score and ending locations, and 2) additionally returning alignment statistics (number of exact matches, number of similarities, and alignment length).  The two variants exist because parasail is intended to be high-performing; caculating additional statistics is not free. Select the appropriate implementation for your needs.
 
 Note: When any of the algorithms open a gap, only the gap open penalty alone is applied.
 
@@ -33,9 +34,9 @@ Note: When any of the algorithms open a gap, only the gap open penalty alone is 
 
 [back to top](#parasail-pairwise-sequence-alignment-library)
 
-parasail supports the SSE2, SSE4.1, AVX2, and KNC (Xeon Phi) instruction sets.  In many cases, your compiler can compile source code for an instruction set which is not supported by your host CPU.  The code is still compiled, however, parasail uses CPU dispatching at runtime to correctly select the appropriate implementation for the highest level of instruction set supported.
+parasail supports the SSE2, SSE4.1, AVX2, and KNC (Xeon Phi) instruction sets.  In many cases, your compiler can compile source code for an instruction set which is not supported by your host CPU.  The code is still compiled, however, parasail uses CPU dispatching at runtime to correctly select the appropriate implementation for the highest level of instruction set supported.  This allows parasail to be compiled and distributed by a maintainer for the best available system while still allowing the distribution to run with a lesser CPU.
 
-Occasionally, configure will report that your compiler supports an instruction set, e.g., AVX2, when in fact it does not.  This is a bug; please file an issue and I will amend the configure script.  You likely won't discover this until you attempt to compile all of the sources.  If you run into issues (or if for some other reason you wish to disable one of the instruction sets), and after reporting the issue, you can disable the offending code as a temporary work-around using one or more of the following configure flags.
+Rarely, configure will report that your compiler supports an instruction set, e.g., AVX2, when in fact it does not.  This is a bug; please file an issue and I will amend the configure script, if needed.  You likely won't discover this until you attempt to compile all of the sources.  If you run into issues (or if for some other reason you wish to disable one of the instruction sets), and after reporting the issue, you can disable the offending code as a temporary work-around using one or more of the following configure flags.
 ```bash
 configure SSE2_FLAGS=choke SSE41_FLAGS=choke AVX2_CFLAGS=choke
 ```
@@ -44,7 +45,7 @@ configure SSE2_FLAGS=choke SSE41_FLAGS=choke AVX2_CFLAGS=choke
 
 [back to top](#parasail-pairwise-sequence-alignment-library)
 
-parasail follows the typical configure, make, make install steps of other GNU autotools-based installations.  There are no external dependencies.
+parasail follows the typical configure, make, make install steps of other GNU autotools-based installations.  There are no external dependencies.  There is an optional CMake build available, however the GNU autotools-based installation is the preferred method.
 
 ## C Interface Example
 
@@ -71,6 +72,8 @@ typedef struct parasail_result {
     int matches;    /* number of exactly matching characters in the alignment */
     int similar;    /* number of similar characters (positive substitutions) in the alignment */
     int length;     /* length of the alignment */
+    int end_query;  /* end position of query sequence */
+    int end_ref;    /* end position of reference sequence */
     int * restrict score_table;     /* DP table of scores */
     int * restrict matches_table;   /* DP table of exact match counts */
     int * restrict similar_table;   /* DP table of similar substitution counts */
@@ -88,7 +91,7 @@ typedef struct parasail_result {
 
 You must free the returned parasail result using `void parasail_result_free(parasail_result_t *result)`.
 
-### Function Naming Convention
+### Standard Function Naming Convention
 
 [back to top](#parasail-pairwise-sequence-alignment-library)
 
@@ -98,12 +101,12 @@ There are over 1,000 functions within the parasail library.  To make it easier t
 
 Here is a breakdown of each section of the name:
   1. parasail_ -- prefix a.k.a. namespace
-  2. {nw,sg,sw}_ -- the class of alignment; global, semi-global, or local
-  3. [stats_] -- optionally if the statistics are requested
+  2. {nw,sg,sw}_ -- the class of alignment; global, semi-global, or local, respectively
+  3. [stats_] -- optionally if the additional statistics are requested
   4. [{table,rowcol}_] -- optionally if the DP table or last row and column of DP table should be returned
   5. {striped,scan,diag,blocked} -- the vectorized approach; striped is always a good choice
   6. [{sse2_128,sse4_128,avx2_256,knc_512}_] -- optionally the instruction set and vector width
-  7. {8,16,32,64} -- the integer width of the solution, a.k.a. the vector element widths; knc only supports _32; 16 is often a good choice.
+  7. {8,16,32,64,sat} -- the integer width of the solution, a.k.a. the vector element widths; knc only supports _32; 16 is often a good choice; 'sat' is short for 'saturation check' -- the 8-bit solution is attempted and if the score overflows (saturates), the 16-bit solution is then attempted. In some cases this is faster than simply running the 16-bit solution.
 
 For example:
 
@@ -117,6 +120,42 @@ For example:
 Note: The blocked vector implementation only exist for sse41 16-bit and 32-bit integer elements.
 
 Note: The dispatcher for the KNC instruction set will always dispatch to the 32-bit integer element implementation since it is the only one supported on that platform.
+
+### Profile Function Naming Convention
+
+[back to top](#parasail-pairwise-sequence-alignment-library)
+
+There is a special subset of functions that mimic the behavior of the [SSW library](https://github.com/mengyao/Complete-Striped-Smith-Waterman-Library). For the striped and scan vector implementations *only*, a query profile can be created and reused for subsequent alignments. This can speed up applications such as database search noticeably.  To create a profile, use
+
+```C
+parasail_profile_t* parasail_profile_create[_stats][_{sse_128,avx_256,knc_512}]_{8,16,32,64,sat} (
+        const char * const restrict s1, const int s1Len,
+        const parasail_matrix_t* matrix);
+```
+
+Similar to the standard function naming convention, there are some variants for profile creation.  If you intend to use a stats-enabled alignment function, use a corresponding stats-enabled profile creation function.  If you intend to use CPU dispatching for your alignment function, use a corresponding profile creation function, e.g., `parasail_profile_create_16`; no need to specify the vector instruction set.  The 'sat' profile creation function is compatible with all integer width profile-based functions because it will contain profiles for each of the implemented widths -- just note it will of course use more memory instead of selecting a specific integer width.
+
+You must not forget to free the profile(s) when you are finished.  There is only one function used to free the profile memory and it will handle all profiles created by the various profile creation functions.
+
+```C
+void parasail_profile_free(parasail_profile_t *profile);
+```
+
+The profile data structure is part of parasail's public interface, though you really shouldn't access its members.  Most of the attributes are opaque blocks of memory that hold the vaious profiles.  Occasionally, however, it may be useful to refer back to the parameters that were used during profile creation, namely s1, s1Len, and the substitution matrix -- these attributes can be accessed though they should be treated as read-only.
+
+```C
+typedef struct parasail_profile {
+    const char *s1;
+    int s1Len;
+    const parasail_matrix_t *matrix;
+    struct parasail_profile_data profile8;
+    struct parasail_profile_data profile16;
+    struct parasail_profile_data profile32;
+    struct parasail_profile_data profile64;
+    void (*free)(void * profile);
+    int stop;
+} parasail_profile_t;
+```
 
 ### Substitution Matrices
 
@@ -185,7 +224,7 @@ int main(int argc, char **argv) {
 
 [back to top](#parasail-pairwise-sequence-alignment-library)
 
-C is the native API for parasail.  C++ is supported by using the common include guards (#ifdef __cplusplus).  Once you have installed parasail, #include "parasail.h" into your sources.  
+C is the native API for parasail.  C++ is supported directly because the parasial.h header uses the common C++ include guards (#ifdef __cplusplus) to extern "C" all of the functions.  Once you have installed parasail, #include "parasail.h" into your sources.
 
 ### Python
 
@@ -237,13 +276,13 @@ ldd bin/parasail.dll
         KATRK64.DLL => /cygdrive/c/Windows/KATRK64.DLL (0x180000000)
         WTSAPI32.dll => /cygdrive/c/Windows/system32/WTSAPI32.dll (0x7fefc920000)
 ```
-Note that parasail.dll depends on a `libwinpthread-1.dll` which is located in the sys-root of the corresponding mingw installation.  See the `ldd` output above for an example.  If it weren't for the `parasail_time(void)` function, parasail would have zero external dependencies.
+Note that parasail.dll depends on a `libwinpthread-1.dll` which is located in the sys-root of the corresponding mingw installation.  See the `ldd` output above for an example.  If it weren't for the `parasail_time(void)` function, parasail would have zero external dependencies on Windows.
 
 ## Example Applications
 
 [back to top](#parasail-pairwise-sequence-alignment-library)
 
-In addition to the parasail library, there are a few binaries that are also compiled and installed.
+In addition to the parasail library, there is one binary that is also compiled and installed.
 See [the apps README](apps/README.md) for more details.
 
 ## Citing parasail

@@ -65,6 +65,8 @@ parasail_result_t* ENAME(
     int matches = 0;
     int similar = 0;
     int length = 0;
+    int end_query = s1Len;
+    int end_ref = s2Len;
 
     for (i=0; i<s1Len; ++i) {
         s1[i] = matrix->mapper[(unsigned char)_s1[i]];
@@ -167,6 +169,8 @@ parasail_result_t* ENAME(
                 matches = M[i];
                 similar = S[i];
                 length = L[i];
+                end_query = i;
+                end_ref = j;
             }
         }
         H[-1] = 0;
@@ -190,6 +194,8 @@ parasail_result_t* ENAME(
     result->matches = matches;
     result->similar = similar;
     result->length = length;
+    result->end_query = end_query;
+    result->end_ref = end_ref;
 
     parasail_free(Ex);
     parasail_free(Lt);

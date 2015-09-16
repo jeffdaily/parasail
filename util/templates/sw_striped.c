@@ -9,6 +9,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 %(HEADER)s
 
@@ -75,7 +76,8 @@ parasail_result_t* PNAME(
     %(INDEX)s i = 0;
     %(INDEX)s j = 0;
     %(INDEX)s k = 0;
-    %(INDEX)s segNum = 0;
+    %(INDEX)s end_query = 0;
+    %(INDEX)s end_ref = 0;
     const int s1Len = profile->s1Len;
     const parasail_matrix_t *matrix = profile->matrix;
     const %(INDEX)s segWidth = %(LANES)s; /* number of values in vector unit */
@@ -83,6 +85,7 @@ parasail_result_t* PNAME(
     %(VTYPE)s* const restrict vProfile = (%(VTYPE)s*)profile->profile%(WIDTH)s.score;
     %(VTYPE)s* restrict pvHStore = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
     %(VTYPE)s* restrict pvHLoad =  parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
+    %(VTYPE)s* restrict pvHMax = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
     %(VTYPE)s* const restrict pvE = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
     %(VTYPE)s vGapO = %(VSET1)s(open);
     %(VTYPE)s vGapE = %(VSET1)s(gap);
@@ -90,6 +93,9 @@ parasail_result_t* PNAME(
     %(VTYPE)s vNegInf = %(VSET1)s(NEG_INF);
     %(INT)s score = NEG_INF;
     %(VTYPE)s vMaxH = vNegInf;
+    %(VTYPE)s vMaxHUnit = vNegInf;
+    %(SATURATION_CHECK_INIT)s
+    /*%(INT)s stop = profile->stop == INT32_MAX ?  INT%(WIDTH)s_MAX : (%(INT)s)profile->stop;*/
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
@@ -103,38 +109,40 @@ parasail_result_t* PNAME(
 #endif
 
     /* initialize H and E */
-    {
-        %(INDEX)s index = 0;
-        for (i=0; i<segLen; ++i) {
-            %(VTYPE)s_%(WIDTH)s_t h;
-            %(VTYPE)s_%(WIDTH)s_t e;
-            for (segNum=0; segNum<segWidth; ++segNum) {
-                h.v[segNum] = 0;
-                e.v[segNum] = -open;
-            }
-            %(VSTORE)s(&pvHStore[index], h.m);
-            %(VSTORE)s(&pvE[index], e.m);
-            ++index;
-        }
-    }
+    parasail_memset_%(VTYPE)s(pvHStore, vZero, segLen);
+    parasail_memset_%(VTYPE)s(pvE, %(VSET1)s(-open), segLen);
 
     /* outer loop over database sequence */
     for (j=0; j<s2Len; ++j) {
         %(VTYPE)s vE;
+        %(VTYPE)s vF;
+        %(VTYPE)s vH;
+        const %(VTYPE)s* vP = NULL;
+        %(VTYPE)s* pv = NULL;
+
         /* Initialize F value to 0.  Any errors to vH values will be
          * corrected in the Lazy_F loop.  */
-        %(VTYPE)s vF = vZero;
+        vF = vZero;
 
         /* load final segment of pvHStore and shift left by 2 bytes */
-        %(VTYPE)s vH = %(VSHIFT)s(pvHStore[segLen - 1], %(BYTES)s);
+        vH = %(VSHIFT)s(pvHStore[segLen - 1], %(BYTES)s);
 
         /* Correct part of the vProfile */
-        const %(VTYPE)s* vP = vProfile + matrix->mapper[(unsigned char)s2[j]] * segLen;
+        vP = vProfile + matrix->mapper[(unsigned char)s2[j]] * segLen;
 
-        /* Swap the 2 H buffers. */
-        %(VTYPE)s* pv = pvHLoad;
-        pvHLoad = pvHStore;
-        pvHStore = pv;
+        if (end_ref == j-2) {
+            /* Swap in the max buffer. */
+            pv = pvHMax;
+            pvHMax = pvHLoad;
+            pvHLoad = pvHStore;
+            pvHStore = pv;
+        }
+        else {
+            /* Swap the 2 H buffers. */
+            pv = pvHLoad;
+            pvHLoad = pvHStore;
+            pvHStore = pv;
+        }
 
         /* inner loop to process the query sequence */
         for (i=0; i<segLen; ++i) {
@@ -198,6 +206,17 @@ end:
             result->score_row[j] = (%(INT)s) %(VEXTRACT)s (vH, %(LAST_POS)s);
         }
 #endif
+
+        {
+            %(VTYPE)s vCompare = %(VCMPGT)s(vMaxH, vMaxHUnit);
+            if (%(VMOVEMASK)s(vCompare)) {
+                score = %(VHMAX)s(vMaxH);
+                vMaxHUnit = %(VSET1)s(score);
+                end_ref = j;
+            }
+        }
+
+        /*if (score == stop) break;*/
     }
 
 #ifdef PARASAIL_ROWCOL
@@ -207,18 +226,53 @@ end:
     }
 #endif
 
-    score = %(VHMAX)s(vMaxH);
-
     if (score == INT%(WIDTH)s_MAX) {
         result->saturated = 1;
+    }
+
+    if (result->saturated) {
         score = INT%(WIDTH)s_MAX;
+        end_query = 0;
+        end_ref = 0;
+    }
+    else {
+        if (end_ref == j-1) {
+            /* end_ref was the last store column */
+            %(VTYPE)s *pv = pvHMax;
+            pvHMax = pvHStore;
+            pvHStore = pv;
+        }
+        else if (end_ref == j-2) {
+            /* end_ref was the last load column */
+            %(VTYPE)s *pv = pvHMax;
+            pvHMax = pvHLoad;
+            pvHLoad = pv;
+        }
+        /* Trace the alignment ending position on read. */
+        {
+            %(INT)s *t = (%(INT)s*)pvHMax;
+            %(INDEX)s column_len = segLen * segWidth;
+            end_query = s1Len - 1;
+            for (i = 0; i<column_len; ++i, ++t) {
+                if (*t == score) {
+                    %(INDEX)s temp = i / segWidth + i %% segWidth * segLen;
+                    if (temp < end_query) {
+                        end_query = temp;
+                    }
+                }
+            }
+        }
     }
 
     result->score = score;
+    result->end_query = end_query;
+    result->end_ref = end_ref;
 
     parasail_free(pvE);
+    parasail_free(pvHMax);
     parasail_free(pvHLoad);
     parasail_free(pvHStore);
 
     return result;
 }
+

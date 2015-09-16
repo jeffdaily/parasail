@@ -83,6 +83,8 @@ parasail_result_t* FNAME(
 #endif
     %(INDEX)s i = 0;
     %(INDEX)s j = 0;
+    %(INDEX)s end_query = 0;
+    %(INDEX)s end_ref = 0;
     %(INT)s score = NEG_INF;
     %(VTYPE)s vNegInf = %(VSET1)s(NEG_INF);
     %(VTYPE)s vNegInf0 = %(VRSHIFT)s(vNegInf, %(BYTES)s); /* shift in a 0 */
@@ -96,6 +98,10 @@ parasail_result_t* FNAME(
     %(VTYPE)s vJresetLo16 = %(VSETx16)s(%(DIAG_JLO)s);
     %(VTYPE)s vJresetHi16 = %(VSETx16)s(%(DIAG_JHI)s);
     %(VTYPE)s vMaxScore = vNegInf;
+    %(VTYPE)s vEndILo = vNegInf;
+    %(VTYPE)s vEndIHi = vNegInf;
+    %(VTYPE)s vEndJLo = vNegInf;
+    %(VTYPE)s vEndJHi = vNegInf;
     %(VTYPE)s vILimit16 = %(VSET1x16)s(s1Len);
     %(VTYPE)s vILimit116 = %(VSUBx16)s(vILimit16, vOne16);
     %(VTYPE)s vJLimit16 = %(VSET1x16)s(s2Len);
@@ -209,10 +215,28 @@ parasail_result_t* FNAME(
                 %(VTYPE)s cond_j = %(VAND)s(vIltLimit, vJeqLimit1);
                 %(VTYPE)s cond_i = %(VAND)s(vIeqLimit1,
                         %(VAND)s(vJgtNegOne, vJltLimit));
+                %(VTYPE)s cond_ij = %(VOR)s(cond_i, cond_j);
+                %(VTYPE)s cond_eq = %(VCMPEQ)s(vWscore, vMaxScore);
                 %(VTYPE)s cond_max = %(VCMPGT)s(vWscore, vMaxScore);
-                %(VTYPE)s cond_all = %(VAND)s(cond_max,
-                        %(VOR)s(cond_i, cond_j));
+                %(VTYPE)s cond_all = %(VAND)s(cond_max, cond_ij);
+                %(VTYPE)s cond_Jlt = %(VPACKS)s(
+                        %(VCMPLTx16)s(vJLo16, vEndJLo),
+                        %(VCMPLTx16)s(vJHi16, vEndJHi));
+                %(VTYPE)s cond_lo = %(VUNPACKLO)s(cond_all, cond_all);
+                %(VTYPE)s cond_hi = %(VUNPACKHI)s(cond_all, cond_all);
                 vMaxScore = %(VBLEND)s(vMaxScore, vWscore, cond_all);
+                vEndILo = %(VBLEND)s(vEndILo, vILo16, cond_lo);
+                vEndIHi = %(VBLEND)s(vEndIHi, vIHi16, cond_hi);
+                vEndJLo = %(VBLEND)s(vEndJLo, vJLo16, cond_lo);
+                vEndJHi = %(VBLEND)s(vEndJHi, vJHi16, cond_hi);
+                cond_all = %(VAND)s(cond_Jlt, cond_eq);
+                cond_all = %(VAND)s(cond_all, cond_ij);
+                cond_lo = %(VUNPACKLO)s(cond_all, cond_all);
+                cond_hi = %(VUNPACKHI)s(cond_all, cond_all);
+                vEndILo = %(VBLEND)s(vEndILo, vILo16, cond_lo);
+                vEndIHi = %(VBLEND)s(vEndIHi, vIHi16, cond_hi);
+                vEndJLo = %(VBLEND)s(vEndJLo, vJLo16, cond_lo);
+                vEndJHi = %(VBLEND)s(vEndJHi, vJHi16, cond_hi);
             }
             vJLo16 = %(VADDx16)s(vJLo16, vOne16);
             vJHi16 = %(VADDx16)s(vJHi16, vOne16);
@@ -221,19 +245,55 @@ parasail_result_t* FNAME(
         vIHi16 = %(VADDx16)s(vIHi16, vN16);
     }
 
-    /* max in vMaxScore */
-    for (i=0; i<N; ++i) {
-        %(INT)s value;
-        value = (%(INT)s) %(VEXTRACT)s(vMaxScore, %(LAST_POS)s);
-        if (value > score) {
-            score = value;
+    /* alignment ending position */
+    {
+        %(INT)s *t = (%(INT)s*)&vMaxScore;
+        int16_t *ilo = (int16_t*)&vEndILo;
+        int16_t *jlo = (int16_t*)&vEndJLo;
+        int16_t *ihi = (int16_t*)&vEndIHi;
+        int16_t *jhi = (int16_t*)&vEndJHi;
+        %(INDEX)s k;
+        for (k=0; k<N/2; ++k, ++t, ++ilo, ++jlo) {
+            if (*t > score) {
+                score = *t;
+                end_query = *ilo;
+                end_ref = *jlo;
+            }
+            else if (*t == score) {
+                if (*jlo < end_ref) {
+                    end_query = *ilo;
+                    end_ref = *jlo;
+                }
+                else if (*jlo == end_ref && *ilo < end_query) {
+                    end_query = *ilo;
+                    end_ref = *jlo;
+                }
+            }
         }
-        vMaxScore = %(VSHIFT)s(vMaxScore, %(BYTES)s);
+        for (k=N/2; k<N; ++k, ++t, ++ihi, ++jhi) {
+            if (*t > score) {
+                score = *t;
+                end_query = *ihi;
+                end_ref = *jhi;
+            }
+            else if (*t == score) {
+                if (*jhi < end_ref) {
+                    end_query = *ihi;
+                    end_ref = *jhi;
+                }
+                else if (*jhi == end_ref && *ihi < end_query) {
+                    end_query = *ihi;
+                    end_ref = *jhi;
+                }
+            }
+        }
     }
 
     %(SATURATION_CHECK_FINAL)s
 
     result->score = score;
+    result->end_query = end_query;
+    result->end_ref = end_ref;
 
     parasail_free(_del_pr);
     parasail_free(_tbl_pr);

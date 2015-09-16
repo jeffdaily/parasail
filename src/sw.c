@@ -47,6 +47,8 @@ parasail_result_t* ENAME(
     int i = 0;
     int j = 0;
     int score = NEG_INF_32;
+    int end_query = s1Len;
+    int end_ref = s2Len;
 
     for (i=0; i<s1Len; ++i) {
         s1[i] = matrix->mapper[(unsigned char)_s1[i]];
@@ -80,6 +82,14 @@ parasail_result_t* ENAME(
             ins_cr    = MAX(Wscore - open, ins_cr    - gap);
             tbl_pr[j] = MAX(NWscore + matrow[s2[j-1]], 0);
             Wscore = tbl_pr[j] = MAX(tbl_pr[j],MAX(ins_cr,del_pr[j]));
+            if (Wscore > score) {
+                end_query = i-1;
+                end_ref = j-1;
+            }
+            else if (score == Wscore && j-1 < end_ref) {
+                end_query = i-1;
+                end_ref = j-1;
+            }
             score = MAX(score,Wscore);
 #ifdef PARASAIL_TABLE
             result->score_table[(i-1)*s2Len + (j-1)] = Wscore;
@@ -96,6 +106,8 @@ parasail_result_t* ENAME(
 #endif
 
     result->score = score;
+    result->end_query = end_query;
+    result->end_ref = end_ref;
 
     parasail_free(del_pr);
     parasail_free(tbl_pr);

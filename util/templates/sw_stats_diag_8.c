@@ -89,6 +89,8 @@ parasail_result_t* FNAME(
 #endif
     %(INDEX)s i = 0;
     %(INDEX)s j = 0;
+    %(INDEX)s end_query = 0;
+    %(INDEX)s end_ref = 0;
     %(INT)s score = NEG_INF;
     %(INT)s matches = NEG_INF;
     %(INT)s similar = NEG_INF;
@@ -101,8 +103,8 @@ parasail_result_t* FNAME(
     %(VTYPE)s vZero = %(VSET1)s(0);
     %(VTYPE)s vOne = %(VSET1)s(1);
     %(VTYPE)s vOne16 = %(VSET1x16)s(1);
-    %(VTYPE)s vN16 = %(VSET1x16)s(N);
     %(VTYPE)s vNegOne16 = %(VSET1x16)s(-1);
+    %(VTYPE)s vN16 = %(VSET1x16)s(N);
     %(VTYPE)s vILo16 = %(VSETx16)s(%(DIAG_ILO)s);
     %(VTYPE)s vIHi16 = %(VSETx16)s(%(DIAG_IHI)s);
     %(VTYPE)s vJresetLo16 = %(VSETx16)s(%(DIAG_JLO)s);
@@ -111,6 +113,10 @@ parasail_result_t* FNAME(
     %(VTYPE)s vMaxMatch = vNegInf;
     %(VTYPE)s vMaxSimilar = vNegInf;
     %(VTYPE)s vMaxLength = vNegInf;
+    %(VTYPE)s vEndILo = vNegInf;
+    %(VTYPE)s vEndIHi = vNegInf;
+    %(VTYPE)s vEndJLo = vNegInf;
+    %(VTYPE)s vEndJHi = vNegInf;
     %(VTYPE)s vILimit16 = %(VSET1x16)s(s1Len);
     %(VTYPE)s vJLimit16 = %(VSET1x16)s(s2Len);
 
@@ -299,13 +305,34 @@ parasail_result_t* FNAME(
                         %(VPACKS)s(
                             %(VCMPLTx16)s(vJLo16, vJLimit16),
                             %(VCMPLTx16)s(vJHi16, vJLimit16)));
+                %(VTYPE)s cond_valid_IJ = %(VAND)s(cond_valid_J, vIltLimit);
+                %(VTYPE)s cond_eq = %(VCMPEQ)s(vWscore, vMaxScore);
                 %(VTYPE)s cond_max = %(VCMPGT)s(vWscore, vMaxScore);
-                %(VTYPE)s cond_all = %(VAND)s(cond_max,
-                        %(VAND)s(vIltLimit, cond_valid_J));
+                %(VTYPE)s cond_all = %(VAND)s(cond_max, cond_valid_IJ);
+                %(VTYPE)s cond_Jlt = %(VPACKS)s(
+                        %(VCMPLTx16)s(vJLo16, vEndJLo),
+                        %(VCMPLTx16)s(vJHi16, vEndJHi));
+                %(VTYPE)s cond_lo = %(VUNPACKLO)s(cond_all, cond_all);
+                %(VTYPE)s cond_hi = %(VUNPACKHI)s(cond_all, cond_all);
                 vMaxScore = %(VBLEND)s(vMaxScore, vWscore, cond_all);
                 vMaxMatch = %(VBLEND)s(vMaxMatch, vWmatch, cond_all);
                 vMaxSimilar = %(VBLEND)s(vMaxSimilar, vWsimilar, cond_all);
                 vMaxLength = %(VBLEND)s(vMaxLength, vWlength, cond_all);
+                vEndILo = %(VBLEND)s(vEndILo, vILo16, cond_lo);
+                vEndIHi = %(VBLEND)s(vEndIHi, vIHi16, cond_hi);
+                vEndJLo = %(VBLEND)s(vEndJLo, vJLo16, cond_lo);
+                vEndJHi = %(VBLEND)s(vEndJHi, vJHi16, cond_hi);
+                cond_all = %(VAND)s(cond_Jlt, cond_eq);
+                cond_all = %(VAND)s(cond_all, cond_valid_IJ);
+                cond_lo = %(VUNPACKLO)s(cond_all, cond_all);
+                cond_hi = %(VUNPACKHI)s(cond_all, cond_all);
+                vMaxMatch = %(VBLEND)s(vMaxMatch, vWmatch, cond_all);
+                vMaxSimilar = %(VBLEND)s(vMaxSimilar, vWsimilar, cond_all);
+                vMaxLength = %(VBLEND)s(vMaxLength, vWlength, cond_all);
+                vEndILo = %(VBLEND)s(vEndILo, vILo16, cond_lo);
+                vEndIHi = %(VBLEND)s(vEndIHi, vIHi16, cond_hi);
+                vEndJLo = %(VBLEND)s(vEndJLo, vJLo16, cond_lo);
+                vEndJHi = %(VBLEND)s(vEndJHi, vJHi16, cond_hi);
             }
             vJLo16 = %(VADDx16)s(vJLo16, vOne16);
             vJHi16 = %(VADDx16)s(vJHi16, vOne16);
@@ -314,20 +341,69 @@ parasail_result_t* FNAME(
         vIHi16 = %(VADDx16)s(vIHi16, vN16);
     }
 
-    /* max in vMaxScore */
-    for (i=0; i<N; ++i) {
-        %(INT)s value;
-        value = (%(INT)s) %(VEXTRACT)s(vMaxScore, %(LAST_POS)s);
-        if (value > score) {
-            score = value;
-            matches = (%(INT)s) %(VEXTRACT)s(vMaxMatch, %(LAST_POS)s);
-            similar = (%(INT)s) %(VEXTRACT)s(vMaxSimilar, %(LAST_POS)s);
-            length= (%(INT)s) %(VEXTRACT)s(vMaxLength, %(LAST_POS)s);
+    /* alignment ending position */
+    {
+        %(INT)s *t = (%(INT)s*)&vMaxScore;
+        %(INT)s *m = (%(INT)s*)&vMaxMatch;
+        %(INT)s *s = (%(INT)s*)&vMaxSimilar;
+        %(INT)s *l = (%(INT)s*)&vMaxLength;
+        int16_t *ilo = (int16_t*)&vEndILo;
+        int16_t *jlo = (int16_t*)&vEndJLo;
+        int16_t *ihi = (int16_t*)&vEndIHi;
+        int16_t *jhi = (int16_t*)&vEndJHi;
+        %(INDEX)s k;
+        for (k=0; k<N/2; ++k, ++t, ++m, ++s, ++l, ++ilo, ++jlo) {
+            if (*t > score) {
+                score = *t;
+                matches = *m;
+                similar = *s;
+                length = *l;
+                end_query = *ilo;
+                end_ref = *jlo;
+            }
+            else if (*t == score) {
+                if (*jlo < end_ref) {
+                    matches = *m;
+                    similar = *s;
+                    length = *l;
+                    end_query = *ilo;
+                    end_ref = *jlo;
+                }
+                else if (*jlo == end_ref && *ilo < end_query) {
+                    matches = *m;
+                    similar = *s;
+                    length = *l;
+                    end_query = *ilo;
+                    end_ref = *jlo;
+                }
+            }
         }
-        vMaxScore = %(VSHIFT)s(vMaxScore, %(BYTES)s);
-        vMaxMatch = %(VSHIFT)s(vMaxMatch, %(BYTES)s);
-        vMaxSimilar = %(VSHIFT)s(vMaxSimilar, %(BYTES)s);
-        vMaxLength = %(VSHIFT)s(vMaxLength, %(BYTES)s);
+        for (k=N/2; k<N; ++k, ++t, ++m, ++s, ++l, ++ihi, ++jhi) {
+            if (*t > score) {
+                score = *t;
+                matches = *m;
+                similar = *s;
+                length = *l;
+                end_query = *ihi;
+                end_ref = *jhi;
+            }
+            else if (*t == score) {
+                if (*jhi < end_ref) {
+                    matches = *m;
+                    similar = *s;
+                    length = *l;
+                    end_query = *ihi;
+                    end_ref = *jhi;
+                }
+                else if (*jhi == end_ref && *ihi < end_query) {
+                    matches = *m;
+                    similar = *s;
+                    length = *l;
+                    end_query = *ihi;
+                    end_ref = *jhi;
+                }
+            }
+        }
     }
 
     %(STATS_SATURATION_CHECK_FINAL)s
@@ -336,6 +412,8 @@ parasail_result_t* FNAME(
     result->matches = matches;
     result->similar = similar;
     result->length = length;
+    result->end_query = end_query;
+    result->end_ref = end_ref;
 
     parasail_free(_len_pr);
     parasail_free(_sim_pr);

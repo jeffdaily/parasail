@@ -53,6 +53,8 @@ parasail_result_t* ENAME(
     int matches = NEG_INF_32;
     int similar = NEG_INF_32;
     int length = NEG_INF_32;
+    int end_query = s1Len;
+    int end_ref = s2Len;
 
     for (i=0; i<s1Len; ++i) {
         s1[i] = matrix->mapper[(unsigned char)_s1[i]];
@@ -142,7 +144,16 @@ parasail_result_t* ENAME(
                 score = Wscore;
                 matches = Wmatches;
                 similar = Wsimilar;
-                length= Wlength;
+                length = Wlength;
+                end_query = i-1;
+                end_ref = j-1;
+            }
+            else if (score == Wscore && j-1 < end_ref) {
+                matches = Wmatches;
+                similar = Wsimilar;
+                length = Wlength;
+                end_query = i-1;
+                end_ref = j-1;
             }
         }
 #ifdef PARASAIL_ROWCOL
@@ -165,6 +176,8 @@ parasail_result_t* ENAME(
     result->matches = matches;
     result->similar = similar;
     result->length = length;
+    result->end_query = end_query;
+    result->end_ref = end_ref;
 
     parasail_free(len_pr);
     parasail_free(sim_pr);

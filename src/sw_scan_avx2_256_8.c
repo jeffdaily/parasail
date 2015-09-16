@@ -9,6 +9,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <immintrin.h>
 
@@ -31,6 +32,15 @@ static inline int8_t _mm256_extract_epi8_rpl(__m256i a, int imm) {
 #define _mm256_rlli_si256_rpl(a,imm) _mm256_alignr_epi8(a, _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,0,1)), 16-imm)
 
 #define _mm256_slli_si256_rpl(a,imm) _mm256_alignr_epi8(a, _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,3,0)), 16-imm)
+
+static inline int8_t _mm256_hmax_epi8_rpl(__m256i a) {
+    a = _mm256_max_epi8(a, _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,0,0)));
+    a = _mm256_max_epi8(a, _mm256_slli_si256(a, 8));
+    a = _mm256_max_epi8(a, _mm256_slli_si256(a, 4));
+    a = _mm256_max_epi8(a, _mm256_slli_si256(a, 2));
+    a = _mm256_max_epi8(a, _mm256_slli_si256(a, 1));
+    return _mm256_extract_epi8_rpl(a, 31);
+}
 
 
 #ifdef PARASAIL_TABLE
@@ -150,6 +160,8 @@ parasail_result_t* PNAME(
 {
     int32_t i = 0;
     int32_t j = 0;
+    int32_t end_query = 0;
+    int32_t end_ref = 0;
     int32_t segNum = 0;
     const int s1Len = profile->s1Len;
     const parasail_matrix_t *matrix = profile->matrix;
@@ -159,12 +171,14 @@ parasail_result_t* PNAME(
     __m256i* const restrict pvE = parasail_memalign___m256i(32, segLen);
     __m256i* const restrict pvHt= parasail_memalign___m256i(32, segLen);
     __m256i* const restrict pvH = parasail_memalign___m256i(32, segLen);
+    __m256i* const restrict pvHMax = parasail_memalign___m256i(32, segLen);
     __m256i vGapO = _mm256_set1_epi8(open);
     __m256i vGapE = _mm256_set1_epi8(gap);
     __m256i vNegInf = _mm256_set1_epi8(NEG_INF);
     __m256i vZero = _mm256_setzero_si256();
     int8_t score = NEG_INF;
     __m256i vMaxH = vNegInf;
+    __m256i vMaxHUnit = vNegInf;
     const int8_t segLenXgap = -segLen*gap;
     __m256i insert_mask = _mm256_cmpeq_epi8(vZero,
             _mm256_set_epi8(1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0));
@@ -272,6 +286,16 @@ parasail_result_t* PNAME(
             vMaxH = _mm256_max_epi8(vH, vMaxH);
         }
 
+        {
+            __m256i vCompare = _mm256_cmpgt_epi8(vMaxH, vMaxHUnit);
+            if (_mm256_movemask_epi8(vCompare)) {
+                score = _mm256_hmax_epi8_rpl(vMaxH);
+                vMaxHUnit = _mm256_set1_epi8(score);
+                end_ref = j;
+                (void)memcpy(pvHMax, pvH, sizeof(__m256i)*segLen);
+            }
+        }
+
 #ifdef PARASAIL_ROWCOL
         /* extract last value from the column */
         {
@@ -285,6 +309,21 @@ parasail_result_t* PNAME(
 #endif
     }
 
+    /* Trace the alignment ending position on read. */
+    {
+        int8_t *t = (int8_t*)pvHMax;
+        int32_t column_len = segLen * segWidth;
+        end_query = s1Len;
+        for (i = 0; i<column_len; ++i, ++t) {
+            if (*t == score) {
+                int32_t temp = i / segWidth + i % segWidth * segLen;
+                if (temp < end_query) {
+                    end_query = temp;
+                }
+            }
+        }
+    }
+
 #ifdef PARASAIL_ROWCOL
     for (i=0; i<segLen; ++i) {
         __m256i vH = _mm256_load_si256(pvH+i);
@@ -292,24 +331,20 @@ parasail_result_t* PNAME(
     }
 #endif
 
-    /* max in vec */
-    for (j=0; j<segWidth; ++j) {
-        int8_t value = (int8_t) _mm256_extract_epi8_rpl(vMaxH, 31);
-        if (value > score) {
-            score = value;
-        }
-        vMaxH = _mm256_slli_si256_rpl(vMaxH, 1);
-    }
-
     if (_mm256_movemask_epi8(_mm256_or_si256(
             _mm256_cmpeq_epi8(vSaturationCheckMin, vNegLimit),
             _mm256_cmpeq_epi8(vSaturationCheckMax, vPosLimit)))) {
         result->saturated = 1;
         score = INT8_MAX;
+        end_query = 0;
+        end_ref = 0;
     }
 
     result->score = score;
+    result->end_query = end_query;
+    result->end_ref = end_ref;
 
+    parasail_free(pvHMax);
     parasail_free(pvH);
     parasail_free(pvHt);
     parasail_free(pvE);

@@ -75,6 +75,8 @@ parasail_result_t* PNAME(
     %(INDEX)s i = 0;
     %(INDEX)s j = 0;
     %(INDEX)s k = 0;
+    %(INDEX)s end_query = 0;
+    %(INDEX)s end_ref = 0;
     %(INDEX)s segNum = 0;
     const int s1Len = profile->s1Len;
     const parasail_matrix_t *matrix = profile->matrix;
@@ -91,6 +93,8 @@ parasail_result_t* PNAME(
     %(VTYPE)s vNegInf = %(VSET1)s(NEG_INF);
     %(INT)s score = NEG_INF;
     %(VTYPE)s vMaxH = vNegInf;
+    %(VTYPE)s vPosMask = %(VCMPEQ)s(%(VSET1)s(position),
+            %(VSET)s(%(POSITION_MASK)s));
     const %(INT)s segLenXgap = -segLen*gap;
     %(VTYPE)s insert_mask = %(VCMPEQ)s(%(VSET0)s(),
             %(VSET)s(%(SCAN_INSERT_MASK)s));
@@ -189,8 +193,14 @@ parasail_result_t* PNAME(
 
         /* extract vector containing last value from column */
         {
+            %(VTYPE)s vCompare;
             vH = %(VLOAD)s(pvH + offset);
+            vCompare = %(VAND)s(vPosMask, %(VCMPGT)s(vH, vMaxH));
             vMaxH = %(VMAX)s(vH, vMaxH);
+            if (%(VMOVEMASK)s(vCompare)) {
+                end_ref = j;
+                end_query = s1Len - 1;
+            }
 #ifdef PARASAIL_ROWCOL
             for (k=0; k<position; ++k) {
                 vH = %(VSHIFT)s(vH, %(BYTES)s);
@@ -214,6 +224,7 @@ parasail_result_t* PNAME(
 
     /* max of last column */
     {
+        %(INT)s score_last;
         vMaxH = vNegInf;
 
         for (i=0; i<segLen; ++i) {
@@ -225,18 +236,32 @@ parasail_result_t* PNAME(
         }
 
         /* max in vec */
-        for (j=0; j<segWidth; ++j) {
-            %(INT)s value = (%(INT)s) %(VEXTRACT)s(vMaxH, %(LAST_POS)s);
-            if (value > score) {
-                score = value;
+        score_last = %(VHMAX)s(vMaxH);
+        if (score_last > score) {
+            score = score_last;
+            end_ref = s2Len - 1;
+            end_query = s1Len;
+            /* Trace the alignment ending position on read. */
+            {
+                %(INT)s *t = (%(INT)s*)pvH;
+                %(INDEX)s column_len = segLen * segWidth;
+                for (i = 0; i<column_len; ++i, ++t) {
+                    if (*t == score) {
+                        %(INDEX)s temp = i / segWidth + i %% segWidth * segLen;
+                        if (temp < end_query) {
+                            end_query = temp;
+                        }
+                    }
+                }
             }
-            vMaxH = %(VSHIFT)s(vMaxH, %(BYTES)s);
         }
     }
 
     %(SATURATION_CHECK_FINAL)s
 
     result->score = score;
+    result->end_query = end_query;
+    result->end_ref = end_ref;
 
     parasail_free(pvH);
     parasail_free(pvHt);

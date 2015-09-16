@@ -52,6 +52,8 @@ parasail_result_t* ENAME(
     int i = 0;
     int j = 0;
     int score = NEG_INF_32;
+    int end_query = s1Len;
+    int end_ref = s2Len;
 
     for (i=0; i<s1Len; ++i) {
         s1[i] = matrix->mapper[(unsigned char)_s1[i]];
@@ -95,7 +97,11 @@ parasail_result_t* ENAME(
 #ifdef PARASAIL_TABLE
             result->score_table[i*s2Len + j] = H[i];
 #endif
-            score = MAX(score, H[i]);
+            if (H[i] > score) {
+                score = H[i];
+                end_query = i;
+                end_ref = j;
+            }
         }
 #ifdef PARASAIL_ROWCOL
         if (j == s2Len-1) {
@@ -108,6 +114,8 @@ parasail_result_t* ENAME(
     }
 
     result->score = score;
+    result->end_query = end_query;
+    result->end_ref = end_ref;
 
     parasail_free(FtB);
     parasail_free(HtB);

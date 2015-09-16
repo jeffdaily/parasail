@@ -9,12 +9,15 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <immintrin.h>
 
 #include "parasail.h"
 #include "parasail/memory.h"
 #include "parasail/internal_avx.h"
+
+#define FASTSTATS
 
 #define NEG_INF (INT64_MIN/(int64_t)(2))
 
@@ -43,6 +46,12 @@ static inline int64_t _mm256_extract_epi64_rpl(__m256i a, int imm) {
 #define _mm256_cmplt_epi64_rpl(a,b) _mm256_cmpgt_epi64(b,a)
 
 #define _mm256_slli_si256_rpl(a,imm) _mm256_alignr_epi8(a, _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,3,0)), 16-imm)
+
+static inline int64_t _mm256_hmax_epi64_rpl(__m256i a) {
+    a = _mm256_max_epi64_rpl(a, _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,0,0)));
+    a = _mm256_max_epi64_rpl(a, _mm256_slli_si256(a, 8));
+    return _mm256_extract_epi64_rpl(a, 3);
+}
 
 
 #ifdef PARASAIL_TABLE
@@ -78,13 +87,25 @@ static inline void arr_store_col(
 #ifdef PARASAIL_TABLE
 #define FNAME parasail_sw_stats_table_striped_avx2_256_64
 #define PNAME parasail_sw_stats_table_striped_profile_avx2_256_64
+#define INAME PNAME
+#define STATIC
 #else
 #ifdef PARASAIL_ROWCOL
 #define FNAME parasail_sw_stats_rowcol_striped_avx2_256_64
 #define PNAME parasail_sw_stats_rowcol_striped_profile_avx2_256_64
+#define INAME PNAME
+#define STATIC
 #else
 #define FNAME parasail_sw_stats_striped_avx2_256_64
+#ifdef FASTSTATS
+#define PNAME parasail_sw_stats_striped_profile_avx2_256_64_internal
+#define INAME parasail_sw_stats_striped_profile_avx2_256_64
+#define STATIC static
+#else
 #define PNAME parasail_sw_stats_striped_profile_avx2_256_64
+#define INAME PNAME
+#define STATIC
+#endif
 #endif
 #endif
 
@@ -94,12 +115,12 @@ parasail_result_t* FNAME(
         const int open, const int gap, const parasail_matrix_t *matrix)
 {
     parasail_profile_t *profile = parasail_profile_create_stats_avx_256_64(s1, s1Len, matrix);
-    parasail_result_t *result = PNAME(profile, s2, s2Len, open, gap);
+    parasail_result_t *result = INAME(profile, s2, s2Len, open, gap);
     parasail_profile_free(profile);
     return result;
 }
 
-parasail_result_t* PNAME(
+STATIC parasail_result_t* PNAME(
         const parasail_profile_t * const restrict profile,
         const char * const restrict s2, const int s2Len,
         const int open, const int gap)
@@ -107,7 +128,8 @@ parasail_result_t* PNAME(
     int32_t i = 0;
     int32_t j = 0;
     int32_t k = 0;
-    int32_t segNum = 0;
+    int32_t end_query = 0;
+    int32_t end_ref = 0;
     const int s1Len = profile->s1Len;
     const parasail_matrix_t *matrix = profile->matrix;
     const int32_t segWidth = 4; /* number of values in vector unit */
@@ -128,6 +150,10 @@ parasail_result_t* PNAME(
     __m256i* const restrict pvEM      = parasail_memalign___m256i(32, segLen);
     __m256i* const restrict pvES      = parasail_memalign___m256i(32, segLen);
     __m256i* const restrict pvEL      = parasail_memalign___m256i(32, segLen);
+    __m256i* restrict pvHMax          = parasail_memalign___m256i(32, segLen);
+    __m256i* restrict pvHMMax          = parasail_memalign___m256i(32, segLen);
+    __m256i* restrict pvHSMax          = parasail_memalign___m256i(32, segLen);
+    __m256i* restrict pvHLMax          = parasail_memalign___m256i(32, segLen);
     __m256i vGapO = _mm256_set1_epi64x(open);
     __m256i vGapE = _mm256_set1_epi64x(gap);
     __m256i vZero = _mm256_setzero_si256();
@@ -138,9 +164,7 @@ parasail_result_t* PNAME(
     int64_t length = NEG_INF;
     
     __m256i vMaxH = vZero;
-    __m256i vMaxHM = vZero;
-    __m256i vMaxHS = vZero;
-    __m256i vMaxHL = vZero;
+    __m256i vMaxHUnit = vZero;
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table3(segLen*segWidth, s2Len);
 #else
@@ -282,14 +306,7 @@ parasail_result_t* PNAME(
             arr_store_si256(result->length_table, vHL, i, segLen, j, s2Len);
             arr_store_si256(result->score_table, vH, i, segLen, j, s2Len);
 #endif
-            /* update max vector seen so far */
-            {
-                __m256i cond_max = _mm256_cmpgt_epi64(vH, vMaxH);
-                vMaxH = _mm256_blendv_epi8(vMaxH, vH,  cond_max);
-                vMaxHM = _mm256_blendv_epi8(vMaxHM, vHM, cond_max);
-                vMaxHS = _mm256_blendv_epi8(vMaxHS, vHS, cond_max);
-                vMaxHL = _mm256_blendv_epi8(vMaxHL, vHL, cond_max);
-            }
+            vMaxH = _mm256_max_epi64_rpl(vH, vMaxH);
 
             /* Update vE value. */
             vH = _mm256_sub_epi64(vH, vGapO);
@@ -366,6 +383,7 @@ parasail_result_t* PNAME(
                 arr_store_si256(result->length_table, vHL, i, segLen, j, s2Len);
                 arr_store_si256(result->score_table, vH, i, segLen, j, s2Len);
 #endif
+                vMaxH = _mm256_max_epi64_rpl(vH, vMaxH);
                 vH = _mm256_sub_epi64(vH, vGapO);
                 vF = _mm256_sub_epi64(vF, vGapE);
                 if (! _mm256_movemask_epi8(_mm256_cmpgt_epi64(vF, vH))) goto end;
@@ -378,6 +396,19 @@ parasail_result_t* PNAME(
         }
 end:
         {
+        }
+
+        {
+            __m256i vCompare = _mm256_cmpgt_epi64(vMaxH, vMaxHUnit);
+            if (_mm256_movemask_epi8(vCompare)) {
+                score = _mm256_hmax_epi64_rpl(vMaxH);
+                vMaxHUnit = _mm256_set1_epi64x(score);
+                end_ref = j;
+                (void)memcpy(pvHMax, pvHStore, sizeof(__m256i)*segLen);
+                (void)memcpy(pvHMMax, pvHMStore, sizeof(__m256i)*segLen);
+                (void)memcpy(pvHSMax, pvHSStore, sizeof(__m256i)*segLen);
+                (void)memcpy(pvHLMax, pvHLStore, sizeof(__m256i)*segLen);
+            }
         }
 
 #ifdef PARASAIL_ROWCOL
@@ -401,6 +432,27 @@ end:
 #endif
     }
 
+    /* Trace the alignment ending position on read. */
+    {
+        int64_t *t = (int64_t*)pvHMax;
+        int64_t *m = (int64_t*)pvHMMax;
+        int64_t *s = (int64_t*)pvHSMax;
+        int64_t *l = (int64_t*)pvHLMax;
+        int32_t column_len = segLen * segWidth;
+        end_query = s1Len;
+        for (i = 0; i<column_len; ++i, ++t, ++m, ++s, ++l) {
+            if (*t == score) {
+                int32_t temp = i / segWidth + i % segWidth * segLen;
+                if (temp < end_query) {
+                    end_query = temp;
+                    matches = *m;
+                    similar = *s;
+                    length = *l;
+                }
+            }
+        }
+    }
+
 #ifdef PARASAIL_ROWCOL
     for (i=0; i<segLen; ++i) {
         __m256i vH = _mm256_load_si256(pvHStore+i);
@@ -414,28 +466,19 @@ end:
     }
 #endif
 
-    /* max in vec */
-    for (j=0; j<segWidth; ++j) {
-        int64_t value = (int64_t) _mm256_extract_epi64_rpl(vMaxH, 3);
-        if (value > score) {
-            score = value;
-            matches = (int64_t)_mm256_extract_epi64_rpl(vMaxHM, 3);
-            similar = (int64_t)_mm256_extract_epi64_rpl(vMaxHS, 3);
-            length = (int64_t)_mm256_extract_epi64_rpl(vMaxHL, 3);
-        }
-        vMaxH = _mm256_slli_si256_rpl(vMaxH, 8);
-        vMaxHM = _mm256_slli_si256_rpl(vMaxHM, 8);
-        vMaxHS = _mm256_slli_si256_rpl(vMaxHS, 8);
-        vMaxHL = _mm256_slli_si256_rpl(vMaxHL, 8);
-    }
-
     
 
     result->score = score;
     result->matches = matches;
     result->similar = similar;
     result->length = length;
+    result->end_query = end_query;
+    result->end_ref = end_ref;
 
+    parasail_free(pvHLMax);
+    parasail_free(pvHSMax);
+    parasail_free(pvHMMax);
+    parasail_free(pvHMax);
     parasail_free(pvEL);
     parasail_free(pvES);
     parasail_free(pvEM);
@@ -452,5 +495,106 @@ end:
 
     return result;
 }
+
+#ifdef FASTSTATS
+#ifdef PARASAIL_TABLE
+#else
+#ifdef PARASAIL_ROWCOL
+#else
+#include <assert.h>
+parasail_result_t* INAME(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    const char *s1 = profile->s1;
+    const parasail_matrix_t *matrix = profile->matrix;
+
+    /* find the end loc first with the faster implementation */
+    parasail_result_t *result = parasail_sw_striped_profile_avx2_256_64(profile, s2, s2Len, open, gap);
+    if (!result->saturated) {
+#if 0
+        int s1Len_new = 0;
+        int s2Len_new = 0;
+        char *s1_new = NULL;
+        char *s2_new = NULL;
+        parasail_profile_t *profile_new = NULL;
+        parasail_result_t *result_new = NULL;
+        int s1_begin = 0;
+        int s2_begin = 0;
+        int s1Len_final = 0;
+        int s2Len_final = 0;
+        parasail_profile_t *profile_final = NULL;
+        parasail_result_t *result_final = NULL;
+
+        /* using the end loc and the non-stats version of the function,
+         * reverse the inputs and find the beg loc */
+        s1Len_new = result->end_query+1;
+        s2Len_new = result->end_ref+1;
+        s1_new = parasail_reverse(s1, s1Len_new);
+        s2_new = parasail_reverse(s2, s2Len_new);
+        profile_new = parasail_profile_create_avx_256_64(
+                s1_new, s1Len_new, matrix);
+        profile_new->stop = result->score;
+        result_new = parasail_sw_striped_profile_avx2_256_64(
+                profile_new, s2_new, s2Len_new, open, gap);
+
+        /* using both the beg and end loc, call the original stats func */
+        s1_begin = s1Len_new - result_new->end_query - 1;
+        s2_begin = s2Len_new - result_new->end_ref - 1;
+        s1Len_final = s1Len_new - s1_begin;
+        s2Len_final = s2Len_new - s2_begin;
+        assert(s1_begin >= 0);
+        assert(s2_begin >= 0);
+        assert(s1Len_new > s1_begin);
+        assert(s2Len_new > s2_begin);
+        profile_final = parasail_profile_create_stats_avx_256_64(
+                &s1[s1_begin], s1Len_final, matrix);
+        result_final = PNAME(
+                profile_final, &s2[s2_begin], s2Len_final, open, gap);
+
+        /* clean up all the temporary profiles, sequences, and results */
+        free(s1_new);
+        free(s2_new);
+        parasail_profile_free(profile_new);
+        parasail_profile_free(profile_final);
+        parasail_result_free(result);
+        parasail_result_free(result_new);
+
+        /* correct the end locations before returning */
+        result_final->end_query = s1Len_new-1;
+        result_final->end_ref = s2Len_new-1;
+        return result_final;
+#else
+        int s1Len_new = 0;
+        int s2Len_new = 0;
+        parasail_profile_t *profile_final = NULL;
+        parasail_result_t *result_final = NULL;
+
+        /* using the end loc, call the original stats function */
+        s1Len_new = result->end_query+1;
+        s2Len_new = result->end_ref+1;
+        profile_final = parasail_profile_create_stats_avx_256_64(
+                s1, s1Len_new, matrix);
+        result_final = PNAME(
+                profile_final, s2, s2Len_new, open, gap);
+
+        /* clean up all the temporary profiles, sequences, and results */
+        parasail_profile_free(profile_final);
+        parasail_result_free(result);
+
+        /* correct the end locations before returning */
+        result_final->end_query = s1Len_new-1;
+        result_final->end_ref = s2Len_new-1;
+        return result_final;
+#endif
+    }
+    else {
+        return result;
+    }
+}
+#endif
+#endif
+#endif
 
 

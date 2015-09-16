@@ -154,6 +154,8 @@ parasail_result_t* FNAME(
 #endif
     int32_t i = 0;
     int32_t j = 0;
+    int32_t end_query = 0;
+    int32_t end_ref = 0;
     int64_t score = NEG_INF;
     __m256i vNegInf = _mm256_set1_epi64x(NEG_INF);
     __m256i vOpen = _mm256_set1_epi64x(open);
@@ -299,6 +301,8 @@ parasail_result_t* FNAME(
     
 
     result->score = score;
+    result->end_query = end_query;
+    result->end_ref = end_ref;
 
     parasail_free(_del_pr);
     parasail_free(_tbl_pr);

@@ -674,8 +674,6 @@ tests_libsais_la_SOURCES += contrib/sais-lite-lcp/sais.c
 tests_libsais_la_SOURCES += contrib/sais-lite-lcp/sais.h
 
 bin_PROGRAMS += apps/parasail_aligner
-bin_PROGRAMS += apps/parasail_all
-bin_PROGRAMS += apps/parasail_query
 bin_PROGRAMS += apps/parasail_stats
 if HAVE_CILK
 bin_PROGRAMS += apps/parasail_aligner_cilk
@@ -714,20 +712,6 @@ apps_parasail_aligner_cilk_LDADD =
 apps_parasail_aligner_cilk_LDADD += $(LDADD)
 apps_parasail_aligner_cilk_LDADD += $(CILK_LIBS)
 apps_parasail_aligner_cilk_LDADD += tests/libsais.la
-
-apps_parasail_all_SOURCES = apps/parasail_all.cpp
-apps_parasail_all_CXXFLAGS = $(AM_CXXFLAGS) $(OPENMP_CXXFLAGS)
-apps_parasail_all_LDFLAGS  = $(AM_LDFLAGS) $(OPENMP_CXXFLAGS)
-apps_parasail_all_LDADD =
-apps_parasail_all_LDADD += $(LDADD)
-apps_parasail_all_LDADD += tests/libsais.la
-
-apps_parasail_query_SOURCES = apps/parasail_query.cpp
-apps_parasail_query_CXXFLAGS = $(AM_CXXFLAGS) $(OPENMP_CXXFLAGS)
-apps_parasail_query_LDFLAGS  = $(AM_LDFLAGS) $(OPENMP_CXXFLAGS)
-apps_parasail_query_LDADD =
-apps_parasail_query_LDADD += $(LDADD)
-apps_parasail_query_LDADD += tests/libsais.la
 
 apps_parasail_stats_SOURCES = apps/parasail_stats.c
 

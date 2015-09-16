@@ -11,6 +11,7 @@
 
 import copy
 import os
+import string
 import sys
 
 from isa import sse2
@@ -213,6 +214,8 @@ def generate_saturation_check(params):
             %(VCMPEQ)s(vSaturationCheckMax, vPosLimit)))) {
         result->saturated = 1;
         score = INT8_MAX;
+        end_query = 0;
+        end_ref = 0;
     }""".strip() % params
 
         params["STATS_SATURATION_CHECK_INIT"] = """
@@ -264,6 +267,8 @@ def generate_saturation_check(params):
         matches = 0;
         similar = 0;
         length = 0;
+        end_query = 0;
+        end_ref = 0;
     }""".strip() % params
 
         params["NEG_INF"] = "INT8_MIN"
@@ -313,6 +318,7 @@ def generated_params_diag(params):
 
 def generated_params_striped(params):
     params["STRIPED_INSERT_MASK"] = "0,"*(params["LANES"]-1)+"1"
+    params["POSITION_MASK"] = ",".join([str(i) for i in range(params["LANES"])])
     return params
 
 
@@ -348,6 +354,7 @@ def generated_params_scan(params):
                     for i in range(1,lanes)])[:-1]
     params["STATS_SCAN_INSERT_MASK"] = "0,"*(params["LANES"]-1)+"1"
     params["SCAN_INSERT_MASK"] = "1"+",0"*(params["LANES"]-1)
+    params["POSITION_MASK"] = ",".join([str(i) for i in range(params["LANES"])])
     return params
 
 
@@ -416,9 +423,11 @@ for template_filename in template_filenames:
             function_rowcol_pname = "%s_%s%s_%s_%s" % (rowcol_prefix_prof,
                     isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
             params["NAME"] = "parasail_"+function_name
+            params["NAME_BASE"] = string.replace(params["NAME"], "_stats", "")
             params["NAME_TABLE"] = "parasail_"+function_table_name
             params["NAME_ROWCOL"] = "parasail_"+function_rowcol_name
             params["PNAME"] = "parasail_"+function_pname
+            params["PNAME_BASE"] = string.replace(params["PNAME"], "_stats", "")
             params["PNAME_TABLE"] = "parasail_"+function_table_pname
             params["PNAME_ROWCOL"] = "parasail_"+function_rowcol_pname
             params = generated_params(params)
@@ -501,9 +510,11 @@ for template_filename in bias_templates:
             function_rowcol_pname = "%s_%s%s_%s_%s" % (rowcol_prefix_prof,
                     isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
             params["NAME"] = "parasail_"+function_name
+            params["NAME_BASE"] = string.replace(params["NAME"], "_stats", "")
             params["NAME_TABLE"] = "parasail_"+function_table_name
             params["NAME_ROWCOL"] = "parasail_"+function_rowcol_name
             params["PNAME"] = "parasail_"+function_pname
+            params["PNAME_BASE"] = string.replace(params["PNAME"], "_stats", "")
             params["PNAME_TABLE"] = "parasail_"+function_table_pname
             params["PNAME_ROWCOL"] = "parasail_"+function_rowcol_pname
             params = generated_params(params)

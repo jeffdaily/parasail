@@ -83,6 +83,8 @@ parasail_result_t* FNAME(
 #endif
     %(INDEX)s i = 0;
     %(INDEX)s j = 0;
+    %(INT)s end_query = 0;
+    %(INT)s end_ref = 0;
     %(INT)s score = NEG_INF;
     %(VTYPE)s vNegInf = %(VSET1)s(NEG_INF);
     %(VTYPE)s vNegInf0 = %(VRSHIFT)s(vNegInf, %(BYTES)s); /* shift in a 0 */
@@ -95,6 +97,8 @@ parasail_result_t* FNAME(
     %(VTYPE)s vI = %(VSET)s(%(DIAG_I)s);
     %(VTYPE)s vJreset = %(VSET)s(%(DIAG_J)s);
     %(VTYPE)s vMax = vNegInf;
+    %(VTYPE)s vEndI = vNegInf;
+    %(VTYPE)s vEndJ = vNegInf;
     %(VTYPE)s vILimit = %(VSET1)s(s1Len);
     %(VTYPE)s vJLimit = %(VSET1)s(s2Len);
     %(SATURATION_CHECK_INIT)s
@@ -190,29 +194,54 @@ parasail_result_t* FNAME(
                 %(VTYPE)s cond_valid_J = %(VAND)s(
                         %(VCMPGT)s(vJ, vNegOne),
                         %(VCMPLT)s(vJ, vJLimit));
+                %(VTYPE)s cond_valid_IJ = %(VAND)s(cond_valid_J, vIltLimit);
+                %(VTYPE)s cond_eq = %(VCMPEQ)s(vWscore, vMax);
                 %(VTYPE)s cond_max = %(VCMPGT)s(vWscore, vMax);
-                %(VTYPE)s cond_all = %(VAND)s(cond_max,
-                        %(VAND)s(vIltLimit, cond_valid_J));
+                %(VTYPE)s cond_all = %(VAND)s(cond_max, cond_valid_IJ);
+                %(VTYPE)s cond_Jlt = %(VCMPLT)s(vJ, vEndJ);
                 vMax = %(VBLEND)s(vMax, vWscore, cond_all);
+                vEndI = %(VBLEND)s(vEndI, vI, cond_all);
+                vEndJ = %(VBLEND)s(vEndJ, vJ, cond_all);
+                cond_all = %(VAND)s(cond_Jlt, cond_eq);
+                cond_all = %(VAND)s(cond_all, cond_valid_IJ);
+                vEndI = %(VBLEND)s(vEndI, vI, cond_all);
+                vEndJ = %(VBLEND)s(vEndJ, vJ, cond_all);
             }
             vJ = %(VADD)s(vJ, vOne);
         }
         vI = %(VADD)s(vI, vN);
     }
 
-    /* max in vMax */
-    for (i=0; i<N; ++i) {
-        %(INT)s value;
-        value = (%(INT)s) %(VEXTRACT)s(vMax, %(LAST_POS)s);
-        if (value > score) {
-            score = value;
+    /* alignment ending position */
+    {
+        %(INT)s *t = (%(INT)s*)&vMax;
+        %(INT)s *i = (%(INT)s*)&vEndI;
+        %(INT)s *j = (%(INT)s*)&vEndJ;
+        %(INDEX)s k;
+        for (k=0; k<N; ++k, ++t, ++i, ++j) {
+            if (*t > score) {
+                score = *t;
+                end_query = *i;
+                end_ref = *j;
+            }
+            else if (*t == score) {
+                if (*j < end_ref) {
+                    end_query = *i;
+                    end_ref = *j;
+                }
+                else if (*j == end_ref && *i < end_query) {
+                    end_query = *i;
+                    end_ref = *j;
+                }
+            }
         }
-        vMax = %(VSHIFT)s(vMax, %(BYTES)s);
     }
 
     %(SATURATION_CHECK_FINAL)s
 
     result->score = score;
+    result->end_query = end_query;
+    result->end_ref = end_ref;
 
     parasail_free(_del_pr);
     parasail_free(_tbl_pr);

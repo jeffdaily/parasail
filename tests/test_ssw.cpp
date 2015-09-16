@@ -35,6 +35,7 @@
 #endif
 
 #include "parasail.h"
+#include "parasail/io.h"
 
 #include "sais.h"
 #include "ssw.h"
@@ -104,12 +105,6 @@ inline static void process(
         const vector<int> &DB,
         const char &sentinal,
         const int &cutoff);
-
-inline static void read_and_pack_file(
-        const char *fname, 
-        unsigned char * &T,
-        long &n,
-        const char *progname);
 
 inline static void print_array(
         const char * filename_,
@@ -359,11 +354,18 @@ int main(int argc, char **argv) {
     
     start = parasail_time();
     if (qname == NULL) {
-        read_and_pack_file(fname, T, n, progname);
+        parasail_file_t *pf = parasail_open(fname);
+        T = (unsigned char*)parasail_pack(pf, &n);
+        parasail_close(pf);
     }
     else {
-        read_and_pack_file(fname, T, t, progname);
-        read_and_pack_file(qname, Q, q, progname);
+        parasail_file_t *pf = NULL;
+        pf = parasail_open(fname);
+        T = (unsigned char*)parasail_pack(pf, &t);
+        parasail_close(pf);
+        pf = parasail_open(qname);
+        Q = (unsigned char*)parasail_pack(pf, &q);
+        parasail_close(pf);
         n = t+q;
         /* realloc T and copy Q into it */
         T = (unsigned char*)realloc(T, (n+1)*sizeof(unsigned char));
@@ -702,19 +704,23 @@ int main(int argc, char **argv) {
         if (use_stats) {
             int matches, similarities, length;
             cigar_to_stats(result, &Tnum[i_beg], &Tnum[j_beg], matrix, matches, similarities, length);
-            eprintf(fop, "%d,%d,%d,%d,%d,%d\n",
+            eprintf(fop, "%d,%d,%d,%d,%d,%d,%d,%d\n",
                     i,
                     j,
                     result->score1,
+                    result->read_end1,
+                    result->ref_end1,
                     matches,
                     similarities,
                     length);
         }
         else {
-            eprintf(fop, "%d,%d,%d\n",
+            eprintf(fop, "%d,%d,%d,%d,%d\n",
                     i,
                     j,
-                    result->score1);
+                    result->score1,
+                    result->read_end1,
+                    result->ref_end1);
         }
         if (use_table) {
             char filename[256] = {'\0'};
@@ -826,116 +832,6 @@ inline static void process(
     }
 }
 
-inline static void read_and_pack_file(
-        const char *fname, 
-        unsigned char * &T,
-        long &n,
-        const char *progname)
-{
-    FILE *fip = NULL;
-
-    /* Open a file for reading. */
-    if((fip = fopen(fname, "r")) == NULL) {
-        eprintf(stderr, "%s: Cannot open input file `%s': ", progname, fname);
-        perror("fopen");
-        exit(EXIT_FAILURE);
-    }
-
-    /* Get the database file size. */
-    if(fseek(fip, 0, SEEK_END) == 0) {
-        n = ftell(fip);
-        if(n < 0) {
-            eprintf(stderr, "%s: Cannot ftell `%s': ", progname, fname);
-            perror("ftell");
-            exit(EXIT_FAILURE);
-        }
-        rewind(fip);
-    } else {
-        eprintf(stderr, "%s: Cannot fseek `%s': ", progname, fname);
-        perror("fseek");
-        exit(EXIT_FAILURE);
-    }
-
-    /* Allocate file buffer, read the entire file, then pack it. */
-    T = (unsigned char *)malloc((size_t)(n+1) * sizeof(unsigned char));
-    if (T == NULL) {
-        eprintf(stderr, "%s: Cannot allocate memory for file.\n", progname);
-        perror("malloc");
-        exit(EXIT_FAILURE);
-    }
-    if(fread(T, sizeof(unsigned char), (size_t)n, fip) != (size_t)n) {
-        eprintf(stderr, "%s: %s `%s': ",
-                progname,
-                (ferror(fip) || !feof(fip)) ? "Cannot read from" : "Unexpected EOF in",
-                fname);
-        perror("fread");
-        exit(EXIT_FAILURE);
-    }
-    fclose(fip);
-    T[n]='\0'; /* so we can print it */
-    eprintf(stdout, "%20s: %s\n", "filename", fname);
-    eprintf(stdout, "%20s: %ld bytes\n", "original size", n);
-    /* Pack the buffer so it's ready for sais function. */
-    {
-        long i;
-        char first = 1;
-        long w = 0;
-        long save = 0;
-        long newlines = 0;
-        for (i=0; i<n; ++i) { 
-            if (T[i] == '>') {
-                if (first) {
-                    first = 0;
-                }
-                else {
-                    T[w++] = '$';
-                }
-                /* skip rest of this line */
-                while (T[i] != '\n' && T[i] != '\r') {
-                    ++i;
-                }
-                newlines++;
-                /* for the case of "\r\n" */
-                if (T[i+1] == '\n' || T[i+1] == '\r') {
-                    ++i;
-                }
-            }
-            else if (isalpha(T[i])) {
-                T[w++] = T[i];
-            }
-            else if (T[i] == '\n' || T[i] == '\r') {
-                /* ignore newline */
-                newlines++;
-                /* for the case of "\r\n" */
-                if (T[i+1] == '\n' || T[i+1] == '\r') {
-                    ++i;
-                }
-            }
-            else if (isprint(T[i])) {
-                eprintf(stderr, "error: non-alpha character "
-                        "at pos %ld line %ld in input ('%c')\n",
-                        i, newlines, T[i]);
-                exit(EXIT_FAILURE);
-            }
-            else {
-                eprintf(stderr, "error: non-printing character "
-                        "at pos %ld line %ld in input ('%d')\n",
-                        i, newlines, T[i]);
-                exit(EXIT_FAILURE);
-            }
-        }
-        T[w++] = '$';
-        save = w;
-        /* nullifiy rest of buffer */
-        while (w < n) {
-            T[w++] = '\0';
-        }
-        /* new length */
-        n = save;
-    }
-    eprintf(stdout, "%20s: %ld bytes\n", "packed size", n);
-}
-
 inline static void print_array(
         const char * filename_,
         const int * const restrict array,
@@ -971,42 +867,109 @@ inline static void cigar_to_stats(
         const int8_t *read_seq,
         const int8_t *ref_seq,
         const parasail_matrix_t *matrix,
-        int &matches, int &similarities, int &length)
+        int &matches, int &similarities, int &length_)
 {
     matches = 0;
     similarities = 0;
-    length = 0;
+    length_ = 0;
     if (a->cigar) {
+        int32_t c = 0, left = 0, e = 0, qb = a->ref_begin1, pb = a->read_begin1;
         uint32_t i;
-        int32_t c = 0, qb = a->ref_begin1, pb = a->read_begin1;
-        int32_t q = qb;
-        int32_t p = pb;
-        for (c = 0; c < a->cigarLen; ++c) {
-            char letter = cigar_int_to_op(a->cigar[c]);
-            uint32_t l = cigar_int_to_len(a->cigar[c]);
-            for (i = 0; i < l; ++i){
-                if (letter == 'M') {
-                    int8_t t1 = ref_seq[q];
-                    int8_t t2 = read_seq[p];
-                    if (t1 == t2) {
-                        matches += 1;
-                        similarities += 1;
+        while (e < a->cigarLen || left > 0) {
+            int32_t count = 0;
+            int32_t q = qb;
+            int32_t p = pb;
+            //fprintf(stdout, "Target: %8d    ", q + 1);
+            for (c = e; c < a->cigarLen; ++c) {
+                char letter = cigar_int_to_op(a->cigar[c]);
+                uint32_t length = cigar_int_to_len(a->cigar[c]);
+                uint32_t l = (count == 0 && left > 0) ? left: length;
+                for (i = 0; i < l; ++i) {
+                    if (letter == 'I') {
+                        //fprintf(stdout, "-");
                     }
-                    else if (matrix->matrix[t1*matrix->size+t2] > 0) {
-                        similarities += 1;
+                    else {
+                        //fprintf(stdout, "%c", *(ref_seq->seq.s + q));
+                        ++ q;
                     }
-                    ++q;
-                    ++p;
-                } else {
-                    if (letter == 'I') ++p;
-                    else ++q;
+                    ++ count;
+                    if (count == 60) goto step2;
                 }
-                length += 1;
+            }
+step2:
+            //fprintf(stdout, "    %d\n                    ", q);
+            q = qb;
+            count = 0;
+            for (c = e; c < a->cigarLen; ++c) {
+                char letter = cigar_int_to_op(a->cigar[c]);
+                uint32_t length = cigar_int_to_len(a->cigar[c]);
+                uint32_t l = (count == 0 && left > 0) ? left: length;
+                for (i = 0; i < l; ++i){
+                    if (letter == 'M') {
+                        int t1 = (int)*(ref_seq + q);
+                        int t2 = (int)*(read_seq + p);
+                        if (t1 == t2) {
+                            //fprintf(stdout, "|");
+                            matches += 1;
+                            similarities += 1;
+                        }
+                        else if (matrix->matrix[t1*matrix->size+t2] > 0) {
+                            similarities += 1;
+                            //fprintf(stdout, "*");
+                        }
+                        else {
+                            //fprintf(stdout, "*");
+                        }
+                        ++q;
+                        ++p;
+                    } else {
+                        //fprintf(stdout, " ");
+                        if (letter == 'I') ++p;
+                        else ++q;
+                    }
+                    length_ += 1;
+                    ++ count;
+                    if (count == 60) {
+                        qb = q;
+                        goto step3;
+                    }
+                }
+            }
+step3:
+            p = pb;
+            //fprintf(stdout, "\nQuery:  %8d    ", p + 1);
+            count = 0;
+            for (c = e; c < a->cigarLen; ++c) {
+                char letter = cigar_int_to_op(a->cigar[c]);
+                uint32_t length = cigar_int_to_len(a->cigar[c]);
+                uint32_t l = (count == 0 && left > 0) ? left: length;
+                for (i = 0; i < l; ++i) {
+                    if (letter == 'D') {
+                        //fprintf(stdout, "-");
+                    }
+                    else {
+                        //fprintf(stdout, "%c", *(read_seq + p));
+                        ++p;
+                    }
+                    ++ count;
+                    if (count == 60) {
+                        pb = p;
+                        left = l - i - 1;
+                        e = (left == 0) ? (c + 1) : c;
+                        goto end;
+                    }
+                }
+            }
+            e = c;
+            left = 0;
+end:
+            {
+                //fprintf(stdout, "    %d\n\n", p);
             }
         }
     }
     else {
-        eprintf(stderr, "failed to produce cigar\n");
+        //eprintf(stderr, "failed to produce cigar\n");
         exit(EXIT_FAILURE);
     }
 }

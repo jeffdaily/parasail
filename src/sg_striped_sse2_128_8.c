@@ -38,6 +38,14 @@ static inline int8_t _mm_extract_epi8_rpl(__m128i a, const int imm) {
     return A.v[imm];
 }
 
+static inline int8_t _mm_hmax_epi8_rpl(__m128i a) {
+    a = _mm_max_epi8_rpl(a, _mm_srli_si128(a, 8));
+    a = _mm_max_epi8_rpl(a, _mm_srli_si128(a, 4));
+    a = _mm_max_epi8_rpl(a, _mm_srli_si128(a, 2));
+    a = _mm_max_epi8_rpl(a, _mm_srli_si128(a, 1));
+    return _mm_extract_epi8_rpl(a, 0);
+}
+
 static inline __m128i _mm_min_epi8_rpl(__m128i a, __m128i b) {
     __m128i mask = _mm_cmpgt_epi8(b, a);
     a = _mm_and_si128(a, mask);
@@ -132,7 +140,8 @@ parasail_result_t* PNAME(
     int32_t i = 0;
     int32_t j = 0;
     int32_t k = 0;
-    int32_t segNum = 0;
+    int32_t end_query = 0;
+    int32_t end_ref = 0;
     const int s1Len = profile->s1Len;
     const parasail_matrix_t *matrix = profile->matrix;
     const int32_t segWidth = 16; /* number of values in vector unit */
@@ -148,6 +157,8 @@ parasail_result_t* PNAME(
     __m128i vNegInf = _mm_set1_epi8(NEG_INF);
     int8_t score = NEG_INF;
     __m128i vMaxH = vNegInf;
+    __m128i vPosMask = _mm_cmpeq_epi8(_mm_set1_epi8(position),
+            _mm_set_epi8(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15));
     __m128i vNegLimit = _mm_set1_epi8(INT8_MIN);
     __m128i vPosLimit = _mm_set1_epi8(INT8_MAX);
     __m128i vSaturationCheckMin = vPosLimit;
@@ -163,20 +174,8 @@ parasail_result_t* PNAME(
 #endif
 
     /* initialize H and E */
-    {
-        int32_t index = 0;
-        for (i=0; i<segLen; ++i) {
-            __m128i_8_t h;
-            __m128i_8_t e;
-            for (segNum=0; segNum<segWidth; ++segNum) {
-                h.v[segNum] = 0;
-                e.v[segNum] = -open;
-            }
-            _mm_store_si128(&pvHStore[index], h.m);
-            _mm_store_si128(&pvE[index], e.m);
-            ++index;
-        }
-    }
+    parasail_memset___m128i(pvHStore, _mm_set1_epi8(0), segLen);
+    parasail_memset___m128i(pvE, _mm_set1_epi8(-open), segLen);
 
     /* outer loop over database sequence */
     for (j=0; j<s2Len; ++j) {
@@ -255,8 +254,14 @@ parasail_result_t* PNAME(
 end:
         {
             /* extract vector containing last value from the column */
+            __m128i vCompare;
             vH = _mm_load_si128(pvHStore + offset);
+            vCompare = _mm_and_si128(vPosMask, _mm_cmpgt_epi8(vH, vMaxH));
             vMaxH = _mm_max_epi8_rpl(vH, vMaxH);
+            if (_mm_movemask_epi8(vCompare)) {
+                end_ref = j;
+                end_query = s1Len - 1;
+            }
 #ifdef PARASAIL_ROWCOL
             for (k=0; k<position; ++k) {
                 vH = _mm_slli_si128(vH, 1);
@@ -268,18 +273,15 @@ end:
 
     /* max last value from all columns */
     {
-        int8_t value;
         for (k=0; k<position; ++k) {
             vMaxH = _mm_slli_si128(vMaxH, 1);
         }
-        value = (int8_t) _mm_extract_epi8_rpl(vMaxH, 15);
-        if (value > score) {
-            score = value;
-        }
+        score = (int8_t) _mm_extract_epi8_rpl(vMaxH, 15);
     }
 
     /* max of last column */
     {
+        int8_t score_last;
         vMaxH = vNegInf;
 
         for (i=0; i<segLen; ++i) {
@@ -291,12 +293,24 @@ end:
         }
 
         /* max in vec */
-        for (j=0; j<segWidth; ++j) {
-            int8_t value = (int8_t) _mm_extract_epi8_rpl(vMaxH, 15);
-            if (value > score) {
-                score = value;
+        score_last = _mm_hmax_epi8_rpl(vMaxH);
+        if (score_last > score) {
+            score = score_last;
+            end_ref = s2Len - 1;
+            end_query = s1Len;
+            /* Trace the alignment ending position on read. */
+            {
+                int8_t *t = (int8_t*)pvHStore;
+                int32_t column_len = segLen * segWidth;
+                for (i = 0; i<column_len; ++i, ++t) {
+                    if (*t == score) {
+                        int32_t temp = i / segWidth + i % segWidth * segLen;
+                        if (temp < end_query) {
+                            end_query = temp;
+                        }
+                    }
+                }
             }
-            vMaxH = _mm_slli_si128(vMaxH, 1);
         }
     }
 
@@ -305,9 +319,13 @@ end:
             _mm_cmpeq_epi8(vSaturationCheckMax, vPosLimit)))) {
         result->saturated = 1;
         score = INT8_MAX;
+        end_query = 0;
+        end_ref = 0;
     }
 
     result->score = score;
+    result->end_query = end_query;
+    result->end_ref = end_ref;
 
     parasail_free(pvE);
     parasail_free(pvHLoad);

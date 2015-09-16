@@ -232,6 +232,8 @@ parasail_result_t* FNAME(
 #endif
     int32_t i = 0;
     int32_t j = 0;
+    int32_t end_query = 0;
+    int32_t end_ref = 0;
     int8_t score = NEG_INF;
     int8_t matches = NEG_INF;
     int8_t similar = NEG_INF;
@@ -254,6 +256,8 @@ parasail_result_t* FNAME(
     __m128i vMaxMatch = vNegInf;
     __m128i vMaxSimilar = vNegInf;
     __m128i vMaxLength = vNegInf;
+    __m128i vEndI = vNegInf;
+    __m128i vEndJ = vNegInf;
     __m128i vILimit = _mm_set1_epi8(s1Len);
     __m128i vILimit1 = _mm_subs_epi8(vILimit, vOne);
     __m128i vJLimit = _mm_set1_epi8(s2Len);
@@ -483,33 +487,65 @@ parasail_result_t* FNAME(
                 __m128i cond_j = _mm_and_si128(vIltLimit, vJeqLimit1);
                 __m128i cond_i = _mm_and_si128(vIeqLimit1,
                         _mm_and_si128(vJgtNegOne, vJltLimit));
+                __m128i cond_ij = _mm_or_si128(cond_i, cond_j);
                 __m128i cond_max = _mm_cmpgt_epi8(vWscore, vMaxScore);
-                __m128i cond_all = _mm_and_si128(cond_max,
-                        _mm_or_si128(cond_i, cond_j));
+                __m128i cond_eq = _mm_cmpeq_epi8(vWscore, vMaxScore);
+                __m128i cond_all = _mm_and_si128(cond_max, cond_ij);
+                __m128i cond_Jlt = _mm_cmplt_epi8(vJ, vEndJ);
                 vMaxScore = _mm_blendv_epi8(vMaxScore, vWscore, cond_all);
                 vMaxMatch = _mm_blendv_epi8(vMaxMatch, vWmatch, cond_all);
                 vMaxSimilar = _mm_blendv_epi8(vMaxSimilar, vWsimilar, cond_all);
                 vMaxLength = _mm_blendv_epi8(vMaxLength, vWlength, cond_all);
+                vEndI = _mm_blendv_epi8(vEndI, vI, cond_all);
+                vEndJ = _mm_blendv_epi8(vEndJ, vJ, cond_all);
+                cond_all = _mm_and_si128(cond_Jlt, cond_eq);
+                cond_all = _mm_and_si128(cond_all, cond_ij);
+                vMaxMatch = _mm_blendv_epi8(vMaxMatch, vWmatch, cond_all);
+                vMaxSimilar = _mm_blendv_epi8(vMaxSimilar, vWsimilar, cond_all);
+                vMaxLength = _mm_blendv_epi8(vMaxLength, vWlength, cond_all);
+                vEndI = _mm_blendv_epi8(vEndI, vI, cond_all);
+                vEndJ = _mm_blendv_epi8(vEndJ, vJ, cond_all);
             }
             vJ = _mm_adds_epi8(vJ, vOne);
         }
         vI = _mm_adds_epi8(vI, vN);
     }
 
-    /* max in vMaxScore */
-    for (i=0; i<N; ++i) {
-        int8_t value;
-        value = (int8_t) _mm_extract_epi8(vMaxScore, 15);
-        if (value > score) {
-            score = value;
-            matches = (int8_t) _mm_extract_epi8(vMaxMatch, 15);
-            similar = (int8_t) _mm_extract_epi8(vMaxSimilar, 15);
-            length= (int8_t) _mm_extract_epi8(vMaxLength, 15);
+    /* alignment ending position */
+    {
+        int8_t *t = (int8_t*)&vMaxScore;
+        int8_t *m = (int8_t*)&vMaxMatch;
+        int8_t *s = (int8_t*)&vMaxSimilar;
+        int8_t *l = (int8_t*)&vMaxLength;
+        int8_t *i = (int8_t*)&vEndI;
+        int8_t *j = (int8_t*)&vEndJ;
+        int32_t k;
+        for (k=0; k<N; ++k, ++t, ++m, ++s, ++l, ++i, ++j) {
+            if (*t > score) {
+                score = *t;
+                matches = *m;
+                similar = *s;
+                length = *l;
+                end_query = *i;
+                end_ref = *j;
+            }
+            else if (*t == score) {
+                if (*j < end_ref) {
+                    matches = *m;
+                    similar = *s;
+                    length = *l;
+                    end_query = *i;
+                    end_ref = *j;
+                }
+                else if (*j == end_ref && *i < end_query) {
+                    matches = *m;
+                    similar = *s;
+                    length = *l;
+                    end_query = *i;
+                    end_ref = *j;
+                }
+            }
         }
-        vMaxScore = _mm_slli_si128(vMaxScore, 1);
-        vMaxMatch = _mm_slli_si128(vMaxMatch, 1);
-        vMaxSimilar = _mm_slli_si128(vMaxSimilar, 1);
-        vMaxLength = _mm_slli_si128(vMaxLength, 1);
     }
 
     if (_mm_movemask_epi8(_mm_or_si128(
@@ -520,12 +556,16 @@ parasail_result_t* FNAME(
         matches = 0;
         similar = 0;
         length = 0;
+        end_query = 0;
+        end_ref = 0;
     }
 
     result->score = score;
     result->matches = matches;
     result->similar = similar;
     result->length = length;
+    result->end_query = end_query;
+    result->end_ref = end_ref;
 
     parasail_free(_len_pr);
     parasail_free(_sim_pr);

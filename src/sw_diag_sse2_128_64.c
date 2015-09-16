@@ -158,6 +158,8 @@ parasail_result_t* FNAME(
 #endif
     int32_t i = 0;
     int32_t j = 0;
+    int64_t end_query = 0;
+    int64_t end_ref = 0;
     int64_t score = NEG_INF;
     __m128i vNegInf = _mm_set1_epi64x(NEG_INF);
     __m128i vNegInf0 = _mm_srli_si128(vNegInf, 8); /* shift in a 0 */
@@ -170,6 +172,8 @@ parasail_result_t* FNAME(
     __m128i vI = _mm_set_epi64x(0,1);
     __m128i vJreset = _mm_set_epi64x(0,-1);
     __m128i vMax = vNegInf;
+    __m128i vEndI = vNegInf;
+    __m128i vEndJ = vNegInf;
     __m128i vILimit = _mm_set1_epi64x(s1Len);
     __m128i vJLimit = _mm_set1_epi64x(s2Len);
     
@@ -267,29 +271,54 @@ parasail_result_t* FNAME(
                 __m128i cond_valid_J = _mm_and_si128(
                         _mm_cmpgt_epi64_rpl(vJ, vNegOne),
                         _mm_cmplt_epi64_rpl(vJ, vJLimit));
+                __m128i cond_valid_IJ = _mm_and_si128(cond_valid_J, vIltLimit);
+                __m128i cond_eq = _mm_cmpeq_epi64_rpl(vWscore, vMax);
                 __m128i cond_max = _mm_cmpgt_epi64_rpl(vWscore, vMax);
-                __m128i cond_all = _mm_and_si128(cond_max,
-                        _mm_and_si128(vIltLimit, cond_valid_J));
+                __m128i cond_all = _mm_and_si128(cond_max, cond_valid_IJ);
+                __m128i cond_Jlt = _mm_cmplt_epi64_rpl(vJ, vEndJ);
                 vMax = _mm_blendv_epi8_rpl(vMax, vWscore, cond_all);
+                vEndI = _mm_blendv_epi8_rpl(vEndI, vI, cond_all);
+                vEndJ = _mm_blendv_epi8_rpl(vEndJ, vJ, cond_all);
+                cond_all = _mm_and_si128(cond_Jlt, cond_eq);
+                cond_all = _mm_and_si128(cond_all, cond_valid_IJ);
+                vEndI = _mm_blendv_epi8_rpl(vEndI, vI, cond_all);
+                vEndJ = _mm_blendv_epi8_rpl(vEndJ, vJ, cond_all);
             }
             vJ = _mm_add_epi64(vJ, vOne);
         }
         vI = _mm_add_epi64(vI, vN);
     }
 
-    /* max in vMax */
-    for (i=0; i<N; ++i) {
-        int64_t value;
-        value = (int64_t) _mm_extract_epi64_rpl(vMax, 1);
-        if (value > score) {
-            score = value;
+    /* alignment ending position */
+    {
+        int64_t *t = (int64_t*)&vMax;
+        int64_t *i = (int64_t*)&vEndI;
+        int64_t *j = (int64_t*)&vEndJ;
+        int32_t k;
+        for (k=0; k<N; ++k, ++t, ++i, ++j) {
+            if (*t > score) {
+                score = *t;
+                end_query = *i;
+                end_ref = *j;
+            }
+            else if (*t == score) {
+                if (*j < end_ref) {
+                    end_query = *i;
+                    end_ref = *j;
+                }
+                else if (*j == end_ref && *i < end_query) {
+                    end_query = *i;
+                    end_ref = *j;
+                }
+            }
         }
-        vMax = _mm_slli_si128(vMax, 8);
     }
 
     
 
     result->score = score;
+    result->end_query = end_query;
+    result->end_ref = end_ref;
 
     parasail_free(_del_pr);
     parasail_free(_tbl_pr);

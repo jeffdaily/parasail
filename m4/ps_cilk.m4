@@ -97,3 +97,4 @@ AS_IF([test "x$psl_cv_[]_AC_LANG_ABBREV[]_cilk" = "xunknown"],
     [CILK_[]_AC_LANG_PREFIX[]FLAGS=$psl_cv_[]_AC_LANG_ABBREV[]_cilk])
    m4_default([$1], [AC_DEFINE(HAVE_CILK,1,[Define if Cilk is enabled])])])
 ])dnl PSL_CILK
+

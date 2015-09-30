@@ -250,7 +250,6 @@ STATIC parasail_result_t* PNAME(
         const __m128i* vP = NULL;
         const __m128i* vPM = NULL;
         const __m128i* vPS = NULL;
-        __m128i* pv = NULL;
 
         /* Initialize F value to neg inf.  Any errors to vH values will
          * be corrected in the Lazy_F loop. */

@@ -175,7 +175,6 @@ STATIC parasail_result_t* PNAME(
         const %(VTYPE)s* vP = NULL;
         const %(VTYPE)s* vPM = NULL;
         const %(VTYPE)s* vPS = NULL;
-        %(VTYPE)s* pv = NULL;
 
         /* Initialize F value to neg inf.  Any errors to vH values will
          * be corrected in the Lazy_F loop. */

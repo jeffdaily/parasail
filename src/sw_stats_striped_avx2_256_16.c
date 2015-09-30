@@ -180,6 +180,7 @@ STATIC parasail_result_t* PNAME(
     int16_t similar = bias;
     int16_t length = bias;
     __m256i vBias = _mm256_set1_epi16(bias);
+    __m256i vBias1 = _mm256_adds_epi16(vBias,vOne);
     __m256i vMaxH = vBias;
     __m256i vMaxHUnit = vBias;
     __m256i insert_mask = _mm256_cmpgt_epi16(
@@ -207,7 +208,7 @@ STATIC parasail_result_t* PNAME(
     parasail_memset___m256i(pvE, vBias, segLen);
     parasail_memset___m256i(pvEM, vBias, segLen);
     parasail_memset___m256i(pvES, vBias, segLen);
-    parasail_memset___m256i(pvEL, vBias, segLen);
+    parasail_memset___m256i(pvEL, vBias1, segLen);
 
     /* outer loop over database sequence */
     for (j=0; j<s2Len; ++j) {
@@ -236,7 +237,7 @@ STATIC parasail_result_t* PNAME(
         vF = vBias;
         vFM = vBias;
         vFS = vBias;
-        vFL = vBias;
+        vFL = vBias1;
 
         /* load final segment of pvHStore and shift left by 2 bytes */
         vH = _mm256_load_si256(&pvHStore[segLen - 1]);
@@ -387,7 +388,7 @@ STATIC parasail_result_t* PNAME(
             vF = _mm256_blendv_epi8(vF, vBias, insert_mask);
             vFM = _mm256_blendv_epi8(vFM, vBias, insert_mask);
             vFS = _mm256_blendv_epi8(vFS, vBias, insert_mask);
-            vFL = _mm256_blendv_epi8(vFL, vBias, insert_mask);
+            vFL = _mm256_blendv_epi8(vFL, vBias1, insert_mask);
             for (i=0; i<segLen; ++i) {
                 __m256i case1;
                 __m256i case2;

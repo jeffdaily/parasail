@@ -150,7 +150,7 @@ STATIC parasail_result_t* PNAME(
     parasail_memset_%(VTYPE)s(pvE, %(VSET1)s(-open), segLen);
     parasail_memset_%(VTYPE)s(pvEM, vZero, segLen);
     parasail_memset_%(VTYPE)s(pvES, vZero, segLen);
-    parasail_memset_%(VTYPE)s(pvEL, vZero, segLen);
+    parasail_memset_%(VTYPE)s(pvEL, vOne, segLen);
 
     /* outer loop over database sequence */
     for (j=0; j<s2Len; ++j) {
@@ -179,7 +179,7 @@ STATIC parasail_result_t* PNAME(
         vF = vZero;
         vFM = vZero;
         vFS = vZero;
-        vFL = vZero;
+        vFL = vOne;
 
         /* load final segment of pvHStore and shift left by %(BYTES)s bytes */
         vH = %(VLOAD)s(&pvHStore[segLen - 1]);
@@ -319,9 +319,11 @@ STATIC parasail_result_t* PNAME(
             %(VTYPE)s vHp = %(VLOAD)s(&pvHLoad[segLen - 1]);
             vHp = %(VSHIFT)s(vHp, %(BYTES)s);
             vF = %(VSHIFT)s(vF, %(BYTES)s);
+            vF = %(VINSERT)s(vF, -open, 0);
             vFM = %(VSHIFT)s(vFM, %(BYTES)s);
             vFS = %(VSHIFT)s(vFS, %(BYTES)s);
             vFL = %(VSHIFT)s(vFL, %(BYTES)s);
+            vFL = %(VINSERT)s(vFL, 1, 0);
             for (i=0; i<segLen; ++i) {
                 %(VTYPE)s case1;
                 %(VTYPE)s case2;

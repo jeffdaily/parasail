@@ -23,6 +23,17 @@
 
 #define NEG_INF (INT32_MIN/(int32_t)(2))
 
+#if HAVE_AVX2_MM256_INSERT_EPI32
+#define _mm256_insert_epi32_rpl _mm256_insert_epi32
+#else
+static inline __m256i _mm256_insert_epi32_rpl(__m256i a, int32_t i, int imm) {
+    __m256i_32_t A;
+    A.m = a;
+    A.v[imm] = i;
+    return A.m;
+}
+#endif
+
 #if HAVE_AVX2_MM256_EXTRACT_EPI32
 #define _mm256_extract_epi32_rpl _mm256_extract_epi32
 #else
@@ -183,7 +194,7 @@ STATIC parasail_result_t* PNAME(
     parasail_memset___m256i(pvE, _mm256_set1_epi32(-open), segLen);
     parasail_memset___m256i(pvEM, vZero, segLen);
     parasail_memset___m256i(pvES, vZero, segLen);
-    parasail_memset___m256i(pvEL, vZero, segLen);
+    parasail_memset___m256i(pvEL, vOne, segLen);
 
     /* outer loop over database sequence */
     for (j=0; j<s2Len; ++j) {
@@ -212,7 +223,7 @@ STATIC parasail_result_t* PNAME(
         vF = vZero;
         vFM = vZero;
         vFS = vZero;
-        vFL = vZero;
+        vFL = vOne;
 
         /* load final segment of pvHStore and shift left by 4 bytes */
         vH = _mm256_load_si256(&pvHStore[segLen - 1]);
@@ -352,9 +363,11 @@ STATIC parasail_result_t* PNAME(
             __m256i vHp = _mm256_load_si256(&pvHLoad[segLen - 1]);
             vHp = _mm256_slli_si256_rpl(vHp, 4);
             vF = _mm256_slli_si256_rpl(vF, 4);
+            vF = _mm256_insert_epi32_rpl(vF, -open, 0);
             vFM = _mm256_slli_si256_rpl(vFM, 4);
             vFS = _mm256_slli_si256_rpl(vFS, 4);
             vFL = _mm256_slli_si256_rpl(vFL, 4);
+            vFL = _mm256_insert_epi32_rpl(vFL, 1, 0);
             for (i=0; i<segLen; ++i) {
                 __m256i case1;
                 __m256i case2;

@@ -130,6 +130,7 @@ STATIC parasail_result_t* PNAME(
     %(INT)s similar = bias;
     %(INT)s length = bias;
     %(VTYPE)s vBias = %(VSET1)s(bias);
+    %(VTYPE)s vBias1 = %(VADD)s(vBias,vOne);
     %(VTYPE)s vMaxH = vBias;
     %(VTYPE)s vMaxHUnit = vBias;
     %(VTYPE)s insert_mask = %(VCMPGT)s(
@@ -157,7 +158,7 @@ STATIC parasail_result_t* PNAME(
     parasail_memset_%(VTYPE)s(pvE, vBias, segLen);
     parasail_memset_%(VTYPE)s(pvEM, vBias, segLen);
     parasail_memset_%(VTYPE)s(pvES, vBias, segLen);
-    parasail_memset_%(VTYPE)s(pvEL, vBias, segLen);
+    parasail_memset_%(VTYPE)s(pvEL, vBias1, segLen);
 
     /* outer loop over database sequence */
     for (j=0; j<s2Len; ++j) {
@@ -186,7 +187,7 @@ STATIC parasail_result_t* PNAME(
         vF = vBias;
         vFM = vBias;
         vFS = vBias;
-        vFL = vBias;
+        vFL = vBias1;
 
         /* load final segment of pvHStore and shift left by %(BYTES)s bytes */
         vH = %(VLOAD)s(&pvHStore[segLen - 1]);
@@ -337,7 +338,7 @@ STATIC parasail_result_t* PNAME(
             vF = %(VBLEND)s(vF, vBias, insert_mask);
             vFM = %(VBLEND)s(vFM, vBias, insert_mask);
             vFS = %(VBLEND)s(vFS, vBias, insert_mask);
-            vFL = %(VBLEND)s(vFL, vBias, insert_mask);
+            vFL = %(VBLEND)s(vFL, vBias1, insert_mask);
             for (i=0; i<segLen; ++i) {
                 %(VTYPE)s case1;
                 %(VTYPE)s case2;

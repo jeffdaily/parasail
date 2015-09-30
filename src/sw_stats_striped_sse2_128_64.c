@@ -43,6 +43,13 @@ static inline __m128i _mm_cmpgt_epi64_rpl(__m128i a, __m128i b) {
     return A.m;
 }
 
+static inline __m128i _mm_insert_epi64_rpl(__m128i a, int64_t i, const int imm) {
+    __m128i_64_t A;
+    A.m = a;
+    A.v[imm] = i;
+    return A.m;
+}
+
 static inline __m128i _mm_cmpeq_epi64_rpl(__m128i a, __m128i b) {
     __m128i_64_t A;
     __m128i_64_t B;
@@ -203,7 +210,7 @@ STATIC parasail_result_t* PNAME(
     parasail_memset___m128i(pvE, _mm_set1_epi64x(-open), segLen);
     parasail_memset___m128i(pvEM, vZero, segLen);
     parasail_memset___m128i(pvES, vZero, segLen);
-    parasail_memset___m128i(pvEL, vZero, segLen);
+    parasail_memset___m128i(pvEL, vOne, segLen);
 
     /* outer loop over database sequence */
     for (j=0; j<s2Len; ++j) {
@@ -232,7 +239,7 @@ STATIC parasail_result_t* PNAME(
         vF = vZero;
         vFM = vZero;
         vFS = vZero;
-        vFL = vZero;
+        vFL = vOne;
 
         /* load final segment of pvHStore and shift left by 8 bytes */
         vH = _mm_load_si128(&pvHStore[segLen - 1]);
@@ -372,9 +379,11 @@ STATIC parasail_result_t* PNAME(
             __m128i vHp = _mm_load_si128(&pvHLoad[segLen - 1]);
             vHp = _mm_slli_si128(vHp, 8);
             vF = _mm_slli_si128(vF, 8);
+            vF = _mm_insert_epi64_rpl(vF, -open, 0);
             vFM = _mm_slli_si128(vFM, 8);
             vFS = _mm_slli_si128(vFS, 8);
             vFL = _mm_slli_si128(vFL, 8);
+            vFL = _mm_insert_epi64_rpl(vFL, 1, 0);
             for (i=0; i<segLen; ++i) {
                 __m128i case1;
                 __m128i case2;

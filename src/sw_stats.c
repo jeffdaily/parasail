@@ -110,7 +110,6 @@ parasail_result_t* ENAME(
         HL[0] = WHL;
         for (j=1; j<=s2Len; ++j) {
             int H_dag;
-            int H_new;
             int E_opn;
             int E_ext;
             int F_opn;
@@ -130,9 +129,9 @@ parasail_result_t* ENAME(
             E_ext = E - gap;
             E = MAX(E_opn, E_ext);
             H_dag = NWH + matrow[s2[j-1]];
-            H_new = MAX(H_dag, 0);
-            H_new = MAX(H_new, E);
-            H_new = MAX(H_new, F[j]);
+            WH = MAX(H_dag, 0);
+            WH = MAX(WH, E);
+            WH = MAX(WH, F[j]);
             if (F_opn > F_ext) {
                 FM[j] = NHM;
                 FS[j] = NHS;
@@ -149,13 +148,12 @@ parasail_result_t* ENAME(
             else {
                 EL = EL+1;
             }
-            WH = H_new;
-            if (H_new == H_dag) {
+            if (WH == H_dag) {
                 WHM  = NWM + (s1[i-1] == s2[j-1]);
                 WHS  = NWS + (matrow[s2[j-1]] > 0);
                 WHL  = NWL + 1;
             }
-            else if (H_new == F[j]) {
+            else if (WH == F[j]) {
                 WHM  = FM[j];
                 WHS  = FS[j];
                 WHL  = FL[j];

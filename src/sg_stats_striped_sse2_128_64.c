@@ -310,27 +310,21 @@ STATIC parasail_result_t* PNAME(
 
             /* calculate vM */
             vHM = _mm_blendv_epi8_rpl(
-                    _mm_or_si128(
-                        _mm_and_si128(notcase1andcase2, vFM),
-                        _mm_and_si128(notcase1andnotcase2, vEM)),
+                    _mm_blendv_epi8_rpl(vEM, vFM, case2),
                     _mm_add_epi64(vHM, _mm_load_si128(vPM + i)),
                     case1);
             _mm_store_si128(pvHMStore + i, vHM);
 
             /* calculate vS */
             vHS = _mm_blendv_epi8_rpl(
-                    _mm_or_si128(
-                        _mm_and_si128(notcase1andcase2, vFS),
-                        _mm_and_si128(notcase1andnotcase2, vES)),
+                    _mm_blendv_epi8_rpl(vES, vFS, case2),
                     _mm_add_epi64(vHS, _mm_load_si128(vPS + i)),
                     case1);
             _mm_store_si128(pvHSStore + i, vHS);
 
             /* calculate vL */
             vHL = _mm_blendv_epi8_rpl(
-                    _mm_or_si128(
-                        _mm_and_si128(notcase1andcase2, vFL),
-                        _mm_and_si128(notcase1andnotcase2, vEL)),
+                    _mm_blendv_epi8_rpl(vEL, vFL, case2),
                     _mm_add_epi64(vHL, vOne),
                     case1);
             _mm_store_si128(pvHLStore + i, vHL);

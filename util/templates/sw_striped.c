@@ -113,9 +113,13 @@ parasail_result_t* PNAME(
 
     /* outer loop over database sequence */
     for (j=0; j<s2Len; ++j) {
+        %(VTYPE)s vEF_opn;
         %(VTYPE)s vE;
+        %(VTYPE)s vE_ext;
         %(VTYPE)s vF;
+        %(VTYPE)s vF_ext;
         %(VTYPE)s vH;
+        %(VTYPE)s vH_dag;
         const %(VTYPE)s* vP = NULL;
         %(VTYPE)s* pv = NULL;
 
@@ -124,7 +128,8 @@ parasail_result_t* PNAME(
         vF = vZero;
 
         /* load final segment of pvHStore and shift left by %(BYTES)s bytes */
-        vH = %(VSHIFT)s(pvHStore[segLen - 1], %(BYTES)s);
+        vH = %(VLOAD)s(&pvHStore[segLen - 1]);
+        vH = %(VSHIFT)s(vH, %(BYTES)s);
 
         /* Correct part of the vProfile */
         vP = vProfile + matrix->mapper[(unsigned char)s2[j]] * segLen;

@@ -230,27 +230,21 @@ STATIC parasail_result_t* PNAME(
 
             /* calculate vM */
             vHM = %(VBLEND)s(
-                    %(VOR)s(
-                        %(VAND)s(notcase1andcase2, vFM),
-                        %(VAND)s(notcase1andnotcase2, vEM)),
+                    %(VBLEND)s(vEM, vFM, case2),
                     %(VADD)s(vHM, %(VLOAD)s(vPM + i)),
                     case1);
             %(VSTORE)s(pvHMStore + i, vHM);
 
             /* calculate vS */
             vHS = %(VBLEND)s(
-                    %(VOR)s(
-                        %(VAND)s(notcase1andcase2, vFS),
-                        %(VAND)s(notcase1andnotcase2, vES)),
+                    %(VBLEND)s(vES, vFS, case2),
                     %(VADD)s(vHS, %(VLOAD)s(vPS + i)),
                     case1);
             %(VSTORE)s(pvHSStore + i, vHS);
 
             /* calculate vL */
             vHL = %(VBLEND)s(
-                    %(VOR)s(
-                        %(VAND)s(notcase1andcase2, vFL),
-                        %(VAND)s(notcase1andnotcase2, vEL)),
+                    %(VBLEND)s(vEL, vFL, case2),
                     %(VADD)s(vHL, vOne),
                     case1);
             %(VSTORE)s(pvHLStore + i, vHL);

@@ -143,7 +143,11 @@ static void print_help(const char *progname, int status) {
             "         -d: if present, assume DNA alphabet\n"
             "      match: 1, must be >= 0\n"
             "   mismatch: 0, must be >= 0\n"
+#ifdef _OPENMP
             "    threads: system-specific default, must be >= 1\n"
+#else
+            "    threads: Warning: ignored; OpenMP was not supported by your compiler\n"
+#endif
             "        AOL: 80, must be 0 <= AOL <= 100, percent alignment length\n"
             "        SIM: 40, must be 0 <= SIM <= 100, percent exact matches\n"
             "         OS: 30, must be 0 <= OS <= 100, percent optimal score over self score\n"
@@ -263,6 +267,10 @@ int main(int argc, char **argv) {
                 break;
             case 't':
                 num_threads = atoi(optarg);
+#ifdef _OPENMP
+#else
+                printf("-t number of threads requested, but OpenMP was not found during configuration. Running without threads.");
+#endif
                 break;
             case 'l':
                 AOL = atoi(optarg);

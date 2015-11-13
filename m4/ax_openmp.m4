@@ -38,6 +38,7 @@
 # LICENSE
 #
 #   Copyright (c) 2008 Steven G. Johnson <stevenj@alum.mit.edu>
+#   Copyright (c) 2015 John W. Peterson <jwpeterson@gmail.com>
 #
 #   This program is free software: you can redistribute it and/or modify it
 #   under the terms of the GNU General Public License as published by the
@@ -65,7 +66,7 @@
 #   modified version of the Autoconf Macro, you may extend this special
 #   exception to the GPL to apply to your modified version as well.
 
-#serial 10
+#serial 11
 
 AC_DEFUN([AX_OPENMP], [
 AC_PREREQ([2.69]) dnl for _AC_LANG_PREFIX
@@ -84,16 +85,13 @@ for ax_openmp_flag in $ax_openmp_flags; do
     *) []_AC_LANG_PREFIX[]FLAGS="$save[]_AC_LANG_PREFIX[]FLAGS $ax_openmp_flag" ;;
   esac
   AC_LINK_IFELSE([AC_LANG_SOURCE([[
-#ifdef __cplusplus
-extern "C"
-#endif
-void omp_set_num_threads(int);
+@%:@include <omp.h>
 
 static void
 parallel_fill(int * data, int n)
 {
   int i;
-#pragma omp parallel for
+@%:@pragma omp parallel for
   for (i = 0; i < n; ++i)
     data[i] = i;
 }

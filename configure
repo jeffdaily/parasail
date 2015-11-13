@@ -5051,10 +5051,7 @@ for ax_openmp_flag in $ax_openmp_flags; do
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
-#ifdef __cplusplus
-extern "C"
-#endif
-void omp_set_num_threads(int);
+#include <omp.h>
 
 static void
 parallel_fill(int * data, int n)
@@ -6745,10 +6742,7 @@ for ax_openmp_flag in $ax_openmp_flags; do
   cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
-#ifdef __cplusplus
-extern "C"
-#endif
-void omp_set_num_threads(int);
+#include <omp.h>
 
 static void
 parallel_fill(int * data, int n)

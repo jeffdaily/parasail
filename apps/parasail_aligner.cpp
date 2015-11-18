@@ -53,6 +53,7 @@
 #define eprintf fprintf
 #endif
 
+using ::std::bad_alloc;
 using ::std::make_pair;
 using ::std::pair;
 using ::std::set;
@@ -63,6 +64,7 @@ using ::std::vector;
 typedef pair<int,int> Pair;
 
 typedef set<Pair> PairSet;
+typedef vector<Pair> PairVec;
 
 struct quad {
     int lcp;
@@ -166,21 +168,22 @@ int main(int argc, char **argv) {
     int *LCP = NULL;
     unsigned char *BWT = NULL;
     int *SID = NULL;
-    vector<int> BEG;
-    vector<int> END;
+    vector<long> BEG;
+    vector<long> END;
     vector<int> DB;
     long n = 0;
     long t = 0;
     long q = 0;
     double start = 0;
     double finish = 0;
-    int i = 0;
-    int sid = 0;
-    int sid_crossover = -1;
+    long i = 0;
+    long sid = 0;
+    long sid_crossover = -1;
     char sentinal = 0;
     int cutoff = 7;
     bool use_filter = true;
     PairSet pairs;
+    PairVec vpairs;
     unsigned long count_possible = 0;
     unsigned long count_generated = 0;
 #ifdef USE_CILK
@@ -444,43 +447,39 @@ int main(int argc, char **argv) {
     eprintf(stdout, "%20s: %.4f seconds\n", "read and pack time", finish-start);
 
     /* Allocate memory for sequence ID array. */
-    SID = (int *)malloc((size_t)n * sizeof(int));
-    if(SID == NULL) {
-        eprintf(stderr, "%s: Cannot allocate memory.\n", progname);
-        perror("malloc");
-        exit(EXIT_FAILURE);
+    if (use_filter) {
+        SID = (int *)malloc((size_t)n * sizeof(int));
+        if(SID == NULL) {
+            eprintf(stderr, "%s: Cannot allocate memory.\n", progname);
+            perror("malloc");
+            exit(EXIT_FAILURE);
+        }
     }
 
     /* determine sentinal */
     if (sentinal == 0) {
-        int off = 0;
+        long off = 0;
         while (!isgraph(T[n-off])) {
             ++off;
         }
         sentinal = T[n-off];
     }
+    eprintf(stdout, "%20s: %c\n", "sentinal", sentinal);
 
     /* determine actual end of file (last char) */
     {
-        int off = 0;
+        long off = 0;
         while (!isgraph(T[n-off])) {
             ++off;
         }
         n = n - off + 1;
     }
+    eprintf(stdout, "%20s: %ld\n", "end of packed buffer", n);
 
-    /* scan T from left to build sequence ID and end index */
+    /* scan T from left to count number of sequences */
     sid = 0;
-    BEG.push_back(0);
     for (i=0; i<n; ++i) {
-        SID[i] = sid;
         if (T[i] == sentinal) {
-            END.push_back(i);
-            BEG.push_back(i+1);
-            DB.push_back(i<t);
-            if (-1 == sid_crossover && i>=t) {
-                sid_crossover = sid;
-            }
             ++sid;
         }
     }
@@ -489,6 +488,48 @@ int main(int argc, char **argv) {
         exit(EXIT_FAILURE);
     }
     eprintf(stdout, "%20s: %d\n", "number of sequences", sid);
+
+    /* scan T from left to build sequence ID and end index */
+    /* allocate vectors now that number of sequences is known */
+    try {
+        BEG.reserve(sid+1);
+        END.reserve(sid+1);
+        if (use_filter) {
+            DB.reserve(sid+1);
+        }
+    } catch (const bad_alloc&) {
+        eprintf(stderr, "Cannot allocate memory for vectors\n");
+        exit(EXIT_FAILURE);
+    }
+    sid = 0;
+    BEG.push_back(0);
+    if (use_filter) {
+        for (i=0; i<n; ++i) {
+            SID[i] = sid;
+            if (T[i] == sentinal) {
+                END.push_back(i);
+                BEG.push_back(i+1);
+                DB.push_back(i<t);
+                if (-1 == sid_crossover && i>=t) {
+                    sid_crossover = sid;
+                }
+                ++sid;
+            }
+        }
+    }
+    else {
+        for (i=0; i<n; ++i) {
+            if (T[i] == sentinal) {
+                END.push_back(i);
+                BEG.push_back(i+1);
+                if (-1 == sid_crossover && i>=t) {
+                    sid_crossover = sid;
+                }
+                ++sid;
+            }
+        }
+    }
+
     /* if we don't have a query file, clear the DB flags */
     if (qname == NULL) {
         DB.clear();
@@ -607,6 +648,7 @@ int main(int argc, char **argv) {
         eprintf(stdout, "%20s: %lu\n", "generated pairs", count_generated);
 
         /* Deallocate memory. */
+        free(SID);
         free(SA);
         free(LCP);
         free(BWT);
@@ -618,7 +660,7 @@ int main(int argc, char **argv) {
             /* no query file, so all against all comparison */
             for (int i=0; i<sid; ++i) {
                 for (int j=i+1; j<sid; ++j) {
-                    pairs.insert(make_pair(i,j));
+                    vpairs.push_back(make_pair(i,j));
                 }
             }
         }
@@ -626,7 +668,7 @@ int main(int argc, char **argv) {
             /* query given, so only compare query against database */
             for (int i=sid_crossover; i<sid; ++i) {
                 for (int j=0; j<sid_crossover; ++j) {
-                    pairs.insert(make_pair(i,j));
+                    vpairs.push_back(make_pair(i,j));
                 }
             }
         }
@@ -635,16 +677,26 @@ int main(int argc, char **argv) {
     }
     eprintf(stdout, "%20s: %zu\n", "unique pairs", pairs.size());
 
-    /* Deallocate memory. */
-    free(SID);
-
     if (pairs_only) {
         /* Done with input text. */
         free(T);
-        for (PairSet::iterator it=pairs.begin(); it!=pairs.end(); ++it) {
-            int i = it->first;
-            int j = it->second;
-            eprintf(fop, "%d,%d\n", i, j);
+        if (vpairs.empty() && !pairs.empty()) {
+            for (PairSet::iterator it=pairs.begin(); it!=pairs.end(); ++it) {
+                int i = it->first;
+                int j = it->second;
+                eprintf(fop, "%d,%d\n", i, j);
+            }
+        }
+        else if (!vpairs.empty() && pairs.empty()) {
+            for (PairVec::iterator it=vpairs.begin(); it!=vpairs.end(); ++it) {
+                int i = it->first;
+                int j = it->second;
+                eprintf(fop, "%d,%d\n", i, j);
+            }
+        }
+        else {
+            eprintf(stderr, "pairs and vpairs were empty\n");
+            exit(EXIT_FAILURE);
         }
         fclose(fop);
         return 0;
@@ -681,13 +733,20 @@ int main(int argc, char **argv) {
 
     /* OpenMP can't iterate over an STL set. Convert to STL vector. */
     start = parasail_time();
-    vector<Pair> vpairs(pairs.begin(), pairs.end());
+    if (vpairs.empty()) {
+        if (pairs.empty()) {
+            eprintf(stderr, "pairs and vpairs were empty\n");
+            exit(EXIT_FAILURE);
+        }
+        vpairs.assign(pairs.begin(), pairs.end());
+        pairs.clear();
+    }
     vector<parasail_result_t*> results(vpairs.size(), NULL);
     finish = parasail_time();
     eprintf(stdout, "%20s: %.4f seconds\n", "openmp prep time", finish-start);
 
     /* create profiles, if necessary */
-    vector<parasail_profile_t*> profiles;
+    vector<parasail_profile_t*> profiles(sid, (parasail_profile_t*)NULL);
     if (pfunction) {
         start = parasail_time();
         set<int> profile_indices_set;
@@ -697,7 +756,7 @@ int main(int argc, char **argv) {
         vector<int> profile_indices(
                 profile_indices_set.begin(),
                 profile_indices_set.end());
-        profiles.assign(sid, NULL);
+        //profiles.assign(sid, NULL);
         finish = parasail_time();
         eprintf(stdout, "%20s: %.4f seconds\n", "profile init", finish-start);
         start = parasail_time();
@@ -711,9 +770,9 @@ int main(int argc, char **argv) {
 #endif
             {
                 int i = profile_indices[index];
-                int i_beg = BEG[i];
-                int i_end = END[i];
-                int i_len = i_end-i_beg;
+                long i_beg = BEG[i];
+                long i_end = END[i];
+                long i_len = i_end-i_beg;
                 profiles[i] = pcreator((const char*)&T[i_beg], i_len, matrix);
             }
 #ifdef USE_CILK
@@ -738,12 +797,12 @@ int main(int argc, char **argv) {
             {
                 int i = vpairs[index].first;
                 int j = vpairs[index].second;
-                int i_beg = BEG[i];
-                int i_end = END[i];
-                int i_len = i_end-i_beg;
-                int j_beg = BEG[j];
-                int j_end = END[j];
-                int j_len = j_end-j_beg;
+                long i_beg = BEG[i];
+                long i_end = END[i];
+                long i_len = i_end-i_beg;
+                long j_beg = BEG[j];
+                long j_end = END[j];
+                long j_len = j_end-j_beg;
                 unsigned long local_work = i_len * j_len;
                 parasail_result_t *result = function(
                         (const char*)&T[i_beg], i_len,
@@ -774,9 +833,9 @@ int main(int argc, char **argv) {
             {
                 int i = vpairs[index].first;
                 int j = vpairs[index].second;
-                int j_beg = BEG[j];
-                int j_end = END[j];
-                int j_len = j_end-j_beg;
+                long j_beg = BEG[j];
+                long j_end = END[j];
+                long j_len = j_end-j_beg;
                 parasail_profile_t *profile = profiles[i];
                 if (NULL == profile) {
                     eprintf(stderr, "BAD PROFILE %d\n", i);
@@ -849,12 +908,12 @@ int main(int argc, char **argv) {
         parasail_result_t *result = results[index];
         int i = vpairs[index].first;
         int j = vpairs[index].second;
-        int i_beg = BEG[i];
-        int i_end = END[i];
-        int i_len = i_end-i_beg;
-        int j_beg = BEG[j];
-        int j_end = END[j];
-        int j_len = j_end-j_beg;
+        long i_beg = BEG[i];
+        long i_end = END[i];
+        long i_len = i_end-i_beg;
+        long j_beg = BEG[j];
+        long j_end = END[j];
+        long j_len = j_end-j_beg;
 
         if (NULL != qname) {
             i = i - sid_crossover;

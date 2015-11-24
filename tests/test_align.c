@@ -245,8 +245,15 @@ int main(int argc, char **argv)
     int do_table = 1;
     int do_rowcol = 1;
     int use_rdtsc = 0;
+    int do_sse2 = 1;
+    int do_sse41 = 1;
+    int do_avx2 = 1;
+    int do_disp = 1;
+    int do_nw = 1;
+    int do_sg = 1;
+    int do_sw = 1;
 
-    while ((c = getopt(argc, argv, "a:b:f:m:n:o:e:rRTNSs")) != -1) {
+    while ((c = getopt(argc, argv, "a:b:f:i:m:n:o:e:rRTNSsB")) != -1) {
         switch (c) {
             case 'a':
                 errno = 0;
@@ -312,6 +319,15 @@ int main(int argc, char **argv)
                 break;
             case 's':
                 do_nonstats = 0;
+                break;
+            case 'i':
+                do_sse2 = (NULL == strstr(optarg, "sse2"));
+                do_sse41 = (NULL == strstr(optarg, "sse41"));
+                do_avx2 = (NULL == strstr(optarg, "avx2"));
+                do_disp = (NULL == strstr(optarg, "disp"));
+                do_nw = (NULL == strstr(optarg, "nw"));
+                do_sg = (NULL == strstr(optarg, "sg"));
+                do_sw = (NULL == strstr(optarg, "sw"));
                 break;
             case '?':
                 if (optopt == 'a'
@@ -414,6 +430,34 @@ int main(int argc, char **argv)
         if ((0 == strncmp(f.isa, "sse2",  4) && 0 == parasail_can_use_sse2()) 
                 || (0 == strncmp(f.isa, "sse41", 5) && 0 == parasail_can_use_sse41())
                 || (0 == strncmp(f.isa, "avx2",  4) && 0 == parasail_can_use_avx2())) {
+            f = functions[index++];
+            continue;
+        }
+        if (!do_sse2 && strstr(f.name, "sse2")) {
+            f = functions[index++];
+            continue;
+        }
+        if (!do_sse41 && strstr(f.name, "sse41")) {
+            f = functions[index++];
+            continue;
+        }
+        if (!do_avx2 && strstr(f.name, "avx2")) {
+            f = functions[index++];
+            continue;
+        }
+        if (!do_disp && strstr(f.name, "disp")) {
+            f = functions[index++];
+            continue;
+        }
+        if (!do_nw && strstr(f.name, "nw")) {
+            f = functions[index++];
+            continue;
+        }
+        if (!do_sg && strstr(f.name, "sg")) {
+            f = functions[index++];
+            continue;
+        }
+        if (!do_sw && strstr(f.name, "sw")) {
             f = functions[index++];
             continue;
         }

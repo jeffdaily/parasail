@@ -410,6 +410,16 @@ int main(int argc, char **argv)
     limit = binomial_coefficient(seq_count, 2);
     printf("%lu choose 2 is %lu\n", seq_count, limit);
 
+    if (test_scores) {
+        if (do_nw) check_functions(parasail_nw_table_serial, sequences, sizes, limit, matrix, gap);
+        if (do_sg) check_functions(parasail_sg_table_serial, sequences, sizes, limit, matrix, gap);
+        if (do_sw) check_functions(parasail_sw_table_serial, sequences, sizes, limit, matrix, gap);
+    }
+    if (test_stats) {
+        if (do_nw) check_functions(parasail_nw_stats_table_serial, sequences, sizes, limit, matrix, gap);
+        if (do_sg) check_functions(parasail_sg_stats_table_serial, sequences, sizes, limit, matrix, gap);
+        if (do_sw) check_functions(parasail_sw_stats_table_serial, sequences, sizes, limit, matrix, gap);
+    }
 
 #if HAVE_SSE2
     if (do_sse2 && parasail_can_use_sse2()) {

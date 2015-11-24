@@ -63,14 +63,6 @@ parasail_result_t* ENAME(
     int * const restrict HtS = HtSB+1;
     int * const restrict HtLB= parasail_memalign_int(16, s1Len+1);
     int * const restrict HtL = HtLB+1;
-    int * const restrict FtB= parasail_memalign_int(16, s1Len+1);
-    int * const restrict Ft = FtB+1;
-    int * const restrict FtMB= parasail_memalign_int(16, s1Len+1);
-    int * const restrict FtM = FtMB+1;
-    int * const restrict FtSB= parasail_memalign_int(16, s1Len+1);
-    int * const restrict FtS = FtSB+1;
-    int * const restrict FtLB= parasail_memalign_int(16, s1Len+1);
-    int * const restrict FtL = FtLB+1;
     int * const restrict Ex = parasail_memalign_int(16, s1Len);
     int i = 0;
     int j = 0;
@@ -111,6 +103,10 @@ parasail_result_t* ENAME(
 
     /* iterate over database */
     for (j=0; j<s2Len; ++j) {
+        int Ft = NEG_INF_32;
+        int FtM = 0;
+        int FtS = 0;
+        int FtL = 0;
         const int * const restrict matcol = &matrix->matrix[matrix->size*s2[j]];
         /* calculate E */
         for (i=0; i<s1Len; ++i) {
@@ -146,30 +142,26 @@ parasail_result_t* ENAME(
             }
         }
         /* calculate H,HM,HS,HL */
-        Ft[-1] = NEG_INF_32;
-        FtM[-1] = 0;
-        FtS[-1] = 0;
-        FtL[-1] = 0;
         for (i=0; i<s1Len; ++i) {
             int Ft_opn;
             int Ht_pre = Ht[i-1];
-            int Ft_ext = Ft[i-1]-gap;
+            int Ft_ext = Ft-gap;
             if (Ht_pre >= Ft_ext) {
-                Ft[i] = Ht_pre;
+                Ft = Ht_pre;
             }
             else {
-                Ft[i] = Ft_ext;
+                Ft = Ft_ext;
             }
-            Ft_opn = Ft[i]-open;
+            Ft_opn = Ft-open;
             if (H[i-1] > Ft_ext) {
-                FtM[i] = HM[i-1];
-                FtS[i] = HS[i-1];
-                FtL[i] = HL[i-1] + 1;
+                FtM = HM[i-1];
+                FtS = HS[i-1];
+                FtL = HL[i-1] + 1;
             }
             else {
-                FtM[i] = FtM[i-1];
-                FtS[i] = FtS[i-1];
-                FtL[i] = FtL[i-1] + 1;
+                //FtM = FtM;
+                //FtS = FtS;
+                FtL = FtL + 1;
             }
             if (Ht[i] > Ft_opn) {
                 H[i] = Ht[i];
@@ -182,9 +174,9 @@ parasail_result_t* ENAME(
                 if (Ht[i] == Ft_opn) {
                     if (Ex[i]) {
                         /* we favor F/up/del when F and E scores tie */
-                        HM[i] = FtM[i];
-                        HS[i] = FtS[i];
-                        HL[i] = FtL[i];
+                        HM[i] = FtM;
+                        HS[i] = FtS;
+                        HL[i] = FtL;
                     }
                     else {
                         HM[i] = HtM[i];
@@ -193,9 +185,9 @@ parasail_result_t* ENAME(
                     }
                 }
                 else {
-                    HM[i] = FtM[i];
-                    HS[i] = FtS[i];
-                    HL[i] = FtL[i];
+                    HM[i] = FtM;
+                    HS[i] = FtS;
+                    HL[i] = FtL;
                 }
             }
             if (0 >= H[i]) {
@@ -245,10 +237,6 @@ parasail_result_t* ENAME(
     result->end_ref = end_ref;
 
     parasail_free(Ex);
-    parasail_free(FtLB);
-    parasail_free(FtSB);
-    parasail_free(FtMB);
-    parasail_free(FtB);
     parasail_free(HtLB);
     parasail_free(HtSB);
     parasail_free(HtMB);

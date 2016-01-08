@@ -354,6 +354,7 @@ def generated_params_scan(params):
                     for i in range(1,lanes)])[:-1]
     params["STATS_SCAN_INSERT_MASK"] = "0,"*(params["LANES"]-1)+"1"
     params["SCAN_INSERT_MASK"] = "1"+",0"*(params["LANES"]-1)
+    params["SCAN_NEG_INF_FRONT"] = "0,"*(params["LANES"]-1)+"NEG_INF"
     params["POSITION_MASK"] = ",".join([str(i) for i in range(params["LANES"])])
     return params
 

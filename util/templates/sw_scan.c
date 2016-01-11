@@ -17,7 +17,6 @@
 #include "parasail/memory.h"
 #include "parasail/internal_%(ISA)s.h"
 
-#define SEGWIDTH %(LANES)s
 #define NEG_INF %(NEG_INF)s
 %(FIXES)s
 
@@ -95,10 +94,9 @@ parasail_result_t* PNAME(
     %(INT)s score = NEG_INF;
     %(VTYPE)s vMaxH = vNegInf;
     %(VTYPE)s vMaxHUnit = vNegInf;
-#if SEGWIDTH > 2
-    %(VTYPE)s vSegLenXgap = %(VSET1)s(segLen*gap);
-#endif
     %(VTYPE)s vNegInfFront = %(VSET)s(%(SCAN_NEG_INF_FRONT)s);
+    %(VTYPE)s vSegLenXgap = %(VADD)s(vNegInfFront,
+            %(VSHIFT)s(%(VSET1)s(-segLen*gap), %(BYTES)s));
     %(SATURATION_CHECK_INIT)s
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
@@ -158,17 +156,14 @@ parasail_result_t* PNAME(
         /* pseudo prefix scan on F and H */
         vHt = %(VSHIFT)s(vHt, %(BYTES)s);
         vF = %(VMAX)s(vF, %(VADD)s(vHt, pvGapper[0]));
-        vF = %(VSHIFT)s(vF, %(BYTES)s);
-#if SEGWIDTH > 2
-        vF = %(VADD)s(vF, vNegInfFront);
         for (i=0; i<segWidth-2; ++i) {
-            %(VTYPE)s vFt = %(VSUB)s(vF, vSegLenXgap);
-            vFt = %(VSHIFT)s(vFt, %(BYTES)s);
+            %(VTYPE)s vFt = %(VSHIFT)s(vF, %(BYTES)s);
+            vFt = %(VADD)s(vFt, vSegLenXgap);
             vF = %(VMAX)s(vF, vFt);
         }
-#endif
 
         /* calculate final H */
+        vF = %(VSHIFT)s(vF, %(BYTES)s);
         vF = %(VADD)s(vF, vNegInfFront);
         vH = %(VMAX)s(vHt, vF);
         for (i=0; i<segLen; ++i) {

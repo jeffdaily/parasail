@@ -17,7 +17,6 @@
 #include "parasail/memory.h"
 #include "parasail/internal_avx.h"
 
-#define SEGWIDTH 32
 #define NEG_INF INT8_MIN
 
 #if HAVE_AVX2_MM256_EXTRACT_EPI8
@@ -178,10 +177,9 @@ parasail_result_t* PNAME(
     int8_t score = NEG_INF;
     __m256i vMaxH = vNegInf;
     __m256i vMaxHUnit = vNegInf;
-#if SEGWIDTH > 2
-    __m256i vSegLenXgap = _mm256_set1_epi8(segLen*gap);
-#endif
     __m256i vNegInfFront = _mm256_set_epi8(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,NEG_INF);
+    __m256i vSegLenXgap = _mm256_adds_epi8(vNegInfFront,
+            _mm256_slli_si256_rpl(_mm256_set1_epi8(-segLen*gap), 1));
     __m256i vNegLimit = _mm256_set1_epi8(INT8_MIN);
     __m256i vPosLimit = _mm256_set1_epi8(INT8_MAX);
     __m256i vSaturationCheckMin = vPosLimit;
@@ -244,17 +242,14 @@ parasail_result_t* PNAME(
         /* pseudo prefix scan on F and H */
         vHt = _mm256_slli_si256_rpl(vHt, 1);
         vF = _mm256_max_epi8(vF, _mm256_adds_epi8(vHt, pvGapper[0]));
-        vF = _mm256_slli_si256_rpl(vF, 1);
-#if SEGWIDTH > 2
-        vF = _mm256_adds_epi8(vF, vNegInfFront);
         for (i=0; i<segWidth-2; ++i) {
-            __m256i vFt = _mm256_subs_epi8(vF, vSegLenXgap);
-            vFt = _mm256_slli_si256_rpl(vFt, 1);
+            __m256i vFt = _mm256_slli_si256_rpl(vF, 1);
+            vFt = _mm256_adds_epi8(vFt, vSegLenXgap);
             vF = _mm256_max_epi8(vF, vFt);
         }
-#endif
 
         /* calculate final H */
+        vF = _mm256_slli_si256_rpl(vF, 1);
         vF = _mm256_adds_epi8(vF, vNegInfFront);
         vH = _mm256_max_epi8(vHt, vF);
         for (i=0; i<segLen; ++i) {

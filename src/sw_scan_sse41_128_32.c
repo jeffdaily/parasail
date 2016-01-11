@@ -22,7 +22,6 @@
 #include "parasail/memory.h"
 #include "parasail/internal_sse.h"
 
-#define SEGWIDTH 4
 #define NEG_INF (INT32_MIN/(int32_t)(2))
 
 static inline int32_t _mm_hmax_epi32_rpl(__m128i a) {
@@ -112,10 +111,9 @@ parasail_result_t* PNAME(
     int32_t score = NEG_INF;
     __m128i vMaxH = vNegInf;
     __m128i vMaxHUnit = vNegInf;
-#if SEGWIDTH > 2
-    __m128i vSegLenXgap = _mm_set1_epi32(segLen*gap);
-#endif
     __m128i vNegInfFront = _mm_set_epi32(0,0,0,NEG_INF);
+    __m128i vSegLenXgap = _mm_add_epi32(vNegInfFront,
+            _mm_slli_si128(_mm_set1_epi32(-segLen*gap), 4));
     
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
@@ -175,17 +173,14 @@ parasail_result_t* PNAME(
         /* pseudo prefix scan on F and H */
         vHt = _mm_slli_si128(vHt, 4);
         vF = _mm_max_epi32(vF, _mm_add_epi32(vHt, pvGapper[0]));
-        vF = _mm_slli_si128(vF, 4);
-#if SEGWIDTH > 2
-        vF = _mm_add_epi32(vF, vNegInfFront);
         for (i=0; i<segWidth-2; ++i) {
-            __m128i vFt = _mm_sub_epi32(vF, vSegLenXgap);
-            vFt = _mm_slli_si128(vFt, 4);
+            __m128i vFt = _mm_slli_si128(vF, 4);
+            vFt = _mm_add_epi32(vFt, vSegLenXgap);
             vF = _mm_max_epi32(vF, vFt);
         }
-#endif
 
         /* calculate final H */
+        vF = _mm_slli_si128(vF, 4);
         vF = _mm_add_epi32(vF, vNegInfFront);
         vH = _mm_max_epi32(vHt, vF);
         for (i=0; i<segLen; ++i) {

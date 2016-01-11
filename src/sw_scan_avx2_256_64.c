@@ -17,7 +17,6 @@
 #include "parasail/memory.h"
 #include "parasail/internal_avx.h"
 
-#define SEGWIDTH 4
 #define NEG_INF (INT64_MIN/(int64_t)(2))
 
 static inline __m256i _mm256_max_epi64_rpl(__m256i a, __m256i b) {
@@ -131,10 +130,9 @@ parasail_result_t* PNAME(
     int64_t score = NEG_INF;
     __m256i vMaxH = vNegInf;
     __m256i vMaxHUnit = vNegInf;
-#if SEGWIDTH > 2
-    __m256i vSegLenXgap = _mm256_set1_epi64x(segLen*gap);
-#endif
     __m256i vNegInfFront = _mm256_set_epi64x(0,0,0,NEG_INF);
+    __m256i vSegLenXgap = _mm256_add_epi64(vNegInfFront,
+            _mm256_slli_si256_rpl(_mm256_set1_epi64x(-segLen*gap), 8));
     
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
@@ -194,17 +192,14 @@ parasail_result_t* PNAME(
         /* pseudo prefix scan on F and H */
         vHt = _mm256_slli_si256_rpl(vHt, 8);
         vF = _mm256_max_epi64_rpl(vF, _mm256_add_epi64(vHt, pvGapper[0]));
-        vF = _mm256_slli_si256_rpl(vF, 8);
-#if SEGWIDTH > 2
-        vF = _mm256_add_epi64(vF, vNegInfFront);
         for (i=0; i<segWidth-2; ++i) {
-            __m256i vFt = _mm256_sub_epi64(vF, vSegLenXgap);
-            vFt = _mm256_slli_si256_rpl(vFt, 8);
+            __m256i vFt = _mm256_slli_si256_rpl(vF, 8);
+            vFt = _mm256_add_epi64(vFt, vSegLenXgap);
             vF = _mm256_max_epi64_rpl(vF, vFt);
         }
-#endif
 
         /* calculate final H */
+        vF = _mm256_slli_si256_rpl(vF, 8);
         vF = _mm256_add_epi64(vF, vNegInfFront);
         vH = _mm256_max_epi64_rpl(vHt, vF);
         for (i=0; i<segLen; ++i) {

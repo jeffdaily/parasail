@@ -21,7 +21,6 @@
 #include "parasail/memory.h"
 #include "parasail/internal_sse.h"
 
-#define SEGWIDTH 16
 #define NEG_INF INT8_MIN
 
 static inline __m128i _mm_max_epi8_rpl(__m128i a, __m128i b) {
@@ -157,10 +156,9 @@ parasail_result_t* PNAME(
     int8_t score = NEG_INF;
     __m128i vMaxH = vNegInf;
     __m128i vMaxHUnit = vNegInf;
-#if SEGWIDTH > 2
-    __m128i vSegLenXgap = _mm_set1_epi8(segLen*gap);
-#endif
     __m128i vNegInfFront = _mm_set_epi8(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,NEG_INF);
+    __m128i vSegLenXgap = _mm_adds_epi8(vNegInfFront,
+            _mm_slli_si128(_mm_set1_epi8(-segLen*gap), 1));
     __m128i vNegLimit = _mm_set1_epi8(INT8_MIN);
     __m128i vPosLimit = _mm_set1_epi8(INT8_MAX);
     __m128i vSaturationCheckMin = vPosLimit;
@@ -223,17 +221,14 @@ parasail_result_t* PNAME(
         /* pseudo prefix scan on F and H */
         vHt = _mm_slli_si128(vHt, 1);
         vF = _mm_max_epi8_rpl(vF, _mm_adds_epi8(vHt, pvGapper[0]));
-        vF = _mm_slli_si128(vF, 1);
-#if SEGWIDTH > 2
-        vF = _mm_adds_epi8(vF, vNegInfFront);
         for (i=0; i<segWidth-2; ++i) {
-            __m128i vFt = _mm_subs_epi8(vF, vSegLenXgap);
-            vFt = _mm_slli_si128(vFt, 1);
+            __m128i vFt = _mm_slli_si128(vF, 1);
+            vFt = _mm_adds_epi8(vFt, vSegLenXgap);
             vF = _mm_max_epi8_rpl(vF, vFt);
         }
-#endif
 
         /* calculate final H */
+        vF = _mm_slli_si128(vF, 1);
         vF = _mm_adds_epi8(vF, vNegInfFront);
         vH = _mm_max_epi8_rpl(vHt, vF);
         for (i=0; i<segLen; ++i) {

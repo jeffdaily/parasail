@@ -60,6 +60,13 @@ extern "C" {
   #define PARASAIL_LOCAL
 #endif /* PARASAIL_DLL */
 
+/*
+ * This helps users not familiar with the restrict keyword.
+ */
+#if defined(__cplusplus) || __STDC_VERSION__ < 199901L
+#define restrict
+#endif
+
 typedef struct parasail_result {
     int saturated;  /* for the 8-bit functions, whether score overflowed and should be discarded */
     int score;      /* alignment score */

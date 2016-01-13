@@ -63,8 +63,9 @@ extern "C" {
 /*
  * This helps users not familiar with the restrict keyword.
  */
-#if defined(__cplusplus) || __STDC_VERSION__ < 199901L
+#if !defined(restrict) && (defined(__cplusplus) || __STDC_VERSION__ < 199901L)
 #define restrict
+#define PARASAIL_RESTRICT_REMOVED
 #endif
 
 typedef struct parasail_result {
@@ -13526,6 +13527,10 @@ parasail_result_t* parasail_sw_stats_rowcol_diag_sat(
 
 #ifdef __cplusplus
 }
+#endif
+
+#ifdef PARASAIL_RESTRICT_REMOVED
+#undef restrict
 #endif
 
 #endif /* _PARASAIL_H_ */

@@ -47,6 +47,11 @@ configure SSE2_FLAGS=choke SSE41_FLAGS=choke AVX2_CFLAGS=choke
 
 parasail follows the typical configure, make, make install steps of other GNU autotools-based installations.  There are no external dependencies.  There is an optional CMake build available, however the GNU autotools-based installation is the preferred method.
 
+By default, running "make install" will install parasail into /usr/local. You will find the parasail.h header in /usr/local/include and the parasail library, e.g., libparasail.so, in /usr/local/lib. If you specify a different prefix during configure, for example `configure --prefix=/some/other/path`, then look within the include and lib directories there for the parasail.h header and
+libparasail.so library, respectively.
+
+Don't forget to link your application to the parasail library.  For example, `gcc foo.c -I/where/you/installed/include -L/where/you/installed/lib -lparasail`.  Otherwise, you'll see errors such as `undefined reference to 'parasail_sw'`.
+
 ## C Interface Example
 
 [back to top](#parasail-pairwise-sequence-alignment-library)

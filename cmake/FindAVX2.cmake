@@ -56,6 +56,8 @@ else()
     "-march=core-avx2"
     #clang
     "-mavx2"
+    #msvc
+    "/arch:AVX2"
   )
 
   include(CheckCSourceCompiles)

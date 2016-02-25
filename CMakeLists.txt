@@ -486,12 +486,15 @@ IF( OPENMP_FOUND )
 ENDIF( )
 TARGET_LINK_LIBRARIES( parasail_aligner parasail )
 
+ADD_EXECUTABLE( parasail_stats apps/parasail_stats.c )
+TARGET_LINK_LIBRARIES( parasail_stats parasail )
+
 ADD_EXECUTABLE( test_isa tests/test_isa.c )
 TARGET_LINK_LIBRARIES( test_isa parasail )
 
 INSTALL( FILES parasail.h DESTINATION include )
 INSTALL( DIRECTORY parasail DESTINATION include )
-INSTALL( TARGETS parasail parasail_aligner
+INSTALL( TARGETS parasail parasail_aligner parasail_stats
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib

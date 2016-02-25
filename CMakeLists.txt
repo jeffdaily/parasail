@@ -45,6 +45,8 @@ int main() {
 ENDFOREACH( )
 IF( HAVE_RESTRICT )
     SET( restrict ${ac_cv_c_restrict} )
+ELSE( )
+    SET( restrict " " )
 ENDIF( )
 
 # Check for inline keyword
@@ -74,6 +76,8 @@ int main(int argc, char *argv[]){return 0;}
     ENDFOREACH( )
     IF( HAVE_INLINE )
         SET( inline ${ac_cv_c_inline} )
+    ELSE( )
+        SET( inline " " )
     ENDIF( )
 ENDIF( )
 

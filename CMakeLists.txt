@@ -99,6 +99,7 @@ SET( SRC_CORE
     src/cpuid.c
     src/function_lookup.c
     src/io.c
+    src/isastubs.c
     src/matrix_lookup.c
     src/memory.c
     src/time.c

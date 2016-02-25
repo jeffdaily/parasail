@@ -4,13 +4,7 @@ CMAKE_MINIMUM_REQUIRED( VERSION 2.8.8 )
 
 SET( CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH} )
 
-SET( CMAKE_VERSION_MAJOR 1 )
-SET( CMAKE_VERSION_MINOR 0 )
-SET( CMAKE_VERSION_PATCH 0 )
 
-SET( PARASAIL_VERSION "${CMAKE_VERSION_MAJOR}.${CMAKE_VERSION_MINOR}.${CMAKE_VERSION_PATCH}" )
-
-SET( CPACK_PACKAGE_CONTACT "Jeff Daily <jeff.daily@pnnl.gov>" )
 
 INCLUDE( CheckFunctionExists )
 INCLUDE( CheckLibraryExists )
@@ -129,7 +123,6 @@ SET( SRC_NOVEC
 )
 
 SET( SRC_SSE2
-    src/memory_sse.c
     src/nw_scan_sse2_128_64.c
     src/sg_scan_sse2_128_64.c
     src/sw_scan_sse2_128_64.c
@@ -298,7 +291,6 @@ SET( SRC_SSE41
 )
 
 SET( SRC_AVX2
-    src/memory_avx2.c
     src/nw_scan_avx2_256_64.c
     src/sg_scan_avx2_256_64.c
     src/sw_scan_avx2_256_64.c
@@ -414,7 +406,7 @@ SET_TARGET_PROPERTIES( parasail_novec_table PROPERTIES COMPILE_DEFINITIONS PARAS
 SET_TARGET_PROPERTIES( parasail_novec_rowcol PROPERTIES COMPILE_DEFINITIONS PARASAIL_ROWCOL )
 
 IF( SSE2_FOUND )
-    ADD_LIBRARY( parasail_sse2 OBJECT ${SRC_SSE2} )
+    ADD_LIBRARY( parasail_sse2 OBJECT ${SRC_SSE2} src/memory_sse.c )
     ADD_LIBRARY( parasail_sse2_table OBJECT ${SRC_SSE2} )
     ADD_LIBRARY( parasail_sse2_rowcol OBJECT ${SRC_SSE2} )
     SET_TARGET_PROPERTIES( parasail_sse2 PROPERTIES COMPILE_FLAGS ${SSE2_C_FLAGS} )
@@ -444,7 +436,7 @@ SET_TARGET_PROPERTIES( parasail_sse41_table PROPERTIES COMPILE_DEFINITIONS PARAS
 SET_TARGET_PROPERTIES( parasail_sse41_rowcol PROPERTIES COMPILE_DEFINITIONS PARASAIL_ROWCOL )
 
 IF( AVX2_FOUND )
-    ADD_LIBRARY( parasail_avx2 OBJECT ${SRC_AVX2} )
+    ADD_LIBRARY( parasail_avx2 OBJECT ${SRC_AVX2} src/memory_avx2.c )
     ADD_LIBRARY( parasail_avx2_table OBJECT ${SRC_AVX2} )
     ADD_LIBRARY( parasail_avx2_rowcol OBJECT ${SRC_AVX2} )
     SET_TARGET_PROPERTIES( parasail_avx2 PROPERTIES COMPILE_FLAGS ${AVX2_C_FLAGS} )
@@ -482,7 +474,11 @@ IF( HAVE_CLOCK_GETTIME_PTHREAD )
     TARGET_LINK_LIBRARIES( parasail pthread )
 ENDIF( )
 
-ADD_EXECUTABLE( parasail_aligner apps/parasail_aligner.cpp $<TARGET_OBJECTS:sais> )
+SET( maybe_getopt )
+IF( WIN32 )
+    LIST( APPEND maybe_getopt contrib/wingetopt/src/getopt.c )
+ENDIF( )
+ADD_EXECUTABLE( parasail_aligner apps/parasail_aligner.cpp $<TARGET_OBJECTS:sais> ${maybe_getopt} )
 IF( OPENMP_FOUND )
     SET_TARGET_PROPERTIES( parasail_aligner PROPERTIES COMPILE_FLAGS ${OpenMP_CXX_FLAGS} )
     SET_TARGET_PROPERTIES( parasail_aligner PROPERTIES LINK_FLAGS ${OpenMP_CXX_FLAGS} )

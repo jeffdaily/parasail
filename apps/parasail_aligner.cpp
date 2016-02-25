@@ -17,9 +17,13 @@
 #include "config.h"
 
 #include <errno.h>
+#include <sys/types.h>
+#if defined(_MSC_VER)
+#include "wingetopt/src/getopt.h"
+#else
 #include <pwd.h>
 #include <unistd.h>
-#include <sys/types.h>
+#endif
 
 #include <cctype>
 #include <cfloat>
@@ -774,7 +778,7 @@ int main(int argc, char **argv) {
 #pragma omp parallel
         {
 #pragma omp for schedule(guided)
-            for (size_t index=0; index<profile_indices.size(); ++index)
+            for (long long index=0; index<(long long)profile_indices.size(); ++index)
 #endif
             {
                 int i = profile_indices[index];
@@ -800,7 +804,7 @@ int main(int argc, char **argv) {
 #pragma omp parallel
             {
 #pragma omp for schedule(guided)
-            for (size_t index=0; index<vpairs.size(); ++index)
+            for (long long index=0; index<(long long)vpairs.size(); ++index)
 #endif
             {
                 int i = vpairs[index].first;
@@ -836,7 +840,7 @@ int main(int argc, char **argv) {
 #pragma omp parallel
         {
 #pragma omp for schedule(guided)
-            for (size_t index=0; index<vpairs.size(); ++index)
+            for (long long index=0; index<(long long)vpairs.size(); ++index)
 #endif
             {
                 int i = vpairs[index].first;
@@ -892,7 +896,7 @@ int main(int argc, char **argv) {
 #pragma omp parallel
         {
 #pragma omp for schedule(guided)
-            for (size_t index=0; index<profiles.size(); ++index)
+            for (long long index=0; index<(long long)profiles.size(); ++index)
 #endif
             {
                 if (NULL != profiles[index]) {

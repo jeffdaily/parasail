@@ -11,6 +11,9 @@
 
 #include "parasail.h"
 
+#ifdef _MSC_VER
+#include <Windows.h>
+#else
 #ifdef __MACH__
 #include <mach/clock.h>
 #include <mach/mach.h>
@@ -19,11 +22,22 @@
 #else
 #include <time.h>
 #endif
+#endif
 
 #include <assert.h>
 
 double parasail_time(void)
 {
+#ifdef _MSC_VER
+	__int64 wintime;
+	double sec;
+	double nsec;
+	GetSystemTimeAsFileTime((FILETIME*)&wintime);
+	wintime -=116444736000000000i64;   /*1jan1601 to 1jan1970*/
+	sec  = wintime / 10000000i64;      /*seconds*/
+	nsec = wintime % 10000000i64 *100; /*nano-seconds*/
+	return sec + nsec/1000000000.0;
+#else
 #ifdef __MACH__
     /* OS X does not have clock_gettime, use clock_get_time */
     clock_serv_t cclock;
@@ -44,6 +58,7 @@ double parasail_time(void)
     long retval = clock_gettime(CLOCK_REALTIME, &ts);
     assert(0 == retval);
     return (double)(ts.tv_sec) + (double)(ts.tv_nsec)/1000000000.0;
+#endif
 #endif
 }
 

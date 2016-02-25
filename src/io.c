@@ -12,10 +12,13 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#if defined(_MSC_VER)
+#else
+#include <sys/mman.h>
 #include <unistd.h>
+#endif
 
 #include "parasail/io.h"
 #include "parasail/stats.h"
@@ -33,10 +36,45 @@
 
 parasail_file_t* parasail_open(const char *fname)
 {
-    int fd = -1;
-    struct stat fs;
+	parasail_file_t *pf = NULL;
     char *buf = NULL;
-    parasail_file_t *pf = NULL;
+
+#if defined(_MSC_VER)
+	FILE *fd = NULL;
+	struct _stat64 fs;
+
+	fd = fopen(fname, "rb");
+	if (NULL == fd) {
+		fprintf(stderr, "Cannot open input file `%s': ", fname);
+		perror("fopen");
+		exit(EXIT_FAILURE);
+	}
+
+	if (0 != _stat64(fname, &fs)) {
+		fprintf(stderr, "Cannont stat input file `%s': ", fname);
+		perror("_stat");
+		exit(EXIT_FAILURE);
+	}
+
+	/* Allocate a buffer to hold the whole file */
+	buf = (char*)malloc(fs.st_size + 1);
+	if (NULL == buf) {
+		fprintf(stderr, "Cannont malloc buffer for input file `%s': ", fname);
+		perror("malloc");
+		exit(EXIT_FAILURE);
+	}
+	/* Slurp file into buffer */
+	if (fs.st_size != fread(buf, fs.st_size, 1, fd)) {
+		fprintf(stderr, "Cannont read input file `%s': ", fname);
+		free(buf);
+		perror("fread");
+		exit(EXIT_FAILURE);
+	}
+	/* Close the file early */
+	fclose(fd);
+#else
+	int fd = -1;
+	struct stat fs;
 
     fd = open(fname, O_RDONLY);
     if (fd == -1) {
@@ -51,12 +89,13 @@ parasail_file_t* parasail_open(const char *fname)
         exit(EXIT_FAILURE);
     }
 
-    buf = (char*)mmap(NULL, fs.st_size, PROT_READ, MAP_SHARED, fd, 0);
+	buf = (char*)mmap(NULL, fs.st_size, PROT_READ, MAP_SHARED, fd, 0);
     if (MAP_FAILED == buf) {
         fprintf(stderr, "Cannont mmap input file `%s': ", fname);
         perror("mmap");
         exit(EXIT_FAILURE);
     }
+#endif
 
     pf = (parasail_file_t*)malloc(sizeof(parasail_file_t));
     if (NULL == pf) {
@@ -65,7 +104,11 @@ parasail_file_t* parasail_open(const char *fname)
         exit(EXIT_FAILURE);
     }
 
+#ifdef _MSC_VER
+	pf->fd = 0;
+#else
     pf->fd = fd;
+#endif
     pf->size = fs.st_size;
     pf->buf = buf;
     return pf;
@@ -73,8 +116,13 @@ parasail_file_t* parasail_open(const char *fname)
 
 void parasail_close(parasail_file_t *pf)
 {
+#if defined(_MSC_VER)
+	free((void*)pf->buf);
+	/* file was already closed */
+#else
     munmap((void*)pf->buf, pf->size);
-    close(pf->fd);
+	close(pf->fd);
+#endif
     free(pf);
 }
 

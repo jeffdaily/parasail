@@ -143,6 +143,7 @@ SRC_KNC =
 SRC_CORE += src/cpuid.c
 SRC_CORE += src/function_lookup.c
 SRC_CORE += src/io.c
+SRC_CORE += src/isastubs.c
 SRC_CORE += src/matrix_lookup.c
 SRC_CORE += src/memory.c
 SRC_CORE += src/time.c

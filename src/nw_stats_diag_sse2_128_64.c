@@ -9,7 +9,11 @@
 
 #include <stdlib.h>
 
+#if defined(_MSC_VER)
+#include <intrin.h>
+#else
 #include <emmintrin.h>
+#endif
 
 #include "parasail.h"
 #include "parasail/memory.h"

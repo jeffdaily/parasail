@@ -23,6 +23,7 @@ int main(int argc, char **argv)
     size_t lena = strlen(seqA);
     size_t lenb = strlen(seqB);
     parasail_result_t * result = NULL;
+    parasail_matrix_t *matrix = NULL;
 
     UNUSED(argc);
     UNUSED(argv);
@@ -43,7 +44,7 @@ int main(int argc, char **argv)
     printf("score8=%d\n", result->score);
     parasail_result_free(result);
 
-    parasail_matrix_t *matrix = parasail_matrix_create("ASDF", 1, -1);
+    matrix = parasail_matrix_create("ASDF", 1, -1);
     parasail_matrix_free(matrix);
     parasail_matrix_free((parasail_matrix_t*)&parasail_blosum62);
 

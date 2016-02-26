@@ -173,8 +173,8 @@ static void check_functions(
             for (function_index=1;
                     NULL!=functions[function_index].pointer;
                     ++function_index) {
-                if (verbose) printf("\t\t\t%s\n", functions[function_index].name);
                 unsigned long saturated = 0;
+                if (verbose) printf("\t\t\t%s\n", functions[function_index].name);
 #pragma omp parallel for
                 for (pair_index=0; pair_index<pair_limit; ++pair_index) {
                     parasail_result_t *reference_result = NULL;
@@ -182,7 +182,7 @@ static void check_functions(
                     unsigned long a = 0;
                     unsigned long b = 1;
                     k_combination2(pair_index, &a, &b);
-                    //printf("\t\t\t\tpair=%lu (%lu,%lu)\n", pair_index, a, b);
+                    /*printf("\t\t\t\tpair=%lu (%lu,%lu)\n", pair_index, a, b);*/
                     reference_result = reference_function(
                             sequences[a], sizes[a],
                             sequences[b], sizes[b],

@@ -28,7 +28,7 @@ KSEQ_INIT(int, read)
 
 #include "parasail.h"
 #include "parasail/function_lookup.h"
-//#include "timer.h"
+/*#include "timer.h"*/
 #include "timer_real.h"
 
 /* This table is used to transform amino acid letters into numbers. */
@@ -314,11 +314,11 @@ int main(int argc, char **argv)
                     (unsigned long)(sizes[a]*sizes[b]),
                     timer_local);
             for (j=0; j<24; ++j) {
-                //printf(",%lu", a_counts[j]);
+                /*printf(",%lu", a_counts[j]);*/
                 printf(",%f", (double)(a_counts[j])/sizes[a]);
             }
             for (j=0; j<24; ++j) {
-                //printf(",%lu", b_counts[j]);
+                /*printf(",%lu", b_counts[j]);*/
                 printf(",%f", (double)(b_counts[j])/sizes[b]);
             }
             printf(",%f\n", sizes[a]*sizes[b]/timer_local);

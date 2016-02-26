@@ -29,7 +29,7 @@ KSEQ_INIT(int, read)
 #include "parasail.h"
 #include "parasail/memory.h"
 #include "parasail/stats.h"
-//#include "timer.h"
+/*#include "timer.h"*/
 #include "timer_real.h"
 
 #if HAVE_SSE2
@@ -383,7 +383,7 @@ int main(int argc, char **argv)
     }
 
     limit = binomial_coefficient(seq_count_database, 2);
-    //printf("%lu choose 2 is %lu\n", seq_count_database, limit);
+    /*printf("%lu choose 2 is %lu\n", seq_count_database, limit);*/
 
 #if defined(_OPENMP)
 #pragma omp parallel
@@ -391,15 +391,15 @@ int main(int argc, char **argv)
 #pragma omp single
         {
             N = omp_get_max_threads();
-            //printf("omp_get_max_threads()=%d\n", N);
+            /*printf("omp_get_max_threads()=%d\n", N);*/
         }
     }
 #endif
 
     if (filename_queries) {
+        double total_timer = 0.0;
         parse_sequences(filename_queries,
                 &sequences_queries, &sizes_queries, &seq_count_queries);
-        double total_timer = 0.0;
         for (i=0; i<seq_count_queries; ++i) {
             int saturated_query = 0;
             double local_timer = 0.0;

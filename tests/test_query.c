@@ -24,7 +24,7 @@ KSEQ_INIT(int, read)
 
 #include "parasail.h"
 #include "parasail/stats.h"
-//#include "timer.h"
+/*#include "timer.h"*/
 #include "timer_real.h"
 
 static inline size_t parse_sequences(
@@ -108,6 +108,7 @@ int main(int argc, char **argv)
     int exact_length = 0;
     stats_t stats_time;
     size_t biggest = 0;
+    char *seen = NULL;
 
     stats_clear(&stats_time);
 
@@ -226,7 +227,7 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    char *seen = malloc(sizeof(char)*biggest);
+    seen = malloc(sizeof(char)*biggest);
     for (i=0; i<biggest; ++i) {
         seen[i] = 0;
     }
@@ -241,7 +242,7 @@ int main(int argc, char **argv)
             continue;
         }
         if (seen[sizes_queries[i]]) {
-            //printf("skipping %d\n", i);
+            /*printf("skipping %d\n", i);*/
             continue;
         }
         else {

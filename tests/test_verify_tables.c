@@ -187,8 +187,8 @@ static void check_functions(
             for (function_index=1;
                     NULL!=functions[function_index].pointer;
                     ++function_index) {
-                if (verbose) printf("\t\t\t%s\n", functions[function_index].name);
                 unsigned long saturated = 0;
+                if (verbose) printf("\t\t\t%s\n", functions[function_index].name);
 #pragma omp parallel for
                 for (pair_index=0; pair_index<pair_limit; ++pair_index) {
                     parasail_result_t *reference_result = NULL;

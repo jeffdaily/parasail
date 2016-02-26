@@ -49,7 +49,7 @@
 /* qsort int comparison function */ 
 int int_cmp(const void *a, const void *b) 
 { 
-  const int *ia = (const int *)a; // casting pointer types 
+  const int *ia = (const int *)a; /* casting pointer types  */
   const int *ib = (const int *)b;
   return *ia  - *ib; 
 } 
@@ -313,113 +313,116 @@ static void induceSAandLCP(const void *T, sais_index_type *SA,
     LCP-entries are marked -2.
   */
 
-  sais_index_type i, bb;         // indices in SA/LCP (origin/target)
-  sais_index_type j;             // position in text
-  sais_index_type c0, c1;        // characters (new/last)
+  sais_index_type i, bb;         /* indices in SA/LCP (origin/target) */
+  sais_index_type j;             /* position in text */
+  sais_index_type c0, c1;        /* characters (new/last) */
   
-  sais_index_type lcp;           // LCP-value
-  sais_index_type l;             // for finding LCP at L/S-seam
-  sais_index_type start, end, stack_end; // for inducing the LCP-values
+  sais_index_type lcp;           /* LCP-value */
+  sais_index_type l;             /* for finding LCP at L/S-seam */
+  sais_index_type start, end, stack_end; /* for inducing the LCP-values */
 
-  sais_index_type *D; // store beginnings of buckets (not CURRENT beginnings!)
-  if ((D = SAIS_MYMALLOC(k, sais_index_type)) == NULL) { exit(-1); } // TODO: check if D is necessary!!! (first write to bucket=>0)
-  sais_index_type *LastW; // store last written L or S-suffix for every bucket
+  sais_index_type *D; /* store beginnings of buckets (not CURRENT beginnings!) */
+  sais_index_type *LastW; /* store last written L or S-suffix for every bucket */
+  sais_index_type sigma;       /* (true) alphabet size */
+  sais_index_type *TranslateSigma; /* general to effective alphabet ([0..k-1] |--> [0..sigma-1]) */
+  sais_index_type *LastOcc; /* store last occurrences of characters */
+  const sais_index_type stack_extra_space = 1024; /* this is the same Min-Stack as in Gog's sdsl */
+  sais_index_type stack_size;
+  sais_index_type *MinStack; /* Min-Stack */
+
+  if ((D = SAIS_MYMALLOC(k, sais_index_type)) == NULL) { exit(-1); } /* TODO: check if D is necessary!!! (first write to bucket=>0) */
   if ((LastW = SAIS_MYMALLOC(k, sais_index_type)) == NULL) { exit(-1); }
-  for (i = 0; i < k; ++i) LastW[i] = n-1; // point to $
-  // todo: move memory management to sais_main
+  for (i = 0; i < k; ++i) LastW[i] = n-1; /* point to $ */
+  /* todo: move memory management to sais_main */
 
   /* compute SAl and LCPl*/
-  if(C == B) { getCounts(T, C, n, k, cs); }  // re-calculate character counts
-  getBuckets(C, B, k, 0);                    // find starts of buckets
-  memcpy(D,B,k*sizeof(sais_index_type));     // store starts of buckets
-  j = n - 1;                                 // go to last character $
-  bb = B[c1 = chr(j)];        // bb = position in induced bucket
-  LCP[bb]  = 0;               // set LCP-value of $ (first value in bucket => 0)
-  SA[bb++] = (chr(j - 1) < c1) ? ~j : j; // put last character $ into its bucket
-                        // negative values mean "don't induce from here anymore"
+  if(C == B) { getCounts(T, C, n, k, cs); }  /* re-calculate character counts */
+  getBuckets(C, B, k, 0);                    /* find starts of buckets */
+  memcpy(D,B,k*sizeof(sais_index_type));     /* store starts of buckets */
+  j = n - 1;                                 /* go to last character $ */
+  bb = B[c1 = chr(j)];        /* bb = position in induced bucket */
+  LCP[bb]  = 0;               /* set LCP-value of $ (first value in bucket => 0) */
+  SA[bb++] = (chr(j - 1) < c1) ? ~j : j; /* put last character $ into its bucket */
+                        /* negative values mean "don't induce from here anymore" */
 
-  // in case LCP[0], which is always 0, hadn't been set yet
+  /* in case LCP[0], which is always 0, hadn't been set yet */
   LCP[0] = 0;
 
-  // Variant 3: stack
-  sais_index_type sigma = 0;       // (true) alphabet size
-  sais_index_type *TranslateSigma; // general to effective alphabet ([0..k-1] |--> [0..sigma-1])
+  /* Variant 3: stack */
+  sigma = 0;       /* (true) alphabet size */
   if ((TranslateSigma = SAIS_MYMALLOC(k, sais_index_type)) == NULL) { exit(-1); }
-  for (i = 0; i < k; ++i)  {   // calculate effective alphabet size
-    TranslateSigma[i] = sigma; // (also stores values for unused characters)
-    if (C[i] > 0) ++sigma;     // count characters
+  for (i = 0; i < k; ++i)  {   /* calculate effective alphabet size */
+    TranslateSigma[i] = sigma; /* (also stores values for unused characters) */
+    if (C[i] > 0) ++sigma;     /* count characters */
   }
-  sais_index_type *LastOcc; // store last occurrences of characters
   if ((LastOcc = SAIS_MYMALLOC(sigma, sais_index_type)) == NULL) { exit(-1); }
-  for (i = 0; i < sigma; ++i) LastOcc[i] = -1; // init with impossible values
+  for (i = 0; i < sigma; ++i) LastOcc[i] = -1; /* init with impossible values */
 
-  const sais_index_type stack_extra_space = 1024; // this is the same Min-Stack as in Gog's sdsl
-  const sais_index_type stack_size = 2 * (stack_extra_space + sigma + 4);
-  sais_index_type *MinStack; // Min-Stack
+  stack_size = 2 * (stack_extra_space + sigma + 4);
   if ((MinStack = SAIS_MYMALLOC(stack_size+4, sais_index_type)) == NULL) { exit(-1); }
-  MinStack[0] = -1; MinStack[1] = -1; // (pos, LCP-value)
+  MinStack[0] = -1; MinStack[1] = -1; /* (pos, LCP-value) */
   stack_end = 1;
 
   for(i = 0; i < n; ++i) {
     j = SA[i], SA[i] = ~j;
-    if(0 < j) { // otherwise don't induce anymore from j
+    if(0 < j) { /* otherwise don't induce anymore from j */
       lcp = LCP[i];
       if (lcp == -1) {
-	// here we are at the seam between L and S in the same bucket
-	c0 = chr(j);  // i's bucket
+	/* here we are at the seam between L and S in the same bucket */
+	c0 = chr(j);  /* i's bucket */
 	lcp = 0;
-	while (chr(j+lcp) == chr(LastW[c0]+lcp)) lcp++; // naive LCP-computation (overall linear!)
-	// no need to store LCP[i]=lcp (will be re-calculated in right-to-left scan!)
+	while (chr(j+lcp) == chr(LastW[c0]+lcp)) lcp++; /* naive LCP-computation (overall linear!) */
+	/* no need to store LCP[i]=lcp (will be re-calculated in right-to-left scan!) */
       }
-      --j;      // move to suffix T[SA[i]-1]
-      assert(chr(j) >= chr(j + 1));   // induced suffix must be type L
-      if((c0 = chr(j)) != c1) {       // induced SA-value in new bucket c0
-	B[c1] = bb;                   // store current end in old bucket
-	bb = B[c1 = c0];              // go to position in new bucket
+      --j;      /* move to suffix T[SA[i]-1] */
+      assert(chr(j) >= chr(j + 1));   /* induced suffix must be type L */
+      if((c0 = chr(j)) != c1) {       /* induced SA-value in new bucket c0 */
+	B[c1] = bb;                   /* store current end in old bucket */
+	bb = B[c1 = c0];              /* go to position in new bucket */
       }
-      assert(i < bb);                 // can only induce to the right
-      LastW[c0] = j;                  // store last written L-suffix for every bucket
+      assert(i < bb);                 /* can only induce to the right */
+      LastW[c0] = j;                  /* store last written L-suffix for every bucket */
       SA[bb] = ((0 < j) && (chr(j - 1) < c0)) ? ~j : j;
 
-      // Variant 3: use stack:
-      assert(lcp >= 0);                                 // lcp already computed
-      while (lcp <= MinStack[stack_end]) stack_end -= 2; // pop from stack
-      MinStack[++stack_end] = i;   // push position on stack
-      MinStack[++stack_end] = lcp; // push lcp-value
+      /* Variant 3: use stack: */
+      assert(lcp >= 0);                                 /* lcp already computed */
+      while (lcp <= MinStack[stack_end]) stack_end -= 2; /* pop from stack */
+      MinStack[++stack_end] = i;   /* push position on stack */
+      MinStack[++stack_end] = lcp; /* push lcp-value */
 
-      start = LastOcc[TranslateSigma[c0]] + 1; // start of query
-      assert(stack_end-3 >= 0);                // stopper (-1) and last (i) are on stack
+      start = LastOcc[TranslateSigma[c0]] + 1; /* start of query */
+      assert(stack_end-3 >= 0);                /* stopper (-1) and last (i) are on stack */
       end = stack_end - 3;
-      while (start <= MinStack[end]) end -= 2; // search until smaller element found
-      if (bb == D[c0]) LCP[bb] = 0;            // store 0 at bucket beginnings
-      else LCP[bb] = MinStack[end+3] + 1;      // induce LCP-value!
+      while (start <= MinStack[end]) end -= 2; /* search until smaller element found */
+      if (bb == D[c0]) LCP[bb] = 0;            /* store 0 at bucket beginnings */
+      else LCP[bb] = MinStack[end+3] + 1;      /* induce LCP-value! */
 
-      LastOcc[TranslateSigma[c0]] = i; // store origin of last occurrence of c0
-      ++bb;                            // advance in bucket
+      LastOcc[TranslateSigma[c0]] = i; /* store origin of last occurrence of c0 */
+      ++bb;                            /* advance in bucket */
     }
-    else { // don't induce, but update stack with LCP[i]
-      lcp = LCP[i];      // get current LCP-value
-      assert(lcp != -1); // -1 only for S*, but we induce from S*
-      if (lcp >= 0) {    // check if already computed
-	while (lcp <= MinStack[stack_end]) stack_end -= 2; // pop from stack
-	MinStack[++stack_end] = i;   // push position on stack
-	MinStack[++stack_end] = lcp; // push lcp-value
+    else { /* don't induce, but update stack with LCP[i] */
+      lcp = LCP[i];      /* get current LCP-value */
+      assert(lcp != -1); /* -1 only for S*, but we induce from S* */
+      if (lcp >= 0) {    /* check if already computed */
+	while (lcp <= MinStack[stack_end]) stack_end -= 2; /* pop from stack */
+	MinStack[++stack_end] = i;   /* push position on stack */
+	MinStack[++stack_end] = lcp; /* push lcp-value */
       }
     }
-    if (stack_end > stack_size) { // re-adjust stack:
-      sais_index_type *LastOccCopy; // Copy of LastOcc
+    if (stack_end > stack_size) { /* re-adjust stack: */
+      sais_index_type *LastOccCopy; /* Copy of LastOcc */
       if ((LastOccCopy = SAIS_MYMALLOC(sigma, sais_index_type)) == NULL) { exit(-1); }
       memcpy(LastOccCopy, LastOcc, sigma*sizeof(sais_index_type));
       qsort(LastOccCopy, sigma, sizeof(sais_index_type), int_cmp);
 
       end = 1;
       for (j = 0, l=2; j < sigma; ++j) {
-	start = LastOccCopy[j] + 1; // start of next largest query
-	if (start > MinStack[end-1]) {         // otherwise correct element already taken
+	start = LastOccCopy[j] + 1; /* start of next largest query */
+	if (start > MinStack[end-1]) {         /* otherwise correct element already taken */
 	  while (l < stack_end && start > MinStack[l]) l += 2;
 	  if (l > stack_end) break;
 	  assert(l < stack_end);
-	  MinStack[++end] = MinStack[l];       // take first element >= start
+	  MinStack[++end] = MinStack[l];       /* take first element >= start */
 	  MinStack[++end] = MinStack[l+1];
 	}
       }
@@ -431,63 +434,63 @@ static void induceSAandLCP(const void *T, sais_index_type *SA,
   /* compute SAs and LCPl */
   if(C == B) { getCounts(T, C, n, k, cs); }
   getBuckets(C, B, k, 1); /* find ends of buckets */
-  for (i = 0; i < sigma; ++i) LastOcc[i] = n-1; // init with impossible values
-  MinStack[0] = n; MinStack[1] = -1; // (pos, LCP-value)
+  for (i = 0; i < sigma; ++i) LastOcc[i] = n-1; /* init with impossible values */
+  MinStack[0] = n; MinStack[1] = -1; /* (pos, LCP-value) */
   stack_end = 1;
 
   for(i = n - 1, bb = B[c1 = 0]; 0 <= i; --i) {
     lcp = LCP[i];
-    if (0 < i && lcp < 0 && LCP[i-1] >= 0) { // calculate LCP at L/S-seam
-      j = SA[i];         // go to suffix
-      if (j < 0) j = ~j; // entry in SA could be negative => adjust
-      l = SA[i-1];       // go to lex. previous suffix
-      if (l < 0) l = ~l; // entry in SA could be negative => adjust
+    if (0 < i && lcp < 0 && LCP[i-1] >= 0) { /* calculate LCP at L/S-seam */
+      j = SA[i];         /* go to suffix */
+      if (j < 0) j = ~j; /* entry in SA could be negative => adjust */
+      l = SA[i-1];       /* go to lex. previous suffix */
+      if (l < 0) l = ~l; /* entry in SA could be negative => adjust */
       lcp = 0;
-      while (chr(j+lcp) == chr(l+lcp)) lcp++; // naive LCP-computation (overall linear!)
-      LCP[i] = lcp;                           // this time set LCP-value at seam
+      while (chr(j+lcp) == chr(l+lcp)) lcp++; /* naive LCP-computation (overall linear!) */
+      LCP[i] = lcp;                           /* this time set LCP-value at seam */
     }
-    if(0 < (j = SA[i])) { // induce SA and LCP
-      --j;                           // go to suffix T[SA[i]-1] (to be induced)
-      assert(chr(j) <= chr(j + 1));  // must be type S
+    if(0 < (j = SA[i])) { /* induce SA and LCP */
+      --j;                           /* go to suffix T[SA[i]-1] (to be induced) */
+      assert(chr(j) <= chr(j + 1));  /* must be type S */
       if((c0 = chr(j)) != c1) {
-	B[c1] = bb; bb = B[c1 = c0]; // switch bucket
+	B[c1] = bb; bb = B[c1 = c0]; /* switch bucket */
       }
-      assert(bb <= i); // induced suffix must be placed to the left of i
-      SA[--bb] = ((j == 0) || (chr(j - 1) > c0)) ? ~j : j; // continue if type L
-      assert(c0+1<k);        // we cannot induce into the last bucket
+      assert(bb <= i); /* induced suffix must be placed to the left of i */
+      SA[--bb] = ((j == 0) || (chr(j - 1) > c0)) ? ~j : j; /* continue if type L */
+      assert(c0+1<k);        /* we cannot induce into the last bucket */
 
-      // search MinStack:
-      start = LastOcc[TranslateSigma[c0]];     // end of query
-      assert(stack_end-1 >= 0);                // stopper (-1) is on stack
+      /* search MinStack: */
+      start = LastOcc[TranslateSigma[c0]];     /* end of query */
+      assert(stack_end-1 >= 0);                /* stopper (-1) is on stack */
       end = stack_end - 1;
-      while (start >= MinStack[end]) end -= 2; // search until smaller element found
-      if (bb+1 == D[c0+1]) LCP[bb+1] = 0;      // store 0 at bucket beginnings
-      else LCP[bb+1] = MinStack[end+3] + 1;    // induce LCP-value!
-      if (bb+1 == i) lcp = LCP[i];             // update if inducing changed my LCP-value
-      LastOcc[TranslateSigma[c0]] = i;         // store origin of last occurrence of c0
-    } else { // don't induce
+      while (start >= MinStack[end]) end -= 2; /* search until smaller element found */
+      if (bb+1 == D[c0+1]) LCP[bb+1] = 0;      /* store 0 at bucket beginnings */
+      else LCP[bb+1] = MinStack[end+3] + 1;    /* induce LCP-value! */
+      if (bb+1 == i) lcp = LCP[i];             /* update if inducing changed my LCP-value */
+      LastOcc[TranslateSigma[c0]] = i;         /* store origin of last occurrence of c0 */
+    } else { /* don't induce */
       SA[i] = ~j;
     }
-    // update MinStack:
-    assert(lcp >= 0); // LCP must already have been computed
-    while ((lcp <= MinStack[stack_end]) && (stack_end >= 0))  stack_end -= 2; // pop from stack
-    MinStack[++stack_end] = i;   // push position on stack
-    MinStack[++stack_end] = lcp; // push lcp-value
+    /* update MinStack: */
+    assert(lcp >= 0); /* LCP must already have been computed */
+    while ((lcp <= MinStack[stack_end]) && (stack_end >= 0))  stack_end -= 2; /* pop from stack */
+    MinStack[++stack_end] = i;   /* push position on stack */
+    MinStack[++stack_end] = lcp; /* push lcp-value */
 
-    if (stack_end > stack_size) { // re-adjust stack:
-      sais_index_type *LastOccCopy; // Copy of LastOcc
+    if (stack_end > stack_size) { /* re-adjust stack: */
+      sais_index_type *LastOccCopy; /* Copy of LastOcc */
       if ((LastOccCopy = SAIS_MYMALLOC(sigma, sais_index_type)) == NULL) { exit(-1); }
       memcpy(LastOccCopy, LastOcc, sigma*sizeof(sais_index_type));
       qsort(LastOccCopy, sigma, sizeof(sais_index_type), int_cmp);
 
       end = 1;
       for (j = sigma-1, l=2; j >= 0; --j) {
-	start = LastOccCopy[j]; // start of next largest query
-	if (start < MinStack[end-1]) {         // otherwise correct element already taken
+	start = LastOccCopy[j]; /* start of next largest query */
+	if (start < MinStack[end-1]) {         /* otherwise correct element already taken */
 	  while (l < stack_end && start < MinStack[l]) l += 2;
 	  if (l > stack_end) break;
 	  assert(l < stack_end);
-	  MinStack[++end] = MinStack[l];       // take first element >= start
+	  MinStack[++end] = MinStack[l];       /* take first element >= start */
 	  MinStack[++end] = MinStack[l+1];
 	}
       }
@@ -553,9 +556,9 @@ static sais_index_type sais_main(const void *T, sais_index_type *SA,
 				 sais_index_type *LCP,
 				 sais_index_type fs, sais_index_type n, sais_index_type k, int cs,
 				 sais_bool_type isbwt,
-				 sais_bool_type level0) { // level0 = 1 iff recursion depth is 0
+				 sais_bool_type level0) { /* level0 = 1 iff recursion depth is 0 */
   sais_index_type *C, *B, *D, *RA, *PLCP, *PHI, *DELTA, *b;
-  sais_index_type i, j, m, // m: number of S*-suffixes
+  sais_index_type i, j, m, /* m: number of S*-suffixes */
     p, q, t, name, pidx = 0, newfs;
   sais_index_type c0, c1;
   unsigned int flags;
@@ -634,9 +637,9 @@ static sais_index_type sais_main(const void *T, sais_index_type *SA,
       LMSsort1(T, SA, C, B, n, k, cs);
       name = LMSpostproc1(T, SA, n, m, cs);
     }
-  } else if (m == 1) { // only one S*-suffix => set immediately
-    *b = j + 1;        // set entry in SA
-    if (level0) { LCP[b-SA] = -1; } // mark first (=only) S*-suffix in bucket
+  } else if (m == 1) { /* only one S*-suffix => set immediately */
+    *b = j + 1;        /* set entry in SA */
+    if (level0) { LCP[b-SA] = -1; } /* mark first (=only) S*-suffix in bucket */
     name = 1;
   } else {
     name = 0;
@@ -665,7 +668,7 @@ static sais_index_type sais_main(const void *T, sais_index_type *SA,
       return -2;
     }
 
-    // (re)compute starting positions of S*-suffixes (stored in RA):
+    /* (re)compute starting positions of S*-suffixes (stored in RA): */
     i = n - 1; j = m - 1; c0 = chr(n - 1);
     do { c1 = c0; } while((0 <= --i) && ((c0 = chr(i)) >= c1));
     for(; 0 <= i;) {
@@ -676,77 +679,77 @@ static sais_index_type sais_main(const void *T, sais_index_type *SA,
       }
     }
 
-    // construct LCP for S*-suffixes:
-    // PHI: "to whom I want to be compared" (pos. in T)
-    // DELTA: "distance (in T) to next S*" (in PHI-order)
+    /* construct LCP for S*-suffixes: */
+    /* PHI: "to whom I want to be compared" (pos. in T) */
+    /* DELTA: "distance (in T) to next S*" (in PHI-order) */
     if (level0) {
-      if (m < n/3) { // hence we can store PHI and DELTA interleaved
-	PHI = LCP+m;       // use space in LCP-array for PHI and DELTA
-	RA[m] = n;         // stopper
-	j = SA[0];         // j stores SA[i-1] in the following loop
-	PHI[j<<1] = n-1;   // set PHI[SA[0]] to $ (causes mismatch in char. comp.)
-	PHI[(j<<1)+1] = 0; // set DELTA
+      if (m < n/3) { /* hence we can store PHI and DELTA interleaved */
+	PHI = LCP+m;       /* use space in LCP-array for PHI and DELTA */
+	RA[m] = n;         /* stopper */
+	j = SA[0];         /* j stores SA[i-1] in the following loop */
+	PHI[j<<1] = n-1;   /* set PHI[SA[0]] to $ (causes mismatch in char. comp.) */
+	PHI[(j<<1)+1] = 0; /* set DELTA */
 	for (i = 1; i < m; ++i) {
-	  q = SA[i];                // text position
-	  p = q<<1;                 // for interleaving
-	  PHI[p]=RA[j];             // set PHI-array
-	  PHI[p+1]=RA[j+1]-RA[j];   // set DELTA
-	  j = q;                    // store for next loop iteration
+	  q = SA[i];                /* text position */
+	  p = q<<1;                 /* for interleaving */
+	  PHI[p]=RA[j];             /* set PHI-array */
+	  PHI[p+1]=RA[j+1]-RA[j];   /* set DELTA */
+	  j = q;                    /* store for next loop iteration */
 	}
 
-	PLCP = PHI; // overwrite DELTA in following loop
-	p = 0; // guaranteed LCP-value
-	j = 0; // position in PLCP and RA
+	PLCP = PHI; /* overwrite DELTA in following loop */
+	p = 0; /* guaranteed LCP-value */
+	j = 0; /* position in PLCP and RA */
 	for (i = 0; i < n; ++i) {
 	  if (i == RA[j]) {
-	    if (p < 0) p = 0;
 	    sais_index_type twoj = j << 1;
+	    if (p < 0) p = 0;
 	    while (chr(i+p) == chr(PHI[twoj]+p)) ++p;
-	    t = PHI[twoj+1];      // accesses DELTA-value
-	    q = RA[j+1]-RA[j];    // length difference
-	    PLCP[twoj] = p;       // overwrite PHI with PLCP
+	    t = PHI[twoj+1];      /* accesses DELTA-value */
+	    q = RA[j+1]-RA[j];    /* length difference */
+	    PLCP[twoj] = p;       /* overwrite PHI with PLCP */
 	    ++j;
-	    p -= (t > q) ? t : q; // decrease p by larger of t and q
+	    p -= (t > q) ? t : q; /* decrease p by larger of t and q */
 	  }
 	}
 
-	// translate PLCP-values to SA-order:
+	/* translate PLCP-values to SA-order: */
 	for (j = 0; j < m; ++j) LCP[j] = PLCP[SA[j]<<1];
       }
-      else { // non-interleaved
-	PHI = LCP;     // use space in LCP-array for PHI
-	DELTA = LCP+m; // because we compute only m < n/2 values, this is valid
-	RA[m] = n;     // stopper
-	j = SA[0];     // j stores SA[i-1] in the following loop
-	PHI[j] = n-1;  // set PHI[SA[0]] to $ (causes mismatch in char. comp.)
+      else { /* non-interleaved */
+	PHI = LCP;     /* use space in LCP-array for PHI */
+	DELTA = LCP+m; /* because we compute only m < n/2 values, this is valid */
+	RA[m] = n;     /* stopper */
+	j = SA[0];     /* j stores SA[i-1] in the following loop */
+	PHI[j] = n-1;  /* set PHI[SA[0]] to $ (causes mismatch in char. comp.) */
 	DELTA[j] = 0;
 	for (i = 1; i < m; ++i) {
-	  q = SA[i];              // text position
-	  PHI[q]=RA[j];           // set PHI-array
-	  DELTA[q]=RA[j+1]-RA[j]; // set DELTA
-	  j = q;                  // store for next loop iteration
+	  q = SA[i];              /* text position */
+	  PHI[q]=RA[j];           /* set PHI-array */
+	  DELTA[q]=RA[j+1]-RA[j]; /* set DELTA */
+	  j = q;                  /* store for next loop iteration */
 	}
 
-	PLCP = DELTA; // overwrite DELTA in following loop
-	p = 0; // guaranteed LCP-value
-	j = 0; // position in PLCP and RA
+	PLCP = DELTA; /* overwrite DELTA in following loop */
+	p = 0; /* guaranteed LCP-value */
+	j = 0; /* position in PLCP and RA */
 	for (i = 0; i < n; ++i) {
 	  if (i == RA[j]) {
 	    if (p < 0) p = 0;
 	    while (chr(i+p) == chr(PHI[j]+p)) ++p;
-	    t = PLCP[j];          // accesses DELTA-value
-	    q = RA[j+1]-RA[j];    // length difference
+	    t = PLCP[j];          /* accesses DELTA-value */
+	    q = RA[j+1]-RA[j];    /* length difference */
 	    PLCP[j++] = p;
-	    p -= (t > q) ? t : q; // decrease p by larger of t and q
+	    p -= (t > q) ? t : q; /* decrease p by larger of t and q */
 	  }
 	}
 
-	// translate PLCP-values to SA-order:
+	/* translate PLCP-values to SA-order: */
 	for (j = 0; j < m; ++j) LCP[j] = PLCP[SA[j]];
       }
     }
 
-    // translate indices in RA to indices in T:
+    /* translate indices in RA to indices in T: */
     for(i = 0; i < m; ++i) SA[i] = RA[SA[i]];
 
     if(flags & 4) {
@@ -758,57 +761,57 @@ static sais_index_type sais_main(const void *T, sais_index_type *SA,
         return -2;
       }
     }
-  } // endif (name < m)
-  else if (level0) { // this should only occur for small or pathetic inputs
-    // all names unique => computing LCP for *S naively takes linear time
-    //printf("*** computing LCP naively...");
-    j = SA[0]; // j = SA[i-1] in the following loop
+  } /* endif (name < m) */
+  else if (level0) { /* this should only occur for small or pathetic inputs */
+    /* all names unique => computing LCP for *S naively takes linear time */
+    /*printf("*** computing LCP naively..."); */
+    j = SA[0]; /* j = SA[i-1] in the following loop */
     for (i = 1; i < m; ++i) {
       p = 0;
       while (chr(SA[i]+p) == chr(j+p)) p++;
       LCP[i] = p;
       j = SA[i];
     }
-    //printf("done.\n");
+    /*printf("done.\n"); */
   }
 
   /* stage 3: induce the result for the original problem */
   if(flags & 8) { getCounts(T, C, n, k, cs); }
   /* put all S*-suffixes (and their LCP-values) into their buckets */
-  if(1 < m) { // otherwise SA (and LCP) is already correct
+  if(1 < m) { /* otherwise SA (and LCP) is already correct */
     getBuckets(C, B, k, 1); /* find ends of buckets */
     i = m - 1, j = n, p = SA[m - 1], c1 = chr(p);
     if (level0) {
-      newfs = LCP[m-1]; // newfs stores LCP[i] in the following loop
+      newfs = LCP[m-1]; /* newfs stores LCP[i] in the following loop */
       do {
 	q = B[c0 = c1];
 	while(q < j) {
-	  SA[--j] = 0; LCP[j] = -2; // set remaining entries in old bucket to 0/-2
+	  SA[--j] = 0; LCP[j] = -2; /* set remaining entries in old bucket to 0/-2 */
 	}
 	
-	do { // step through bucket c0 and write S*-suffixes to SA:
+	do { /* step through bucket c0 and write S*-suffixes to SA: */
 	  SA[--j] = p; LCP[j] = newfs;
 	  if(--i < 0) break;
 	  newfs = LCP[i]; p = SA[i];
 	} while((c1 = chr(p)) == c0);
-	//assert(LCP[j]==0); // first S*-suffix in bucket must have LCP-value 0
-	LCP[j] = -1;       // mark first S*-suffix in every bucket
+	/*assert(LCP[j]==0); *//* first S*-suffix in bucket must have LCP-value 0 */
+	LCP[j] = -1;       /* mark first S*-suffix in every bucket */
       } while(0 <= i);
       while(0 < j) {
-	SA[--j] = 0; LCP[j] = -2; // set remaining entries in smallest buckets to 0/-2
+	SA[--j] = 0; LCP[j] = -2; /* set remaining entries in smallest buckets to 0/-2 */
       }
     }
     else {
       do {
 	q = B[c0 = c1];
-	while(q < j) SA[--j] = 0; // set remaining entries in old bucket to 0
-	do { // step through bucket c0
+	while(q < j) SA[--j] = 0; /* set remaining entries in old bucket to 0 */
+	do { /* step through bucket c0 */
 	  SA[--j] = p;
 	  if(--i < 0) break;
 	  p = SA[i];
 	} while((c1 = chr(p)) == c0);
       } while(0 <= i);
-      while(0 < j) SA[--j] = 0; // set remaining entries in 1st bucket to 0
+      while(0 < j) SA[--j] = 0; /* set remaining entries in 1st bucket to 0 */
     }
   }
 

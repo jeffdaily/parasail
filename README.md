@@ -296,7 +296,11 @@ See [the apps README](apps/README.md) for more details.
 
 If needed, please cite the following paper.
 
-Daily, Jeff. 2015. "Scalable Parallel Methods for Analyzing Metagenomic Data at Extreme Scale". PhD dissertation, Washington State University.  http://www.pnnl.gov/main/publications/external/technical_reports/PNNL-24266.pdf
+Daily, Jeff. (2016). Parasail: SIMD C library for global, semi-global,
+and local pairwise sequence alignments. *BMC Bioinformatics*, 17(1), 1-11.
+doi:10.1186/s12859-016-0930-z
+
+http://dx.doi.org/10.1186/s12859-016-0930-z
 
 ## License: Battelle BSD-style
 
@@ -329,9 +333,9 @@ Copyright (c) 2015, Battelle Memorial Institute
       based on work performed using the software should include the
       following citation as a reference:
 
-    Daily, Jeff. 2015. "Scalable Parallel Methods for Analyzing
-    Metagenomic Data at Extreme Scale". PhD dissertation, Washington
-    State University.  http://www.pnnl.gov/main/publications/external/technical_reports/PNNL-24266.pdf
+    Daily, Jeff. (2016). Parasail: SIMD C library for global,
+    semi-global, and local pairwise sequence alignments. *BMC
+    Bioinformatics*, 17(1), 1-11.  doi:10.1186/s12859-016-0930-z
 
 2.  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
     "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT

@@ -499,7 +499,7 @@ int main(int argc, char **argv) {
         eprintf(stderr, "no sentinal(%c) found in input\n", sentinal);
         exit(EXIT_FAILURE);
     }
-    eprintf(stdout, "%20s: %d\n", "number of sequences", sid);
+    eprintf(stdout, "%20s: %ld\n", "number of sequences", sid);
 
     /* scan T from left to build sequence ID and end index */
     /* allocate vectors now that number of sequences is known */
@@ -548,8 +548,8 @@ int main(int argc, char **argv) {
         sid_crossover = -1;
     }
     else {
-        eprintf(stdout, "%20s: %d\n", "number of queries", sid - sid_crossover);
-        eprintf(stdout, "%20s: %d\n", "number of db seqs", sid_crossover);
+        eprintf(stdout, "%20s: %ld\n", "number of queries", sid - sid_crossover);
+        eprintf(stdout, "%20s: %ld\n", "number of db seqs", sid_crossover);
     }
 
     /* use the enhanced SA filter */
@@ -961,7 +961,7 @@ int main(int argc, char **argv) {
                 }
             }
             else {
-                eprintf(fop, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d\n",
+                eprintf(fop, "%d,%d,%ld,%ld,%d,%d,%d,%d,%d,%d\n",
                         i,
                         j,
                         i_len,
@@ -975,7 +975,7 @@ int main(int argc, char **argv) {
             }
         }
         else {
-            eprintf(fop, "%d,%d,%d,%d,%d,%d,%d\n",
+            eprintf(fop, "%d,%d,%ld,%ld,%d,%d,%d\n",
                     i,
                     j,
                     i_len,

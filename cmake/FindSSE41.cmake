@@ -26,7 +26,11 @@ set(CMAKE_REQUIRED_QUIET ${SSE41_FIND_QUIETLY})
 # sample SSE41 source code to test
 set(SSE41_C_TEST_SOURCE
 "
+#if defined(_MSC_VER)
+#include <intrin.h>
+#else
 #include <smmintrin.h>
+#endif
 int foo() {
     __m128i vOne = _mm_set1_epi8(1);
     __m128i result =  _mm_max_epi8(vOne,vOne);
@@ -49,6 +53,8 @@ else()
     "-msse4"
     #GNU 4.4.7 ?
     "-msse4.1"
+    #msvc
+    "/arch:SSE2"
   )
 
   include(CheckCSourceCompiles)

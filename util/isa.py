@@ -1,10 +1,22 @@
 #!/usr/bin/python
 
+sse2_header = """#if defined(_MSC_VER)
+#include <intrin.h>
+#else
+#include <emmintrin.h>
+#endif"""
+
+sse41_header = """#if defined(_MSC_VER)
+#include <intrin.h>
+#else
+#include <emmintrin.h>
+#include <smmintrin.h>
+#endif"""
 
 sse2 = {
     "ISA"         : "sse",
     "ISA_VERSION" : "2",
-    "HEADER"      : "#include <emmintrin.h>",
+    "HEADER"      : sse2_header,
     "BITS"        : 128,
     "VTYPE"       : "__m128i",
     "VADDx8"      : "_mm_add_epi8",
@@ -251,7 +263,7 @@ static inline __m128i _mm_min_epi64_rpl(__m128i a, __m128i b) {
 sse41 = {
     "ISA"         : "sse",
     "ISA_VERSION" : "41",
-    "HEADER"      : "#include <emmintrin.h>\n#include <smmintrin.h>",
+    "HEADER"      : sse41_header,
     "BITS"        : 128,
     "VTYPE"       : "__m128i",
     "VADDx8"      : "_mm_add_epi8",

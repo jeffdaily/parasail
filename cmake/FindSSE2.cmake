@@ -26,7 +26,11 @@ set(CMAKE_REQUIRED_QUIET ${SSE2_FIND_QUIETLY})
 # sample SSE2 source code to test
 set(SSE2_C_TEST_SOURCE
 "
+#if defined(_MSC_VER)
+#include <intrin.h>
+#else
 #include <emmintrin.h>
+#endif
 int foo() {
     __m128i vOne = _mm_set1_epi16(1);
     __m128i result = _mm_add_epi16(vOne,vOne);
@@ -46,6 +50,8 @@ else()
       "-march=core2"
       #clang
       "-msse2"
+      #msvc
+      "/arch:SSE2"
   )
 
   include(CheckCSourceCompiles)

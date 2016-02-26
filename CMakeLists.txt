@@ -92,6 +92,7 @@ CHECK_SYMBOL_EXISTS( aligned_alloc stdlib.h HAVE_ALIGNED_ALLOC )
 CHECK_SYMBOL_EXISTS( memalign malloc.h HAVE_MEMALIGN )
 CHECK_LIBRARY_EXISTS( rt clock_gettime "" HAVE_CLOCK_GETTIME_RT )
 CHECK_LIBRARY_EXISTS( pthread clock_gettime "" HAVE_CLOCK_GETTIME_PTHREAD )
+CHECK_LIBRARY_EXISTS( m pow "" HAVE_POW_M )
 
 CONFIGURE_FILE( ${CMAKE_SOURCE_DIR}/cmake/config.h.in ${CMAKE_BINARY_DIR}/config.h )
 
@@ -404,6 +405,8 @@ SET( SRC_KNC
     src/sw_stats_striped_knc_512_32.c
 )
 
+ADD_LIBRARY( parasail_core OBJECT ${SRC_CORE} )
+
 ADD_LIBRARY( parasail_novec OBJECT ${SRC_NOVEC} )
 ADD_LIBRARY( parasail_novec_table OBJECT ${SRC_NOVEC} )
 ADD_LIBRARY( parasail_novec_rowcol OBJECT ${SRC_NOVEC} )
@@ -458,7 +461,7 @@ SET_TARGET_PROPERTIES( parasail_avx2_rowcol PROPERTIES COMPILE_DEFINITIONS PARAS
 ADD_LIBRARY( sais OBJECT contrib/sais-lite-lcp/sais.c )
 
 ADD_LIBRARY( parasail STATIC
-    ${SRC_CORE}
+    $<TARGET_OBJECTS:parasail_core>
     $<TARGET_OBJECTS:parasail_novec>
     $<TARGET_OBJECTS:parasail_novec_table>
     $<TARGET_OBJECTS:parasail_novec_rowcol>
@@ -477,6 +480,9 @@ IF( HAVE_CLOCK_GETTIME_RT )
 ENDIF( )
 IF( HAVE_CLOCK_GETTIME_PTHREAD )
     TARGET_LINK_LIBRARIES( parasail pthread )
+ENDIF( )
+IF( HAVE_POW_M )
+    TARGET_LINK_LIBRARIES( parasail m )
 ENDIF( )
 
 ADD_EXECUTABLE( parasail_aligner apps/parasail_aligner.cpp $<TARGET_OBJECTS:sais> )

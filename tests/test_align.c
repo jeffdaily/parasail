@@ -2,6 +2,8 @@
 
 /* for getopt */
 #define _POSIX_C_SOURCE 2
+/* for strdup */
+#define _BSD_SOURCE
 
 #include <limits.h>
 #include <stddef.h>

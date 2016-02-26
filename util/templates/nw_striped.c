@@ -141,9 +141,6 @@ parasail_result_t* PNAME(
         /* load final segment of pvHStore and shift left by 2 bytes */
         %(VTYPE)s vH = %(VSHIFT)s(pvHStore[segLen - 1], %(BYTES)s);
 
-        /* insert upper boundary condition */
-        vH = %(VINSERT)s(vH, boundary[j], 0);
-
         /* Correct part of the vProfile */
         const %(VTYPE)s* vP = vProfile + matrix->mapper[(unsigned char)s2[j]] * segLen;
 
@@ -151,6 +148,9 @@ parasail_result_t* PNAME(
         %(VTYPE)s* pv = pvHLoad;
         pvHLoad = pvHStore;
         pvHStore = pv;
+
+        /* insert upper boundary condition */
+        vH = %(VINSERT)s(vH, boundary[j], 0);
 
         /* inner loop to process the query sequence */
         for (i=0; i<segLen; ++i) {

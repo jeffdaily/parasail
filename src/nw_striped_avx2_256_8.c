@@ -229,9 +229,6 @@ parasail_result_t* PNAME(
         /* load final segment of pvHStore and shift left by 2 bytes */
         __m256i vH = _mm256_slli_si256_rpl(pvHStore[segLen - 1], 1);
 
-        /* insert upper boundary condition */
-        vH = _mm256_insert_epi8_rpl(vH, boundary[j], 0);
-
         /* Correct part of the vProfile */
         const __m256i* vP = vProfile + matrix->mapper[(unsigned char)s2[j]] * segLen;
 
@@ -239,6 +236,9 @@ parasail_result_t* PNAME(
         __m256i* pv = pvHLoad;
         pvHLoad = pvHStore;
         pvHStore = pv;
+
+        /* insert upper boundary condition */
+        vH = _mm256_insert_epi8_rpl(vH, boundary[j], 0);
 
         /* inner loop to process the query sequence */
         for (i=0; i<segLen; ++i) {

@@ -18,8 +18,10 @@
 #include <mach/clock.h>
 #include <mach/mach.h>
 #elif defined(__FreeBSD__)
+#define _POSIX_C_SOURCE 199309L
 #include <time.h>
 #else
+#define _POSIX_C_SOURCE 199309L
 #include <time.h>
 #endif
 #endif

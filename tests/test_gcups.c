@@ -1,3 +1,8 @@
+#include "config.h"
+
+/* for getopt */
+#define _POSIX_C_SOURCE 2
+
 #include <limits.h>
 #include <math.h>
 #include <stddef.h>

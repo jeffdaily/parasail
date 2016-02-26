@@ -9,6 +9,7 @@
 #define _PARASAIL_IO_H_
 
 #include <sys/stat.h>
+#include <sys/types.h>
 
 #ifdef __cplusplus
 extern "C" {

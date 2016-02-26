@@ -18,7 +18,7 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif	// __cplusplus
+#endif	/* __cplusplus */
 
 
 /*!	@typedef	structure of the query profile	*/
@@ -64,11 +64,11 @@ typedef struct {
 	@note	example for parameter read and mat:
 			If the query sequence is: ACGTATC, the sequence that read points to can be: 1234142
 			Then if the penalty for match is 2 and for mismatch is -2, the substitution matrix of parameter mat will be:
-			//A  C  G  T
-			  2 -2 -2 -2 //A
-			 -2  2 -2 -2 //C
-			 -2 -2  2 -2 //G
-			 -2 -2 -2  2 //T
+			  A  C  G  T
+			  2 -2 -2 -2 A
+			 -2  2 -2 -2 C
+			 -2 -2  2 -2 G
+			 -2 -2 -2  2 T
 			mat is the pointer to the array {2, -2, -2, -2, -2, 2, -2, -2, -2, -2, 2, -2, -2, -2, -2, 2}
 */
 s_profile* ssw_init (const int8_t* read, const int32_t readLen, const int8_t* mat, const int32_t n, const int8_t score_size);
@@ -78,7 +78,7 @@ s_profile* ssw_init (const int8_t* read, const int32_t readLen, const int8_t* ma
 */
 void init_destroy (s_profile* p);
 
-// @function	ssw alignment.
+/* @function	ssw alignment. */
 /*!	@function	Do Striped Smith-Waterman alignment.
 	@param	prof	pointer to the query profile structure
 	@param	ref	pointer to the target sequence; the target sequence needs to be numbers and corresponding to the mat parameter of
@@ -195,6 +195,6 @@ uint32_t cigar_int_to_len (uint32_t cigar_int);
 
 #ifdef __cplusplus
 }
-#endif	// __cplusplus
+#endif	/* __cplusplus */
 
-#endif	// SSW_H
+#endif	/* SSW_H */

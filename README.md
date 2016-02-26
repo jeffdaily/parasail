@@ -174,8 +174,8 @@ parasails bundles a number of substitution matrices including PAM and BLOSUM.  T
 #include "parasail/matrix_lookup.h"
 
 int main(int argc, char **argv) {
-        const char s1 = "asdf";
-        const char s2 = "asdf";
+        const char *s1 = "asdf";
+        const char *s2 = "asdf";
         int s1Len = (int)strlen(s1);
         int s2Len = (int)strlen(s2);
         parasail_result_t *result = NULL;

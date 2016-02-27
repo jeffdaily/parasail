@@ -80,37 +80,12 @@ AM_CONDITIONAL([HAVE_OPENMP],
                [test "x$ax_cv_[]_AC_LANG_ABBREV[]_openmp" != "xunknown"])
 PS_COMPILER_VENDOR
 
-AC_MSG_CHECKING([for SSE2 flags])
-AS_IF([test "x$SSE2_CFLAGS" = x],
-      [AS_CASE(["$vendor"],
-               [clang],    [SSE2_CFLAGS="-msse2"],
-               [gnu],      [SSE2_CFLAGS="-march=core2"],
-               [intel],    [SSE2_CFLAGS="-march=core2"])])
-AC_MSG_RESULT([$SSE2_CFLAGS])
-AC_SUBST([SSE2_CFLAGS])
-
-AC_MSG_CHECKING([for SSE4.1 flags])
-AS_IF([test "x$SSE41_CFLAGS" = x],
-      [AS_CASE(["$vendor"],
-               [clang],    [SSE41_CFLAGS="-msse4"],
-               [gnu],      [SSE41_CFLAGS="-march=corei7"],
-               [intel],    [SSE41_CFLAGS="-march=corei7"])])
-AC_MSG_RESULT([$SSE41_CFLAGS])
-AC_SUBST([SSE41_CFLAGS])
-
-AC_MSG_CHECKING([for AVX2 flags])
-AS_IF([test "x$AVX2_CFLAGS" = x],
-      [AS_CASE(["$vendor"],
-               [clang],    [AVX2_CFLAGS="-mavx2"],
-               [gnu],      [AVX2_CFLAGS="-march=core-avx2"],
-               [intel],    [AVX2_CFLAGS="-march=core-avx2"])])
-AC_MSG_RESULT([$AVX2_CFLAGS])
-AC_SUBST([AVX2_CFLAGS])
-
-AC_CACHE_CHECK([for SSE2],
-    [pt_cv_sse2],
-    [save_CFLAGS="$CFLAGS"
-     CFLAGS="$SSE2_CFLAGS $CFLAGS"
+AC_CACHE_CHECK([for SSE2 support], [pt_cv_sse2],
+[pt_cv_sse2=no; pt_cv_sse2_val=0
+for flag in default -msse2 -march=core2
+do 
+     save_CFLAGS="$CFLAGS"
+     AS_IF([test "x$flag" != xdefault], [CFLAGS="$CFLAGS $flag"])
      psl_save_c_werror_flag=$ac_c_werror_flag
      ac_c_werror_flag=yes
      AC_LINK_IFELSE([AC_LANG_SOURCE([[
@@ -122,18 +97,25 @@ int foo() {
 }
 int main(void) { return foo(); }
 ]])],
-        [pt_cv_sse2=yes; pt_cv_sse2_val=1],
-        [pt_cv_sse2=no; pt_cv_sse2_val=0])
+        [pt_cv_sse2="$flag"; pt_cv_sse2_val=1])
      ac_c_werror_flag=$psl_save_c_werror_flag
-     CFLAGS="$save_CFLAGS"])
+     CFLAGS="$save_CFLAGS"
+     AS_IF([test "x$pt_cv_sse2" != xno], [break])
+done])
 AC_DEFINE_UNQUOTED([HAVE_SSE2], [$pt_cv_sse2_val],
     [define to 1 if the C compiler supports SSE2])
-AM_CONDITIONAL([HAVE_SSE2], [test "x$pt_cv_sse2" = xyes])
+AM_CONDITIONAL([HAVE_SSE2], [test "x$pt_cv_sse2_val" = x1])
+AS_IF([test "x$pt_cv_sse2" == xdefault], [SSE2_CFLAGS=],
+      [test "x$pt_cv_sse2" != xno],      [SSE2_CFLAGS="$pt_cv_sse2"],
+      [SSE2_CFLAGS="not supported"])
+AC_SUBST([SSE2_CFLAGS])
 
-AC_CACHE_CHECK([for SSE4.1],
-    [pt_cv_sse41],
-    [save_CFLAGS="$CFLAGS"
-     CFLAGS="$SSE41_CFLAGS $CFLAGS"
+AC_CACHE_CHECK([for SSE4.1 support], [pt_cv_sse41],
+[pt_cv_sse41=no; pt_cv_sse41_val=0
+for flag in default -msse4.1 -msse4 -march=corei7
+do
+     save_CFLAGS="$CFLAGS"
+     AS_IF([test "x$flag" != xdefault], [CFLAGS="$CFLAGS $flag"])
      psl_save_c_werror_flag=$ac_c_werror_flag
      ac_c_werror_flag=yes
      AC_LINK_IFELSE([AC_LANG_SOURCE([[
@@ -146,20 +128,27 @@ int foo() {
 }
 int main(void) { return foo(); }
 ]])],
-        [pt_cv_sse41=yes; pt_cv_sse41_val=1],
-        [pt_cv_sse41=no; pt_cv_sse41_val=0])
+        [pt_cv_sse41="$flag"; pt_cv_sse41_val=1])
      ac_c_werror_flag=$psl_save_c_werror_flag
-     CFLAGS="$save_CFLAGS"])
+     CFLAGS="$save_CFLAGS"
+     AS_IF([test "x$pt_cv_sse41" != xno], [break])
+done])
 AC_DEFINE_UNQUOTED([HAVE_SSE41], [$pt_cv_sse41_val],
     [define to 1 if the C compiler supports SSE4.1])
-AM_CONDITIONAL([HAVE_SSE41], [test "x$pt_cv_sse41" = xyes])
+AM_CONDITIONAL([HAVE_SSE41], [test "x$pt_cv_sse41_val" = x1])
+AS_IF([test "x$pt_cv_sse41" == xdefault], [SSE41_CFLAGS=],
+      [test "x$pt_cv_sse41" != xno],      [SSE41_CFLAGS="$pt_cv_sse41"],
+      [SSE41_CFLAGS="not supported"])
+AC_SUBST([SSE41_CFLAGS])
 
-AM_CONDITIONAL([HAVE_SSE], [test "x$pt_cv_sse2" = xyes || test "x$pt_cv_sse41" = xyes])
+AM_CONDITIONAL([HAVE_SSE], [test "x$pt_cv_sse2_val" = x1 || test "x$pt_cv_sse41_val" = x1])
 
-AC_CACHE_CHECK([for AVX2],
-    [pt_cv_avx2],
-    [save_CFLAGS="$CFLAGS"
-     CFLAGS="$AVX2_CFLAGS $CFLAGS"
+AC_CACHE_CHECK([for AVX2 support], [pt_cv_avx2],
+[pt_cv_avx2=no; pt_cv_avx2_val=0
+for flag in default -mavx2 -march=core-avx2
+do
+     save_CFLAGS="$CFLAGS"
+     AS_IF([test "x$flag" != xdefault], [CFLAGS="$CFLAGS $flag"])
      psl_save_c_werror_flag=$ac_c_werror_flag
      ac_c_werror_flag=yes
      AC_LINK_IFELSE([AC_LANG_SOURCE([[
@@ -181,13 +170,18 @@ int foo() {
 }
 int main(void) { return foo(); }
 ]])],
-        [pt_cv_avx2=yes; pt_cv_avx2_val=1],
-        [pt_cv_avx2=no; pt_cv_avx2_val=0])
+        [pt_cv_avx2="$flag"; pt_cv_avx2_val=1])
      ac_c_werror_flag=$psl_save_c_werror_flag
-     CFLAGS="$save_CFLAGS"])
+     CFLAGS="$save_CFLAGS"
+     AS_IF([test "x$pt_cv_avx2" != xno], [break])
+done])
 AC_DEFINE_UNQUOTED([HAVE_AVX2], [$pt_cv_avx2_val],
     [define to 1 if the C compiler supports AVX2])
-AM_CONDITIONAL([HAVE_AVX2], [test "x$pt_cv_avx2" = xyes])
+AM_CONDITIONAL([HAVE_AVX2], [test "x$pt_cv_avx2_val" = x1])
+AS_IF([test "x$pt_cv_avx2" == xdefault], [AVX2_CFLAGS=],
+      [test "x$pt_cv_avx2" != xno],      [AVX2_CFLAGS="$pt_cv_avx2"],
+      [AVX2_CFLAGS="not supported"])
+AC_SUBST([AVX2_CFLAGS])
 
 AC_CACHE_CHECK([for AVX2 _mm256_insert_epi64],
     [pt_cv_avx2_mm256_insert_epi64],

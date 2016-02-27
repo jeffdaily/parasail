@@ -688,17 +688,17 @@ HAVE_XGETBV_FALSE
 HAVE_XGETBV_TRUE
 HAVE_KNC_FALSE
 HAVE_KNC_TRUE
+AVX2_CFLAGS
 HAVE_AVX2_FALSE
 HAVE_AVX2_TRUE
 HAVE_SSE_FALSE
 HAVE_SSE_TRUE
+SSE41_CFLAGS
 HAVE_SSE41_FALSE
 HAVE_SSE41_TRUE
+SSE2_CFLAGS
 HAVE_SSE2_FALSE
 HAVE_SSE2_TRUE
-AVX2_CFLAGS
-SSE41_CFLAGS
-SSE2_CFLAGS
 HAVE_OPENMP_FALSE
 HAVE_OPENMP_TRUE
 OPENMP_CFLAGS
@@ -5191,67 +5191,18 @@ $as_echo "$ps_cv_c_compiler_vendor" >&6; }
 
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for SSE2 flags" >&5
-$as_echo_n "checking for SSE2 flags... " >&6; }
-if test "x$SSE2_CFLAGS" = x; then :
-  case "$vendor" in #(
-  clang) :
-    SSE2_CFLAGS="-msse2" ;; #(
-  gnu) :
-    SSE2_CFLAGS="-march=core2" ;; #(
-  intel) :
-    SSE2_CFLAGS="-march=core2" ;; #(
-  *) :
-     ;;
-esac
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $SSE2_CFLAGS" >&5
-$as_echo "$SSE2_CFLAGS" >&6; }
-
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for SSE4.1 flags" >&5
-$as_echo_n "checking for SSE4.1 flags... " >&6; }
-if test "x$SSE41_CFLAGS" = x; then :
-  case "$vendor" in #(
-  clang) :
-    SSE41_CFLAGS="-msse4" ;; #(
-  gnu) :
-    SSE41_CFLAGS="-march=corei7" ;; #(
-  intel) :
-    SSE41_CFLAGS="-march=corei7" ;; #(
-  *) :
-     ;;
-esac
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $SSE41_CFLAGS" >&5
-$as_echo "$SSE41_CFLAGS" >&6; }
-
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for AVX2 flags" >&5
-$as_echo_n "checking for AVX2 flags... " >&6; }
-if test "x$AVX2_CFLAGS" = x; then :
-  case "$vendor" in #(
-  clang) :
-    AVX2_CFLAGS="-mavx2" ;; #(
-  gnu) :
-    AVX2_CFLAGS="-march=core-avx2" ;; #(
-  intel) :
-    AVX2_CFLAGS="-march=core-avx2" ;; #(
-  *) :
-     ;;
-esac
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $AVX2_CFLAGS" >&5
-$as_echo "$AVX2_CFLAGS" >&6; }
-
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for SSE2" >&5
-$as_echo_n "checking for SSE2... " >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for SSE2 support" >&5
+$as_echo_n "checking for SSE2 support... " >&6; }
 if ${pt_cv_sse2+:} false; then :
   $as_echo_n "(cached) " >&6
 else
-  save_CFLAGS="$CFLAGS"
-     CFLAGS="$SSE2_CFLAGS $CFLAGS"
+  pt_cv_sse2=no; pt_cv_sse2_val=0
+for flag in default -msse2 -march=core2
+do
+     save_CFLAGS="$CFLAGS"
+     if test "x$flag" != xdefault; then :
+  CFLAGS="$CFLAGS $flag"
+fi
      psl_save_c_werror_flag=$ac_c_werror_flag
      ac_c_werror_flag=yes
      cat confdefs.h - <<_ACEOF >conftest.$ac_ext
@@ -5267,14 +5218,16 @@ int main(void) { return foo(); }
 
 _ACEOF
 if ac_fn_c_try_link "$LINENO"; then :
-  pt_cv_sse2=yes; pt_cv_sse2_val=1
-else
-  pt_cv_sse2=no; pt_cv_sse2_val=0
+  pt_cv_sse2="$flag"; pt_cv_sse2_val=1
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
      ac_c_werror_flag=$psl_save_c_werror_flag
      CFLAGS="$save_CFLAGS"
+     if test "x$pt_cv_sse2" != xno; then :
+  break
+fi
+done
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $pt_cv_sse2" >&5
 $as_echo "$pt_cv_sse2" >&6; }
@@ -5283,7 +5236,7 @@ cat >>confdefs.h <<_ACEOF
 #define HAVE_SSE2 $pt_cv_sse2_val
 _ACEOF
 
- if test "x$pt_cv_sse2" = xyes; then
+ if test "x$pt_cv_sse2_val" = x1; then
   HAVE_SSE2_TRUE=
   HAVE_SSE2_FALSE='#'
 else
@@ -5291,14 +5244,27 @@ else
   HAVE_SSE2_FALSE=
 fi
 
+if test "x$pt_cv_sse2" == xdefault; then :
+  SSE2_CFLAGS=
+elif test "x$pt_cv_sse2" != xno; then :
+  SSE2_CFLAGS="$pt_cv_sse2"
+else
+  SSE2_CFLAGS="not supported"
+fi
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for SSE4.1" >&5
-$as_echo_n "checking for SSE4.1... " >&6; }
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for SSE4.1 support" >&5
+$as_echo_n "checking for SSE4.1 support... " >&6; }
 if ${pt_cv_sse41+:} false; then :
   $as_echo_n "(cached) " >&6
 else
-  save_CFLAGS="$CFLAGS"
-     CFLAGS="$SSE41_CFLAGS $CFLAGS"
+  pt_cv_sse41=no; pt_cv_sse41_val=0
+for flag in default -msse4.1 -msse4 -march=corei7
+do
+     save_CFLAGS="$CFLAGS"
+     if test "x$flag" != xdefault; then :
+  CFLAGS="$CFLAGS $flag"
+fi
      psl_save_c_werror_flag=$ac_c_werror_flag
      ac_c_werror_flag=yes
      cat confdefs.h - <<_ACEOF >conftest.$ac_ext
@@ -5315,14 +5281,16 @@ int main(void) { return foo(); }
 
 _ACEOF
 if ac_fn_c_try_link "$LINENO"; then :
-  pt_cv_sse41=yes; pt_cv_sse41_val=1
-else
-  pt_cv_sse41=no; pt_cv_sse41_val=0
+  pt_cv_sse41="$flag"; pt_cv_sse41_val=1
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
      ac_c_werror_flag=$psl_save_c_werror_flag
      CFLAGS="$save_CFLAGS"
+     if test "x$pt_cv_sse41" != xno; then :
+  break
+fi
+done
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $pt_cv_sse41" >&5
 $as_echo "$pt_cv_sse41" >&6; }
@@ -5331,7 +5299,7 @@ cat >>confdefs.h <<_ACEOF
 #define HAVE_SSE41 $pt_cv_sse41_val
 _ACEOF
 
- if test "x$pt_cv_sse41" = xyes; then
+ if test "x$pt_cv_sse41_val" = x1; then
   HAVE_SSE41_TRUE=
   HAVE_SSE41_FALSE='#'
 else
@@ -5339,8 +5307,16 @@ else
   HAVE_SSE41_FALSE=
 fi
 
+if test "x$pt_cv_sse41" == xdefault; then :
+  SSE41_CFLAGS=
+elif test "x$pt_cv_sse41" != xno; then :
+  SSE41_CFLAGS="$pt_cv_sse41"
+else
+  SSE41_CFLAGS="not supported"
+fi
 
- if test "x$pt_cv_sse2" = xyes || test "x$pt_cv_sse41" = xyes; then
+
+ if test "x$pt_cv_sse2_val" = x1 || test "x$pt_cv_sse41_val" = x1; then
   HAVE_SSE_TRUE=
   HAVE_SSE_FALSE='#'
 else
@@ -5349,13 +5325,18 @@ else
 fi
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for AVX2" >&5
-$as_echo_n "checking for AVX2... " >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for AVX2 support" >&5
+$as_echo_n "checking for AVX2 support... " >&6; }
 if ${pt_cv_avx2+:} false; then :
   $as_echo_n "(cached) " >&6
 else
-  save_CFLAGS="$CFLAGS"
-     CFLAGS="$AVX2_CFLAGS $CFLAGS"
+  pt_cv_avx2=no; pt_cv_avx2_val=0
+for flag in default -mavx2 -march=core-avx2
+do
+     save_CFLAGS="$CFLAGS"
+     if test "x$flag" != xdefault; then :
+  CFLAGS="$CFLAGS $flag"
+fi
      psl_save_c_werror_flag=$ac_c_werror_flag
      ac_c_werror_flag=yes
      cat confdefs.h - <<_ACEOF >conftest.$ac_ext
@@ -5381,14 +5362,16 @@ int main(void) { return foo(); }
 
 _ACEOF
 if ac_fn_c_try_link "$LINENO"; then :
-  pt_cv_avx2=yes; pt_cv_avx2_val=1
-else
-  pt_cv_avx2=no; pt_cv_avx2_val=0
+  pt_cv_avx2="$flag"; pt_cv_avx2_val=1
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
      ac_c_werror_flag=$psl_save_c_werror_flag
      CFLAGS="$save_CFLAGS"
+     if test "x$pt_cv_avx2" != xno; then :
+  break
+fi
+done
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: result: $pt_cv_avx2" >&5
 $as_echo "$pt_cv_avx2" >&6; }
@@ -5397,12 +5380,20 @@ cat >>confdefs.h <<_ACEOF
 #define HAVE_AVX2 $pt_cv_avx2_val
 _ACEOF
 
- if test "x$pt_cv_avx2" = xyes; then
+ if test "x$pt_cv_avx2_val" = x1; then
   HAVE_AVX2_TRUE=
   HAVE_AVX2_FALSE='#'
 else
   HAVE_AVX2_TRUE='#'
   HAVE_AVX2_FALSE=
+fi
+
+if test "x$pt_cv_avx2" == xdefault; then :
+  AVX2_CFLAGS=
+elif test "x$pt_cv_avx2" != xno; then :
+  AVX2_CFLAGS="$pt_cv_avx2"
+else
+  AVX2_CFLAGS="not supported"
 fi
 
 

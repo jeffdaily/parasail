@@ -42,7 +42,7 @@ int foo() {
     parasail_memset___m256i(&result2, result, 1);
     return _mm_extract_epi16(_mm256_extracti128_si256(result,0),0);
 }
-int main(void) { return foo(); }
+int main(void) { return (int)foo(); }
 ")
 
 # if these are set then do not try to find them again,
@@ -85,6 +85,25 @@ unset(AVX2_C_FLAG_CANDIDATES)
 set(AVX2_C_FLAGS "${AVX2_C_FLAGS_INTERNAL}"
   CACHE STRING "C compiler flags for AVX2 intrinsics")
 
+list(APPEND _AVX2_REQUIRED_VARS AVX2_C_FLAGS)
+
+set(CMAKE_REQUIRED_QUIET ${CMAKE_REQUIRED_QUIET_SAVE})
+
+if(_AVX2_REQUIRED_VARS)
+  include(FindPackageHandleStandardArgs)
+
+  find_package_handle_standard_args(AVX2
+                                    REQUIRED_VARS ${_AVX2_REQUIRED_VARS})
+
+  mark_as_advanced(${_AVX2_REQUIRED_VARS})
+
+  unset(_AVX2_REQUIRED_VARS)
+else()
+  message(SEND_ERROR "FindAVX2 requires C or CXX language to be enabled")
+endif()
+
+# begin tests for AVX2 specfic features
+
 set(AVX2_C_TEST_SOURCE_INSERT64
 "
 #include <stdint.h>
@@ -93,6 +112,7 @@ __m256i foo() {
     __m256i vOne = _mm256_set1_epi8(1);
     return _mm256_insert_epi64(vOne,INT64_MIN,0);
 }
+int main(void) { foo(); return 0; }
 ")
 
 if(AVX2_C_FLAGS)
@@ -112,6 +132,7 @@ __m256i foo() {
     __m256i vOne = _mm256_set1_epi8(1);
     return _mm256_insert_epi32(vOne,INT32_MIN,0);
 }
+int main(void) { foo(); return 0; }
 ")
 
 if(AVX2_C_FLAGS)
@@ -131,6 +152,7 @@ __m256i foo() {
     __m256i vOne = _mm256_set1_epi8(1);
     return _mm256_insert_epi16(vOne,INT16_MIN,0);
 }
+int main(void) { foo(); return 0; }
 ")
 
 if(AVX2_C_FLAGS)
@@ -150,6 +172,7 @@ __m256i foo() {
     __m256i vOne = _mm256_set1_epi8(1);
     return _mm256_insert_epi8(vOne,INT8_MIN,0);
 }
+int main(void) { foo(); return 0; }
 ")
 
 if(AVX2_C_FLAGS)
@@ -170,6 +193,7 @@ int64_t foo() {
     __m256i vOne = _mm256_set1_epi8(1);
     return (int64_t)_mm256_extract_epi64(vOne,0);
 }
+int main(void) { return (int)foo(); }
 ")
 
 if(AVX2_C_FLAGS)
@@ -189,6 +213,7 @@ int32_t foo() {
     __m256i vOne = _mm256_set1_epi8(1);
     return (int32_t)_mm256_extract_epi32(vOne,0);
 }
+int main(void) { return (int)foo(); }
 ")
 
 if(AVX2_C_FLAGS)
@@ -208,6 +233,7 @@ int16_t foo() {
     __m256i vOne = _mm256_set1_epi8(1);
     return (int16_t)_mm256_extract_epi16(vOne,0);
 }
+int main(void) { return (int)foo(); }
 ")
 
 if(AVX2_C_FLAGS)
@@ -227,6 +253,7 @@ int8_t foo() {
     __m256i vOne = _mm256_set1_epi8(1);
     return (int8_t)_mm256_extract_epi8(vOne,0);
 }
+int main(void) { return (int)foo(); }
 ")
 
 if(AVX2_C_FLAGS)
@@ -239,20 +266,3 @@ if(AVX2_C_FLAGS)
 endif()
 
 
-
-list(APPEND _AVX2_REQUIRED_VARS AVX2_C_FLAGS)
-
-set(CMAKE_REQUIRED_QUIET ${CMAKE_REQUIRED_QUIET_SAVE})
-
-if(_AVX2_REQUIRED_VARS)
-  include(FindPackageHandleStandardArgs)
-
-  find_package_handle_standard_args(AVX2
-                                    REQUIRED_VARS ${_AVX2_REQUIRED_VARS})
-
-  mark_as_advanced(${_AVX2_REQUIRED_VARS})
-
-  unset(_AVX2_REQUIRED_VARS)
-else()
-  message(SEND_ERROR "FindAVX2 requires C or CXX language to be enabled")
-endif()

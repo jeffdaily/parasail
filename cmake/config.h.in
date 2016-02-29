@@ -6,6 +6,14 @@
 #cmakedefine01 HAVE_SSE2
 #cmakedefine01 HAVE_SSE41
 #cmakedefine01 HAVE_AVX2
+#cmakedefine01 HAVE_AVX2_MM256_INSERT_EPI64
+#cmakedefine01 HAVE_AVX2_MM256_INSERT_EPI32
+#cmakedefine01 HAVE_AVX2_MM256_INSERT_EPI16
+#cmakedefine01 HAVE_AVX2_MM256_INSERT_EPI8
+#cmakedefine01 HAVE_AVX2_MM256_EXTRACT_EPI64
+#cmakedefine01 HAVE_AVX2_MM256_EXTRACT_EPI32
+#cmakedefine01 HAVE_AVX2_MM256_EXTRACT_EPI16
+#cmakedefine01 HAVE_AVX2_MM256_EXTRACT_EPI8
 #ifndef __cplusplus
 #cmakedefine inline ${inline}
 #endif

@@ -38,7 +38,7 @@ void parasail_memset___m256i(__m256i *b, __m256i c, size_t len)
 int foo() {
     __m256i vOne = _mm256_set1_epi8(1);
     __m256i result =  _mm256_add_epi8(vOne,vOne);
-    __m256i result2 =  _mm256_insert_epi64(vOne,0,0);
+    __m256i result2;
     parasail_memset___m256i(&result2, result, 1);
     return _mm_extract_epi16(_mm256_extracti128_si256(result,0),0);
 }
@@ -49,16 +49,18 @@ int main(void) { return foo(); }
 # by avoiding any try_compiles for the flags
 if(AVX2_C_FLAGS)
 else()
-  set(AVX2_C_FLAG_CANDIDATES
-    #Empty, if compiler automatically accepts AVX2
-    " "
-    #GNU, Intel
-    "-march=core-avx2"
-    #clang
-    "-mavx2"
-    #msvc
-    "/arch:AVX2"
-  )
+  if(WIN32)
+    set(AVX2_C_FLAG_CANDIDATES "/arch:AVX2")
+  else()
+    set(AVX2_C_FLAG_CANDIDATES
+      #Empty, if compiler automatically accepts AVX2
+      " "
+      #GNU, Intel
+      "-march=core-avx2"
+      #clang
+      "-mavx2"
+    )
+  endif()
 
   include(CheckCSourceCompiles)
 
@@ -82,6 +84,161 @@ unset(AVX2_C_FLAG_CANDIDATES)
   
 set(AVX2_C_FLAGS "${AVX2_C_FLAGS_INTERNAL}"
   CACHE STRING "C compiler flags for AVX2 intrinsics")
+
+set(AVX2_C_TEST_SOURCE_INSERT64
+"
+#include <stdint.h>
+#include <immintrin.h>
+__m256i foo() {
+    __m256i vOne = _mm256_set1_epi8(1);
+    return _mm256_insert_epi64(vOne,INT64_MIN,0);
+}
+")
+
+if(AVX2_C_FLAGS)
+  include(CheckCSourceCompiles)
+  set(SAFE_CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS}")
+  set(CMAKE_REQUIRED_FLAGS "${AVX2_C_FLAGS}")
+  unset(HAVE_AVX2_MM256_INSERT_EPI64 CACHE)
+  check_c_source_compiles("${AVX2_C_TEST_SOURCE_INSERT64}" HAVE_AVX2_MM256_INSERT_EPI64)
+  set(CMAKE_REQUIRED_FLAGS "${SAFE_CMAKE_REQUIRED_FLAGS}")
+endif()
+
+set(AVX2_C_TEST_SOURCE_INSERT32
+"
+#include <stdint.h>
+#include <immintrin.h>
+__m256i foo() {
+    __m256i vOne = _mm256_set1_epi8(1);
+    return _mm256_insert_epi32(vOne,INT32_MIN,0);
+}
+")
+
+if(AVX2_C_FLAGS)
+  include(CheckCSourceCompiles)
+  set(SAFE_CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS}")
+  set(CMAKE_REQUIRED_FLAGS "${AVX2_C_FLAGS}")
+  unset(HAVE_AVX2_MM256_INSERT_EPI32 CACHE)
+  check_c_source_compiles("${AVX2_C_TEST_SOURCE_INSERT32}" HAVE_AVX2_MM256_INSERT_EPI32)
+  set(CMAKE_REQUIRED_FLAGS "${SAFE_CMAKE_REQUIRED_FLAGS}")
+endif()
+
+set(AVX2_C_TEST_SOURCE_INSERT16
+"
+#include <stdint.h>
+#include <immintrin.h>
+__m256i foo() {
+    __m256i vOne = _mm256_set1_epi8(1);
+    return _mm256_insert_epi16(vOne,INT16_MIN,0);
+}
+")
+
+if(AVX2_C_FLAGS)
+  include(CheckCSourceCompiles)
+  set(SAFE_CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS}")
+  set(CMAKE_REQUIRED_FLAGS "${AVX2_C_FLAGS}")
+  unset(HAVE_AVX2_MM256_INSERT_EPI16 CACHE)
+  check_c_source_compiles("${AVX2_C_TEST_SOURCE_INSERT16}" HAVE_AVX2_MM256_INSERT_EPI16)
+  set(CMAKE_REQUIRED_FLAGS "${SAFE_CMAKE_REQUIRED_FLAGS}")
+endif()
+
+set(AVX2_C_TEST_SOURCE_INSERT8
+"
+#include <stdint.h>
+#include <immintrin.h>
+__m256i foo() {
+    __m256i vOne = _mm256_set1_epi8(1);
+    return _mm256_insert_epi8(vOne,INT8_MIN,0);
+}
+")
+
+if(AVX2_C_FLAGS)
+  include(CheckCSourceCompiles)
+  set(SAFE_CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS}")
+  set(CMAKE_REQUIRED_FLAGS "${AVX2_C_FLAGS}")
+  unset(HAVE_AVX2_MM256_INSERT_EPI8 CACHE)
+  check_c_source_compiles("${AVX2_C_TEST_SOURCE_INSERT8}" HAVE_AVX2_MM256_INSERT_EPI8)
+  set(CMAKE_REQUIRED_FLAGS "${SAFE_CMAKE_REQUIRED_FLAGS}")
+endif()
+
+
+set(AVX2_C_TEST_SOURCE_EXTRACT64
+"
+#include <stdint.h>
+#include <immintrin.h>
+int64_t foo() {
+    __m256i vOne = _mm256_set1_epi8(1);
+    return (int64_t)_mm256_extract_epi64(vOne,0);
+}
+")
+
+if(AVX2_C_FLAGS)
+  include(CheckCSourceCompiles)
+  set(SAFE_CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS}")
+  set(CMAKE_REQUIRED_FLAGS "${AVX2_C_FLAGS}")
+  unset(HAVE_AVX2_MM256_EXTRACT_EPI64 CACHE)
+  check_c_source_compiles("${AVX2_C_TEST_SOURCE_EXTRACT64}" HAVE_AVX2_MM256_EXTRACT_EPI64)
+  set(CMAKE_REQUIRED_FLAGS "${SAFE_CMAKE_REQUIRED_FLAGS}")
+endif()
+
+set(AVX2_C_TEST_SOURCE_EXTRACT32
+"
+#include <stdint.h>
+#include <immintrin.h>
+int32_t foo() {
+    __m256i vOne = _mm256_set1_epi8(1);
+    return (int32_t)_mm256_extract_epi32(vOne,0);
+}
+")
+
+if(AVX2_C_FLAGS)
+  include(CheckCSourceCompiles)
+  set(SAFE_CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS}")
+  set(CMAKE_REQUIRED_FLAGS "${AVX2_C_FLAGS}")
+  unset(HAVE_AVX2_MM256_EXTRACT_EPI32 CACHE)
+  check_c_source_compiles("${AVX2_C_TEST_SOURCE_EXTRACT32}" HAVE_AVX2_MM256_EXTRACT_EPI32)
+  set(CMAKE_REQUIRED_FLAGS "${SAFE_CMAKE_REQUIRED_FLAGS}")
+endif()
+
+set(AVX2_C_TEST_SOURCE_EXTRACT16
+"
+#include <stdint.h>
+#include <immintrin.h>
+int16_t foo() {
+    __m256i vOne = _mm256_set1_epi8(1);
+    return (int16_t)_mm256_extract_epi16(vOne,0);
+}
+")
+
+if(AVX2_C_FLAGS)
+  include(CheckCSourceCompiles)
+  set(SAFE_CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS}")
+  set(CMAKE_REQUIRED_FLAGS "${AVX2_C_FLAGS}")
+  unset(HAVE_AVX2_MM256_EXTRACT_EPI16 CACHE)
+  check_c_source_compiles("${AVX2_C_TEST_SOURCE_EXTRACT16}" HAVE_AVX2_MM256_EXTRACT_EPI16)
+  set(CMAKE_REQUIRED_FLAGS "${SAFE_CMAKE_REQUIRED_FLAGS}")
+endif()
+
+set(AVX2_C_TEST_SOURCE_EXTRACT8
+"
+#include <stdint.h>
+#include <immintrin.h>
+int8_t foo() {
+    __m256i vOne = _mm256_set1_epi8(1);
+    return (int8_t)_mm256_extract_epi8(vOne,0);
+}
+")
+
+if(AVX2_C_FLAGS)
+  include(CheckCSourceCompiles)
+  set(SAFE_CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS}")
+  set(CMAKE_REQUIRED_FLAGS "${AVX2_C_FLAGS}")
+  unset(HAVE_AVX2_MM256_EXTRACT_EPI8 CACHE)
+  check_c_source_compiles("${AVX2_C_TEST_SOURCE_EXTRACT8}" HAVE_AVX2_MM256_EXTRACT_EPI8)
+  set(CMAKE_REQUIRED_FLAGS "${SAFE_CMAKE_REQUIRED_FLAGS}")
+endif()
+
+
 
 list(APPEND _AVX2_REQUIRED_VARS AVX2_C_FLAGS)
 

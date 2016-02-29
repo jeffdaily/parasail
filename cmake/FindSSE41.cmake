@@ -44,18 +44,20 @@ int main(void) { return foo(); }
 # by avoiding any try_compiles for the flags
 if(SSE41_C_FLAGS)
 else()
-  set(SSE41_C_FLAG_CANDIDATES
-    #Empty, if compiler automatically accepts SSE41
-    " "
-    #GNU, Intel
-    "-march=corei7"
-    #clang
-    "-msse4"
-    #GNU 4.4.7 ?
-    "-msse4.1"
-    #msvc
-    "/arch:SSE2"
-  )
+  if(WIN32)
+    set(SSE41_C_FLAG_CANDIDATES "/arch:SSE2")
+  else()
+    set(SSE41_C_FLAG_CANDIDATES
+      #Empty, if compiler automatically accepts SSE41
+      " "
+      #GNU, Intel
+      "-march=corei7"
+      #clang
+      "-msse4"
+      #GNU 4.4.7 ?
+      "-msse4.1"
+    )
+  endif()
 
   include(CheckCSourceCompiles)
 

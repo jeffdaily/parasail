@@ -43,16 +43,18 @@ int main(void) { return foo(); }
 # by avoiding any try_compiles for the flags
 if(SSE2_C_FLAGS)
 else()
-  set(SSE2_C_FLAG_CANDIDATES
+  if(WIN32)
+    set(SSE2_C_FLAG_CANDIDATES "/arch:SSE2")
+  else()
+    set(SSE2_C_FLAG_CANDIDATES
       #Empty, if compiler automatically accepts SSE2
       " "
       #GNU, Intel
       "-march=core2"
       #clang
       "-msse2"
-      #msvc
-      "/arch:SSE2"
-  )
+    )
+  endif()
 
   include(CheckCSourceCompiles)
 

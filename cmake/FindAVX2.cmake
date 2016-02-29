@@ -104,6 +104,14 @@ endif()
 
 # begin tests for AVX2 specfic features
 
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+  set(SAFE_CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Werror")
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  set(SAFE_CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Werror")
+endif()
+
 set(AVX2_C_TEST_SOURCE_INSERT64
 "
 #include <stdint.h>
@@ -265,4 +273,9 @@ if(AVX2_C_FLAGS)
   set(CMAKE_REQUIRED_FLAGS "${SAFE_CMAKE_REQUIRED_FLAGS}")
 endif()
 
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+  set(CMAKE_C_FLAGS "${SAFE_CMAKE_C_FLAGS}")
+elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+  set(CMAKE_C_FLAGS "${SAFE_CMAKE_C_FLAGS}")
+endif()
 

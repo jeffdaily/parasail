@@ -121,12 +121,12 @@ parasail_result_t* PNAME(
     __m128i* const restrict pvE = parasail_memalign___m128i(16, segLen);
     __m128i vGapO = _mm_set1_epi64x(open);
     __m128i vGapE = _mm_set1_epi64x(gap);
-    __m128i vZero = _mm_setzero_si128();
+    __m128i vZero = _mm_set1_epi64x(0);
     __m128i vNegInf = _mm_set1_epi64x(NEG_INF);
     int64_t score = NEG_INF;
     __m128i vMaxH = vNegInf;
     __m128i vMaxHUnit = vNegInf;
-    
+    int64_t maxp = INT64_MAX - (int64_t)(matrix->max+1);
     /*int64_t stop = profile->stop == INT32_MAX ?  INT64_MAX : (int64_t)profile->stop;*/
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
@@ -243,6 +243,11 @@ end:
             __m128i vCompare = _mm_cmpgt_epi64_rpl(vMaxH, vMaxHUnit);
             if (_mm_movemask_epi8(vCompare)) {
                 score = _mm_hmax_epi64_rpl(vMaxH);
+                /* if score has potential to overflow, abort early */
+                if (score > maxp) {
+                    result->saturated = 1;
+                    break;
+                }
                 vMaxHUnit = _mm_set1_epi64x(score);
                 end_ref = j;
             }

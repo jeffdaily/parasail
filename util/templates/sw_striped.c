@@ -89,12 +89,12 @@ parasail_result_t* PNAME(
     %(VTYPE)s* const restrict pvE = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
     %(VTYPE)s vGapO = %(VSET1)s(open);
     %(VTYPE)s vGapE = %(VSET1)s(gap);
-    %(VTYPE)s vZero = %(VSET0)s();
+    %(VTYPE)s vZero = %(VSET1)s(0);
     %(VTYPE)s vNegInf = %(VSET1)s(NEG_INF);
     %(INT)s score = NEG_INF;
     %(VTYPE)s vMaxH = vNegInf;
     %(VTYPE)s vMaxHUnit = vNegInf;
-    %(SATURATION_CHECK_INIT)s
+    %(INT)s maxp = INT%(WIDTH)s_MAX - (%(INT)s)(matrix->max+1);
     /*%(INT)s stop = profile->stop == INT32_MAX ?  INT%(WIDTH)s_MAX : (%(INT)s)profile->stop;*/
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
@@ -211,6 +211,11 @@ end:
             %(VTYPE)s vCompare = %(VCMPGT)s(vMaxH, vMaxHUnit);
             if (%(VMOVEMASK)s(vCompare)) {
                 score = %(VHMAX)s(vMaxH);
+                /* if score has potential to overflow, abort early */
+                if (score > maxp) {
+                    result->saturated = 1;
+                    break;
+                }
                 vMaxHUnit = %(VSET1)s(score);
                 end_ref = j;
             }

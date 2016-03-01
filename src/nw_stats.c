@@ -90,7 +90,7 @@ parasail_result_t* ENAME(
         int NHM = HM[0];
         int NHS = HS[0];
         int NHL = HL[0];
-        int WH = -open - (j-1)*gap;
+        int WH = -open - (i-1)*gap;
         int WHM = 0;
         int WHS = 0;
         int WHL = 0;

@@ -52,12 +52,6 @@ parasail_result_t* ENAME(
     int * const restrict FL = parasail_memalign_int(16, s2Len+1);
     int i = 0;
     int j = 0;
-    int score = NEG_INF_32;
-    int matches = NEG_INF_32;
-    int similar = NEG_INF_32;
-    int length = NEG_INF_32;
-    int end_query = s1Len-1;
-    int end_ref = s2Len-1;
 
     for (i=0; i<s1Len; ++i) {
         s1[i] = matrix->mapper[(unsigned char)_s1[i]];
@@ -195,6 +189,8 @@ parasail_result_t* ENAME(
     result->matches = HM[s2Len];
     result->similar = HS[s2Len];
     result->length = HL[s2Len];
+    result->end_query = s1Len-1;
+    result->end_ref = s2Len-1;
 
     parasail_free(FL);
     parasail_free(FS);

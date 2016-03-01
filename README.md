@@ -11,6 +11,7 @@ Author: Jeff Daily (jeff.daily@pnnl.gov)
     * [CMake build](#cmake-build)
   * [C Interface Example](#c-interface-example)
     * [Standard Function Naming Convention](#standard-function-naming-convention)
+    * [Function Dispatchers](#function-dispatchers)
     * [Profile Function Naming Convention](#profile-function-naming-convention)
     * [Substitution Matrices](#substitution-matrices)
     * [Function Lookup](#function-lookup)
@@ -30,7 +31,7 @@ Author: Jeff Daily (jeff.daily@pnnl.gov)
 
 parasail is a SIMD C (C99) library containing implementations of the Smith-Waterman (local), Needleman-Wunsch (global), and semi-global pairwise sequence alignment algorithms.  Here, semi-global means insertions before the start or after the end of either the query or target sequence are not penalized.  parasail implements most known algorithms for vectorized pairwise sequence alignment, including diagonal [Wozniak, 1997], blocked [Rognes and Seeberg, 2000], striped [Farrar, 2007], and prefix scan [Daily, 2015].  Therefore, parasail is a reference implementation for these algorithms in addition to providing an implementation of the best-performing algorithm(s) to date on today's most advanced CPUs.
 
-parasail implements the above algorithms currently in two variants, 1) returning the alignment score and ending locations, and 2) additionally returning alignment statistics (number of exact matches, number of similarities, and alignment length).  The two variants exist because parasail is intended to be high-performing; caculating additional statistics is not free. Select the appropriate implementation for your needs.
+parasail implements the above algorithms currently in two variants, 1) returning the alignment score and ending locations, and 2) additionally returning alignment statistics (number of exact matches, number of similarities, and alignment length).  The two variants exist because parasail is intended to be high-performing; calculating additional statistics is not free. Select the appropriate implementation for your needs.
 
 Note: When any of the algorithms open a gap, only the gap open penalty alone is applied.
 
@@ -142,15 +143,23 @@ For example:
 - `parasail_sw_scan_8` would use Smith-Waterman, no alignment statistics, using prefix scan vectors, dispatching to the best CPU, for 8-bit integers.
 - `parasail_sg_rowcol_striped_16` would use semi-global, no alignment statistics, output the last row and column of the DP table, using striped vectors, dispatching to the best CPU, for 16-bit integers.
 
-Note: The blocked vector implementations only exist for sse41 16-bit and 32-bit integer elements. They are not well tested and only exist as a reference implementation of this particular vectorization strategy.
+Note: The blocked vector implementations only exist for SSE4.1 16-bit and 32-bit integer elements. They are not well tested and only exist as a reference implementation of this particular vectorization strategy.
 
 Note: The dispatcher for the KNC instruction set will always dispatch to the 32-bit integer element implementation since it is the only one supported on that platform.
+
+### Function Dispatchers
+
+[back to top]
+
+As noted in the previous section, if the instruction set and vector width are omitted from the function name, then this function is a CPU dispatching function.  It is assumed that most users will use the dispatching functions; calling a function for a specific instruction set such as AVX2 would require the user to first check whether the instruction set were supported by the CPU and handle any errors.  If an instruction set is not supported and the instruction set specific function is still called, it will return NULL and set errno to ENOSYS rather than causing a illegal instruction fault.
+
+The computational cost of calling the dispatching function is minimal -- the first time it is called it will set an internal function pointer to the dispatched function and thereafter will call the function directly using the established pointer.
 
 ### Profile Function Naming Convention
 
 [back to top]
 
-There is a special subset of functions that mimic the behavior of the [SSW library](https://github.com/mengyao/Complete-Striped-Smith-Waterman-Library). For the striped and scan vector implementations *only*, a query profile can be created and reused for subsequent alignments. This can noticeably speed up applications such as database search.  To create a profile, use
+There is a special subset of functions that mimic the behavior of the [SSW library](https://github.com/mengyao/Complete-Striped-Smith-Waterman-Library). For the striped and scan vector implementations *only*, a query profile can be created and reused for subsequent alignments. This can noticeably speed up applications such as database search.  To create a profile, use 
 
 ```C
 parasail_profile_t* parasail_profile_create[_stats][_{sse_128,avx_256,knc_512}]_{8,16,32,64,sat} (
@@ -166,7 +175,7 @@ You must not forget to free the profile(s) when you are finished.  There is only
 void parasail_profile_free(parasail_profile_t *profile);
 ```
 
-The profile data structure is part of parasail's public interface, though you really shouldn't access its members.  Most of the attributes are opaque blocks of memory that hold the vaious profiles.  Occasionally, however, it may be useful to refer back to the parameters that were used during profile creation, namely s1, s1Len, and the substitution matrix -- these attributes can be accessed though they should be treated as read-only.
+The profile data structure is part of parasail's public interface, though you really shouldn't access its members.  Most of the attributes are opaque blocks of memory that hold the various profiles.  Occasionally, however, it may be useful to refer back to the parameters that were used during profile creation, namely s1, s1Len, and the substitution matrix -- these attributes can be accessed though they should be treated as read-only.
 
 ```C
 typedef struct parasail_profile {
@@ -186,7 +195,7 @@ typedef struct parasail_profile {
 
 [back to top]
 
-parasails bundles a number of substitution matrices including PAM and BLOSUM.  To use them, include the appropriate header, or look them up by name (useful for command-line parsing). For example
+parasail bundles a number of substitution matrices including PAM and BLOSUM.  To use them, include the appropriate header, or look them up by name (useful for command-line parsing). For example
 
 ```C
 #include "parasail.h"
@@ -249,7 +258,7 @@ int main(int argc, char **argv) {
 
 [back to top]
 
-C is the native API for parasail.  C++ is supported directly because the parasial.h header uses the common C++ include guards (#ifdef __cplusplus) to extern "C" all of the functions.  Once you have installed parasail, #include "parasail.h" into your sources.
+C is the native API for parasail.  C++ is supported directly because the parasail.h header uses the common C++ include guards (#ifdef __cplusplus) to extern "C" all of the functions.  Once you have installed parasail, #include "parasail.h" into your sources.
 
 ### Python
 
@@ -261,7 +270,7 @@ Once you have installed parasail into --prefix=$PREFIX, you can also compile the
 PARASAIL_PREFIX=$PREFIX python setup.py build
 ```
 
-This will correctly setup the necessary CPPFLAGS, LDFLAGS, and LIBS variables during the build.  Becuase the parasail.h header uses C99 keywords, e.g., restrict, the setup.py process will test your C compiler for the correct use of restrict, automatically.
+This will correctly setup the necessary CPPFLAGS, LDFLAGS, and LIBS variables during the build.  Because the parasail.h header uses C99 keywords, e.g., restrict, the setup.py process will test your C compiler for the correct use of restrict, automatically.
 
 The Python interface only includes bindings for the dispatching functions, not the low-level instruction set-specific function calls.  The Python interface also includes wrappers for the various PAM and BLOSUM matrices included in the distribution.
 

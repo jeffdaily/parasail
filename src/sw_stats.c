@@ -133,7 +133,7 @@ parasail_result_t* ENAME(
             H_new = MAX(H_dag, 0);
             H_new = MAX(H_new, E);
             H_new = MAX(H_new, F[j]);
-            if (F[j] == F_opn) {
+            if (F_opn > F_ext) {
                 FM[j] = NHM;
                 FS[j] = NHS;
                 FL[j] = NHL+1;
@@ -141,7 +141,7 @@ parasail_result_t* ENAME(
             else {
                 FL[j] = FL[j]+1;
             }
-            if (E == E_opn) {
+            if (E_opn > E_ext) {
                 EM = WHM;
                 ES = WHS;
                 EL = WHL+1;

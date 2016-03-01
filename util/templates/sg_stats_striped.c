@@ -18,7 +18,8 @@
 
 #define FASTSTATS
 
-#define NEG_INF %(NEG_INF)s
+#define SWAP(A,B) { %(VTYPE)s* tmp = A; A = B; B = tmp; }
+
 %(FIXES)s
 
 #ifdef PARASAIL_TABLE
@@ -108,25 +109,30 @@ STATIC parasail_result_t* PNAME(
     %(VTYPE)s* restrict pvHSLoad        = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
     %(VTYPE)s* restrict pvHLStore       = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
     %(VTYPE)s* restrict pvHLLoad        = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
-    %(VTYPE)s* restrict pvEStore        = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
-    %(VTYPE)s* restrict pvELoad         = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
+    %(VTYPE)s* const restrict pvE       = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
     %(VTYPE)s* const restrict pvEM      = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
     %(VTYPE)s* const restrict pvES      = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
     %(VTYPE)s* const restrict pvEL      = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
-    %(VTYPE)s vGapO = %(VSET1)s(open);
-    %(VTYPE)s vGapE = %(VSET1)s(gap);
-    %(VTYPE)s vNegInf = %(VSET1)s(NEG_INF);
-    %(VTYPE)s vZero = %(VSET0)s();
-    %(VTYPE)s vOne = %(VSET1)s(1);
-    %(INT)s score = NEG_INF;
-    %(INT)s matches = NEG_INF;
-    %(INT)s similar = NEG_INF;
-    %(INT)s length = NEG_INF;
-    %(STATS_SATURATION_CHECK_INIT)s
-    %(VTYPE)s vMaxH = vNegInf;
-    %(VTYPE)s vMaxHM = vNegInf;
-    %(VTYPE)s vMaxHS = vNegInf;
-    %(VTYPE)s vMaxHL = vNegInf;
+    const %(VTYPE)s vGapO = %(VSET1)s(open);
+    const %(VTYPE)s vGapE = %(VSET1)s(gap);
+    const %(INT)s NEG_LIMIT = (-open < matrix->min ?
+        INT%(WIDTH)s_MIN + open : INT%(WIDTH)s_MIN - matrix->min) + 1;
+    const %(INT)s POS_LIMIT = INT%(WIDTH)s_MAX - matrix->max - 1;
+    const %(VTYPE)s vZero = %(VSET0)s();
+    const %(VTYPE)s vOne = %(VSET1)s(1);
+    const %(VTYPE)s vAll = %(VCMPEQ)s(vZero,vZero);
+    %(INT)s score = NEG_LIMIT;
+    %(INT)s matches = 0;
+    %(INT)s similar = 0;
+    %(INT)s length = 0;
+    %(VTYPE)s vNegLimit = %(VSET1)s(NEG_LIMIT);
+    %(VTYPE)s vPosLimit = %(VSET1)s(POS_LIMIT);
+    %(VTYPE)s vSaturationCheckMin = vPosLimit;
+    %(VTYPE)s vSaturationCheckMax = vNegLimit;
+    %(VTYPE)s vMaxH = vNegLimit;
+    %(VTYPE)s vMaxHM = vNegLimit;
+    %(VTYPE)s vMaxHS = vNegLimit;
+    %(VTYPE)s vMaxHL = vNegLimit;
     %(VTYPE)s vPosMask = %(VCMPEQ)s(%(VSET1)s(position),
             %(VSET)s(%(POSITION_MASK)s));
 #ifdef PARASAIL_TABLE
@@ -139,26 +145,30 @@ STATIC parasail_result_t* PNAME(
 #endif
 #endif
 
+    parasail_memset_%(VTYPE)s(pvHStore, vZero, segLen);
     parasail_memset_%(VTYPE)s(pvHMStore, vZero, segLen);
     parasail_memset_%(VTYPE)s(pvHSStore, vZero, segLen);
     parasail_memset_%(VTYPE)s(pvHLStore, vZero, segLen);
+    parasail_memset_%(VTYPE)s(pvE, %(VSET1)s(-open), segLen);
     parasail_memset_%(VTYPE)s(pvEM, vZero, segLen);
     parasail_memset_%(VTYPE)s(pvES, vZero, segLen);
-    parasail_memset_%(VTYPE)s(pvEL, vZero, segLen);
-    parasail_memset_%(VTYPE)s(pvHStore, vZero, segLen);
-    parasail_memset_%(VTYPE)s(pvEStore, %(VSET1)s(-open), segLen);
+    parasail_memset_%(VTYPE)s(pvEL, vOne, segLen);
 
     /* outer loop over database sequence */
     for (j=0; j<s2Len; ++j) {
+        %(VTYPE)s vEF_opn;
         %(VTYPE)s vE;
+        %(VTYPE)s vE_ext;
         %(VTYPE)s vEM;
         %(VTYPE)s vES;
         %(VTYPE)s vEL;
         %(VTYPE)s vF;
+        %(VTYPE)s vF_ext;
         %(VTYPE)s vFM;
         %(VTYPE)s vFS;
         %(VTYPE)s vFL;
         %(VTYPE)s vH;
+        %(VTYPE)s vH_dag;
         %(VTYPE)s vHM;
         %(VTYPE)s vHS;
         %(VTYPE)s vHL;
@@ -168,17 +178,21 @@ STATIC parasail_result_t* PNAME(
         %(VTYPE)s* pv = NULL;
 
         /* Initialize F value to neg inf.  Any errors to vH values will
-         * be corrected in the Lazy_F loop.  */
-        vF = vNegInf;
+         * be corrected in the Lazy_F loop. */
+        vF = vNegLimit;
         vFM = vZero;
         vFS = vZero;
-        vFL = vZero;
+        vFL = vOne;
 
-        /* load final segment of pvHStore and shift left by 2 bytes */
-        vH = %(VSHIFT)s(pvHStore[segLen - 1], %(BYTES)s);
-        vHM = %(VSHIFT)s(pvHMStore[segLen - 1], %(BYTES)s);
-        vHS = %(VSHIFT)s(pvHSStore[segLen - 1], %(BYTES)s);
-        vHL = %(VSHIFT)s(pvHLStore[segLen - 1], %(BYTES)s);
+        /* load final segment of pvHStore and shift left by %(BYTES)s bytes */
+        vH = %(VLOAD)s(&pvHStore[segLen - 1]);
+        vHM = %(VLOAD)s(&pvHMStore[segLen - 1]);
+        vHS = %(VLOAD)s(&pvHSStore[segLen - 1]);
+        vHL = %(VLOAD)s(&pvHLStore[segLen - 1]);
+        vH = %(VSHIFT)s(vH, %(BYTES)s);
+        vHM = %(VSHIFT)s(vHM, %(BYTES)s);
+        vHS = %(VSHIFT)s(vHS, %(BYTES)s);
+        vHL = %(VSHIFT)s(vHL, %(BYTES)s);
 
         /* Correct part of the vProfile */
         vP = vProfile + matrix->mapper[(unsigned char)s2[j]] * segLen;
@@ -186,98 +200,100 @@ STATIC parasail_result_t* PNAME(
         vPS = vProfileS + matrix->mapper[(unsigned char)s2[j]] * segLen;
 
         /* Swap the 2 H buffers. */
-        pv = pvHLoad;
-        pvHLoad = pvHStore;
-        pvHStore = pv;
-        pv = pvHMLoad;
-        pvHMLoad = pvHMStore;
-        pvHMStore = pv;
-        pv = pvHSLoad;
-        pvHSLoad = pvHSStore;
-        pvHSStore = pv;
-        pv = pvHLLoad;
-        pvHLLoad = pvHLStore;
-        pvHLStore = pv;
-        pv = pvELoad;
-        pvELoad = pvEStore;
-        pvEStore = pv;
+        SWAP(pvHLoad,  pvHStore)
+        SWAP(pvHMLoad, pvHMStore)
+        SWAP(pvHSLoad, pvHSStore)
+        SWAP(pvHLLoad, pvHLStore)
 
         /* inner loop to process the query sequence */
         for (i=0; i<segLen; ++i) {
-            %(VTYPE)s case1not;
-            %(VTYPE)s case2not;
+            %(VTYPE)s case1;
             %(VTYPE)s case2;
-            %(VTYPE)s case3;
+            %(VTYPE)s notcase1andcase2;
+            %(VTYPE)s notcase1andnotcase2;
 
-            vH = %(VADD)s(vH, %(VLOAD)s(vP + i));
-            vE = %(VLOAD)s(pvELoad + i);
-
-            /* determine which direction of length and match to
-             * propagate, before vH is finished calculating */
-            case1not = %(VOR)s(
-                    %(VCMPLT)s(vH,vF),%(VCMPLT)s(vH,vE));
-            case2not = %(VCMPLT)s(vF,vE);
-            case2 = %(VANDNOT)s(case2not,case1not);
-            case3 = %(VAND)s(case1not,case2not);
+            vE = %(VLOAD)s(pvE+ i);
+            vEM = %(VLOAD)s(pvEM+ i);
+            vES = %(VLOAD)s(pvES+ i);
+            vEL = %(VLOAD)s(pvEL+ i);
 
             /* Get max from vH, vE and vF. */
-            vH = %(VMAX)s(vH, vE);
+            vH_dag = %(VADD)s(vH, %(VLOAD)s(vP + i));
+            vH = %(VMAX)s(vH_dag, vE);
             vH = %(VMAX)s(vH, vF);
             /* Save vH values. */
             %(VSTORE)s(pvHStore + i, vH);
 
+            case1 = %(VCMPEQ)s(vH, vH_dag);
+            case2 = %(VCMPEQ)s(vH, vF);
+            notcase1andcase2 = %(VANDNOT)s(case1, case2);
+            notcase1andnotcase2 = %(VANDNOT)s(case1, %(VXOR)s(case2, vAll));
+
             /* calculate vM */
-            vEM = %(VLOAD)s(pvEM + i);
             vHM = %(VBLEND)s(
-                    %(VADD)s(vHM, %(VLOAD)s(vPM + i)),
                     %(VOR)s(
-                        %(VAND)s(case2, vFM),
-                        %(VAND)s(case3, vEM)),
-                    case1not);
+                        %(VAND)s(notcase1andcase2, vFM),
+                        %(VAND)s(notcase1andnotcase2, vEM)),
+                    %(VADD)s(vHM, %(VLOAD)s(vPM + i)),
+                    case1);
             %(VSTORE)s(pvHMStore + i, vHM);
 
             /* calculate vS */
-            vES = %(VLOAD)s(pvES + i);
             vHS = %(VBLEND)s(
-                    %(VADD)s(vHS, %(VLOAD)s(vPS + i)),
                     %(VOR)s(
-                        %(VAND)s(case2, vFS),
-                        %(VAND)s(case3, vES)),
-                    case1not);
+                        %(VAND)s(notcase1andcase2, vFS),
+                        %(VAND)s(notcase1andnotcase2, vES)),
+                    %(VADD)s(vHS, %(VLOAD)s(vPS + i)),
+                    case1);
             %(VSTORE)s(pvHSStore + i, vHS);
 
             /* calculate vL */
-            vEL = %(VLOAD)s(pvEL + i);
             vHL = %(VBLEND)s(
-                    %(VADD)s(vHL, vOne),
                     %(VOR)s(
-                        %(VAND)s(case2, %(VADD)s(vFL, vOne)),
-                        %(VAND)s(case3, %(VADD)s(vEL, vOne))),
-                    case1not);
+                        %(VAND)s(notcase1andcase2, vFL),
+                        %(VAND)s(notcase1andnotcase2, vEL)),
+                    %(VADD)s(vHL, vOne),
+                    case1);
             %(VSTORE)s(pvHLStore + i, vHL);
-            %(STATS_SATURATION_CHECK_MID)s
+
+            vSaturationCheckMin = %(VMIN)s(vSaturationCheckMin, vH);
+            vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vH);
+            vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vHM);
+            vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vHS);
+            vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vHL);
 #ifdef PARASAIL_TABLE
             arr_store_si%(BITS)s(result->matches_table, vHM, i, segLen, j, s2Len);
             arr_store_si%(BITS)s(result->similar_table, vHS, i, segLen, j, s2Len);
             arr_store_si%(BITS)s(result->length_table, vHL, i, segLen, j, s2Len);
             arr_store_si%(BITS)s(result->score_table, vH, i, segLen, j, s2Len);
 #endif
+            vEF_opn = %(VSUB)s(vH, vGapO);
 
             /* Update vE value. */
-            vH = %(VSUB)s(vH, vGapO);
-            vE = %(VSUB)s(vE, vGapE);
-            vE = %(VMAX)s(vE, vH);
-            %(VSTORE)s(pvEStore + i, vE);
-            %(VSTORE)s(pvEM + i, vHM);
-            %(VSTORE)s(pvES + i, vHS);
-            %(VSTORE)s(pvEL + i, vHL);
+            vE_ext = %(VSUB)s(vE, vGapE);
+            vE = %(VMAX)s(vEF_opn, vE_ext);
+            case1 = %(VCMPGT)s(vEF_opn, vE_ext);
+            vEM = %(VBLEND)s(vEM, vHM, case1);
+            vES = %(VBLEND)s(vES, vHS, case1);
+            vEL = %(VBLEND)s(
+                    %(VADD)s(vEL, vOne),
+                    %(VADD)s(vHL, vOne),
+                    case1);
+            %(VSTORE)s(pvE + i, vE);
+            %(VSTORE)s(pvEM + i, vEM);
+            %(VSTORE)s(pvES + i, vES);
+            %(VSTORE)s(pvEL + i, vEL);
 
             /* Update vF value. */
-            vF = %(VSUB)s(vF, vGapE);
-            vF = %(VMAX)s(vF, vH);
-            vFM = vHM;
-            vFS = vHS;
-            vFL = vHL;
+            vF_ext = %(VSUB)s(vF, vGapE);
+            vF = %(VMAX)s(vEF_opn, vF_ext);
+            case1 = %(VCMPGT)s(vEF_opn, vF_ext);
+            vFM = %(VBLEND)s(vFM, vHM, case1);
+            vFS = %(VBLEND)s(vFS, vHS, case1);
+            vFL = %(VBLEND)s(
+                    %(VADD)s(vFL, vOne),
+                    %(VADD)s(vHL, vOne),
+                    case1);
 
             /* Load the next vH. */
             vH = %(VLOAD)s(pvHLoad + i);
@@ -289,94 +305,108 @@ STATIC parasail_result_t* PNAME(
         /* Lazy_F loop: has been revised to disallow adjecent insertion and
          * then deletion, so don't update E(i, i), learn from SWPS3 */
         for (k=0; k<segWidth; ++k) {
-            %(VTYPE)s vHp = %(VSHIFT)s(pvHLoad[segLen - 1], %(BYTES)s);
+            %(VTYPE)s vHp = %(VLOAD)s(&pvHLoad[segLen - 1]);
+            vHp = %(VSHIFT)s(vHp, %(BYTES)s);
             vF = %(VSHIFT)s(vF, %(BYTES)s);
             vF = %(VINSERT)s(vF, -open, 0);
             vFM = %(VSHIFT)s(vFM, %(BYTES)s);
             vFS = %(VSHIFT)s(vFS, %(BYTES)s);
             vFL = %(VSHIFT)s(vFL, %(BYTES)s);
+            vFL = %(VINSERT)s(vFL, 1, 0);
             for (i=0; i<segLen; ++i) {
-                %(VTYPE)s case1not;
-                %(VTYPE)s case2not;
+                %(VTYPE)s case1;
                 %(VTYPE)s case2;
+                %(VTYPE)s cond;
 
-                /* need to know where match and length come from so
-                 * recompute the cases as in the main loop */
                 vHp = %(VADD)s(vHp, %(VLOAD)s(vP + i));
-                vE = %(VLOAD)s(pvELoad + i);
-                case1not = %(VOR)s(
-                        %(VCMPLT)s(vHp,vF),%(VCMPLT)s(vHp,vE));
-                case2not = %(VCMPLT)s(vF,vE);
-                case2 = %(VANDNOT)s(case2not,case1not);
-
-                vHM = %(VLOAD)s(pvHMStore + i);
-                vHM = %(VBLEND)s(vHM, vFM, case2);
-                %(VSTORE)s(pvHMStore + i, vHM);
-                %(VSTORE)s(pvEM + i, vHM);
-
-                vHS = %(VLOAD)s(pvHSStore + i);
-                vHS = %(VBLEND)s(vHS, vFS, case2);
-                %(VSTORE)s(pvHSStore + i, vHS);
-                %(VSTORE)s(pvES + i, vHS);
-
-                vHL = %(VLOAD)s(pvHLStore + i);
-                vHL = %(VBLEND)s(vHL, %(VADD)s(vFL,vOne), case2);
-                %(VSTORE)s(pvHLStore + i, vHL);
-                %(VSTORE)s(pvEL + i, vHL);
-
                 vH = %(VLOAD)s(pvHStore + i);
                 vH = %(VMAX)s(vH,vF);
                 %(VSTORE)s(pvHStore + i, vH);
+                case1 = %(VCMPEQ)s(vH, vHp);
+                case2 = %(VCMPEQ)s(vH, vF);
+                cond = %(VANDNOT)s(case1, case2);
+
+                /* calculate vM */
+                vHM = %(VLOAD)s(pvHMStore + i);
+                vHM = %(VBLEND)s(vHM, vFM, cond);
+                %(VSTORE)s(pvHMStore + i, vHM);
+
+                /* calculate vS */
+                vHS = %(VLOAD)s(pvHSStore + i);
+                vHS = %(VBLEND)s(vHS, vFS, cond);
+                %(VSTORE)s(pvHSStore + i, vHS);
+
+                /* calculate vL */
+                vHL = %(VLOAD)s(pvHLStore + i);
+                vHL = %(VBLEND)s(vHL, vFL, cond);
+                %(VSTORE)s(pvHLStore + i, vHL);
+
+                vSaturationCheckMin = %(VMIN)s(vSaturationCheckMin, vH);
+                vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vH);
+                vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vHM);
+                vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vHS);
+                vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vHL);
 #ifdef PARASAIL_TABLE
                 arr_store_si%(BITS)s(result->matches_table, vHM, i, segLen, j, s2Len);
                 arr_store_si%(BITS)s(result->similar_table, vHS, i, segLen, j, s2Len);
                 arr_store_si%(BITS)s(result->length_table, vHL, i, segLen, j, s2Len);
                 arr_store_si%(BITS)s(result->score_table, vH, i, segLen, j, s2Len);
 #endif
-                vH = %(VSUB)s(vH, vGapO);
-                vF = %(VSUB)s(vF, vGapE);
-                if (! %(VMOVEMASK)s(%(VCMPGT)s(vF, vH))) goto end;
-                /*vF = %(VMAX)s(vF, vH);*/
-                vFM = vHM;
-                vFS = vHS;
-                vFL = vHL;
+                /* Update vF value. */
+                vEF_opn = %(VSUB)s(vH, vGapO);
+                vF_ext = %(VSUB)s(vF, vGapE);
+                if (! %(VMOVEMASK)s(
+                            %(VOR)s(
+                                %(VCMPGT)s(vF_ext, vEF_opn),
+                                %(VCMPEQ)s(vF_ext, vEF_opn))))
+                    goto end;
+                /*vF = %(VMAX)s(vEF_opn, vF_ext);*/
+                vF = vF_ext;
+                cond = %(VCMPGT)s(vEF_opn, vF_ext);
+                vFM = %(VBLEND)s(vFM, vHM, cond);
+                vFS = %(VBLEND)s(vFS, vHS, cond);
+                vFL = %(VBLEND)s(
+                        %(VADD)s(vFL, vOne),
+                        %(VADD)s(vHL, vOne),
+                        cond);
                 vHp = %(VLOAD)s(pvHLoad + i);
             }
         }
 end:
         {
-            /* extract vector containing last value from the column */
-            %(VTYPE)s cond_max;
-            vH = %(VLOAD)s(pvHStore + offset);
-            vHM = %(VLOAD)s(pvHMStore + offset);
-            vHS = %(VLOAD)s(pvHSStore + offset);
-            vHL = %(VLOAD)s(pvHLStore + offset);
-            cond_max = %(VCMPGT)s(vH, vMaxH);
-            vMaxH = %(VBLEND)s(vMaxH, vH, cond_max);
-            vMaxHM = %(VBLEND)s(vMaxHM, vHM, cond_max);
-            vMaxHS = %(VBLEND)s(vMaxHS, vHS, cond_max);
-            vMaxHL = %(VBLEND)s(vMaxHL, vHL, cond_max);
-            if (%(VMOVEMASK)s(%(VAND)s(vPosMask, cond_max))) {
-                end_ref = j;
-                end_query = s1Len - 1;
-            }
-#ifdef PARASAIL_ROWCOL
-            for (k=0; k<position; ++k) {
-                vH = %(VSHIFT)s(vH, %(BYTES)s);
-                vHM = %(VSHIFT)s(vHM, %(BYTES)s);
-                vHS = %(VSHIFT)s(vHS, %(BYTES)s);
-                vHL = %(VSHIFT)s(vHL, %(BYTES)s);
-            }
-            result->score_row[j] = (%(INT)s) %(VEXTRACT)s (vH, %(LAST_POS)s);
-            result->matches_row[j] = (%(INT)s) %(VEXTRACT)s (vHM, %(LAST_POS)s);
-            result->similar_row[j] = (%(INT)s) %(VEXTRACT)s (vHS, %(LAST_POS)s);
-            result->length_row[j] = (%(INT)s) %(VEXTRACT)s (vHL, %(LAST_POS)s);
-#endif
         }
+
+        /* extract vector containing last value from the column */
+        %(VTYPE)s cond_max;
+        vH = %(VLOAD)s(pvHStore + offset);
+        vHM = %(VLOAD)s(pvHMStore + offset);
+        vHS = %(VLOAD)s(pvHSStore + offset);
+        vHL = %(VLOAD)s(pvHLStore + offset);
+        cond_max = %(VCMPGT)s(vH, vMaxH);
+        vMaxH = %(VBLEND)s(vMaxH, vH, cond_max);
+        vMaxHM = %(VBLEND)s(vMaxHM, vHM, cond_max);
+        vMaxHS = %(VBLEND)s(vMaxHS, vHS, cond_max);
+        vMaxHL = %(VBLEND)s(vMaxHL, vHL, cond_max);
+        if (%(VMOVEMASK)s(%(VAND)s(vPosMask, cond_max))) {
+            end_ref = j;
+            end_query = s1Len - 1;
+        }
+#ifdef PARASAIL_ROWCOL
+        for (k=0; k<position; ++k) {
+            vH = %(VSHIFT)s(vH, %(BYTES)s);
+            vHM = %(VSHIFT)s(vHM, %(BYTES)s);
+            vHS = %(VSHIFT)s(vHS, %(BYTES)s);
+            vHL = %(VSHIFT)s(vHL, %(BYTES)s);
+        }
+        result->score_row[j] = (%(INT)s) %(VEXTRACT)s (vH, %(LAST_POS)s);
+        result->matches_row[j] = (%(INT)s) %(VEXTRACT)s (vHM, %(LAST_POS)s);
+        result->similar_row[j] = (%(INT)s) %(VEXTRACT)s (vHS, %(LAST_POS)s);
+        result->length_row[j] = (%(INT)s) %(VEXTRACT)s (vHL, %(LAST_POS)s);
+#endif
     }
 
     {
-        /* extract last value from the column */
+        /* extract last value from the column maximums */
         for (k=0; k<position; ++k) {
             vMaxH  = %(VSHIFT)s (vMaxH, %(BYTES)s);
             vMaxHM = %(VSHIFT)s (vMaxHM, %(BYTES)s);
@@ -393,14 +423,14 @@ end:
     if (INT32_MAX == profile->stop || 0 == profile->stop)
     {
         %(INT)s score_last;
-        vMaxH = vNegInf;
+        vMaxH = vNegLimit;
 
         if (0 == profile->stop) {
             /* ignore last row contributions */
-            score = NEG_INF;
-            matches = NEG_INF;
-            similar = NEG_INF;
-            length = NEG_INF;
+            score = NEG_LIMIT;
+            matches = 0;
+            similar = 0;
+            length = 0;
             end_query = s1Len;
             end_ref = s2Len - 1;
         }
@@ -448,7 +478,17 @@ end:
         }
     }
 
-    %(STATS_SATURATION_CHECK_FINAL)s
+    if (%(VMOVEMASK)s(%(VOR)s(
+            %(VCMPLT)s(vSaturationCheckMin, vNegLimit),
+            %(VCMPGT)s(vSaturationCheckMax, vPosLimit)))) {
+        result->saturated = 1;
+        score = 0;
+        matches = 0;
+        similar = 0;
+        length = 0;
+        end_query = 0;
+        end_ref = 0;
+    }
 
     result->score = score;
     result->end_query = end_query;
@@ -460,8 +500,7 @@ end:
     parasail_free(pvEL);
     parasail_free(pvES);
     parasail_free(pvEM);
-    parasail_free(pvELoad);
-    parasail_free(pvEStore);
+    parasail_free(pvE);
     parasail_free(pvHLLoad);
     parasail_free(pvHLStore);
     parasail_free(pvHSLoad);

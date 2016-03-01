@@ -9,10 +9,6 @@ The Unreleased section will be empty for tagged releases. Unreleased functionali
 
 ## [1.0.1] - 2016-03-01
 
-### Added
-- TODO
-- TODO
-
 ### Changed
 - Many improvements and bug fixes to the CMake build.
   - Needed to bump CMAKE_MINIMUM_REQUIRED to VERSION 3.1 to fix static linking.
@@ -20,14 +16,7 @@ The Unreleased section will be empty for tagged releases. Unreleased functionali
 - Windows platform natively supported.
 - If an instruction set, e.g., AVX2 is not detected, then the functions are stubbed out and return NULL and set errno to ENOSYS.
 - restrict keyword is conditionally preprocessed away if it's not supported by the compiler (e.g., C++, C89).  parasail internally still uses restrict if there is a suitable extension (e.g., __restrict) but this change allows greater flexibility for external libraries and applications.
-
-### Deprecated
-- TODO
-- TODO
-
-### Removed
-- TODO
-- TODO
+- parasail_aligner application now uses long instead of int for indexing. This supports larger input datasets.
 
 ### Fixed
 - Changed C++ style comments to C style to support MSVC build.

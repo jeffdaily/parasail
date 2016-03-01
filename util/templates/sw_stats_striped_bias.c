@@ -228,8 +228,6 @@ STATIC parasail_result_t* PNAME(
             %(VTYPE)s cond_zero;
             %(VTYPE)s case1;
             %(VTYPE)s case2;
-            %(VTYPE)s notcase1andcase2;
-            %(VTYPE)s notcase1andnotcase2;
 
             vE = %(VLOAD)s(pvE+ i);
             vEM = %(VLOAD)s(pvEM+ i);
@@ -247,36 +245,25 @@ STATIC parasail_result_t* PNAME(
 
             case1 = %(VCMPEQ)s(vH, vH_dag);
             case2 = %(VCMPEQ)s(vH, vF);
-            notcase1andcase2 = %(VANDNOT)s(case1, case2);
-            notcase1andnotcase2 = %(VANDNOT)s(case1, %(VXOR)s(case2, vAll));
 
             /* calculate vM */
             vHM = %(VBLEND)s(
-                    %(VOR)s(
-                        %(VAND)s(notcase1andcase2, vFM),
-                        %(VAND)s(notcase1andnotcase2, vEM)),
-                    %(VADD)s(vHM, %(VLOAD)s(vPM + i)),
-                    case1);
+                    %(VBLEND)s(vEM, vFM, case2),
+                    %(VADD)s(vHM, %(VLOAD)s(vPM + i)), case1);
             vHM = %(VBLEND)s(vHM, vBias, cond_zero);
             %(VSTORE)s(pvHMStore + i, vHM);
 
             /* calculate vS */
             vHS = %(VBLEND)s(
-                    %(VOR)s(
-                        %(VAND)s(notcase1andcase2, vFS),
-                        %(VAND)s(notcase1andnotcase2, vES)),
-                    %(VADD)s(vHS, %(VLOAD)s(vPS + i)),
-                    case1);
+                    %(VBLEND)s(vES, vFS, case2),
+                    %(VADD)s(vHS, %(VLOAD)s(vPS + i)), case1);
             vHS = %(VBLEND)s(vHS, vBias, cond_zero);
             %(VSTORE)s(pvHSStore + i, vHS);
 
             /* calculate vL */
             vHL = %(VBLEND)s(
-                    %(VOR)s(
-                        %(VAND)s(notcase1andcase2, vFL),
-                        %(VAND)s(notcase1andnotcase2, vEL)),
-                    %(VADD)s(vHL, vOne),
-                    case1);
+                    %(VBLEND)s(vEL, vFL, case2),
+                    %(VADD)s(vHL, vOne), case1);
             vHL = %(VBLEND)s(vHL, vBias, cond_zero);
             %(VSTORE)s(pvHLStore + i, vHL);
 

@@ -260,8 +260,6 @@ STATIC parasail_result_t* PNAME(
             __m256i cond_zero;
             __m256i case1;
             __m256i case2;
-            __m256i notcase1andcase2;
-            __m256i notcase1andnotcase2;
 
             vE = _mm256_load_si256(pvE+ i);
             vEM = _mm256_load_si256(pvEM+ i);
@@ -279,14 +277,10 @@ STATIC parasail_result_t* PNAME(
 
             case1 = _mm256_cmpeq_epi32(vH, vH_dag);
             case2 = _mm256_cmpeq_epi32(vH, vF);
-            notcase1andcase2 = _mm256_andnot_si256(case1, case2);
-            notcase1andnotcase2 = _mm256_andnot_si256(case1, _mm256_xor_si256(case2, vAll));
 
             /* calculate vM */
             vHM = _mm256_blendv_epi8(
-                    _mm256_or_si256(
-                        _mm256_and_si256(notcase1andcase2, vFM),
-                        _mm256_and_si256(notcase1andnotcase2, vEM)),
+                    _mm256_blendv_epi8(vEM, vFM, case2),
                     _mm256_add_epi32(vHM, _mm256_load_si256(vPM + i)),
                     case1);
             vHM = _mm256_andnot_si256(cond_zero, vHM);
@@ -294,9 +288,7 @@ STATIC parasail_result_t* PNAME(
 
             /* calculate vS */
             vHS = _mm256_blendv_epi8(
-                    _mm256_or_si256(
-                        _mm256_and_si256(notcase1andcase2, vFS),
-                        _mm256_and_si256(notcase1andnotcase2, vES)),
+                    _mm256_blendv_epi8(vES, vFS, case2),
                     _mm256_add_epi32(vHS, _mm256_load_si256(vPS + i)),
                     case1);
             vHS = _mm256_andnot_si256(cond_zero, vHS);
@@ -304,9 +296,7 @@ STATIC parasail_result_t* PNAME(
 
             /* calculate vL */
             vHL = _mm256_blendv_epi8(
-                    _mm256_or_si256(
-                        _mm256_and_si256(notcase1andcase2, vFL),
-                        _mm256_and_si256(notcase1andnotcase2, vEL)),
+                    _mm256_blendv_epi8(vEL, vFL, case2),
                     _mm256_add_epi32(vHL, vOne),
                     case1);
             vHL = _mm256_andnot_si256(cond_zero, vHL);

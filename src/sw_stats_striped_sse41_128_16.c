@@ -25,6 +25,7 @@
 #define FASTSTATS
 
 #define SWAP(A,B) { __m128i* tmp = A; A = B; B = tmp; }
+#define SWAP3(A,B,C) { __m128i* tmp = A; A = B; B = C; C = tmp; }
 
 #define NEG_INF (INT16_MIN/(int16_t)(2))
 
@@ -147,7 +148,7 @@ STATIC parasail_result_t* PNAME(
     __m128i* restrict pvHLMax         = parasail_memalign___m128i(16, segLen);
     __m128i vGapO = _mm_set1_epi16(open);
     __m128i vGapE = _mm_set1_epi16(gap);
-    __m128i vZero = _mm_set1_epi16(0);
+    __m128i vZero = _mm_setzero_si128();
     __m128i vOne = _mm_set1_epi16(1);
     __m128i vAll = _mm_cmpeq_epi16(vZero,vZero);
     int16_t bias = INT16_MIN;
@@ -163,6 +164,7 @@ STATIC parasail_result_t* PNAME(
             vZero);
     __m128i vSaturationCheckMax = vBias;
     __m128i vPosLimit = _mm_set1_epi16(INT16_MAX);
+    int16_t maxp = INT16_MAX - (int16_t)(matrix->max+1);
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table3(segLen*segWidth, s2Len);
 #else
@@ -186,14 +188,13 @@ STATIC parasail_result_t* PNAME(
 
     /* outer loop over database sequence */
     for (j=0; j<s2Len; ++j) {
+        __m128i vEF_opn;
         __m128i vE;
-        __m128i vE_opn;
         __m128i vE_ext;
         __m128i vEM;
         __m128i vES;
         __m128i vEL;
         __m128i vF;
-        __m128i vF_opn;
         __m128i vF_ext;
         __m128i vFM;
         __m128i vFS;
@@ -207,8 +208,8 @@ STATIC parasail_result_t* PNAME(
         const __m128i* vPM = NULL;
         const __m128i* vPS = NULL;
 
-        /* Initialize F value to 0.  Any errors to vH values will be corrected
-         * in the Lazy_F loop.  */
+        /* Initialize F value to 0.  Any errors to vH values will be
+         * corrected in the Lazy_F loop. */
         vF = vBias;
         vFM = vBias;
         vFS = vBias;
@@ -233,11 +234,20 @@ STATIC parasail_result_t* PNAME(
         vPM = vProfileM + matrix->mapper[(unsigned char)s2[j]] * segLen;
         vPS = vProfileS + matrix->mapper[(unsigned char)s2[j]] * segLen;
 
-        /* Swap the 2 H buffers. */
-        SWAP(pvHLoad,  pvHStore)
-        SWAP(pvHMLoad, pvHMStore)
-        SWAP(pvHSLoad, pvHSStore)
-        SWAP(pvHLLoad, pvHLStore)
+        if (end_ref == j-2) {
+            /* Swap in the max buffer. */
+            SWAP3(pvHMax,  pvHLoad,  pvHStore)
+            SWAP3(pvHMMax, pvHMLoad, pvHMStore)
+            SWAP3(pvHSMax, pvHSLoad, pvHSStore)
+            SWAP3(pvHLMax, pvHLLoad, pvHLStore)
+        }
+        else {
+            /* Swap the 2 H buffers. */
+            SWAP(pvHLoad,  pvHStore)
+            SWAP(pvHMLoad, pvHMStore)
+            SWAP(pvHSLoad, pvHSStore)
+            SWAP(pvHLLoad, pvHLStore)
+        }
 
         /* inner loop to process the query sequence */
         for (i=0; i<segLen; ++i) {
@@ -254,8 +264,8 @@ STATIC parasail_result_t* PNAME(
 
             /* Get max from vH, vE and vF. */
             vH_dag = _mm_adds_epi16(vH, _mm_load_si128(vP + i));
-            vH = _mm_max_epi16(vH_dag, vBias);
-            vH = _mm_max_epi16(vH, vE);
+            /*vH = _mm_max_epi16(vH_dag, vBias);*/
+            vH = _mm_max_epi16(vH_dag, vE);
             vH = _mm_max_epi16(vH, vF);
             /* Save vH values. */
             _mm_store_si128(pvHStore + i, vH);
@@ -306,12 +316,12 @@ STATIC parasail_result_t* PNAME(
             arr_store_si128(result->score_table, vH, i, segLen, j, s2Len, bias);
 #endif
             vMaxH = _mm_max_epi16(vH, vMaxH);
+            vEF_opn = _mm_subs_epi16(vH, vGapO);
 
             /* Update vE value. */
-            vE_opn = _mm_subs_epi16(vH, vGapO);
             vE_ext = _mm_subs_epi16(vE, vGapE);
-            vE = _mm_max_epi16(vE_opn, vE_ext);
-            case1 = _mm_cmpgt_epi16(vE_opn, vE_ext);
+            vE = _mm_max_epi16(vEF_opn, vE_ext);
+            case1 = _mm_cmpgt_epi16(vEF_opn, vE_ext);
             vEM = _mm_blendv_epi8(vEM, vHM, case1);
             vES = _mm_blendv_epi8(vES, vHS, case1);
             vEL = _mm_blendv_epi8(
@@ -324,10 +334,9 @@ STATIC parasail_result_t* PNAME(
             _mm_store_si128(pvEL + i, vEL);
 
             /* Update vF value. */
-            vF_opn = _mm_subs_epi16(vH, vGapO);
             vF_ext = _mm_subs_epi16(vF, vGapE);
-            vF = _mm_max_epi16(vF_opn, vF_ext);
-            case1 = _mm_cmpgt_epi16(vF_opn, vF_ext);
+            vF = _mm_max_epi16(vEF_opn, vF_ext);
+            case1 = _mm_cmpgt_epi16(vEF_opn, vF_ext);
             vFM = _mm_blendv_epi8(vFM, vHM, case1);
             vFS = _mm_blendv_epi8(vFS, vHS, case1);
             vFL = _mm_blendv_epi8(
@@ -395,18 +404,18 @@ STATIC parasail_result_t* PNAME(
 #endif
                 vMaxH = _mm_max_epi16(vH, vMaxH);
                 /* Update vF value. */
-                vF_opn = _mm_subs_epi16(vH, vGapO);
+                vEF_opn = _mm_subs_epi16(vH, vGapO);
                 vF_ext = _mm_subs_epi16(vF, vGapE);
                 if (! _mm_movemask_epi8(
                             _mm_or_si128(
-                                _mm_cmpgt_epi16(vF_ext, vF_opn),
+                                _mm_cmpgt_epi16(vF_ext, vEF_opn),
                                 _mm_and_si128(
-                                    _mm_cmpeq_epi16(vF_ext, vF_opn),
+                                    _mm_cmpeq_epi16(vF_ext, vEF_opn),
                                     _mm_cmpgt_epi16(vF_ext, vBias)))))
                     goto end;
-                /*vF = _mm_max_epi16(vF_opn, vF_ext);*/
+                /*vF = _mm_max_epi16(vEF_opn, vF_ext);*/
                 vF = vF_ext;
-                cond = _mm_cmpgt_epi16(vF_opn, vF_ext);
+                cond = _mm_cmpgt_epi16(vEF_opn, vF_ext);
                 vFM = _mm_blendv_epi8(vFM, vHM, cond);
                 vFS = _mm_blendv_epi8(vFS, vHS, cond);
                 vFL = _mm_blendv_epi8(
@@ -418,19 +427,6 @@ STATIC parasail_result_t* PNAME(
         }
 end:
         {
-        }
-
-        {
-            __m128i vCompare = _mm_cmpgt_epi16(vMaxH, vMaxHUnit);
-            if (_mm_movemask_epi8(vCompare)) {
-                score = _mm_hmax_epi16_rpl(vMaxH);
-                vMaxHUnit = _mm_set1_epi16(score);
-                end_ref = j;
-                (void)memcpy(pvHMax, pvHStore, sizeof(__m128i)*segLen);
-                (void)memcpy(pvHMMax, pvHMStore, sizeof(__m128i)*segLen);
-                (void)memcpy(pvHSMax, pvHSStore, sizeof(__m128i)*segLen);
-                (void)memcpy(pvHLMax, pvHLStore, sizeof(__m128i)*segLen);
-            }
         }
 
 #ifdef PARASAIL_ROWCOL
@@ -452,25 +448,18 @@ end:
             result->length_row[j] = (int16_t) _mm_extract_epi16 (vHL, 7) - bias;
         }
 #endif
-    }
 
-    /* Trace the alignment ending position on read. */
-    {
-        int16_t *t = (int16_t*)pvHMax;
-        int16_t *m = (int16_t*)pvHMMax;
-        int16_t *s = (int16_t*)pvHSMax;
-        int16_t *l = (int16_t*)pvHLMax;
-        int32_t column_len = segLen * segWidth;
-        end_query = s1Len;
-        for (i = 0; i<column_len; ++i, ++t, ++m, ++s, ++l) {
-            if (*t == score) {
-                int32_t temp = i / segWidth + i % segWidth * segLen;
-                if (temp < end_query) {
-                    end_query = temp;
-                    matches = *m;
-                    similar = *s;
-                    length = *l;
+        {
+            __m128i vCompare = _mm_cmpgt_epi16(vMaxH, vMaxHUnit);
+            if (_mm_movemask_epi8(vCompare)) {
+                score = _mm_hmax_epi16_rpl(vMaxH);
+                /* if score has potential to overflow, abort early */
+                if (score > maxp) {
+                    result->saturated = 1;
+                    break;
                 }
+                vMaxHUnit = _mm_set1_epi16(score);
+                end_ref = j;
             }
         }
     }
@@ -491,10 +480,51 @@ end:
     if (score == INT16_MAX
             || _mm_movemask_epi8(_mm_cmpeq_epi16(vSaturationCheckMax,vPosLimit))) {
         result->saturated = 1;
-        score = INT16_MAX;
-        matches = INT16_MIN;
-        similar = INT16_MIN;
-        length = INT16_MIN;
+    }
+
+    if (result->saturated) {
+        score = 0;
+        end_query = 0;
+        end_ref = 0;
+        matches = 0;
+        similar = 0;
+        length = 0;
+    }
+    else {
+        if (end_ref == j-1) {
+            /* end_ref was the last store column */
+            SWAP(pvHMax,  pvHStore);
+            SWAP(pvHMMax, pvHMStore);
+            SWAP(pvHSMax, pvHSStore);
+            SWAP(pvHLMax, pvHLStore);
+        }
+        else if (end_ref == j-2) {
+            /* end_ref was the last load column */
+            SWAP(pvHMax,  pvHLoad);
+            SWAP(pvHMMax, pvHMLoad);
+            SWAP(pvHSMax, pvHSLoad);
+            SWAP(pvHLMax, pvHLLoad);
+        }
+        /* Trace the alignment ending position on read. */
+        {
+            int16_t *t = (int16_t*)pvHMax;
+            int16_t *m = (int16_t*)pvHMMax;
+            int16_t *s = (int16_t*)pvHSMax;
+            int16_t *l = (int16_t*)pvHLMax;
+            int32_t column_len = segLen * segWidth;
+            end_query = s1Len;
+            for (i = 0; i<column_len; ++i, ++t, ++m, ++s, ++l) {
+                if (*t == score) {
+                    int32_t temp = i / segWidth + i % segWidth * segLen;
+                    if (temp < end_query) {
+                        end_query = temp;
+                        matches = *m;
+                        similar = *s;
+                        length = *l;
+                    }
+                }
+            }
+        }
     }
 
     result->score = score - bias;

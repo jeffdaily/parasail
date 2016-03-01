@@ -89,7 +89,7 @@ parasail_result_t* PNAME(
     %(VTYPE)s* const restrict pvE = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
     %(VTYPE)s vGapO = %(VSET1)s(open);
     %(VTYPE)s vGapE = %(VSET1)s(gap);
-    %(VTYPE)s vZero = %(VSET1)s(0);
+    %(VTYPE)s vZero = %(VSET0)s();
     %(VTYPE)s vNegInf = %(VSET1)s(NEG_INF);
     %(INT)s score = NEG_INF;
     %(VTYPE)s vMaxH = vNegInf;
@@ -121,10 +121,10 @@ parasail_result_t* PNAME(
         %(VTYPE)s* pv = NULL;
 
         /* Initialize F value to 0.  Any errors to vH values will be
-         * corrected in the Lazy_F loop.  */
+         * corrected in the Lazy_F loop. */
         vF = vZero;
 
-        /* load final segment of pvHStore and shift left by 2 bytes */
+        /* load final segment of pvHStore and shift left by %(BYTES)s bytes */
         vH = %(VSHIFT)s(pvHStore[segLen - 1], %(BYTES)s);
 
         /* Correct part of the vProfile */

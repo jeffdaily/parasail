@@ -130,7 +130,7 @@ parasail_result_t* PNAME(
          * corrected in the Lazy_F loop.  */
         vF = vBias;
 
-        /* load final segment of pvHStore and shift left by 2 bytes */
+        /* load final segment of pvHStore and shift left by %(BYTES)s bytes */
         vH = %(VSHIFT)s(pvHStore[segLen - 1], %(BYTES)s);
         vH = %(VBLEND)s(vH, vBias, insert_mask);
 

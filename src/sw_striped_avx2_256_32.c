@@ -122,7 +122,7 @@ parasail_result_t* PNAME(
     __m256i* const restrict pvE = parasail_memalign___m256i(32, segLen);
     __m256i vGapO = _mm256_set1_epi32(open);
     __m256i vGapE = _mm256_set1_epi32(gap);
-    __m256i vZero = _mm256_set1_epi32(0);
+    __m256i vZero = _mm256_setzero_si256();
     __m256i vNegInf = _mm256_set1_epi32(NEG_INF);
     int32_t score = NEG_INF;
     __m256i vMaxH = vNegInf;
@@ -154,10 +154,10 @@ parasail_result_t* PNAME(
         __m256i* pv = NULL;
 
         /* Initialize F value to 0.  Any errors to vH values will be
-         * corrected in the Lazy_F loop.  */
+         * corrected in the Lazy_F loop. */
         vF = vZero;
 
-        /* load final segment of pvHStore and shift left by 2 bytes */
+        /* load final segment of pvHStore and shift left by 4 bytes */
         vH = _mm256_slli_si256_rpl(pvHStore[segLen - 1], 4);
 
         /* Correct part of the vProfile */

@@ -45,7 +45,7 @@ static inline int16_t _mm256_hmax_epi16_rpl(__m256i a) {
 
 
 #ifdef PARASAIL_TABLE
-static inline void arr_store_si256(
+static inline void arr_store(
         int *array,
         __m256i vH,
         int32_t t,
@@ -173,7 +173,6 @@ STATIC parasail_result_t* PNAME(
     __m256i vGapE = _mm256_set1_epi16(gap);
     __m256i vZero = _mm256_setzero_si256();
     __m256i vOne = _mm256_set1_epi16(1);
-    __m256i vAll = _mm256_cmpeq_epi16(vZero,vZero);
     int16_t bias = INT16_MIN;
     int16_t score = bias;
     int16_t matches = bias;
@@ -321,10 +320,10 @@ STATIC parasail_result_t* PNAME(
             vSaturationCheckMax = _mm256_max_epi16(vSaturationCheckMax, vHS);
             vSaturationCheckMax = _mm256_max_epi16(vSaturationCheckMax, vHL);
 #ifdef PARASAIL_TABLE
-            arr_store_si256(result->matches_table, vHM, i, segLen, j, s2Len, bias);
-            arr_store_si256(result->similar_table, vHS, i, segLen, j, s2Len, bias);
-            arr_store_si256(result->length_table, vHL, i, segLen, j, s2Len, bias);
-            arr_store_si256(result->score_table, vH, i, segLen, j, s2Len, bias);
+            arr_store(result->matches_table, vHM, i, segLen, j, s2Len, bias);
+            arr_store(result->similar_table, vHS, i, segLen, j, s2Len, bias);
+            arr_store(result->length_table, vHL, i, segLen, j, s2Len, bias);
+            arr_store(result->score_table, vH, i, segLen, j, s2Len, bias);
 #endif
             vMaxH = _mm256_max_epi16(vH, vMaxH);
             vEF_opn = _mm256_subs_epi16(vH, vGapO);
@@ -408,10 +407,10 @@ STATIC parasail_result_t* PNAME(
                 vSaturationCheckMax = _mm256_max_epi16(vSaturationCheckMax, vHS);
                 vSaturationCheckMax = _mm256_max_epi16(vSaturationCheckMax, vHL);
 #ifdef PARASAIL_TABLE
-                arr_store_si256(result->matches_table, vHM, i, segLen, j, s2Len, bias);
-                arr_store_si256(result->similar_table, vHS, i, segLen, j, s2Len, bias);
-                arr_store_si256(result->length_table, vHL, i, segLen, j, s2Len, bias);
-                arr_store_si256(result->score_table, vH, i, segLen, j, s2Len, bias);
+                arr_store(result->matches_table, vHM, i, segLen, j, s2Len, bias);
+                arr_store(result->similar_table, vHS, i, segLen, j, s2Len, bias);
+                arr_store(result->length_table, vHL, i, segLen, j, s2Len, bias);
+                arr_store(result->score_table, vH, i, segLen, j, s2Len, bias);
 #endif
                 vMaxH = _mm256_max_epi16(vH, vMaxH);
                 /* Update vF value. */
@@ -504,17 +503,17 @@ end:
     else {
         if (end_ref == j-1) {
             /* end_ref was the last store column */
-            SWAP(pvHMax,  pvHStore);
-            SWAP(pvHMMax, pvHMStore);
-            SWAP(pvHSMax, pvHSStore);
-            SWAP(pvHLMax, pvHLStore);
+            SWAP(pvHMax,  pvHStore)
+            SWAP(pvHMMax, pvHMStore)
+            SWAP(pvHSMax, pvHSStore)
+            SWAP(pvHLMax, pvHLStore)
         }
         else if (end_ref == j-2) {
             /* end_ref was the last load column */
-            SWAP(pvHMax,  pvHLoad);
-            SWAP(pvHMMax, pvHMLoad);
-            SWAP(pvHSMax, pvHSLoad);
-            SWAP(pvHLMax, pvHLLoad);
+            SWAP(pvHMax,  pvHLoad)
+            SWAP(pvHMMax, pvHMLoad)
+            SWAP(pvHSMax, pvHSLoad)
+            SWAP(pvHLMax, pvHLLoad)
         }
         /* Trace the alignment ending position on read. */
         {

@@ -66,7 +66,7 @@ static inline int64_t _mm256_hmax_epi64_rpl(__m256i a) {
 
 
 #ifdef PARASAIL_TABLE
-static inline void arr_store_si256(
+static inline void arr_store(
         int *array,
         __m256i vH,
         int32_t t,
@@ -168,7 +168,6 @@ STATIC parasail_result_t* PNAME(
     __m256i vGapE = _mm256_set1_epi64x(gap);
     __m256i vZero = _mm256_setzero_si256();
     __m256i vOne = _mm256_set1_epi64x(1);
-    __m256i vAll = _mm256_cmpeq_epi64(vZero,vZero);
     int64_t score = NEG_INF;
     int64_t matches = NEG_INF;
     int64_t similar = NEG_INF;
@@ -284,24 +283,21 @@ STATIC parasail_result_t* PNAME(
             /* calculate vM */
             vHM = _mm256_blendv_epi8(
                     _mm256_blendv_epi8(vEM, vFM, case2),
-                    _mm256_add_epi64(vHM, _mm256_load_si256(vPM + i)),
-                    case1);
+                    _mm256_add_epi64(vHM, _mm256_load_si256(vPM + i)), case1);
             vHM = _mm256_andnot_si256(cond_zero, vHM);
             _mm256_store_si256(pvHMStore + i, vHM);
 
             /* calculate vS */
             vHS = _mm256_blendv_epi8(
                     _mm256_blendv_epi8(vES, vFS, case2),
-                    _mm256_add_epi64(vHS, _mm256_load_si256(vPS + i)),
-                    case1);
+                    _mm256_add_epi64(vHS, _mm256_load_si256(vPS + i)), case1);
             vHS = _mm256_andnot_si256(cond_zero, vHS);
             _mm256_store_si256(pvHSStore + i, vHS);
 
             /* calculate vL */
             vHL = _mm256_blendv_epi8(
                     _mm256_blendv_epi8(vEL, vFL, case2),
-                    _mm256_add_epi64(vHL, vOne),
-                    case1);
+                    _mm256_add_epi64(vHL, vOne), case1);
             vHL = _mm256_andnot_si256(cond_zero, vHL);
             _mm256_store_si256(pvHLStore + i, vHL);
 
@@ -309,10 +305,10 @@ STATIC parasail_result_t* PNAME(
             vSaturationCheckMax = _mm256_max_epi64_rpl(vSaturationCheckMax, vHS);
             vSaturationCheckMax = _mm256_max_epi64_rpl(vSaturationCheckMax, vHL);
 #ifdef PARASAIL_TABLE
-            arr_store_si256(result->matches_table, vHM, i, segLen, j, s2Len);
-            arr_store_si256(result->similar_table, vHS, i, segLen, j, s2Len);
-            arr_store_si256(result->length_table, vHL, i, segLen, j, s2Len);
-            arr_store_si256(result->score_table, vH, i, segLen, j, s2Len);
+            arr_store(result->matches_table, vHM, i, segLen, j, s2Len);
+            arr_store(result->similar_table, vHS, i, segLen, j, s2Len);
+            arr_store(result->length_table, vHL, i, segLen, j, s2Len);
+            arr_store(result->score_table, vH, i, segLen, j, s2Len);
 #endif
             vMaxH = _mm256_max_epi64_rpl(vH, vMaxH);
             vEF_opn = _mm256_sub_epi64(vH, vGapO);
@@ -394,10 +390,10 @@ STATIC parasail_result_t* PNAME(
                 vSaturationCheckMax = _mm256_max_epi64_rpl(vSaturationCheckMax, vHS);
                 vSaturationCheckMax = _mm256_max_epi64_rpl(vSaturationCheckMax, vHL);
 #ifdef PARASAIL_TABLE
-                arr_store_si256(result->matches_table, vHM, i, segLen, j, s2Len);
-                arr_store_si256(result->similar_table, vHS, i, segLen, j, s2Len);
-                arr_store_si256(result->length_table, vHL, i, segLen, j, s2Len);
-                arr_store_si256(result->score_table, vH, i, segLen, j, s2Len);
+                arr_store(result->matches_table, vHM, i, segLen, j, s2Len);
+                arr_store(result->similar_table, vHS, i, segLen, j, s2Len);
+                arr_store(result->length_table, vHL, i, segLen, j, s2Len);
+                arr_store(result->score_table, vH, i, segLen, j, s2Len);
 #endif
                 vMaxH = _mm256_max_epi64_rpl(vH, vMaxH);
                 /* Update vF value. */
@@ -490,17 +486,17 @@ end:
     else {
         if (end_ref == j-1) {
             /* end_ref was the last store column */
-            SWAP(pvHMax,  pvHStore);
-            SWAP(pvHMMax, pvHMStore);
-            SWAP(pvHSMax, pvHSStore);
-            SWAP(pvHLMax, pvHLStore);
+            SWAP(pvHMax,  pvHStore)
+            SWAP(pvHMMax, pvHMStore)
+            SWAP(pvHSMax, pvHSStore)
+            SWAP(pvHLMax, pvHLStore)
         }
         else if (end_ref == j-2) {
             /* end_ref was the last load column */
-            SWAP(pvHMax,  pvHLoad);
-            SWAP(pvHMMax, pvHMLoad);
-            SWAP(pvHSMax, pvHSLoad);
-            SWAP(pvHLMax, pvHLLoad);
+            SWAP(pvHMax,  pvHLoad)
+            SWAP(pvHMMax, pvHMLoad)
+            SWAP(pvHSMax, pvHSLoad)
+            SWAP(pvHLMax, pvHLLoad)
         }
         /* Trace the alignment ending position on read. */
         {

@@ -25,7 +25,7 @@
 %(FIXES)s
 
 #ifdef PARASAIL_TABLE
-static inline void arr_store_si%(BITS)s(
+static inline void arr_store(
         int *array,
         %(VTYPE)s vH,
         %(INDEX)s t,
@@ -123,7 +123,6 @@ STATIC parasail_result_t* PNAME(
     %(VTYPE)s vGapE = %(VSET1)s(gap);
     %(VTYPE)s vZero = %(VSET0)s();
     %(VTYPE)s vOne = %(VSET1)s(1);
-    %(VTYPE)s vAll = %(VCMPEQ)s(vZero,vZero);
     %(INT)s bias = INT%(WIDTH)s_MIN;
     %(INT)s score = bias;
     %(INT)s matches = bias;
@@ -271,10 +270,10 @@ STATIC parasail_result_t* PNAME(
             vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vHS);
             vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vHL);
 #ifdef PARASAIL_TABLE
-            arr_store_si%(BITS)s(result->matches_table, vHM, i, segLen, j, s2Len, bias);
-            arr_store_si%(BITS)s(result->similar_table, vHS, i, segLen, j, s2Len, bias);
-            arr_store_si%(BITS)s(result->length_table, vHL, i, segLen, j, s2Len, bias);
-            arr_store_si%(BITS)s(result->score_table, vH, i, segLen, j, s2Len, bias);
+            arr_store(result->matches_table, vHM, i, segLen, j, s2Len, bias);
+            arr_store(result->similar_table, vHS, i, segLen, j, s2Len, bias);
+            arr_store(result->length_table, vHL, i, segLen, j, s2Len, bias);
+            arr_store(result->score_table, vH, i, segLen, j, s2Len, bias);
 #endif
             vMaxH = %(VMAX)s(vH, vMaxH);
             vEF_opn = %(VSUB)s(vH, vGapO);
@@ -358,10 +357,10 @@ STATIC parasail_result_t* PNAME(
                 vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vHS);
                 vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vHL);
 #ifdef PARASAIL_TABLE
-                arr_store_si%(BITS)s(result->matches_table, vHM, i, segLen, j, s2Len, bias);
-                arr_store_si%(BITS)s(result->similar_table, vHS, i, segLen, j, s2Len, bias);
-                arr_store_si%(BITS)s(result->length_table, vHL, i, segLen, j, s2Len, bias);
-                arr_store_si%(BITS)s(result->score_table, vH, i, segLen, j, s2Len, bias);
+                arr_store(result->matches_table, vHM, i, segLen, j, s2Len, bias);
+                arr_store(result->similar_table, vHS, i, segLen, j, s2Len, bias);
+                arr_store(result->length_table, vHL, i, segLen, j, s2Len, bias);
+                arr_store(result->score_table, vH, i, segLen, j, s2Len, bias);
 #endif
                 vMaxH = %(VMAX)s(vH, vMaxH);
                 /* Update vF value. */
@@ -454,17 +453,17 @@ end:
     else {
         if (end_ref == j-1) {
             /* end_ref was the last store column */
-            SWAP(pvHMax,  pvHStore);
-            SWAP(pvHMMax, pvHMStore);
-            SWAP(pvHSMax, pvHSStore);
-            SWAP(pvHLMax, pvHLStore);
+            SWAP(pvHMax,  pvHStore)
+            SWAP(pvHMMax, pvHMStore)
+            SWAP(pvHSMax, pvHSStore)
+            SWAP(pvHLMax, pvHLStore)
         }
         else if (end_ref == j-2) {
             /* end_ref was the last load column */
-            SWAP(pvHMax,  pvHLoad);
-            SWAP(pvHMMax, pvHMLoad);
-            SWAP(pvHSMax, pvHSLoad);
-            SWAP(pvHLMax, pvHLLoad);
+            SWAP(pvHMax,  pvHLoad)
+            SWAP(pvHMMax, pvHMLoad)
+            SWAP(pvHSMax, pvHSLoad)
+            SWAP(pvHLMax, pvHLLoad)
         }
         /* Trace the alignment ending position on read. */
         {

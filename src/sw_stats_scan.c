@@ -9,7 +9,6 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include <stdio.h>
 
 #include "parasail.h"
 #include "parasail/memory.h"

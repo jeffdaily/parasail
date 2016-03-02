@@ -47,8 +47,6 @@ parasail_result_t* ENAME(
     int * const restrict E  = parasail_memalign_int(16, s1Len);
     int * const restrict HtB= parasail_memalign_int(16, s1Len+1);
     int * const restrict Ht = HtB+1;
-    int * const restrict FtB= parasail_memalign_int(16, s1Len+1);
-    int * const restrict Ft = FtB+1;
     int i = 0;
     int j = 0;
     int score = NEG_INF_32;
@@ -68,7 +66,6 @@ parasail_result_t* ENAME(
     for (i=0; i<s1Len; ++i) {
         H[i] = 0;
     }
-    Ft[-1] = NEG_INF_32;
 
     /* initialize E */
     for (i=0; i<s1Len; ++i) {
@@ -77,6 +74,7 @@ parasail_result_t* ENAME(
 
     /* iterate over database */
     for (j=0; j<s2Len-1; ++j) {
+        int Ft = NEG_INF_32;
         const int * const restrict matcol = &matrix->matrix[matrix->size*s2[j]];
         /* calculate E */
         for (i=0; i<s1Len; ++i) {
@@ -86,17 +84,24 @@ parasail_result_t* ENAME(
         for (i=0; i<s1Len; ++i) {
             Ht[i] = MAX(H[i-1]+matcol[s1[i]], E[i]);
         }
-        /* calculate Ft */
-        for (i=0; i<s1Len; ++i) {
-            Ft[i] = MAX(Ft[i-1]-gap, Ht[i-1]);
-        }
         /* calculate H */
         for (i=0; i<s1Len; ++i) {
-            H[i] = MAX(Ht[i], Ft[i]-open);
+            int Ft_opn;
+            int Ht_pre = Ht[i-1];
+            int Ft_ext = Ft-gap;
+            if (Ht_pre >= Ft_ext) {
+                Ft = Ht_pre;
+            }
+            else {
+                Ft = Ft_ext;
+            }
+            Ft_opn = Ft-open;
+            H[i] = MAX(Ht[i], Ft_opn);
 #ifdef PARASAIL_TABLE
             result->score_table[i*s2Len + j] = H[i];
 #endif
         }
+        H[-1] = 0;
 #ifdef PARASAIL_ROWCOL
         result->score_row[j] = H[s1Len-1];
 #endif
@@ -108,6 +113,7 @@ parasail_result_t* ENAME(
     }
     j = s2Len - 1;
     {
+        int Ft = NEG_INF_32;
         const int * const restrict matcol = &matrix->matrix[matrix->size*s2[j]];
         /* calculate E */
         for (i=0; i<s1Len; ++i) {
@@ -117,13 +123,19 @@ parasail_result_t* ENAME(
         for (i=0; i<s1Len; ++i) {
             Ht[i] = MAX(H[i-1]+matcol[s1[i]], E[i]);
         }
-        /* calculate Ft */
-        for (i=0; i<s1Len; ++i) {
-            Ft[i] = MAX(Ft[i-1]-gap, Ht[i-1]);
-        }
         /* calculate H */
         for (i=0; i<s1Len; ++i) {
-            H[i] = MAX(Ht[i], Ft[i]-open);
+            int Ft_opn;
+            int Ht_pre = Ht[i-1];
+            int Ft_ext = Ft-gap;
+            if (Ht_pre >= Ft_ext) {
+                Ft = Ht_pre;
+            }
+            else {
+                Ft = Ft_ext;
+            }
+            Ft_opn = Ft-open;
+            H[i] = MAX(Ht[i], Ft_opn);
 #ifdef PARASAIL_TABLE
             result->score_table[i*s2Len + j] = H[i];
 #endif
@@ -145,7 +157,6 @@ parasail_result_t* ENAME(
     result->end_query = end_query;
     result->end_ref = end_ref;
 
-    parasail_free(FtB);
     parasail_free(HtB);
     parasail_free(E);
     parasail_free(HB);

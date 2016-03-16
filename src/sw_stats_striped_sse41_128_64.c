@@ -46,6 +46,16 @@ static inline __m128i _mm_max_epi64_rpl(__m128i a, __m128i b) {
     return A.m;
 }
 
+#if HAVE_SSE41_MM_EXTRACT_EPI64
+#define _mm_extract_epi64_rpl _mm_extract_epi64
+#else
+static inline int64_t _mm_extract_epi64_rpl(__m128i a, int imm) {
+    __m128i_64_t A;
+    A.m = a;
+    return A.v[imm];
+}
+#endif
+
 static inline __m128i _mm_cmplt_epi64_rpl(__m128i a, __m128i b) {
     __m128i_64_t A;
     __m128i_64_t B;
@@ -58,7 +68,7 @@ static inline __m128i _mm_cmplt_epi64_rpl(__m128i a, __m128i b) {
 
 static inline int64_t _mm_hmax_epi64_rpl(__m128i a) {
     a = _mm_max_epi64_rpl(a, _mm_srli_si128(a, 8));
-    return _mm_extract_epi64(a, 0);
+    return _mm_extract_epi64_rpl(a, 0);
 }
 
 
@@ -71,8 +81,8 @@ static inline void arr_store_si128(
         int32_t d,
         int32_t dlen)
 {
-    array[(0*seglen+t)*dlen + d] = (int64_t)_mm_extract_epi64(vH, 0);
-    array[(1*seglen+t)*dlen + d] = (int64_t)_mm_extract_epi64(vH, 1);
+    array[(0*seglen+t)*dlen + d] = (int64_t)_mm_extract_epi64_rpl(vH, 0);
+    array[(1*seglen+t)*dlen + d] = (int64_t)_mm_extract_epi64_rpl(vH, 1);
 }
 #endif
 
@@ -83,8 +93,8 @@ static inline void arr_store_col(
         int32_t t,
         int32_t seglen)
 {
-    col[0*seglen+t] = (int64_t)_mm_extract_epi64(vH, 0);
-    col[1*seglen+t] = (int64_t)_mm_extract_epi64(vH, 1);
+    col[0*seglen+t] = (int64_t)_mm_extract_epi64_rpl(vH, 0);
+    col[1*seglen+t] = (int64_t)_mm_extract_epi64_rpl(vH, 1);
 }
 #endif
 
@@ -428,10 +438,10 @@ end:
                 vHS = _mm_slli_si128(vHS, 8);
                 vHL = _mm_slli_si128(vHL, 8);
             }
-            result->score_row[j] = (int64_t) _mm_extract_epi64 (vH, 1);
-            result->matches_row[j] = (int64_t) _mm_extract_epi64 (vHM, 1);
-            result->similar_row[j] = (int64_t) _mm_extract_epi64 (vHS, 1);
-            result->length_row[j] = (int64_t) _mm_extract_epi64 (vHL, 1);
+            result->score_row[j] = (int64_t) _mm_extract_epi64_rpl (vH, 1);
+            result->matches_row[j] = (int64_t) _mm_extract_epi64_rpl (vHM, 1);
+            result->similar_row[j] = (int64_t) _mm_extract_epi64_rpl (vHS, 1);
+            result->length_row[j] = (int64_t) _mm_extract_epi64_rpl (vHL, 1);
         }
 #endif
     }

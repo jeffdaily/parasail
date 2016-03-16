@@ -32,6 +32,17 @@ static inline __m128i _mm_cmpgt_epi64_rpl(__m128i a, __m128i b) {
     return A.m;
 }
 
+#if HAVE_SSE41_MM_INSERT_EPI64
+#define _mm_insert_epi64_rpl _mm_insert_epi64
+#else
+static inline __m128i _mm_insert_epi64_rpl(__m128i a, int64_t i, int imm) {
+    __m128i_64_t A;
+    A.m = a;
+    A.v[imm] = i;
+    return A.m;
+}
+#endif
+
 static inline __m128i _mm_max_epi64_rpl(__m128i a, __m128i b) {
     __m128i_64_t A;
     __m128i_64_t B;
@@ -41,6 +52,16 @@ static inline __m128i _mm_max_epi64_rpl(__m128i a, __m128i b) {
     A.v[1] = (A.v[1]>B.v[1]) ? A.v[1] : B.v[1];
     return A.m;
 }
+
+#if HAVE_SSE41_MM_EXTRACT_EPI64
+#define _mm_extract_epi64_rpl _mm_extract_epi64
+#else
+static inline int64_t _mm_extract_epi64_rpl(__m128i a, int imm) {
+    __m128i_64_t A;
+    A.m = a;
+    return A.v[imm];
+}
+#endif
 
 static inline __m128i _mm_cmplt_epi64_rpl(__m128i a, __m128i b) {
     __m128i_64_t A;
@@ -63,10 +84,10 @@ static inline void arr_store_si128(
         int32_t s2Len)
 {
     if (0 <= i+0 && i+0 < s1Len && 0 <= j-0 && j-0 < s2Len) {
-        array[(i+0)*s2Len + (j-0)] = (int64_t)_mm_extract_epi64(vWscore, 1);
+        array[(i+0)*s2Len + (j-0)] = (int64_t)_mm_extract_epi64_rpl(vWscore, 1);
     }
     if (0 <= i+1 && i+1 < s1Len && 0 <= j-1 && j-1 < s2Len) {
-        array[(i+1)*s2Len + (j-1)] = (int64_t)_mm_extract_epi64(vWscore, 0);
+        array[(i+1)*s2Len + (j-1)] = (int64_t)_mm_extract_epi64_rpl(vWscore, 0);
     }
 }
 #endif
@@ -82,16 +103,16 @@ static inline void arr_store_rowcol(
         int32_t s2Len)
 {
     if (i+0 == s1Len-1 && 0 <= j-0 && j-0 < s2Len) {
-        row[j-0] = (int64_t)_mm_extract_epi64(vWscore, 1);
+        row[j-0] = (int64_t)_mm_extract_epi64_rpl(vWscore, 1);
     }
     if (j-0 == s2Len-1 && 0 <= i+0 && i+0 < s1Len) {
-        col[(i+0)] = (int64_t)_mm_extract_epi64(vWscore, 1);
+        col[(i+0)] = (int64_t)_mm_extract_epi64_rpl(vWscore, 1);
     }
     if (i+1 == s1Len-1 && 0 <= j-1 && j-1 < s2Len) {
-        row[j-1] = (int64_t)_mm_extract_epi64(vWscore, 0);
+        row[j-1] = (int64_t)_mm_extract_epi64_rpl(vWscore, 0);
     }
     if (j-1 == s2Len-1 && 0 <= i+1 && i+1 < s1Len) {
-        col[(i+1)] = (int64_t)_mm_extract_epi64(vWscore, 0);
+        col[(i+1)] = (int64_t)_mm_extract_epi64_rpl(vWscore, 0);
     }
 }
 #endif
@@ -245,15 +266,15 @@ parasail_result_t* FNAME(
             __m128i vNWsimilar = vNsimilar;
             __m128i vNWlength = vNlength;
             vNscore = _mm_srli_si128(vWscore, 8);
-            vNscore = _mm_insert_epi64(vNscore, tbl_pr[j], 1);
+            vNscore = _mm_insert_epi64_rpl(vNscore, tbl_pr[j], 1);
             vNmatch = _mm_srli_si128(vWmatch, 8);
-            vNmatch = _mm_insert_epi64(vNmatch, mch_pr[j], 1);
+            vNmatch = _mm_insert_epi64_rpl(vNmatch, mch_pr[j], 1);
             vNsimilar = _mm_srli_si128(vWsimilar, 8);
-            vNsimilar = _mm_insert_epi64(vNsimilar, sim_pr[j], 1);
+            vNsimilar = _mm_insert_epi64_rpl(vNsimilar, sim_pr[j], 1);
             vNlength = _mm_srli_si128(vWlength, 8);
-            vNlength = _mm_insert_epi64(vNlength, len_pr[j], 1);
+            vNlength = _mm_insert_epi64_rpl(vNlength, len_pr[j], 1);
             vDel = _mm_srli_si128(vDel, 8);
-            vDel = _mm_insert_epi64(vDel, del_pr[j], 1);
+            vDel = _mm_insert_epi64_rpl(vDel, del_pr[j], 1);
             vDel = _mm_max_epi64_rpl(
                     _mm_sub_epi64(vNscore, vOpen),
                     _mm_sub_epi64(vDel, vGap));
@@ -261,7 +282,7 @@ parasail_result_t* FNAME(
                     _mm_sub_epi64(vWscore, vOpen),
                     _mm_sub_epi64(vIns, vGap));
             vs2 = _mm_srli_si128(vs2, 8);
-            vs2 = _mm_insert_epi64(vs2, s2[j], 1);
+            vs2 = _mm_insert_epi64_rpl(vs2, s2[j], 1);
             vMat = _mm_set_epi64x(
                     matrow0[s2[j-0]],
                     matrow1[s2[j-1]]
@@ -329,11 +350,11 @@ parasail_result_t* FNAME(
             arr_store_rowcol(result->similar_row, result->similar_col, vWsimilar, i, s1Len, j, s2Len);
             arr_store_rowcol(result->length_row, result->length_col, vWlength, i, s1Len, j, s2Len);
 #endif
-            tbl_pr[j-1] = (int64_t)_mm_extract_epi64(vWscore,0);
-            mch_pr[j-1] = (int64_t)_mm_extract_epi64(vWmatch,0);
-            sim_pr[j-1] = (int64_t)_mm_extract_epi64(vWsimilar,0);
-            len_pr[j-1] = (int64_t)_mm_extract_epi64(vWlength,0);
-            del_pr[j-1] = (int64_t)_mm_extract_epi64(vDel,0);
+            tbl_pr[j-1] = (int64_t)_mm_extract_epi64_rpl(vWscore,0);
+            mch_pr[j-1] = (int64_t)_mm_extract_epi64_rpl(vWmatch,0);
+            sim_pr[j-1] = (int64_t)_mm_extract_epi64_rpl(vWsimilar,0);
+            len_pr[j-1] = (int64_t)_mm_extract_epi64_rpl(vWlength,0);
+            del_pr[j-1] = (int64_t)_mm_extract_epi64_rpl(vDel,0);
             /* as minor diagonal vector passes across the i or j limit
              * boundary, extract the last value of the column or row */
             {

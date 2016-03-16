@@ -33,6 +33,17 @@ static inline __m128i _mm_cmpgt_epi64_rpl(__m128i a, __m128i b) {
     return A.m;
 }
 
+#if HAVE_SSE41_MM_INSERT_EPI64
+#define _mm_insert_epi64_rpl _mm_insert_epi64
+#else
+static inline __m128i _mm_insert_epi64_rpl(__m128i a, int64_t i, int imm) {
+    __m128i_64_t A;
+    A.m = a;
+    A.v[imm] = i;
+    return A.m;
+}
+#endif
+
 static inline __m128i _mm_max_epi64_rpl(__m128i a, __m128i b) {
     __m128i_64_t A;
     __m128i_64_t B;
@@ -43,9 +54,19 @@ static inline __m128i _mm_max_epi64_rpl(__m128i a, __m128i b) {
     return A.m;
 }
 
+#if HAVE_SSE41_MM_EXTRACT_EPI64
+#define _mm_extract_epi64_rpl _mm_extract_epi64
+#else
+static inline int64_t _mm_extract_epi64_rpl(__m128i a, int imm) {
+    __m128i_64_t A;
+    A.m = a;
+    return A.v[imm];
+}
+#endif
+
 static inline int64_t _mm_hmax_epi64_rpl(__m128i a) {
     a = _mm_max_epi64_rpl(a, _mm_srli_si128(a, 8));
-    return _mm_extract_epi64(a, 0);
+    return _mm_extract_epi64_rpl(a, 0);
 }
 
 
@@ -58,8 +79,8 @@ static inline void arr_store_si128(
         int32_t d,
         int32_t dlen)
 {
-    array[(0*seglen+t)*dlen + d] = (int64_t)_mm_extract_epi64(vH, 0);
-    array[(1*seglen+t)*dlen + d] = (int64_t)_mm_extract_epi64(vH, 1);
+    array[(0*seglen+t)*dlen + d] = (int64_t)_mm_extract_epi64_rpl(vH, 0);
+    array[(1*seglen+t)*dlen + d] = (int64_t)_mm_extract_epi64_rpl(vH, 1);
 }
 #endif
 
@@ -70,8 +91,8 @@ static inline void arr_store_col(
         int32_t t,
         int32_t seglen)
 {
-    col[0*seglen+t] = (int64_t)_mm_extract_epi64(vH, 0);
-    col[1*seglen+t] = (int64_t)_mm_extract_epi64(vH, 1);
+    col[0*seglen+t] = (int64_t)_mm_extract_epi64_rpl(vH, 0);
+    col[1*seglen+t] = (int64_t)_mm_extract_epi64_rpl(vH, 1);
 }
 #endif
 
@@ -192,7 +213,7 @@ parasail_result_t* PNAME(
          * then deletion, so don't update E(i, i), learn from SWPS3 */
         for (k=0; k<segWidth; ++k) {
             vF = _mm_slli_si128(vF, 8);
-            vF = _mm_insert_epi64(vF, -open, 0);
+            vF = _mm_insert_epi64_rpl(vF, -open, 0);
             for (i=0; i<segLen; ++i) {
                 vH = _mm_load_si128(pvHStore + i);
                 vH = _mm_max_epi64_rpl(vH,vF);
@@ -222,7 +243,7 @@ end:
             for (k=0; k<position; ++k) {
                 vH = _mm_slli_si128(vH, 8);
             }
-            result->score_row[j] = (int64_t) _mm_extract_epi64 (vH, 1);
+            result->score_row[j] = (int64_t) _mm_extract_epi64_rpl (vH, 1);
 #endif
         }
     }
@@ -232,7 +253,7 @@ end:
         for (k=0; k<position; ++k) {
             vMaxH = _mm_slli_si128(vMaxH, 8);
         }
-        score = (int64_t) _mm_extract_epi64(vMaxH, 1);
+        score = (int64_t) _mm_extract_epi64_rpl(vMaxH, 1);
     }
 
     /* max of last column */

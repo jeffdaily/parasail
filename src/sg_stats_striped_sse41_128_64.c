@@ -35,6 +35,17 @@ static inline __m128i _mm_cmpgt_epi64_rpl(__m128i a, __m128i b) {
     return A.m;
 }
 
+#if HAVE_SSE41_MM_INSERT_EPI64
+#define _mm_insert_epi64_rpl _mm_insert_epi64
+#else
+static inline __m128i _mm_insert_epi64_rpl(__m128i a, int64_t i, int imm) {
+    __m128i_64_t A;
+    A.m = a;
+    A.v[imm] = i;
+    return A.m;
+}
+#endif
+
 static inline __m128i _mm_max_epi64_rpl(__m128i a, __m128i b) {
     __m128i_64_t A;
     __m128i_64_t B;
@@ -44,6 +55,16 @@ static inline __m128i _mm_max_epi64_rpl(__m128i a, __m128i b) {
     A.v[1] = (A.v[1]>B.v[1]) ? A.v[1] : B.v[1];
     return A.m;
 }
+
+#if HAVE_SSE41_MM_EXTRACT_EPI64
+#define _mm_extract_epi64_rpl _mm_extract_epi64
+#else
+static inline int64_t _mm_extract_epi64_rpl(__m128i a, int imm) {
+    __m128i_64_t A;
+    A.m = a;
+    return A.v[imm];
+}
+#endif
 
 static inline __m128i _mm_cmplt_epi64_rpl(__m128i a, __m128i b) {
     __m128i_64_t A;
@@ -57,7 +78,7 @@ static inline __m128i _mm_cmplt_epi64_rpl(__m128i a, __m128i b) {
 
 static inline int64_t _mm_hmax_epi64_rpl(__m128i a) {
     a = _mm_max_epi64_rpl(a, _mm_srli_si128(a, 8));
-    return _mm_extract_epi64(a, 0);
+    return _mm_extract_epi64_rpl(a, 0);
 }
 
 
@@ -70,8 +91,8 @@ static inline void arr_store_si128(
         int32_t d,
         int32_t dlen)
 {
-    array[(0*seglen+t)*dlen + d] = (int64_t)_mm_extract_epi64(vH, 0);
-    array[(1*seglen+t)*dlen + d] = (int64_t)_mm_extract_epi64(vH, 1);
+    array[(0*seglen+t)*dlen + d] = (int64_t)_mm_extract_epi64_rpl(vH, 0);
+    array[(1*seglen+t)*dlen + d] = (int64_t)_mm_extract_epi64_rpl(vH, 1);
 }
 #endif
 
@@ -82,8 +103,8 @@ static inline void arr_store_col(
         int32_t t,
         int32_t seglen)
 {
-    col[0*seglen+t] = (int64_t)_mm_extract_epi64(vH, 0);
-    col[1*seglen+t] = (int64_t)_mm_extract_epi64(vH, 1);
+    col[0*seglen+t] = (int64_t)_mm_extract_epi64_rpl(vH, 0);
+    col[1*seglen+t] = (int64_t)_mm_extract_epi64_rpl(vH, 1);
 }
 #endif
 
@@ -333,7 +354,7 @@ STATIC parasail_result_t* PNAME(
         for (k=0; k<segWidth; ++k) {
             __m128i vHp = _mm_slli_si128(pvHLoad[segLen - 1], 8);
             vF = _mm_slli_si128(vF, 8);
-            vF = _mm_insert_epi64(vF, -open, 0);
+            vF = _mm_insert_epi64_rpl(vF, -open, 0);
             vFM = _mm_slli_si128(vFM, 8);
             vFS = _mm_slli_si128(vFS, 8);
             vFL = _mm_slli_si128(vFL, 8);
@@ -409,10 +430,10 @@ end:
                 vHS = _mm_slli_si128(vHS, 8);
                 vHL = _mm_slli_si128(vHL, 8);
             }
-            result->score_row[j] = (int64_t) _mm_extract_epi64 (vH, 1);
-            result->matches_row[j] = (int64_t) _mm_extract_epi64 (vHM, 1);
-            result->similar_row[j] = (int64_t) _mm_extract_epi64 (vHS, 1);
-            result->length_row[j] = (int64_t) _mm_extract_epi64 (vHL, 1);
+            result->score_row[j] = (int64_t) _mm_extract_epi64_rpl (vH, 1);
+            result->matches_row[j] = (int64_t) _mm_extract_epi64_rpl (vHM, 1);
+            result->similar_row[j] = (int64_t) _mm_extract_epi64_rpl (vHS, 1);
+            result->length_row[j] = (int64_t) _mm_extract_epi64_rpl (vHL, 1);
 #endif
         }
     }
@@ -425,10 +446,10 @@ end:
             vMaxHS = _mm_slli_si128 (vMaxHS, 8);
             vMaxHL = _mm_slli_si128 (vMaxHL, 8);
         }
-        score = (int64_t) _mm_extract_epi64 (vMaxH, 1);
-        matches = (int64_t)_mm_extract_epi64(vMaxHM, 1);
-        similar = (int64_t)_mm_extract_epi64(vMaxHS, 1);
-        length = (int64_t)_mm_extract_epi64(vMaxHL, 1);
+        score = (int64_t) _mm_extract_epi64_rpl (vMaxH, 1);
+        matches = (int64_t)_mm_extract_epi64_rpl(vMaxHM, 1);
+        similar = (int64_t)_mm_extract_epi64_rpl(vMaxHS, 1);
+        length = (int64_t)_mm_extract_epi64_rpl(vMaxHL, 1);
     }
 
     /* max of last column */

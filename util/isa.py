@@ -288,11 +288,11 @@ sse41 = {
     "VEXTRACTx8"  : "_mm_extract_epi8",
     "VEXTRACTx16" : "_mm_extract_epi16",
     "VEXTRACTx32" : "_mm_extract_epi32",
-    "VEXTRACTx64" : "_mm_extract_epi64",
+    "VEXTRACTx64" : "_mm_extract_epi64_rpl",
     "VINSERTx8"   : "_mm_insert_epi8",
     "VINSERTx16"  : "_mm_insert_epi16",
     "VINSERTx32"  : "_mm_insert_epi32",
-    "VINSERTx64"  : "_mm_insert_epi64",
+    "VINSERTx64"  : "_mm_insert_epi64_rpl",
     "VLOAD"       : "_mm_load_si128",
     "VHMAXx8"     : "_mm_hmax_epi8_rpl",
     "VHMAXx16"    : "_mm_hmax_epi16_rpl",
@@ -381,7 +381,7 @@ static inline int32_t _mm_hmax_epi32_rpl(__m128i a) {
     "_mm_hmax_epi64_rpl" : """
 static inline int64_t _mm_hmax_epi64_rpl(__m128i a) {
     a = _mm_max_epi64_rpl(a, _mm_srli_si128(a, 8));
-    return _mm_extract_epi64(a, 0);
+    return _mm_extract_epi64_rpl(a, 0);
 }
 """,
     "_mm_max_epi64_rpl" : """
@@ -408,6 +408,29 @@ static inline __m128i _mm_min_epi64_rpl(__m128i a, __m128i b) {
 """,
     "_mm_rlli_si128_rpl" : """
 #define _mm_rlli_si128_rpl(a,imm) _mm_alignr_epi8(a, a, 16-imm)
+""",
+    "_mm_insert_epi64_rpl" : """
+#if HAVE_SSE41_MM_INSERT_EPI64
+#define _mm_insert_epi64_rpl _mm_insert_epi64
+#else
+static inline __m128i _mm_insert_epi64_rpl(__m128i a, int64_t i, int imm) {
+    __m128i_64_t A;
+    A.m = a;
+    A.v[imm] = i;
+    return A.m;
+}
+#endif
+""",
+    "_mm_extract_epi64_rpl" : """
+#if HAVE_SSE41_MM_EXTRACT_EPI64
+#define _mm_extract_epi64_rpl _mm_extract_epi64
+#else
+static inline int64_t _mm_extract_epi64_rpl(__m128i a, int imm) {
+    __m128i_64_t A;
+    A.m = a;
+    return A.v[imm];
+}
+#endif
 """,
 }
 

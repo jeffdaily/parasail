@@ -22,6 +22,17 @@
 
 #define NEG_INF (INT64_MIN/(int64_t)(2))
 
+#if HAVE_SSE41_MM_INSERT_EPI64
+#define _mm_insert_epi64_rpl _mm_insert_epi64
+#else
+static inline __m128i _mm_insert_epi64_rpl(__m128i a, int64_t i, int imm) {
+    __m128i_64_t A;
+    A.m = a;
+    A.v[imm] = i;
+    return A.m;
+}
+#endif
+
 static inline __m128i _mm_max_epi64_rpl(__m128i a, __m128i b) {
     __m128i_64_t A;
     __m128i_64_t B;
@@ -31,6 +42,16 @@ static inline __m128i _mm_max_epi64_rpl(__m128i a, __m128i b) {
     A.v[1] = (A.v[1]>B.v[1]) ? A.v[1] : B.v[1];
     return A.m;
 }
+
+#if HAVE_SSE41_MM_EXTRACT_EPI64
+#define _mm_extract_epi64_rpl _mm_extract_epi64
+#else
+static inline int64_t _mm_extract_epi64_rpl(__m128i a, int imm) {
+    __m128i_64_t A;
+    A.m = a;
+    return A.v[imm];
+}
+#endif
 
 
 #ifdef PARASAIL_TABLE
@@ -43,10 +64,10 @@ static inline void arr_store_si128(
         int32_t s2Len)
 {
     if (0 <= i+0 && i+0 < s1Len && 0 <= j-0 && j-0 < s2Len) {
-        array[(i+0)*s2Len + (j-0)] = (int64_t)_mm_extract_epi64(vWscore, 1);
+        array[(i+0)*s2Len + (j-0)] = (int64_t)_mm_extract_epi64_rpl(vWscore, 1);
     }
     if (0 <= i+1 && i+1 < s1Len && 0 <= j-1 && j-1 < s2Len) {
-        array[(i+1)*s2Len + (j-1)] = (int64_t)_mm_extract_epi64(vWscore, 0);
+        array[(i+1)*s2Len + (j-1)] = (int64_t)_mm_extract_epi64_rpl(vWscore, 0);
     }
 }
 #endif
@@ -62,16 +83,16 @@ static inline void arr_store_rowcol(
         int32_t s2Len)
 {
     if (i+0 == s1Len-1 && 0 <= j-0 && j-0 < s2Len) {
-        row[j-0] = (int64_t)_mm_extract_epi64(vWscore, 1);
+        row[j-0] = (int64_t)_mm_extract_epi64_rpl(vWscore, 1);
     }
     if (j-0 == s2Len-1 && 0 <= i+0 && i+0 < s1Len) {
-        col[(i+0)] = (int64_t)_mm_extract_epi64(vWscore, 1);
+        col[(i+0)] = (int64_t)_mm_extract_epi64_rpl(vWscore, 1);
     }
     if (i+1 == s1Len-1 && 0 <= j-1 && j-1 < s2Len) {
-        row[j-1] = (int64_t)_mm_extract_epi64(vWscore, 0);
+        row[j-1] = (int64_t)_mm_extract_epi64_rpl(vWscore, 0);
     }
     if (j-1 == s2Len-1 && 0 <= i+1 && i+1 < s1Len) {
-        col[(i+1)] = (int64_t)_mm_extract_epi64(vWscore, 0);
+        col[(i+1)] = (int64_t)_mm_extract_epi64_rpl(vWscore, 0);
     }
 }
 #endif
@@ -186,18 +207,18 @@ parasail_result_t* FNAME(
         const int * const restrict matrow0 = &matrix->matrix[matrix->size*s1[i+0]];
         const int * const restrict matrow1 = &matrix->matrix[matrix->size*s1[i+1]];
         vNscore = _mm_srli_si128(vNscore, 8);
-        vNscore = _mm_insert_epi64(vNscore, tbl_pr[-1], 1);
+        vNscore = _mm_insert_epi64_rpl(vNscore, tbl_pr[-1], 1);
         vWscore = _mm_srli_si128(vWscore, 8);
-        vWscore = _mm_insert_epi64(vWscore, -open - i*gap, 1);
+        vWscore = _mm_insert_epi64_rpl(vWscore, -open - i*gap, 1);
         tbl_pr[-1] = -open - (i+N)*gap;
         /* iterate over database sequence */
         for (j=0; j<s2Len+PAD; ++j) {
             __m128i vMat;
             __m128i vNWscore = vNscore;
             vNscore = _mm_srli_si128(vWscore, 8);
-            vNscore = _mm_insert_epi64(vNscore, tbl_pr[j], 1);
+            vNscore = _mm_insert_epi64_rpl(vNscore, tbl_pr[j], 1);
             vDel = _mm_srli_si128(vDel, 8);
-            vDel = _mm_insert_epi64(vDel, del_pr[j], 1);
+            vDel = _mm_insert_epi64_rpl(vDel, del_pr[j], 1);
             vDel = _mm_max_epi64_rpl(
                     _mm_sub_epi64(vNscore, vOpen),
                     _mm_sub_epi64(vDel, vGap));
@@ -226,8 +247,8 @@ parasail_result_t* FNAME(
 #ifdef PARASAIL_ROWCOL
             arr_store_rowcol(result->score_row, result->score_col, vWscore, i, s1Len, j, s2Len);
 #endif
-            tbl_pr[j-1] = (int64_t)_mm_extract_epi64(vWscore,0);
-            del_pr[j-1] = (int64_t)_mm_extract_epi64(vDel,0);
+            tbl_pr[j-1] = (int64_t)_mm_extract_epi64_rpl(vWscore,0);
+            del_pr[j-1] = (int64_t)_mm_extract_epi64_rpl(vDel,0);
             /* as minor diagonal vector passes across table, extract
                last table value at the i,j bound */
             {
@@ -245,7 +266,7 @@ parasail_result_t* FNAME(
     /* max in vMax */
     for (i=0; i<N; ++i) {
         int64_t value;
-        value = (int64_t) _mm_extract_epi64(vMax, 1);
+        value = (int64_t) _mm_extract_epi64_rpl(vMax, 1);
         if (value > score) {
             score = value;
         }

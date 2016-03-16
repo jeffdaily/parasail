@@ -81,6 +81,12 @@
 /* define to 1 if the C compiler supports SSE4.1 */
 #undef HAVE_SSE41
 
+/* define to 1 if the C compiler supports SSE4.1 _mm_extract_epi64 */
+#undef HAVE_SSE41_MM_EXTRACT_EPI64
+
+/* define to 1 if the C compiler supports SSE4.1 _mm_insert_epi64 */
+#undef HAVE_SSE41_MM_INSERT_EPI64
+
 /* Define to 1 if you have the <stddef.h> header file. */
 #undef HAVE_STDDEF_H
 

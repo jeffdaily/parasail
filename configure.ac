@@ -124,8 +124,7 @@ do
 int foo() {
     __m128i vOne = _mm_set1_epi8(1);
     __m128i result =  _mm_max_epi8(vOne,vOne);
-    __m128i result2 =  _mm_insert_epi64(result,0,0);
-    return _mm_extract_epi8(result2, 0);
+    return _mm_extract_epi8(result, 0);
 }
 int main(void) { return foo(); }
 ]])],
@@ -143,6 +142,55 @@ AS_IF([test "x$pt_cv_sse41" == xdefault], [SSE41_CFLAGS=],
 AC_SUBST([SSE41_CFLAGS])
 
 AM_CONDITIONAL([HAVE_SSE], [test "x$pt_cv_sse2_val" = x1 || test "x$pt_cv_sse41_val" = x1])
+
+AC_CACHE_CHECK([for SSE4.1 _mm_insert_epi64],
+    [pt_cv_sse41_mm_insert_epi64],
+    [save_CFLAGS="$CFLAGS"
+     CFLAGS="$SSE41_CFLAGS $CFLAGS"
+     psl_save_c_werror_flag=$ac_c_werror_flag
+     ac_c_werror_flag=yes
+     AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+#include <stdint.h>
+#include <smmintrin.h>
+__m128i foo() {
+    __m128i vOne = _mm_set1_epi8(1);
+    return _mm_insert_epi64(vOne,INT64_MIN,0);
+}
+]])],
+        [pt_cv_sse41_mm_insert_epi64=yes;
+         pt_cv_sse41_mm_insert_epi64_val=1],
+        [pt_cv_sse41_mm_insert_epi64=no;
+         pt_cv_sse41_mm_insert_epi64_val=0])
+     ac_c_werror_flag=$psl_save_c_werror_flag
+     CFLAGS="$save_CFLAGS"])
+AC_DEFINE_UNQUOTED([HAVE_SSE41_MM_INSERT_EPI64],
+    [$pt_cv_sse41_mm_insert_epi64_val],
+    [define to 1 if the C compiler supports SSE4.1 _mm_insert_epi64])
+
+AC_CACHE_CHECK([for SSE4.1 _mm_extract_epi64],
+    [pt_cv_sse41_mm_extract_epi64],
+    [save_CFLAGS="$CFLAGS"
+     CFLAGS="$SSE41_CFLAGS $CFLAGS"
+     psl_save_c_werror_flag=$ac_c_werror_flag
+     ac_c_werror_flag=yes
+     AC_LINK_IFELSE([AC_LANG_SOURCE([[
+#include <stdint.h>
+#include <immintrin.h>
+int64_t foo() {
+    __m128i vZero = _mm_set1_epi8(0);
+    return _mm_extract_epi64(vZero,0);
+}
+int main(void) { return foo(); }
+]])],
+        [pt_cv_sse41_mm_extract_epi64=yes;
+         pt_cv_sse41_mm_extract_epi64_val=1],
+        [pt_cv_sse41_mm_extract_epi64=no;
+         pt_cv_sse41_mm_extract_epi64_val=0])
+     ac_c_werror_flag=$psl_save_c_werror_flag
+     CFLAGS="$save_CFLAGS"])
+AC_DEFINE_UNQUOTED([HAVE_SSE41_MM_EXTRACT_EPI64],
+    [$pt_cv_sse41_mm_extract_epi64_val],
+    [define to 1 if the C compiler supports SSE4.1 _mm_extract_epi64])
 
 AC_CACHE_CHECK([for AVX2 support], [pt_cv_avx2],
 [pt_cv_avx2=no; pt_cv_avx2_val=0
@@ -165,8 +213,6 @@ void parasail_memset___m256i(__m256i *b, __m256i c, size_t len)
 int foo() {
     __m256i vOne = _mm256_set1_epi8(1);
     __m256i result =  _mm256_add_epi8(vOne,vOne);
-    __m256i result2 =  _mm256_insert_epi64(vOne,0,0);
-    parasail_memset___m256i(&result2, result, 1);
     return _mm_extract_epi16(_mm256_extracti128_si256(result,0),0);
 }
 int main(void) { return foo(); }

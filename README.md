@@ -264,23 +264,13 @@ C is the native API for parasail.  C++ is supported directly because the parasai
 
 [back to top]
 
-Once you have installed parasail into --prefix=$PREFIX, you can also compile the Python bindings.  Don't forget to add $PREFIX/lib to your LD_LIBRARY_PATH, if needed.  The Python bindings are in the <parasail>/bindings/python directory.  To build, run:
+Python bindings are available as part of the [parasail-python](https://github.com/jeffdaily/parasail-python) project.
 
-```
-PARASAIL_PREFIX=$PREFIX python setup.py build
-```
+### Rust
 
-This will correctly setup the necessary CPPFLAGS, LDFLAGS, and LIBS variables during the build.  Because the parasail.h header uses C99 keywords, e.g., restrict, the setup.py process will test your C compiler for the correct use of restrict, automatically.
+[back to top]
 
-The Python interface only includes bindings for the dispatching functions, not the low-level instruction set-specific function calls.  The Python interface also includes wrappers for the various PAM and BLOSUM matrices included in the distribution.
-
-Example:
-
-```python
-import parasail
-result = parasail.sw_scan_16("asdf", "asdf", -11, -1, parasail.blosum62)
-result = parasail.sw_stats_striped_8("asdf", "asdf", -11, -1, parasail.pam100)
-```
+Rust bindings are available as part of the [parasailors](https://github.com/dikaiosune/parasailors) project.
 
 ## Windows Build
 

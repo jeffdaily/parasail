@@ -355,6 +355,18 @@ def generated_params_scan(params):
     params["STATS_SCAN_INSERT_MASK"] = "0,"*(params["LANES"]-1)+"1"
     params["SCAN_INSERT_MASK"] = "1"+",0"*(params["LANES"]-1)
     params["POSITION_MASK"] = ",".join([str(i) for i in range(params["LANES"])])
+    params["SCAN_AVX2_BLENDV_FIX"] = """
+
+/* clang optimization broke blendv in this code */
+#if defined(__clang__) && defined(__OPTIMIZE__)
+#define _mm256_blendv_epi8 _mm256_blendv_epi8_rpl
+static inline __m256i _mm256_blendv_epi8_rpl(__m256i a, __m256i b, __m256i mask) {
+    a = _mm256_andnot_si256(mask, a);
+    a = _mm256_or_si256(a, _mm256_and_si256(mask, b));
+    return a;
+}
+#endif
+    """
     return params
 
 

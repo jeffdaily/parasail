@@ -9,8 +9,6 @@ The Unreleased section will be empty for tagged releases. Unreleased functionali
 
 ## [1.0.2] - 2016-03-17
 
-### Changed
-
 ### Removed
 - Python bindings were removed. Now a stand-alone project [parasail-python].
 

@@ -7,6 +7,23 @@ This project follows the [Gitflow Workflow model](https://www.atlassian.com/git/
 ## [Unreleased]
 The Unreleased section will be empty for tagged releases. Unreleased functionality appears in the develop branch.
 
+## [1.0.2] - 2016-03-17
+
+### Changed
+
+### Removed
+- Python bindings were removed. Now a stand-alone project [parasail-python].
+
+### Fixed
+- Multi-arch build for OSX now correctly detects SSE4.1 and AVX2 after fixing [\#20].
+
+### Closed Issues
+- -O3 optimization causes incorrect results on OSX clang for _mm256_blendv_epi8 [\#21]
+- epi64 instructions not available on 32-bit platforms [\#20]
+- python ctypes interface instead of cython [\#19] **wontfix** -- moved to [parasail-python] project.
+- create python wheel for pip install [\#18] **wontfix** -- moved to [parasail-python] project.
+- Adding example for python [\#18] **wontfix** -- moved to [parasail-python] project.
+
 ## [1.0.1] - 2016-03-01
 
 ### Changed
@@ -37,10 +54,17 @@ The Unreleased section will be empty for tagged releases. Unreleased functionali
 ## [1.0.0] - 2015-09-16
 First stable, production-ready version of parasail.
 
+[parasail-python]: https://github.com/jeffdaily/parasail-python
+
 [Unreleased]: https://github.com/jeffdaily/parasail/compare/v1.0.1...develop
+[1.0.2]: https://github.com/jeffdaily/parasail/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/jeffdaily/parasail/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/jeffdaily/parasail/releases/tag/v1.0.0
 
+[\#21]: https://github.com/jeffdaily/parasail/issues/21
+[\#20]: https://github.com/jeffdaily/parasail/issues/20
+[\#19]: https://github.com/jeffdaily/parasail/issues/19
+[\#18]: https://github.com/jeffdaily/parasail/issues/18
 [\#17]: https://github.com/jeffdaily/parasail/issues/17
 [\#16]: https://github.com/jeffdaily/parasail/issues/16
 [\#15]: https://github.com/jeffdaily/parasail/issues/15

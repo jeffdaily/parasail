@@ -18,7 +18,7 @@
 #include "parasail/internal_%(ISA)s.h"
 
 #define NEG_INF %(NEG_INF)s
-%(FIXES)s
+%(FIXES)s%(SCAN_AVX2_BLENDV_FIX)s
 
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si%(BITS)s(

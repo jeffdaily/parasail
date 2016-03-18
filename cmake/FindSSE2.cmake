@@ -120,3 +120,27 @@ if(SSE2_C_FLAGS)
   set(CMAKE_REQUIRED_FLAGS "${SAFE_CMAKE_REQUIRED_FLAGS}")
 endif()
 
+set(SSE2_C_TEST_SOURCE_SET_EPI64X
+"
+#include <stdint.h>
+#if defined(_MSC_VER)
+#include <intrin.h>
+#else
+#include <emmintrin.h>
+#endif
+__m128i foo() {
+    __m128i vOne = _mm_set_epi64x(1,1);
+    return vOne;
+}
+int main(void) { foo(); return 0; }
+")
+
+if(SSE2_C_FLAGS)
+  include(CheckCSourceCompiles)
+  set(SAFE_CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS}")
+  set(CMAKE_REQUIRED_FLAGS "${SSE2_C_FLAGS}")
+  unset(HAVE_SSE2_MM_SET_EPI64X CACHE)
+  check_c_source_compiles("${SSE2_C_TEST_SOURCE_SET_EPI64X}" HAVE_SSE2_MM_SET_EPI64X)
+  set(CMAKE_REQUIRED_FLAGS "${SAFE_CMAKE_REQUIRED_FLAGS}")
+endif()
+

@@ -81,6 +81,9 @@
 /* define to 1 if the C compiler supports SSE2 _mm_set1_epi64x */
 #undef HAVE_SSE2_MM_SET1_EPI64X
 
+/* define to 1 if the C compiler supports SSE2 _mm_set_epi64x */
+#undef HAVE_SSE2_MM_SET_EPI64X
+
 /* define to 1 if the C compiler supports SSE4.1 */
 #undef HAVE_SSE41
 

@@ -75,7 +75,7 @@ sse2 = {
     "VSETx8"      : "_mm_set_epi8",
     "VSETx16"     : "_mm_set_epi16",
     "VSETx32"     : "_mm_set_epi32",
-    "VSETx64"     : "_mm_set_epi64x",
+    "VSETx64"     : "_mm_set_epi64x_rpl",
     "VRSHIFT"     : "_mm_srli_si128",
     "VSHIFT"      : "_mm_slli_si128",
     "VSTORE"      : "_mm_store_si128",
@@ -269,6 +269,18 @@ static inline __m128i _mm_set1_epi64x_rpl(int64_t i) {
 }
 #endif
 """,
+    "_mm_set_epi64x_rpl" : """
+#if HAVE_SSE2_MM_SET_EPI64X
+#define _mm_set_epi64x_rpl _mm_set_epi64x
+#else
+static inline __m128i _mm_set_epi64x_rpl(int64_t e1, int64_t e0) {
+    __m128i_64_t A;
+    A.v[0] = e0;
+    A.v[1] = e1;
+    return A.m;
+}
+#endif
+""",
 }
 
 
@@ -334,7 +346,7 @@ sse41 = {
     "VSETx8"      : "_mm_set_epi8",
     "VSETx16"     : "_mm_set_epi16",
     "VSETx32"     : "_mm_set_epi32",
-    "VSETx64"     : "_mm_set_epi64x",
+    "VSETx64"     : "_mm_set_epi64x_rpl",
     "VRSHIFT"     : "_mm_srli_si128",
     "VSHIFT"      : "_mm_slli_si128",
     "VSTORE"      : "_mm_store_si128",
@@ -452,6 +464,18 @@ static inline __m128i _mm_set1_epi64x_rpl(int64_t i) {
     __m128i_64_t A;
     A.v[0] = i;
     A.v[1] = i;
+    return A.m;
+}
+#endif
+""",
+    "_mm_set_epi64x_rpl" : """
+#if HAVE_SSE2_MM_SET_EPI64X
+#define _mm_set_epi64x_rpl _mm_set_epi64x
+#else
+static inline __m128i _mm_set_epi64x_rpl(int64_t e1, int64_t e0) {
+    __m128i_64_t A;
+    A.v[0] = e0;
+    A.v[1] = e1;
     return A.m;
 }
 #endif

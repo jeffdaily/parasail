@@ -11,6 +11,7 @@
 
 import copy
 import os
+import re
 import string
 import sys
 
@@ -374,7 +375,7 @@ static inline __m256i _mm256_blendv_epi8_rpl(__m256i a, __m256i b, __m256i mask)
     return params
 
 
-def generated_params(params):
+def generated_params(template, params):
     # some params are generated from given params
     bits = params["BITS"]
     width = params["WIDTH"]
@@ -398,8 +399,11 @@ def generated_params(params):
             new_key = key.split('x')[0]
             params[new_key] = params[key]
     fixes = ""
+    template_params = re.findall(r'%\([A-Za-z0-9]+\)s', template)
     for param in params:
-        if param in template and str(params[param]).endswith("_rpl"):
+        wrapped_param = r'%%(%s)s'%param
+        if (wrapped_param in template_params
+                and str(params[param]).endswith("_rpl")):
             fixes += params[params[param]]
     params["FIXES"] = fixes
     params = generate_printer(params)
@@ -446,7 +450,7 @@ for template_filename in template_filenames:
             params["PNAME_BASE"] = string.replace(params["PNAME"], "_stats", "")
             params["PNAME_TABLE"] = "parasail_"+function_table_pname
             params["PNAME_ROWCOL"] = "parasail_"+function_rowcol_pname
-            params = generated_params(params)
+            params = generated_params(template, params)
             output_filename = "%s%s.c" % (output_dir, function_name)
             result = template % params
             writer = open(output_filename, "w")
@@ -483,7 +487,7 @@ for template_filename in special_templates:
         params["NAME"] = "parasail_"+function_name
         params["NAME_TABLE"] = "parasail_"+function_table_name
         params["NAME_ROWCOL"] = "parasail_"+function_rowcol_name
-        params = generated_params(params)
+        params = generated_params(template, params)
         output_filename = "%s%s.c" % (output_dir, function_name)
         result = template % params
         writer = open(output_filename, "w")
@@ -533,7 +537,7 @@ for template_filename in bias_templates:
             params["PNAME_BASE"] = string.replace(params["PNAME"], "_stats", "")
             params["PNAME_TABLE"] = "parasail_"+function_table_pname
             params["PNAME_ROWCOL"] = "parasail_"+function_rowcol_pname
-            params = generated_params(params)
+            params = generated_params(template, params)
             params["VADD"] = params["VADDSx%d"%width]
             params["VSUB"] = params["VSUBSx%d"%width]
             output_filename = "%s%s.c" % (output_dir, function_name)

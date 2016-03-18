@@ -50,8 +50,6 @@ static inline __m256i _mm256_unpackhi_epi8_rpl(__m256i a, __m256i b) {
     return _mm256_unpackhi_epi8(an, bn);
 }
 
-#define _mm256_cmplt_epi8_rpl(a,b) _mm256_cmpgt_epi8(b,a)
-
 #define _mm256_srli_si256_rpl(a,imm) _mm256_or_si256(_mm256_slli_si256(_mm256_permute2x128_si256(a, a, _MM_SHUFFLE(3,0,0,1)), 16-imm), _mm256_srli_si256(a, imm))
 
 static inline __m256i _mm256_packs_epi16_rpl(__m256i a, __m256i b) {

@@ -54,6 +54,17 @@ static inline __m128i _mm_max_epi64_rpl(__m128i a, __m128i b) {
     return A.m;
 }
 
+#if HAVE_SSE2_MM_SET_EPI64X
+#define _mm_set_epi64x_rpl _mm_set_epi64x
+#else
+static inline __m128i _mm_set_epi64x_rpl(int64_t e1, int64_t e0) {
+    __m128i_64_t A;
+    A.v[0] = e0;
+    A.v[1] = e1;
+    return A.m;
+}
+#endif
+
 static inline int64_t _mm_extract_epi64_rpl(__m128i a, const int imm) {
     __m128i_64_t A;
     A.m = a;
@@ -163,14 +174,14 @@ parasail_result_t* FNAME(
     __m128i vN = _mm_set1_epi64x_rpl(N);
     __m128i vGapN = _mm_set1_epi64x_rpl(gap*N);
     __m128i vNegOne = _mm_set1_epi64x_rpl(-1);
-    __m128i vI = _mm_set_epi64x(0,1);
-    __m128i vJreset = _mm_set_epi64x(0,-1);
+    __m128i vI = _mm_set_epi64x_rpl(0,1);
+    __m128i vJreset = _mm_set_epi64x_rpl(0,-1);
     __m128i vMax = vNegInf;
     __m128i vILimit = _mm_set1_epi64x_rpl(s1Len);
     __m128i vILimit1 = _mm_sub_epi64(vILimit, vOne);
     __m128i vJLimit = _mm_set1_epi64x_rpl(s2Len);
     __m128i vJLimit1 = _mm_sub_epi64(vJLimit, vOne);
-    __m128i vIBoundary = _mm_set_epi64x(
+    __m128i vIBoundary = _mm_set_epi64x_rpl(
             -open-0*gap,
             -open-1*gap
             );
@@ -243,7 +254,7 @@ parasail_result_t* FNAME(
             vIns = _mm_max_epi64_rpl(
                     _mm_sub_epi64(vWscore, vOpen),
                     _mm_sub_epi64(vIns, vGap));
-            vMat = _mm_set_epi64x(
+            vMat = _mm_set_epi64x_rpl(
                     matrow0[s2[j-0]],
                     matrow1[s2[j-1]]
                     );

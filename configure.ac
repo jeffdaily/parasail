@@ -112,6 +112,30 @@ AS_IF([test "x$pt_cv_sse2" == xdefault], [SSE2_CFLAGS=],
       [SSE2_CFLAGS="not supported"])
 AC_SUBST([SSE2_CFLAGS])
 
+AC_CACHE_CHECK([for SSE2 _mm_set1_epi64x],
+    [pt_cv_sse2_mm_set1_epi64x],
+    [save_CFLAGS="$CFLAGS"
+     CFLAGS="$SSE2_CFLAGS $CFLAGS"
+     psl_save_c_werror_flag=$ac_c_werror_flag
+     ac_c_werror_flag=yes
+     AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+#include <stdint.h>
+#include <emmintrin.h>
+__m128i foo() {
+    __m128i vOne = _mm_set1_epi64x(1);
+    return vOne;
+}
+]])],
+        [pt_cv_sse2_mm_set1_epi64x=yes;
+         pt_cv_sse2_mm_set1_epi64x_val=1],
+        [pt_cv_sse2_mm_set1_epi64x=no;
+         pt_cv_sse2_mm_set1_epi64x_val=0])
+     ac_c_werror_flag=$psl_save_c_werror_flag
+     CFLAGS="$save_CFLAGS"])
+AC_DEFINE_UNQUOTED([HAVE_SSE2_MM_SET1_EPI64X],
+    [$pt_cv_sse2_mm_set1_epi64x_val],
+    [define to 1 if the C compiler supports SSE2 _mm_set1_epi64x])
+
 AC_CACHE_CHECK([for SSE4.1 support], [pt_cv_sse41],
 [pt_cv_sse41=no; pt_cv_sse41_val=0
 for flag in default -msse4.1 -msse4 -march=corei7

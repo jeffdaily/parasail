@@ -64,6 +64,17 @@ static inline int64_t _mm_extract_epi64_rpl(__m128i a, int imm) {
 }
 #endif
 
+#if HAVE_SSE2_MM_SET1_EPI64X
+#define _mm_set1_epi64x_rpl _mm_set1_epi64x
+#else
+static inline __m128i _mm_set1_epi64x_rpl(int64_t i) {
+    __m128i_64_t A;
+    A.v[0] = i;
+    A.v[1] = i;
+    return A.m;
+}
+#endif
+
 
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si128(
@@ -137,9 +148,9 @@ parasail_result_t* PNAME(
     __m128i* restrict pvHLoad =  parasail_memalign___m128i(16, segLen);
     __m128i* const restrict pvE = parasail_memalign___m128i(16, segLen);
     int64_t* const restrict boundary = parasail_memalign_int64_t(16, s2Len+1);
-    __m128i vGapO = _mm_set1_epi64x(open);
-    __m128i vGapE = _mm_set1_epi64x(gap);
-    __m128i vNegInf = _mm_set1_epi64x(NEG_INF);
+    __m128i vGapO = _mm_set1_epi64x_rpl(open);
+    __m128i vGapE = _mm_set1_epi64x_rpl(gap);
+    __m128i vNegInf = _mm_set1_epi64x_rpl(NEG_INF);
     int64_t score = NEG_INF;
     
 #ifdef PARASAIL_TABLE

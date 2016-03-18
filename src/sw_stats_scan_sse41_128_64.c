@@ -78,6 +78,17 @@ static inline __m128i _mm_cmplt_epi64_rpl(__m128i a, __m128i b) {
     return A.m;
 }
 
+#if HAVE_SSE2_MM_SET1_EPI64X
+#define _mm_set1_epi64x_rpl _mm_set1_epi64x
+#else
+static inline __m128i _mm_set1_epi64x_rpl(int64_t i) {
+    __m128i_64_t A;
+    A.v[0] = i;
+    A.v[1] = i;
+    return A.m;
+}
+#endif
+
 static inline int64_t _mm_hmax_epi64_rpl(__m128i a) {
     a = _mm_max_epi64_rpl(a, _mm_srli_si128(a, 8));
     return _mm_extract_epi64_rpl(a, 0);
@@ -166,11 +177,11 @@ parasail_result_t* PNAME(
     __m128i* const restrict pvHMMax = parasail_memalign___m128i(16, segLen);
     __m128i* const restrict pvHSMax = parasail_memalign___m128i(16, segLen);
     __m128i* const restrict pvHLMax = parasail_memalign___m128i(16, segLen);
-    __m128i vGapO = _mm_set1_epi64x(open);
-    __m128i vGapE = _mm_set1_epi64x(gap);
-    __m128i vNegInf = _mm_set1_epi64x(NEG_INF);
+    __m128i vGapO = _mm_set1_epi64x_rpl(open);
+    __m128i vGapE = _mm_set1_epi64x_rpl(gap);
+    __m128i vNegInf = _mm_set1_epi64x_rpl(NEG_INF);
     __m128i vZero = _mm_setzero_si128();
-    __m128i vOne = _mm_set1_epi64x(1);
+    __m128i vOne = _mm_set1_epi64x_rpl(1);
     int64_t score = NEG_INF;
     int64_t matches = 0;
     int64_t similar = 0;
@@ -184,7 +195,7 @@ parasail_result_t* PNAME(
     __m128i insert_mask = _mm_cmpeq_epi64(vZero,
             _mm_set_epi64x(0,1));
     __m128i vSegLenXgap_reset = _mm_blendv_epi8(vNegInf,
-            _mm_set1_epi64x(segLenXgap),
+            _mm_set1_epi64x_rpl(segLenXgap),
             insert_mask);
     
 #ifdef PARASAIL_TABLE
@@ -425,7 +436,7 @@ parasail_result_t* PNAME(
             __m128i vCompare = _mm_cmpgt_epi64_rpl(vMaxH, vMaxHUnit);
             if (_mm_movemask_epi8(vCompare)) {
                 score = _mm_hmax_epi64_rpl(vMaxH);
-                vMaxHUnit = _mm_set1_epi64x(score);
+                vMaxHUnit = _mm_set1_epi64x_rpl(score);
                 end_ref = j;
                 (void)memcpy(pvHMax, pvH, sizeof(__m128i)*segLen);
                 (void)memcpy(pvHMMax, pvM, sizeof(__m128i)*segLen);

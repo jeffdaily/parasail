@@ -71,7 +71,7 @@ sse2 = {
     "VSET1x8"     : "_mm_set1_epi8",
     "VSET1x16"    : "_mm_set1_epi16",
     "VSET1x32"    : "_mm_set1_epi32",
-    "VSET1x64"    : "_mm_set1_epi64x",
+    "VSET1x64"    : "_mm_set1_epi64x_rpl",
     "VSETx8"      : "_mm_set_epi8",
     "VSETx16"     : "_mm_set_epi16",
     "VSETx32"     : "_mm_set_epi32",
@@ -257,6 +257,18 @@ static inline __m128i _mm_min_epi64_rpl(__m128i a, __m128i b) {
     "_mm_rlli_si128_rpl" : """
 #define _mm_rlli_si128_rpl(a,imm) _mm_or_si128(_mm_slli_si128(a,imm),_mm_srli_si128(a,16-imm))
 """,
+    "_mm_set1_epi64x_rpl" : """
+#if HAVE_SSE2_MM_SET1_EPI64X
+#define _mm_set1_epi64x_rpl _mm_set1_epi64x
+#else
+static inline __m128i _mm_set1_epi64x_rpl(int64_t i) {
+    __m128i_64_t A;
+    A.v[0] = i;
+    A.v[1] = i;
+    return A.m;
+}
+#endif
+""",
 }
 
 
@@ -318,7 +330,7 @@ sse41 = {
     "VSET1x8"     : "_mm_set1_epi8",
     "VSET1x16"    : "_mm_set1_epi16",
     "VSET1x32"    : "_mm_set1_epi32",
-    "VSET1x64"    : "_mm_set1_epi64x",
+    "VSET1x64"    : "_mm_set1_epi64x_rpl",
     "VSETx8"      : "_mm_set_epi8",
     "VSETx16"     : "_mm_set_epi16",
     "VSETx32"     : "_mm_set_epi32",
@@ -429,6 +441,18 @@ static inline int64_t _mm_extract_epi64_rpl(__m128i a, int imm) {
     __m128i_64_t A;
     A.m = a;
     return A.v[imm];
+}
+#endif
+""",
+    "_mm_set1_epi64x_rpl" : """
+#if HAVE_SSE2_MM_SET1_EPI64X
+#define _mm_set1_epi64x_rpl _mm_set1_epi64x
+#else
+static inline __m128i _mm_set1_epi64x_rpl(int64_t i) {
+    __m128i_64_t A;
+    A.v[0] = i;
+    A.v[1] = i;
+    return A.m;
 }
 #endif
 """,

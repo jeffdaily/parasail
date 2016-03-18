@@ -66,6 +66,17 @@ static inline int64_t _mm_extract_epi64_rpl(__m128i a, const int imm) {
 
 #define _mm_rlli_si128_rpl(a,imm) _mm_or_si128(_mm_slli_si128(a,imm),_mm_srli_si128(a,16-imm))
 
+#if HAVE_SSE2_MM_SET1_EPI64X
+#define _mm_set1_epi64x_rpl _mm_set1_epi64x
+#else
+static inline __m128i _mm_set1_epi64x_rpl(int64_t i) {
+    __m128i_64_t A;
+    A.v[0] = i;
+    A.v[1] = i;
+    return A.m;
+}
+#endif
+
 static inline int64_t _mm_hmax_epi64_rpl(__m128i a) {
     a = _mm_max_epi64_rpl(a, _mm_srli_si128(a, 8));
     return _mm_extract_epi64_rpl(a, 0);
@@ -143,19 +154,19 @@ parasail_result_t* PNAME(
     __m128i* const restrict pvE = parasail_memalign___m128i(16, segLen);
     __m128i* const restrict pvHt= parasail_memalign___m128i(16, segLen);
     __m128i* const restrict pvH = parasail_memalign___m128i(16, segLen);
-    __m128i vGapO = _mm_set1_epi64x(open);
-    __m128i vGapE = _mm_set1_epi64x(gap);
-    __m128i vNegInf = _mm_set1_epi64x(NEG_INF);
+    __m128i vGapO = _mm_set1_epi64x_rpl(open);
+    __m128i vGapE = _mm_set1_epi64x_rpl(gap);
+    __m128i vNegInf = _mm_set1_epi64x_rpl(NEG_INF);
     int64_t score = NEG_INF;
     __m128i vMaxH = vNegInf;
-    __m128i vPosMask = _mm_cmpeq_epi64_rpl(_mm_set1_epi64x(position),
+    __m128i vPosMask = _mm_cmpeq_epi64_rpl(_mm_set1_epi64x_rpl(position),
             _mm_set_epi64x(0,1));
     const int64_t segLenXgap = -segLen*gap;
     __m128i insert_mask = _mm_cmpeq_epi64_rpl(_mm_setzero_si128(),
             _mm_set_epi64x(1,0));
-    __m128i vSegLenXgap1 = _mm_set1_epi64x((segLen-1)*gap);
+    __m128i vSegLenXgap1 = _mm_set1_epi64x_rpl((segLen-1)*gap);
     __m128i vSegLenXgap = _mm_blendv_epi8_rpl(vNegInf,
-            _mm_set1_epi64x(segLenXgap),
+            _mm_set1_epi64x_rpl(segLenXgap),
             insert_mask);
     
 #ifdef PARASAIL_TABLE

@@ -64,6 +64,17 @@ static inline int64_t _mm_extract_epi64_rpl(__m128i a, int imm) {
 }
 #endif
 
+#if HAVE_SSE2_MM_SET1_EPI64X
+#define _mm_set1_epi64x_rpl _mm_set1_epi64x
+#else
+static inline __m128i _mm_set1_epi64x_rpl(int64_t i) {
+    __m128i_64_t A;
+    A.v[0] = i;
+    A.v[1] = i;
+    return A.m;
+}
+#endif
+
 static inline int64_t _mm_hmax_epi64_rpl(__m128i a) {
     a = _mm_max_epi64_rpl(a, _mm_srli_si128(a, 8));
     return _mm_extract_epi64_rpl(a, 0);
@@ -140,12 +151,12 @@ parasail_result_t* PNAME(
     __m128i* restrict pvHStore = parasail_memalign___m128i(16, segLen);
     __m128i* restrict pvHLoad =  parasail_memalign___m128i(16, segLen);
     __m128i* const restrict pvE = parasail_memalign___m128i(16, segLen);
-    __m128i vGapO = _mm_set1_epi64x(open);
-    __m128i vGapE = _mm_set1_epi64x(gap);
-    __m128i vNegInf = _mm_set1_epi64x(NEG_INF);
+    __m128i vGapO = _mm_set1_epi64x_rpl(open);
+    __m128i vGapE = _mm_set1_epi64x_rpl(gap);
+    __m128i vNegInf = _mm_set1_epi64x_rpl(NEG_INF);
     int64_t score = NEG_INF;
     __m128i vMaxH = vNegInf;
-    __m128i vPosMask = _mm_cmpeq_epi64(_mm_set1_epi64x(position),
+    __m128i vPosMask = _mm_cmpeq_epi64(_mm_set1_epi64x_rpl(position),
             _mm_set_epi64x(0,1));
     
 #ifdef PARASAIL_TABLE
@@ -159,8 +170,8 @@ parasail_result_t* PNAME(
 #endif
 
     /* initialize H and E */
-    parasail_memset___m128i(pvHStore, _mm_set1_epi64x(0), segLen);
-    parasail_memset___m128i(pvE, _mm_set1_epi64x(-open), segLen);
+    parasail_memset___m128i(pvHStore, _mm_set1_epi64x_rpl(0), segLen);
+    parasail_memset___m128i(pvE, _mm_set1_epi64x_rpl(-open), segLen);
 
     /* outer loop over database sequence */
     for (j=0; j<s2Len; ++j) {

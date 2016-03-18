@@ -80,6 +80,17 @@ static inline __m128i _mm_cmplt_epi64_rpl(__m128i a, __m128i b) {
     return A.m;
 }
 
+#if HAVE_SSE2_MM_SET1_EPI64X
+#define _mm_set1_epi64x_rpl _mm_set1_epi64x
+#else
+static inline __m128i _mm_set1_epi64x_rpl(int64_t i) {
+    __m128i_64_t A;
+    A.v[0] = i;
+    A.v[1] = i;
+    return A.m;
+}
+#endif
+
 
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si128(
@@ -175,23 +186,23 @@ parasail_result_t* FNAME(
     int64_t similar = NEG_INF;
     int64_t length = NEG_INF;
     
-    __m128i vNegInf = _mm_set1_epi64x(NEG_INF);
-    __m128i vOpen = _mm_set1_epi64x(open);
-    __m128i vGap  = _mm_set1_epi64x(gap);
-    __m128i vZero = _mm_set1_epi64x(0);
-    __m128i vOne = _mm_set1_epi64x(1);
-    __m128i vN = _mm_set1_epi64x(N);
-    __m128i vGapN = _mm_set1_epi64x(gap*N);
-    __m128i vNegOne = _mm_set1_epi64x(-1);
+    __m128i vNegInf = _mm_set1_epi64x_rpl(NEG_INF);
+    __m128i vOpen = _mm_set1_epi64x_rpl(open);
+    __m128i vGap  = _mm_set1_epi64x_rpl(gap);
+    __m128i vZero = _mm_set1_epi64x_rpl(0);
+    __m128i vOne = _mm_set1_epi64x_rpl(1);
+    __m128i vN = _mm_set1_epi64x_rpl(N);
+    __m128i vGapN = _mm_set1_epi64x_rpl(gap*N);
+    __m128i vNegOne = _mm_set1_epi64x_rpl(-1);
     __m128i vI = _mm_set_epi64x(0,1);
     __m128i vJreset = _mm_set_epi64x(0,-1);
     __m128i vMaxScore = vNegInf;
     __m128i vMaxMatch = vNegInf;
     __m128i vMaxSimilar = vNegInf;
     __m128i vMaxLength = vNegInf;
-    __m128i vILimit = _mm_set1_epi64x(s1Len);
+    __m128i vILimit = _mm_set1_epi64x_rpl(s1Len);
     __m128i vILimit1 = _mm_sub_epi64(vILimit, vOne);
-    __m128i vJLimit = _mm_set1_epi64x(s2Len);
+    __m128i vJLimit = _mm_set1_epi64x_rpl(s2Len);
     __m128i vJLimit1 = _mm_sub_epi64(vJLimit, vOne);
     __m128i vIBoundary = _mm_set_epi64x(
             -open-0*gap,

@@ -280,7 +280,7 @@ Rust bindings are available as part of the [parasailors](https://github.com/dika
 The Windows platform is fully supported as of v1.0.1.  The CMake build is the preferred method for building parasail on Windows.
 
 ### Windows - CMake
-Using the CMake GUI application, you can configure the parasail build for Visual Studio 2010, 2012, or 2013.  Other versions may also work but were not tested.  You must configure for 64-bit Windows (Win64) or the build will fail.
+Using the CMake GUI application, you can configure the parasail build for Visual Studio 2010, 2012, or 2013.  Other versions may also work but were not tested.  Both the 32-bit and 64-bit Windows builds should be working.
 
 ### Windows - Cygwin and mingw64
 

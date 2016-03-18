@@ -9,8 +9,13 @@ The Unreleased section will be empty for tagged releases. Unreleased functionali
 
 ## [1.0.2] - 2016-03-17
 
+### Changed
+- 32-bit builds replace missing functionailty.
+  - SSE2 _mm_set1_epi64x, _mm_set_epi64x
+  - AVX2 _mm256_set1_epi64x, _mm256_set_epi64x
+
 ### Removed
-- Python bindings were removed. Now a stand-alone project [parasail-python].
+- Python bindings and pygen.py generateor were removed. Now a stand-alone project [parasail-python].
 
 ### Fixed
 - Multi-arch build for OSX now correctly detects SSE4.1 and AVX2 after fixing [\#20].

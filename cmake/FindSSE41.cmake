@@ -148,27 +148,3 @@ if(SSE41_C_FLAGS)
   set(CMAKE_REQUIRED_FLAGS "${SAFE_CMAKE_REQUIRED_FLAGS}")
 endif()
 
-set(SSE41_C_TEST_SOURCE_SET1_EPI64X
-"
-#include <stdint.h>
-#if defined(_MSC_VER)
-#include <intrin.h>
-#else
-#include <smmintrin.h>
-#endif
-__m128i foo() {
-    __m128i vOne = _mm_set1_epi64x(1);
-    return vOne;
-}
-int main(void) { foo(); return 0; }
-")
-
-if(SSE41_C_FLAGS)
-  include(CheckCSourceCompiles)
-  set(SAFE_CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS}")
-  set(CMAKE_REQUIRED_FLAGS "${SSE41_C_FLAGS}")
-  unset(HAVE_SSE41_MM_SET1_EPI64X CACHE)
-  check_c_source_compiles("${SSE41_C_TEST_SOURCE_SET1_EPI64X}" HAVE_SSE41_MM_SET1_EPI64X)
-  set(CMAKE_REQUIRED_FLAGS "${SAFE_CMAKE_REQUIRED_FLAGS}")
-endif()
-

@@ -34,8 +34,7 @@ set(SSE41_C_TEST_SOURCE
 int foo() {
     __m128i vOne = _mm_set1_epi8(1);
     __m128i result =  _mm_max_epi8(vOne,vOne);
-    __m128i result2 =  _mm_insert_epi64(result,0,0);
-    return _mm_extract_epi8(result2, 0);
+    return _mm_extract_epi8(result, 0);
 }
 int main(void) { return foo(); }
 ")
@@ -98,3 +97,54 @@ if(_SSE41_REQUIRED_VARS)
 else()
   message(SEND_ERROR "FindSSE41 requires C or CXX language to be enabled")
 endif()
+
+# begin tests for SSE4.1 specfic features
+
+set(SSE41_C_TEST_SOURCE_INSERT64
+"
+#include <stdint.h>
+#if defined(_MSC_VER)
+#include <intrin.h>
+#else
+#include <smmintrin.h>
+#endif
+__m128i foo() {
+    __m128i vOne = _mm_set1_epi8(1);
+    return _mm_insert_epi64(vOne,INT64_MIN,0);
+}
+int main(void) { foo(); return 0; }
+")
+
+if(SSE41_C_FLAGS)
+  include(CheckCSourceCompiles)
+  set(SAFE_CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS}")
+  set(CMAKE_REQUIRED_FLAGS "${SSE41_C_FLAGS}")
+  unset(HAVE_SSE41_MM_INSERT_EPI64 CACHE)
+  check_c_source_compiles("${SSE41_C_TEST_SOURCE_INSERT64}" HAVE_SSE41_MM_INSERT_EPI64)
+  set(CMAKE_REQUIRED_FLAGS "${SAFE_CMAKE_REQUIRED_FLAGS}")
+endif()
+
+set(SSE41_C_TEST_SOURCE_EXTRACT64
+"
+#include <stdint.h>
+#if defined(_MSC_VER)
+#include <intrin.h>
+#else
+#include <smmintrin.h>
+#endif
+int64_t foo() {
+    __m128i vOne = _mm_set1_epi8(1);
+    return (int64_t)_mm_extract_epi64(vOne,0);
+}
+int main(void) { return (int)foo(); }
+")
+
+if(SSE41_C_FLAGS)
+  include(CheckCSourceCompiles)
+  set(SAFE_CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS}")
+  set(CMAKE_REQUIRED_FLAGS "${SSE41_C_FLAGS}")
+  unset(HAVE_SSE41_MM_EXTRACT_EPI64 CACHE)
+  check_c_source_compiles("${SSE41_C_TEST_SOURCE_EXTRACT64}" HAVE_SSE41_MM_EXTRACT_EPI64)
+  set(CMAKE_REQUIRED_FLAGS "${SAFE_CMAKE_REQUIRED_FLAGS}")
+endif()
+

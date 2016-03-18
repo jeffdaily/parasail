@@ -38,8 +38,6 @@ void parasail_memset___m256i(__m256i *b, __m256i c, size_t len)
 int foo() {
     __m256i vOne = _mm256_set1_epi8(1);
     __m256i result =  _mm256_add_epi8(vOne,vOne);
-    __m256i result2;
-    parasail_memset___m256i(&result2, result, 1);
     return _mm_extract_epi16(_mm256_extracti128_si256(result,0),0);
 }
 int main(void) { return (int)foo(); }

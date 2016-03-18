@@ -29,6 +29,19 @@ static inline __m256i _mm256_insert_epi64_rpl(__m256i a, int64_t i, int imm) {
 }
 #endif
 
+#if HAVE_AVX2_MM256_SET1_EPI64X
+#define _mm256_set1_epi64x_rpl _mm256_set1_epi64x
+#else
+static inline __m256i _mm256_set1_epi64x_rpl(int64_t i) {
+    __m256i_64_t A;
+    A.v[0] = i;
+    A.v[1] = i;
+    A.v[2] = i;
+    A.v[3] = i;
+    return A.m;
+}
+#endif
+
 static inline __m256i _mm256_max_epi64_rpl(__m256i a, __m256i b) {
     __m256i_64_t A;
     __m256i_64_t B;
@@ -130,9 +143,9 @@ parasail_result_t* PNAME(
     __m256i* restrict pvHLoad =  parasail_memalign___m256i(32, segLen);
     __m256i* const restrict pvE = parasail_memalign___m256i(32, segLen);
     int64_t* const restrict boundary = parasail_memalign_int64_t(32, s2Len+1);
-    __m256i vGapO = _mm256_set1_epi64x(open);
-    __m256i vGapE = _mm256_set1_epi64x(gap);
-    __m256i vNegInf = _mm256_set1_epi64x(NEG_INF);
+    __m256i vGapO = _mm256_set1_epi64x_rpl(open);
+    __m256i vGapE = _mm256_set1_epi64x_rpl(gap);
+    __m256i vNegInf = _mm256_set1_epi64x_rpl(NEG_INF);
     int64_t score = NEG_INF;
     
 #ifdef PARASAIL_TABLE

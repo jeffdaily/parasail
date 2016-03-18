@@ -279,6 +279,54 @@ AS_IF([test "x$pt_cv_avx2" == xdefault], [AVX2_CFLAGS=],
       [AVX2_CFLAGS="not supported"])
 AC_SUBST([AVX2_CFLAGS])
 
+AC_CACHE_CHECK([for AVX2 _mm256_set1_epi64x],
+    [pt_cv_avx2_mm256_set1_epi64x],
+    [save_CFLAGS="$CFLAGS"
+     CFLAGS="$AVX2_CFLAGS $CFLAGS"
+     psl_save_c_werror_flag=$ac_c_werror_flag
+     ac_c_werror_flag=yes
+     AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+#include <stdint.h>
+#include <immintrin.h>
+__m256i foo() {
+    __m256i vOne = _mm256_set1_epi64x(1);
+    return vOne;
+}
+]])],
+        [pt_cv_avx2_mm256_set1_epi64x=yes;
+         pt_cv_avx2_mm256_set1_epi64x_val=1],
+        [pt_cv_avx2_mm256_set1_epi64x=no;
+         pt_cv_avx2_mm256_set1_epi64x_val=0])
+     ac_c_werror_flag=$psl_save_c_werror_flag
+     CFLAGS="$save_CFLAGS"])
+AC_DEFINE_UNQUOTED([HAVE_AVX2_MM256_SET1_EPI64X],
+    [$pt_cv_avx2_mm256_set1_epi64x_val],
+    [define to 1 if the C compiler supports AVX2 _mm256_set1_epi64x])
+
+AC_CACHE_CHECK([for AVX2 _mm256_set_epi64x],
+    [pt_cv_avx2_mm256_set_epi64x],
+    [save_CFLAGS="$CFLAGS"
+     CFLAGS="$AVX2_CFLAGS $CFLAGS"
+     psl_save_c_werror_flag=$ac_c_werror_flag
+     ac_c_werror_flag=yes
+     AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+#include <stdint.h>
+#include <immintrin.h>
+__m256i foo() {
+    __m256i vOne = _mm256_set_epi64x(1,1,1,1);
+    return vOne;
+}
+]])],
+        [pt_cv_avx2_mm256_set_epi64x=yes;
+         pt_cv_avx2_mm256_set_epi64x_val=1],
+        [pt_cv_avx2_mm256_set_epi64x=no;
+         pt_cv_avx2_mm256_set_epi64x_val=0])
+     ac_c_werror_flag=$psl_save_c_werror_flag
+     CFLAGS="$save_CFLAGS"])
+AC_DEFINE_UNQUOTED([HAVE_AVX2_MM256_SET_EPI64X],
+    [$pt_cv_avx2_mm256_set_epi64x_val],
+    [define to 1 if the C compiler supports AVX2 _mm256_set_epi64x])
+
 AC_CACHE_CHECK([for AVX2 _mm256_insert_epi64],
     [pt_cv_avx2_mm256_insert_epi64],
     [save_CFLAGS="$CFLAGS"

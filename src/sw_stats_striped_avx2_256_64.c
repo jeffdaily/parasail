@@ -21,6 +21,19 @@
 
 #define NEG_INF (INT64_MIN/(int64_t)(2))
 
+#if HAVE_AVX2_MM256_SET1_EPI64X
+#define _mm256_set1_epi64x_rpl _mm256_set1_epi64x
+#else
+static inline __m256i _mm256_set1_epi64x_rpl(int64_t i) {
+    __m256i_64_t A;
+    A.v[0] = i;
+    A.v[1] = i;
+    A.v[2] = i;
+    A.v[3] = i;
+    return A.m;
+}
+#endif
+
 static inline __m256i _mm256_max_epi64_rpl(__m256i a, __m256i b) {
     __m256i_64_t A;
     __m256i_64_t B;
@@ -154,10 +167,10 @@ STATIC parasail_result_t* PNAME(
     __m256i* restrict pvHMMax          = parasail_memalign___m256i(32, segLen);
     __m256i* restrict pvHSMax          = parasail_memalign___m256i(32, segLen);
     __m256i* restrict pvHLMax          = parasail_memalign___m256i(32, segLen);
-    __m256i vGapO = _mm256_set1_epi64x(open);
-    __m256i vGapE = _mm256_set1_epi64x(gap);
+    __m256i vGapO = _mm256_set1_epi64x_rpl(open);
+    __m256i vGapE = _mm256_set1_epi64x_rpl(gap);
     __m256i vZero = _mm256_setzero_si256();
-    __m256i vOne = _mm256_set1_epi64x(1);
+    __m256i vOne = _mm256_set1_epi64x_rpl(1);
     int64_t score = NEG_INF;
     int64_t matches = NEG_INF;
     int64_t similar = NEG_INF;
@@ -184,7 +197,7 @@ STATIC parasail_result_t* PNAME(
     parasail_memset___m256i(pvES, vZero, segLen);
     parasail_memset___m256i(pvEL, vZero, segLen);
     parasail_memset___m256i(pvHStore, vZero, segLen);
-    parasail_memset___m256i(pvEStore, _mm256_set1_epi64x(-open), segLen);
+    parasail_memset___m256i(pvEStore, _mm256_set1_epi64x_rpl(-open), segLen);
 
     /* outer loop over database sequence */
     for (j=0; j<s2Len; ++j) {
@@ -402,7 +415,7 @@ end:
             __m256i vCompare = _mm256_cmpgt_epi64(vMaxH, vMaxHUnit);
             if (_mm256_movemask_epi8(vCompare)) {
                 score = _mm256_hmax_epi64_rpl(vMaxH);
-                vMaxHUnit = _mm256_set1_epi64x(score);
+                vMaxHUnit = _mm256_set1_epi64x_rpl(score);
                 end_ref = j;
                 (void)memcpy(pvHMax, pvHStore, sizeof(__m256i)*segLen);
                 (void)memcpy(pvHMMax, pvHMStore, sizeof(__m256i)*segLen);

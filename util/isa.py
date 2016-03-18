@@ -541,11 +541,11 @@ avx2 = {
     "VSET1x8"     : "_mm256_set1_epi8",
     "VSET1x16"    : "_mm256_set1_epi16",
     "VSET1x32"    : "_mm256_set1_epi32",
-    "VSET1x64"    : "_mm256_set1_epi64x",
+    "VSET1x64"    : "_mm256_set1_epi64x_rpl",
     "VSETx8"      : "_mm256_set_epi8",
     "VSETx16"     : "_mm256_set_epi16",
     "VSETx32"     : "_mm256_set_epi32",
-    "VSETx64"     : "_mm256_set_epi64x",
+    "VSETx64"     : "_mm256_set_epi64x_rpl",
     "VRSHIFT"     : "_mm256_srli_si256_rpl",
     "VSHIFT"      : "_mm256_slli_si256_rpl",
     "VSTORE"      : "_mm256_store_si256",
@@ -746,6 +746,34 @@ static inline int8_t _mm256_extract_epi8_rpl(__m256i a, int imm) {
     __m256i_8_t A;
     A.m = a;
     return A.v[imm];
+}
+#endif
+""",
+    "_mm256_set1_epi64x_rpl" : """
+#if HAVE_AVX2_MM256_SET1_EPI64X
+#define _mm256_set1_epi64x_rpl _mm256_set1_epi64x
+#else
+static inline __m256i _mm256_set1_epi64x_rpl(int64_t i) {
+    __m256i_64_t A;
+    A.v[0] = i;
+    A.v[1] = i;
+    A.v[2] = i;
+    A.v[3] = i;
+    return A.m;
+}
+#endif
+""",
+    "_mm256_set_epi64x_rpl" : """
+#if HAVE_AVX2_MM256_SET_EPI64X
+#define _mm256_set_epi64x_rpl _mm256_set_epi64x
+#else
+static inline __m256i _mm256_set_epi64x_rpl(int64_t e3, int64_t e2, int64_t e1, int64_t e0) {
+    __m256i_64_t A;
+    A.v[0] = e0;
+    A.v[1] = e1;
+    A.v[2] = e2;
+    A.v[3] = e3;
+    return A.m;
 }
 #endif
 """,

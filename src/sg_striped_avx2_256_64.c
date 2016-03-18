@@ -29,6 +29,19 @@ static inline __m256i _mm256_insert_epi64_rpl(__m256i a, int64_t i, int imm) {
 }
 #endif
 
+#if HAVE_AVX2_MM256_SET1_EPI64X
+#define _mm256_set1_epi64x_rpl _mm256_set1_epi64x
+#else
+static inline __m256i _mm256_set1_epi64x_rpl(int64_t i) {
+    __m256i_64_t A;
+    A.v[0] = i;
+    A.v[1] = i;
+    A.v[2] = i;
+    A.v[3] = i;
+    return A.m;
+}
+#endif
+
 static inline __m256i _mm256_max_epi64_rpl(__m256i a, __m256i b) {
     __m256i_64_t A;
     __m256i_64_t B;
@@ -40,6 +53,19 @@ static inline __m256i _mm256_max_epi64_rpl(__m256i a, __m256i b) {
     A.v[3] = (A.v[3]>B.v[3]) ? A.v[3] : B.v[3];
     return A.m;
 }
+
+#if HAVE_AVX2_MM256_SET_EPI64X
+#define _mm256_set_epi64x_rpl _mm256_set_epi64x
+#else
+static inline __m256i _mm256_set_epi64x_rpl(int64_t e3, int64_t e2, int64_t e1, int64_t e0) {
+    __m256i_64_t A;
+    A.v[0] = e0;
+    A.v[1] = e1;
+    A.v[2] = e2;
+    A.v[3] = e3;
+    return A.m;
+}
+#endif
 
 #if HAVE_AVX2_MM256_EXTRACT_EPI64
 #define _mm256_extract_epi64_rpl _mm256_extract_epi64
@@ -134,13 +160,13 @@ parasail_result_t* PNAME(
     __m256i* restrict pvHStore = parasail_memalign___m256i(32, segLen);
     __m256i* restrict pvHLoad =  parasail_memalign___m256i(32, segLen);
     __m256i* const restrict pvE = parasail_memalign___m256i(32, segLen);
-    __m256i vGapO = _mm256_set1_epi64x(open);
-    __m256i vGapE = _mm256_set1_epi64x(gap);
-    __m256i vNegInf = _mm256_set1_epi64x(NEG_INF);
+    __m256i vGapO = _mm256_set1_epi64x_rpl(open);
+    __m256i vGapE = _mm256_set1_epi64x_rpl(gap);
+    __m256i vNegInf = _mm256_set1_epi64x_rpl(NEG_INF);
     int64_t score = NEG_INF;
     __m256i vMaxH = vNegInf;
-    __m256i vPosMask = _mm256_cmpeq_epi64(_mm256_set1_epi64x(position),
-            _mm256_set_epi64x(0,1,2,3));
+    __m256i vPosMask = _mm256_cmpeq_epi64(_mm256_set1_epi64x_rpl(position),
+            _mm256_set_epi64x_rpl(0,1,2,3));
     
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
@@ -153,8 +179,8 @@ parasail_result_t* PNAME(
 #endif
 
     /* initialize H and E */
-    parasail_memset___m256i(pvHStore, _mm256_set1_epi64x(0), segLen);
-    parasail_memset___m256i(pvE, _mm256_set1_epi64x(-open), segLen);
+    parasail_memset___m256i(pvHStore, _mm256_set1_epi64x_rpl(0), segLen);
+    parasail_memset___m256i(pvE, _mm256_set1_epi64x_rpl(-open), segLen);
 
     /* outer loop over database sequence */
     for (j=0; j<s2Len; ++j) {

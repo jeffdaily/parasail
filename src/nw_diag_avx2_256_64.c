@@ -28,6 +28,19 @@ static inline __m256i _mm256_insert_epi64_rpl(__m256i a, int64_t i, int imm) {
 }
 #endif
 
+#if HAVE_AVX2_MM256_SET1_EPI64X
+#define _mm256_set1_epi64x_rpl _mm256_set1_epi64x
+#else
+static inline __m256i _mm256_set1_epi64x_rpl(int64_t i) {
+    __m256i_64_t A;
+    A.v[0] = i;
+    A.v[1] = i;
+    A.v[2] = i;
+    A.v[3] = i;
+    return A.m;
+}
+#endif
+
 static inline __m256i _mm256_max_epi64_rpl(__m256i a, __m256i b) {
     __m256i_64_t A;
     __m256i_64_t B;
@@ -39,6 +52,19 @@ static inline __m256i _mm256_max_epi64_rpl(__m256i a, __m256i b) {
     A.v[3] = (A.v[3]>B.v[3]) ? A.v[3] : B.v[3];
     return A.m;
 }
+
+#if HAVE_AVX2_MM256_SET_EPI64X
+#define _mm256_set_epi64x_rpl _mm256_set_epi64x
+#else
+static inline __m256i _mm256_set_epi64x_rpl(int64_t e3, int64_t e2, int64_t e1, int64_t e0) {
+    __m256i_64_t A;
+    A.v[0] = e0;
+    A.v[1] = e1;
+    A.v[2] = e2;
+    A.v[3] = e3;
+    return A.m;
+}
+#endif
 
 #if HAVE_AVX2_MM256_EXTRACT_EPI64
 #define _mm256_extract_epi64_rpl _mm256_extract_epi64
@@ -157,21 +183,21 @@ parasail_result_t* FNAME(
     int32_t end_query = 0;
     int32_t end_ref = 0;
     int64_t score = NEG_INF;
-    __m256i vNegInf = _mm256_set1_epi64x(NEG_INF);
-    __m256i vOpen = _mm256_set1_epi64x(open);
-    __m256i vGap  = _mm256_set1_epi64x(gap);
-    __m256i vOne = _mm256_set1_epi64x(1);
-    __m256i vN = _mm256_set1_epi64x(N);
-    __m256i vGapN = _mm256_set1_epi64x(gap*N);
-    __m256i vNegOne = _mm256_set1_epi64x(-1);
-    __m256i vI = _mm256_set_epi64x(0,1,2,3);
-    __m256i vJreset = _mm256_set_epi64x(0,-1,-2,-3);
+    __m256i vNegInf = _mm256_set1_epi64x_rpl(NEG_INF);
+    __m256i vOpen = _mm256_set1_epi64x_rpl(open);
+    __m256i vGap  = _mm256_set1_epi64x_rpl(gap);
+    __m256i vOne = _mm256_set1_epi64x_rpl(1);
+    __m256i vN = _mm256_set1_epi64x_rpl(N);
+    __m256i vGapN = _mm256_set1_epi64x_rpl(gap*N);
+    __m256i vNegOne = _mm256_set1_epi64x_rpl(-1);
+    __m256i vI = _mm256_set_epi64x_rpl(0,1,2,3);
+    __m256i vJreset = _mm256_set_epi64x_rpl(0,-1,-2,-3);
     __m256i vMax = vNegInf;
-    __m256i vILimit = _mm256_set1_epi64x(s1Len);
+    __m256i vILimit = _mm256_set1_epi64x_rpl(s1Len);
     __m256i vILimit1 = _mm256_sub_epi64(vILimit, vOne);
-    __m256i vJLimit = _mm256_set1_epi64x(s2Len);
+    __m256i vJLimit = _mm256_set1_epi64x_rpl(s2Len);
     __m256i vJLimit1 = _mm256_sub_epi64(vJLimit, vOne);
-    __m256i vIBoundary = _mm256_set_epi64x(
+    __m256i vIBoundary = _mm256_set_epi64x_rpl(
             -open-0*gap,
             -open-1*gap,
             -open-2*gap,
@@ -248,7 +274,7 @@ parasail_result_t* FNAME(
             vIns = _mm256_max_epi64_rpl(
                     _mm256_sub_epi64(vWscore, vOpen),
                     _mm256_sub_epi64(vIns, vGap));
-            vMat = _mm256_set_epi64x(
+            vMat = _mm256_set_epi64x_rpl(
                     matrow0[s2[j-0]],
                     matrow1[s2[j-1]],
                     matrow2[s2[j-2]],

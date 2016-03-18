@@ -110,6 +110,46 @@ elseif("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Werror")
 endif()
 
+set(AVX2_C_TEST_SOURCE_SET1_EPI64X
+"
+#include <stdint.h>
+#include <immintrin.h>
+__m256i foo() {
+    __m256i vOne = _mm256_set1_epi64x(1);
+    return vOne;
+}
+int main(void) { foo(); return 0; }
+")
+
+if(AVX2_C_FLAGS)
+  include(CheckCSourceCompiles)
+  set(SAFE_CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS}")
+  set(CMAKE_REQUIRED_FLAGS "${AVX2_C_FLAGS}")
+  unset(HAVE_AVX2_MM256_SET1_EPI64X CACHE)
+  check_c_source_compiles("${AVX2_C_TEST_SOURCE_SET1_EPI64X}" HAVE_AVX2_MM256_SET1_EPI64X)
+  set(CMAKE_REQUIRED_FLAGS "${SAFE_CMAKE_REQUIRED_FLAGS}")
+endif()
+
+set(AVX2_C_TEST_SOURCE_SET_EPI64X
+"
+#include <stdint.h>
+#include <immintrin.h>
+__m256i foo() {
+    __m256i vOne = _mm256_set_epi64x(1,1,1,1);
+    return vOne;
+}
+int main(void) { foo(); return 0; }
+")
+
+if(AVX2_C_FLAGS)
+  include(CheckCSourceCompiles)
+  set(SAFE_CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS}")
+  set(CMAKE_REQUIRED_FLAGS "${AVX2_C_FLAGS}")
+  unset(HAVE_AVX2_MM256_SET_EPI64X CACHE)
+  check_c_source_compiles("${AVX2_C_TEST_SOURCE_SET_EPI64X}" HAVE_AVX2_MM256_SET_EPI64X)
+  set(CMAKE_REQUIRED_FLAGS "${SAFE_CMAKE_REQUIRED_FLAGS}")
+endif()
+
 set(AVX2_C_TEST_SOURCE_INSERT64
 "
 #include <stdint.h>

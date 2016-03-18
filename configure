@@ -5554,6 +5554,84 @@ else
 fi
 
 
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for AVX2 _mm256_set1_epi64x" >&5
+$as_echo_n "checking for AVX2 _mm256_set1_epi64x... " >&6; }
+if ${pt_cv_avx2_mm256_set1_epi64x+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  save_CFLAGS="$CFLAGS"
+     CFLAGS="$AVX2_CFLAGS $CFLAGS"
+     psl_save_c_werror_flag=$ac_c_werror_flag
+     ac_c_werror_flag=yes
+     cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#include <stdint.h>
+#include <immintrin.h>
+__m256i foo() {
+    __m256i vOne = _mm256_set1_epi64x(1);
+    return vOne;
+}
+
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  pt_cv_avx2_mm256_set1_epi64x=yes;
+         pt_cv_avx2_mm256_set1_epi64x_val=1
+else
+  pt_cv_avx2_mm256_set1_epi64x=no;
+         pt_cv_avx2_mm256_set1_epi64x_val=0
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+     ac_c_werror_flag=$psl_save_c_werror_flag
+     CFLAGS="$save_CFLAGS"
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $pt_cv_avx2_mm256_set1_epi64x" >&5
+$as_echo "$pt_cv_avx2_mm256_set1_epi64x" >&6; }
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_AVX2_MM256_SET1_EPI64X $pt_cv_avx2_mm256_set1_epi64x_val
+_ACEOF
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for AVX2 _mm256_set_epi64x" >&5
+$as_echo_n "checking for AVX2 _mm256_set_epi64x... " >&6; }
+if ${pt_cv_avx2_mm256_set_epi64x+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  save_CFLAGS="$CFLAGS"
+     CFLAGS="$AVX2_CFLAGS $CFLAGS"
+     psl_save_c_werror_flag=$ac_c_werror_flag
+     ac_c_werror_flag=yes
+     cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#include <stdint.h>
+#include <immintrin.h>
+__m256i foo() {
+    __m256i vOne = _mm256_set_epi64x(1,1,1,1);
+    return vOne;
+}
+
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"; then :
+  pt_cv_avx2_mm256_set_epi64x=yes;
+         pt_cv_avx2_mm256_set_epi64x_val=1
+else
+  pt_cv_avx2_mm256_set_epi64x=no;
+         pt_cv_avx2_mm256_set_epi64x_val=0
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
+     ac_c_werror_flag=$psl_save_c_werror_flag
+     CFLAGS="$save_CFLAGS"
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $pt_cv_avx2_mm256_set_epi64x" >&5
+$as_echo "$pt_cv_avx2_mm256_set_epi64x" >&6; }
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_AVX2_MM256_SET_EPI64X $pt_cv_avx2_mm256_set_epi64x_val
+_ACEOF
+
+
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for AVX2 _mm256_insert_epi64" >&5
 $as_echo_n "checking for AVX2 _mm256_insert_epi64... " >&6; }
 if ${pt_cv_avx2_mm256_insert_epi64+:} false; then :

@@ -31,6 +31,19 @@ static inline __m256i _mm256_insert_epi64_rpl(__m256i a, int64_t i, int imm) {
 }
 #endif
 
+#if HAVE_AVX2_MM256_SET1_EPI64X
+#define _mm256_set1_epi64x_rpl _mm256_set1_epi64x
+#else
+static inline __m256i _mm256_set1_epi64x_rpl(int64_t i) {
+    __m256i_64_t A;
+    A.v[0] = i;
+    A.v[1] = i;
+    A.v[2] = i;
+    A.v[3] = i;
+    return A.m;
+}
+#endif
+
 static inline __m256i _mm256_max_epi64_rpl(__m256i a, __m256i b) {
     __m256i_64_t A;
     __m256i_64_t B;
@@ -42,6 +55,19 @@ static inline __m256i _mm256_max_epi64_rpl(__m256i a, __m256i b) {
     A.v[3] = (A.v[3]>B.v[3]) ? A.v[3] : B.v[3];
     return A.m;
 }
+
+#if HAVE_AVX2_MM256_SET_EPI64X
+#define _mm256_set_epi64x_rpl _mm256_set_epi64x
+#else
+static inline __m256i _mm256_set_epi64x_rpl(int64_t e3, int64_t e2, int64_t e1, int64_t e0) {
+    __m256i_64_t A;
+    A.v[0] = e0;
+    A.v[1] = e1;
+    A.v[2] = e2;
+    A.v[3] = e3;
+    return A.m;
+}
+#endif
 
 #if HAVE_AVX2_MM256_EXTRACT_EPI64
 #define _mm256_extract_epi64_rpl _mm256_extract_epi64
@@ -154,11 +180,11 @@ parasail_result_t* PNAME(
     __m256i* const restrict pvHMMax = parasail_memalign___m256i(32, segLen);
     __m256i* const restrict pvHSMax = parasail_memalign___m256i(32, segLen);
     __m256i* const restrict pvHLMax = parasail_memalign___m256i(32, segLen);
-    __m256i vGapO = _mm256_set1_epi64x(open);
-    __m256i vGapE = _mm256_set1_epi64x(gap);
-    __m256i vNegInf = _mm256_set1_epi64x(NEG_INF);
+    __m256i vGapO = _mm256_set1_epi64x_rpl(open);
+    __m256i vGapE = _mm256_set1_epi64x_rpl(gap);
+    __m256i vNegInf = _mm256_set1_epi64x_rpl(NEG_INF);
     __m256i vZero = _mm256_setzero_si256();
-    __m256i vOne = _mm256_set1_epi64x(1);
+    __m256i vOne = _mm256_set1_epi64x_rpl(1);
     int64_t score = NEG_INF;
     int64_t matches = 0;
     int64_t similar = 0;
@@ -170,9 +196,9 @@ parasail_result_t* PNAME(
     __m256i vMaxHUnit = vNegInf;
     const int64_t segLenXgap = -segLen*gap;
     __m256i insert_mask = _mm256_cmpeq_epi64(vZero,
-            _mm256_set_epi64x(0,0,0,1));
+            _mm256_set_epi64x_rpl(0,0,0,1));
     __m256i vSegLenXgap_reset = _mm256_blendv_epi8(vNegInf,
-            _mm256_set1_epi64x(segLenXgap),
+            _mm256_set1_epi64x_rpl(segLenXgap),
             insert_mask);
     
 #ifdef PARASAIL_TABLE
@@ -419,7 +445,7 @@ parasail_result_t* PNAME(
             __m256i vCompare = _mm256_cmpgt_epi64(vMaxH, vMaxHUnit);
             if (_mm256_movemask_epi8(vCompare)) {
                 score = _mm256_hmax_epi64_rpl(vMaxH);
-                vMaxHUnit = _mm256_set1_epi64x(score);
+                vMaxHUnit = _mm256_set1_epi64x_rpl(score);
                 end_ref = j;
                 (void)memcpy(pvHMax, pvH, sizeof(__m256i)*segLen);
                 (void)memcpy(pvHMMax, pvM, sizeof(__m256i)*segLen);

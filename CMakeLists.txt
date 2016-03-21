@@ -460,6 +460,13 @@ SET_TARGET_PROPERTIES( parasail_avx2_rowcol PROPERTIES COMPILE_DEFINITIONS PARAS
 ADD_LIBRARY( sais OBJECT contrib/sais-lite-lcp/sais.c )
 TARGET_INCLUDE_DIRECTORIES( sais PRIVATE ${CMAKE_SOURCE_DIR}/contrib/sais-lite-lcp )
 
+SET( maybe_def )
+IF( WIN32 )
+    IF( BUILD_SHARED_LIBS )
+        LIST( APPEND maybe_def cmake/parasail.def )
+    ENDIF( )
+ENDIF( )
+
 ADD_LIBRARY( parasail ${LIB_TYPE}
     $<TARGET_OBJECTS:parasail_core>
     $<TARGET_OBJECTS:parasail_novec>
@@ -474,6 +481,7 @@ ADD_LIBRARY( parasail ${LIB_TYPE}
     $<TARGET_OBJECTS:parasail_avx2>
     $<TARGET_OBJECTS:parasail_avx2_table>
     $<TARGET_OBJECTS:parasail_avx2_rowcol>
+    ${maybe_def}
 )
 IF( HAVE_CLOCK_GETTIME_RT )
     TARGET_LINK_LIBRARIES( parasail rt )

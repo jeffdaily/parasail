@@ -14,9 +14,9 @@
 extern "C" {
 #endif
 
-extern PARASAIL_API int parasail_can_use_avx2();
-extern PARASAIL_API int parasail_can_use_sse41();
-extern PARASAIL_API int parasail_can_use_sse2();
+extern int parasail_can_use_avx2();
+extern int parasail_can_use_sse41();
+extern int parasail_can_use_sse2();
 
 #ifdef __cplusplus
 }

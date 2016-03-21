@@ -23,7 +23,7 @@ print """/**
 
 # so we don't end up with an empty source file if no ISAs are supported
 print """
-extern PARASAIL_API
+extern
 parasail_result_t* parasail_isastub_dummy() {
     errno = ENOSYS;
     return NULL;
@@ -107,7 +107,7 @@ for a in alg:
                 for i in isa:
                     print ""
                     isa_to_guard(i)
-                    print "extern PARASAIL_API"
+                    print "extern"
                     print "parasail_result_t* parasail_"+a+s+t+p+i+'('
                     print " "*8+"const char * const restrict s1, const int s1Len,"
                     print " "*8+"const char * const restrict s2, const int s2Len,"
@@ -133,7 +133,7 @@ for a in alg:
                 for i in isa:
                     print ""
                     isa_to_guard(i)
-                    print "extern PARASAIL_API"
+                    print "extern"
                     print "parasail_result_t* parasail_"+a+s+t+p+i+'('
                     print " "*8+"const parasail_profile_t * const restrict profile,"
                     print " "*8+"const char * const restrict s2, const int s2Len,"
@@ -153,7 +153,7 @@ for a in alg:
                 for i in isa:
                     print ""
                     isa_to_guard(i)
-                    print "extern PARASAIL_API"
+                    print "extern"
                     print "parasail_result_t* parasail_"+a+s+t+p+i+'('
                     print " "*8+"const char * const restrict s1, const int s1Len,"
                     print " "*8+"const char * const restrict s2, const int s2Len,"
@@ -172,7 +172,7 @@ for s in stats:
     for i in isa:
         print ""
         isa_to_guard(i)
-        print "extern PARASAIL_API"
+        print "extern"
         print "parasail_profile_t* parasail_profile_create"+s+i+'('
         print " "*8+"const char * const restrict s1, const int s1Len,"
         print " "*8+"const parasail_matrix_t* matrix)"

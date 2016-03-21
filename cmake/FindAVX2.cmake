@@ -48,7 +48,7 @@ int main(void) { return (int)foo(); }
 if(AVX2_C_FLAGS)
 else()
   if(WIN32)
-    set(AVX2_C_FLAG_CANDIDATES "/arch:AVX2")
+    set(AVX2_C_FLAG_CANDIDATES "/arch:AVX")
   else()
     set(AVX2_C_FLAG_CANDIDATES
       #Empty, if compiler automatically accepts AVX2

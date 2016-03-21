@@ -2,6 +2,7 @@
 
 print """LIBRARY parasail
 EXPORTS
+; from parasail.h
     parasail_profile_free
     parasail_version
     parasail_result_free
@@ -13,7 +14,31 @@ EXPORTS
     parasail_time
     parasail_matrix_lookup
     parasail_matrix_create
-    parasail_matrix_free"""
+    parasail_matrix_free
+; from parasail/io.h
+    parasail_open
+    parasail_close
+    parasail_is_fasta
+    parasail_is_fastq
+    parasail_stat
+    parasail_stat_fasta
+    parasail_stat_fastq
+    parasail_pack
+    parasail_pack_fasta
+    parasail_pack_fastq
+    parasail_is_fasta_buffer
+    parasail_is_fastq_buffer
+    parasail_stat_buffer
+    parasail_stat_fasta_buffer
+    parasail_stat_fastq_buffer
+    parasail_pack_buffer
+    parasail_pack_fasta_buffer
+    parasail_pack_fastq_buffer
+; from parasail/cpuid.h
+    parasail_can_use_avx2
+    parasail_can_use_sse41
+    parasail_can_use_sse2
+; from parasail.h, generated names"""
 
 # serial reference implementations (3x2x3 = 18 impl)
 alg = ["nw", "sg", "sw"]

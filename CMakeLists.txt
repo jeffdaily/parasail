@@ -4,7 +4,11 @@ CMAKE_MINIMUM_REQUIRED( VERSION 3.1 )
 
 SET( CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH} )
 
-
+OPTION( BUILD_SHARED_LIBS "Build Shared Libraries" OFF )
+SET( LIB_TYPE STATIC )
+IF( BUILD_SHARED_LIBS )
+  SET( LIB_TYPE SHARED )
+ENDIF( )
 
 INCLUDE( CheckFunctionExists )
 INCLUDE( CheckLibraryExists )
@@ -456,7 +460,7 @@ SET_TARGET_PROPERTIES( parasail_avx2_rowcol PROPERTIES COMPILE_DEFINITIONS PARAS
 ADD_LIBRARY( sais OBJECT contrib/sais-lite-lcp/sais.c )
 TARGET_INCLUDE_DIRECTORIES( sais PRIVATE ${CMAKE_SOURCE_DIR}/contrib/sais-lite-lcp )
 
-ADD_LIBRARY( parasail STATIC
+ADD_LIBRARY( parasail ${LIB_TYPE}
     $<TARGET_OBJECTS:parasail_core>
     $<TARGET_OBJECTS:parasail_novec>
     $<TARGET_OBJECTS:parasail_novec_table>

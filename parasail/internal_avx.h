@@ -38,13 +38,13 @@ typedef union __m256i_64 {
     int64_t v[4];
 } __m256i_64_t;
 
-extern PARASAIL_LOCAL
+extern
 __m256i * parasail_memalign___m256i(size_t alignment, size_t size);
 
-extern PARASAIL_LOCAL
+extern
 void parasail_memset___m256i(__m256i *b, __m256i c, size_t len);
 
-extern PARASAIL_LOCAL
+extern
 void parasail_free___m256i(void *ptr);
 
 #ifdef __cplusplus

@@ -38,13 +38,13 @@ typedef union __m128i_64 {
     int64_t v[2];
 } __m128i_64_t;
 
-extern PARASAIL_LOCAL
+extern
 __m128i * parasail_memalign___m128i(size_t alignment, size_t size);
 
-extern PARASAIL_LOCAL
+extern
 void parasail_memset___m128i(__m128i *b, __m128i c, size_t len);
 
-extern PARASAIL_LOCAL
+extern
 void parasail_free___m128i(void *ptr);
 
 #ifdef __cplusplus

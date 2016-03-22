@@ -8,6 +8,9 @@ OPTION( BUILD_SHARED_LIBS "Build Shared Libraries" OFF )
 SET( LIB_TYPE STATIC )
 IF( BUILD_SHARED_LIBS )
   SET( LIB_TYPE SHARED )
+  # All OBJECT libraries below are later consumed by a shared library so
+  # the following is OK. Saves on setting it as a per target property.
+  SET( CMAKE_POSITION_INDEPENDENT_CODE ON )
 ENDIF( )
 
 INCLUDE( CheckFunctionExists )

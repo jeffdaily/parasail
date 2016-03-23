@@ -105,6 +105,6 @@ parasail_profile_t * parasail_profile_create_stats_knc_512_32(
 
 void parasail_profile_free___m512i(void *profile)
 {
-    free((__m512i*)profile);
+    parasail_free((__m512i*)profile);
 }
 

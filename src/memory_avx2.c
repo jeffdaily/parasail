@@ -169,7 +169,7 @@ parasail_profile_t* parasail_profile_create_avx_256_sat(
     parasail_profile_t *profile16 = parasail_profile_create_avx_256_16(s1, s1Len, matrix);
     parasail_profile_t *profile32 = parasail_profile_create_avx_256_32(s1, s1Len, matrix);
     profile8->profile16 = profile16->profile16;
-    profile8->profile32 = profile16->profile32;
+    profile8->profile32 = profile32->profile32;
     free(profile16);
     free(profile32);
 
@@ -369,6 +369,6 @@ parasail_profile_t* parasail_profile_create_stats_avx_256_sat(
 
 void parasail_free___m256i(void *ptr)
 {
-    free((__m256i*)ptr);
+    parasail_free((__m256i*)ptr);
 }
 

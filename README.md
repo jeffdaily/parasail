@@ -1,6 +1,8 @@
 # parasail: Pairwise Sequence Alignment Library
 
-[![Build Status](https://travis-ci.org/jeffdaily/parasail.svg?branch=master)](https://travis-ci.org/jeffdaily/parasail)
+Travis: [![Build Status](https://travis-ci.org/jeffdaily/parasail.svg?branch=master)](https://travis-ci.org/jeffdaily/parasail)
+
+AppVeyor: [![Build Status](https://ci.appveyor.com/api/projects/status/6eenkgra8pjasa1n/branch/master?svg=true)](https://ci.appveyor.com/project/jeffdaily/parasail/branch/master)
 
 Author: Jeff Daily (jeff.daily@pnnl.gov)
 

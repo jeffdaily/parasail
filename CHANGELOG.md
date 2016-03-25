@@ -10,7 +10,8 @@ The Unreleased section will be empty for tagged releases. Unreleased functionali
 ## [1.0.3] - 2016-03-25
 
 ### Changed
-- Added TravisCI support.
+- Added TravisCI support for autotools Linux and OSX builds.
+- Added AppVeyor support for CMake Windows builds.
 - PARASAIL_API and PARASAIL_LOCAL removed from all parasail functions.
 - CMake build 
   - Added BUILD_SHARED_LIBS option.

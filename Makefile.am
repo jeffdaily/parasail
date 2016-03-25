@@ -892,3 +892,8 @@ EXTRA_DIST += util/templates/sw_stats_striped.c
 EXTRA_DIST += util/templates/sw_stats_striped_bias.c
 EXTRA_DIST += util/templates/sw_striped.c
 EXTRA_DIST += util/templates/sw_striped_bias.c
+
+TESTS = tests/test_isa
+
+# alias for 'make check' using 'make test'
+test: check

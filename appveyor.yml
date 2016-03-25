@@ -5,10 +5,6 @@ platform:
 environment:
   matrix:
 
-# VS 2008
-  - BUILD_TYPE: cmake
-    VS_VERSION: Visual Studio 9 2008
-
 # VS 2010
   - BUILD_TYPE: cmake
     VS_VERSION: Visual Studio 10
@@ -28,7 +24,7 @@ build_script:
   - if "%BUILD_TYPE%" == "cmake" if "%platform%" == "x64" SET VS_FULL=%VS_VERSION% Win64
   - if "%BUILD_TYPE%" == "cmake" if "%platform%" == "x86" SET VS_FULL=%VS_VERSION%
   - if "%BUILD_TYPE%" == "cmake" echo "%VS_FULL%"
-  - if "%BUILD_TYPE%" == "cmake" cmake -G "%VS_FULL%" . -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON
+  - if "%BUILD_TYPE%" == "cmake" cmake -G "%VS_FULL%" . -DBUILD_SHARED_LIBS=ON
   - if "%BUILD_TYPE%" == "cmake" cmake --build . --config Release
 
 test_script:

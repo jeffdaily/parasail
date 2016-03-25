@@ -7,6 +7,21 @@ This project follows the [Gitflow Workflow model](https://www.atlassian.com/git/
 ## [Unreleased]
 The Unreleased section will be empty for tagged releases. Unreleased functionality appears in the develop branch.
 
+## [1.0.3] - 2016-03-25
+
+### Changed
+- Added TravisCI support.
+- PARASAIL_API and PARASAIL_LOCAL removed from all parasail functions.
+- CMake build 
+  - Added BUILD_SHARED_LIBS option.
+  - Added parasail.def for MSVC DLL creation.
+  - Set CMAKE_POSITION_INDEPENDENT_CODE to ON if BUILD_SHARED_LIBS is ON.
+  - /arch:AVX is the correct flag for MSVC, not /arch:AVX2.
+
+### Fixed
+- parasail_free() was not being used to free ISA-specific sequence profiles. Caused MSVC 64-bit library to crash.
+- CMake shared library build was basically not functional on any platform. It now works.
+
 ## [1.0.2] - 2016-03-17
 
 ### Changed
@@ -60,6 +75,7 @@ First stable, production-ready version of parasail.
 [parasail-python]: https://github.com/jeffdaily/parasail-python
 
 [Unreleased]: https://github.com/jeffdaily/parasail/compare/v1.0.1...develop
+[1.0.3]: https://github.com/jeffdaily/parasail/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/jeffdaily/parasail/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/jeffdaily/parasail/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/jeffdaily/parasail/releases/tag/v1.0.0

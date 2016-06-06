@@ -23,6 +23,7 @@ Author: Jeff Daily (jeff.daily@pnnl.gov)
     * [C/C\+\+](#cc)
     * [Python](#python)
     * [Rust](#rust)
+    * [Java](#java)
   * [Windows Build](#windows-build)
     * [Windows \- CMake](#windows---cmake)
     * [Windows \- Cygwin and mingw64](#windows---cygwin-and-mingw64)
@@ -276,6 +277,12 @@ Python bindings are available as part of the [parasail-python](https://github.co
 [back to top]
 
 Rust bindings are available as part of the [parasailors](https://github.com/dikaiosune/parasailors) project.
+
+### Java
+
+[back to top]
+
+Java bindings are available as part of the [parasail-java](https://github.com/jeffdaily/parasail-java) project.
 
 ## Windows Build
 

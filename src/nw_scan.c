@@ -111,6 +111,8 @@ parasail_result_t* ENAME(
     }
 
     result->score = H[s1Len-1];
+    result->end_query = s1Len-1;
+    result->end_ref = s2Len-1;
 
     parasail_free(HtB);
     parasail_free(E);

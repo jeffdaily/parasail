@@ -1,9 +1,7 @@
 #include "config.h"
 
-/* for getopt */
-#define _POSIX_C_SOURCE 2
-/* for strdup */
-#define _BSD_SOURCE
+/* for getopt, strdup */
+#define _POSIX_C_SOURCE 200809L
 
 #include <limits.h>
 #include <math.h>
@@ -223,6 +221,26 @@ static void check_functions(
                                     a, b, open, extend,
                                     matrixname,
                                     reference_result->score, result->score);
+                        }
+                    }
+                    if (reference_result->end_query != result->end_query) {
+#pragma omp critical(printer)
+                        {
+                            printf("%s(%lu,%lu,%d,%d,%s) wrong end_query (%d!=%d)\n",
+                                    functions[function_index].name,
+                                    a, b, open, extend,
+                                    matrixname,
+                                    reference_result->end_query, result->end_query);
+                        }
+                    }
+                    if (reference_result->end_ref != result->end_ref) {
+#pragma omp critical(printer)
+                        {
+                            printf("%s(%lu,%lu,%d,%d,%s) wrong end_ref (%d!=%d)\n",
+                                    functions[function_index].name,
+                                    a, b, open, extend,
+                                    matrixname,
+                                    reference_result->end_ref, result->end_ref);
                         }
                     }
                     if (diff_array(

@@ -115,12 +115,12 @@ parasail_result_t* ENAME(
                 E[i] = E_opn;
                 EM[i] = HM[i];
                 ES[i] = HS[i];
-                EL[i] = HL[i]+1;
+                EL[i] = HL[i];
             }
             else {
                 E[i] = E_ext;
-                EL[i] = EL[i]+1;
             }
+            EL[i] += 1;
         }
         /* calculate Ht */
         Ht[-1] = 0;
@@ -155,13 +155,9 @@ parasail_result_t* ENAME(
             if (H[i-1] > Ft_ext) {
                 FtM = HM[i-1];
                 FtS = HS[i-1];
-                FtL = HL[i-1] + 1;
+                FtL = HL[i-1];
             }
-            else {
-                //FtM = FtM;
-                //FtS = FtS;
-                FtL = FtL + 1;
-            }
+            FtL += 1;
             if (Ht[i] > Ft_opn) {
                 H[i] = Ht[i];
                 HM[i] = HtM[i];

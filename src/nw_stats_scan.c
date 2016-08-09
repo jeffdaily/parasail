@@ -109,12 +109,12 @@ parasail_result_t* ENAME(
                 E[i] = E_opn;
                 EM[i] = HM[i];
                 ES[i] = HS[i];
-                EL[i] = HL[i]+1;
+                EL[i] = HL[i];
             }
             else {
                 E[i] = E_ext;
-                EL[i] = EL[i]+1;
             }
+            EL[i] += 1;
         }
         /* calculate Ht */
         Ht[-1] = -open -j*gap;

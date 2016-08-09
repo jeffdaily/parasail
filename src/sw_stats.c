@@ -135,19 +135,15 @@ parasail_result_t* ENAME(
             if (F_opn > F_ext) {
                 FM[j] = NHM;
                 FS[j] = NHS;
-                FL[j] = NHL+1;
+                FL[j] = NHL;
             }
-            else {
-                FL[j] = FL[j]+1;
-            }
+            FL[j] += 1;
             if (E_opn > E_ext) {
                 EM = WHM;
                 ES = WHS;
-                EL = WHL+1;
+                EL = WHL;
             }
-            else {
-                EL = EL+1;
-            }
+            EL += 1;
             if (WH == H_dag) {
                 WHM  = NWM + (s1[i-1] == s2[j-1]);
                 WHS  = NWS + (matrow[s2[j-1]] > 0);

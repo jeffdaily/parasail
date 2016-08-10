@@ -20,7 +20,6 @@
 #include "parasail/memory.h"
 #include "parasail/internal_sse.h"
 
-#define NEG_INF INT8_MIN
 
 static inline __m128i _mm_insert_epi8_rpl(__m128i a, int8_t i, const int imm) {
     __m128i_8_t A;
@@ -136,7 +135,6 @@ parasail_result_t* PNAME(
     int32_t i = 0;
     int32_t j = 0;
     int32_t k = 0;
-    int32_t segNum = 0;
     const int s1Len = profile->s1Len;
     int32_t end_query = s1Len-1;
     int32_t end_ref = s2Len-1;
@@ -153,16 +151,18 @@ parasail_result_t* PNAME(
     __m128i* const restrict pvGapper = parasail_memalign___m128i(16, segLen);
     __m128i vGapO = _mm_set1_epi8(open);
     __m128i vGapE = _mm_set1_epi8(gap);
-    __m128i vNegInf = _mm_set1_epi8(NEG_INF);
+    const int8_t NEG_LIMIT = (-open < matrix->min ?
+        INT8_MIN + open : INT8_MIN - matrix->min) + 1;
+    const int8_t POS_LIMIT = INT8_MAX - matrix->max - 1;
     __m128i vZero = _mm_setzero_si128();
-    int8_t score = NEG_INF;
-    __m128i vNegInfFront = _mm_set_epi8(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,NEG_INF);
-    __m128i vSegLenXgap = _mm_adds_epi8(vNegInfFront,
-            _mm_slli_si128(_mm_set1_epi8(-segLen*gap), 1));
-    __m128i vNegLimit = _mm_set1_epi8(INT8_MIN);
-    __m128i vPosLimit = _mm_set1_epi8(INT8_MAX);
+    int8_t score = NEG_LIMIT;
+    __m128i vNegLimit = _mm_set1_epi8(NEG_LIMIT);
+    __m128i vPosLimit = _mm_set1_epi8(POS_LIMIT);
     __m128i vSaturationCheckMin = vPosLimit;
     __m128i vSaturationCheckMax = vNegLimit;
+    __m128i vNegInfFront = _mm_set_epi8(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,NEG_LIMIT);
+    __m128i vSegLenXgap = _mm_adds_epi8(vNegInfFront,
+            _mm_slli_si128(_mm_set1_epi8(-segLen*gap), 1));
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
@@ -177,6 +177,7 @@ parasail_result_t* PNAME(
     {
         int32_t index = 0;
         for (i=0; i<segLen; ++i) {
+            int32_t segNum = 0;
             __m128i_8_t h;
             __m128i_8_t e;
             for (segNum=0; segNum<segWidth; ++segNum) {
@@ -225,8 +226,8 @@ parasail_result_t* PNAME(
         vHp = _mm_slli_si128(vHp, 1);
         vHp = _mm_insert_epi8_rpl(vHp, boundary[j], 0);
         pvW = pvP + matrix->mapper[(unsigned char)s2[j]]*segLen;
-        vHt = vNegInf;
-        vF = vNegInf;
+        vHt = _mm_subs_epi8(vNegLimit, pvGapper[0]);
+        vF = vNegLimit;
         for (i=0; i<segLen; ++i) {
             vH = _mm_load_si128(pvH+i);
             vE = _mm_load_si128(pvE+i);
@@ -263,11 +264,8 @@ parasail_result_t* PNAME(
                     _mm_subs_epi8(vH, vGapO));
             vH = _mm_max_epi8_rpl(vHt, vF);
             _mm_store_si128(pvH+i, vH);
-            /* check for saturation */
-            {
-                vSaturationCheckMax = _mm_max_epi8_rpl(vSaturationCheckMax, vH);
-                vSaturationCheckMin = _mm_min_epi8_rpl(vSaturationCheckMin, vH);
-            }
+            vSaturationCheckMin = _mm_min_epi8_rpl(vSaturationCheckMin, vH);
+            vSaturationCheckMax = _mm_max_epi8_rpl(vSaturationCheckMax, vH);
 #ifdef PARASAIL_TABLE
             arr_store_si128(result->score_table, vH, i, segLen, j, s2Len);
 #endif
@@ -303,10 +301,10 @@ parasail_result_t* PNAME(
     }
 
     if (_mm_movemask_epi8(_mm_or_si128(
-            _mm_cmpeq_epi8(vSaturationCheckMin, vNegLimit),
-            _mm_cmpeq_epi8(vSaturationCheckMax, vPosLimit)))) {
+            _mm_cmplt_epi8(vSaturationCheckMin, vNegLimit),
+            _mm_cmpgt_epi8(vSaturationCheckMax, vPosLimit)))) {
         result->saturated = 1;
-        score = INT8_MAX;
+        score = 0;
         end_query = 0;
         end_ref = 0;
     }

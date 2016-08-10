@@ -1,9 +1,7 @@
 #include "config.h"
 
-/* for getopt */
-#define _POSIX_C_SOURCE 2
-/* for strdup */
-#define _BSD_SOURCE
+/* for getopt, strdup */
+#define _POSIX_C_SOURCE 200809L
 
 #include <limits.h>
 #include <math.h>
@@ -182,7 +180,7 @@ static void check_functions(
                     unsigned long a = 0;
                     unsigned long b = 1;
                     k_combination2(pair_index, &a, &b);
-                    /*printf("\t\t\t\tpair=%lu (%lu,%lu)\n", pair_index, a, b);*/
+                    if (verbose ) printf("\t\t\t\tpair=%lu (%lu,%lu)\n", pair_index, a, b);
                     reference_result = reference_function(
                             sequences[a], sizes[a],
                             sequences[b], sizes[b],
@@ -394,7 +392,6 @@ int main(int argc, char **argv)
 
     limit = binomial_coefficient(seq_count, 2);
     printf("%lu choose 2 is %lu\n", seq_count, limit);
-
 
 #if HAVE_SSE2
     if (do_sse2 && parasail_can_use_sse2()) {

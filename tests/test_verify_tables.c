@@ -268,6 +268,16 @@ static void check_functions(
                                     matrixname);
                         }
                     }
+                    if (reference_result->matches != result->matches) {
+#pragma omp critical(printer)
+                        {
+                            printf("%s(%lu,%lu,%d,%d,%s) wrong matches (%d!=%d)\n",
+                                    functions[function_index].name,
+                                    a, b, open, extend,
+                                    matrixname,
+                                    reference_result->matches, result->matches);
+                        }
+                    }
                     if (reference_result->similar_table
                             && diff_array(
                                 sizes[a], sizes[b],
@@ -281,6 +291,16 @@ static void check_functions(
                                     matrixname);
                         }
                     }
+                    if (reference_result->similar != result->similar) {
+#pragma omp critical(printer)
+                        {
+                            printf("%s(%lu,%lu,%d,%d,%s) wrong similar (%d!=%d)\n",
+                                    functions[function_index].name,
+                                    a, b, open, extend,
+                                    matrixname,
+                                    reference_result->similar, result->similar);
+                        }
+                    }
                     if (reference_result->length_table
                             && diff_array(
                                 sizes[a], sizes[b],
@@ -292,6 +312,16 @@ static void check_functions(
                                     functions[function_index].name,
                                     a, b, open, extend,
                                     matrixname);
+                        }
+                    }
+                    if (reference_result->length != result->length) {
+#pragma omp critical(printer)
+                        {
+                            printf("%s(%lu,%lu,%d,%d,%s) wrong length (%d!=%d)\n",
+                                    functions[function_index].name,
+                                    a, b, open, extend,
+                                    matrixname,
+                                    reference_result->length, result->length);
                         }
                     }
                     parasail_result_free(reference_result);

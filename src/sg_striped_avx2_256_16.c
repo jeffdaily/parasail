@@ -16,7 +16,8 @@
 #include "parasail/memory.h"
 #include "parasail/internal_avx.h"
 
-#define NEG_INF (INT16_MIN/(int16_t)(2))
+
+#define _mm256_cmplt_epi16_rpl(a,b) _mm256_cmpgt_epi16(b,a)
 
 #if HAVE_AVX2_MM256_INSERT_EPI16
 #define _mm256_insert_epi16_rpl _mm256_insert_epi16
@@ -148,14 +149,19 @@ parasail_result_t* PNAME(
     __m256i* restrict pvHStore = parasail_memalign___m256i(32, segLen);
     __m256i* restrict pvHLoad =  parasail_memalign___m256i(32, segLen);
     __m256i* const restrict pvE = parasail_memalign___m256i(32, segLen);
-    __m256i vGapO = _mm256_set1_epi16(open);
-    __m256i vGapE = _mm256_set1_epi16(gap);
-    __m256i vNegInf = _mm256_set1_epi16(NEG_INF);
-    int16_t score = NEG_INF;
-    __m256i vMaxH = vNegInf;
+    const __m256i vGapO = _mm256_set1_epi16(open);
+    const __m256i vGapE = _mm256_set1_epi16(gap);
+    const int16_t NEG_LIMIT = (-open < matrix->min ?
+        INT16_MIN + open : INT16_MIN - matrix->min) + 1;
+    const int16_t POS_LIMIT = INT16_MAX - matrix->max - 1;
+    int16_t score = NEG_LIMIT;
+    __m256i vNegLimit = _mm256_set1_epi16(NEG_LIMIT);
+    __m256i vPosLimit = _mm256_set1_epi16(POS_LIMIT);
+    __m256i vSaturationCheckMin = vPosLimit;
+    __m256i vSaturationCheckMax = vNegLimit;
+    __m256i vMaxH = vNegLimit;
     __m256i vPosMask = _mm256_cmpeq_epi16(_mm256_set1_epi16(position),
             _mm256_set_epi16(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15));
-    
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
@@ -175,7 +181,7 @@ parasail_result_t* PNAME(
         __m256i vE;
         /* Initialize F value to -inf.  Any errors to vH values will be
          * corrected in the Lazy_F loop.  */
-        __m256i vF = vNegInf;
+        __m256i vF = vNegLimit;
 
         /* load final segment of pvHStore and shift left by 2 bytes */
         __m256i vH = _mm256_slli_si256_rpl(pvHStore[segLen - 1], 2);
@@ -198,7 +204,8 @@ parasail_result_t* PNAME(
             vH = _mm256_max_epi16(vH, vF);
             /* Save vH values. */
             _mm256_store_si256(pvHStore + i, vH);
-            
+            vSaturationCheckMin = _mm256_min_epi16(vSaturationCheckMin, vH);
+            vSaturationCheckMax = _mm256_max_epi16(vSaturationCheckMax, vH);
 #ifdef PARASAIL_TABLE
             arr_store_si256(result->score_table, vH, i, segLen, j, s2Len);
 #endif
@@ -226,7 +233,8 @@ parasail_result_t* PNAME(
                 vH = _mm256_load_si256(pvHStore + i);
                 vH = _mm256_max_epi16(vH,vF);
                 _mm256_store_si256(pvHStore + i, vH);
-                
+                vSaturationCheckMin = _mm256_min_epi16(vSaturationCheckMin, vH);
+                vSaturationCheckMax = _mm256_max_epi16(vSaturationCheckMax, vH);
 #ifdef PARASAIL_TABLE
                 arr_store_si256(result->score_table, vH, i, segLen, j, s2Len);
 #endif
@@ -267,7 +275,7 @@ end:
     /* max of last column */
     {
         int16_t score_last;
-        vMaxH = vNegInf;
+        vMaxH = vNegLimit;
 
         for (i=0; i<segLen; ++i) {
             __m256i vH = _mm256_load_si256(pvHStore + i);
@@ -279,7 +287,7 @@ end:
 
         /* max in vec */
         score_last = _mm256_hmax_epi16_rpl(vMaxH);
-        if (score_last > score) {
+        if (score_last > score || (score_last == score && end_ref == s2Len - 1)) {
             score = score_last;
             end_ref = s2Len - 1;
             end_query = s1Len;
@@ -299,7 +307,14 @@ end:
         }
     }
 
-    
+    if (_mm256_movemask_epi8(_mm256_or_si256(
+            _mm256_cmplt_epi16_rpl(vSaturationCheckMin, vNegLimit),
+            _mm256_cmpgt_epi16(vSaturationCheckMax, vPosLimit)))) {
+        result->saturated = 1;
+        score = 0;
+        end_query = 0;
+        end_ref = 0;
+    }
 
     result->score = score;
     result->end_query = end_query;

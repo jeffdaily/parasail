@@ -17,7 +17,6 @@
 #include "parasail/memory.h"
 #include "parasail/internal_%(ISA)s.h"
 
-#define NEG_INF %(NEG_INF)s
 %(FIXES)s
 
 #ifdef PARASAIL_TABLE
@@ -89,15 +88,20 @@ parasail_result_t* PNAME(
     %(VTYPE)s* const restrict pvGapper = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
     %(VTYPE)s vGapO = %(VSET1)s(open);
     %(VTYPE)s vGapE = %(VSET1)s(gap);
-    %(VTYPE)s vNegInf = %(VSET1)s(NEG_INF);
+    const %(INT)s NEG_LIMIT = (-open < matrix->min ?
+        INT%(WIDTH)s_MIN + open : INT%(WIDTH)s_MIN - matrix->min) + 1;
+    const %(INT)s POS_LIMIT = INT%(WIDTH)s_MAX - matrix->max - 1;
     %(VTYPE)s vZero = %(VSET0)s();
-    %(INT)s score = NEG_INF;
-    %(VTYPE)s vMaxH = vNegInf;
-    %(VTYPE)s vMaxHUnit = vNegInf;
+    %(INT)s score = NEG_LIMIT;
+    %(VTYPE)s vNegLimit = %(VSET1)s(NEG_LIMIT);
+    %(VTYPE)s vPosLimit = %(VSET1)s(POS_LIMIT);
+    %(VTYPE)s vSaturationCheckMin = vPosLimit;
+    %(VTYPE)s vSaturationCheckMax = vNegLimit;
+    %(VTYPE)s vMaxH = vNegLimit;
+    %(VTYPE)s vMaxHUnit = vNegLimit;
     %(VTYPE)s vNegInfFront = %(VSET)s(%(SCAN_NEG_INF_FRONT)s);
     %(VTYPE)s vSegLenXgap = %(VADD)s(vNegInfFront,
             %(VSHIFT)s(%(VSET1)s(-segLen*gap), %(BYTES)s));
-    %(SATURATION_CHECK_INIT)s
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
@@ -111,7 +115,7 @@ parasail_result_t* PNAME(
 #endif
 
     parasail_memset_%(VTYPE)s(pvH, vZero, segLen);
-    parasail_memset_%(VTYPE)s(pvE, vNegInf, segLen);
+    parasail_memset_%(VTYPE)s(pvE, vNegLimit, segLen);
     {
         %(VTYPE)s vGapper = %(VSUB)s(vZero,vGapO);
         for (i=segLen-1; i>=0; --i) {
@@ -137,7 +141,7 @@ parasail_result_t* PNAME(
         vHp = %(VSHIFT)s(vHp, %(BYTES)s);
         pvW = pvP + matrix->mapper[(unsigned char)s2[j]]*segLen;
         vHt = vZero;
-        vF = vNegInf;
+        vF = vNegLimit;
         for (i=0; i<segLen; ++i) {
             vH = %(VLOAD)s(pvH+i);
             vE = %(VLOAD)s(pvE+i);
@@ -174,7 +178,8 @@ parasail_result_t* PNAME(
             vH = %(VMAX)s(vHt, vF);
             vH = %(VMAX)s(vH, vZero);
             %(VSTORE)s(pvH+i, vH);
-            %(SATURATION_CHECK_MID)s
+            vSaturationCheckMin = %(VMIN)s(vSaturationCheckMin, vH);
+            vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vH);
 #ifdef PARASAIL_TABLE
             arr_store_si%(BITS)s(result->score_table, vH, i, segLen, j, s2Len);
 #endif
@@ -226,7 +231,14 @@ parasail_result_t* PNAME(
     }
 #endif
 
-    %(SATURATION_CHECK_FINAL)s
+    if (%(VMOVEMASK)s(%(VOR)s(
+            %(VCMPLT)s(vSaturationCheckMin, vNegLimit),
+            %(VCMPGT)s(vSaturationCheckMax, vPosLimit)))) {
+        result->saturated = 1;
+        score = 0;
+        end_query = 0;
+        end_ref = 0;
+    }
 
     result->score = score;
     result->end_query = end_query;

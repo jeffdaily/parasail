@@ -21,7 +21,6 @@
 #include "parasail/memory.h"
 #include "parasail/internal_sse.h"
 
-#define NEG_INF (INT32_MIN/(int32_t)(2))
 
 static inline int32_t _mm_hmax_epi32_rpl(__m128i a) {
     a = _mm_max_epi32(a, _mm_srli_si128(a, 8));
@@ -107,16 +106,21 @@ parasail_result_t* PNAME(
     __m128i* const restrict pvGapper = parasail_memalign___m128i(16, segLen);
     __m128i vGapO = _mm_set1_epi32(open);
     __m128i vGapE = _mm_set1_epi32(gap);
-    __m128i vNegInf = _mm_set1_epi32(NEG_INF);
+    const int32_t NEG_LIMIT = (-open < matrix->min ?
+        INT32_MIN + open : INT32_MIN - matrix->min) + 1;
+    const int32_t POS_LIMIT = INT32_MAX - matrix->max - 1;
     __m128i vZero = _mm_setzero_si128();
-    int32_t score = NEG_INF;
-    __m128i vMaxH = vNegInf;
+    int32_t score = NEG_LIMIT;
+    __m128i vNegLimit = _mm_set1_epi32(NEG_LIMIT);
+    __m128i vPosLimit = _mm_set1_epi32(POS_LIMIT);
+    __m128i vSaturationCheckMin = vPosLimit;
+    __m128i vSaturationCheckMax = vNegLimit;
+    __m128i vMaxH = vNegLimit;
     __m128i vPosMask = _mm_cmpeq_epi32(_mm_set1_epi32(position),
             _mm_set_epi32(0,1,2,3));
-    __m128i vNegInfFront = _mm_set_epi32(0,0,0,NEG_INF);
+    __m128i vNegInfFront = _mm_set_epi32(0,0,0,NEG_LIMIT);
     __m128i vSegLenXgap = _mm_add_epi32(vNegInfFront,
             _mm_slli_si128(_mm_set1_epi32(-segLen*gap), 4));
-    
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
@@ -129,7 +133,7 @@ parasail_result_t* PNAME(
 
     /* initialize H and E */
     parasail_memset___m128i(pvH, vZero, segLen);
-    parasail_memset___m128i(pvE, vNegInf, segLen);
+    parasail_memset___m128i(pvE, vNegLimit, segLen);
     {
         __m128i vGapper = _mm_sub_epi32(vZero,vGapO);
         for (i=segLen-1; i>=0; --i) {
@@ -154,8 +158,8 @@ parasail_result_t* PNAME(
         vHp = _mm_load_si128(pvH+(segLen-1));
         vHp = _mm_slli_si128(vHp, 4);
         pvW = pvP + matrix->mapper[(unsigned char)s2[j]]*segLen;
-        vHt = vNegInf;
-        vF = vNegInf;
+        vHt = _mm_sub_epi32(vNegLimit, pvGapper[0]);
+        vF = vNegLimit;
         for (i=0; i<segLen; ++i) {
             vH = _mm_load_si128(pvH+i);
             vE = _mm_load_si128(pvE+i);
@@ -191,7 +195,8 @@ parasail_result_t* PNAME(
                     _mm_sub_epi32(vH, vGapO));
             vH = _mm_max_epi32(vHt, vF);
             _mm_store_si128(pvH+i, vH);
-            
+            vSaturationCheckMin = _mm_min_epi32(vSaturationCheckMin, vH);
+            vSaturationCheckMax = _mm_max_epi32(vSaturationCheckMax, vH);
 #ifdef PARASAIL_TABLE
             arr_store_si128(result->score_table, vH, i, segLen, j, s2Len);
 #endif
@@ -231,7 +236,7 @@ parasail_result_t* PNAME(
     /* max of last column */
     {
         int32_t score_last;
-        vMaxH = vNegInf;
+        vMaxH = vNegLimit;
 
         for (i=0; i<segLen; ++i) {
             __m128i vH = _mm_load_si128(pvH + i);
@@ -243,7 +248,7 @@ parasail_result_t* PNAME(
 
         /* max in vec */
         score_last = _mm_hmax_epi32_rpl(vMaxH);
-        if (score_last > score) {
+        if (score_last > score || (score_last == score && end_ref == s2Len - 1)) {
             score = score_last;
             end_ref = s2Len - 1;
             end_query = s1Len;
@@ -263,7 +268,14 @@ parasail_result_t* PNAME(
         }
     }
 
-    
+    if (_mm_movemask_epi8(_mm_or_si128(
+            _mm_cmplt_epi32(vSaturationCheckMin, vNegLimit),
+            _mm_cmpgt_epi32(vSaturationCheckMax, vPosLimit)))) {
+        result->saturated = 1;
+        score = 0;
+        end_query = 0;
+        end_ref = 0;
+    }
 
     result->score = score;
     result->end_query = end_query;

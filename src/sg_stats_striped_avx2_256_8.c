@@ -541,7 +541,7 @@ end:
 
         /* max in vec */
         score_last = _mm256_hmax_epi8_rpl(vMaxH);
-        if (score_last > score) {
+        if (score_last > score || (score_last == score && end_ref == s2Len - 1)) {
             end_query = s1Len;
             end_ref = s2Len - 1;
             /* Trace the alignment ending position on read. */

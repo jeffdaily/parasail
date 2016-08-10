@@ -94,8 +94,8 @@ parasail_result_t* FNAME(
 #endif
     %(INDEX)s i = 0;
     %(INDEX)s j = 0;
-    %(INT)s end_query = 0;
-    %(INT)s end_ref = 0;
+    %(INDEX)s end_query = 0;
+    %(INDEX)s end_ref = 0;
     const %(INT)s NEG_LIMIT = (-open < matrix->min ?
         INT%(WIDTH)s_MIN + open : INT%(WIDTH)s_MIN - matrix->min) + 1;
     const %(INT)s POS_LIMIT = INT%(WIDTH)s_MAX - matrix->max - 1;

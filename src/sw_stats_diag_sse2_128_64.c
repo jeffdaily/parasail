@@ -183,8 +183,8 @@ parasail_result_t* FNAME(
 #endif
     int32_t i = 0;
     int32_t j = 0;
-    int64_t end_query = 0;
-    int64_t end_ref = 0;
+    int32_t end_query = 0;
+    int32_t end_ref = 0;
     const int64_t NEG_LIMIT = (-open < matrix->min ?
         INT64_MIN + open : INT64_MIN - matrix->min) + 1;
     const int64_t POS_LIMIT = INT64_MAX - matrix->max - 1;

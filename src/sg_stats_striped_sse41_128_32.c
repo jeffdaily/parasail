@@ -382,19 +382,21 @@ end:
         }
 
         /* extract vector containing last value from the column */
-        __m128i cond_max;
-        vH = _mm_load_si128(pvHStore + offset);
-        vHM = _mm_load_si128(pvHMStore + offset);
-        vHS = _mm_load_si128(pvHSStore + offset);
-        vHL = _mm_load_si128(pvHLStore + offset);
-        cond_max = _mm_cmpgt_epi32(vH, vMaxH);
-        vMaxH = _mm_blendv_epi8(vMaxH, vH, cond_max);
-        vMaxHM = _mm_blendv_epi8(vMaxHM, vHM, cond_max);
-        vMaxHS = _mm_blendv_epi8(vMaxHS, vHS, cond_max);
-        vMaxHL = _mm_blendv_epi8(vMaxHL, vHL, cond_max);
-        if (_mm_movemask_epi8(_mm_and_si128(vPosMask, cond_max))) {
-            end_ref = j;
-            end_query = s1Len - 1;
+        {
+            __m128i cond_max;
+            vH = _mm_load_si128(pvHStore + offset);
+            vHM = _mm_load_si128(pvHMStore + offset);
+            vHS = _mm_load_si128(pvHSStore + offset);
+            vHL = _mm_load_si128(pvHLStore + offset);
+            cond_max = _mm_cmpgt_epi32(vH, vMaxH);
+            vMaxH = _mm_blendv_epi8(vMaxH, vH, cond_max);
+            vMaxHM = _mm_blendv_epi8(vMaxHM, vHM, cond_max);
+            vMaxHS = _mm_blendv_epi8(vMaxHS, vHS, cond_max);
+            vMaxHL = _mm_blendv_epi8(vMaxHL, vHL, cond_max);
+            if (_mm_movemask_epi8(_mm_and_si128(vPosMask, cond_max))) {
+                end_ref = j;
+                end_query = s1Len - 1;
+            }
         }
 #ifdef PARASAIL_ROWCOL
         for (k=0; k<position; ++k) {

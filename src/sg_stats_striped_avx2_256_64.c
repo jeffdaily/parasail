@@ -452,19 +452,21 @@ end:
         }
 
         /* extract vector containing last value from the column */
-        __m256i cond_max;
-        vH = _mm256_load_si256(pvHStore + offset);
-        vHM = _mm256_load_si256(pvHMStore + offset);
-        vHS = _mm256_load_si256(pvHSStore + offset);
-        vHL = _mm256_load_si256(pvHLStore + offset);
-        cond_max = _mm256_cmpgt_epi64(vH, vMaxH);
-        vMaxH = _mm256_blendv_epi8(vMaxH, vH, cond_max);
-        vMaxHM = _mm256_blendv_epi8(vMaxHM, vHM, cond_max);
-        vMaxHS = _mm256_blendv_epi8(vMaxHS, vHS, cond_max);
-        vMaxHL = _mm256_blendv_epi8(vMaxHL, vHL, cond_max);
-        if (_mm256_movemask_epi8(_mm256_and_si256(vPosMask, cond_max))) {
-            end_ref = j;
-            end_query = s1Len - 1;
+        {
+            __m256i cond_max;
+            vH = _mm256_load_si256(pvHStore + offset);
+            vHM = _mm256_load_si256(pvHMStore + offset);
+            vHS = _mm256_load_si256(pvHSStore + offset);
+            vHL = _mm256_load_si256(pvHLStore + offset);
+            cond_max = _mm256_cmpgt_epi64(vH, vMaxH);
+            vMaxH = _mm256_blendv_epi8(vMaxH, vH, cond_max);
+            vMaxHM = _mm256_blendv_epi8(vMaxHM, vHM, cond_max);
+            vMaxHS = _mm256_blendv_epi8(vMaxHS, vHS, cond_max);
+            vMaxHL = _mm256_blendv_epi8(vMaxHL, vHL, cond_max);
+            if (_mm256_movemask_epi8(_mm256_and_si256(vPosMask, cond_max))) {
+                end_ref = j;
+                end_query = s1Len - 1;
+            }
         }
 #ifdef PARASAIL_ROWCOL
         for (k=0; k<position; ++k) {

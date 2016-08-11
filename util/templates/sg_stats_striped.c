@@ -365,19 +365,21 @@ end:
         }
 
         /* extract vector containing last value from the column */
-        %(VTYPE)s cond_max;
-        vH = %(VLOAD)s(pvHStore + offset);
-        vHM = %(VLOAD)s(pvHMStore + offset);
-        vHS = %(VLOAD)s(pvHSStore + offset);
-        vHL = %(VLOAD)s(pvHLStore + offset);
-        cond_max = %(VCMPGT)s(vH, vMaxH);
-        vMaxH = %(VBLEND)s(vMaxH, vH, cond_max);
-        vMaxHM = %(VBLEND)s(vMaxHM, vHM, cond_max);
-        vMaxHS = %(VBLEND)s(vMaxHS, vHS, cond_max);
-        vMaxHL = %(VBLEND)s(vMaxHL, vHL, cond_max);
-        if (%(VMOVEMASK)s(%(VAND)s(vPosMask, cond_max))) {
-            end_ref = j;
-            end_query = s1Len - 1;
+        {
+            %(VTYPE)s cond_max;
+            vH = %(VLOAD)s(pvHStore + offset);
+            vHM = %(VLOAD)s(pvHMStore + offset);
+            vHS = %(VLOAD)s(pvHSStore + offset);
+            vHL = %(VLOAD)s(pvHLStore + offset);
+            cond_max = %(VCMPGT)s(vH, vMaxH);
+            vMaxH = %(VBLEND)s(vMaxH, vH, cond_max);
+            vMaxHM = %(VBLEND)s(vMaxHM, vHM, cond_max);
+            vMaxHS = %(VBLEND)s(vMaxHS, vHS, cond_max);
+            vMaxHL = %(VBLEND)s(vMaxHL, vHL, cond_max);
+            if (%(VMOVEMASK)s(%(VAND)s(vPosMask, cond_max))) {
+                end_ref = j;
+                end_query = s1Len - 1;
+            }
         }
 #ifdef PARASAIL_ROWCOL
         for (k=0; k<position; ++k) {

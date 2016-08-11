@@ -191,10 +191,10 @@ parasail_result_t* FNAME(
     __m256i vSaturationCheckMin = vPosLimit;
     __m256i vSaturationCheckMax = vNegLimit;
     __m256i vNegInf = _mm256_set1_epi64x(NEG_LIMIT);
-    __m256i vNegInf0 = _mm256_srli_si256_rpl(vNegInf, 8); /* shift in a 0 */
     __m256i vOpen = _mm256_set1_epi64x(open);
     __m256i vGap  = _mm256_set1_epi64x(gap);
     __m256i vZero = _mm256_set1_epi64x(0);
+    __m256i vNegInf0 = _mm256_insert_epi64_rpl(vZero, NEG_LIMIT, 3);
     __m256i vOne = _mm256_set1_epi64x(1);
     __m256i vN = _mm256_set1_epi64x(N);
     __m256i vNegOne = _mm256_set1_epi64x(-1);
@@ -246,22 +246,22 @@ parasail_result_t* FNAME(
     }
     /* pad front of stored row values */
     for (j=-PAD; j<0; ++j) {
-        H_pr[j] = NEG_LIMIT;
+        H_pr[j] = 0;
         HM_pr[j] = 0;
         HS_pr[j] = 0;
         HL_pr[j] = 0;
-        F_pr[j] = NEG_LIMIT;
+        F_pr[j] = 0;
         FM_pr[j] = 0;
         FS_pr[j] = 0;
         FL_pr[j] = 0;
     }
     /* pad back of stored row values */
     for (j=s2Len; j<s2Len+PAD; ++j) {
-        H_pr[j] = NEG_LIMIT;
+        H_pr[j] = 0;
         HM_pr[j] = 0;
         HS_pr[j] = 0;
         HL_pr[j] = 0;
-        F_pr[j] = NEG_LIMIT;
+        F_pr[j] = 0;
         FM_pr[j] = 0;
         FS_pr[j] = 0;
         FL_pr[j] = 0;
@@ -272,21 +272,21 @@ parasail_result_t* FNAME(
     for (i=0; i<s1Len; i+=N) {
         __m256i case1 = vZero;
         __m256i case2 = vZero;
-        __m256i vNH = vNegInf0;
+        __m256i vNH = vZero;
         __m256i vNM = vZero;
         __m256i vNS = vZero;
         __m256i vNL = vZero;
-        __m256i vWH = vNegInf0;
+        __m256i vWH = vZero;
         __m256i vWM = vZero;
         __m256i vWS = vZero;
         __m256i vWL = vZero;
-        __m256i vE = vNegInf;
+        __m256i vE = vNegInf0;
         __m256i vE_opn = vNegInf;
         __m256i vE_ext = vNegInf;
         __m256i vEM = vZero;
         __m256i vES = vZero;
         __m256i vEL = vZero;
-        __m256i vF = vNegInf;
+        __m256i vF = vNegInf0;
         __m256i vF_opn = vNegInf;
         __m256i vF_ext = vNegInf;
         __m256i vFM = vZero;
@@ -392,6 +392,8 @@ parasail_result_t* FNAME(
             vSaturationCheckMax = _mm256_max_epi64_rpl(vSaturationCheckMax, vWM);
             vSaturationCheckMax = _mm256_max_epi64_rpl(vSaturationCheckMax, vWS);
             vSaturationCheckMax = _mm256_max_epi64_rpl(vSaturationCheckMax, vWL);
+            vSaturationCheckMax = _mm256_max_epi64_rpl(vSaturationCheckMax, vWL);
+            vSaturationCheckMax = _mm256_max_epi64_rpl(vSaturationCheckMax, vJ);
 #ifdef PARASAIL_TABLE
             arr_store_si256(result->score_table, vWH, i, s1Len, j, s2Len);
             arr_store_si256(result->matches_table, vWM, i, s1Len, j, s2Len);
@@ -443,6 +445,7 @@ parasail_result_t* FNAME(
             vJ = _mm256_add_epi64(vJ, vOne);
         }
         vI = _mm256_add_epi64(vI, vN);
+        vSaturationCheckMax = _mm256_max_epi64_rpl(vSaturationCheckMax, vI);
     }
 
     /* alignment ending position */

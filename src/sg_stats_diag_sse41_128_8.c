@@ -255,10 +255,10 @@ parasail_result_t* FNAME(
     __m128i vSaturationCheckMin = vPosLimit;
     __m128i vSaturationCheckMax = vNegLimit;
     __m128i vNegInf = _mm_set1_epi8(NEG_LIMIT);
-    __m128i vNegInf0 = _mm_srli_si128(vNegInf, 1); /* shift in a 0 */
     __m128i vOpen = _mm_set1_epi8(open);
     __m128i vGap  = _mm_set1_epi8(gap);
     __m128i vZero = _mm_set1_epi8(0);
+    __m128i vNegInf0 = _mm_insert_epi8(vZero, NEG_LIMIT, 15);
     __m128i vOne = _mm_set1_epi8(1);
     __m128i vN = _mm_set1_epi8(N);
     __m128i vNegOne = _mm_set1_epi8(-1);
@@ -310,22 +310,22 @@ parasail_result_t* FNAME(
     }
     /* pad front of stored row values */
     for (j=-PAD; j<0; ++j) {
-        H_pr[j] = NEG_LIMIT;
+        H_pr[j] = 0;
         HM_pr[j] = 0;
         HS_pr[j] = 0;
         HL_pr[j] = 0;
-        F_pr[j] = NEG_LIMIT;
+        F_pr[j] = 0;
         FM_pr[j] = 0;
         FS_pr[j] = 0;
         FL_pr[j] = 0;
     }
     /* pad back of stored row values */
     for (j=s2Len; j<s2Len+PAD; ++j) {
-        H_pr[j] = NEG_LIMIT;
+        H_pr[j] = 0;
         HM_pr[j] = 0;
         HS_pr[j] = 0;
         HL_pr[j] = 0;
-        F_pr[j] = NEG_LIMIT;
+        F_pr[j] = 0;
         FM_pr[j] = 0;
         FS_pr[j] = 0;
         FL_pr[j] = 0;
@@ -336,21 +336,21 @@ parasail_result_t* FNAME(
     for (i=0; i<s1Len; i+=N) {
         __m128i case1 = vZero;
         __m128i case2 = vZero;
-        __m128i vNH = vNegInf0;
+        __m128i vNH = vZero;
         __m128i vNM = vZero;
         __m128i vNS = vZero;
         __m128i vNL = vZero;
-        __m128i vWH = vNegInf0;
+        __m128i vWH = vZero;
         __m128i vWM = vZero;
         __m128i vWS = vZero;
         __m128i vWL = vZero;
-        __m128i vE = vNegInf;
+        __m128i vE = vNegInf0;
         __m128i vE_opn = vNegInf;
         __m128i vE_ext = vNegInf;
         __m128i vEM = vZero;
         __m128i vES = vZero;
         __m128i vEL = vZero;
-        __m128i vF = vNegInf;
+        __m128i vF = vNegInf0;
         __m128i vF_opn = vNegInf;
         __m128i vF_ext = vNegInf;
         __m128i vFM = vZero;
@@ -492,6 +492,8 @@ parasail_result_t* FNAME(
             vSaturationCheckMax = _mm_max_epi8(vSaturationCheckMax, vWM);
             vSaturationCheckMax = _mm_max_epi8(vSaturationCheckMax, vWS);
             vSaturationCheckMax = _mm_max_epi8(vSaturationCheckMax, vWL);
+            vSaturationCheckMax = _mm_max_epi8(vSaturationCheckMax, vWL);
+            vSaturationCheckMax = _mm_max_epi8(vSaturationCheckMax, vJ);
 #ifdef PARASAIL_TABLE
             arr_store_si128(result->score_table, vWH, i, s1Len, j, s2Len);
             arr_store_si128(result->matches_table, vWM, i, s1Len, j, s2Len);
@@ -543,6 +545,7 @@ parasail_result_t* FNAME(
             vJ = _mm_adds_epi8(vJ, vOne);
         }
         vI = _mm_adds_epi8(vI, vN);
+        vSaturationCheckMax = _mm_max_epi8(vSaturationCheckMax, vI);
     }
 
     /* alignment ending position */

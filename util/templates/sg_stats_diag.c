@@ -108,10 +108,10 @@ parasail_result_t* FNAME(
     %(VTYPE)s vSaturationCheckMin = vPosLimit;
     %(VTYPE)s vSaturationCheckMax = vNegLimit;
     %(VTYPE)s vNegInf = %(VSET1)s(NEG_LIMIT);
-    %(VTYPE)s vNegInf0 = %(VRSHIFT)s(vNegInf, %(BYTES)s); /* shift in a 0 */
     %(VTYPE)s vOpen = %(VSET1)s(open);
     %(VTYPE)s vGap  = %(VSET1)s(gap);
     %(VTYPE)s vZero = %(VSET1)s(0);
+    %(VTYPE)s vNegInf0 = %(VINSERT)s(vZero, NEG_LIMIT, %(LAST_POS)s);
     %(VTYPE)s vOne = %(VSET1)s(1);
     %(VTYPE)s vN = %(VSET1)s(N);
     %(VTYPE)s vNegOne = %(VSET1)s(-1);
@@ -163,22 +163,22 @@ parasail_result_t* FNAME(
     }
     /* pad front of stored row values */
     for (j=-PAD; j<0; ++j) {
-        H_pr[j] = NEG_LIMIT;
+        H_pr[j] = 0;
         HM_pr[j] = 0;
         HS_pr[j] = 0;
         HL_pr[j] = 0;
-        F_pr[j] = NEG_LIMIT;
+        F_pr[j] = 0;
         FM_pr[j] = 0;
         FS_pr[j] = 0;
         FL_pr[j] = 0;
     }
     /* pad back of stored row values */
     for (j=s2Len; j<s2Len+PAD; ++j) {
-        H_pr[j] = NEG_LIMIT;
+        H_pr[j] = 0;
         HM_pr[j] = 0;
         HS_pr[j] = 0;
         HL_pr[j] = 0;
-        F_pr[j] = NEG_LIMIT;
+        F_pr[j] = 0;
         FM_pr[j] = 0;
         FS_pr[j] = 0;
         FL_pr[j] = 0;
@@ -189,21 +189,21 @@ parasail_result_t* FNAME(
     for (i=0; i<s1Len; i+=N) {
         %(VTYPE)s case1 = vZero;
         %(VTYPE)s case2 = vZero;
-        %(VTYPE)s vNH = vNegInf0;
+        %(VTYPE)s vNH = vZero;
         %(VTYPE)s vNM = vZero;
         %(VTYPE)s vNS = vZero;
         %(VTYPE)s vNL = vZero;
-        %(VTYPE)s vWH = vNegInf0;
+        %(VTYPE)s vWH = vZero;
         %(VTYPE)s vWM = vZero;
         %(VTYPE)s vWS = vZero;
         %(VTYPE)s vWL = vZero;
-        %(VTYPE)s vE = vNegInf;
+        %(VTYPE)s vE = vNegInf0;
         %(VTYPE)s vE_opn = vNegInf;
         %(VTYPE)s vE_ext = vNegInf;
         %(VTYPE)s vEM = vZero;
         %(VTYPE)s vES = vZero;
         %(VTYPE)s vEL = vZero;
-        %(VTYPE)s vF = vNegInf;
+        %(VTYPE)s vF = vNegInf0;
         %(VTYPE)s vF_opn = vNegInf;
         %(VTYPE)s vF_ext = vNegInf;
         %(VTYPE)s vFM = vZero;
@@ -300,6 +300,8 @@ parasail_result_t* FNAME(
             vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vWM);
             vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vWS);
             vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vWL);
+            vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vWL);
+            vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vJ);
 #ifdef PARASAIL_TABLE
             arr_store_si%(BITS)s(result->score_table, vWH, i, s1Len, j, s2Len);
             arr_store_si%(BITS)s(result->matches_table, vWM, i, s1Len, j, s2Len);
@@ -351,6 +353,7 @@ parasail_result_t* FNAME(
             vJ = %(VADD)s(vJ, vOne);
         }
         vI = %(VADD)s(vI, vN);
+        vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vI);
     }
 
     /* alignment ending position */

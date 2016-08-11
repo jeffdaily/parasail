@@ -41,17 +41,6 @@ static inline int16_t _mm256_hmax_epi16_rpl(__m256i a) {
 }
 
 
-/* clang optimization broke blendv in this code */
-#if defined(__clang__) && defined(__OPTIMIZE__)
-#define _mm256_blendv_epi8 _mm256_blendv_epi8_rpl
-static inline __m256i _mm256_blendv_epi8_rpl(__m256i a, __m256i b, __m256i mask) {
-    a = _mm256_andnot_si256(mask, a);
-    a = _mm256_or_si256(a, _mm256_and_si256(mask, b));
-    return a;
-}
-#endif
-    
-
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si256(
         int *array,

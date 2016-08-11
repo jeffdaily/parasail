@@ -222,7 +222,6 @@ STATIC parasail_result_t* PNAME(
     const int64_t POS_LIMIT = INT64_MAX - matrix->max - 1;
     const __m128i vZero = _mm_setzero_si128();
     const __m128i vOne = _mm_set1_epi64x_rpl(1);
-    const __m128i vAll = _mm_cmpeq_epi64_rpl(vZero,vZero);
     int64_t score = NEG_LIMIT;
     int64_t matches = 0;
     int64_t similar = 0;
@@ -310,8 +309,6 @@ STATIC parasail_result_t* PNAME(
         for (i=0; i<segLen; ++i) {
             __m128i case1;
             __m128i case2;
-            __m128i notcase1andcase2;
-            __m128i notcase1andnotcase2;
 
             vE = _mm_load_si128(pvE+ i);
             vEM = _mm_load_si128(pvEM+ i);
@@ -327,8 +324,6 @@ STATIC parasail_result_t* PNAME(
 
             case1 = _mm_cmpeq_epi64_rpl(vH, vH_dag);
             case2 = _mm_cmpeq_epi64_rpl(vH, vF);
-            notcase1andcase2 = _mm_andnot_si128(case1, case2);
-            notcase1andnotcase2 = _mm_andnot_si128(case1, _mm_xor_si128(case2, vAll));
 
             /* calculate vM */
             vHM = _mm_blendv_epi8_rpl(

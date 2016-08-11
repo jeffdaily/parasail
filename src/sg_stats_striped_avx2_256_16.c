@@ -183,7 +183,6 @@ STATIC parasail_result_t* PNAME(
     const int16_t POS_LIMIT = INT16_MAX - matrix->max - 1;
     const __m256i vZero = _mm256_setzero_si256();
     const __m256i vOne = _mm256_set1_epi16(1);
-    const __m256i vAll = _mm256_cmpeq_epi16(vZero,vZero);
     int16_t score = NEG_LIMIT;
     int16_t matches = 0;
     int16_t similar = 0;
@@ -271,8 +270,6 @@ STATIC parasail_result_t* PNAME(
         for (i=0; i<segLen; ++i) {
             __m256i case1;
             __m256i case2;
-            __m256i notcase1andcase2;
-            __m256i notcase1andnotcase2;
 
             vE = _mm256_load_si256(pvE+ i);
             vEM = _mm256_load_si256(pvEM+ i);
@@ -288,8 +285,6 @@ STATIC parasail_result_t* PNAME(
 
             case1 = _mm256_cmpeq_epi16(vH, vH_dag);
             case2 = _mm256_cmpeq_epi16(vH, vF);
-            notcase1andcase2 = _mm256_andnot_si256(case1, case2);
-            notcase1andnotcase2 = _mm256_andnot_si256(case1, _mm256_xor_si256(case2, vAll));
 
             /* calculate vM */
             vHM = _mm256_blendv_epi8(

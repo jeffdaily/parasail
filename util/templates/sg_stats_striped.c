@@ -120,7 +120,6 @@ STATIC parasail_result_t* PNAME(
     const %(INT)s POS_LIMIT = INT%(WIDTH)s_MAX - matrix->max - 1;
     const %(VTYPE)s vZero = %(VSET0)s();
     const %(VTYPE)s vOne = %(VSET1)s(1);
-    const %(VTYPE)s vAll = %(VCMPEQ)s(vZero,vZero);
     %(INT)s score = NEG_LIMIT;
     %(INT)s matches = 0;
     %(INT)s similar = 0;
@@ -208,8 +207,6 @@ STATIC parasail_result_t* PNAME(
         for (i=0; i<segLen; ++i) {
             %(VTYPE)s case1;
             %(VTYPE)s case2;
-            %(VTYPE)s notcase1andcase2;
-            %(VTYPE)s notcase1andnotcase2;
 
             vE = %(VLOAD)s(pvE+ i);
             vEM = %(VLOAD)s(pvEM+ i);
@@ -225,8 +222,6 @@ STATIC parasail_result_t* PNAME(
 
             case1 = %(VCMPEQ)s(vH, vH_dag);
             case2 = %(VCMPEQ)s(vH, vF);
-            notcase1andcase2 = %(VANDNOT)s(case1, case2);
-            notcase1andnotcase2 = %(VANDNOT)s(case1, %(VXOR)s(case2, vAll));
 
             /* calculate vM */
             vHM = %(VBLEND)s(

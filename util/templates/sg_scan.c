@@ -16,7 +16,7 @@
 #include "parasail/memory.h"
 #include "parasail/internal_%(ISA)s.h"
 
-%(FIXES)s%(SCAN_AVX2_BLENDV_FIX)s
+%(FIXES)s
 
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si%(BITS)s(

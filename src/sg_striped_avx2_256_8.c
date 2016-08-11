@@ -16,7 +16,6 @@
 #include "parasail/memory.h"
 #include "parasail/internal_avx.h"
 
-#define NEG_INF INT8_MIN
 
 #if HAVE_AVX2_MM256_INSERT_EPI8
 #define _mm256_insert_epi8_rpl _mm256_insert_epi8
@@ -38,6 +37,8 @@ static inline int8_t _mm256_extract_epi8_rpl(__m256i a, int imm) {
     return A.v[imm];
 }
 #endif
+
+#define _mm256_cmplt_epi8_rpl(a,b) _mm256_cmpgt_epi8(b,a)
 
 #define _mm256_slli_si256_rpl(a,imm) _mm256_alignr_epi8(a, _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,3,0)), 16-imm)
 
@@ -181,17 +182,19 @@ parasail_result_t* PNAME(
     __m256i* restrict pvHStore = parasail_memalign___m256i(32, segLen);
     __m256i* restrict pvHLoad =  parasail_memalign___m256i(32, segLen);
     __m256i* const restrict pvE = parasail_memalign___m256i(32, segLen);
-    __m256i vGapO = _mm256_set1_epi8(open);
-    __m256i vGapE = _mm256_set1_epi8(gap);
-    __m256i vNegInf = _mm256_set1_epi8(NEG_INF);
-    int8_t score = NEG_INF;
-    __m256i vMaxH = vNegInf;
-    __m256i vPosMask = _mm256_cmpeq_epi8(_mm256_set1_epi8(position),
-            _mm256_set_epi8(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31));
-    __m256i vNegLimit = _mm256_set1_epi8(INT8_MIN);
-    __m256i vPosLimit = _mm256_set1_epi8(INT8_MAX);
+    const __m256i vGapO = _mm256_set1_epi8(open);
+    const __m256i vGapE = _mm256_set1_epi8(gap);
+    const int8_t NEG_LIMIT = (-open < matrix->min ?
+        INT8_MIN + open : INT8_MIN - matrix->min) + 1;
+    const int8_t POS_LIMIT = INT8_MAX - matrix->max - 1;
+    int8_t score = NEG_LIMIT;
+    __m256i vNegLimit = _mm256_set1_epi8(NEG_LIMIT);
+    __m256i vPosLimit = _mm256_set1_epi8(POS_LIMIT);
     __m256i vSaturationCheckMin = vPosLimit;
     __m256i vSaturationCheckMax = vNegLimit;
+    __m256i vMaxH = vNegLimit;
+    __m256i vPosMask = _mm256_cmpeq_epi8(_mm256_set1_epi8(position),
+            _mm256_set_epi8(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31));
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
@@ -211,7 +214,7 @@ parasail_result_t* PNAME(
         __m256i vE;
         /* Initialize F value to -inf.  Any errors to vH values will be
          * corrected in the Lazy_F loop.  */
-        __m256i vF = vNegInf;
+        __m256i vF = vNegLimit;
 
         /* load final segment of pvHStore and shift left by 2 bytes */
         __m256i vH = _mm256_slli_si256_rpl(pvHStore[segLen - 1], 1);
@@ -234,11 +237,8 @@ parasail_result_t* PNAME(
             vH = _mm256_max_epi8(vH, vF);
             /* Save vH values. */
             _mm256_store_si256(pvHStore + i, vH);
-            /* check for saturation */
-            {
-                vSaturationCheckMax = _mm256_max_epi8(vSaturationCheckMax, vH);
-                vSaturationCheckMin = _mm256_min_epi8(vSaturationCheckMin, vH);
-            }
+            vSaturationCheckMin = _mm256_min_epi8(vSaturationCheckMin, vH);
+            vSaturationCheckMax = _mm256_max_epi8(vSaturationCheckMax, vH);
 #ifdef PARASAIL_TABLE
             arr_store_si256(result->score_table, vH, i, segLen, j, s2Len);
 #endif
@@ -266,11 +266,8 @@ parasail_result_t* PNAME(
                 vH = _mm256_load_si256(pvHStore + i);
                 vH = _mm256_max_epi8(vH,vF);
                 _mm256_store_si256(pvHStore + i, vH);
-                /* check for saturation */
-            {
-                vSaturationCheckMax = _mm256_max_epi8(vSaturationCheckMax, vH);
                 vSaturationCheckMin = _mm256_min_epi8(vSaturationCheckMin, vH);
-            }
+                vSaturationCheckMax = _mm256_max_epi8(vSaturationCheckMax, vH);
 #ifdef PARASAIL_TABLE
                 arr_store_si256(result->score_table, vH, i, segLen, j, s2Len);
 #endif
@@ -311,7 +308,7 @@ end:
     /* max of last column */
     {
         int8_t score_last;
-        vMaxH = vNegInf;
+        vMaxH = vNegLimit;
 
         for (i=0; i<segLen; ++i) {
             __m256i vH = _mm256_load_si256(pvHStore + i);
@@ -323,7 +320,7 @@ end:
 
         /* max in vec */
         score_last = _mm256_hmax_epi8_rpl(vMaxH);
-        if (score_last > score) {
+        if (score_last > score || (score_last == score && end_ref == s2Len - 1)) {
             score = score_last;
             end_ref = s2Len - 1;
             end_query = s1Len;
@@ -344,10 +341,10 @@ end:
     }
 
     if (_mm256_movemask_epi8(_mm256_or_si256(
-            _mm256_cmpeq_epi8(vSaturationCheckMin, vNegLimit),
-            _mm256_cmpeq_epi8(vSaturationCheckMax, vPosLimit)))) {
+            _mm256_cmplt_epi8_rpl(vSaturationCheckMin, vNegLimit),
+            _mm256_cmpgt_epi8(vSaturationCheckMax, vPosLimit)))) {
         result->saturated = 1;
-        score = INT8_MAX;
+        score = 0;
         end_query = 0;
         end_ref = 0;
     }

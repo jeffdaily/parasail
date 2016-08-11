@@ -83,8 +83,8 @@ parasail_result_t* FNAME(
 #endif
     %(INDEX)s i = 0;
     %(INDEX)s j = 0;
-    %(INDEX)s end_query = 0;
-    %(INDEX)s end_ref = 0;
+    %(INDEX)s end_query = s1Len-1;
+    %(INDEX)s end_ref = s2Len-1;
     %(INT)s score = NEG_INF;
     %(VTYPE)s vNegInf = %(VSET1)s(NEG_INF);
     %(VTYPE)s vOpen = %(VSET1)s(open);

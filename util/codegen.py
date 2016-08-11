@@ -99,18 +99,18 @@ def generate_printer(params):
             params["LANE_END"] = params["LANES"]-lane-1
             text += """
     if (0 <= i+%(LANE)s && i+%(LANE)s < s1Len && 0 <= j-%(LANE)s && j-%(LANE)s < s2Len) {
-        array[(i+%(LANE)s)*s2Len + (j-%(LANE)s)] = (%(INT)s)%(VEXTRACT)s(vWscore, %(LANE_END)s);
+        array[(i+%(LANE)s)*s2Len + (j-%(LANE)s)] = (%(INT)s)%(VEXTRACT)s(vWH, %(LANE_END)s);
     }\n"""[1:] % params
         for lane in range(params["LANES"]):
             params["LANE"] = lane
             params["LANE_END"] = params["LANES"]-lane-1
             rowcol += """
     if (i+%(LANE)s == s1Len-1 && 0 <= j-%(LANE)s && j-%(LANE)s < s2Len) {
-        row[j-%(LANE)s] = (%(INT)s)%(VEXTRACT)s(vWscore, %(LANE_END)s);
+        row[j-%(LANE)s] = (%(INT)s)%(VEXTRACT)s(vWH, %(LANE_END)s);
     }\n"""[1:] % params
             rowcol += """
     if (j-%(LANE)s == s2Len-1 && 0 <= i+%(LANE)s && i+%(LANE)s < s1Len) {
-        col[(i+%(LANE)s)] = (%(INT)s)%(VEXTRACT)s(vWscore, %(LANE_END)s);
+        col[(i+%(LANE)s)] = (%(INT)s)%(VEXTRACT)s(vWH, %(LANE_END)s);
     }\n"""[1:] % params
     else:
         print "bad printer name"
@@ -191,8 +191,8 @@ def generate_saturation_check(params):
             params["SATURATION_CHECK_MID"] = """
             /* check for saturation */
             {
-                vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vWscore);
-                vSaturationCheckMin = %(VMIN)s(vSaturationCheckMin, vWscore);
+                vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vWH);
+                vSaturationCheckMin = %(VMIN)s(vSaturationCheckMin, vWH);
             }""".strip() % params
         elif "scan" in params["NAME"]:
             params["SATURATION_CHECK_MID"] = """
@@ -228,11 +228,11 @@ def generate_saturation_check(params):
             params["STATS_SATURATION_CHECK_MID"] = """
             /* check for saturation */
             {
-                vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vWscore);
-                vSaturationCheckMin = %(VMIN)s(vSaturationCheckMin, vWscore);
-                vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vWmatch);
-                vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vWsimilar);
-                vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vWlength);
+                vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vWH);
+                vSaturationCheckMin = %(VMIN)s(vSaturationCheckMin, vWH);
+                vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vWM);
+                vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vWS);
+                vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vWL);
             }""".strip() % params
         elif "scan" in params["NAME"]:
             params["STATS_SATURATION_CHECK_MID1"] = """
@@ -355,6 +355,7 @@ def generated_params_scan(params):
                     for i in range(1,lanes)])[:-1]
     params["STATS_SCAN_INSERT_MASK"] = "0,"*(params["LANES"]-1)+"1"
     params["SCAN_INSERT_MASK"] = "1"+",0"*(params["LANES"]-1)
+    params["SCAN_NEG_INF_FRONT"] = "0,"*(params["LANES"]-1)+"NEG_LIMIT"
     params["POSITION_MASK"] = ",".join([str(i) for i in range(params["LANES"])])
     if "avx" in params["ISA"]:
         params["SCAN_AVX2_BLENDV_FIX"] = """

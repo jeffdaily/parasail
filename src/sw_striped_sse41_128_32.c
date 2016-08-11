@@ -9,7 +9,6 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include <string.h>
 
 #if defined(_MSC_VER)
 #include <intrin.h>
@@ -111,7 +110,7 @@ parasail_result_t* PNAME(
     int32_t score = NEG_INF;
     __m128i vMaxH = vNegInf;
     __m128i vMaxHUnit = vNegInf;
-    
+    int32_t maxp = INT32_MAX - (int32_t)(matrix->max+1);
     /*int32_t stop = profile->stop == INT32_MAX ?  INT32_MAX : (int32_t)profile->stop;*/
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
@@ -138,11 +137,12 @@ parasail_result_t* PNAME(
         __m128i* pv = NULL;
 
         /* Initialize F value to 0.  Any errors to vH values will be
-         * corrected in the Lazy_F loop.  */
+         * corrected in the Lazy_F loop. */
         vF = vZero;
 
-        /* load final segment of pvHStore and shift left by 2 bytes */
-        vH = _mm_slli_si128(pvHStore[segLen - 1], 4);
+        /* load final segment of pvHStore and shift left by 4 bytes */
+        vH = _mm_load_si128(&pvHStore[segLen - 1]);
+        vH = _mm_slli_si128(vH, 4);
 
         /* Correct part of the vProfile */
         vP = vProfile + matrix->mapper[(unsigned char)s2[j]] * segLen;
@@ -228,6 +228,11 @@ end:
             __m128i vCompare = _mm_cmpgt_epi32(vMaxH, vMaxHUnit);
             if (_mm_movemask_epi8(vCompare)) {
                 score = _mm_hmax_epi32_rpl(vMaxH);
+                /* if score has potential to overflow, abort early */
+                if (score > maxp) {
+                    result->saturated = 1;
+                    break;
+                }
                 vMaxHUnit = _mm_set1_epi32(score);
                 end_ref = j;
             }

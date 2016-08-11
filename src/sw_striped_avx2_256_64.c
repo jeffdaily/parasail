@@ -9,7 +9,6 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include <immintrin.h>
 
@@ -143,7 +142,7 @@ parasail_result_t* PNAME(
     int64_t score = NEG_INF;
     __m256i vMaxH = vNegInf;
     __m256i vMaxHUnit = vNegInf;
-    
+    int64_t maxp = INT64_MAX - (int64_t)(matrix->max+1);
     /*int64_t stop = profile->stop == INT32_MAX ?  INT64_MAX : (int64_t)profile->stop;*/
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
@@ -170,11 +169,12 @@ parasail_result_t* PNAME(
         __m256i* pv = NULL;
 
         /* Initialize F value to 0.  Any errors to vH values will be
-         * corrected in the Lazy_F loop.  */
+         * corrected in the Lazy_F loop. */
         vF = vZero;
 
-        /* load final segment of pvHStore and shift left by 2 bytes */
-        vH = _mm256_slli_si256_rpl(pvHStore[segLen - 1], 8);
+        /* load final segment of pvHStore and shift left by 8 bytes */
+        vH = _mm256_load_si256(&pvHStore[segLen - 1]);
+        vH = _mm256_slli_si256_rpl(vH, 8);
 
         /* Correct part of the vProfile */
         vP = vProfile + matrix->mapper[(unsigned char)s2[j]] * segLen;
@@ -260,6 +260,11 @@ end:
             __m256i vCompare = _mm256_cmpgt_epi64(vMaxH, vMaxHUnit);
             if (_mm256_movemask_epi8(vCompare)) {
                 score = _mm256_hmax_epi64_rpl(vMaxH);
+                /* if score has potential to overflow, abort early */
+                if (score > maxp) {
+                    result->saturated = 1;
+                    break;
+                }
                 vMaxHUnit = _mm256_set1_epi64x_rpl(score);
                 end_ref = j;
             }

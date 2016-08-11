@@ -75,10 +75,10 @@ parasail_result_t* PNAME(
     %(INDEX)s i = 0;
     %(INDEX)s j = 0;
     %(INDEX)s k = 0;
-    %(INDEX)s end_query = 0;
-    %(INDEX)s end_ref = 0;
     %(INDEX)s segNum = 0;
     const int s1Len = profile->s1Len;
+    %(INDEX)s end_query = s1Len-1;
+    %(INDEX)s end_ref = s2Len-1;
     const parasail_matrix_t *matrix = profile->matrix;
     const %(INDEX)s segWidth = %(LANES)s; /* number of values in vector unit */
     const %(INDEX)s segLen = (s1Len + segWidth - 1) / segWidth;

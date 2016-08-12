@@ -75,6 +75,7 @@
 #include "parasail/matrices/pam80.h"
 #include "parasail/matrices/pam90.h"
 #include "parasail/matrices/nuc44.h"
+#include "parasail/matrices/dnafull.h"
 #include "parasail/matrices/blosum_map.h"
 #include "parasail/matrices/pam_map.h"
 
@@ -150,6 +151,7 @@ static const parasail_matrix_t * parasail_matrices[] = {
     &parasail_pam80,
     &parasail_pam90,
     &parasail_nuc44,
+    &parasail_dnafull,
     NULL
 };
 

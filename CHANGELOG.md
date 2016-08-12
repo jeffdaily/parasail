@@ -20,9 +20,9 @@ The Unreleased section will be empty for tagged releases. Unreleased functionali
 - Stats functions are now affine, not linear.
 
 ### Closed Issues
-provide Java bindings [\#22]
-stats functions should be affine, not linear [\#10]
-parasail results off by one error [\#4]
+- provide Java bindings [\#22]
+- stats functions should be affine, not linear [\#10]
+- parasail results off by one error [\#4]
 
 ## [1.0.3] - 2016-03-25
 

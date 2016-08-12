@@ -7,6 +7,23 @@ This project follows the [Gitflow Workflow model](https://www.atlassian.com/git/
 ## [Unreleased]
 The Unreleased section will be empty for tagged releases. Unreleased functionality appears in the develop branch.
 
+## [1.1] - 2016-08-12
+
+### Changed
+- Stats functions are now affine, not linear.
+- Semi-global and global alignments now use a more negative value to
+  represent negative infinity instead of half the value of the smallest
+  representable integer for the given bit width.
+- end_query and end_ref reported for all routines.
+
+### Fixed
+- Stats functions are now affine, not linear.
+
+### Closed Issues
+- provide Java bindings [\#22]
+- stats functions should be affine, not linear [\#10]
+- parasail results off by one error [\#4]
+
 ## [1.0.3] - 2016-03-25
 
 ### Changed
@@ -75,12 +92,16 @@ First stable, production-ready version of parasail.
 
 [parasail-python]: https://github.com/jeffdaily/parasail-python
 
-[Unreleased]: https://github.com/jeffdaily/parasail/compare/v1.0.1...develop
+[Unreleased]: https://github.com/jeffdaily/parasail/compare/v1.1...develop
+[1.1]:   https://github.com/jeffdaily/parasail/compare/v1.0.3...v1.1
 [1.0.3]: https://github.com/jeffdaily/parasail/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/jeffdaily/parasail/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/jeffdaily/parasail/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/jeffdaily/parasail/releases/tag/v1.0.0
 
+[\#24]: https://github.com/jeffdaily/parasail/issues/24
+[\#23]: https://github.com/jeffdaily/parasail/issues/23
+[\#22]: https://github.com/jeffdaily/parasail/issues/22
 [\#21]: https://github.com/jeffdaily/parasail/issues/21
 [\#20]: https://github.com/jeffdaily/parasail/issues/20
 [\#19]: https://github.com/jeffdaily/parasail/issues/19

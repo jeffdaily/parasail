@@ -64,107 +64,107 @@ static inline __m256i _mm256_packs_epi16_rpl(__m256i a, __m256i b) {
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si256(
         int *array,
-        __m256i vWscore,
+        __m256i vWH,
         int32_t i,
         int32_t s1Len,
         int32_t j,
         int32_t s2Len)
 {
     if (0 <= i+0 && i+0 < s1Len && 0 <= j-0 && j-0 < s2Len) {
-        array[(i+0)*s2Len + (j-0)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 31);
+        array[(i+0)*s2Len + (j-0)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 31);
     }
     if (0 <= i+1 && i+1 < s1Len && 0 <= j-1 && j-1 < s2Len) {
-        array[(i+1)*s2Len + (j-1)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 30);
+        array[(i+1)*s2Len + (j-1)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 30);
     }
     if (0 <= i+2 && i+2 < s1Len && 0 <= j-2 && j-2 < s2Len) {
-        array[(i+2)*s2Len + (j-2)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 29);
+        array[(i+2)*s2Len + (j-2)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 29);
     }
     if (0 <= i+3 && i+3 < s1Len && 0 <= j-3 && j-3 < s2Len) {
-        array[(i+3)*s2Len + (j-3)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 28);
+        array[(i+3)*s2Len + (j-3)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 28);
     }
     if (0 <= i+4 && i+4 < s1Len && 0 <= j-4 && j-4 < s2Len) {
-        array[(i+4)*s2Len + (j-4)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 27);
+        array[(i+4)*s2Len + (j-4)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 27);
     }
     if (0 <= i+5 && i+5 < s1Len && 0 <= j-5 && j-5 < s2Len) {
-        array[(i+5)*s2Len + (j-5)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 26);
+        array[(i+5)*s2Len + (j-5)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 26);
     }
     if (0 <= i+6 && i+6 < s1Len && 0 <= j-6 && j-6 < s2Len) {
-        array[(i+6)*s2Len + (j-6)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 25);
+        array[(i+6)*s2Len + (j-6)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 25);
     }
     if (0 <= i+7 && i+7 < s1Len && 0 <= j-7 && j-7 < s2Len) {
-        array[(i+7)*s2Len + (j-7)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 24);
+        array[(i+7)*s2Len + (j-7)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 24);
     }
     if (0 <= i+8 && i+8 < s1Len && 0 <= j-8 && j-8 < s2Len) {
-        array[(i+8)*s2Len + (j-8)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 23);
+        array[(i+8)*s2Len + (j-8)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 23);
     }
     if (0 <= i+9 && i+9 < s1Len && 0 <= j-9 && j-9 < s2Len) {
-        array[(i+9)*s2Len + (j-9)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 22);
+        array[(i+9)*s2Len + (j-9)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 22);
     }
     if (0 <= i+10 && i+10 < s1Len && 0 <= j-10 && j-10 < s2Len) {
-        array[(i+10)*s2Len + (j-10)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 21);
+        array[(i+10)*s2Len + (j-10)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 21);
     }
     if (0 <= i+11 && i+11 < s1Len && 0 <= j-11 && j-11 < s2Len) {
-        array[(i+11)*s2Len + (j-11)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 20);
+        array[(i+11)*s2Len + (j-11)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 20);
     }
     if (0 <= i+12 && i+12 < s1Len && 0 <= j-12 && j-12 < s2Len) {
-        array[(i+12)*s2Len + (j-12)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 19);
+        array[(i+12)*s2Len + (j-12)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 19);
     }
     if (0 <= i+13 && i+13 < s1Len && 0 <= j-13 && j-13 < s2Len) {
-        array[(i+13)*s2Len + (j-13)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 18);
+        array[(i+13)*s2Len + (j-13)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 18);
     }
     if (0 <= i+14 && i+14 < s1Len && 0 <= j-14 && j-14 < s2Len) {
-        array[(i+14)*s2Len + (j-14)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 17);
+        array[(i+14)*s2Len + (j-14)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 17);
     }
     if (0 <= i+15 && i+15 < s1Len && 0 <= j-15 && j-15 < s2Len) {
-        array[(i+15)*s2Len + (j-15)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 16);
+        array[(i+15)*s2Len + (j-15)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 16);
     }
     if (0 <= i+16 && i+16 < s1Len && 0 <= j-16 && j-16 < s2Len) {
-        array[(i+16)*s2Len + (j-16)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 15);
+        array[(i+16)*s2Len + (j-16)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 15);
     }
     if (0 <= i+17 && i+17 < s1Len && 0 <= j-17 && j-17 < s2Len) {
-        array[(i+17)*s2Len + (j-17)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 14);
+        array[(i+17)*s2Len + (j-17)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 14);
     }
     if (0 <= i+18 && i+18 < s1Len && 0 <= j-18 && j-18 < s2Len) {
-        array[(i+18)*s2Len + (j-18)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 13);
+        array[(i+18)*s2Len + (j-18)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 13);
     }
     if (0 <= i+19 && i+19 < s1Len && 0 <= j-19 && j-19 < s2Len) {
-        array[(i+19)*s2Len + (j-19)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 12);
+        array[(i+19)*s2Len + (j-19)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 12);
     }
     if (0 <= i+20 && i+20 < s1Len && 0 <= j-20 && j-20 < s2Len) {
-        array[(i+20)*s2Len + (j-20)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 11);
+        array[(i+20)*s2Len + (j-20)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 11);
     }
     if (0 <= i+21 && i+21 < s1Len && 0 <= j-21 && j-21 < s2Len) {
-        array[(i+21)*s2Len + (j-21)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 10);
+        array[(i+21)*s2Len + (j-21)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 10);
     }
     if (0 <= i+22 && i+22 < s1Len && 0 <= j-22 && j-22 < s2Len) {
-        array[(i+22)*s2Len + (j-22)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 9);
+        array[(i+22)*s2Len + (j-22)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 9);
     }
     if (0 <= i+23 && i+23 < s1Len && 0 <= j-23 && j-23 < s2Len) {
-        array[(i+23)*s2Len + (j-23)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 8);
+        array[(i+23)*s2Len + (j-23)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 8);
     }
     if (0 <= i+24 && i+24 < s1Len && 0 <= j-24 && j-24 < s2Len) {
-        array[(i+24)*s2Len + (j-24)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 7);
+        array[(i+24)*s2Len + (j-24)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 7);
     }
     if (0 <= i+25 && i+25 < s1Len && 0 <= j-25 && j-25 < s2Len) {
-        array[(i+25)*s2Len + (j-25)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 6);
+        array[(i+25)*s2Len + (j-25)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 6);
     }
     if (0 <= i+26 && i+26 < s1Len && 0 <= j-26 && j-26 < s2Len) {
-        array[(i+26)*s2Len + (j-26)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 5);
+        array[(i+26)*s2Len + (j-26)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 5);
     }
     if (0 <= i+27 && i+27 < s1Len && 0 <= j-27 && j-27 < s2Len) {
-        array[(i+27)*s2Len + (j-27)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 4);
+        array[(i+27)*s2Len + (j-27)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 4);
     }
     if (0 <= i+28 && i+28 < s1Len && 0 <= j-28 && j-28 < s2Len) {
-        array[(i+28)*s2Len + (j-28)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 3);
+        array[(i+28)*s2Len + (j-28)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 3);
     }
     if (0 <= i+29 && i+29 < s1Len && 0 <= j-29 && j-29 < s2Len) {
-        array[(i+29)*s2Len + (j-29)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 2);
+        array[(i+29)*s2Len + (j-29)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 2);
     }
     if (0 <= i+30 && i+30 < s1Len && 0 <= j-30 && j-30 < s2Len) {
-        array[(i+30)*s2Len + (j-30)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 1);
+        array[(i+30)*s2Len + (j-30)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 1);
     }
     if (0 <= i+31 && i+31 < s1Len && 0 <= j-31 && j-31 < s2Len) {
-        array[(i+31)*s2Len + (j-31)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 0);
+        array[(i+31)*s2Len + (j-31)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 0);
     }
 }
 #endif
@@ -173,203 +173,203 @@ static inline void arr_store_si256(
 static inline void arr_store_rowcol(
         int *row,
         int *col,
-        __m256i vWscore,
+        __m256i vWH,
         int32_t i,
         int32_t s1Len,
         int32_t j,
         int32_t s2Len)
 {
     if (i+0 == s1Len-1 && 0 <= j-0 && j-0 < s2Len) {
-        row[j-0] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 31);
+        row[j-0] = (int8_t)_mm256_extract_epi8_rpl(vWH, 31);
     }
     if (j-0 == s2Len-1 && 0 <= i+0 && i+0 < s1Len) {
-        col[(i+0)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 31);
+        col[(i+0)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 31);
     }
     if (i+1 == s1Len-1 && 0 <= j-1 && j-1 < s2Len) {
-        row[j-1] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 30);
+        row[j-1] = (int8_t)_mm256_extract_epi8_rpl(vWH, 30);
     }
     if (j-1 == s2Len-1 && 0 <= i+1 && i+1 < s1Len) {
-        col[(i+1)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 30);
+        col[(i+1)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 30);
     }
     if (i+2 == s1Len-1 && 0 <= j-2 && j-2 < s2Len) {
-        row[j-2] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 29);
+        row[j-2] = (int8_t)_mm256_extract_epi8_rpl(vWH, 29);
     }
     if (j-2 == s2Len-1 && 0 <= i+2 && i+2 < s1Len) {
-        col[(i+2)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 29);
+        col[(i+2)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 29);
     }
     if (i+3 == s1Len-1 && 0 <= j-3 && j-3 < s2Len) {
-        row[j-3] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 28);
+        row[j-3] = (int8_t)_mm256_extract_epi8_rpl(vWH, 28);
     }
     if (j-3 == s2Len-1 && 0 <= i+3 && i+3 < s1Len) {
-        col[(i+3)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 28);
+        col[(i+3)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 28);
     }
     if (i+4 == s1Len-1 && 0 <= j-4 && j-4 < s2Len) {
-        row[j-4] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 27);
+        row[j-4] = (int8_t)_mm256_extract_epi8_rpl(vWH, 27);
     }
     if (j-4 == s2Len-1 && 0 <= i+4 && i+4 < s1Len) {
-        col[(i+4)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 27);
+        col[(i+4)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 27);
     }
     if (i+5 == s1Len-1 && 0 <= j-5 && j-5 < s2Len) {
-        row[j-5] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 26);
+        row[j-5] = (int8_t)_mm256_extract_epi8_rpl(vWH, 26);
     }
     if (j-5 == s2Len-1 && 0 <= i+5 && i+5 < s1Len) {
-        col[(i+5)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 26);
+        col[(i+5)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 26);
     }
     if (i+6 == s1Len-1 && 0 <= j-6 && j-6 < s2Len) {
-        row[j-6] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 25);
+        row[j-6] = (int8_t)_mm256_extract_epi8_rpl(vWH, 25);
     }
     if (j-6 == s2Len-1 && 0 <= i+6 && i+6 < s1Len) {
-        col[(i+6)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 25);
+        col[(i+6)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 25);
     }
     if (i+7 == s1Len-1 && 0 <= j-7 && j-7 < s2Len) {
-        row[j-7] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 24);
+        row[j-7] = (int8_t)_mm256_extract_epi8_rpl(vWH, 24);
     }
     if (j-7 == s2Len-1 && 0 <= i+7 && i+7 < s1Len) {
-        col[(i+7)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 24);
+        col[(i+7)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 24);
     }
     if (i+8 == s1Len-1 && 0 <= j-8 && j-8 < s2Len) {
-        row[j-8] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 23);
+        row[j-8] = (int8_t)_mm256_extract_epi8_rpl(vWH, 23);
     }
     if (j-8 == s2Len-1 && 0 <= i+8 && i+8 < s1Len) {
-        col[(i+8)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 23);
+        col[(i+8)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 23);
     }
     if (i+9 == s1Len-1 && 0 <= j-9 && j-9 < s2Len) {
-        row[j-9] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 22);
+        row[j-9] = (int8_t)_mm256_extract_epi8_rpl(vWH, 22);
     }
     if (j-9 == s2Len-1 && 0 <= i+9 && i+9 < s1Len) {
-        col[(i+9)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 22);
+        col[(i+9)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 22);
     }
     if (i+10 == s1Len-1 && 0 <= j-10 && j-10 < s2Len) {
-        row[j-10] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 21);
+        row[j-10] = (int8_t)_mm256_extract_epi8_rpl(vWH, 21);
     }
     if (j-10 == s2Len-1 && 0 <= i+10 && i+10 < s1Len) {
-        col[(i+10)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 21);
+        col[(i+10)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 21);
     }
     if (i+11 == s1Len-1 && 0 <= j-11 && j-11 < s2Len) {
-        row[j-11] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 20);
+        row[j-11] = (int8_t)_mm256_extract_epi8_rpl(vWH, 20);
     }
     if (j-11 == s2Len-1 && 0 <= i+11 && i+11 < s1Len) {
-        col[(i+11)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 20);
+        col[(i+11)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 20);
     }
     if (i+12 == s1Len-1 && 0 <= j-12 && j-12 < s2Len) {
-        row[j-12] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 19);
+        row[j-12] = (int8_t)_mm256_extract_epi8_rpl(vWH, 19);
     }
     if (j-12 == s2Len-1 && 0 <= i+12 && i+12 < s1Len) {
-        col[(i+12)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 19);
+        col[(i+12)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 19);
     }
     if (i+13 == s1Len-1 && 0 <= j-13 && j-13 < s2Len) {
-        row[j-13] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 18);
+        row[j-13] = (int8_t)_mm256_extract_epi8_rpl(vWH, 18);
     }
     if (j-13 == s2Len-1 && 0 <= i+13 && i+13 < s1Len) {
-        col[(i+13)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 18);
+        col[(i+13)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 18);
     }
     if (i+14 == s1Len-1 && 0 <= j-14 && j-14 < s2Len) {
-        row[j-14] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 17);
+        row[j-14] = (int8_t)_mm256_extract_epi8_rpl(vWH, 17);
     }
     if (j-14 == s2Len-1 && 0 <= i+14 && i+14 < s1Len) {
-        col[(i+14)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 17);
+        col[(i+14)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 17);
     }
     if (i+15 == s1Len-1 && 0 <= j-15 && j-15 < s2Len) {
-        row[j-15] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 16);
+        row[j-15] = (int8_t)_mm256_extract_epi8_rpl(vWH, 16);
     }
     if (j-15 == s2Len-1 && 0 <= i+15 && i+15 < s1Len) {
-        col[(i+15)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 16);
+        col[(i+15)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 16);
     }
     if (i+16 == s1Len-1 && 0 <= j-16 && j-16 < s2Len) {
-        row[j-16] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 15);
+        row[j-16] = (int8_t)_mm256_extract_epi8_rpl(vWH, 15);
     }
     if (j-16 == s2Len-1 && 0 <= i+16 && i+16 < s1Len) {
-        col[(i+16)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 15);
+        col[(i+16)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 15);
     }
     if (i+17 == s1Len-1 && 0 <= j-17 && j-17 < s2Len) {
-        row[j-17] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 14);
+        row[j-17] = (int8_t)_mm256_extract_epi8_rpl(vWH, 14);
     }
     if (j-17 == s2Len-1 && 0 <= i+17 && i+17 < s1Len) {
-        col[(i+17)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 14);
+        col[(i+17)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 14);
     }
     if (i+18 == s1Len-1 && 0 <= j-18 && j-18 < s2Len) {
-        row[j-18] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 13);
+        row[j-18] = (int8_t)_mm256_extract_epi8_rpl(vWH, 13);
     }
     if (j-18 == s2Len-1 && 0 <= i+18 && i+18 < s1Len) {
-        col[(i+18)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 13);
+        col[(i+18)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 13);
     }
     if (i+19 == s1Len-1 && 0 <= j-19 && j-19 < s2Len) {
-        row[j-19] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 12);
+        row[j-19] = (int8_t)_mm256_extract_epi8_rpl(vWH, 12);
     }
     if (j-19 == s2Len-1 && 0 <= i+19 && i+19 < s1Len) {
-        col[(i+19)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 12);
+        col[(i+19)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 12);
     }
     if (i+20 == s1Len-1 && 0 <= j-20 && j-20 < s2Len) {
-        row[j-20] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 11);
+        row[j-20] = (int8_t)_mm256_extract_epi8_rpl(vWH, 11);
     }
     if (j-20 == s2Len-1 && 0 <= i+20 && i+20 < s1Len) {
-        col[(i+20)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 11);
+        col[(i+20)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 11);
     }
     if (i+21 == s1Len-1 && 0 <= j-21 && j-21 < s2Len) {
-        row[j-21] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 10);
+        row[j-21] = (int8_t)_mm256_extract_epi8_rpl(vWH, 10);
     }
     if (j-21 == s2Len-1 && 0 <= i+21 && i+21 < s1Len) {
-        col[(i+21)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 10);
+        col[(i+21)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 10);
     }
     if (i+22 == s1Len-1 && 0 <= j-22 && j-22 < s2Len) {
-        row[j-22] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 9);
+        row[j-22] = (int8_t)_mm256_extract_epi8_rpl(vWH, 9);
     }
     if (j-22 == s2Len-1 && 0 <= i+22 && i+22 < s1Len) {
-        col[(i+22)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 9);
+        col[(i+22)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 9);
     }
     if (i+23 == s1Len-1 && 0 <= j-23 && j-23 < s2Len) {
-        row[j-23] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 8);
+        row[j-23] = (int8_t)_mm256_extract_epi8_rpl(vWH, 8);
     }
     if (j-23 == s2Len-1 && 0 <= i+23 && i+23 < s1Len) {
-        col[(i+23)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 8);
+        col[(i+23)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 8);
     }
     if (i+24 == s1Len-1 && 0 <= j-24 && j-24 < s2Len) {
-        row[j-24] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 7);
+        row[j-24] = (int8_t)_mm256_extract_epi8_rpl(vWH, 7);
     }
     if (j-24 == s2Len-1 && 0 <= i+24 && i+24 < s1Len) {
-        col[(i+24)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 7);
+        col[(i+24)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 7);
     }
     if (i+25 == s1Len-1 && 0 <= j-25 && j-25 < s2Len) {
-        row[j-25] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 6);
+        row[j-25] = (int8_t)_mm256_extract_epi8_rpl(vWH, 6);
     }
     if (j-25 == s2Len-1 && 0 <= i+25 && i+25 < s1Len) {
-        col[(i+25)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 6);
+        col[(i+25)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 6);
     }
     if (i+26 == s1Len-1 && 0 <= j-26 && j-26 < s2Len) {
-        row[j-26] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 5);
+        row[j-26] = (int8_t)_mm256_extract_epi8_rpl(vWH, 5);
     }
     if (j-26 == s2Len-1 && 0 <= i+26 && i+26 < s1Len) {
-        col[(i+26)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 5);
+        col[(i+26)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 5);
     }
     if (i+27 == s1Len-1 && 0 <= j-27 && j-27 < s2Len) {
-        row[j-27] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 4);
+        row[j-27] = (int8_t)_mm256_extract_epi8_rpl(vWH, 4);
     }
     if (j-27 == s2Len-1 && 0 <= i+27 && i+27 < s1Len) {
-        col[(i+27)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 4);
+        col[(i+27)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 4);
     }
     if (i+28 == s1Len-1 && 0 <= j-28 && j-28 < s2Len) {
-        row[j-28] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 3);
+        row[j-28] = (int8_t)_mm256_extract_epi8_rpl(vWH, 3);
     }
     if (j-28 == s2Len-1 && 0 <= i+28 && i+28 < s1Len) {
-        col[(i+28)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 3);
+        col[(i+28)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 3);
     }
     if (i+29 == s1Len-1 && 0 <= j-29 && j-29 < s2Len) {
-        row[j-29] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 2);
+        row[j-29] = (int8_t)_mm256_extract_epi8_rpl(vWH, 2);
     }
     if (j-29 == s2Len-1 && 0 <= i+29 && i+29 < s1Len) {
-        col[(i+29)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 2);
+        col[(i+29)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 2);
     }
     if (i+30 == s1Len-1 && 0 <= j-30 && j-30 < s2Len) {
-        row[j-30] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 1);
+        row[j-30] = (int8_t)_mm256_extract_epi8_rpl(vWH, 1);
     }
     if (j-30 == s2Len-1 && 0 <= i+30 && i+30 < s1Len) {
-        col[(i+30)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 1);
+        col[(i+30)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 1);
     }
     if (i+31 == s1Len-1 && 0 <= j-31 && j-31 < s2Len) {
-        row[j-31] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 0);
+        row[j-31] = (int8_t)_mm256_extract_epi8_rpl(vWH, 0);
     }
     if (j-31 == s2Len-1 && 0 <= i+31 && i+31 < s1Len) {
-        col[(i+31)] = (int8_t)_mm256_extract_epi8_rpl(vWscore, 0);
+        col[(i+31)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 0);
     }
 }
 #endif
@@ -396,11 +396,11 @@ parasail_result_t* FNAME(
     const int32_t s2Len_PAD = s2Len+PAD;
     int8_t * const restrict s1 = parasail_memalign_int8_t(32, s1Len+PAD);
     int8_t * const restrict s2B= parasail_memalign_int8_t(32, s2Len+PAD2);
-    int8_t * const restrict _tbl_pr = parasail_memalign_int8_t(32, s2Len+PAD2);
-    int8_t * const restrict _del_pr = parasail_memalign_int8_t(32, s2Len+PAD2);
+    int8_t * const restrict _H_pr = parasail_memalign_int8_t(32, s2Len+PAD2);
+    int8_t * const restrict _F_pr = parasail_memalign_int8_t(32, s2Len+PAD2);
     int8_t * const restrict s2 = s2B+PAD; /* will allow later for negative indices */
-    int8_t * const restrict tbl_pr = _tbl_pr+PAD;
-    int8_t * const restrict del_pr = _del_pr+PAD;
+    int8_t * const restrict H_pr = _H_pr+PAD;
+    int8_t * const restrict F_pr = _F_pr+PAD;
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(s1Len, s2Len);
 #else
@@ -427,7 +427,7 @@ parasail_result_t* FNAME(
     __m256i vIHi16 = _mm256_set_epi16(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15);
     __m256i vJresetLo16 = _mm256_set_epi16(-16,-17,-18,-19,-20,-21,-22,-23,-24,-25,-26,-27,-28,-29,-30,-31);
     __m256i vJresetHi16 = _mm256_set_epi16(0,-1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11,-12,-13,-14,-15);
-    __m256i vMax = vNegInf;
+    __m256i vMaxH = vNegInf;
     __m256i vEndILo = vNegInf;
     __m256i vEndIHi = vNegInf;
     __m256i vEndJLo = vNegInf;
@@ -463,26 +463,26 @@ parasail_result_t* FNAME(
 
     /* set initial values for stored row */
     for (j=0; j<s2Len; ++j) {
-        tbl_pr[j] = 0;
-        del_pr[j] = NEG_INF;
+        H_pr[j] = 0;
+        F_pr[j] = NEG_INF;
     }
     /* pad front of stored row values */
     for (j=-PAD; j<0; ++j) {
-        tbl_pr[j] = NEG_INF;
-        del_pr[j] = NEG_INF;
+        H_pr[j] = NEG_INF;
+        F_pr[j] = NEG_INF;
     }
     /* pad back of stored row values */
     for (j=s2Len; j<s2Len+PAD; ++j) {
-        tbl_pr[j] = NEG_INF;
-        del_pr[j] = NEG_INF;
+        H_pr[j] = NEG_INF;
+        F_pr[j] = NEG_INF;
     }
 
     /* iterate over query sequence */
     for (i=0; i<s1Len; i+=N) {
-        __m256i vNscore = vNegInf0;
-        __m256i vWscore = vNegInf0;
-        __m256i vIns = vNegInf;
-        __m256i vDel = vNegInf;
+        __m256i vNH = vNegInf0;
+        __m256i vWH = vNegInf0;
+        __m256i vE = vNegInf;
+        __m256i vF = vNegInf;
         __m256i vJLo16 = vJresetLo16;
         __m256i vJHi16 = vJresetHi16;
         const int * const restrict matrow0 = &matrix->matrix[matrix->size*s1[i+0]];
@@ -523,17 +523,17 @@ parasail_result_t* FNAME(
         /* iterate over database sequence */
         for (j=0; j<s2Len+PAD; ++j) {
             __m256i vMat;
-            __m256i vNWscore = vNscore;
-            vNscore = _mm256_srli_si256_rpl(vWscore, 1);
-            vNscore = _mm256_insert_epi8_rpl(vNscore, tbl_pr[j], 31);
-            vDel = _mm256_srli_si256_rpl(vDel, 1);
-            vDel = _mm256_insert_epi8_rpl(vDel, del_pr[j], 31);
-            vDel = _mm256_max_epi8(
-                    _mm256_subs_epi8(vNscore, vOpen),
-                    _mm256_subs_epi8(vDel, vGap));
-            vIns = _mm256_max_epi8(
-                    _mm256_subs_epi8(vWscore, vOpen),
-                    _mm256_subs_epi8(vIns, vGap));
+            __m256i vNWH = vNH;
+            vNH = _mm256_srli_si256_rpl(vWH, 1);
+            vNH = _mm256_insert_epi8_rpl(vNH, H_pr[j], 31);
+            vF = _mm256_srli_si256_rpl(vF, 1);
+            vF = _mm256_insert_epi8_rpl(vF, F_pr[j], 31);
+            vF = _mm256_max_epi8(
+                    _mm256_subs_epi8(vNH, vOpen),
+                    _mm256_subs_epi8(vF, vGap));
+            vE = _mm256_max_epi8(
+                    _mm256_subs_epi8(vWH, vOpen),
+                    _mm256_subs_epi8(vE, vGap));
             vMat = _mm256_set_epi8(
                     matrow0[s2[j-0]],
                     matrow1[s2[j-1]],
@@ -568,33 +568,33 @@ parasail_result_t* FNAME(
                     matrow30[s2[j-30]],
                     matrow31[s2[j-31]]
                     );
-            vNWscore = _mm256_adds_epi8(vNWscore, vMat);
-            vWscore = _mm256_max_epi8(vNWscore, vIns);
-            vWscore = _mm256_max_epi8(vWscore, vDel);
-            vWscore = _mm256_max_epi8(vWscore, vZero);
+            vNWH = _mm256_adds_epi8(vNWH, vMat);
+            vWH = _mm256_max_epi8(vNWH, vE);
+            vWH = _mm256_max_epi8(vWH, vF);
+            vWH = _mm256_max_epi8(vWH, vZero);
             /* as minor diagonal vector passes across the j=-1 boundary,
              * assign the appropriate boundary conditions */
             {
                 __m256i cond = _mm256_packs_epi16_rpl(
                         _mm256_cmpeq_epi16(vJLo16,vNegOne16),
                         _mm256_cmpeq_epi16(vJHi16,vNegOne16));
-                vWscore = _mm256_andnot_si256(cond, vWscore);
-                vDel = _mm256_blendv_epi8(vDel, vNegInf, cond);
-                vIns = _mm256_blendv_epi8(vIns, vNegInf, cond);
+                vWH = _mm256_andnot_si256(cond, vWH);
+                vF = _mm256_blendv_epi8(vF, vNegInf, cond);
+                vE = _mm256_blendv_epi8(vE, vNegInf, cond);
             }
             /* check for saturation */
             {
-                vSaturationCheckMax = _mm256_max_epi8(vSaturationCheckMax, vWscore);
-                vSaturationCheckMin = _mm256_min_epi8(vSaturationCheckMin, vWscore);
+                vSaturationCheckMax = _mm256_max_epi8(vSaturationCheckMax, vWH);
+                vSaturationCheckMin = _mm256_min_epi8(vSaturationCheckMin, vWH);
             }
 #ifdef PARASAIL_TABLE
-            arr_store_si256(result->score_table, vWscore, i, s1Len, j, s2Len);
+            arr_store_si256(result->score_table, vWH, i, s1Len, j, s2Len);
 #endif
 #ifdef PARASAIL_ROWCOL
-            arr_store_rowcol(result->score_row, result->score_col, vWscore, i, s1Len, j, s2Len);
+            arr_store_rowcol(result->score_row, result->score_col, vWH, i, s1Len, j, s2Len);
 #endif
-            tbl_pr[j-31] = (int8_t)_mm256_extract_epi8_rpl(vWscore,0);
-            del_pr[j-31] = (int8_t)_mm256_extract_epi8_rpl(vDel,0);
+            H_pr[j-31] = (int8_t)_mm256_extract_epi8_rpl(vWH,0);
+            F_pr[j-31] = (int8_t)_mm256_extract_epi8_rpl(vF,0);
             /* as minor diagonal vector passes across table, extract
              * max values within the i,j bounds */
             {
@@ -606,15 +606,15 @@ parasail_result_t* FNAME(
                             _mm256_cmplt_epi16_rpl(vJLo16, vJLimit16),
                             _mm256_cmplt_epi16_rpl(vJHi16, vJLimit16)));
                 __m256i cond_valid_IJ = _mm256_and_si256(cond_valid_J, vIltLimit);
-                __m256i cond_eq = _mm256_cmpeq_epi8(vWscore, vMax);
-                __m256i cond_max = _mm256_cmpgt_epi8(vWscore, vMax);
+                __m256i cond_eq = _mm256_cmpeq_epi8(vWH, vMaxH);
+                __m256i cond_max = _mm256_cmpgt_epi8(vWH, vMaxH);
                 __m256i cond_all = _mm256_and_si256(cond_max, cond_valid_IJ);
                 __m256i cond_Jlt = _mm256_packs_epi16_rpl(
                         _mm256_cmplt_epi16_rpl(vJLo16, vEndJLo),
                         _mm256_cmplt_epi16_rpl(vJHi16, vEndJHi));
                 __m256i cond_lo = _mm256_unpacklo_epi8_rpl(cond_all, cond_all);
                 __m256i cond_hi = _mm256_unpackhi_epi8_rpl(cond_all, cond_all);
-                vMax = _mm256_blendv_epi8(vMax, vWscore, cond_all);
+                vMaxH = _mm256_blendv_epi8(vMaxH, vWH, cond_all);
                 vEndILo = _mm256_blendv_epi8(vEndILo, vILo16, cond_lo);
                 vEndIHi = _mm256_blendv_epi8(vEndIHi, vIHi16, cond_hi);
                 vEndJLo = _mm256_blendv_epi8(vEndJLo, vJLo16, cond_lo);
@@ -637,7 +637,7 @@ parasail_result_t* FNAME(
 
     /* alignment ending position */
     {
-        int8_t *t = (int8_t*)&vMax;
+        int8_t *t = (int8_t*)&vMaxH;
         int16_t *ilo = (int16_t*)&vEndILo;
         int16_t *jlo = (int16_t*)&vEndJLo;
         int16_t *ihi = (int16_t*)&vEndIHi;
@@ -692,8 +692,8 @@ parasail_result_t* FNAME(
     result->end_query = end_query;
     result->end_ref = end_ref;
 
-    parasail_free(_del_pr);
-    parasail_free(_tbl_pr);
+    parasail_free(_F_pr);
+    parasail_free(_H_pr);
     parasail_free(s2B);
     parasail_free(s1);
 

@@ -9,7 +9,6 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include <immintrin.h>
 
@@ -213,7 +212,7 @@ parasail_result_t* PNAME(
          * corrected in the Lazy_F loop.  */
         vF = vBias;
 
-        /* load final segment of pvHStore and shift left by 2 bytes */
+        /* load final segment of pvHStore and shift left by 1 bytes */
         vH = _mm256_slli_si256_rpl(pvHStore[segLen - 1], 1);
         vH = _mm256_blendv_epi8(vH, vBias, insert_mask);
 

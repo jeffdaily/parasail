@@ -26,23 +26,23 @@
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si128(
         int *array,
-        __m128i vWscore,
+        __m128i vWH,
         int32_t i,
         int32_t s1Len,
         int32_t j,
         int32_t s2Len)
 {
     if (0 <= i+0 && i+0 < s1Len && 0 <= j-0 && j-0 < s2Len) {
-        array[(i+0)*s2Len + (j-0)] = (int32_t)_mm_extract_epi32(vWscore, 3);
+        array[(i+0)*s2Len + (j-0)] = (int32_t)_mm_extract_epi32(vWH, 3);
     }
     if (0 <= i+1 && i+1 < s1Len && 0 <= j-1 && j-1 < s2Len) {
-        array[(i+1)*s2Len + (j-1)] = (int32_t)_mm_extract_epi32(vWscore, 2);
+        array[(i+1)*s2Len + (j-1)] = (int32_t)_mm_extract_epi32(vWH, 2);
     }
     if (0 <= i+2 && i+2 < s1Len && 0 <= j-2 && j-2 < s2Len) {
-        array[(i+2)*s2Len + (j-2)] = (int32_t)_mm_extract_epi32(vWscore, 1);
+        array[(i+2)*s2Len + (j-2)] = (int32_t)_mm_extract_epi32(vWH, 1);
     }
     if (0 <= i+3 && i+3 < s1Len && 0 <= j-3 && j-3 < s2Len) {
-        array[(i+3)*s2Len + (j-3)] = (int32_t)_mm_extract_epi32(vWscore, 0);
+        array[(i+3)*s2Len + (j-3)] = (int32_t)_mm_extract_epi32(vWH, 0);
     }
 }
 #endif
@@ -51,35 +51,35 @@ static inline void arr_store_si128(
 static inline void arr_store_rowcol(
         int *row,
         int *col,
-        __m128i vWscore,
+        __m128i vWH,
         int32_t i,
         int32_t s1Len,
         int32_t j,
         int32_t s2Len)
 {
     if (i+0 == s1Len-1 && 0 <= j-0 && j-0 < s2Len) {
-        row[j-0] = (int32_t)_mm_extract_epi32(vWscore, 3);
+        row[j-0] = (int32_t)_mm_extract_epi32(vWH, 3);
     }
     if (j-0 == s2Len-1 && 0 <= i+0 && i+0 < s1Len) {
-        col[(i+0)] = (int32_t)_mm_extract_epi32(vWscore, 3);
+        col[(i+0)] = (int32_t)_mm_extract_epi32(vWH, 3);
     }
     if (i+1 == s1Len-1 && 0 <= j-1 && j-1 < s2Len) {
-        row[j-1] = (int32_t)_mm_extract_epi32(vWscore, 2);
+        row[j-1] = (int32_t)_mm_extract_epi32(vWH, 2);
     }
     if (j-1 == s2Len-1 && 0 <= i+1 && i+1 < s1Len) {
-        col[(i+1)] = (int32_t)_mm_extract_epi32(vWscore, 2);
+        col[(i+1)] = (int32_t)_mm_extract_epi32(vWH, 2);
     }
     if (i+2 == s1Len-1 && 0 <= j-2 && j-2 < s2Len) {
-        row[j-2] = (int32_t)_mm_extract_epi32(vWscore, 1);
+        row[j-2] = (int32_t)_mm_extract_epi32(vWH, 1);
     }
     if (j-2 == s2Len-1 && 0 <= i+2 && i+2 < s1Len) {
-        col[(i+2)] = (int32_t)_mm_extract_epi32(vWscore, 1);
+        col[(i+2)] = (int32_t)_mm_extract_epi32(vWH, 1);
     }
     if (i+3 == s1Len-1 && 0 <= j-3 && j-3 < s2Len) {
-        row[j-3] = (int32_t)_mm_extract_epi32(vWscore, 0);
+        row[j-3] = (int32_t)_mm_extract_epi32(vWH, 0);
     }
     if (j-3 == s2Len-1 && 0 <= i+3 && i+3 < s1Len) {
-        col[(i+3)] = (int32_t)_mm_extract_epi32(vWscore, 0);
+        col[(i+3)] = (int32_t)_mm_extract_epi32(vWH, 0);
     }
 }
 #endif
@@ -106,11 +106,11 @@ parasail_result_t* FNAME(
     const int32_t s2Len_PAD = s2Len+PAD;
     int32_t * const restrict s1 = parasail_memalign_int32_t(16, s1Len+PAD);
     int32_t * const restrict s2B= parasail_memalign_int32_t(16, s2Len+PAD2);
-    int32_t * const restrict _tbl_pr = parasail_memalign_int32_t(16, s2Len+PAD2);
-    int32_t * const restrict _del_pr = parasail_memalign_int32_t(16, s2Len+PAD2);
+    int32_t * const restrict _H_pr = parasail_memalign_int32_t(16, s2Len+PAD2);
+    int32_t * const restrict _F_pr = parasail_memalign_int32_t(16, s2Len+PAD2);
     int32_t * const restrict s2 = s2B+PAD; /* will allow later for negative indices */
-    int32_t * const restrict tbl_pr = _tbl_pr+PAD;
-    int32_t * const restrict del_pr = _del_pr+PAD;
+    int32_t * const restrict H_pr = _H_pr+PAD;
+    int32_t * const restrict F_pr = _F_pr+PAD;
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(s1Len, s2Len);
 #else
@@ -122,8 +122,8 @@ parasail_result_t* FNAME(
 #endif
     int32_t i = 0;
     int32_t j = 0;
-    int32_t end_query = 0;
-    int32_t end_ref = 0;
+    int32_t end_query = s1Len-1;
+    int32_t end_ref = s2Len-1;
     int32_t score = NEG_INF;
     __m128i vNegInf = _mm_set1_epi32(NEG_INF);
     __m128i vOpen = _mm_set1_epi32(open);
@@ -171,84 +171,84 @@ parasail_result_t* FNAME(
 
     /* set initial values for stored row */
     for (j=0; j<s2Len; ++j) {
-        tbl_pr[j] = -open - j*gap;
-        del_pr[j] = NEG_INF;
+        H_pr[j] = -open - j*gap;
+        F_pr[j] = NEG_INF;
     }
     /* pad front of stored row values */
     for (j=-PAD; j<0; ++j) {
-        tbl_pr[j] = NEG_INF;
-        del_pr[j] = NEG_INF;
+        H_pr[j] = NEG_INF;
+        F_pr[j] = NEG_INF;
     }
     /* pad back of stored row values */
     for (j=s2Len; j<s2Len+PAD; ++j) {
-        tbl_pr[j] = NEG_INF;
-        del_pr[j] = NEG_INF;
+        H_pr[j] = NEG_INF;
+        F_pr[j] = NEG_INF;
     }
-    tbl_pr[-1] = 0; /* upper left corner */
+    H_pr[-1] = 0; /* upper left corner */
 
     /* iterate over query sequence */
     for (i=0; i<s1Len; i+=N) {
-        __m128i vNscore = vNegInf;
-        __m128i vWscore = vNegInf;
-        __m128i vIns = vNegInf;
-        __m128i vDel = vNegInf;
+        __m128i vNH = vNegInf;
+        __m128i vWH = vNegInf;
+        __m128i vE = vNegInf;
+        __m128i vF = vNegInf;
         __m128i vJ = vJreset;
         const int * const restrict matrow0 = &matrix->matrix[matrix->size*s1[i+0]];
         const int * const restrict matrow1 = &matrix->matrix[matrix->size*s1[i+1]];
         const int * const restrict matrow2 = &matrix->matrix[matrix->size*s1[i+2]];
         const int * const restrict matrow3 = &matrix->matrix[matrix->size*s1[i+3]];
-        vNscore = _mm_srli_si128(vNscore, 4);
-        vNscore = _mm_insert_epi32(vNscore, tbl_pr[-1], 3);
-        vWscore = _mm_srli_si128(vWscore, 4);
-        vWscore = _mm_insert_epi32(vWscore, -open - i*gap, 3);
-        tbl_pr[-1] = -open - (i+N)*gap;
+        vNH = _mm_srli_si128(vNH, 4);
+        vNH = _mm_insert_epi32(vNH, H_pr[-1], 3);
+        vWH = _mm_srli_si128(vWH, 4);
+        vWH = _mm_insert_epi32(vWH, -open - i*gap, 3);
+        H_pr[-1] = -open - (i+N)*gap;
         /* iterate over database sequence */
         for (j=0; j<s2Len+PAD; ++j) {
             __m128i vMat;
-            __m128i vNWscore = vNscore;
-            vNscore = _mm_srli_si128(vWscore, 4);
-            vNscore = _mm_insert_epi32(vNscore, tbl_pr[j], 3);
-            vDel = _mm_srli_si128(vDel, 4);
-            vDel = _mm_insert_epi32(vDel, del_pr[j], 3);
-            vDel = _mm_max_epi32(
-                    _mm_sub_epi32(vNscore, vOpen),
-                    _mm_sub_epi32(vDel, vGap));
-            vIns = _mm_max_epi32(
-                    _mm_sub_epi32(vWscore, vOpen),
-                    _mm_sub_epi32(vIns, vGap));
+            __m128i vNWH = vNH;
+            vNH = _mm_srli_si128(vWH, 4);
+            vNH = _mm_insert_epi32(vNH, H_pr[j], 3);
+            vF = _mm_srli_si128(vF, 4);
+            vF = _mm_insert_epi32(vF, F_pr[j], 3);
+            vF = _mm_max_epi32(
+                    _mm_sub_epi32(vNH, vOpen),
+                    _mm_sub_epi32(vF, vGap));
+            vE = _mm_max_epi32(
+                    _mm_sub_epi32(vWH, vOpen),
+                    _mm_sub_epi32(vE, vGap));
             vMat = _mm_set_epi32(
                     matrow0[s2[j-0]],
                     matrow1[s2[j-1]],
                     matrow2[s2[j-2]],
                     matrow3[s2[j-3]]
                     );
-            vNWscore = _mm_add_epi32(vNWscore, vMat);
-            vWscore = _mm_max_epi32(vNWscore, vIns);
-            vWscore = _mm_max_epi32(vWscore, vDel);
+            vNWH = _mm_add_epi32(vNWH, vMat);
+            vWH = _mm_max_epi32(vNWH, vE);
+            vWH = _mm_max_epi32(vWH, vF);
             /* as minor diagonal vector passes across the j=-1 boundary,
              * assign the appropriate boundary conditions */
             {
                 __m128i cond = _mm_cmpeq_epi32(vJ,vNegOne);
-                vWscore = _mm_blendv_epi8(vWscore, vIBoundary, cond);
-                vDel = _mm_blendv_epi8(vDel, vNegInf, cond);
-                vIns = _mm_blendv_epi8(vIns, vNegInf, cond);
+                vWH = _mm_blendv_epi8(vWH, vIBoundary, cond);
+                vF = _mm_blendv_epi8(vF, vNegInf, cond);
+                vE = _mm_blendv_epi8(vE, vNegInf, cond);
             }
             
 #ifdef PARASAIL_TABLE
-            arr_store_si128(result->score_table, vWscore, i, s1Len, j, s2Len);
+            arr_store_si128(result->score_table, vWH, i, s1Len, j, s2Len);
 #endif
 #ifdef PARASAIL_ROWCOL
-            arr_store_rowcol(result->score_row, result->score_col, vWscore, i, s1Len, j, s2Len);
+            arr_store_rowcol(result->score_row, result->score_col, vWH, i, s1Len, j, s2Len);
 #endif
-            tbl_pr[j-3] = (int32_t)_mm_extract_epi32(vWscore,0);
-            del_pr[j-3] = (int32_t)_mm_extract_epi32(vDel,0);
+            H_pr[j-3] = (int32_t)_mm_extract_epi32(vWH,0);
+            F_pr[j-3] = (int32_t)_mm_extract_epi32(vF,0);
             /* as minor diagonal vector passes across table, extract
                last table value at the i,j bound */
             {
                 __m128i cond_valid_I = _mm_cmpeq_epi32(vI, vILimit1);
                 __m128i cond_valid_J = _mm_cmpeq_epi32(vJ, vJLimit1);
                 __m128i cond_all = _mm_and_si128(cond_valid_I, cond_valid_J);
-                vMax = _mm_blendv_epi8(vMax, vWscore, cond_all);
+                vMax = _mm_blendv_epi8(vMax, vWH, cond_all);
             }
             vJ = _mm_add_epi32(vJ, vOne);
         }
@@ -272,8 +272,8 @@ parasail_result_t* FNAME(
     result->end_query = end_query;
     result->end_ref = end_ref;
 
-    parasail_free(_del_pr);
-    parasail_free(_tbl_pr);
+    parasail_free(_F_pr);
+    parasail_free(_H_pr);
     parasail_free(s2B);
     parasail_free(s1);
 

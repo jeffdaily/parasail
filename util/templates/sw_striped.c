@@ -9,7 +9,6 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include <string.h>
 
 %(HEADER)s
 
@@ -94,7 +93,7 @@ parasail_result_t* PNAME(
     %(INT)s score = NEG_INF;
     %(VTYPE)s vMaxH = vNegInf;
     %(VTYPE)s vMaxHUnit = vNegInf;
-    %(SATURATION_CHECK_INIT)s
+    %(INT)s maxp = INT%(WIDTH)s_MAX - (%(INT)s)(matrix->max+1);
     /*%(INT)s stop = profile->stop == INT32_MAX ?  INT%(WIDTH)s_MAX : (%(INT)s)profile->stop;*/
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
@@ -121,11 +120,12 @@ parasail_result_t* PNAME(
         %(VTYPE)s* pv = NULL;
 
         /* Initialize F value to 0.  Any errors to vH values will be
-         * corrected in the Lazy_F loop.  */
+         * corrected in the Lazy_F loop. */
         vF = vZero;
 
-        /* load final segment of pvHStore and shift left by 2 bytes */
-        vH = %(VSHIFT)s(pvHStore[segLen - 1], %(BYTES)s);
+        /* load final segment of pvHStore and shift left by %(BYTES)s bytes */
+        vH = %(VLOAD)s(&pvHStore[segLen - 1]);
+        vH = %(VSHIFT)s(vH, %(BYTES)s);
 
         /* Correct part of the vProfile */
         vP = vProfile + matrix->mapper[(unsigned char)s2[j]] * segLen;
@@ -211,6 +211,11 @@ end:
             %(VTYPE)s vCompare = %(VCMPGT)s(vMaxH, vMaxHUnit);
             if (%(VMOVEMASK)s(vCompare)) {
                 score = %(VHMAX)s(vMaxH);
+                /* if score has potential to overflow, abort early */
+                if (score > maxp) {
+                    result->saturated = 1;
+                    break;
+                }
                 vMaxHUnit = %(VSET1)s(score);
                 end_ref = j;
             }

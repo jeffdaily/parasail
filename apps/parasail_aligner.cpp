@@ -371,11 +371,7 @@ int main(int argc, char **argv) {
     }
 
     /* select the substitution matrix */
-    if (NULL != matrixname && use_dna) {
-        eprintf(stderr, "Cannot specify matrix name for DNA alignments.\n");
-        exit(EXIT_FAILURE);
-    }
-    if (use_dna) {
+    if (NULL == matrixname && use_dna) {
         matrix = parasail_matrix_create("ACGT", match, -mismatch);
     }
     else {
@@ -383,6 +379,10 @@ int main(int argc, char **argv) {
             matrixname = "blosum62";
         }
         matrix = parasail_matrix_lookup(matrixname);
+        if (NULL == matrix) {
+            /* try as a filename */
+            matrix = parasail_matrix_from_file(matrixname);
+        }
         if (NULL == matrix) {
             eprintf(stderr, "Specified substitution matrix not found.\n");
             exit(EXIT_FAILURE);

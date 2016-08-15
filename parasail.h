@@ -170,6 +170,10 @@ extern
 parasail_matrix_t* parasail_matrix_create(
         const char *alphabet, const int match, const int mismatch);
 
+/** Create substitution matrix from a filename. */
+extern
+parasail_matrix_t* parasail_matrix_from_file(const char *filename);
+
 /** Deallocate substitution matrix. */
 extern
 void parasail_matrix_free(parasail_matrix_t *matrix);

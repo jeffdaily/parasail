@@ -683,6 +683,7 @@ endif
 check_PROGRAMS += tests/test_align
 check_PROGRAMS += tests/test_gcups
 check_PROGRAMS += tests/test_isa
+check_PROGRAMS += tests/test_matrix
 check_PROGRAMS += tests/test_openmp
 check_PROGRAMS += tests/test_query
 check_PROGRAMS += tests/test_scatter
@@ -721,6 +722,8 @@ tests_test_align_SOURCES = tests/test_align.c
 tests_test_gcups_SOURCES = tests/test_gcups.c
 
 tests_test_isa_SOURCES = tests/test_isa.c
+
+tests_test_matrix_SOURCES = tests/test_matrix.c
 
 tests_test_openmp_SOURCES = tests/test_openmp.c
 tests_test_openmp_CFLAGS  = $(AM_CFLAGS) $(OPENMP_CFLAGS)

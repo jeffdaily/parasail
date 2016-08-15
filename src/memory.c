@@ -302,7 +302,7 @@ parasail_matrix_t* parasail_matrix_create(
 
     mapper = (int*)malloc(sizeof(int)*256);
     assert(mapper);
-    parasail_memset_int(mapper, size, size);
+    parasail_memset_int(mapper, size, 256);
     for (i=0; i<size; ++i) {
         mapper[toupper((unsigned char)alphabet[i])] = (int)i;
         mapper[tolower((unsigned char)alphabet[i])] = (int)i;

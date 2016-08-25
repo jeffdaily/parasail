@@ -213,13 +213,15 @@ int main(int argc, char **argv) {
     bool use_dna = false;
     bool pairs_only = false;
     bool edge_output = false;
+    bool fpack = false;
+    bool qpack = false;
     const char *progname = "parasail_aligner";
     int AOL = 80;
     int SIM = 40;
     int OS = 30;
 
     /* Check arguments. */
-    while ((c = getopt(argc, argv, "a:c:de:f:g:hm:M:o:pq:t:xX:El:s:i:")) != -1) {
+    while ((c = getopt(argc, argv, "a:c:de:f:F:g:hm:M:o:pq:Q:t:xX:El:s:i:")) != -1) {
         switch (c) {
             case 'a':
                 funcname = optarg;
@@ -245,8 +247,16 @@ int main(int argc, char **argv) {
             case 'f':
                 fname = optarg;
                 break;
+            case 'F':
+                fname = optarg;
+                fpack = true;
+                break;
             case 'q':
                 qname = optarg;
+                break;
+            case 'Q':
+                qname = optarg;
+                qpack = true;
                 break;
             case 'g':
                 oname = optarg;
@@ -432,16 +442,31 @@ int main(int argc, char **argv) {
     start = parasail_time();
     if (qname == NULL) {
         parasail_file_t *pf = parasail_open(fname);
-        T = (unsigned char*)parasail_pack(pf, &n);
+        if (fpack) {
+            T = (unsigned char*)parasail_read(pf, &n);
+        }
+        else {
+            T = (unsigned char*)parasail_pack(pf, &n);
+        }
         parasail_close(pf);
     }
     else {
         parasail_file_t *pf = NULL;
         pf = parasail_open(fname);
-        T = (unsigned char*)parasail_pack(pf, &t);
+        if (fpack) {
+            T = (unsigned char*)parasail_read(pf, &t);
+        }
+        else {
+            T = (unsigned char*)parasail_pack(pf, &t);
+        }
         parasail_close(pf);
         pf = parasail_open(qname);
-        Q = (unsigned char*)parasail_pack(pf, &q);
+        if (qpack) {
+            Q = (unsigned char*)parasail_read(pf, &q);
+        }
+        else {
+            Q = (unsigned char*)parasail_pack(pf, &q);
+        }
         parasail_close(pf);
         n = t+q;
         /* realloc T and copy Q into it */

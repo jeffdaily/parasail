@@ -12,6 +12,7 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #if defined(_MSC_VER)
@@ -436,6 +437,20 @@ parasail_file_stat_t* parasail_stat_fastq_buffer(const char *T, off_t size)
     pfs->stddev = (float)stats_stddev(&stats);
 
     return pfs;
+}
+
+char * parasail_read(const parasail_file_t *pf, long * size)
+{
+    char * buffer = (char*)malloc(sizeof(char) * (pf->size+1));
+	if (NULL == buffer) {
+		fprintf(stderr, "Cannont malloc buffer for input file");
+		perror("malloc");
+		exit(EXIT_FAILURE);
+	}
+    (void)memcpy(buffer, pf->buf, pf->size);
+    buffer[pf->size] = '\0';
+    *size = pf->size;
+    return buffer;
 }
 
 char * parasail_pack(const parasail_file_t *pf, long * size)

@@ -30,7 +30,7 @@ extern
 void parasail_memset___m512i(__m512i *b, __m512i c, size_t len);
 
 extern
-void parasail_profile_free___m512i(void *profile);
+void parasail_free___m512i(void *ptr);
 
 #ifdef __cplusplus
 }

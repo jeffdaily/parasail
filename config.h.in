@@ -57,6 +57,9 @@
 /* define to 1 if the C compiler supports KNC */
 #undef HAVE_KNC
 
+/* define to 1 if the C compiler supports KNL */
+#undef HAVE_KNL
+
 /* Define to 1 if you have the <limits.h> header file. */
 #undef HAVE_LIMITS_H
 

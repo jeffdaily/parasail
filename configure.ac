@@ -540,6 +540,44 @@ AC_DEFINE_UNQUOTED([HAVE_KNC], [$pt_cv_knc_val],
     [define to 1 if the C compiler supports KNC])
 AM_CONDITIONAL([HAVE_KNC], [test "x$pt_cv_knc" = xyes])
 
+AC_CACHE_CHECK([for KNL support], [pt_cv_knl],
+[pt_cv_knl=no; pt_cv_knl_val=0
+for flag in default -xMIC-AVX512 -march=knl
+do
+     save_CFLAGS="$CFLAGS"
+     AS_IF([test "x$flag" != xdefault], [CFLAGS="$CFLAGS $flag"])
+     psl_save_c_werror_flag=$ac_c_werror_flag
+     ac_c_werror_flag=yes
+     AC_LINK_IFELSE([AC_LANG_SOURCE([[
+#include <immintrin.h>
+void parasail_memset___m512i(__m512i *b, __m512i c, size_t len)
+{
+    size_t i;
+    for (i=0; i<len; ++i) {
+        _mm512_store_si512(&b[i], c);
+    }
+}
+
+int foo() {
+    __m512i vOne = _mm512_set1_epi32(1);
+    __m512i result =  _mm512_add_epi32(vOne,vOne);
+    return 0;
+}
+int main(void) { return foo(); }
+]])],
+        [pt_cv_knl="$flag"; pt_cv_knl_val=1])
+     ac_c_werror_flag=$psl_save_c_werror_flag
+     CFLAGS="$save_CFLAGS"
+     AS_IF([test "x$pt_cv_knl" != xno], [break])
+done])
+AC_DEFINE_UNQUOTED([HAVE_KNL], [$pt_cv_knl_val],
+    [define to 1 if the C compiler supports KNL])
+AM_CONDITIONAL([HAVE_KNL], [test "x$pt_cv_knl_val" = x1])
+AS_IF([test "x$pt_cv_knl" == xdefault], [KNL_CFLAGS=],
+      [test "x$pt_cv_knl" != xno],      [KNL_CFLAGS="$pt_cv_knl"],
+      [KNL_CFLAGS="not supported"])
+AC_SUBST([KNL_CFLAGS])
+
 AC_CACHE_CHECK([for xgetbv],
     [pt_cv_xgetbv],
     [AC_COMPILE_IFELSE([AC_LANG_SOURCE([[

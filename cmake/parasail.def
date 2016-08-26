@@ -21,6 +21,7 @@ EXPORTS
     parasail_stat
     parasail_stat_fasta
     parasail_stat_fastq
+    parasail_read
     parasail_pack
     parasail_pack_fasta
     parasail_pack_fastq
@@ -33,6 +34,8 @@ EXPORTS
     parasail_pack_fasta_buffer
     parasail_pack_fastq_buffer
 ; from parasail/cpuid.h
+    parasail_can_use_avx512
+    parasail_can_use_knl
     parasail_can_use_avx2
     parasail_can_use_sse41
     parasail_can_use_sse2

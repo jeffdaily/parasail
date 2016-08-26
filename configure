@@ -689,6 +689,9 @@ HAVE_XGETBV_TRUE
 KNL_CFLAGS
 HAVE_KNL_FALSE
 HAVE_KNL_TRUE
+AVX512_CFLAGS
+HAVE_AVX512_FALSE
+HAVE_AVX512_TRUE
 HAVE_KNC_FALSE
 HAVE_KNC_TRUE
 AVX2_CFLAGS
@@ -5992,6 +5995,76 @@ _ACEOF
 else
   HAVE_KNC_TRUE='#'
   HAVE_KNC_FALSE=
+fi
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for AVX512 support" >&5
+$as_echo_n "checking for AVX512 support... " >&6; }
+if ${pt_cv_avx512+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  pt_cv_avx512=no; pt_cv_avx512_val=0
+for flag in default -xCORE-AVX512 -march=skylake-avx512
+do
+     save_CFLAGS="$CFLAGS"
+     if test "x$flag" != xdefault; then :
+  CFLAGS="$CFLAGS $flag"
+fi
+     psl_save_c_werror_flag=$ac_c_werror_flag
+     ac_c_werror_flag=yes
+     cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#include <immintrin.h>
+void parasail_memset___m512i(__m512i *b, __m512i c, size_t len)
+{
+    size_t i;
+    for (i=0; i<len; ++i) {
+        _mm512_store_si512(&b[i], c);
+    }
+}
+
+int foo() {
+    __m512i vOne = _mm512_set1_epi8(1);
+    __m512i result =  _mm512_add_epi8(vOne,vOne);
+    return 0;
+}
+int main(void) { return foo(); }
+
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  pt_cv_avx512="$flag"; pt_cv_avx512_val=1
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+     ac_c_werror_flag=$psl_save_c_werror_flag
+     CFLAGS="$save_CFLAGS"
+     if test "x$pt_cv_avx512" != xno; then :
+  break
+fi
+done
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $pt_cv_avx512" >&5
+$as_echo "$pt_cv_avx512" >&6; }
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_AVX512 $pt_cv_avx512_val
+_ACEOF
+
+ if test "x$pt_cv_avx512_val" = x1; then
+  HAVE_AVX512_TRUE=
+  HAVE_AVX512_FALSE='#'
+else
+  HAVE_AVX512_TRUE='#'
+  HAVE_AVX512_FALSE=
+fi
+
+if test "x$pt_cv_avx512" == xdefault; then :
+  AVX512_CFLAGS=
+elif test "x$pt_cv_avx512" != xno; then :
+  AVX512_CFLAGS="$pt_cv_avx512"
+else
+  AVX512_CFLAGS="not supported"
 fi
 
 
@@ -18051,6 +18124,10 @@ if test -z "${HAVE_KNC_TRUE}" && test -z "${HAVE_KNC_FALSE}"; then
   as_fn_error $? "conditional \"HAVE_KNC\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
+if test -z "${HAVE_AVX512_TRUE}" && test -z "${HAVE_AVX512_FALSE}"; then
+  as_fn_error $? "conditional \"HAVE_AVX512\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
 if test -z "${HAVE_KNL_TRUE}" && test -z "${HAVE_KNL_FALSE}"; then
   as_fn_error $? "conditional \"HAVE_KNL\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
@@ -20600,6 +20677,10 @@ $as_echo "$as_me:            SSE2_CFLAGS=$SSE2_CFLAGS" >&6;}
 $as_echo "$as_me:           SSE41_CFLAGS=$SSE41_CFLAGS" >&6;}
 { $as_echo "$as_me:${as_lineno-$LINENO}:            AVX2_CFLAGS=$AVX2_CFLAGS" >&5
 $as_echo "$as_me:            AVX2_CFLAGS=$AVX2_CFLAGS" >&6;}
+{ $as_echo "$as_me:${as_lineno-$LINENO}:          AVX512_CFLAGS=$AVX512_CFLAGS" >&5
+$as_echo "$as_me:          AVX512_CFLAGS=$AVX512_CFLAGS" >&6;}
+{ $as_echo "$as_me:${as_lineno-$LINENO}:             KNL_CFLAGS=$KNL_CFLAGS" >&5
+$as_echo "$as_me:             KNL_CFLAGS=$KNL_CFLAGS" >&6;}
 { $as_echo "$as_me:${as_lineno-$LINENO}:                    CXX=$CXX" >&5
 $as_echo "$as_me:                    CXX=$CXX" >&6;}
 { $as_echo "$as_me:${as_lineno-$LINENO}:               CXXFLAGS=$CXXFLAGS" >&5

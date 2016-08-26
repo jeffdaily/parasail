@@ -47,18 +47,18 @@ static int check_4th_gen_intel_core_features()
     return _may_i_use_cpu_feature( the_4th_gen_features );
 }
 
-static int has_intel_knl_features()
+static int has_intel_avx512f_features()
 {
-    const unsigned long knl_features =
+    const unsigned long avx512f_features =
         (_FEATURE_AVX512F | _FEATURE_AVX512ER | _FEATURE_AVX512PF | _FEATURE_AVX512CD);
-    return _may_i_use_cpu_feature( knl_features );
+    return _may_i_use_cpu_feature( avx512f_features );
 }
 
-static int has_intel_avx512_features()
+static int has_intel_avx512bw_features()
 {
-    const unsigned long knl_features =
+    const unsigned long avx512f_features =
         (_FEATURE_AVX512VL | _FEATURE_AVX512BW | _FEATURE_AVX512DQ);
-    return _may_i_use_cpu_feature( knl_features );
+    return _may_i_use_cpu_feature( avx512f_features );
 }
 
 #else /* non-Intel compiler */
@@ -125,7 +125,7 @@ static int check_4th_gen_intel_core_features()
     return 1;
 }
 
-static int has_intel_knl_features() {
+static int has_intel_avx512f_features() {
     uint32_t abcd[4];
     uint32_t osxsave_mask = (1 << 27); // OSX.
     uint32_t avx2_bmi12_mask = (1 << 16) | // AVX-512F
@@ -143,7 +143,7 @@ static int has_intel_knl_features() {
     return 1;
 }
 
-static int has_intel_avx512_features() {
+static int has_intel_avx512bw_features() {
     return 0;
 }
 
@@ -186,13 +186,13 @@ static int check_sse2()
 }
 
 
-int parasail_can_use_avx512()
+int parasail_can_use_avx512bw()
 {
-    static int avx512_features_available = -1;
+    static int avx512bw_features_available = -1;
     /* test is performed once */
-    if (avx512_features_available < 0 )
-        avx512_features_available = has_intel_avx512_features();
-    return avx512_features_available;
+    if (avx512bw_features_available < 0 )
+        avx512bw_features_available = has_intel_avx512bw_features();
+    return avx512bw_features_available;
 }
 
 int parasail_can_use_knl()

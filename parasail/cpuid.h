@@ -14,8 +14,8 @@
 extern "C" {
 #endif
 
-extern int parasail_can_use_avx512();
-extern int parasail_can_use_knl();
+extern int parasail_can_use_avx512bw();
+extern int parasail_can_use_avx512f();
 extern int parasail_can_use_avx2();
 extern int parasail_can_use_sse41();
 extern int parasail_can_use_sse2();

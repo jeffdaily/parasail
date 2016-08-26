@@ -540,46 +540,8 @@ AC_DEFINE_UNQUOTED([HAVE_KNC], [$pt_cv_knc_val],
     [define to 1 if the C compiler supports KNC])
 AM_CONDITIONAL([HAVE_KNC], [test "x$pt_cv_knc" = xyes])
 
-AC_CACHE_CHECK([for AVX512 support], [pt_cv_avx512],
-[pt_cv_avx512=no; pt_cv_avx512_val=0
-for flag in default -xCORE-AVX512 -march=skylake-avx512
-do
-     save_CFLAGS="$CFLAGS"
-     AS_IF([test "x$flag" != xdefault], [CFLAGS="$CFLAGS $flag"])
-     psl_save_c_werror_flag=$ac_c_werror_flag
-     ac_c_werror_flag=yes
-     AC_LINK_IFELSE([AC_LANG_SOURCE([[
-#include <immintrin.h>
-void parasail_memset___m512i(__m512i *b, __m512i c, size_t len)
-{
-    size_t i;
-    for (i=0; i<len; ++i) {
-        _mm512_store_si512(&b[i], c);
-    }
-}
-
-int foo() {
-    __m512i vOne = _mm512_set1_epi8(1);
-    __m512i result =  _mm512_add_epi8(vOne,vOne);
-    return 0;
-}
-int main(void) { return foo(); }
-]])],
-        [pt_cv_avx512="$flag"; pt_cv_avx512_val=1])
-     ac_c_werror_flag=$psl_save_c_werror_flag
-     CFLAGS="$save_CFLAGS"
-     AS_IF([test "x$pt_cv_avx512" != xno], [break])
-done])
-AC_DEFINE_UNQUOTED([HAVE_AVX512], [$pt_cv_avx512_val],
-    [define to 1 if the C compiler supports AVX512])
-AM_CONDITIONAL([HAVE_AVX512], [test "x$pt_cv_avx512_val" = x1])
-AS_IF([test "x$pt_cv_avx512" == xdefault], [AVX512_CFLAGS=],
-      [test "x$pt_cv_avx512" != xno],      [AVX512_CFLAGS="$pt_cv_avx512"],
-      [AVX512_CFLAGS="not supported"])
-AC_SUBST([AVX512_CFLAGS])
-
-AC_CACHE_CHECK([for KNL support], [pt_cv_knl],
-[pt_cv_knl=no; pt_cv_knl_val=0
+AC_CACHE_CHECK([for AVX512F support], [pt_cv_avx512f],
+[pt_cv_avx512f=no; pt_cv_avx512f_val=0
 for flag in default -xMIC-AVX512 -march=knl
 do
      save_CFLAGS="$CFLAGS"
@@ -603,18 +565,56 @@ int foo() {
 }
 int main(void) { return foo(); }
 ]])],
-        [pt_cv_knl="$flag"; pt_cv_knl_val=1])
+        [pt_cv_avx512f="$flag"; pt_cv_avx512f_val=1])
      ac_c_werror_flag=$psl_save_c_werror_flag
      CFLAGS="$save_CFLAGS"
-     AS_IF([test "x$pt_cv_knl" != xno], [break])
+     AS_IF([test "x$pt_cv_avx512f" != xno], [break])
 done])
-AC_DEFINE_UNQUOTED([HAVE_KNL], [$pt_cv_knl_val],
-    [define to 1 if the C compiler supports KNL])
-AM_CONDITIONAL([HAVE_KNL], [test "x$pt_cv_knl_val" = x1])
-AS_IF([test "x$pt_cv_knl" == xdefault], [KNL_CFLAGS=],
-      [test "x$pt_cv_knl" != xno],      [KNL_CFLAGS="$pt_cv_knl"],
-      [KNL_CFLAGS="not supported"])
-AC_SUBST([KNL_CFLAGS])
+AC_DEFINE_UNQUOTED([HAVE_AVX512F], [$pt_cv_avx512f_val],
+    [define to 1 if the C compiler supports AVX512F])
+AM_CONDITIONAL([HAVE_AVX512F], [test "x$pt_cv_avx512f_val" = x1])
+AS_IF([test "x$pt_cv_avx512f" == xdefault], [AVX512F_CFLAGS=],
+      [test "x$pt_cv_avx512f" != xno],      [AVX512F_CFLAGS="$pt_cv_avx512f"],
+      [AVX512F_CFLAGS="not supported"])
+AC_SUBST([AVX512F_CFLAGS])
+
+AC_CACHE_CHECK([for AVX512BW support], [pt_cv_avx512bw],
+[pt_cv_avx512bw=no; pt_cv_avx512bw_val=0
+for flag in default -xCORE-AVX512 -march=skylake-avx512
+do
+     save_CFLAGS="$CFLAGS"
+     AS_IF([test "x$flag" != xdefault], [CFLAGS="$CFLAGS $flag"])
+     psl_save_c_werror_flag=$ac_c_werror_flag
+     ac_c_werror_flag=yes
+     AC_LINK_IFELSE([AC_LANG_SOURCE([[
+#include <immintrin.h>
+void parasail_memset___m512i(__m512i *b, __m512i c, size_t len)
+{
+    size_t i;
+    for (i=0; i<len; ++i) {
+        _mm512_store_si512(&b[i], c);
+    }
+}
+
+int foo() {
+    __m512i vOne = _mm512_set1_epi8(1);
+    __m512i result =  _mm512_add_epi8(vOne,vOne);
+    return 0;
+}
+int main(void) { return foo(); }
+]])],
+        [pt_cv_avx512bw="$flag"; pt_cv_avx512bw_val=1])
+     ac_c_werror_flag=$psl_save_c_werror_flag
+     CFLAGS="$save_CFLAGS"
+     AS_IF([test "x$pt_cv_avx512bw" != xno], [break])
+done])
+AC_DEFINE_UNQUOTED([HAVE_AVX512BW], [$pt_cv_avx512bw_val],
+    [define to 1 if the C compiler supports AVX512BW])
+AM_CONDITIONAL([HAVE_AVX512bw], [test "x$pt_cv_avx512bw_val" = x1])
+AS_IF([test "x$pt_cv_avx512bw" == xdefault], [AVX512BW_CFLAGS=],
+      [test "x$pt_cv_avx512bw" != xno],      [AVX512BW_CFLAGS="$pt_cv_avx512bw"],
+      [AVX512BW_CFLAGS="not supported"])
+AC_SUBST([AVX512BW_CFLAGS])
 
 AC_CACHE_CHECK([for xgetbv],
     [pt_cv_xgetbv],
@@ -813,8 +813,8 @@ AC_MSG_NOTICE([         OPENMP_CFLAGS=$OPENMP_CFLAGS])
 AC_MSG_NOTICE([           SSE2_CFLAGS=$SSE2_CFLAGS])
 AC_MSG_NOTICE([          SSE41_CFLAGS=$SSE41_CFLAGS])
 AC_MSG_NOTICE([           AVX2_CFLAGS=$AVX2_CFLAGS])
-AC_MSG_NOTICE([         AVX512_CFLAGS=$AVX512_CFLAGS])
-AC_MSG_NOTICE([            KNL_CFLAGS=$KNL_CFLAGS])
+AC_MSG_NOTICE([        AVX512F_CFLAGS=$AVX512F_CFLAGS])
+AC_MSG_NOTICE([       AVX512BW_CFLAGS=$AVX512BW_CFLAGS])
 AC_MSG_NOTICE([                   CXX=$CXX])
 AC_MSG_NOTICE([              CXXFLAGS=$CXXFLAGS])
 AC_MSG_NOTICE([       OPENMP_CXXFLAGS=$OPENMP_CXXFLAGS])

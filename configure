@@ -686,6 +686,9 @@ MATH_LIBS
 CLOCK_LIBS
 HAVE_XGETBV_FALSE
 HAVE_XGETBV_TRUE
+AVX512VBMI_CFLAGS
+HAVE_AVX512vbmi_FALSE
+HAVE_AVX512vbmi_TRUE
 AVX512BW_CFLAGS
 HAVE_AVX512bw_FALSE
 HAVE_AVX512bw_TRUE
@@ -6004,7 +6007,7 @@ if ${pt_cv_avx512f+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   pt_cv_avx512f=no; pt_cv_avx512f_val=0
-for flag in default -xMIC-AVX512 -march=knl
+for flag in default -mavx512f -xMIC-AVX512 -march=knl
 do
      save_CFLAGS="$CFLAGS"
      if test "x$flag" != xdefault; then :
@@ -6074,7 +6077,7 @@ if ${pt_cv_avx512bw+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   pt_cv_avx512bw=no; pt_cv_avx512bw_val=0
-for flag in default -xCORE-AVX512 -march=skylake-avx512
+for flag in default -mavx512bw -xCORE-AVX512 -march=skylake-avx512
 do
      save_CFLAGS="$CFLAGS"
      if test "x$flag" != xdefault; then :
@@ -6135,6 +6138,76 @@ elif test "x$pt_cv_avx512bw" != xno; then :
   AVX512BW_CFLAGS="$pt_cv_avx512bw"
 else
   AVX512BW_CFLAGS="not supported"
+fi
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for AVX512VBMI support" >&5
+$as_echo_n "checking for AVX512VBMI support... " >&6; }
+if ${pt_cv_avx512vbmi+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  pt_cv_avx512vbmi=no; pt_cv_avx512vbmi_val=0
+for flag in default -mavx512vbmi -xCORE-AVX512 -march=skylake-avx512
+do
+     save_CFLAGS="$CFLAGS"
+     if test "x$flag" != xdefault; then :
+  CFLAGS="$CFLAGS $flag"
+fi
+     psl_save_c_werror_flag=$ac_c_werror_flag
+     ac_c_werror_flag=yes
+     cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+#include <immintrin.h>
+void parasail_memset___m512i(__m512i *b, __m512i c, size_t len)
+{
+    size_t i;
+    for (i=0; i<len; ++i) {
+        _mm512_store_si512(&b[i], c);
+    }
+}
+
+int foo() {
+    __m512i vOne = _mm512_set1_epi8(1);
+    __m512i result =  _mm512_permutex2var_epi8(vOne,vOne,vOne);
+    return 0;
+}
+int main(void) { return foo(); }
+
+_ACEOF
+if ac_fn_c_try_link "$LINENO"; then :
+  pt_cv_avx512vbmi="$flag"; pt_cv_avx512vbmi_val=1
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+     ac_c_werror_flag=$psl_save_c_werror_flag
+     CFLAGS="$save_CFLAGS"
+     if test "x$pt_cv_avx512vbmi" != xno; then :
+  break
+fi
+done
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $pt_cv_avx512vbmi" >&5
+$as_echo "$pt_cv_avx512vbmi" >&6; }
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_AVX512VBMI $pt_cv_avx512vbmi_val
+_ACEOF
+
+ if test "x$pt_cv_avx512vbmi_val" = x1; then
+  HAVE_AVX512vbmi_TRUE=
+  HAVE_AVX512vbmi_FALSE='#'
+else
+  HAVE_AVX512vbmi_TRUE='#'
+  HAVE_AVX512vbmi_FALSE=
+fi
+
+if test "x$pt_cv_avx512vbmi" == xdefault; then :
+  AVX512VBMI_CFLAGS=
+elif test "x$pt_cv_avx512vbmi" != xno; then :
+  AVX512VBMI_CFLAGS="$pt_cv_avx512vbmi"
+else
+  AVX512VBMI_CFLAGS="not supported"
 fi
 
 
@@ -18132,6 +18205,10 @@ if test -z "${HAVE_AVX512bw_TRUE}" && test -z "${HAVE_AVX512bw_FALSE}"; then
   as_fn_error $? "conditional \"HAVE_AVX512bw\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
+if test -z "${HAVE_AVX512vbmi_TRUE}" && test -z "${HAVE_AVX512vbmi_FALSE}"; then
+  as_fn_error $? "conditional \"HAVE_AVX512vbmi\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
 if test -z "${HAVE_XGETBV_TRUE}" && test -z "${HAVE_XGETBV_FALSE}"; then
   as_fn_error $? "conditional \"HAVE_XGETBV\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
@@ -20681,6 +20758,8 @@ $as_echo "$as_me:            AVX2_CFLAGS=$AVX2_CFLAGS" >&6;}
 $as_echo "$as_me:         AVX512F_CFLAGS=$AVX512F_CFLAGS" >&6;}
 { $as_echo "$as_me:${as_lineno-$LINENO}:        AVX512BW_CFLAGS=$AVX512BW_CFLAGS" >&5
 $as_echo "$as_me:        AVX512BW_CFLAGS=$AVX512BW_CFLAGS" >&6;}
+{ $as_echo "$as_me:${as_lineno-$LINENO}:      AVX512VBMI_CFLAGS=$AVX512VBMI_CFLAGS" >&5
+$as_echo "$as_me:      AVX512VBMI_CFLAGS=$AVX512VBMI_CFLAGS" >&6;}
 { $as_echo "$as_me:${as_lineno-$LINENO}:                    CXX=$CXX" >&5
 $as_echo "$as_me:                    CXX=$CXX" >&6;}
 { $as_echo "$as_me:${as_lineno-$LINENO}:               CXXFLAGS=$CXXFLAGS" >&5

@@ -42,6 +42,9 @@
 /* define to 1 if the C compiler supports AVX512F */
 #undef HAVE_AVX512F
 
+/* define to 1 if the C compiler supports AVX512VBMI */
+#undef HAVE_AVX512VBMI
+
 /* Define if Cilk is enabled */
 #undef HAVE_CILK
 

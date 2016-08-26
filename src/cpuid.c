@@ -61,6 +61,12 @@ static int has_intel_avx512bw_features()
     return _may_i_use_cpu_feature( avx512f_features );
 }
 
+static int has_intel_avx512vbmi_features()
+{
+    const unsigned long avx512vbmi_features = (_FEATURE_AVX512VBMI);
+    return _may_i_use_cpu_feature( avx512vbmi_features );
+}
+
 #else /* non-Intel compiler */
 
 static int check_xcr0_ymm() 
@@ -128,23 +134,75 @@ static int check_4th_gen_intel_core_features()
 static int has_intel_avx512f_features() {
     uint32_t abcd[4];
     uint32_t osxsave_mask = (1 << 27); // OSX.
-    uint32_t avx2_bmi12_mask = (1 << 16) | // AVX-512F
+    uint32_t avx512f_mask = (1 << 16) | // AVX-512F
         (1 << 26) | // AVX-512PF
         (1 << 27) | // AVX-512ER
         (1 << 28);  // AVX-512CD
+
+    /* CPUID.(EAX=01H, ECX=0H):ECX.OSXSAVE[bit 27]==1 */
     run_cpuid( 1, 0, abcd );
-    // step 1 - must ensure OS supports extended processor state management
     if ( (abcd[2] & osxsave_mask) != osxsave_mask ) 
         return 0;
-    // step 2 - must ensure OS supports ZMM registers (and YMM, and XMM)
+
     if ( ! check_xcr0_zmm() )
+        return 0;
+
+    /*  CPUID.(EAX=07H, ECX=0H):EBX.AVX-512F [bit 16]==1  &&
+        CPUID.(EAX=07H, ECX=0H):EBX.AVX-512PF[bit 26]==1  &&
+        CPUID.(EAX=07H, ECX=0H):EBX.AVX-512ER[bit 27]==1  &&
+        CPUID.(EAX=07H, ECX=0H):EBX.AVX-512CD[bit 28]==1  */
+    run_cpuid( 7, 0, abcd );
+    if ( (abcd[1] & avx512f_mask) != avx512f_mask ) 
         return 0;
 
     return 1;
 }
 
 static int has_intel_avx512bw_features() {
-    return 0;
+    uint32_t abcd[4];
+    uint32_t osxsave_mask = (1 << 27); // OSX.
+    uint32_t avx512bw_mask = (1 << 30) | // AVX-512BW
+        (1 << 17) | // AVX-512DQ
+        (1 << 31);  // AVX-512VL
+
+    /* CPUID.(EAX=01H, ECX=0H):ECX.OSXSAVE[bit 27]==1 */
+    run_cpuid( 1, 0, abcd );
+    if ( (abcd[2] & osxsave_mask) != osxsave_mask ) 
+        return 0;
+
+    if ( ! check_xcr0_zmm() )
+        return 0;
+
+    /*  CPUID.(EAX=07H, ECX=0H):EBX.AVX-512BW[bit 30]==1  &&
+        CPUID.(EAX=07H, ECX=0H):EBX.AVX-512DQ[bit 17]==1  &&
+        CPUID.(EAX=07H, ECX=0H):EBX.AVX-512VL[bit 31]==1  */
+    run_cpuid( 7, 0, abcd );
+    if ( (abcd[1] & avx512bw_mask) != avx512bw_mask ) 
+        return 0;
+
+    return 1;
+}
+
+static int has_intel_avx512vbmi_features()
+{
+    uint32_t abcd[4];
+    uint32_t osxsave_mask = (1 << 27); // OSX.
+    uint32_t avx512vbmi_mask = (1 << 1); // AVX-512VBMI
+
+    /* CPUID.(EAX=01H, ECX=0H):ECX.OSXSAVE[bit 27]==1 */
+    run_cpuid( 1, 0, abcd );
+    if ( (abcd[2] & osxsave_mask) != osxsave_mask ) 
+        return 0;
+
+    if ( ! check_xcr0_zmm() )
+        return 0;
+
+    /*  CPUID.(EAX=07H, ECX=0H):ECX.AVX-512VBMI[bit 1]==1 */
+    run_cpuid( 7, 0, abcd );
+    if ( (abcd[2] & avx512vbmi_mask) != avx512vbmi_mask ) 
+        return 0;
+
+    return 1;
 }
 
 #endif /* non-Intel compiler */
@@ -186,6 +244,15 @@ static int check_sse2()
 }
 
 
+int parasail_can_use_avx512vbmi()
+{
+    static int avx512vbmi_features_available = -1;
+    /* test is performed once */
+    if (avx512vbmi_features_available < 0 )
+        avx512vbmi_features_available = has_intel_avx512vbmi_features();
+    return avx512vbmi_features_available;
+}
+
 int parasail_can_use_avx512bw()
 {
     static int avx512bw_features_available = -1;
@@ -195,13 +262,13 @@ int parasail_can_use_avx512bw()
     return avx512bw_features_available;
 }
 
-int parasail_can_use_knl()
+int parasail_can_use_avx512f()
 {
-    static int knl_features_available = -1;
+    static int avx512f_features_available = -1;
     /* test is performed once */
-    if (knl_features_available < 0 )
-        knl_features_available = has_intel_knl_features();
-    return knl_features_available;
+    if (avx512f_features_available < 0 )
+        avx512f_features_available = has_intel_avx512f_features();
+    return avx512f_features_available;
 }
 
 int parasail_can_use_avx2()

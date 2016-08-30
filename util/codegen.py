@@ -18,6 +18,7 @@ import sys
 from isa import sse2
 from isa import sse41
 from isa import avx2
+from isa import avx512
 
 keys = sse2.keys()
 
@@ -44,6 +45,28 @@ template_filenames = [
 "sw_stats_diag.c",
 "sw_stats_scan.c",
 "sw_stats_striped.c",
+]
+
+avx512_templates = [
+"avx512_nw_diag.c",
+"avx512_nw_scan.c",
+"avx512_nw_striped.c",
+"avx512_sg_diag.c",
+"avx512_sg_scan.c",
+"avx512_sg_striped.c",
+"avx512_sw_diag.c",
+"avx512_sw_scan.c",
+"avx512_sw_striped.c",
+
+"avx512_nw_stats_diag.c",
+"avx512_nw_stats_scan.c",
+"avx512_nw_stats_striped.c",
+"avx512_sg_stats_diag.c",
+"avx512_sg_stats_scan.c",
+"avx512_sg_stats_striped.c",
+"avx512_sw_stats_diag.c",
+"avx512_sw_stats_scan.c",
+"avx512_sw_stats_striped.c",
 ]
 
 special_templates = [
@@ -376,7 +399,7 @@ static inline __m256i _mm256_blendv_epi8_rpl(__m256i a, __m256i b, __m256i mask)
     return params
 
 
-def generated_params(template, params):
+def generated_params(template, params, skip_sat_check=False):
     # some params are generated from given params
     bits = params["BITS"]
     width = params["WIDTH"]
@@ -408,7 +431,8 @@ def generated_params(template, params):
             fixes += params[params[param]]
     params["FIXES"] = fixes
     params = generate_printer(params)
-    params = generate_saturation_check(params)
+    if not skip_sat_check:
+        params = generate_saturation_check(params)
     return params
 
 
@@ -452,6 +476,57 @@ for template_filename in template_filenames:
             params["PNAME_TABLE"] = "parasail_"+function_table_pname
             params["PNAME_ROWCOL"] = "parasail_"+function_rowcol_pname
             params = generated_params(template, params)
+            output_filename = "%s%s.c" % (output_dir, function_name)
+            result = template % params
+            writer = open(output_filename, "w")
+            writer.write(template % params)
+            writer.write("\n")
+            writer.close()
+
+
+for template_filename in avx512_templates:
+    template = open(template_dir+template_filename).read()
+    for width in [64,32,16,8]:
+        for isa in [avx512]:
+            params = copy.deepcopy(isa)
+            params["WIDTH"] = width
+            prefix = template_filename[7:-2]
+            prefix_prof = prefix + "_profile"
+            parts = prefix.split('_')
+            table_prefix = ""
+            rowcol_prefix = ""
+            if len(parts) == 2:
+                table_prefix = "%s_table_%s" % (parts[0], parts[1])
+                rowcol_prefix = "%s_rowcol_%s" % (parts[0], parts[1])
+            if len(parts) == 3:
+                table_prefix = "%s_%s_table_%s" % (parts[0], parts[1], parts[2])
+                rowcol_prefix = "%s_%s_rowcol_%s" % (parts[0], parts[1], parts[2])
+            table_prefix_prof = table_prefix + "_profile"
+            rowcol_prefix_prof = rowcol_prefix + "_profile"
+            function_name = "%s_%s%s_%s_%s" % (prefix,
+                    isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
+            function_table_name = "%s_%s%s_%s_%s" % (table_prefix,
+                    isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
+            function_rowcol_name = "%s_%s%s_%s_%s" % (rowcol_prefix,
+                    isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
+            function_pname = "%s_%s%s_%s_%s" % (prefix_prof,
+                    isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
+            function_table_pname = "%s_%s%s_%s_%s" % (table_prefix_prof,
+                    isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
+            function_rowcol_pname = "%s_%s%s_%s_%s" % (rowcol_prefix_prof,
+                    isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
+            params["NAME"] = "parasail_"+function_name
+            params["NAME_BASE"] = string.replace(params["NAME"], "_stats", "")
+            params["NAME_TABLE"] = "parasail_"+function_table_name
+            params["NAME_ROWCOL"] = "parasail_"+function_rowcol_name
+            params["PNAME"] = "parasail_"+function_pname
+            params["PNAME_BASE"] = string.replace(params["PNAME"], "_stats", "")
+            params["PNAME_TABLE"] = "parasail_"+function_table_pname
+            params["PNAME_ROWCOL"] = "parasail_"+function_rowcol_pname
+            params = generated_params(template, params, True)
+            params["VBLEND"] = params["VBLENDx%d"%width]
+            params["VKAND"] = params["VKANDx%d"%width]
+            params["VKANDNOT"] = params["VKANDNOTx%d"%width]
             output_filename = "%s%s.c" % (output_dir, function_name)
             result = template % params
             writer = open(output_filename, "w")

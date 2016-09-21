@@ -12,6 +12,7 @@ EXPORTS
     parasail_time
     parasail_matrix_lookup
     parasail_matrix_create
+    parasail_matrix_from_file
     parasail_matrix_free
 ; from parasail/io.h
     parasail_open

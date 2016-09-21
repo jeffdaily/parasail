@@ -689,6 +689,8 @@ int main(int argc, char **argv) {
         free(SA);
         free(LCP);
         free(BWT);
+
+        eprintf(stdout, "%20s: %zu\n", "unique pairs", pairs.size());
     }
     else {
         /* don't use enhanced SA filter -- generate all pairs */
@@ -711,8 +713,8 @@ int main(int argc, char **argv) {
         }
         finish = parasail_time();
         eprintf(stdout, "%20s: %.4f seconds\n", "enumerate time", finish-start);
+        eprintf(stdout, "%20s: %zu\n", "unique pairs", vpairs.size());
     }
-    eprintf(stdout, "%20s: %zu\n", "unique pairs", pairs.size());
 
     if (pairs_only) {
         /* Done with input text. */

@@ -486,6 +486,9 @@ ADD_LIBRARY( parasail ${LIB_TYPE}
     $<TARGET_OBJECTS:parasail_avx2_rowcol>
     ${maybe_def}
 )
+
+TARGET_INCLUDE_DIRECTORIES(parasail PUBLIC ${CMAKE_CURRENT_LIST_DIR})
+
 IF( HAVE_CLOCK_GETTIME_RT )
     TARGET_LINK_LIBRARIES( parasail rt )
 ENDIF( )

@@ -180,6 +180,8 @@ SRC_NOVEC += src/nw_scan.c
 SRC_NOVEC += src/sg_scan.c
 SRC_NOVEC += src/sw_scan.c
 
+SRC_NOVEC += src/nw_banded.c
+
 SRC_NOVEC += src/nw_stats.c
 SRC_NOVEC += src/sg_stats.c
 SRC_NOVEC += src/sw_stats.c

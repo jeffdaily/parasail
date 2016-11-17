@@ -131,6 +131,7 @@ static void print_help(const char *progname, int status) {
             "[-d] "
             "[-M match] "
             "[-X mismatch] "
+            "[-k band size (for nw_banded)] "
             "[-l AOL] "
             "[-s SIM] "
             "[-i OS] "
@@ -204,6 +205,8 @@ int main(int argc, char **argv) {
     parasail_function_t *function = NULL;
     parasail_pfunction_t *pfunction = NULL;
     parasail_pcreator_t *pcreator = NULL;
+    int banded = 0;
+    int kbandsize = 3;
     const char *matrixname = NULL;
     const parasail_matrix_t *matrix = NULL;
     int gap_open = 10;
@@ -219,7 +222,7 @@ int main(int argc, char **argv) {
     int OS = 30;
 
     /* Check arguments. */
-    while ((c = getopt(argc, argv, "a:c:de:f:g:hm:M:o:pq:t:xX:El:s:i:")) != -1) {
+    while ((c = getopt(argc, argv, "a:c:de:f:g:hk:m:M:o:pq:t:xX:El:s:i:")) != -1) {
         switch (c) {
             case 'a':
                 funcname = optarg;
@@ -253,6 +256,12 @@ int main(int argc, char **argv) {
                 break;
             case 'h':
                 print_help(progname, EXIT_FAILURE);
+                break;
+            case 'k':
+                kbandsize = atoi(optarg);
+                if (kbandsize <= 0) {
+                    print_help(progname, EXIT_FAILURE);
+                }
                 break;
             case 'm':
                 matrixname = optarg;
@@ -359,7 +368,10 @@ int main(int argc, char **argv) {
         }
         else {
             function = parasail_lookup_function(funcname);
-            if (NULL == function) {
+            if (NULL == function && NULL != strstr(funcname, "nw_banded")) {
+                banded = 1;
+            }
+            if (NULL == function && 0 == banded) {
                 eprintf(stderr, "Specified function not found.\n");
                 exit(EXIT_FAILURE);
             }
@@ -372,6 +384,7 @@ int main(int argc, char **argv) {
 
     /* select the substitution matrix */
     if (NULL == matrixname && use_dna) {
+        matrixname = "ACGT";
         matrix = parasail_matrix_create("ACGT", match, -mismatch);
     }
     else {
@@ -421,6 +434,13 @@ int main(int argc, char **argv) {
             "query", (NULL == qname) ? "<no query>" : qname,
             "output", oname
             );
+    if (use_dna) {
+        eprintf(stdout,
+                "%20s: %d\n"
+                "%20s: %d\n",
+                "match", match,
+                "mismatch", mismatch);
+    }
 
     /* Best to know early whether we can open the output file. */
     if((fop = fopen(oname, "w")) == NULL) {
@@ -820,6 +840,42 @@ int main(int argc, char **argv) {
                         (const char*)&T[i_beg], i_len,
                         (const char*)&T[j_beg], j_len,
                         gap_open, gap_extend, matrix);
+#ifdef USE_CILK
+                work += local_work;
+#else
+#pragma omp atomic
+                work += local_work;
+#endif
+                results[index] = result;
+            }
+#ifdef USE_CILK
+#else
+        }
+#endif
+    }
+    else if (banded) {
+#ifdef USE_CILK
+            cilk_for (size_t index=0; index<vpairs.size(); ++index)
+#else
+#pragma omp parallel
+            {
+#pragma omp for schedule(guided)
+            for (long long index=0; index<(long long)vpairs.size(); ++index)
+#endif
+            {
+                int i = vpairs[index].first;
+                int j = vpairs[index].second;
+                long i_beg = BEG[i];
+                long i_end = END[i];
+                long i_len = i_end-i_beg;
+                long j_beg = BEG[j];
+                long j_end = END[j];
+                long j_len = j_end-j_beg;
+                unsigned long local_work = i_len * j_len;
+                parasail_result_t *result = parasail_nw_banded(
+                        (const char*)&T[i_beg], i_len,
+                        (const char*)&T[j_beg], j_len,
+                        gap_open, gap_extend, kbandsize, matrix);
 #ifdef USE_CILK
                 work += local_work;
 #else

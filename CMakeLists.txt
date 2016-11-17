@@ -119,6 +119,7 @@ SET( SRC_NOVEC
     src/nw.c
     src/sg.c
     src/sw.c
+    src/nw_banded.c
     src/nw_scan.c
     src/sg_scan.c
     src/sw_scan.c

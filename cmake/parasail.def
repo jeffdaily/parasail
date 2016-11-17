@@ -14,6 +14,7 @@ EXPORTS
     parasail_matrix_create
     parasail_matrix_from_file
     parasail_matrix_free
+    parasail_nw_banded
 ; from parasail/io.h
     parasail_open
     parasail_close

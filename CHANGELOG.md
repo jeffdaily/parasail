@@ -7,6 +7,15 @@ This project follows the [Gitflow Workflow model](https://www.atlassian.com/git/
 ## [Unreleased]
 The Unreleased section will be empty for tagged releases. Unreleased functionality appears in the develop branch.
 
+## [1.1.1] - 2016-11-30
+
+### Fixed
+- libparasail now correctly links when pow() not in system C library
+
+### Merged Pull Requests
+- Allow injection via cmake submodule [\#27] ([armintoepfer])
+
+
 ## [1.1] - 2016-08-12
 
 ### Changed
@@ -92,13 +101,18 @@ First stable, production-ready version of parasail.
 
 [parasail-python]: https://github.com/jeffdaily/parasail-python
 
-[Unreleased]: https://github.com/jeffdaily/parasail/compare/v1.1...develop
+[Unreleased]: https://github.com/jeffdaily/parasail/compare/v1.1.1...develop
+[1.1.1]: https://github.com/jeffdaily/parasail/compare/v1.1...v1.1.1
 [1.1]:   https://github.com/jeffdaily/parasail/compare/v1.0.3...v1.1
 [1.0.3]: https://github.com/jeffdaily/parasail/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/jeffdaily/parasail/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/jeffdaily/parasail/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/jeffdaily/parasail/releases/tag/v1.0.0
 
+[\#28]: https://github.com/jeffdaily/parasail/issues/28
+[\#27]: https://github.com/jeffdaily/parasail/pull/27
+[\#26]: https://github.com/jeffdaily/parasail/issues/26
+[\#25]: https://github.com/jeffdaily/parasail/pull/25
 [\#24]: https://github.com/jeffdaily/parasail/issues/24
 [\#23]: https://github.com/jeffdaily/parasail/issues/23
 [\#22]: https://github.com/jeffdaily/parasail/issues/22
@@ -123,3 +137,5 @@ First stable, production-ready version of parasail.
 [\#3]: https://github.com/jeffdaily/parasail/issues/3
 [\#2]: https://github.com/jeffdaily/parasail/issues/2
 [\#1]: https://github.com/jeffdaily/parasail/issues/1
+
+[armintoepfer]: https://github.com/armintoepfer

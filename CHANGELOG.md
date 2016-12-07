@@ -7,6 +7,11 @@ This project follows the [Gitflow Workflow model](https://www.atlassian.com/git/
 ## [Unreleased]
 The Unreleased section will be empty for tagged releases. Unreleased functionality appears in the develop branch.
 
+## [1.1.2] - 2016-12-07
+
+### Fixed
+- libparasail.so now correctly depends on libm.so where needed
+
 ## [1.1.1] - 2016-11-30
 
 ### Fixed
@@ -14,7 +19,6 @@ The Unreleased section will be empty for tagged releases. Unreleased functionali
 
 ### Merged Pull Requests
 - Allow injection via cmake submodule [\#27] ([armintoepfer])
-
 
 ## [1.1] - 2016-08-12
 

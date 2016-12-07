@@ -10,7 +10,8 @@ The Unreleased section will be empty for tagged releases. Unreleased functionali
 ## [1.1.2] - 2016-12-07
 
 ### Fixed
-- libparasail.so now correctly depends on libm.so where needed
+- autoconf build; libparasail now correctly depends on libm where needed
+- CMake build; do not incorrectly force libparasail to depend on libpthread
 
 ## [1.1.1] - 2016-11-30
 

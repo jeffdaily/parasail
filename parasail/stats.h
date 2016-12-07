@@ -59,7 +59,7 @@ static inline double stats_variance(const stats_t * const stats) {
 }
 
 static inline double stats_stddev(const stats_t * const stats) {
-    return pow(stats_variance(stats),0.5);
+    return sqrt(stats_variance(stats));
 }
 
 #ifdef __cplusplus

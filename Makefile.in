@@ -125,7 +125,7 @@ DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) \
 	$(srcdir)/config.h.in $(top_srcdir)/build-aux/depcomp \
 	$(include_HEADERS) $(nobase_include_HEADERS) \
-	$(top_srcdir)/build-aux/test-driver COPYING build-aux/compile \
+	$(top_srcdir)/build-aux/test-driver COPYING \
 	build-aux/config.guess build-aux/config.sub build-aux/depcomp \
 	build-aux/install-sh build-aux/missing build-aux/ltmain.sh \
 	$(top_srcdir)/build-aux/config.guess \
@@ -182,7 +182,8 @@ am__DEPENDENCIES_1 =
 libparasail_la_DEPENDENCIES = libparasail_novec.la \
 	libparasail_novec_table.la libparasail_novec_rowcol.la \
 	$(am__append_6) $(am__append_7) $(am__append_8) \
-	$(am__append_9) $(am__append_10) $(am__DEPENDENCIES_1)
+	$(am__append_9) $(am__append_10) $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
 am__dirstamp = $(am__leading_dot)dirstamp
 am__objects_1 = src/cpuid.lo src/function_lookup.lo src/io.lo \
 	src/isastubs.lo src/matrix_lookup.lo src/memory.lo src/time.lo \
@@ -1120,10 +1121,7 @@ PROGRAMS = $(bin_PROGRAMS)
 am_apps_parasail_aligner_OBJECTS =  \
 	apps/apps_parasail_aligner-parasail_aligner.$(OBJEXT)
 apps_parasail_aligner_OBJECTS = $(am_apps_parasail_aligner_OBJECTS)
-am__DEPENDENCIES_2 = libparasail.la $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
-apps_parasail_aligner_DEPENDENCIES = $(am__DEPENDENCIES_2) \
-	tests/libsais.la
+apps_parasail_aligner_DEPENDENCIES = $(LDADD) tests/libsais.la
 apps_parasail_aligner_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
 	$(apps_parasail_aligner_CXXFLAGS) $(CXXFLAGS) \
@@ -1132,7 +1130,7 @@ am_apps_parasail_aligner_cilk_OBJECTS =  \
 	apps/apps_parasail_aligner_cilk-parasail_aligner.$(OBJEXT)
 apps_parasail_aligner_cilk_OBJECTS =  \
 	$(am_apps_parasail_aligner_cilk_OBJECTS)
-apps_parasail_aligner_cilk_DEPENDENCIES = $(am__DEPENDENCIES_2) \
+apps_parasail_aligner_cilk_DEPENDENCIES = $(LDADD) \
 	$(am__DEPENDENCIES_1) tests/libsais.la
 apps_parasail_aligner_cilk_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
@@ -1141,28 +1139,22 @@ apps_parasail_aligner_cilk_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
 am_apps_parasail_stats_OBJECTS = apps/parasail_stats.$(OBJEXT)
 apps_parasail_stats_OBJECTS = $(am_apps_parasail_stats_OBJECTS)
 apps_parasail_stats_LDADD = $(LDADD)
-apps_parasail_stats_DEPENDENCIES = libparasail.la \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+apps_parasail_stats_DEPENDENCIES = libparasail.la
 am_tests_test_align_OBJECTS = tests/test_align.$(OBJEXT)
 tests_test_align_OBJECTS = $(am_tests_test_align_OBJECTS)
 tests_test_align_LDADD = $(LDADD)
-tests_test_align_DEPENDENCIES = libparasail.la $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+tests_test_align_DEPENDENCIES = libparasail.la
 am_tests_test_gcups_OBJECTS = tests/test_gcups.$(OBJEXT)
 tests_test_gcups_OBJECTS = $(am_tests_test_gcups_OBJECTS)
-tests_test_gcups_LDADD = $(LDADD)
-tests_test_gcups_DEPENDENCIES = libparasail.la $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+tests_test_gcups_DEPENDENCIES = $(LDADD) $(am__DEPENDENCIES_1)
 am_tests_test_isa_OBJECTS = tests/test_isa.$(OBJEXT)
 tests_test_isa_OBJECTS = $(am_tests_test_isa_OBJECTS)
 tests_test_isa_LDADD = $(LDADD)
-tests_test_isa_DEPENDENCIES = libparasail.la $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+tests_test_isa_DEPENDENCIES = libparasail.la
 am_tests_test_openmp_OBJECTS =  \
 	tests/tests_test_openmp-test_openmp.$(OBJEXT)
 tests_test_openmp_OBJECTS = $(am_tests_test_openmp_OBJECTS)
-tests_test_openmp_DEPENDENCIES = $(am__DEPENDENCIES_2) \
-	$(am__append_14)
+tests_test_openmp_DEPENDENCIES = $(LDADD) $(am__append_14)
 tests_test_openmp_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(tests_test_openmp_CFLAGS) $(CFLAGS) \
@@ -1171,8 +1163,7 @@ am_tests_test_query_OBJECTS =  \
 	tests/tests_test_query-test_query.$(OBJEXT)
 tests_test_query_OBJECTS = $(am_tests_test_query_OBJECTS)
 tests_test_query_LDADD = $(LDADD)
-tests_test_query_DEPENDENCIES = libparasail.la $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+tests_test_query_DEPENDENCIES = libparasail.la
 tests_test_query_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(tests_test_query_CFLAGS) $(CFLAGS) \
@@ -1180,15 +1171,14 @@ tests_test_query_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 am_tests_test_scatter_OBJECTS =  \
 	tests/tests_test_scatter-test_scatter.$(OBJEXT)
 tests_test_scatter_OBJECTS = $(am_tests_test_scatter_OBJECTS)
-tests_test_scatter_DEPENDENCIES = $(am__DEPENDENCIES_2) \
-	$(am__append_15)
+tests_test_scatter_DEPENDENCIES = $(LDADD) $(am__append_15)
 tests_test_scatter_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(tests_test_scatter_CFLAGS) $(CFLAGS) \
 	$(tests_test_scatter_LDFLAGS) $(LDFLAGS) -o $@
 am_tests_test_ssw_OBJECTS = tests/tests_test_ssw-test_ssw.$(OBJEXT)
 tests_test_ssw_OBJECTS = $(am_tests_test_ssw_OBJECTS)
-tests_test_ssw_DEPENDENCIES = $(am__DEPENDENCIES_2) tests/libsais.la \
+tests_test_ssw_DEPENDENCIES = $(LDADD) tests/libsais.la \
 	tests/libssw.la
 tests_test_ssw_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
@@ -1197,14 +1187,12 @@ tests_test_ssw_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
 am_tests_test_sw_dispatch_OBJECTS = tests/test_sw_dispatch.$(OBJEXT)
 tests_test_sw_dispatch_OBJECTS = $(am_tests_test_sw_dispatch_OBJECTS)
 tests_test_sw_dispatch_LDADD = $(LDADD)
-tests_test_sw_dispatch_DEPENDENCIES = libparasail.la \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+tests_test_sw_dispatch_DEPENDENCIES = libparasail.la
 am_tests_test_verify_OBJECTS =  \
 	tests/tests_test_verify-test_verify.$(OBJEXT)
 tests_test_verify_OBJECTS = $(am_tests_test_verify_OBJECTS)
 tests_test_verify_LDADD = $(LDADD)
-tests_test_verify_DEPENDENCIES = libparasail.la $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+tests_test_verify_DEPENDENCIES = libparasail.la
 tests_test_verify_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(tests_test_verify_CFLAGS) $(CFLAGS) \
@@ -1214,8 +1202,7 @@ am_tests_test_verify_rowcols_OBJECTS =  \
 tests_test_verify_rowcols_OBJECTS =  \
 	$(am_tests_test_verify_rowcols_OBJECTS)
 tests_test_verify_rowcols_LDADD = $(LDADD)
-tests_test_verify_rowcols_DEPENDENCIES = libparasail.la \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+tests_test_verify_rowcols_DEPENDENCIES = libparasail.la
 tests_test_verify_rowcols_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(tests_test_verify_rowcols_CFLAGS) $(CFLAGS) \
@@ -1225,8 +1212,7 @@ am_tests_test_verify_tables_OBJECTS =  \
 tests_test_verify_tables_OBJECTS =  \
 	$(am_tests_test_verify_tables_OBJECTS)
 tests_test_verify_tables_LDADD = $(LDADD)
-tests_test_verify_tables_DEPENDENCIES = libparasail.la \
-	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
+tests_test_verify_tables_DEPENDENCIES = libparasail.la
 tests_test_verify_tables_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(tests_test_verify_tables_CFLAGS) $(CFLAGS) \
@@ -1614,6 +1600,7 @@ LIPO = @LIPO@
 LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
 LTVER = @LTVER@
+LT_SYS_LIBRARY_PATH = @LT_SYS_LIBRARY_PATH@
 MAINT = @MAINT@
 MAKEINFO = @MAKEINFO@
 MANIFEST_TOOL = @MANIFEST_TOOL@
@@ -1745,9 +1732,7 @@ AM_CFLAGS = $(VISIBILITY_FLAGS)
 AM_CPPFLAGS = -I$(top_srcdir)/contrib \
 	-I$(top_srcdir)/contrib/sais-lite-lcp
 AM_LDFLAGS = 
-
-#LDADD += $(CLOCK_LIBS)
-LDADD = libparasail.la $(MATH_LIBS) $(Z_LIBS)
+LDADD = libparasail.la
 EXTRA_DIST = version.sh DISCLAIMER README.md \
 	bindings/python/parasail.pyx bindings/python/setup.py \
 	bindings/python/test.py contrib/cpuid.c contrib/cpuid_gen4.c \
@@ -2107,7 +2092,7 @@ libparasail_knc_memory_la_CFLAGS = $(AM_CFLAGS)
 libparasail_la_LIBADD = libparasail_novec.la \
 	libparasail_novec_table.la libparasail_novec_rowcol.la \
 	$(am__append_6) $(am__append_7) $(am__append_8) \
-	$(am__append_9) $(am__append_10) $(CLOCK_LIBS)
+	$(am__append_9) $(am__append_10) $(CLOCK_LIBS) $(MATH_LIBS)
 @HAVE_SSE2_TRUE@tests_libssw_la_SOURCES = contrib/ssw.c contrib/ssw.h
 @HAVE_SSE2_TRUE@tests_libssw_la_CFLAGS = $(AM_CFLAGS) $(SSE2_CFLAGS)
 tests_libsais_la_SOURCES = contrib/sais-lite-lcp/sais.c \
@@ -2125,6 +2110,7 @@ apps_parasail_aligner_cilk_LDADD = $(LDADD) $(CILK_LIBS) \
 apps_parasail_stats_SOURCES = apps/parasail_stats.c
 tests_test_align_SOURCES = tests/test_align.c
 tests_test_gcups_SOURCES = tests/test_gcups.c
+tests_test_gcups_LDADD = $(LDADD) $(Z_LIBS)
 tests_test_isa_SOURCES = tests/test_isa.c
 tests_test_openmp_SOURCES = tests/test_openmp.c
 tests_test_openmp_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)

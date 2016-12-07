@@ -660,6 +660,7 @@ libparasail_la_LIBADD += libparasail_knc_table.la
 libparasail_la_LIBADD += libparasail_knc_rowcol.la
 endif
 libparasail_la_LIBADD += $(CLOCK_LIBS)
+libparasail_la_LIBADD += $(MATH_LIBS)
 
 if HAVE_SSE2
 check_LTLIBRARIES += tests/libssw.la
@@ -694,10 +695,6 @@ if HAVE_SSE2
 check_PROGRAMS += tests/test_ssw
 endif
 
-#LDADD += $(CLOCK_LIBS)
-LDADD += $(MATH_LIBS)
-LDADD += $(Z_LIBS)
-
 apps_parasail_aligner_SOURCES = apps/parasail_aligner.cpp
 apps_parasail_aligner_CXXFLAGS = $(AM_CXXFLAGS) $(OPENMP_CXXFLAGS)
 apps_parasail_aligner_LDFLAGS  = $(AM_LDFLAGS) $(OPENMP_CXXFLAGS)
@@ -719,6 +716,9 @@ apps_parasail_stats_SOURCES = apps/parasail_stats.c
 tests_test_align_SOURCES = tests/test_align.c
 
 tests_test_gcups_SOURCES = tests/test_gcups.c
+tests_test_gcups_LDADD =
+tests_test_gcups_LDADD += $(LDADD)
+tests_test_gcups_LDADD += $(Z_LIBS)
 
 tests_test_isa_SOURCES = tests/test_isa.c
 

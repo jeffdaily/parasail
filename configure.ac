@@ -32,6 +32,7 @@ AC_SUBST([PACKAGE_VERSION])
 # parasail version 1.0.3: 1:3:0 (ABI version 1)
 # parasail version 1.1.0: 1:4:0 (ABI version 1)
 # parasail version 1.1.1: 1:5:0 (ABI version 1)
+# parasail version 1.1.2: 1:5:0 (ABI version 1)
 #
 # libparasail -version-info current:revision:age
 LTVER="1:5:0"
@@ -864,3 +865,6 @@ AC_MSG_NOTICE([                   CPP=$CPP])
 AC_MSG_NOTICE([              CPPFLAGS=$CPPFLAGS])
 AC_MSG_NOTICE([               LDFLAGS=$LDFLAGS])
 AC_MSG_NOTICE([                  LIBS=$LIBS])
+AC_MSG_NOTICE([            CLOCK_LIBS=$CLOCK_LIBS])
+AC_MSG_NOTICE([             MATH_LIBS=$MATH_LIBS])
+AC_MSG_NOTICE([                Z_LIBS=$Z_LIBS])

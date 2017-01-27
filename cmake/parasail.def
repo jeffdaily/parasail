@@ -13,6 +13,8 @@ EXPORTS
     parasail_matrix_lookup
     parasail_matrix_create
     parasail_matrix_free
+    parasail_matrix_copy
+    parasail_matrix_set_value
 ; from parasail/io.h
     parasail_open
     parasail_close

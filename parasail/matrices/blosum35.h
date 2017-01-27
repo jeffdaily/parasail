@@ -61,7 +61,7 @@ static const parasail_matrix_t parasail_blosum35 = {
     24,
     16,
     -5,
-    0
+    NULL
 };
 
 #ifdef __cplusplus

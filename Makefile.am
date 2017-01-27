@@ -684,6 +684,7 @@ endif
 check_PROGRAMS += tests/test_align
 check_PROGRAMS += tests/test_gcups
 check_PROGRAMS += tests/test_isa
+check_PROGRAMS += tests/test_matrix
 check_PROGRAMS += tests/test_openmp
 check_PROGRAMS += tests/test_query
 check_PROGRAMS += tests/test_scatter
@@ -721,6 +722,8 @@ tests_test_gcups_LDADD += $(LDADD)
 tests_test_gcups_LDADD += $(Z_LIBS)
 
 tests_test_isa_SOURCES = tests/test_isa.c
+
+tests_test_matrix_SOURCES = tests/test_matrix.c
 
 tests_test_openmp_SOURCES = tests/test_openmp.c
 tests_test_openmp_CFLAGS  = $(AM_CFLAGS) $(OPENMP_CFLAGS)
@@ -893,7 +896,9 @@ EXTRA_DIST += util/templates/sw_stats_striped_bias.c
 EXTRA_DIST += util/templates/sw_striped.c
 EXTRA_DIST += util/templates/sw_striped_bias.c
 
-TESTS = tests/test_isa
+TESTS =
+TESTS += tests/test_isa
+TESTS += tests/test_matrix
 
 # alias for 'make check' using 'make test'
 test: check

@@ -92,29 +92,6 @@ parasail_result_t* parasail_ssw_16(
 }
 #endif
 
-parasail_result_t* parasail_sw(
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const parasail_matrix_t *matrix)
-{
-    int saturated = 0;
-    parasail_result_t *result;
-
-    result = parasail_sw_scan_8(s1, s1Len, s2, s2Len, open, gap, matrix);
-    if (result->saturated) {
-        saturated = 1;
-        parasail_result_free(result);
-        result = parasail_sw_scan_16(s1, s1Len, s2, s2Len, open, gap, matrix);
-    }
-    if (result->saturated) {
-        parasail_result_free(result);
-        result = parasail_sw_scan_32(s1, s1Len, s2, s2Len, open, gap, matrix);
-    }
-    result->saturated = saturated;
-
-    return result;
-}
-
 static inline void parse_sequences(
         const char *filename, char ***strings_, size_t **sizes_, size_t *count_)
 {
@@ -218,6 +195,8 @@ int main(int argc, char **argv)
     char *funcname2 = NULL;
     parasail_function_t *function1 = NULL;
     parasail_function_t *function2 = NULL;
+    int banded = 0;
+    int kbandsize = 3;
     int c = 0;
     char *matrixname = "blosum62";
     const parasail_matrix_t *matrix = NULL;
@@ -235,7 +214,7 @@ int main(int argc, char **argv)
 
     stats_clear(&stats_time);
 
-    while ((c = getopt(argc, argv, "a:A:c:b:f:q:o:e:slt:i:")) != -1) {
+    while ((c = getopt(argc, argv, "a:A:c:b:f:k:q:o:e:slt:i:")) != -1) {
         switch (c) {
             case 'a':
                 funcname1 = optarg;
@@ -259,6 +238,14 @@ int main(int argc, char **argv)
                 break;
             case 'q':
                 filename_queries = optarg;
+                break;
+            case 'k':
+                errno = 0;
+                kbandsize = strtol(optarg, &endptr, 10);
+                if (errno) {
+                    perror("strtol");
+                    exit(1);
+                }
                 break;
             case 'i':
                 errno = 0;
@@ -346,7 +333,10 @@ int main(int argc, char **argv)
             }
         }
 #endif
-        if (NULL == function1) {
+        if (NULL == function1 && NULL != strstr(funcname1, "nw_banded")) {
+            banded = 1;
+        }
+        if (NULL == function1 && 0 == banded) {
             fprintf(stderr, "Specified function1 not found.\n");
             exit(1);
         }
@@ -473,12 +463,26 @@ int main(int argc, char **argv)
                             function = function2;
                         }
                     }
-                    result = function(
-                            sequences_database[a], query_size,
-                            sequences_database[b], sizes_database[b],
-                            gap_open, gap_extend, matrix);
+                    if (NULL != function1) {
+                        result = function(
+                                sequences_database[a], query_size,
+                                sequences_database[b], sizes_database[b],
+                                gap_open, gap_extend, matrix);
+                    }
+                    else if (0 != banded) {
+                        result = parasail_nw_banded(
+                                sequences_database[a], query_size,
+                                sequences_database[b], sizes_database[b],
+                                gap_open, gap_extend, kbandsize, matrix);
+                    }
 #pragma omp atomic
                     saturated += result->saturated;
+                    if (result->saturated) {
+#pragma omp 
+                        {
+                            printf("saturated -- (%lu,%lu)\n", a, b);
+                        }
+                    }
                     parasail_result_free(result);
                 }
             }

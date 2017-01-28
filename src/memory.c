@@ -302,7 +302,7 @@ parasail_matrix_t* parasail_matrix_create(
 
     mapper = (int*)malloc(sizeof(int)*256);
     assert(mapper);
-    parasail_memset_int(mapper, size, size);
+    parasail_memset_int(mapper, size, 256);
     for (i=0; i<size; ++i) {
         mapper[toupper((unsigned char)alphabet[i])] = (int)i;
         mapper[tolower((unsigned char)alphabet[i])] = (int)i;
@@ -316,15 +316,67 @@ parasail_matrix_t* parasail_matrix_create(
     retval->size = (int)size1;
     retval->max = match > mismatch ? match : mismatch;
     retval->min = match > mismatch ? mismatch : match;
-    retval->need_free = 1;
+    retval->user_matrix = matrix;
     return retval;
+}
+
+parasail_matrix_t* parasail_matrix_copy(const parasail_matrix_t *original)
+{
+    parasail_matrix_t *retval = NULL;
+
+    retval = (parasail_matrix_t*)malloc(sizeof(parasail_matrix_t));
+    assert(retval);
+    retval->name = original->name;
+    retval->size = original->size;
+    retval->max = original->max;
+    retval->min = original->min;
+
+    {
+        size_t matrix_size = sizeof(int)*original->size*original->size;
+        size_t mapper_size = sizeof(int)*256;
+        int *new_mapper = NULL;
+        int *new_matrix = NULL;
+
+        new_mapper = malloc(mapper_size);
+        assert(new_mapper);
+        (void)memcpy(new_mapper, original->mapper, mapper_size);
+
+        new_matrix = malloc(matrix_size);
+        assert(new_matrix);
+        (void)memcpy(new_matrix, original->matrix, matrix_size);
+
+        retval->mapper = new_mapper;
+        retval->matrix = new_matrix;
+        retval->user_matrix = new_matrix;
+    }
+
+    return retval;
+}
+
+void parasail_matrix_set_value(parasail_matrix_t *matrix, int row, int col, int value)
+{
+    assert(matrix);
+
+    if (NULL == matrix->user_matrix) {
+        fprintf(stderr, "attempted to set value of built-in matrix '%s'\n",
+                matrix->name);
+        return;
+    }
+
+    matrix->user_matrix[row*matrix->size + col] = value;
+    if (value > matrix->max) {
+        matrix->max = value;
+    }
+    if (value < matrix->min) {
+        matrix->min = value;
+    }
 }
 
 void parasail_matrix_free(parasail_matrix_t *matrix)
 {
     /* validate inputs */
     assert(NULL != matrix);
-    if (matrix->need_free) {
+    if (NULL != matrix->user_matrix) {
         free((void*)matrix->matrix);
         free((void*)matrix->mapper);
         free(matrix);

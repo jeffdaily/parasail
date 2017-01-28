@@ -114,7 +114,7 @@ parasail_result_t* PNAME(
     const parasail_matrix_t *matrix = profile->matrix;
     const int32_t segWidth = 16; /* number of values in vector unit */
     const int32_t segLen = (s1Len + segWidth - 1) / segWidth;
-    __m512i* const restrict pvP  = (__m512i*)profile->profile;
+    __m512i* const restrict pvP  = (__m512i*)profile->profile32.score;
     __m512i* const restrict pvE  = parasail_memalign___m512i(64, segLen);
     __m512i* const restrict pvHt = parasail_memalign___m512i(64, segLen);
     __m512i* const restrict pvH  = parasail_memalign___m512i(64, segLen);

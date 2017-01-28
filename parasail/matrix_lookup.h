@@ -23,6 +23,7 @@
 #include "parasail/matrices/blosum80.h"
 #include "parasail/matrices/blosum85.h"
 #include "parasail/matrices/blosum90.h"
+#include "parasail/matrices/blosumn.h"
 #include "parasail/matrices/pam10.h"
 #include "parasail/matrices/pam100.h"
 #include "parasail/matrices/pam110.h"
@@ -73,6 +74,8 @@
 #include "parasail/matrices/pam70.h"
 #include "parasail/matrices/pam80.h"
 #include "parasail/matrices/pam90.h"
+#include "parasail/matrices/nuc44.h"
+#include "parasail/matrices/dnafull.h"
 #include "parasail/matrices/blosum_map.h"
 #include "parasail/matrices/pam_map.h"
 
@@ -96,6 +99,7 @@ static const parasail_matrix_t * parasail_matrices[] = {
     &parasail_blosum80,
     &parasail_blosum85,
     &parasail_blosum90,
+    &parasail_blosumn,
     &parasail_pam10,
     &parasail_pam100,
     &parasail_pam110,
@@ -146,6 +150,8 @@ static const parasail_matrix_t * parasail_matrices[] = {
     &parasail_pam70,
     &parasail_pam80,
     &parasail_pam90,
+    &parasail_nuc44,
+    &parasail_dnafull,
     NULL
 };
 

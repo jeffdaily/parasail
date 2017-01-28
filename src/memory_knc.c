@@ -54,8 +54,8 @@ parasail_profile_t * parasail_profile_create_knc_512_32(
         }
     }
 
-    profile->profile = vProfile;
-    profile->free = &parasail_profile_free___m512i;
+    profile->profile32.score = vProfile;
+    profile->free = &parasail_free___m512i;
     return profile;
 }
 
@@ -96,14 +96,14 @@ parasail_profile_t * parasail_profile_create_stats_knc_512_32(
         }
     }
 
-    profile->profile = vProfile;
-    profile->profile_m = vProfileM;
-    profile->profile_s = vProfileS;
-    profile->free = &parasail_profile_free___m512i;
+    profile->profile32.score = vProfile;
+    profile->profile32.matches = vProfileM;
+    profile->profile32.similar = vProfileS;
+    profile->free = &parasail_free___m512i;
     return profile;
 }
 
-void parasail_profile_free___m512i(void *profile)
+void parasail_free___m512i(void *profile)
 {
     parasail_free((__m512i*)profile);
 }

@@ -36,6 +36,15 @@
 /* define to 1 if the C compiler supports AVX2 _mm256_set_epi64x */
 #undef HAVE_AVX2_MM256_SET_EPI64X
 
+/* define to 1 if the C compiler supports AVX512BW */
+#undef HAVE_AVX512BW
+
+/* define to 1 if the C compiler supports AVX512F */
+#undef HAVE_AVX512F
+
+/* define to 1 if the C compiler supports AVX512VBMI */
+#undef HAVE_AVX512VBMI
+
 /* Define if Cilk is enabled */
 #undef HAVE_CILK
 

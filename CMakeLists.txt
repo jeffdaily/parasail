@@ -121,6 +121,7 @@ SET( SRC_NOVEC
     src/nw.c
     src/sg.c
     src/sw.c
+    src/nw_banded.c
     src/nw_scan.c
     src/sg_scan.c
     src/sw_scan.c
@@ -519,6 +520,9 @@ TARGET_LINK_LIBRARIES( parasail_stats parasail )
 
 ADD_EXECUTABLE( test_isa tests/test_isa.c )
 TARGET_LINK_LIBRARIES( test_isa parasail )
+
+ADD_EXECUTABLE( test_matrix tests/test_matrix.c )
+TARGET_LINK_LIBRARIES( test_matrix parasail )
 
 INSTALL( FILES parasail.h DESTINATION include )
 INSTALL( DIRECTORY parasail DESTINATION include )

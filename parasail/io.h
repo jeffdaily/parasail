@@ -45,6 +45,8 @@ parasail_file_stat_t* parasail_stat_fasta(const parasail_file_t *pf);
 
 parasail_file_stat_t* parasail_stat_fastq(const parasail_file_t *pf);
 
+char * parasail_read(const parasail_file_t *pf, long * size);
+
 char * parasail_pack(const parasail_file_t *pf, long * size);
 
 char * parasail_pack_fasta(const parasail_file_t *pf, long * size);

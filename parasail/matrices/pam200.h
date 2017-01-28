@@ -64,7 +64,7 @@ static const parasail_matrix_t parasail_pam200 = {
     24,
     18,
     -9,
-    0
+    NULL
 };
 
 #ifdef __cplusplus

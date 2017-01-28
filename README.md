@@ -226,6 +226,62 @@ int main(int argc, char **argv) {
 }
 ```
 
+You can also create your own matrices with simple match/mismatch values.
+For more complex matrices, you can start by copying a built-in matrix or
+start simple and modify values as needed. For example
+
+```C
+#include "parasail.h"
+#include "parasail/matrices/blosum62.h"
+#include "parasail/matrix_lookup.h"
+
+int main(int argc, char **argv) {
+        const parasail_matrix_t *matrix = NULL;
+        parasail_matrix_t *user_matrix = NULL;
+        
+        matrix = parasail_matrix_lookup("blosum62");
+
+        user_matrix = parasail_matrix_copy(matrix);
+        /* replace value at [2,4] location */
+        parasail_matrix_set_value(user_matrix, 2, 4, 200);
+        parasail_matrix_free(user_matrix);
+
+        user_matrix = parasail_matrix_create("ACGT", 2, -1)
+        /* replace value at [1,1] location, for a larger match */
+        parasail_matrix_set_value(user_matrix, 1, 1, 20);
+        parasail_matrix_free(user_matrix);
+}
+```
+
+You can also parse simple matrix files using the function
+`parasail_matrix_from_file` if the file is in the following format:
+
+```
+#
+# Any line starting with '#' is a comment.
+#
+# Needs a row for the alphabet.  First column is a repeat of the
+# alphabet and assumed to be identical in order to the first alphabet row.
+#
+    A   T   G   C   S   W   R   Y   K   M   B   V   H   D   N   U
+A   5  -4  -4  -4  -4   1   1  -4  -4   1  -4  -1  -1  -1  -2  -4
+T  -4   5  -4  -4  -4   1  -4   1   1  -4  -1  -4  -1  -1  -2   5
+G  -4  -4   5  -4   1  -4   1  -4   1  -4  -1  -1  -4  -1  -2  -4
+C  -4  -4  -4   5   1  -4  -4   1  -4   1  -1  -1  -1  -4  -2  -4
+S  -4  -4   1   1  -1  -4  -2  -2  -2  -2  -1  -1  -3  -3  -1  -4
+W   1   1  -4  -4  -4  -1  -2  -2  -2  -2  -3  -3  -1  -1  -1   1
+R   1  -4   1  -4  -2  -2  -1  -4  -2  -2  -3  -1  -3  -1  -1  -4
+Y  -4   1  -4   1  -2  -2  -4  -1  -2  -2  -1  -3  -1  -3  -1   1
+K  -4   1   1  -4  -2  -2  -2  -2  -1  -4  -1  -3  -3  -1  -1   1
+M   1  -4  -4   1  -2  -2  -2  -2  -4  -1  -3  -1  -1  -3  -1  -4
+B  -4  -1  -1  -1  -1  -3  -3  -1  -1  -3  -1  -2  -2  -2  -1  -1
+V  -1  -4  -1  -1  -1  -3  -1  -3  -3  -1  -2  -1  -2  -2  -1  -4
+H  -1  -1  -4  -1  -3  -1  -3  -1  -3  -1  -2  -2  -1  -2  -1  -1
+D  -1  -1  -1  -4  -3  -1  -1  -3  -1  -3  -2  -2  -2  -1  -1  -1
+N  -2  -2  -2  -2  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -2
+U  -4   5  -4  -4  -4   1  -4   1   1  -4  -1  -4  -1  -1  -2   5
+```
+
 ### Function Lookup
 
 [back to top]

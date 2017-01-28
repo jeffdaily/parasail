@@ -124,7 +124,7 @@ parasail_result_t* PNAME(
     const int32_t segLen = (s1Len + segWidth - 1) / segWidth;
     const int32_t offset = (s1Len - 1) % segLen;
     const int32_t position = (segWidth - 1) - (s1Len - 1) / segLen;
-    __m512i* const restrict vProfile = (__m512i*)profile->profile;
+    __m512i* const restrict vProfile = (__m512i*)profile->profile32.score;
     __m512i* restrict pvHStore = parasail_memalign___m512i(64, segLen);
     __m512i* restrict pvHLoad =  parasail_memalign___m512i(64, segLen);
     __m512i* const restrict pvE = parasail_memalign___m512i(64, segLen);

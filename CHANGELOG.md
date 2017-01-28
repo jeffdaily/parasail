@@ -7,6 +7,29 @@ This project follows the [Gitflow Workflow model](https://www.atlassian.com/git/
 ## [Unreleased]
 The Unreleased section will be empty for tagged releases. Unreleased functionality appears in the develop branch.
 
+## [1.2] - 2017-01-28
+
+### Changed
+- Added alignment function
+  - parasail_nw_banded (note, different interface than the other alignment functions)
+- Added matrices
+  - nuc44
+  - dnafull
+- Added matrix functions
+  - parasail_matrix_from_file
+  - parasail_matrix_copy
+  - parasail_matrix_set_value
+- Added parasail_aligner options
+  - -m matrix -- can be a built-in matrix name or a filename to be parsed
+  - 'packed' input files
+- parasail_matrix_t attribute `int need_free` is now `int *user_matrix`
+
+### Closed Issues
+- Needleman-Wunsch with affine gap penalties [\#26]
+
+### Closed Pull Requests
+- fix [\#29] -- wontfix
+
 ## [1.1.2] - 2016-12-07
 
 ### Fixed
@@ -106,7 +129,9 @@ First stable, production-ready version of parasail.
 
 [parasail-python]: https://github.com/jeffdaily/parasail-python
 
-[Unreleased]: https://github.com/jeffdaily/parasail/compare/v1.1.1...develop
+[Unreleased]: https://github.com/jeffdaily/parasail/compare/v1.2...develop
+[1.2]:   https://github.com/jeffdaily/parasail/compare/v1.1.2...1.2
+[1.1.2]: https://github.com/jeffdaily/parasail/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/jeffdaily/parasail/compare/v1.1...v1.1.1
 [1.1]:   https://github.com/jeffdaily/parasail/compare/v1.0.3...v1.1
 [1.0.3]: https://github.com/jeffdaily/parasail/compare/v1.0.2...v1.0.3
@@ -114,6 +139,9 @@ First stable, production-ready version of parasail.
 [1.0.1]: https://github.com/jeffdaily/parasail/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/jeffdaily/parasail/releases/tag/v1.0.0
 
+[\#31]: https://github.com/jeffdaily/parasail/issues/31
+[\#30]: https://github.com/jeffdaily/parasail/issues/30
+[\#29]: https://github.com/jeffdaily/parasail/pull/29
 [\#28]: https://github.com/jeffdaily/parasail/issues/28
 [\#27]: https://github.com/jeffdaily/parasail/pull/27
 [\#26]: https://github.com/jeffdaily/parasail/issues/26

@@ -238,6 +238,8 @@ int main(int argc, char **argv)
     const parasail_matrix_t *matrix = NULL;
     int open = 10;
     int extend = 1;
+    int match = 1;
+    int mismatch = 0;
     int do_normal = 1;
     int do_stats = 1;
     int do_nonstats = 1;
@@ -251,8 +253,9 @@ int main(int argc, char **argv)
     int do_nw = 1;
     int do_sg = 1;
     int do_sw = 1;
+    int use_dna = 0;
 
-    while ((c = getopt(argc, argv, "a:b:f:i:m:n:o:e:rRTNSsB")) != -1) {
+    while ((c = getopt(argc, argv, "a:b:df:i:m:M:n:o:e:rRTNSsBX:")) != -1) {
         switch (c) {
             case 'a':
                 errno = 0;
@@ -271,6 +274,9 @@ int main(int argc, char **argv)
                     fprintf(stderr, "invalid seqB index\n");
                     exit(1);
                 }
+                break;
+            case 'd':
+                use_dna = 1;
                 break;
             case 'f':
                 filename = optarg;
@@ -299,6 +305,20 @@ int main(int argc, char **argv)
                 extend = strtol(optarg, &endptr, 10);
                 if (errno) {
                     perror("strtol extend");
+                    exit(1);
+                }
+                break;
+            case 'M':
+                match = atoi(optarg);
+                if (match < 0) {
+                    fprintf(stderr, "match (-M) must be >= 0");
+                    exit(1);
+                }
+                break;
+            case 'X':
+                mismatch = atoi(optarg);
+                if (mismatch < 0) {
+                    fprintf(stderr, "mismatch (-X) must be >= 0");
                     exit(1);
                 }
                 break;
@@ -361,17 +381,24 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    /* select the matrix */
-    if (matrixname) {
-        matrix = parasail_matrix_lookup(matrixname);
-        if (NULL == matrix) {
-            fprintf(stderr, "Specified substitution matrix not found.\n");
-            exit(1);
-        }
+    /* select the substitution matrix */
+    if (NULL == matrixname && use_dna) {
+        matrixname = "ACGT";
+        matrix = parasail_matrix_create("ACGT", match, -mismatch);
     }
     else {
-        fprintf(stderr, "No substitution matrix specified.\n");
-        exit(1);
+        if (NULL == matrixname) {
+            matrixname = "blosum62";
+        }
+        matrix = parasail_matrix_lookup(matrixname);
+        if (NULL == matrix) {
+            /* try as a filename */
+            matrix = parasail_matrix_from_file(matrixname);
+        }
+        if (NULL == matrix) {
+            fprintf(stderr, "Specified substitution matrix not found.\n");
+            exit(EXIT_FAILURE);
+        }
     }
 
     if (seqA_index == LONG_MAX) {
@@ -405,10 +432,10 @@ int main(int argc, char **argv)
     printf("gap extend: %d\n", extend);
     printf("seq pair %lu,%lu\n", seqA_index, seqB_index);
 
-    printf("%-15s %8s %6s %4s %5s %5s "
-           "%8s %8s %8s %8s %8s %8s "
+    printf("%-15s %8s %6s %4s %5s %5s %4s "
+           "%8s %8s %8s %8s %9s %8s "
            "%8s %5s %8s %8s %8s\n",
-            "name", "type", "isa", "bits", "width", "elem",
+            "name", "type", "isa", "bits", "width", "elem", "sat",
             "score", "matches", "similar", "length", "end_query", "end_ref",
             "avg", "imp", "stddev", "min", "max");
 
@@ -491,6 +518,7 @@ int main(int argc, char **argv)
             }
         }
         stats_clear(&stats_rdtsc);
+        stats_clear(&stats_nsecs);
         timer_rdtsc = timer_start();
         timer_nsecs = timer_real();
         for (i=0; i<new_limit; ++i) {
@@ -626,11 +654,11 @@ int main(int argc, char **argv)
         }
         if (use_rdtsc) {
             printf(
-                "%-15s %8s %6s %4s %5s %5d "
+                "%-15s %8s %6s %4s %5s %5d %4d "
                 "%8d %8d %8d %8d "
-                "%8d %8d "
+                "%9d %8d "
                 "%8.1f %5.1f %8.1f %8.0f %8.0f\n",
-                name, f.type, f.isa, f.bits, f.width, f.lanes,
+                name, f.type, f.isa, f.bits, f.width, f.lanes, saturated,
                 score, matches, similar, length,
                 end_query, end_ref,
                 saturated ? 0 : stats_rdtsc._mean,
@@ -641,11 +669,11 @@ int main(int argc, char **argv)
         }
         else {
             printf(
-                "%-15s %8s %6s %4s %5s %5d "
+                "%-15s %8s %6s %4s %5s %5d %4d "
                 "%8d %8d %8d %8d "
-                "%8d %8d "
+                "%9d %8d "
                 "%8.3f %5.2f %8.3f %8.3f %8.3f\n",
-                name, f.type, f.isa, f.bits, f.width, f.lanes,
+                name, f.type, f.isa, f.bits, f.width, f.lanes, saturated,
                 score, matches, similar, length,
                 end_query, end_ref,
                 saturated ? 0 : stats_nsecs._mean,
@@ -655,6 +683,62 @@ int main(int argc, char **argv)
                 saturated ? 0 : stats_nsecs._max);
         }
         f = functions[index++];
+    }
+    if (do_nw) {
+        int saturated = 0;
+        stats_clear(&stats_rdtsc);
+        stats_clear(&stats_nsecs);
+        timer_rdtsc = timer_start();
+        timer_nsecs = timer_real();
+        for (i=0; i<limit; ++i) {
+            timer_rdtsc_single = timer_start();
+            timer_nsecs_single = timer_real();
+            result = parasail_nw_banded(seqA, lena, seqB, lenb, open, extend, 3, matrix);
+            timer_rdtsc_single = timer_start()-(timer_rdtsc_single);
+            timer_nsecs_single = timer_real() - timer_nsecs_single;
+            stats_sample_value(&stats_rdtsc, timer_rdtsc_single);
+            stats_sample_value(&stats_nsecs, timer_nsecs_single);
+            score = result->score;
+            similar = result->similar;
+            matches = result->matches;
+            length = result->length;
+            end_query = result->end_query;
+            end_ref = result->end_ref;
+            saturated = result->saturated;
+            parasail_result_free(result);
+        }
+        timer_rdtsc = timer_start()-(timer_rdtsc);
+        timer_nsecs = timer_real() - timer_nsecs;
+        if (use_rdtsc) {
+            printf(
+                    "%-15s %8s %6s %4s %5s %5d %4d "
+                    "%8d %8d %8d %8d "
+                    "%9d %8d "
+                    "%8.1f %5.1f %8.1f %8.0f %8.0f\n",
+                    "nw", "banded", "NA", "32", "32", 1, saturated,
+                    score, matches, similar, length,
+                    end_query, end_ref,
+                    saturated ? 0 : stats_rdtsc._mean,
+                    saturated ? 0 : pctf(timer_rdtsc_ref_mean, stats_rdtsc._mean),
+                    saturated ? 0 : stats_stddev(&stats_rdtsc),
+                    saturated ? 0 : stats_rdtsc._min,
+                    saturated ? 0 : stats_rdtsc._max);
+        }
+        else {
+            printf(
+                    "%-15s %8s %6s %4s %5s %5d %4d "
+                    "%8d %8d %8d %8d "
+                    "%9d %8d "
+                    "%8.3f %5.2f %8.3f %8.3f %8.3f\n",
+                    "nw", "banded", "NA", "32", "32", 1, saturated,
+                    score, matches, similar, length,
+                    end_query, end_ref,
+                    saturated ? 0 : stats_nsecs._mean,
+                    saturated ? 0 : pctf(timer_nsecs_ref_mean, stats_nsecs._mean),
+                    saturated ? 0 : stats_stddev(&stats_nsecs),
+                    saturated ? 0 : stats_nsecs._min,
+                    saturated ? 0 : stats_nsecs._max);
+        }
     }
 
     if (filename) {

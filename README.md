@@ -226,6 +226,33 @@ int main(int argc, char **argv) {
 }
 ```
 
+You can also create your own matrices with simple match/mismatch values.
+For more complex matrices, you can start by copying a built-in matrix or
+start simple and modify values as needed. For example
+
+```C
+#include "parasail.h"
+#include "parasail/matrices/blosum62.h"
+#include "parasail/matrix_lookup.h"
+
+int main(int argc, char **argv) {
+        const parasail_matrix_t *matrix = NULL;
+        parasail_matrix_t *user_matrix = NULL;
+        
+        matrix = parasail_matrix_lookup("blosum62");
+
+        user_matrix = parasail_matrix_copy(matrix);
+        /* replace value at [2,4] location */
+        parasail_matrix_set_value(user_matrix, 2, 4, 200);
+        parasail_matrix_free(user_matrix);
+
+        user_matrix = parasail_matrix_create("ACGT", 2, -1)
+        /* replace value at [1,1] location, for a larger match */
+        parasail_matrix_set_value(user_matrix, 1, 1, 20);
+        parasail_matrix_free(user_matrix);
+}
+```
+
 ### Function Lookup
 
 [back to top]

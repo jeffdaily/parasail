@@ -900,7 +900,6 @@ EXTRA_DIST += util/templates/sw_striped_bias.c
 
 TESTS =
 TESTS += tests/test_isa
-TESTS += tests/test_matrix
 
 # alias for 'make check' using 'make test'
 test: check

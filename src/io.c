@@ -927,7 +927,7 @@ parasail_matrix_t* parasail_matrix_from_file(const char *filename)
     retval->size = (int)asize;
     retval->max = max;
     retval->min = min;
-    retval->need_free = 1;
+    retval->user_matrix = matrix;
     return retval;
 }
 

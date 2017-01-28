@@ -119,7 +119,7 @@ check_PROGRAMS = tests/test_align$(EXEEXT) tests/test_gcups$(EXEEXT) \
 @HAVE_SSE2_TRUE@am__append_13 = tests/test_ssw
 @HAVE_SSE2_TRUE@am__append_14 = tests/libssw.la
 @HAVE_SSE2_TRUE@am__append_15 = tests/libssw.la
-TESTS = tests/test_isa$(EXEEXT) tests/test_matrix$(EXEEXT)
+TESTS = tests/test_isa$(EXEEXT)
 subdir = .
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) \
@@ -10507,13 +10507,6 @@ recheck: all $(check_LTLIBRARIES) $(check_PROGRAMS)
 tests/test_isa.log: tests/test_isa$(EXEEXT)
 	@p='tests/test_isa$(EXEEXT)'; \
 	b='tests/test_isa'; \
-	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
-	--log-file $$b.log --trs-file $$b.trs \
-	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
-	"$$tst" $(AM_TESTS_FD_REDIRECT)
-tests/test_matrix.log: tests/test_matrix$(EXEEXT)
-	@p='tests/test_matrix$(EXEEXT)'; \
-	b='tests/test_matrix'; \
 	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \

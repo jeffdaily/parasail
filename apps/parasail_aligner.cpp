@@ -119,6 +119,61 @@ inline static int self_score(
         int len,
         const parasail_matrix_t *matrix);
 
+inline static void output_edges(
+        FILE *fop,
+        bool has_query,
+        long sid_crossover,
+        unsigned char *T,
+        int AOL,
+        int SIM,
+        int OS,
+        const parasail_matrix_t *matrix,
+        const vector<long> &BEG,
+        const vector<long> &END,
+        const PairVec &vpairs,
+        const vector<parasail_result_t*> &results);
+
+inline static void output_graph(
+        FILE *fop,
+        int which,
+        unsigned long count,
+        unsigned char *T,
+        int AOL,
+        int SIM,
+        int OS,
+        const parasail_matrix_t *matrix,
+        const vector<long> &BEG,
+        const vector<long> &END,
+        const PairVec &vpairs,
+        const vector<parasail_result_t*> &results);
+
+inline static void output_stats(
+        FILE *fop,
+        bool has_query,
+        long sid_crossover,
+        const vector<long> &BEG,
+        const vector<long> &END,
+        const PairVec &vpairs,
+        const vector<parasail_result_t*> &results);
+
+inline static void output_basic(
+        FILE *fop,
+        bool has_query,
+        long sid_crossover,
+        const vector<long> &BEG,
+        const vector<long> &END,
+        const PairVec &vpairs,
+        const vector<parasail_result_t*> &results);
+
+inline static void output_tables(
+        bool has_query,
+        long sid_crossover,
+        unsigned char *T,
+        const vector<long> &BEG,
+        const vector<long> &END,
+        const PairVec &vpairs,
+        const vector<parasail_result_t*> &results);
+
 static void print_help(const char *progname, int status) {
     eprintf(stderr, "\nusage: %s "
             "[-a funcname] "
@@ -216,15 +271,19 @@ int main(int argc, char **argv) {
     bool use_dna = false;
     bool pairs_only = false;
     bool edge_output = false;
+    bool graph_output = false;
     bool fpack = false;
     bool qpack = false;
+    bool is_stats = true;
+    bool is_table = false;
+    bool has_query = false;
     const char *progname = "parasail_aligner";
     int AOL = 80;
     int SIM = 40;
     int OS = 30;
 
     /* Check arguments. */
-    while ((c = getopt(argc, argv, "a:c:de:f:F:g:hk:m:M:o:pq:Q:t:xX:El:s:i:")) != -1) {
+    while ((c = getopt(argc, argv, "a:c:de:Ef:F:g:Ghi:k:l:m:M:o:pq:Q:s:t:xX:")) != -1) {
         switch (c) {
             case 'a':
                 funcname = optarg;
@@ -238,14 +297,14 @@ int main(int argc, char **argv) {
             case 'd':
                 use_dna = true;
                 break;
-            case 'E':
-                edge_output = true;
-                break;
             case 'e':
                 gap_extend = atoi(optarg);
                 if (gap_extend < 0) {
                     print_help(progname, EXIT_FAILURE);
                 }
+                break;
+            case 'E':
+                edge_output = true;
                 break;
             case 'f':
                 fname = optarg;
@@ -254,22 +313,30 @@ int main(int argc, char **argv) {
                 fname = optarg;
                 fpack = true;
                 break;
-            case 'q':
-                qname = optarg;
-                break;
-            case 'Q':
-                qname = optarg;
-                qpack = true;
-                break;
             case 'g':
                 oname = optarg;
+                break;
+            case 'G':
+                graph_output = true;
                 break;
             case 'h':
                 print_help(progname, EXIT_FAILURE);
                 break;
+            case 'i':
+                OS = atoi(optarg);
+                if (OS < 0 || OS > 100) {
+                    print_help(progname, EXIT_FAILURE);
+                }
+                break;
             case 'k':
                 kbandsize = atoi(optarg);
                 if (kbandsize <= 0) {
+                    print_help(progname, EXIT_FAILURE);
+                }
+                break;
+            case 'l':
+                AOL = atoi(optarg);
+                if (AOL < 0 || AOL > 100) {
                     print_help(progname, EXIT_FAILURE);
                 }
                 break;
@@ -291,30 +358,19 @@ int main(int argc, char **argv) {
             case 'p':
                 pairs_only = true;
                 break;
+            case 'q':
+                qname = optarg;
+                break;
+            case 'Q':
+                qname = optarg;
+                qpack = true;
+                break;
             case 't':
                 num_threads = atoi(optarg);
 #ifdef _OPENMP
 #else
                 printf("-t number of threads requested, but OpenMP was not found during configuration. Running without threads.");
 #endif
-                break;
-            case 'l':
-                AOL = atoi(optarg);
-                if (AOL < 0 || AOL > 100) {
-                    print_help(progname, EXIT_FAILURE);
-                }
-                break;
-            case 's':
-                SIM = atoi(optarg);
-                if (SIM < 0 || SIM > 100) {
-                    print_help(progname, EXIT_FAILURE);
-                }
-                break;
-            case 'i':
-                OS = atoi(optarg);
-                if (OS < 0 || OS > 100) {
-                    print_help(progname, EXIT_FAILURE);
-                }
                 break;
             case 'x':
                 use_filter = false;
@@ -392,6 +448,23 @@ int main(int argc, char **argv) {
         exit(EXIT_FAILURE);
     }
 
+    is_stats = (NULL != strstr(funcname, "stats"));
+    is_table = (NULL != strstr(funcname, "table"));
+    has_query = (NULL != qname);
+
+    if (edge_output && graph_output) {
+        eprintf(stderr, "Can only request one of edge or graph output.\n");
+        exit(EXIT_FAILURE);
+    }
+    if ((edge_output || graph_output) && !is_stats) {
+        eprintf(stderr, "Edge or graph output requested, but alignment function does not return statistics.\n");
+        exit(EXIT_FAILURE);
+    }
+    if (graph_output && has_query) {
+        eprintf(stderr, "Cannot specify a query file and output as a graph.\n");
+        exit(EXIT_FAILURE);
+    }
+
     /* select the substitution matrix */
     if (NULL == matrixname && use_dna) {
         matrixname = "ACGT";
@@ -460,7 +533,7 @@ int main(int argc, char **argv) {
     }
     
     start = parasail_time();
-    if (qname == NULL) {
+    if (!has_query) {
         parasail_file_t *pf = parasail_open(fname);
         if (fpack) {
             T = (unsigned char*)parasail_read(pf, &n);
@@ -588,7 +661,7 @@ int main(int argc, char **argv) {
     }
 
     /* if we don't have a query file, clear the DB flags */
-    if (qname == NULL) {
+    if (!has_query) {
         DB.clear();
         sid_crossover = -1;
     }
@@ -695,7 +768,7 @@ int main(int argc, char **argv) {
             process(count_generated, pairs, the_stack.top(), SA, BWT, SID, DB, sentinal, cutoff);
         }
         finish = parasail_time();
-        if (qname == NULL) {
+        if (!has_query) {
             count_possible = ((unsigned long)sid)*((unsigned long)sid-1)/2;
         } else {
             count_possible = (sid-sid_crossover)*sid_crossover;
@@ -715,7 +788,7 @@ int main(int argc, char **argv) {
     else {
         /* don't use enhanced SA filter -- generate all pairs */
         start = parasail_time();
-        if (qname == NULL) {
+        if (!has_query) {
             /* no query file, so all against all comparison */
             for (int i=0; i<sid; ++i) {
                 for (int j=i+1; j<sid; ++j) {
@@ -996,92 +1069,32 @@ int main(int argc, char **argv) {
     }
 
     /* Output results. */
-    bool is_stats = (NULL != strstr(funcname, "stats"));
-    bool is_table = (NULL != strstr(funcname, "table"));
-    unsigned long edge_count = 0;
-    for (size_t index=0; index<results.size(); ++index) {
-        parasail_result_t *result = results[index];
-        int i = vpairs[index].first;
-        int j = vpairs[index].second;
-        long i_beg = BEG[i];
-        long i_end = END[i];
-        long i_len = i_end-i_beg;
-        long j_beg = BEG[j];
-        long j_end = END[j];
-        long j_len = j_end-j_beg;
-
-        if (NULL != qname) {
-            i = i - sid_crossover;
+    if (is_stats) {
+        if (edge_output) {
+            output_edges(fop, has_query, sid_crossover, T, AOL, SIM, OS, matrix, BEG, END, vpairs, results);
         }
-
-        if (is_stats) {
-            if (edge_output) {
-                int self_score_ = 0;
-                int max_len = 0;
-                int i_self_score = self_score(
-                        (const char*)&T[i_beg], i_len, matrix);
-                int j_self_score = self_score(
-                        (const char*)&T[j_beg], j_len, matrix);
-
-                if (i_len > j_len) {
-                    max_len = i_len;
-                    self_score_ = i_self_score;
-                }
-                else {
-                    max_len = j_len;
-                    self_score_ = j_self_score;
-                }
-
-                if ((result->length * 100 >= AOL * int(max_len))
-                        && (result->matches * 100 >= SIM * result->length)
-                        && (result->score * 100 >= OS * self_score_)) {
-                    ++edge_count;
-                    fprintf(fop, "%d,%d,%f,%f,%f\n",
-                            i, j,
-                            1.0*result->length/max_len,
-                            1.0*result->matches/result->length,
-                            1.0*result->score/self_score_);
-                }
-            }
-            else {
-                eprintf(fop, "%d,%d,%ld,%ld,%d,%d,%d,%d,%d,%d\n",
-                        i,
-                        j,
-                        i_len,
-                        j_len,
-                        result->score,
-                        result->end_query,
-                        result->end_ref,
-                        result->matches,
-                        result->similar,
-                        result->length);
-            }
+        else if (graph_output) {
+            output_graph(fop, 0, sid, T, AOL, SIM, OS, matrix, BEG, END, vpairs, results);
         }
         else {
-            eprintf(fop, "%d,%d,%ld,%ld,%d,%d,%d\n",
-                    i,
-                    j,
-                    i_len,
-                    j_len,
-                    result->score,
-                    result->end_query,
-                    result->end_ref);
+            output_stats(fop, has_query, sid_crossover, BEG, END, vpairs, results);
         }
-        if (is_table) {
-            char filename[256] = {'\0'};
-            sprintf(filename, "parasail_%d_%d.txt", i, j);
-            print_array(filename, result->score_table,
-                    (const char*)&T[i_beg], i_len,
-                    (const char*)&T[j_beg], j_len);
-        }
+    }
+    else {
+        output_basic(fop, has_query, sid_crossover, BEG, END, vpairs, results);
+    }
+    if (is_table) {
+        output_tables(has_query, sid_crossover, T, BEG, END, vpairs, results);
+    }
 
+    /* free results */
+    for (size_t index=0; index<results.size(); ++index) {
+        parasail_result_t *result = results[index];
         parasail_result_free(result);
     }
-    fclose(fop);
 
-    if (is_stats && edge_output) {
-        fprintf(stdout, "%20s: %lu\n", "edges count", edge_count);
-    }
+    /* close output file */
+    fclose(fop);
 
     /* Done with input text. */
     free(T);
@@ -1244,5 +1257,251 @@ inline static int self_score(
         score += matrix->matrix[matrix->size*mapped+mapped];
     }
     return score;
+}
+
+inline static void output_edges(
+        FILE *fop,
+        bool has_query,
+        long sid_crossover,
+        unsigned char *T,
+        int AOL,
+        int SIM,
+        int OS,
+        const parasail_matrix_t *matrix,
+        const vector<long> &BEG,
+        const vector<long> &END,
+        const PairVec &vpairs,
+        const vector<parasail_result_t*> &results)
+{
+    unsigned long edge_count = 0;
+    for (size_t index=0; index<results.size(); ++index) {
+        parasail_result_t *result = results[index];
+        int i = vpairs[index].first;
+        int j = vpairs[index].second;
+        long i_beg = BEG[i];
+        long i_end = END[i];
+        long i_len = i_end-i_beg;
+        long j_beg = BEG[j];
+        long j_end = END[j];
+        long j_len = j_end-j_beg;
+
+        if (has_query) {
+            i = i - sid_crossover;
+        }
+
+        int self_score_ = 0;
+        int max_len = 0;
+        int i_self_score = self_score(
+                (const char*)&T[i_beg], i_len, matrix);
+        int j_self_score = self_score(
+                (const char*)&T[j_beg], j_len, matrix);
+
+        if (i_len > j_len) {
+            max_len = i_len;
+            self_score_ = i_self_score;
+        }
+        else {
+            max_len = j_len;
+            self_score_ = j_self_score;
+        }
+
+        if ((result->length * 100 >= AOL * int(max_len))
+                && (result->matches * 100 >= SIM * result->length)
+                && (result->score * 100 >= OS * self_score_)) {
+            ++edge_count;
+            fprintf(fop, "%d,%d,%f,%f,%f\n",
+                    i, j,
+                    1.0*result->length/max_len,
+                    1.0*result->matches/result->length,
+                    1.0*result->score/self_score_);
+        }
+    }
+
+    fprintf(stdout, "%20s: %lu\n", "edges count", edge_count);
+}
+
+inline static void output_graph(
+        FILE *fop,
+        int which,
+        unsigned long sid,
+        unsigned char *T,
+        int AOL,
+        int SIM,
+        int OS,
+        const parasail_matrix_t *matrix,
+        const vector<long> &BEG,
+        const vector<long> &END,
+        const PairVec &vpairs,
+        const vector<parasail_result_t*> &results)
+{
+    vector<vector<pair<int,float> > > graph(sid);
+    unsigned long edge_count = 0;
+    for (size_t index=0; index<results.size(); ++index) {
+        parasail_result_t *result = results[index];
+        int i = vpairs[index].first;
+        int j = vpairs[index].second;
+        long i_beg = BEG[i];
+        long i_end = END[i];
+        long i_len = i_end-i_beg;
+        long j_beg = BEG[j];
+        long j_end = END[j];
+        long j_len = j_end-j_beg;
+
+        int self_score_ = 0;
+        int max_len = 0;
+        int i_self_score = self_score(
+                (const char*)&T[i_beg], i_len, matrix);
+        int j_self_score = self_score(
+                (const char*)&T[j_beg], j_len, matrix);
+
+        if (i_len > j_len) {
+            max_len = i_len;
+            self_score_ = i_self_score;
+        }
+        else {
+            max_len = j_len;
+            self_score_ = j_self_score;
+        }
+
+        if ((result->length * 100 >= AOL * int(max_len))
+                && (result->matches * 100 >= SIM * result->length)
+                && (result->score * 100 >= OS * self_score_)) {
+            float value;
+            ++edge_count;
+            switch (which) {
+                case 0:
+                    value = 1.0*result->length/max_len;
+                    break;
+                case 1:
+                    value = 1.0*result->matches/result->length;
+                    break;
+                case 2:
+                    value = 1.0*result->score/self_score_;
+                    break;
+            }
+            graph[i].push_back(make_pair(j,value));
+            graph[j].push_back(make_pair(i,value));
+        }
+    }
+
+    fprintf(fop, "%lu %lu 1\n", (unsigned long)graph.size(), edge_count);
+    for (size_t i=0; i<graph.size(); ++i) {
+        if (graph[i].size() > 0) {
+            fprintf(fop, "%d %f", graph[i][0].first, graph[i][0].second);
+            for (size_t j=1; j<graph[i].size(); ++j) {
+                fprintf(fop, "  %d %f", graph[i][j].first, graph[i][j].second);
+            }
+            fprintf(fop, "\n");
+        } else {
+            fprintf(fop, "\n");
+        }
+    }
+
+    fprintf(stdout, "%20s: %lu\n", "edges count", edge_count);
+}
+
+inline static void output_stats(
+        FILE *fop,
+        bool has_query,
+        long sid_crossover,
+        const vector<long> &BEG,
+        const vector<long> &END,
+        const PairVec &vpairs,
+        const vector<parasail_result_t*> &results)
+{
+    for (size_t index=0; index<results.size(); ++index) {
+        parasail_result_t *result = results[index];
+        int i = vpairs[index].first;
+        int j = vpairs[index].second;
+        long i_beg = BEG[i];
+        long i_end = END[i];
+        long i_len = i_end-i_beg;
+        long j_beg = BEG[j];
+        long j_end = END[j];
+        long j_len = j_end-j_beg;
+
+        if (has_query) {
+            i = i - sid_crossover;
+        }
+
+        eprintf(fop, "%d,%d,%ld,%ld,%d,%d,%d,%d,%d,%d\n",
+                i,
+                j,
+                i_len,
+                j_len,
+                result->score,
+                result->end_query,
+                result->end_ref,
+                result->matches,
+                result->similar,
+                result->length);
+    }
+}
+
+inline static void output_basic(
+        FILE *fop,
+        bool has_query,
+        long sid_crossover,
+        const vector<long> &BEG,
+        const vector<long> &END,
+        const PairVec &vpairs,
+        const vector<parasail_result_t*> &results)
+{
+    for (size_t index=0; index<results.size(); ++index) {
+        parasail_result_t *result = results[index];
+        int i = vpairs[index].first;
+        int j = vpairs[index].second;
+        long i_beg = BEG[i];
+        long i_end = END[i];
+        long i_len = i_end-i_beg;
+        long j_beg = BEG[j];
+        long j_end = END[j];
+        long j_len = j_end-j_beg;
+
+        if (has_query) {
+            i = i - sid_crossover;
+        }
+
+        eprintf(fop, "%d,%d,%ld,%ld,%d,%d,%d\n",
+                i,
+                j,
+                i_len,
+                j_len,
+                result->score,
+                result->end_query,
+                result->end_ref);
+    }
+}
+
+inline static void output_tables(
+        bool has_query,
+        long sid_crossover,
+        unsigned char *T,
+        const vector<long> &BEG,
+        const vector<long> &END,
+        const PairVec &vpairs,
+        const vector<parasail_result_t*> &results)
+{
+    for (size_t index=0; index<results.size(); ++index) {
+        parasail_result_t *result = results[index];
+        int i = vpairs[index].first;
+        int j = vpairs[index].second;
+        long i_beg = BEG[i];
+        long i_end = END[i];
+        long i_len = i_end-i_beg;
+        long j_beg = BEG[j];
+        long j_end = END[j];
+        long j_len = j_end-j_beg;
+
+        if (has_query) {
+            i = i - sid_crossover;
+        }
+
+        char filename[256] = {'\0'};
+        sprintf(filename, "parasail_%d_%d.txt", i, j);
+        print_array(filename, result->score_table,
+                (const char*)&T[i_beg], i_len,
+                (const char*)&T[j_beg], j_len);
+    }
 }
 

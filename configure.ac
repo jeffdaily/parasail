@@ -74,6 +74,7 @@ AC_CHECK_HEADERS([unistd.h])
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_INLINE
 AC_C_RESTRICT
+AC_CHECK_SIZEOF([int])
 AC_SYS_LARGEFILE
 AC_TYPE_INT8_T
 AC_TYPE_INT16_T

@@ -552,6 +552,15 @@ parasail_result_t* PNAME(
     result->length = length;
     result->end_query = end_query;
     result->end_ref = end_ref;
+    result->flag = PARASAIL_FLAG_SG | PARASAIL_FLAG_SCAN
+        | PARASAIL_FLAG_STATS
+        | PARASAIL_FLAG_BITS_8 | PARASAIL_FLAG_LANES_32;
+#ifdef PARASAIL_TABLE
+    result->flag |= PARASAIL_FLAG_TABLE;
+#endif
+#ifdef PARASAIL_ROWCOL
+    result->flag |= PARASAIL_FLAG_ROWCOL;
+#endif
 
     parasail_free(pvGapperL);
     parasail_free(pvGapper);

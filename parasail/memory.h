@@ -43,6 +43,16 @@ extern parasail_profile_t* parasail_profile_new(
 
 extern char* parasail_reverse(const char *s, int end);
 
+#if SIZEOF_INT == 1
+#define PARASAIL_FLAG_BITS_INT PARASAIL_FLAG_BITS_8
+#elif SIZEOF_INT == 2
+#define PARASAIL_FLAG_BITS_INT PARASAIL_FLAG_BITS_16
+#elif SIZEOF_INT == 4
+#define PARASAIL_FLAG_BITS_INT PARASAIL_FLAG_BITS_32
+#elif SIZEOF_INT == 8
+#define PARASAIL_FLAG_BITS_INT PARASAIL_FLAG_BITS_64
+#endif
+
 #ifdef __cplusplus
 }
 #endif

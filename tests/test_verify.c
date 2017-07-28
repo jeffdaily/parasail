@@ -131,6 +131,18 @@ static inline void k_combination2(
     *b = (unsigned long)(i);
 }
 
+static inline int check_flags(int ref, int res)
+{
+    if (PARASAIL_FLAG_NW & ref)
+        return PARASAIL_FLAG_NW & res;
+    else if (PARASAIL_FLAG_SG & ref)
+        return PARASAIL_FLAG_SG & res;
+    else if (PARASAIL_FLAG_SW & ref)
+        return PARASAIL_FLAG_SW & res;
+    else
+        return 0;
+}
+
 static void check_functions(
         parasail_function_group_t f,
         char **sequences,
@@ -192,6 +204,36 @@ static void check_functions(
                             sequences[b], sizes[b],
                             open, extend,
                             matrix);
+                    if (PARASAIL_FLAG_INVALID & reference_result->flag) {
+#pragma omp critical(printer)
+                        {
+                            printf("%s(%lu,%lu,%d,%d,%s) invalid reference flag (%d %d)\n",
+                                    functions[function_index].name,
+                                    a, b, open, extend,
+                                    matrixname,
+                                    reference_result->flag, PARASAIL_FLAG_INVALID);
+                        }
+                    }
+                    if (PARASAIL_FLAG_INVALID & result->flag) {
+#pragma omp critical(printer)
+                        {
+                            printf("%s(%lu,%lu,%d,%d,%s) invalid result flag (%d %d)\n",
+                                    functions[function_index].name,
+                                    a, b, open, extend,
+                                    matrixname,
+                                    result->flag, PARASAIL_FLAG_INVALID);
+                        }
+                    }
+                    if (!check_flags(reference_result->flag, result->flag)) {
+#pragma omp critical(printer)
+                        {
+                            printf("%s(%lu,%lu,%d,%d,%s) wrong flag (%d!=%d)\n",
+                                    functions[function_index].name,
+                                    a, b, open, extend,
+                                    matrixname,
+                                    reference_result->flag, result->flag);
+                        }
+                    }
                     if (result->saturated) {
                         /* no point in comparing a result that saturated */
                         parasail_result_free(reference_result);

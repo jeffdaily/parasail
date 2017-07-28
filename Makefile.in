@@ -82,11 +82,12 @@ build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = apps/parasail_aligner$(EXEEXT) \
 	apps/parasail_stats$(EXEEXT) $(am__EXEEXT_1)
-check_PROGRAMS = tests/test_align$(EXEEXT) tests/test_gcups$(EXEEXT) \
-	tests/test_isa$(EXEEXT) tests/test_matrix$(EXEEXT) \
-	tests/test_openmp$(EXEEXT) tests/test_query$(EXEEXT) \
-	tests/test_scatter$(EXEEXT) tests/test_sw_dispatch$(EXEEXT) \
-	tests/test_verify$(EXEEXT) tests/test_verify_tables$(EXEEXT) \
+check_PROGRAMS = tests/traceback$(EXEEXT) tests/test_align$(EXEEXT) \
+	tests/test_gcups$(EXEEXT) tests/test_isa$(EXEEXT) \
+	tests/test_matrix$(EXEEXT) tests/test_openmp$(EXEEXT) \
+	tests/test_query$(EXEEXT) tests/test_scatter$(EXEEXT) \
+	tests/test_sw_dispatch$(EXEEXT) tests/test_verify$(EXEEXT) \
+	tests/test_verify_tables$(EXEEXT) \
 	tests/test_verify_rowcols$(EXEEXT) $(am__EXEEXT_2)
 @HAVE_SSE_TRUE@am__append_1 = libparasail_sse_memory.la
 @HAVE_SSE2_TRUE@am__append_2 = libparasail_sse2.la \
@@ -188,7 +189,8 @@ am__dirstamp = $(am__leading_dot)dirstamp
 am__objects_1 = src/cpuid.lo src/function_lookup.lo src/io.lo \
 	src/isastubs.lo src/matrix_lookup.lo src/memory.lo src/time.lo \
 	src/nw_dispatch.lo src/sg_dispatch.lo src/sw_dispatch.lo \
-	src/dispatch_profile.lo src/satcheck.lo
+	src/dispatch_profile.lo src/satcheck.lo src/striped_unwind.lo \
+	src/traceback.lo
 am_libparasail_la_OBJECTS = $(am__objects_1)
 libparasail_la_OBJECTS = $(am_libparasail_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -554,14 +556,20 @@ am__objects_10 = src/libparasail_novec_la-nw.lo \
 	src/libparasail_novec_la-nw_stats_scan.lo \
 	src/libparasail_novec_la-sg_stats_scan.lo \
 	src/libparasail_novec_la-sw_stats_scan.lo
-am_libparasail_novec_la_OBJECTS = $(am__objects_10)
+am__objects_11 = src/libparasail_novec_la-nw_trace.lo \
+	src/libparasail_novec_la-sg_trace.lo \
+	src/libparasail_novec_la-sw_trace.lo \
+	src/libparasail_novec_la-nw_trace_scan.lo \
+	src/libparasail_novec_la-sg_trace_scan.lo \
+	src/libparasail_novec_la-sw_trace_scan.lo
+am_libparasail_novec_la_OBJECTS = $(am__objects_10) $(am__objects_11)
 libparasail_novec_la_OBJECTS = $(am_libparasail_novec_la_OBJECTS)
 libparasail_novec_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(libparasail_novec_la_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
 libparasail_novec_rowcol_la_LIBADD =
-am__objects_11 = src/libparasail_novec_rowcol_la-nw.lo \
+am__objects_12 = src/libparasail_novec_rowcol_la-nw.lo \
 	src/libparasail_novec_rowcol_la-sg.lo \
 	src/libparasail_novec_rowcol_la-sw.lo \
 	src/libparasail_novec_rowcol_la-nw_scan.lo \
@@ -574,7 +582,7 @@ am__objects_11 = src/libparasail_novec_rowcol_la-nw.lo \
 	src/libparasail_novec_rowcol_la-nw_stats_scan.lo \
 	src/libparasail_novec_rowcol_la-sg_stats_scan.lo \
 	src/libparasail_novec_rowcol_la-sw_stats_scan.lo
-am_libparasail_novec_rowcol_la_OBJECTS = $(am__objects_11)
+am_libparasail_novec_rowcol_la_OBJECTS = $(am__objects_12)
 libparasail_novec_rowcol_la_OBJECTS =  \
 	$(am_libparasail_novec_rowcol_la_OBJECTS)
 libparasail_novec_rowcol_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
@@ -582,7 +590,7 @@ libparasail_novec_rowcol_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(libparasail_novec_rowcol_la_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
 libparasail_novec_table_la_LIBADD =
-am__objects_12 = src/libparasail_novec_table_la-nw.lo \
+am__objects_13 = src/libparasail_novec_table_la-nw.lo \
 	src/libparasail_novec_table_la-sg.lo \
 	src/libparasail_novec_table_la-sw.lo \
 	src/libparasail_novec_table_la-nw_scan.lo \
@@ -595,7 +603,7 @@ am__objects_12 = src/libparasail_novec_table_la-nw.lo \
 	src/libparasail_novec_table_la-nw_stats_scan.lo \
 	src/libparasail_novec_table_la-sg_stats_scan.lo \
 	src/libparasail_novec_table_la-sw_stats_scan.lo
-am_libparasail_novec_table_la_OBJECTS = $(am__objects_12)
+am_libparasail_novec_table_la_OBJECTS = $(am__objects_13)
 libparasail_novec_table_la_OBJECTS =  \
 	$(am_libparasail_novec_table_la_OBJECTS)
 libparasail_novec_table_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
@@ -603,7 +611,7 @@ libparasail_novec_table_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(libparasail_novec_table_la_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
 libparasail_sse2_la_LIBADD =
-am__objects_13 = src/libparasail_sse2_la-nw_scan_sse2_128_64.lo \
+am__objects_14 = src/libparasail_sse2_la-nw_scan_sse2_128_64.lo \
 	src/libparasail_sse2_la-sg_scan_sse2_128_64.lo \
 	src/libparasail_sse2_la-sw_scan_sse2_128_64.lo \
 	src/libparasail_sse2_la-nw_scan_sse2_128_32.lo \
@@ -675,7 +683,7 @@ am__objects_13 = src/libparasail_sse2_la-nw_scan_sse2_128_64.lo \
 	src/libparasail_sse2_la-nw_stats_striped_sse2_128_8.lo \
 	src/libparasail_sse2_la-sg_stats_striped_sse2_128_8.lo \
 	src/libparasail_sse2_la-sw_stats_striped_sse2_128_8.lo
-am_libparasail_sse2_la_OBJECTS = $(am__objects_13)
+am_libparasail_sse2_la_OBJECTS = $(am__objects_14)
 libparasail_sse2_la_OBJECTS = $(am_libparasail_sse2_la_OBJECTS)
 libparasail_sse2_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
@@ -683,7 +691,7 @@ libparasail_sse2_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(LDFLAGS) -o $@
 @HAVE_SSE2_TRUE@am_libparasail_sse2_la_rpath =
 libparasail_sse2_rowcol_la_LIBADD =
-am__objects_14 =  \
+am__objects_15 =  \
 	src/libparasail_sse2_rowcol_la-nw_scan_sse2_128_64.lo \
 	src/libparasail_sse2_rowcol_la-sg_scan_sse2_128_64.lo \
 	src/libparasail_sse2_rowcol_la-sw_scan_sse2_128_64.lo \
@@ -756,7 +764,7 @@ am__objects_14 =  \
 	src/libparasail_sse2_rowcol_la-nw_stats_striped_sse2_128_8.lo \
 	src/libparasail_sse2_rowcol_la-sg_stats_striped_sse2_128_8.lo \
 	src/libparasail_sse2_rowcol_la-sw_stats_striped_sse2_128_8.lo
-am_libparasail_sse2_rowcol_la_OBJECTS = $(am__objects_14)
+am_libparasail_sse2_rowcol_la_OBJECTS = $(am__objects_15)
 libparasail_sse2_rowcol_la_OBJECTS =  \
 	$(am_libparasail_sse2_rowcol_la_OBJECTS)
 libparasail_sse2_rowcol_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
@@ -765,7 +773,7 @@ libparasail_sse2_rowcol_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(LDFLAGS) -o $@
 @HAVE_SSE2_TRUE@am_libparasail_sse2_rowcol_la_rpath =
 libparasail_sse2_table_la_LIBADD =
-am__objects_15 = src/libparasail_sse2_table_la-nw_scan_sse2_128_64.lo \
+am__objects_16 = src/libparasail_sse2_table_la-nw_scan_sse2_128_64.lo \
 	src/libparasail_sse2_table_la-sg_scan_sse2_128_64.lo \
 	src/libparasail_sse2_table_la-sw_scan_sse2_128_64.lo \
 	src/libparasail_sse2_table_la-nw_scan_sse2_128_32.lo \
@@ -837,7 +845,7 @@ am__objects_15 = src/libparasail_sse2_table_la-nw_scan_sse2_128_64.lo \
 	src/libparasail_sse2_table_la-nw_stats_striped_sse2_128_8.lo \
 	src/libparasail_sse2_table_la-sg_stats_striped_sse2_128_8.lo \
 	src/libparasail_sse2_table_la-sw_stats_striped_sse2_128_8.lo
-am_libparasail_sse2_table_la_OBJECTS = $(am__objects_15)
+am_libparasail_sse2_table_la_OBJECTS = $(am__objects_16)
 libparasail_sse2_table_la_OBJECTS =  \
 	$(am_libparasail_sse2_table_la_OBJECTS)
 libparasail_sse2_table_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
@@ -846,7 +854,7 @@ libparasail_sse2_table_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(LDFLAGS) -o $@
 @HAVE_SSE2_TRUE@am_libparasail_sse2_table_la_rpath =
 libparasail_sse41_la_LIBADD =
-am__objects_16 = src/libparasail_sse41_la-nw_scan_sse41_128_64.lo \
+am__objects_17 = src/libparasail_sse41_la-nw_scan_sse41_128_64.lo \
 	src/libparasail_sse41_la-sg_scan_sse41_128_64.lo \
 	src/libparasail_sse41_la-sw_scan_sse41_128_64.lo \
 	src/libparasail_sse41_la-nw_scan_sse41_128_32.lo \
@@ -920,7 +928,7 @@ am__objects_16 = src/libparasail_sse41_la-nw_scan_sse41_128_64.lo \
 	src/libparasail_sse41_la-nw_stats_striped_sse41_128_8.lo \
 	src/libparasail_sse41_la-sg_stats_striped_sse41_128_8.lo \
 	src/libparasail_sse41_la-sw_stats_striped_sse41_128_8.lo
-am_libparasail_sse41_la_OBJECTS = $(am__objects_16)
+am_libparasail_sse41_la_OBJECTS = $(am__objects_17)
 libparasail_sse41_la_OBJECTS = $(am_libparasail_sse41_la_OBJECTS)
 libparasail_sse41_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
@@ -928,7 +936,7 @@ libparasail_sse41_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(LDFLAGS) -o $@
 @HAVE_SSE41_TRUE@am_libparasail_sse41_la_rpath =
 libparasail_sse41_rowcol_la_LIBADD =
-am__objects_17 =  \
+am__objects_18 =  \
 	src/libparasail_sse41_rowcol_la-nw_scan_sse41_128_64.lo \
 	src/libparasail_sse41_rowcol_la-sg_scan_sse41_128_64.lo \
 	src/libparasail_sse41_rowcol_la-sw_scan_sse41_128_64.lo \
@@ -1003,7 +1011,7 @@ am__objects_17 =  \
 	src/libparasail_sse41_rowcol_la-nw_stats_striped_sse41_128_8.lo \
 	src/libparasail_sse41_rowcol_la-sg_stats_striped_sse41_128_8.lo \
 	src/libparasail_sse41_rowcol_la-sw_stats_striped_sse41_128_8.lo
-am_libparasail_sse41_rowcol_la_OBJECTS = $(am__objects_17)
+am_libparasail_sse41_rowcol_la_OBJECTS = $(am__objects_18)
 libparasail_sse41_rowcol_la_OBJECTS =  \
 	$(am_libparasail_sse41_rowcol_la_OBJECTS)
 libparasail_sse41_rowcol_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
@@ -1012,7 +1020,7 @@ libparasail_sse41_rowcol_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(LDFLAGS) -o $@
 @HAVE_SSE41_TRUE@am_libparasail_sse41_rowcol_la_rpath =
 libparasail_sse41_table_la_LIBADD =
-am__objects_18 =  \
+am__objects_19 =  \
 	src/libparasail_sse41_table_la-nw_scan_sse41_128_64.lo \
 	src/libparasail_sse41_table_la-sg_scan_sse41_128_64.lo \
 	src/libparasail_sse41_table_la-sw_scan_sse41_128_64.lo \
@@ -1087,7 +1095,7 @@ am__objects_18 =  \
 	src/libparasail_sse41_table_la-nw_stats_striped_sse41_128_8.lo \
 	src/libparasail_sse41_table_la-sg_stats_striped_sse41_128_8.lo \
 	src/libparasail_sse41_table_la-sw_stats_striped_sse41_128_8.lo
-am_libparasail_sse41_table_la_OBJECTS = $(am__objects_18)
+am_libparasail_sse41_table_la_OBJECTS = $(am__objects_19)
 libparasail_sse41_table_la_OBJECTS =  \
 	$(am_libparasail_sse41_table_la_OBJECTS)
 libparasail_sse41_table_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
@@ -1096,8 +1104,8 @@ libparasail_sse41_table_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(LDFLAGS) -o $@
 @HAVE_SSE41_TRUE@am_libparasail_sse41_table_la_rpath =
 libparasail_sse_memory_la_LIBADD =
-am__objects_19 = src/libparasail_sse_memory_la-memory_sse.lo
-am_libparasail_sse_memory_la_OBJECTS = $(am__objects_19)
+am__objects_20 = src/libparasail_sse_memory_la-memory_sse.lo
+am_libparasail_sse_memory_la_OBJECTS = $(am__objects_20)
 libparasail_sse_memory_la_OBJECTS =  \
 	$(am_libparasail_sse_memory_la_OBJECTS)
 libparasail_sse_memory_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
@@ -1224,6 +1232,10 @@ tests_test_verify_tables_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(tests_test_verify_tables_CFLAGS) $(CFLAGS) \
 	$(tests_test_verify_tables_LDFLAGS) $(LDFLAGS) -o $@
+am_tests_traceback_OBJECTS = tests/traceback.$(OBJEXT)
+tests_traceback_OBJECTS = $(am_tests_traceback_OBJECTS)
+tests_traceback_LDADD = $(LDADD)
+tests_traceback_DEPENDENCIES = libparasail.la
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -1304,7 +1316,7 @@ SOURCES = $(libparasail_la_SOURCES) $(libparasail_avx2_la_SOURCES) \
 	$(tests_test_ssw_SOURCES) $(tests_test_sw_dispatch_SOURCES) \
 	$(tests_test_verify_SOURCES) \
 	$(tests_test_verify_rowcols_SOURCES) \
-	$(tests_test_verify_tables_SOURCES)
+	$(tests_test_verify_tables_SOURCES) $(tests_traceback_SOURCES)
 DIST_SOURCES = $(libparasail_la_SOURCES) \
 	$(libparasail_avx2_la_SOURCES) \
 	$(libparasail_avx2_memory_la_SOURCES) \
@@ -1335,7 +1347,7 @@ DIST_SOURCES = $(libparasail_la_SOURCES) \
 	$(tests_test_ssw_SOURCES) $(tests_test_sw_dispatch_SOURCES) \
 	$(tests_test_verify_SOURCES) \
 	$(tests_test_verify_rowcols_SOURCES) \
-	$(tests_test_verify_tables_SOURCES)
+	$(tests_test_verify_tables_SOURCES) $(tests_traceback_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -1739,16 +1751,15 @@ noinst_LTLIBRARIES = libparasail_novec.la libparasail_novec_table.la \
 check_LTLIBRARIES = $(am__append_11) tests/libsais.la
 AM_CFLAGS = $(VISIBILITY_FLAGS)
 AM_CPPFLAGS = -I$(top_srcdir)/contrib \
-	-I$(top_srcdir)/contrib/sais-lite-lcp
+	-I$(top_srcdir)/contrib/sais-lite-lcp -I$(top_srcdir)/src
 AM_LDFLAGS = 
 LDADD = libparasail.la
-EXTRA_DIST = version.sh .gitignore .travis.yml CHANGELOG.md \
-	CMakeLists.txt COPYING DISCLAIMER README.md aclocal.m4 \
-	appveyor.yml apps/README.md cmake/FindAVX2.cmake \
-	cmake/FindSSE2.cmake cmake/FindSSE41.cmake \
-	cmake/Findxgetbv.cmake cmake/avx2_dummy.c cmake/config.h.in \
-	cmake/parasail.def cmake/sse2_dummy.c cmake/sse41_dummy.c \
-	contrib/cpuid.c contrib/cpuid_gen4.c contrib/kseq.h \
+EXTRA_DIST = version.sh DISCLAIMER README.md aclocal.m4 appveyor.yml \
+	apps/README.md cmake/FindAVX2.cmake cmake/FindSSE2.cmake \
+	cmake/FindSSE41.cmake cmake/Findxgetbv.cmake \
+	cmake/avx2_dummy.c cmake/config.h.in cmake/parasail.def \
+	cmake/sse2_dummy.c cmake/sse41_dummy.c contrib/cpuid.c \
+	contrib/cpuid_gen4.c contrib/kseq.h \
 	contrib/sais-lite-lcp/COPYING contrib/sais-lite-lcp/Makefile \
 	contrib/sais-lite-lcp/README contrib/sais-lite-lcp/sais.c \
 	contrib/sais-lite-lcp/sais.h contrib/sais-lite-lcp/sais.hxx \
@@ -1814,7 +1825,8 @@ EXTRA_DIST = version.sh .gitignore .travis.yml CHANGELOG.md \
 SRC_CORE = src/cpuid.c src/function_lookup.c src/io.c src/isastubs.c \
 	src/matrix_lookup.c src/memory.c src/time.c src/nw_dispatch.c \
 	src/sg_dispatch.c src/sw_dispatch.c src/dispatch_profile.c \
-	src/satcheck.c parasail/memory.h parasail/stats.h
+	src/satcheck.c src/striped_unwind.c src/traceback.c \
+	parasail/memory.h parasail/stats.h
 
 #################
 # vector memory
@@ -2056,12 +2068,14 @@ SRC_KNC = src/nw_scan_knc_512_32.c src/sg_scan_knc_512_32.c \
 	src/nw_stats_striped_knc_512_32.c \
 	src/sg_stats_striped_knc_512_32.c \
 	src/sw_stats_striped_knc_512_32.c
+SRC_TRACE_NOVEC = src/nw_trace.c src/sg_trace.c src/sw_trace.c \
+	src/nw_trace_scan.c src/sg_trace_scan.c src/sw_trace_scan.c
 
 #########################
 # library magic
 #########################
 libparasail_la_SOURCES = $(SRC_CORE)
-libparasail_novec_la_SOURCES = $(SRC_NOVEC)
+libparasail_novec_la_SOURCES = $(SRC_NOVEC) $(SRC_TRACE_NOVEC)
 libparasail_sse2_la_SOURCES = $(SRC_SSE2)
 libparasail_sse41_la_SOURCES = $(SRC_SSE41)
 libparasail_avx2_la_SOURCES = $(SRC_AVX2)
@@ -2127,6 +2141,7 @@ apps_parasail_aligner_cilk_LDFLAGS = $(AM_LDFLAGS) $(CILK_CXXFLAGS)
 apps_parasail_aligner_cilk_LDADD = $(LDADD) $(CILK_LIBS) \
 	tests/libsais.la
 apps_parasail_stats_SOURCES = apps/parasail_stats.c
+tests_traceback_SOURCES = tests/traceback.c
 tests_test_align_SOURCES = tests/test_align.c
 tests_test_gcups_SOURCES = tests/test_gcups.c
 tests_test_gcups_LDADD = $(LDADD) $(Z_LIBS)
@@ -2289,6 +2304,9 @@ src/sw_dispatch.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/dispatch_profile.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/satcheck.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/striped_unwind.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/traceback.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 
 libparasail.la: $(libparasail_la_OBJECTS) $(libparasail_la_DEPENDENCIES) $(EXTRA_libparasail_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(libparasail_la_LINK) -rpath $(libdir) $(libparasail_la_OBJECTS) $(libparasail_la_LIBADD) $(LIBS)
@@ -2885,6 +2903,18 @@ src/libparasail_novec_la-nw_stats_scan.lo: src/$(am__dirstamp) \
 src/libparasail_novec_la-sg_stats_scan.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/libparasail_novec_la-sw_stats_scan.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/libparasail_novec_la-nw_trace.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/libparasail_novec_la-sg_trace.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/libparasail_novec_la-sw_trace.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/libparasail_novec_la-nw_trace_scan.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/libparasail_novec_la-sg_trace_scan.lo: src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/libparasail_novec_la-sw_trace_scan.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 
 libparasail_novec.la: $(libparasail_novec_la_OBJECTS) $(libparasail_novec_la_DEPENDENCIES) $(EXTRA_libparasail_novec_la_DEPENDENCIES) 
@@ -4028,6 +4058,12 @@ tests/tests_test_verify_tables-test_verify_tables.$(OBJEXT):  \
 tests/test_verify_tables$(EXEEXT): $(tests_test_verify_tables_OBJECTS) $(tests_test_verify_tables_DEPENDENCIES) $(EXTRA_tests_test_verify_tables_DEPENDENCIES) tests/$(am__dirstamp)
 	@rm -f tests/test_verify_tables$(EXEEXT)
 	$(AM_V_CCLD)$(tests_test_verify_tables_LINK) $(tests_test_verify_tables_OBJECTS) $(tests_test_verify_tables_LDADD) $(LIBS)
+tests/traceback.$(OBJEXT): tests/$(am__dirstamp) \
+	tests/$(DEPDIR)/$(am__dirstamp)
+
+tests/traceback$(EXEEXT): $(tests_traceback_OBJECTS) $(tests_traceback_DEPENDENCIES) $(EXTRA_tests_traceback_DEPENDENCIES) tests/$(am__dirstamp)
+	@rm -f tests/traceback$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(tests_traceback_OBJECTS) $(tests_traceback_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -4330,14 +4366,20 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_novec_la-nw_scan.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_novec_la-nw_stats.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_novec_la-nw_stats_scan.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_novec_la-nw_trace.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_novec_la-nw_trace_scan.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_novec_la-sg.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_novec_la-sg_scan.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_novec_la-sg_stats.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_novec_la-sg_stats_scan.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_novec_la-sg_trace.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_novec_la-sg_trace_scan.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_novec_la-sw.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_novec_la-sw_scan.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_novec_la-sw_stats.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_novec_la-sw_stats_scan.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_novec_la-sw_trace.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_novec_la-sw_trace_scan.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_novec_rowcol_la-nw.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_novec_rowcol_la-nw_banded.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/libparasail_novec_rowcol_la-nw_scan.Plo@am__quote@
@@ -4808,8 +4850,10 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/nw_dispatch.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/satcheck.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sg_dispatch.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/striped_unwind.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sw_dispatch.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/time.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/traceback.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_align.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_gcups.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_isa.Po@am__quote@
@@ -4822,6 +4866,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/tests_test_verify-test_verify.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/tests_test_verify_rowcols-test_verify_rowcols.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/tests_test_verify_tables-test_verify_tables.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/traceback.Po@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`;\
@@ -6841,6 +6886,48 @@ src/libparasail_novec_la-sw_stats_scan.lo: src/sw_stats_scan.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/sw_stats_scan.c' object='src/libparasail_novec_la-sw_stats_scan.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libparasail_novec_la_CFLAGS) $(CFLAGS) -c -o src/libparasail_novec_la-sw_stats_scan.lo `test -f 'src/sw_stats_scan.c' || echo '$(srcdir)/'`src/sw_stats_scan.c
+
+src/libparasail_novec_la-nw_trace.lo: src/nw_trace.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libparasail_novec_la_CFLAGS) $(CFLAGS) -MT src/libparasail_novec_la-nw_trace.lo -MD -MP -MF src/$(DEPDIR)/libparasail_novec_la-nw_trace.Tpo -c -o src/libparasail_novec_la-nw_trace.lo `test -f 'src/nw_trace.c' || echo '$(srcdir)/'`src/nw_trace.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/libparasail_novec_la-nw_trace.Tpo src/$(DEPDIR)/libparasail_novec_la-nw_trace.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/nw_trace.c' object='src/libparasail_novec_la-nw_trace.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libparasail_novec_la_CFLAGS) $(CFLAGS) -c -o src/libparasail_novec_la-nw_trace.lo `test -f 'src/nw_trace.c' || echo '$(srcdir)/'`src/nw_trace.c
+
+src/libparasail_novec_la-sg_trace.lo: src/sg_trace.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libparasail_novec_la_CFLAGS) $(CFLAGS) -MT src/libparasail_novec_la-sg_trace.lo -MD -MP -MF src/$(DEPDIR)/libparasail_novec_la-sg_trace.Tpo -c -o src/libparasail_novec_la-sg_trace.lo `test -f 'src/sg_trace.c' || echo '$(srcdir)/'`src/sg_trace.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/libparasail_novec_la-sg_trace.Tpo src/$(DEPDIR)/libparasail_novec_la-sg_trace.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/sg_trace.c' object='src/libparasail_novec_la-sg_trace.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libparasail_novec_la_CFLAGS) $(CFLAGS) -c -o src/libparasail_novec_la-sg_trace.lo `test -f 'src/sg_trace.c' || echo '$(srcdir)/'`src/sg_trace.c
+
+src/libparasail_novec_la-sw_trace.lo: src/sw_trace.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libparasail_novec_la_CFLAGS) $(CFLAGS) -MT src/libparasail_novec_la-sw_trace.lo -MD -MP -MF src/$(DEPDIR)/libparasail_novec_la-sw_trace.Tpo -c -o src/libparasail_novec_la-sw_trace.lo `test -f 'src/sw_trace.c' || echo '$(srcdir)/'`src/sw_trace.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/libparasail_novec_la-sw_trace.Tpo src/$(DEPDIR)/libparasail_novec_la-sw_trace.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/sw_trace.c' object='src/libparasail_novec_la-sw_trace.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libparasail_novec_la_CFLAGS) $(CFLAGS) -c -o src/libparasail_novec_la-sw_trace.lo `test -f 'src/sw_trace.c' || echo '$(srcdir)/'`src/sw_trace.c
+
+src/libparasail_novec_la-nw_trace_scan.lo: src/nw_trace_scan.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libparasail_novec_la_CFLAGS) $(CFLAGS) -MT src/libparasail_novec_la-nw_trace_scan.lo -MD -MP -MF src/$(DEPDIR)/libparasail_novec_la-nw_trace_scan.Tpo -c -o src/libparasail_novec_la-nw_trace_scan.lo `test -f 'src/nw_trace_scan.c' || echo '$(srcdir)/'`src/nw_trace_scan.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/libparasail_novec_la-nw_trace_scan.Tpo src/$(DEPDIR)/libparasail_novec_la-nw_trace_scan.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/nw_trace_scan.c' object='src/libparasail_novec_la-nw_trace_scan.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libparasail_novec_la_CFLAGS) $(CFLAGS) -c -o src/libparasail_novec_la-nw_trace_scan.lo `test -f 'src/nw_trace_scan.c' || echo '$(srcdir)/'`src/nw_trace_scan.c
+
+src/libparasail_novec_la-sg_trace_scan.lo: src/sg_trace_scan.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libparasail_novec_la_CFLAGS) $(CFLAGS) -MT src/libparasail_novec_la-sg_trace_scan.lo -MD -MP -MF src/$(DEPDIR)/libparasail_novec_la-sg_trace_scan.Tpo -c -o src/libparasail_novec_la-sg_trace_scan.lo `test -f 'src/sg_trace_scan.c' || echo '$(srcdir)/'`src/sg_trace_scan.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/libparasail_novec_la-sg_trace_scan.Tpo src/$(DEPDIR)/libparasail_novec_la-sg_trace_scan.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/sg_trace_scan.c' object='src/libparasail_novec_la-sg_trace_scan.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libparasail_novec_la_CFLAGS) $(CFLAGS) -c -o src/libparasail_novec_la-sg_trace_scan.lo `test -f 'src/sg_trace_scan.c' || echo '$(srcdir)/'`src/sg_trace_scan.c
+
+src/libparasail_novec_la-sw_trace_scan.lo: src/sw_trace_scan.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libparasail_novec_la_CFLAGS) $(CFLAGS) -MT src/libparasail_novec_la-sw_trace_scan.lo -MD -MP -MF src/$(DEPDIR)/libparasail_novec_la-sw_trace_scan.Tpo -c -o src/libparasail_novec_la-sw_trace_scan.lo `test -f 'src/sw_trace_scan.c' || echo '$(srcdir)/'`src/sw_trace_scan.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/libparasail_novec_la-sw_trace_scan.Tpo src/$(DEPDIR)/libparasail_novec_la-sw_trace_scan.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/sw_trace_scan.c' object='src/libparasail_novec_la-sw_trace_scan.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libparasail_novec_la_CFLAGS) $(CFLAGS) -c -o src/libparasail_novec_la-sw_trace_scan.lo `test -f 'src/sw_trace_scan.c' || echo '$(srcdir)/'`src/sw_trace_scan.c
 
 src/libparasail_novec_rowcol_la-nw.lo: src/nw.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libparasail_novec_rowcol_la_CPPFLAGS) $(CPPFLAGS) $(libparasail_novec_rowcol_la_CFLAGS) $(CFLAGS) -MT src/libparasail_novec_rowcol_la-nw.lo -MD -MP -MF src/$(DEPDIR)/libparasail_novec_rowcol_la-nw.Tpo -c -o src/libparasail_novec_rowcol_la-nw.lo `test -f 'src/nw.c' || echo '$(srcdir)/'`src/nw.c

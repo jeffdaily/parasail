@@ -96,6 +96,7 @@ nobase_include_HEADERS += parasail/matrices/pam_map.h
 
 AM_CPPFLAGS += -I$(top_srcdir)/contrib
 AM_CPPFLAGS += -I$(top_srcdir)/contrib/sais-lite-lcp
+AM_CPPFLAGS += -I$(top_srcdir)/src
 
 noinst_LTLIBRARIES += libparasail_novec.la
 noinst_LTLIBRARIES += libparasail_novec_table.la
@@ -135,6 +136,7 @@ SRC_SSE2 =
 SRC_SSE41 =
 SRC_AVX2 =
 SRC_KNC =
+SRC_TRACE_NOVEC =
 
 #################
 # core sources
@@ -152,6 +154,8 @@ SRC_CORE += src/sg_dispatch.c
 SRC_CORE += src/sw_dispatch.c
 SRC_CORE += src/dispatch_profile.c
 SRC_CORE += src/satcheck.c
+SRC_CORE += src/striped_unwind.c
+SRC_CORE += src/traceback.c
 SRC_CORE += parasail/memory.h
 SRC_CORE += parasail/stats.h
 
@@ -189,6 +193,14 @@ SRC_NOVEC += src/sw_stats.c
 SRC_NOVEC += src/nw_stats_scan.c
 SRC_NOVEC += src/sg_stats_scan.c
 SRC_NOVEC += src/sw_stats_scan.c
+
+SRC_TRACE_NOVEC += src/nw_trace.c
+SRC_TRACE_NOVEC += src/sg_trace.c
+SRC_TRACE_NOVEC += src/sw_trace.c
+
+SRC_TRACE_NOVEC += src/nw_trace_scan.c
+SRC_TRACE_NOVEC += src/sg_trace_scan.c
+SRC_TRACE_NOVEC += src/sw_trace_scan.c
 
 ###################
 # parallel methods
@@ -570,7 +582,7 @@ SRC_KNC += src/sw_stats_striped_knc_512_32.c
 
 libparasail_la_SOURCES = $(SRC_CORE)
 
-libparasail_novec_la_SOURCES = $(SRC_NOVEC)
+libparasail_novec_la_SOURCES = $(SRC_NOVEC) $(SRC_TRACE_NOVEC)
 libparasail_sse2_la_SOURCES  = $(SRC_SSE2)
 libparasail_sse41_la_SOURCES = $(SRC_SSE41)
 libparasail_avx2_la_SOURCES  = $(SRC_AVX2)
@@ -683,6 +695,7 @@ if HAVE_CILK
 bin_PROGRAMS += apps/parasail_aligner_cilk
 endif
 
+check_PROGRAMS += tests/traceback
 check_PROGRAMS += tests/test_align
 check_PROGRAMS += tests/test_gcups
 check_PROGRAMS += tests/test_isa
@@ -715,6 +728,8 @@ apps_parasail_aligner_cilk_LDADD += $(CILK_LIBS)
 apps_parasail_aligner_cilk_LDADD += tests/libsais.la
 
 apps_parasail_stats_SOURCES = apps/parasail_stats.c
+
+tests_traceback_SOURCES = tests/traceback.c
 
 tests_test_align_SOURCES = tests/test_align.c
 
@@ -771,11 +786,6 @@ tests_test_verify_rowcols_SOURCES = tests/test_verify_rowcols.c
 tests_test_verify_rowcols_CFLAGS  = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_test_verify_rowcols_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
 
-EXTRA_DIST += .gitignore
-EXTRA_DIST += .travis.yml
-EXTRA_DIST += CHANGELOG.md
-EXTRA_DIST += CMakeLists.txt
-EXTRA_DIST += COPYING
 EXTRA_DIST += DISCLAIMER
 EXTRA_DIST += README.md
 EXTRA_DIST += aclocal.m4

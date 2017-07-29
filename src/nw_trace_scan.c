@@ -31,8 +31,10 @@ parasail_result_t* ENAME(
     int * const restrict E  = parasail_memalign_int(16, s1Len);
     int * const restrict HtB= parasail_memalign_int(16, s1Len+1);
     int * const restrict Ht = HtB+1;
-    int * const restrict FtB= parasail_memalign_int(16, s1Len+1);
-    int * const restrict Ft = FtB+1;
+    int * const restrict HT = (int* const restrict)result->trace_table;
+    int * const restrict ET = (int* const restrict)result->trace_ins_table;
+    int * const restrict FT = (int* const restrict)result->trace_del_table;
+    int * const restrict Ex = parasail_memalign_int(16, s1Len);
     int i = 0;
     int j = 0;
 
@@ -55,47 +57,64 @@ parasail_result_t* ENAME(
         E[i] = NEG_INF_32;
     }
 
-#if 1
     /* iterate over database */
     for (j=0; j<s2Len; ++j) {
+        int Ft = NEG_INF_32;
         const int * const restrict matcol = &matrix->matrix[matrix->size*s2[j]];
         /* calculate E */
         for (i=0; i<s1Len; ++i) {
-            E[i] = MAX(E[i]-gap, H[i]-open);
+            int E_opn = H[i]-open;
+            int E_ext = E[i]-gap;
+            E[i] = MAX(E_ext, E_opn);
+            ET[i*s2Len + j] = (E_opn > E_ext) ? PARASAIL_DIAG
+                                              : PARASAIL_INS;
         }
         /* calculate Ht */
         for (i=0; i<s1Len; ++i) {
-            Ht[i] = MAX(H[i-1]+matcol[s1[i]], E[i]);
+            int H_dag = H[i-1]+matcol[s1[i]];
+            Ht[i] = MAX(H_dag, E[i]);
+            Ex[i] = (E[i] > H_dag);
         }
         Ht[-1] = -open -j*gap;
-        Ft[-1] = NEG_INF_32;
-        /* calculate Ft */
-        for (i=0; i<s1Len; ++i) {
-            Ft[i] = MAX(Ft[i-1]-gap, Ht[i-1]);
-        }
         /* calculate H */
         for (i=0; i<s1Len; ++i) {
-            H[i] = MAX(Ht[i], Ft[i]-open);
+            int Ft_opn;
+            int Ht_pre = Ht[i-1];
+            int Ft_ext = Ft-gap;
+            if (Ht_pre >= Ft_ext) {
+                Ft = Ht_pre;
+            }
+            else {
+                Ft = Ft_ext;
+            }
+            Ft_opn = Ft-open;
+            if (H[i-1] > Ft_ext) {
+                FT[i*s2Len + j] = PARASAIL_DIAG;
+            }
+            else {
+                FT[i*s2Len + j] = PARASAIL_DEL;
+            }
+            if (Ht[i] > Ft_opn) {
+                H[i] = Ht[i];
+                HT[i*s2Len + j] = Ex[i] ? PARASAIL_INS : PARASAIL_DIAG;
+            }
+            else {
+                H[i] = Ft_opn;
+                if (Ht[i] == Ft_opn) {
+                    if (Ex[i]) {
+                        HT[i*s2Len + j] = PARASAIL_DEL;
+                    }
+                    else {
+                        HT[i*s2Len + j] = PARASAIL_DIAG;
+                    }
+                }
+                else {
+                    HT[i*s2Len + j] = PARASAIL_DEL;
+                }
+            }
         }
         H[-1] = -open - j*gap;
     }
-#else
-    /* iterate over database */
-    Ft[-1] = NEG_INF_32;
-    for (j=0; j<s2Len; ++j) {
-        const int * const restrict matcol = matrix->matrix_[s2[j]];
-        int Hp = H[-1];
-        for (i=0; i<s1Len; ++i) {
-            E[i] = MAX(E[i]-gap, H[i]-open);
-            Ht[i] = MAX(Hp+matcol[s1[i]], E[i]);
-            Ft[i] = MAX(Ft[i-1]-gap, Ht[i-1]);
-            Hp = H[i];
-            H[i] = MAX(Ht[i], Ft[i]-open);
-        }
-        H[-1] = -open - j*gap;
-        Ht[-1] = -open -j*gap;
-    }
-#endif
 
     result->score = H[s1Len-1];
     result->end_query = s1Len-1;
@@ -104,7 +123,7 @@ parasail_result_t* ENAME(
         | PARASAIL_FLAG_TRACE
         | PARASAIL_FLAG_BITS_INT | PARASAIL_FLAG_LANES_1;
 
-    parasail_free(FtB);
+    parasail_free(Ex);
     parasail_free(HtB);
     parasail_free(E);
     parasail_free(HB);

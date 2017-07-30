@@ -14,7 +14,12 @@ EXPORTS
     parasail_time
     parasail_matrix_lookup
     parasail_matrix_create
+    parasail_matrix_from_file
     parasail_matrix_free
+    parasail_matrix_copy
+    parasail_matrix_set_value
+    parasail_nw_banded
+    parasail_traceback
 ; from parasail/io.h
     parasail_open
     parasail_close
@@ -23,6 +28,7 @@ EXPORTS
     parasail_stat
     parasail_stat_fasta
     parasail_stat_fastq
+    parasail_read
     parasail_pack
     parasail_pack_fasta
     parasail_pack_fastq
@@ -35,6 +41,9 @@ EXPORTS
     parasail_pack_fasta_buffer
     parasail_pack_fastq_buffer
 ; from parasail/cpuid.h
+    parasail_can_use_avx512vbmi
+    parasail_can_use_avx512bw
+    parasail_can_use_avx512f
     parasail_can_use_avx2
     parasail_can_use_sse41
     parasail_can_use_sse2
@@ -43,19 +52,21 @@ EXPORTS
 # serial reference implementations (3x2x3 = 18 impl)
 alg = ["nw", "sg", "sw"]
 stats = ["", "_stats"]
-table = ["", "_table", "_rowcol"]
+table = ["", "_table", "_rowcol", "_trace"]
 for a in alg:
     for s in stats:
         for t in table:
+            if 'stats' in s and 'trace' in t: continue
             print "    parasail_"+a+s+t
 
 # serial scan reference implementations (3x2x3 = 18 impl)
 alg = ["nw", "sg", "sw"]
 stats = ["", "_stats"]
-table = ["", "_table", "_rowcol"]
+table = ["", "_table", "_rowcol", "_trace"]
 for a in alg:
     for s in stats:
         for t in table:
+            if 'stats' in s and 'trace' in t: continue
             print "    parasail_"+a+s+t+"_scan"
 
 # vectorized implementations (3x2x3x3x13 = 702 impl)

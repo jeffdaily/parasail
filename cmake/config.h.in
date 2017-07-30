@@ -2,6 +2,7 @@
 #cmakedefine HAVE_POSIX_MEMALIGN
 #cmakedefine HAVE_ALIGNED_ALLOC
 #cmakedefine HAVE_MEMALIGN
+#cmakedefine SIZEOF_INT @SIZEOF_INT@
 #cmakedefine01 HAVE_XGETBV
 #cmakedefine01 HAVE_SSE2
 #cmakedefine01 HAVE_SSE2_MM_SET1_EPI64X

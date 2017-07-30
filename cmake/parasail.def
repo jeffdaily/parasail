@@ -17,6 +17,7 @@ EXPORTS
     parasail_matrix_copy
     parasail_matrix_set_value
     parasail_nw_banded
+    parasail_traceback
 ; from parasail/io.h
     parasail_open
     parasail_close
@@ -48,36 +49,42 @@ EXPORTS
     parasail_nw
     parasail_nw_table
     parasail_nw_rowcol
+    parasail_nw_trace
     parasail_nw_stats
     parasail_nw_stats_table
     parasail_nw_stats_rowcol
     parasail_sg
     parasail_sg_table
     parasail_sg_rowcol
+    parasail_sg_trace
     parasail_sg_stats
     parasail_sg_stats_table
     parasail_sg_stats_rowcol
     parasail_sw
     parasail_sw_table
     parasail_sw_rowcol
+    parasail_sw_trace
     parasail_sw_stats
     parasail_sw_stats_table
     parasail_sw_stats_rowcol
     parasail_nw_scan
     parasail_nw_table_scan
     parasail_nw_rowcol_scan
+    parasail_nw_trace_scan
     parasail_nw_stats_scan
     parasail_nw_stats_table_scan
     parasail_nw_stats_rowcol_scan
     parasail_sg_scan
     parasail_sg_table_scan
     parasail_sg_rowcol_scan
+    parasail_sg_trace_scan
     parasail_sg_stats_scan
     parasail_sg_stats_table_scan
     parasail_sg_stats_rowcol_scan
     parasail_sw_scan
     parasail_sw_table_scan
     parasail_sw_rowcol_scan
+    parasail_sw_trace_scan
     parasail_sw_stats_scan
     parasail_sw_stats_table_scan
     parasail_sw_stats_rowcol_scan

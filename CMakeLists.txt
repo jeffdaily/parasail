@@ -16,12 +16,15 @@ ENDIF( )
 INCLUDE( CheckFunctionExists )
 INCLUDE( CheckLibraryExists )
 INCLUDE( CheckSymbolExists ) 
+INCLUDE( CheckTypeSize )
 INCLUDE( CheckCSourceCompiles ) 
 INCLUDE( FindOpenMP ) 
 INCLUDE( FindSSE2 )
 INCLUDE( FindSSE41 )
 INCLUDE( FindAVX2 )
 INCLUDE( Findxgetbv )
+
+CHECK_TYPE_SIZE( "int" SIZEOF_INT )
 
 # Check for restrict keyword
 FOREACH( ac_kw __restrict __restrict__ _Restrict restrict )
@@ -84,6 +87,7 @@ ENDIF( )
 
 INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_LIST_DIR} )
 INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_LIST_DIR}/contrib )
+INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_LIST_DIR}/src )
 INCLUDE_DIRECTORIES( ${CMAKE_BINARY_DIR} )
 
 #CHECK_FUNCTION_EXISTS( _aligned_malloc HAVE__ALIGNED_MALLOC )
@@ -115,6 +119,8 @@ SET( SRC_CORE
     src/sw_dispatch.c
     src/dispatch_profile.c
     src/satcheck.c
+    src/striped_unwind.c
+    src/traceback.c
 )
 
 SET( SRC_NOVEC
@@ -131,6 +137,12 @@ SET( SRC_NOVEC
     src/nw_stats_scan.c
     src/sg_stats_scan.c
     src/sw_stats_scan.c
+    src/nw_trace.c
+    src/sg_trace.c
+    src/sw_trace.c
+    src/nw_trace_scan.c
+    src/sg_trace_scan.c
+    src/sw_trace_scan.c
 )
 
 SET( SRC_SSE2
@@ -466,6 +478,11 @@ SET_TARGET_PROPERTIES( parasail_avx2_rowcol PROPERTIES COMPILE_DEFINITIONS PARAS
 ADD_LIBRARY( sais OBJECT contrib/sais-lite-lcp/sais.c )
 TARGET_INCLUDE_DIRECTORIES( sais PRIVATE ${CMAKE_CURRENT_LIST_DIR}/contrib/sais-lite-lcp )
 
+IF( SSE2_FOUND )
+    ADD_LIBRARY( ssw OBJECT contrib/ssw.c )
+    TARGET_INCLUDE_DIRECTORIES( ssw PRIVATE ${CMAKE_CURRENT_LIST_DIR}/contrib )
+ENDIF( )
+
 SET( maybe_def )
 IF( WIN32 )
     IF( BUILD_SHARED_LIBS )
@@ -507,6 +524,7 @@ SET( maybe_getopt )
 IF( WIN32 )
     LIST( APPEND maybe_getopt contrib/wingetopt/src/getopt.c )
 ENDIF( )
+
 ADD_EXECUTABLE( parasail_aligner apps/parasail_aligner.cpp $<TARGET_OBJECTS:sais> ${maybe_getopt} )
 IF( OPENMP_FOUND )
     SET_TARGET_PROPERTIES( parasail_aligner PROPERTIES COMPILE_FLAGS ${OpenMP_CXX_FLAGS} )
@@ -518,11 +536,37 @@ TARGET_INCLUDE_DIRECTORIES( parasail_aligner PRIVATE ${CMAKE_CURRENT_LIST_DIR}/c
 ADD_EXECUTABLE( parasail_stats apps/parasail_stats.c )
 TARGET_LINK_LIBRARIES( parasail_stats parasail )
 
+ADD_EXECUTABLE( traceback tests/traceback.c ${maybe_getopt} )
+TARGET_LINK_LIBRARIES( traceback parasail )
+
+ADD_EXECUTABLE( test_align tests/test_align.c ${maybe_getopt} )
+TARGET_LINK_LIBRARIES( test_align parasail )
+
+ADD_EXECUTABLE( test_gcups tests/test_gcups.c ${maybe_getopt} )
+TARGET_LINK_LIBRARIES( test_gcups parasail )
+
 ADD_EXECUTABLE( test_isa tests/test_isa.c )
 TARGET_LINK_LIBRARIES( test_isa parasail )
 
 ADD_EXECUTABLE( test_matrix tests/test_matrix.c )
 TARGET_LINK_LIBRARIES( test_matrix parasail )
+
+ADD_EXECUTABLE( test_openmp tests/test_openmp.c $<TARGET_OBJECTS:ssw> ${maybe_getopt} )
+IF( OPENMP_FOUND )
+    SET_TARGET_PROPERTIES( test_openmp PROPERTIES COMPILE_FLAGS ${OpenMP_CXX_FLAGS} )
+    SET_TARGET_PROPERTIES( test_openmp PROPERTIES LINK_FLAGS ${OpenMP_CXX_FLAGS} )
+ENDIF( )
+TARGET_LINK_LIBRARIES( test_openmp parasail )
+TARGET_INCLUDE_DIRECTORIES( test_openmp PRIVATE ${CMAKE_CURRENT_LIST_DIR}/contrib )
+
+ADD_EXECUTABLE( test_verify tests/test_verify.c ${maybe_getopt} )
+TARGET_LINK_LIBRARIES( test_verify parasail )
+
+ADD_EXECUTABLE( test_verify_tables tests/test_verify_tables.c ${maybe_getopt} )
+TARGET_LINK_LIBRARIES( test_verify_tables parasail )
+
+ADD_EXECUTABLE( test_verify_rowcols tests/test_verify_rowcols.c ${maybe_getopt} )
+TARGET_LINK_LIBRARIES( test_verify_rowcols parasail )
 
 INSTALL( FILES parasail.h DESTINATION include )
 INSTALL( DIRECTORY parasail DESTINATION include )

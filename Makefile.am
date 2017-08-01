@@ -137,6 +137,10 @@ SRC_SSE41 =
 SRC_AVX2 =
 SRC_KNC =
 SRC_TRACE_NOVEC =
+SRC_TRACE_SSE2 =
+SRC_TRACE_SSE41 =
+SRC_TRACE_AVX2 =
+SRC_TRACE_KNC =
 
 #################
 # core sources
@@ -577,16 +581,182 @@ SRC_KNC += src/sg_stats_striped_knc_512_32.c
 SRC_KNC += src/sw_stats_striped_knc_512_32.c
 
 #########################
+# parallel trace methods
+#########################
+
+# parallel scan methods
+
+SRC_TRACE_SSE2 += src/nw_trace_scan_sse2_128_64.c
+SRC_TRACE_SSE2 += src/sg_trace_scan_sse2_128_64.c
+SRC_TRACE_SSE2 += src/sw_trace_scan_sse2_128_64.c
+
+SRC_TRACE_SSE2 += src/nw_trace_scan_sse2_128_32.c
+SRC_TRACE_SSE2 += src/sg_trace_scan_sse2_128_32.c
+SRC_TRACE_SSE2 += src/sw_trace_scan_sse2_128_32.c
+
+SRC_TRACE_SSE2 += src/nw_trace_scan_sse2_128_16.c
+SRC_TRACE_SSE2 += src/sg_trace_scan_sse2_128_16.c
+SRC_TRACE_SSE2 += src/sw_trace_scan_sse2_128_16.c
+
+SRC_TRACE_SSE2 += src/nw_trace_scan_sse2_128_8.c
+SRC_TRACE_SSE2 += src/sg_trace_scan_sse2_128_8.c
+SRC_TRACE_SSE2 += src/sw_trace_scan_sse2_128_8.c
+
+SRC_TRACE_SSE41 += src/nw_trace_scan_sse41_128_64.c
+SRC_TRACE_SSE41 += src/sg_trace_scan_sse41_128_64.c
+SRC_TRACE_SSE41 += src/sw_trace_scan_sse41_128_64.c
+
+SRC_TRACE_SSE41 += src/nw_trace_scan_sse41_128_32.c
+SRC_TRACE_SSE41 += src/sg_trace_scan_sse41_128_32.c
+SRC_TRACE_SSE41 += src/sw_trace_scan_sse41_128_32.c
+
+SRC_TRACE_SSE41 += src/nw_trace_scan_sse41_128_16.c
+SRC_TRACE_SSE41 += src/sg_trace_scan_sse41_128_16.c
+SRC_TRACE_SSE41 += src/sw_trace_scan_sse41_128_16.c
+
+SRC_TRACE_SSE41 += src/nw_trace_scan_sse41_128_8.c
+SRC_TRACE_SSE41 += src/sg_trace_scan_sse41_128_8.c
+SRC_TRACE_SSE41 += src/sw_trace_scan_sse41_128_8.c
+
+SRC_TRACE_AVX2 += src/nw_trace_scan_avx2_256_64.c
+SRC_TRACE_AVX2 += src/sg_trace_scan_avx2_256_64.c
+SRC_TRACE_AVX2 += src/sw_trace_scan_avx2_256_64.c
+
+SRC_TRACE_AVX2 += src/nw_trace_scan_avx2_256_32.c
+SRC_TRACE_AVX2 += src/sg_trace_scan_avx2_256_32.c
+SRC_TRACE_AVX2 += src/sw_trace_scan_avx2_256_32.c
+
+SRC_TRACE_AVX2 += src/nw_trace_scan_avx2_256_16.c
+SRC_TRACE_AVX2 += src/sg_trace_scan_avx2_256_16.c
+SRC_TRACE_AVX2 += src/sw_trace_scan_avx2_256_16.c
+
+SRC_TRACE_AVX2 += src/nw_trace_scan_avx2_256_8.c
+SRC_TRACE_AVX2 += src/sg_trace_scan_avx2_256_8.c
+SRC_TRACE_AVX2 += src/sw_trace_scan_avx2_256_8.c
+
+SRC_TRACE_KNC += src/nw_trace_scan_knc_512_32.c
+SRC_TRACE_KNC += src/sg_trace_scan_knc_512_32.c
+SRC_TRACE_KNC += src/sw_trace_scan_knc_512_32.c
+
+# parallel diag methods
+
+SRC_TRACE_SSE2 += src/nw_trace_diag_sse2_128_64.c
+SRC_TRACE_SSE2 += src/sg_trace_diag_sse2_128_64.c
+SRC_TRACE_SSE2 += src/sw_trace_diag_sse2_128_64.c
+
+SRC_TRACE_SSE2 += src/nw_trace_diag_sse2_128_32.c
+SRC_TRACE_SSE2 += src/sg_trace_diag_sse2_128_32.c
+SRC_TRACE_SSE2 += src/sw_trace_diag_sse2_128_32.c
+
+SRC_TRACE_SSE2 += src/nw_trace_diag_sse2_128_16.c
+SRC_TRACE_SSE2 += src/sg_trace_diag_sse2_128_16.c
+SRC_TRACE_SSE2 += src/sw_trace_diag_sse2_128_16.c
+
+SRC_TRACE_SSE2 += src/nw_trace_diag_sse2_128_8.c
+SRC_TRACE_SSE2 += src/sg_trace_diag_sse2_128_8.c
+SRC_TRACE_SSE2 += src/sw_trace_diag_sse2_128_8.c
+
+SRC_TRACE_SSE41 += src/nw_trace_diag_sse41_128_64.c
+SRC_TRACE_SSE41 += src/sg_trace_diag_sse41_128_64.c
+SRC_TRACE_SSE41 += src/sw_trace_diag_sse41_128_64.c
+
+SRC_TRACE_SSE41 += src/nw_trace_diag_sse41_128_32.c
+SRC_TRACE_SSE41 += src/sg_trace_diag_sse41_128_32.c
+SRC_TRACE_SSE41 += src/sw_trace_diag_sse41_128_32.c
+
+SRC_TRACE_SSE41 += src/nw_trace_diag_sse41_128_16.c
+SRC_TRACE_SSE41 += src/sg_trace_diag_sse41_128_16.c
+SRC_TRACE_SSE41 += src/sw_trace_diag_sse41_128_16.c
+
+SRC_TRACE_SSE41 += src/nw_trace_diag_sse41_128_8.c
+SRC_TRACE_SSE41 += src/sg_trace_diag_sse41_128_8.c
+SRC_TRACE_SSE41 += src/sw_trace_diag_sse41_128_8.c
+
+SRC_TRACE_AVX2 += src/nw_trace_diag_avx2_256_64.c
+SRC_TRACE_AVX2 += src/sg_trace_diag_avx2_256_64.c
+SRC_TRACE_AVX2 += src/sw_trace_diag_avx2_256_64.c
+
+SRC_TRACE_AVX2 += src/nw_trace_diag_avx2_256_32.c
+SRC_TRACE_AVX2 += src/sg_trace_diag_avx2_256_32.c
+SRC_TRACE_AVX2 += src/sw_trace_diag_avx2_256_32.c
+
+SRC_TRACE_AVX2 += src/nw_trace_diag_avx2_256_16.c
+SRC_TRACE_AVX2 += src/sg_trace_diag_avx2_256_16.c
+SRC_TRACE_AVX2 += src/sw_trace_diag_avx2_256_16.c
+
+SRC_TRACE_AVX2 += src/nw_trace_diag_avx2_256_8.c
+SRC_TRACE_AVX2 += src/sg_trace_diag_avx2_256_8.c
+SRC_TRACE_AVX2 += src/sw_trace_diag_avx2_256_8.c
+
+SRC_TRACE_KNC += src/nw_trace_diag_knc_512_32.c
+SRC_TRACE_KNC += src/sg_trace_diag_knc_512_32.c
+SRC_TRACE_KNC += src/sw_trace_diag_knc_512_32.c
+
+# parallel striped methods
+
+SRC_TRACE_SSE2 += src/nw_trace_striped_sse2_128_64.c
+SRC_TRACE_SSE2 += src/sg_trace_striped_sse2_128_64.c
+SRC_TRACE_SSE2 += src/sw_trace_striped_sse2_128_64.c
+
+SRC_TRACE_SSE2 += src/nw_trace_striped_sse2_128_32.c
+SRC_TRACE_SSE2 += src/sg_trace_striped_sse2_128_32.c
+SRC_TRACE_SSE2 += src/sw_trace_striped_sse2_128_32.c
+
+SRC_TRACE_SSE2 += src/nw_trace_striped_sse2_128_16.c
+SRC_TRACE_SSE2 += src/sg_trace_striped_sse2_128_16.c
+SRC_TRACE_SSE2 += src/sw_trace_striped_sse2_128_16.c
+
+SRC_TRACE_SSE2 += src/nw_trace_striped_sse2_128_8.c
+SRC_TRACE_SSE2 += src/sg_trace_striped_sse2_128_8.c
+SRC_TRACE_SSE2 += src/sw_trace_striped_sse2_128_8.c
+
+SRC_TRACE_SSE41 += src/nw_trace_striped_sse41_128_64.c
+SRC_TRACE_SSE41 += src/sg_trace_striped_sse41_128_64.c
+SRC_TRACE_SSE41 += src/sw_trace_striped_sse41_128_64.c
+
+SRC_TRACE_SSE41 += src/nw_trace_striped_sse41_128_32.c
+SRC_TRACE_SSE41 += src/sg_trace_striped_sse41_128_32.c
+SRC_TRACE_SSE41 += src/sw_trace_striped_sse41_128_32.c
+
+SRC_TRACE_SSE41 += src/nw_trace_striped_sse41_128_16.c
+SRC_TRACE_SSE41 += src/sg_trace_striped_sse41_128_16.c
+SRC_TRACE_SSE41 += src/sw_trace_striped_sse41_128_16.c
+
+SRC_TRACE_SSE41 += src/nw_trace_striped_sse41_128_8.c
+SRC_TRACE_SSE41 += src/sg_trace_striped_sse41_128_8.c
+SRC_TRACE_SSE41 += src/sw_trace_striped_sse41_128_8.c
+
+SRC_TRACE_AVX2 += src/nw_trace_striped_avx2_256_64.c
+SRC_TRACE_AVX2 += src/sg_trace_striped_avx2_256_64.c
+SRC_TRACE_AVX2 += src/sw_trace_striped_avx2_256_64.c
+
+SRC_TRACE_AVX2 += src/nw_trace_striped_avx2_256_32.c
+SRC_TRACE_AVX2 += src/sg_trace_striped_avx2_256_32.c
+SRC_TRACE_AVX2 += src/sw_trace_striped_avx2_256_32.c
+
+SRC_TRACE_AVX2 += src/nw_trace_striped_avx2_256_16.c
+SRC_TRACE_AVX2 += src/sg_trace_striped_avx2_256_16.c
+SRC_TRACE_AVX2 += src/sw_trace_striped_avx2_256_16.c
+
+SRC_TRACE_AVX2 += src/nw_trace_striped_avx2_256_8.c
+SRC_TRACE_AVX2 += src/sg_trace_striped_avx2_256_8.c
+SRC_TRACE_AVX2 += src/sw_trace_striped_avx2_256_8.c
+
+SRC_TRACE_KNC += src/nw_trace_striped_knc_512_32.c
+SRC_TRACE_KNC += src/sg_trace_striped_knc_512_32.c
+SRC_TRACE_KNC += src/sw_trace_striped_knc_512_32.c
+
+#########################
 # library magic
 #########################
 
 libparasail_la_SOURCES = $(SRC_CORE)
 
 libparasail_novec_la_SOURCES = $(SRC_NOVEC) $(SRC_TRACE_NOVEC)
-libparasail_sse2_la_SOURCES  = $(SRC_SSE2)
-libparasail_sse41_la_SOURCES = $(SRC_SSE41)
-libparasail_avx2_la_SOURCES  = $(SRC_AVX2)
-libparasail_knc_la_SOURCES   = $(SRC_KNC)
+libparasail_sse2_la_SOURCES  = $(SRC_SSE2) $(SRC_TRACE_SSE2)
+libparasail_sse41_la_SOURCES = $(SRC_SSE41) $(SRC_TRACE_SSE41)
+libparasail_avx2_la_SOURCES  = $(SRC_AVX2) $(SRC_TRACE_AVX2)
+libparasail_knc_la_SOURCES   = $(SRC_KNC) $(SRC_TRACE_KNC)
 
 libparasail_novec_la_CFLAGS = $(AM_CFLAGS)
 libparasail_sse2_la_CFLAGS  = $(AM_CFLAGS) $(SSE2_CFLAGS)
@@ -707,6 +877,7 @@ check_PROGRAMS += tests/test_sw_dispatch
 check_PROGRAMS += tests/test_verify
 check_PROGRAMS += tests/test_verify_tables
 check_PROGRAMS += tests/test_verify_rowcols
+check_PROGRAMS += tests/test_verify_traces
 if HAVE_SSE2
 check_PROGRAMS += tests/test_ssw
 endif
@@ -731,7 +902,10 @@ apps_parasail_stats_SOURCES = apps/parasail_stats.c
 
 tests_traceback_SOURCES = tests/traceback.c
 
-tests_test_align_SOURCES = tests/test_align.c
+tests_test_align_SOURCES =
+tests_test_align_SOURCES += tests/test_align.c
+tests_test_align_SOURCES += tests/timer.h
+tests_test_align_SOURCES += tests/timer_real.h
 
 tests_test_gcups_SOURCES = tests/test_gcups.c
 tests_test_gcups_LDADD =
@@ -742,7 +916,10 @@ tests_test_isa_SOURCES = tests/test_isa.c
 
 tests_test_matrix_SOURCES = tests/test_matrix.c
 
-tests_test_openmp_SOURCES = tests/test_openmp.c
+tests_test_openmp_SOURCES =
+tests_test_openmp_SOURCES += tests/test_openmp.c
+tests_test_openmp_SOURCES += tests/timer.h
+tests_test_openmp_SOURCES += tests/timer_real.h
 tests_test_openmp_CFLAGS  = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_test_openmp_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
 tests_test_openmp_LDADD   =
@@ -751,11 +928,17 @@ if HAVE_SSE2
 tests_test_openmp_LDADD   += tests/libssw.la
 endif
 
-tests_test_query_SOURCES = tests/test_query.c
+tests_test_query_SOURCES =
+tests_test_query_SOURCES += tests/test_query.c
+tests_test_query_SOURCES += tests/timer.h
+tests_test_query_SOURCES += tests/timer_real.h
 tests_test_query_CFLAGS  = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_test_query_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
 
-tests_test_scatter_SOURCES = tests/test_scatter.c
+tests_test_scatter_SOURCES =
+tests_test_scatter_SOURCES += tests/test_scatter.c
+tests_test_scatter_SOURCES += tests/timer.h
+tests_test_scatter_SOURCES += tests/timer_real.h
 tests_test_scatter_CFLAGS  = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_test_scatter_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
 tests_test_scatter_LDADD   =
@@ -774,17 +957,27 @@ tests_test_ssw_LDADD    += tests/libssw.la
 
 tests_test_sw_dispatch_SOURCES = tests/test_sw_dispatch.c
 
-tests_test_verify_SOURCES = tests/test_verify.c
+tests_test_verify_SOURCES = tests/test_verify.c tests/func_verify.h
 tests_test_verify_CFLAGS  = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_test_verify_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
 
-tests_test_verify_tables_SOURCES = tests/test_verify_tables.c
+tests_test_verify_tables_SOURCES =
+tests_test_verify_tables_SOURCES += tests/test_verify_tables.c
+tests_test_verify_tables_SOURCES += tests/func_verify_tables.h
 tests_test_verify_tables_CFLAGS  = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_test_verify_tables_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
 
-tests_test_verify_rowcols_SOURCES = tests/test_verify_rowcols.c
+tests_test_verify_rowcols_SOURCES =
+tests_test_verify_rowcols_SOURCES += tests/test_verify_rowcols.c
+tests_test_verify_rowcols_SOURCES += tests/func_verify_rowcols.h
 tests_test_verify_rowcols_CFLAGS  = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_test_verify_rowcols_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
+
+tests_test_verify_traces_SOURCES =
+tests_test_verify_traces_SOURCES += tests/test_verify_traces.c
+tests_test_verify_traces_SOURCES += tests/func_verify_traces.h
+tests_test_verify_traces_CFLAGS  = $(AM_CFLAGS) $(OPENMP_CFLAGS)
+tests_test_verify_traces_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
 
 EXTRA_DIST += DISCLAIMER
 EXTRA_DIST += README.md
@@ -829,6 +1022,7 @@ EXTRA_DIST += util/diff_all.sh
 EXTRA_DIST += util/dispatcher.py
 EXTRA_DIST += util/func_group_rowcols.py
 EXTRA_DIST += util/func_group_tables.py
+EXTRA_DIST += util/func_group_traces.py
 EXTRA_DIST += util/func_groups.py
 EXTRA_DIST += util/funcs.py
 EXTRA_DIST += util/gap_tester.py

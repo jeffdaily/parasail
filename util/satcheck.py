@@ -22,8 +22,9 @@ txt = """/**
 
 """
 for alg in ["nw", "sg", "sw"]:
-    for table in ["", "_table", "_rowcol"]:
+    for table in ["", "_table", "_rowcol", "_trace"]:
         for stats in ["", "_stats"]:
+            if 'stats' in stats and 'trace' in table: continue
             for par in ["_scan", "_striped", "_diag"]:
                 for isa in ["", "_sse2_128", "_sse41_128", "_avx2_256"]:
                     prefix = "parasail_%s%s%s%s%s"%(alg, stats, table, par, isa)
@@ -62,8 +63,9 @@ parasail_result_t* %(PREFIX)s_sat(
 """ % params
 
 for alg in ["nw", "sg", "sw"]:
-    for table in ["", "_table", "_rowcol"]:
+    for table in ["", "_table", "_rowcol", "_trace"]:
         for stats in ["", "_stats"]:
+            if 'stats' in stats and 'trace' in table: continue
             for par in ["_scan_profile", "_striped_profile"]:
                 for isa in ["", "_sse2_128", "_sse41_128", "_avx2_256"]:
                     prefix = "parasail_%s%s%s%s%s"%(alg, stats, table, par, isa)

@@ -91,7 +91,6 @@ for table in ["", "_table", "_rowcol", "_trace"]:
             pre = "parasail_"+alg+stats+table
             print_fmt(pre,         pre,         alg+stats, "orig", "NA", "32", "32", 1, is_table, is_rowcol, is_trace, is_stats, 1)
             print_fmt(pre+"_scan", pre+"_scan", alg+stats, "scan", "NA", "32", "32", 1, is_table, is_rowcol, is_trace, is_stats, 0)
-            if 'trace' in table: continue
             for isa in ["sse2", "sse41", "avx2"]:
                 print "#if HAVE_%s" % isa.upper()
                 bits = isa_to_bits[isa]
@@ -133,8 +132,7 @@ print "};"
 print
 print "static const parasail_pfunction_info_t pfunctions[] = {"
 
-#for table in ["", "_table", "_rowcol", "_trace"]:
-for table in ["", "_table", "_rowcol"]:
+for table in ["", "_table", "_rowcol", "_trace"]:
     for stats in ["", "_stats"]:
         if 'stats' in stats and 'trace' in table: continue
         for alg in ["nw", "sg", "sw"]:

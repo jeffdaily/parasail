@@ -22,16 +22,18 @@ def codegen(alg):
 
 /* forward declare the dispatcher functions */
 """
-    for table in ["", "_table", "_rowcol"]:
+    for table in ["", "_table", "_rowcol", "_trace"]:
         for stats in ["", "_stats"]:
+            if 'stats' in stats and 'trace' in table: continue
             for par in ["scan", "striped", "diag"]:
                 for width in [64, 32, 16, 8]:
                     prefix = "parasail_%s%s%s_%s_%d"%(
                         alg, stats, table, par, width)
                     txt += "parasail_function_t %s_dispatcher;\n" % prefix
 
-    for table in ["", "_table", "_rowcol"]:
+    for table in ["", "_table", "_rowcol", "_trace"]:
         for stats in ["", "_stats"]:
+            if 'stats' in stats and 'trace' in table: continue
             for par in ["scan_profile", "striped_profile"]:
                 for width in [64, 32, 16, 8]:
                     prefix = "parasail_%s%s%s_%s_%d"%(
@@ -41,8 +43,9 @@ def codegen(alg):
     txt += """
 /* declare and initialize the pointer to the dispatcher function */
 """
-    for table in ["", "_table", "_rowcol"]:
+    for table in ["", "_table", "_rowcol", "_trace"]:
         for stats in ["", "_stats"]:
+            if 'stats' in stats and 'trace' in table: continue
             for par in ["scan", "striped", "diag"]:
                 for width in [64, 32, 16, 8]:
                     prefix = "parasail_%s%s%s_%s_%d"%(
@@ -50,8 +53,9 @@ def codegen(alg):
                     txt += "parasail_function_t * %s_pointer = %s_dispatcher;\n"%(
                             prefix, prefix)
 
-    for table in ["", "_table", "_rowcol"]:
+    for table in ["", "_table", "_rowcol", "_trace"]:
         for stats in ["", "_stats"]:
+            if 'stats' in stats and 'trace' in table: continue
             for par in ["scan_profile", "striped_profile"]:
                 for width in [64, 32, 16, 8]:
                     prefix = "parasail_%s%s%s_%s_%d"%(
@@ -62,8 +66,9 @@ def codegen(alg):
     txt += """
 /* dispatcher function implementations */
 """
-    for table in ["", "_table", "_rowcol"]:
+    for table in ["", "_table", "_rowcol", "_trace"]:
         for stats in ["", "_stats"]:
+            if 'stats' in stats and 'trace' in table: continue
             for par in ["scan", "striped", "diag"]:
                 for width in [64, 32, 16, 8]:
                     prefix = "parasail_%s%s%s_%s_%d"%(
@@ -122,8 +127,9 @@ parasail_result_t* %(PREFIX)s_dispatcher(
 }
 """ % params
 
-    for table in ["", "_table", "_rowcol"]:
+    for table in ["", "_table", "_rowcol", "_trace"]:
         for stats in ["", "_stats"]:
+            if 'stats' in stats and 'trace' in table: continue
             for par in ["scan_profile", "striped_profile"]:
                 for width in [64, 32, 16, 8]:
                     prefix = "parasail_%s%s%s_%s_%d"%(
@@ -181,8 +187,9 @@ parasail_result_t* %(PREFIX)s_dispatcher(
 /* implementation which simply calls the pointer,
  * first time it's the dispatcher, otherwise it's correct impl */
 """
-    for table in ["", "_table", "_rowcol"]:
+    for table in ["", "_table", "_rowcol", "_trace"]:
         for stats in ["", "_stats"]:
+            if 'stats' in stats and 'trace' in table: continue
             for par in ["scan", "striped", "diag"]:
                 for width in [64, 32, 16, 8]:
                     prefix = "parasail_%s%s%s_%s_%d"%(
@@ -206,8 +213,9 @@ parasail_result_t* %(PREFIX)s(
 }
 """ % params
 
-    for table in ["", "_table", "_rowcol"]:
+    for table in ["", "_table", "_rowcol", "_trace"]:
         for stats in ["", "_stats"]:
+            if 'stats' in stats and 'trace' in table: continue
             for par in ["scan_profile", "striped_profile"]:
                 for width in [64, 32, 16, 8]:
                     prefix = "parasail_%s%s%s_%s_%d"%(

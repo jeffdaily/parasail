@@ -20,7 +20,7 @@ typedef struct parasail_function_group {
 
 
 def print_fmt(*args):
-    fmt = '{%-36s %-38s %5s %10s %-8s %6s %5s %3s %1s 1, %1s %1s},'
+    fmt = '{%-36s %-38s %5s %10s %-8s %6s %5s %3s %1s 1, 0, %1s %1s},'
     new_args = [arg for arg in args]
     new_args[0] = '%s,'   % new_args[0]
     new_args[1] = '"%s",' % new_args[1]
@@ -36,7 +36,7 @@ def print_fmt(*args):
     print fmt % tuple(new_args)
 
 def print_null():
-    fmt = '{%s, "%s", "%s", "%s", "%s", "%s", "%s", %d, %d, 1, %d, %d},'
+    fmt = '{%s, "%s", "%s", "%s", "%s", "%s", "%s", %d, %d, 1, 0, %d, %d},'
     print fmt[:-1] % ("NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0)
 
 isa_to_bits = {

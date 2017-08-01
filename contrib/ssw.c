@@ -35,6 +35,9 @@
  *
  */
 
+/* this header not part of SSW, created by parasail, provides 'inline' */
+#include "config.h"
+
 #include <emmintrin.h>
 #include <stdint.h>
 #include <stdlib.h>

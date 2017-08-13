@@ -79,7 +79,7 @@ parasail_result_t* PNAME(
             %(VSET1)s(segLenXgap),
             insert_mask);
     %(SATURATION_CHECK_INIT)s
-    parasail_result_t *result = parasail_result_new_trace(segLen*segWidth, s2Len, %(BYTES)s);
+    parasail_result_t *result = parasail_result_new_trace(segLen, s2Len, sizeof(%(VTYPE)s));
 
     /* initialize H and E */
     {

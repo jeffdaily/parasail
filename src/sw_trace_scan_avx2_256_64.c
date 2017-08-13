@@ -140,7 +140,7 @@ parasail_result_t* PNAME(
             _mm256_set1_epi64x_rpl(segLenXgap),
             insert_mask);
     
-    parasail_result_t *result = parasail_result_new_trace(segLen*segWidth, s2Len, 8);
+    parasail_result_t *result = parasail_result_new_trace(segLen, s2Len, sizeof(__m256i));
 
     /* initialize H and E */
     {

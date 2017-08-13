@@ -112,7 +112,7 @@ parasail_result_t* PNAME(
     __m128i vPosLimit = _mm_set1_epi8(INT8_MAX);
     __m128i vSaturationCheckMin = vPosLimit;
     __m128i vSaturationCheckMax = vNegLimit;
-    parasail_result_t *result = parasail_result_new_trace(segLen*segWidth, s2Len, 1);
+    parasail_result_t *result = parasail_result_new_trace(segLen, s2Len, sizeof(__m128i));
 
     /* initialize H and E */
     {

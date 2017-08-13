@@ -283,6 +283,9 @@ void parasail_result_free(parasail_result_t *result)
     if (NULL != result->matches_col) free(result->matches_col);
     if (NULL != result->similar_col) free(result->similar_col);
     if (NULL != result->length_col) free(result->length_col);
+    if (NULL != result->trace_table) free(result->trace_table);
+    if (NULL != result->trace_ins_table) free(result->trace_ins_table);
+    if (NULL != result->trace_del_table) free(result->trace_del_table);
     free(result);
 }
 

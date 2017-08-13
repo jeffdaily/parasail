@@ -132,7 +132,7 @@ parasail_result_t* FNAME(
     int8_t * const restrict s2 = s2B+PAD; /* will allow later for negative indices */
     int8_t * const restrict H_pr = _H_pr+PAD;
     int8_t * const restrict F_pr = _F_pr+PAD;
-    parasail_result_t *result = parasail_result_new_trace(s1Len, s2Len, 1);
+    parasail_result_t *result = parasail_result_new_trace(s1Len, s2Len, sizeof(int));
     int32_t i = 0;
     int32_t j = 0;
     int32_t end_query = 0;
@@ -153,6 +153,10 @@ parasail_result_t* FNAME(
     __m128i vEndJ = vNegInf;
     __m128i vILimit = _mm_set1_epi8(s1Len);
     __m128i vJLimit = _mm_set1_epi8(s2Len);
+    __m128i vTDiag = _mm_set1_epi8(PARASAIL_DIAG);
+    __m128i vTIns = _mm_set1_epi8(PARASAIL_INS);
+    __m128i vTDel = _mm_set1_epi8(PARASAIL_DEL);
+    __m128i vTZero = _mm_set1_epi8(PARASAIL_ZERO);
     __m128i vNegLimit = _mm_set1_epi8(INT8_MIN);
     __m128i vPosLimit = _mm_set1_epi8(INT8_MAX);
     __m128i vSaturationCheckMin = vPosLimit;
@@ -201,7 +205,11 @@ parasail_result_t* FNAME(
         __m128i vNH = vNegInf0;
         __m128i vWH = vNegInf0;
         __m128i vE = vNegInf;
+        __m128i vE_opn = vNegInf;
+        __m128i vE_ext = vNegInf;
         __m128i vF = vNegInf;
+        __m128i vF_opn = vNegInf;
+        __m128i vF_ext = vNegInf;
         __m128i vJ = vJreset;
         const int * const restrict matrow0 = &matrix->matrix[matrix->size*s1[i+0]];
         const int * const restrict matrow1 = &matrix->matrix[matrix->size*s1[i+1]];
@@ -228,12 +236,12 @@ parasail_result_t* FNAME(
             vNH = _mm_insert_epi8_rpl(vNH, H_pr[j], 15);
             vF = _mm_srli_si128(vF, 1);
             vF = _mm_insert_epi8_rpl(vF, F_pr[j], 15);
-            vF = _mm_max_epi8_rpl(
-                    _mm_subs_epi8(vNH, vOpen),
-                    _mm_subs_epi8(vF, vGap));
-            vE = _mm_max_epi8_rpl(
-                    _mm_subs_epi8(vWH, vOpen),
-                    _mm_subs_epi8(vE, vGap));
+            vF_opn = _mm_subs_epi8(vNH, vOpen);
+            vF_ext = _mm_subs_epi8(vF, vGap);
+            vF = _mm_max_epi8_rpl(vF_opn, vF_ext);
+            vE_opn = _mm_subs_epi8(vWH, vOpen);
+            vE_ext = _mm_subs_epi8(vE, vGap);
+            vE = _mm_max_epi8_rpl(vE_opn, vE_ext);
             vMat = _mm_set_epi8(
                     matrow0[s2[j-0]],
                     matrow1[s2[j-1]],
@@ -253,9 +261,9 @@ parasail_result_t* FNAME(
                     matrow15[s2[j-15]]
                     );
             vNWH = _mm_adds_epi8(vNWH, vMat);
+            vNWH = _mm_max_epi8_rpl(vNWH, vZero);
             vWH = _mm_max_epi8_rpl(vNWH, vE);
             vWH = _mm_max_epi8_rpl(vWH, vF);
-            vWH = _mm_max_epi8_rpl(vWH, vZero);
             /* as minor diagonal vector passes across the j=-1 boundary,
              * assign the appropriate boundary conditions */
             {
@@ -268,6 +276,24 @@ parasail_result_t* FNAME(
             {
                 vSaturationCheckMax = _mm_max_epi8_rpl(vSaturationCheckMax, vWH);
                 vSaturationCheckMin = _mm_min_epi8_rpl(vSaturationCheckMin, vWH);
+            }
+            /* trace table */
+            {
+                __m128i cond_zero = _mm_cmpeq_epi8(vWH, vZero);
+                __m128i case1 = _mm_cmpeq_epi8(vWH, vNWH);
+                __m128i case2 = _mm_cmpeq_epi8(vWH, vF);
+                __m128i vT = _mm_blendv_epi8_rpl(
+                        _mm_blendv_epi8_rpl(vTIns, vTDel, case2),
+                        _mm_blendv_epi8_rpl(vTDiag, vTZero, cond_zero),
+                        case1);
+                __m128i condD = _mm_cmpgt_epi8(vE, vF);
+                __m128i condE = _mm_cmpgt_epi8(vE_opn, vE_ext);
+                __m128i condF = _mm_cmpgt_epi8(vF_opn, vF_ext);
+                __m128i vET = _mm_blendv_epi8_rpl(vTIns, vTDiag, condE);
+                __m128i vFT = _mm_blendv_epi8_rpl(vTDel, vTDiag, condF);
+                arr_store_si128(result->trace_table, vT, i, s1Len, j, s2Len);
+                arr_store_si128(result->trace_ins_table, vET, i, s1Len, j, s2Len);
+                arr_store_si128(result->trace_del_table, vFT, i, s1Len, j, s2Len);
             }
             H_pr[j-15] = (int8_t)_mm_extract_epi8_rpl(vWH,0);
             F_pr[j-15] = (int8_t)_mm_extract_epi8_rpl(vF,0);

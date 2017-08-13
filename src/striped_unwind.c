@@ -71,7 +71,8 @@ int* parasail_striped_unwind(
 {
     int *ret = NULL;
 
-    assert(result->flag & PARASAIL_FLAG_STRIPED);
+    assert((result->flag & PARASAIL_FLAG_STRIPED)
+            || result->flag & PARASAIL_FLAG_SCAN);
 
     if (result->flag & PARASAIL_FLAG_LANES_1) {
         assert(0);

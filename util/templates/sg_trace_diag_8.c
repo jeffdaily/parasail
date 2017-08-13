@@ -51,26 +51,29 @@ parasail_result_t* FNAME(
     parasail_result_t *result = parasail_result_new_trace(s1Len, s2Len, sizeof(int));
     %(INDEX)s i = 0;
     %(INDEX)s j = 0;
-    %(INDEX)s end_query = s1Len-1;
-    %(INDEX)s end_ref = s2Len-1;
+    %(INDEX)s end_query = 0;
+    %(INDEX)s end_ref = 0;
     %(INT)s score = NEG_INF;
     %(VTYPE)s vNegInf = %(VSET1)s(NEG_INF);
+    %(VTYPE)s vNegInf0 = %(VRSHIFT)s(vNegInf, %(BYTES)s); /* shift in a 0 */
     %(VTYPE)s vOpen = %(VSET1)s(open);
     %(VTYPE)s vGap  = %(VSET1)s(gap);
-    %(VTYPE)s vOne = %(VSET1)s(1);
-    %(VTYPE)s vN = %(VSET1)s(N);
-    %(VTYPE)s vGapN = %(VSET1)s(gap*N);
-    %(VTYPE)s vNegOne = %(VSET1)s(-1);
-    %(VTYPE)s vI = %(VSET)s(%(DIAG_I)s);
-    %(VTYPE)s vJreset = %(VSET)s(%(DIAG_J)s);
-    %(VTYPE)s vMax = vNegInf;
-    %(VTYPE)s vILimit = %(VSET1)s(s1Len);
-    %(VTYPE)s vILimit1 = %(VSUB)s(vILimit, vOne);
-    %(VTYPE)s vJLimit = %(VSET1)s(s2Len);
-    %(VTYPE)s vJLimit1 = %(VSUB)s(vJLimit, vOne);
-    %(VTYPE)s vIBoundary = %(VSET)s(
-            %(DIAG_IBoundary)s
-            );
+    %(VTYPE)s vOne16 = %(VSET1x16)s(1);
+    %(VTYPE)s vN16 = %(VSET1x16)s(N);
+    %(VTYPE)s vNegOne16 = %(VSET1x16)s(-1);
+    %(VTYPE)s vILo16 = %(VSETx16)s(%(DIAG_ILO)s);
+    %(VTYPE)s vIHi16 = %(VSETx16)s(%(DIAG_IHI)s);
+    %(VTYPE)s vJresetLo16 = %(VSETx16)s(%(DIAG_JLO)s);
+    %(VTYPE)s vJresetHi16 = %(VSETx16)s(%(DIAG_JHI)s);
+    %(VTYPE)s vMaxH = vNegInf;
+    %(VTYPE)s vEndILo = vNegInf;
+    %(VTYPE)s vEndIHi = vNegInf;
+    %(VTYPE)s vEndJLo = vNegInf;
+    %(VTYPE)s vEndJHi = vNegInf;
+    %(VTYPE)s vILimit16 = %(VSET1x16)s(s1Len);
+    %(VTYPE)s vILimit116 = %(VSUBx16)s(vILimit16, vOne16);
+    %(VTYPE)s vJLimit16 = %(VSET1x16)s(s2Len);
+    %(VTYPE)s vJLimit116 = %(VSUBx16)s(vJLimit16, vOne16);
     %(VTYPE)s vTDiag = %(VSET1)s(PARASAIL_DIAG);
     %(VTYPE)s vTIns = %(VSET1)s(PARASAIL_INS);
     %(VTYPE)s vTDel = %(VSET1)s(PARASAIL_DEL);
@@ -100,7 +103,7 @@ parasail_result_t* FNAME(
 
     /* set initial values for stored row */
     for (j=0; j<s2Len; ++j) {
-        H_pr[j] = -open - j*gap;
+        H_pr[j] = 0;
         F_pr[j] = NEG_INF;
     }
     /* pad front of stored row values */
@@ -113,25 +116,26 @@ parasail_result_t* FNAME(
         H_pr[j] = NEG_INF;
         F_pr[j] = NEG_INF;
     }
-    H_pr[-1] = 0; /* upper left corner */
 
     /* iterate over query sequence */
     for (i=0; i<s1Len; i+=N) {
-        %(VTYPE)s vNH = vNegInf;
-        %(VTYPE)s vWH = vNegInf;
+        %(VTYPE)s vNH = vNegInf0;
+        %(VTYPE)s vWH = vNegInf0;
         %(VTYPE)s vE = vNegInf;
         %(VTYPE)s vE_opn = vNegInf;
         %(VTYPE)s vE_ext = vNegInf;
         %(VTYPE)s vF = vNegInf;
         %(VTYPE)s vF_opn = vNegInf;
         %(VTYPE)s vF_ext = vNegInf;
-        %(VTYPE)s vJ = vJreset;
+        %(VTYPE)s vJLo16 = vJresetLo16;
+        %(VTYPE)s vJHi16 = vJresetHi16;
         %(DIAG_MATROW_DECL)s
-        vNH = %(VRSHIFT)s(vNH, %(BYTES)s);
-        vNH = %(VINSERT)s(vNH, H_pr[-1], %(LAST_POS)s);
-        vWH = %(VRSHIFT)s(vWH, %(BYTES)s);
-        vWH = %(VINSERT)s(vWH, -open - i*gap, %(LAST_POS)s);
-        H_pr[-1] = -open - (i+N)*gap;
+        %(VTYPE)s vIltLimit = %(VPACKS)s(
+                %(VCMPLTx16)s(vILo16, vILimit16),
+                %(VCMPLTx16)s(vIHi16, vILimit16));
+        %(VTYPE)s vIeqLimit1 = %(VPACKS)s(
+                %(VCMPEQx16)s(vILo16, vILimit116),
+                %(VCMPEQx16)s(vIHi16, vILimit116));
         /* iterate over database sequence */
         for (j=0; j<s2Len+PAD; ++j) {
             %(VTYPE)s vMat;
@@ -155,8 +159,10 @@ parasail_result_t* FNAME(
             /* as minor diagonal vector passes across the j=-1 boundary,
              * assign the appropriate boundary conditions */
             {
-                %(VTYPE)s cond = %(VCMPEQ)s(vJ,vNegOne);
-                vWH = %(VBLEND)s(vWH, vIBoundary, cond);
+                %(VTYPE)s cond = %(VPACKS)s(
+                        %(VCMPEQx16)s(vJLo16,vNegOne16),
+                        %(VCMPEQx16)s(vJHi16,vNegOne16));
+                vWH = %(VANDNOT)s(cond, vWH);
                 vF = %(VBLEND)s(vF, vNegInf, cond);
                 vE = %(VBLEND)s(vE, vNegInf, cond);
             }
@@ -180,28 +186,93 @@ parasail_result_t* FNAME(
             }
             H_pr[j-%(LAST_POS)s] = (%(INT)s)%(VEXTRACT)s(vWH,0);
             F_pr[j-%(LAST_POS)s] = (%(INT)s)%(VEXTRACT)s(vF,0);
-            /* as minor diagonal vector passes across table, extract
-               last table value at the i,j bound */
+            /* as minor diagonal vector passes across the i or j limit
+             * boundary, extract the last value of the column or row */
             {
-                %(VTYPE)s cond_valid_I = %(VCMPEQ)s(vI, vILimit1);
-                %(VTYPE)s cond_valid_J = %(VCMPEQ)s(vJ, vJLimit1);
-                %(VTYPE)s cond_all = %(VAND)s(cond_valid_I, cond_valid_J);
-                vMax = %(VBLEND)s(vMax, vWH, cond_all);
+                %(VTYPE)s vJeqLimit1 = %(VPACKS)s(
+                        %(VCMPEQx16)s(vJLo16, vJLimit116),
+                        %(VCMPEQx16)s(vJHi16, vJLimit116));
+                %(VTYPE)s vJgtNegOne = %(VPACKS)s(
+                        %(VCMPGTx16)s(vJLo16, vNegOne16),
+                        %(VCMPGTx16)s(vJHi16, vNegOne16));
+                %(VTYPE)s vJltLimit = %(VPACKS)s(
+                        %(VCMPLTx16)s(vJLo16, vJLimit16),
+                        %(VCMPLTx16)s(vJHi16, vJLimit16));
+                %(VTYPE)s cond_j = %(VAND)s(vIltLimit, vJeqLimit1);
+                %(VTYPE)s cond_i = %(VAND)s(vIeqLimit1,
+                        %(VAND)s(vJgtNegOne, vJltLimit));
+                %(VTYPE)s cond_valid_IJ = %(VOR)s(cond_i, cond_j);
+                %(VTYPE)s cond_eq = %(VCMPEQ)s(vWH, vMaxH);
+                %(VTYPE)s cond_max = %(VCMPGT)s(vWH, vMaxH);
+                %(VTYPE)s cond_all = %(VAND)s(cond_max, cond_valid_IJ);
+                %(VTYPE)s cond_Jlt = %(VPACKS)s(
+                        %(VCMPLTx16)s(vJLo16, vEndJLo),
+                        %(VCMPLTx16)s(vJHi16, vEndJHi));
+                %(VTYPE)s cond_lo = %(VUNPACKLO)s(cond_all, cond_all);
+                %(VTYPE)s cond_hi = %(VUNPACKHI)s(cond_all, cond_all);
+                vMaxH = %(VBLEND)s(vMaxH, vWH, cond_all);
+                vEndILo = %(VBLEND)s(vEndILo, vILo16, cond_lo);
+                vEndIHi = %(VBLEND)s(vEndIHi, vIHi16, cond_hi);
+                vEndJLo = %(VBLEND)s(vEndJLo, vJLo16, cond_lo);
+                vEndJHi = %(VBLEND)s(vEndJHi, vJHi16, cond_hi);
+                cond_all = %(VAND)s(cond_Jlt, cond_eq);
+                cond_all = %(VAND)s(cond_all, cond_valid_IJ);
+                cond_lo = %(VUNPACKLO)s(cond_all, cond_all);
+                cond_hi = %(VUNPACKHI)s(cond_all, cond_all);
+                vEndILo = %(VBLEND)s(vEndILo, vILo16, cond_lo);
+                vEndIHi = %(VBLEND)s(vEndIHi, vIHi16, cond_hi);
+                vEndJLo = %(VBLEND)s(vEndJLo, vJLo16, cond_lo);
+                vEndJHi = %(VBLEND)s(vEndJHi, vJHi16, cond_hi);
             }
-            vJ = %(VADD)s(vJ, vOne);
+            vJLo16 = %(VADDx16)s(vJLo16, vOne16);
+            vJHi16 = %(VADDx16)s(vJHi16, vOne16);
         }
-        vI = %(VADD)s(vI, vN);
-        vIBoundary = %(VSUB)s(vIBoundary, vGapN);
+        vILo16 = %(VADDx16)s(vILo16, vN16);
+        vIHi16 = %(VADDx16)s(vIHi16, vN16);
     }
 
-    /* max in vMax */
-    for (i=0; i<N; ++i) {
-        %(INT)s value;
-        value = (%(INT)s) %(VEXTRACT)s(vMax, %(LAST_POS)s);
-        if (value > score) {
-            score = value;
+    /* alignment ending position */
+    {
+        %(INT)s *t = (%(INT)s*)&vMaxH;
+        int16_t *ilo = (int16_t*)&vEndILo;
+        int16_t *jlo = (int16_t*)&vEndJLo;
+        int16_t *ihi = (int16_t*)&vEndIHi;
+        int16_t *jhi = (int16_t*)&vEndJHi;
+        %(INDEX)s k;
+        for (k=0; k<N/2; ++k, ++t, ++ilo, ++jlo) {
+            if (*t > score) {
+                score = *t;
+                end_query = *ilo;
+                end_ref = *jlo;
+            }
+            else if (*t == score) {
+                if (*jlo < end_ref) {
+                    end_query = *ilo;
+                    end_ref = *jlo;
+                }
+                else if (*jlo == end_ref && *ilo < end_query) {
+                    end_query = *ilo;
+                    end_ref = *jlo;
+                }
+            }
         }
-        vMax = %(VSHIFT)s(vMax, %(BYTES)s);
+        for (k=N/2; k<N; ++k, ++t, ++ihi, ++jhi) {
+            if (*t > score) {
+                score = *t;
+                end_query = *ihi;
+                end_ref = *jhi;
+            }
+            else if (*t == score) {
+                if (*jhi < end_ref) {
+                    end_query = *ihi;
+                    end_ref = *jhi;
+                }
+                else if (*jhi == end_ref && *ihi < end_query) {
+                    end_query = *ihi;
+                    end_ref = *jhi;
+                }
+            }
+        }
     }
 
     %(SATURATION_CHECK_FINAL)s
@@ -209,7 +280,7 @@ parasail_result_t* FNAME(
     result->score = score;
     result->end_query = end_query;
     result->end_ref = end_ref;
-    result->flag = PARASAIL_FLAG_NW | PARASAIL_FLAG_DIAG
+    result->flag = PARASAIL_FLAG_SG | PARASAIL_FLAG_DIAG
         | PARASAIL_FLAG_TRACE
         | PARASAIL_FLAG_BITS_%(WIDTH)s | PARASAIL_FLAG_LANES_%(LANES)s;
 

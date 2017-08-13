@@ -64,7 +64,7 @@ parasail_result_t* FNAME(
     int32_t * const restrict s2 = s2B+PAD; /* will allow later for negative indices */
     int32_t * const restrict H_pr = _H_pr+PAD;
     int32_t * const restrict F_pr = _F_pr+PAD;
-    parasail_result_t *result = parasail_result_new_trace(s1Len, s2Len, 4);
+    parasail_result_t *result = parasail_result_new_trace(s1Len, s2Len, sizeof(int));
     int32_t i = 0;
     int32_t j = 0;
     int32_t end_query = 0;
@@ -86,6 +86,9 @@ parasail_result_t* FNAME(
     __m128i vILimit1 = _mm_sub_epi32(vILimit, vOne);
     __m128i vJLimit = _mm_set1_epi32(s2Len);
     __m128i vJLimit1 = _mm_sub_epi32(vJLimit, vOne);
+    __m128i vTDiag = _mm_set1_epi32(PARASAIL_DIAG);
+    __m128i vTIns = _mm_set1_epi32(PARASAIL_INS);
+    __m128i vTDel = _mm_set1_epi32(PARASAIL_DEL);
     
 
     /* convert _s1 from char to int in range 0-23 */
@@ -131,7 +134,11 @@ parasail_result_t* FNAME(
         __m128i vNH = vNegInf0;
         __m128i vWH = vNegInf0;
         __m128i vE = vNegInf;
+        __m128i vE_opn = vNegInf;
+        __m128i vE_ext = vNegInf;
         __m128i vF = vNegInf;
+        __m128i vF_opn = vNegInf;
+        __m128i vF_ext = vNegInf;
         __m128i vJ = vJreset;
         const int * const restrict matrow0 = &matrix->matrix[matrix->size*s1[i+0]];
         const int * const restrict matrow1 = &matrix->matrix[matrix->size*s1[i+1]];
@@ -147,12 +154,12 @@ parasail_result_t* FNAME(
             vNH = _mm_insert_epi32(vNH, H_pr[j], 3);
             vF = _mm_srli_si128(vF, 4);
             vF = _mm_insert_epi32(vF, F_pr[j], 3);
-            vF = _mm_max_epi32(
-                    _mm_sub_epi32(vNH, vOpen),
-                    _mm_sub_epi32(vF, vGap));
-            vE = _mm_max_epi32(
-                    _mm_sub_epi32(vWH, vOpen),
-                    _mm_sub_epi32(vE, vGap));
+            vF_opn = _mm_sub_epi32(vNH, vOpen);
+            vF_ext = _mm_sub_epi32(vF, vGap);
+            vF = _mm_max_epi32(vF_opn, vF_ext);
+            vE_opn = _mm_sub_epi32(vWH, vOpen);
+            vE_ext = _mm_sub_epi32(vE, vGap);
+            vE = _mm_max_epi32(vE_opn, vE_ext);
             vMat = _mm_set_epi32(
                     matrow0[s2[j-0]],
                     matrow1[s2[j-1]],
@@ -171,6 +178,23 @@ parasail_result_t* FNAME(
                 vE = _mm_blendv_epi8(vE, vNegInf, cond);
             }
             
+            /* trace table */
+            {
+                __m128i case1 = _mm_cmpeq_epi32(vWH, vNWH);
+                __m128i case2 = _mm_cmpeq_epi32(vWH, vF);
+                __m128i vT = _mm_blendv_epi8(
+                        _mm_blendv_epi8(vTIns, vTDel, case2),
+                        vTDiag,
+                        case1);
+                __m128i condD = _mm_cmpgt_epi32(vE, vF);
+                __m128i condE = _mm_cmpgt_epi32(vE_opn, vE_ext);
+                __m128i condF = _mm_cmpgt_epi32(vF_opn, vF_ext);
+                __m128i vET = _mm_blendv_epi8(vTIns, vTDiag, condE);
+                __m128i vFT = _mm_blendv_epi8(vTDel, vTDiag, condF);
+                arr_store_si128(result->trace_table, vT, i, s1Len, j, s2Len);
+                arr_store_si128(result->trace_ins_table, vET, i, s1Len, j, s2Len);
+                arr_store_si128(result->trace_del_table, vFT, i, s1Len, j, s2Len);
+            }
             H_pr[j-3] = (int32_t)_mm_extract_epi32(vWH,0);
             F_pr[j-3] = (int32_t)_mm_extract_epi32(vF,0);
             /* as minor diagonal vector passes across the i or j limit

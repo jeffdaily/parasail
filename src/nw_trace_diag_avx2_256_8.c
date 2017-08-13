@@ -168,7 +168,7 @@ parasail_result_t* FNAME(
     int8_t * const restrict s2 = s2B+PAD; /* will allow later for negative indices */
     int8_t * const restrict H_pr = _H_pr+PAD;
     int8_t * const restrict F_pr = _F_pr+PAD;
-    parasail_result_t *result = parasail_result_new_trace(s1Len, s2Len, 1);
+    parasail_result_t *result = parasail_result_new_trace(s1Len, s2Len, sizeof(int));
     int32_t i = 0;
     int32_t j = 0;
     int32_t end_query = s1Len-1;
@@ -222,6 +222,9 @@ parasail_result_t* FNAME(
             -open-30*gap,
             -open-31*gap
             );
+    __m256i vTDiag = _mm256_set1_epi8(PARASAIL_DIAG);
+    __m256i vTIns = _mm256_set1_epi8(PARASAIL_INS);
+    __m256i vTDel = _mm256_set1_epi8(PARASAIL_DEL);
     __m256i vNegLimit = _mm256_set1_epi8(INT8_MIN);
     __m256i vPosLimit = _mm256_set1_epi8(INT8_MAX);
     __m256i vSaturationCheckMin = vPosLimit;
@@ -271,7 +274,11 @@ parasail_result_t* FNAME(
         __m256i vNH = vNegInf;
         __m256i vWH = vNegInf;
         __m256i vE = vNegInf;
+        __m256i vE_opn = vNegInf;
+        __m256i vE_ext = vNegInf;
         __m256i vF = vNegInf;
+        __m256i vF_opn = vNegInf;
+        __m256i vF_ext = vNegInf;
         __m256i vJ = vJreset;
         const int * const restrict matrow0 = &matrix->matrix[matrix->size*s1[i+0]];
         const int * const restrict matrow1 = &matrix->matrix[matrix->size*s1[i+1]];
@@ -318,12 +325,12 @@ parasail_result_t* FNAME(
             vNH = _mm256_insert_epi8_rpl(vNH, H_pr[j], 31);
             vF = _mm256_srli_si256_rpl(vF, 1);
             vF = _mm256_insert_epi8_rpl(vF, F_pr[j], 31);
-            vF = _mm256_max_epi8(
-                    _mm256_subs_epi8(vNH, vOpen),
-                    _mm256_subs_epi8(vF, vGap));
-            vE = _mm256_max_epi8(
-                    _mm256_subs_epi8(vWH, vOpen),
-                    _mm256_subs_epi8(vE, vGap));
+            vF_opn = _mm256_subs_epi8(vNH, vOpen);
+            vF_ext = _mm256_subs_epi8(vF, vGap);
+            vF = _mm256_max_epi8(vF_opn, vF_ext);
+            vE_opn = _mm256_subs_epi8(vWH, vOpen);
+            vE_ext = _mm256_subs_epi8(vE, vGap);
+            vE = _mm256_max_epi8(vE_opn, vE_ext);
             vMat = _mm256_set_epi8(
                     matrow0[s2[j-0]],
                     matrow1[s2[j-1]],
@@ -373,6 +380,23 @@ parasail_result_t* FNAME(
             {
                 vSaturationCheckMax = _mm256_max_epi8(vSaturationCheckMax, vWH);
                 vSaturationCheckMin = _mm256_min_epi8(vSaturationCheckMin, vWH);
+            }
+            /* trace table */
+            {
+                __m256i case1 = _mm256_cmpeq_epi8(vWH, vNWH);
+                __m256i case2 = _mm256_cmpeq_epi8(vWH, vF);
+                __m256i vT = _mm256_blendv_epi8(
+                        _mm256_blendv_epi8(vTIns, vTDel, case2),
+                        vTDiag,
+                        case1);
+                __m256i condD = _mm256_cmpgt_epi8(vE, vF);
+                __m256i condE = _mm256_cmpgt_epi8(vE_opn, vE_ext);
+                __m256i condF = _mm256_cmpgt_epi8(vF_opn, vF_ext);
+                __m256i vET = _mm256_blendv_epi8(vTIns, vTDiag, condE);
+                __m256i vFT = _mm256_blendv_epi8(vTDel, vTDiag, condF);
+                arr_store_si256(result->trace_table, vT, i, s1Len, j, s2Len);
+                arr_store_si256(result->trace_ins_table, vET, i, s1Len, j, s2Len);
+                arr_store_si256(result->trace_del_table, vFT, i, s1Len, j, s2Len);
             }
             H_pr[j-31] = (int8_t)_mm256_extract_epi8_rpl(vWH,0);
             F_pr[j-31] = (int8_t)_mm256_extract_epi8_rpl(vF,0);

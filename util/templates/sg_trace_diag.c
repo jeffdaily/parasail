@@ -48,7 +48,7 @@ parasail_result_t* FNAME(
     %(INT)s * const restrict s2 = s2B+PAD; /* will allow later for negative indices */
     %(INT)s * const restrict H_pr = _H_pr+PAD;
     %(INT)s * const restrict F_pr = _F_pr+PAD;
-    parasail_result_t *result = parasail_result_new_trace(s1Len, s2Len, %(BYTES)s);
+    parasail_result_t *result = parasail_result_new_trace(s1Len, s2Len, sizeof(int));
     %(INDEX)s i = 0;
     %(INDEX)s j = 0;
     %(INDEX)s end_query = 0;
@@ -70,6 +70,9 @@ parasail_result_t* FNAME(
     %(VTYPE)s vILimit1 = %(VSUB)s(vILimit, vOne);
     %(VTYPE)s vJLimit = %(VSET1)s(s2Len);
     %(VTYPE)s vJLimit1 = %(VSUB)s(vJLimit, vOne);
+    %(VTYPE)s vTDiag = %(VSET1)s(PARASAIL_DIAG);
+    %(VTYPE)s vTIns = %(VSET1)s(PARASAIL_INS);
+    %(VTYPE)s vTDel = %(VSET1)s(PARASAIL_DEL);
     %(SATURATION_CHECK_INIT)s
 
     /* convert _s1 from char to int in range 0-23 */
@@ -115,7 +118,11 @@ parasail_result_t* FNAME(
         %(VTYPE)s vNH = vNegInf0;
         %(VTYPE)s vWH = vNegInf0;
         %(VTYPE)s vE = vNegInf;
+        %(VTYPE)s vE_opn = vNegInf;
+        %(VTYPE)s vE_ext = vNegInf;
         %(VTYPE)s vF = vNegInf;
+        %(VTYPE)s vF_opn = vNegInf;
+        %(VTYPE)s vF_ext = vNegInf;
         %(VTYPE)s vJ = vJreset;
         %(DIAG_MATROW_DECL)s
         %(VTYPE)s vIltLimit = %(VCMPLT)s(vI, vILimit);
@@ -128,12 +135,12 @@ parasail_result_t* FNAME(
             vNH = %(VINSERT)s(vNH, H_pr[j], %(LAST_POS)s);
             vF = %(VRSHIFT)s(vF, %(BYTES)s);
             vF = %(VINSERT)s(vF, F_pr[j], %(LAST_POS)s);
-            vF = %(VMAX)s(
-                    %(VSUB)s(vNH, vOpen),
-                    %(VSUB)s(vF, vGap));
-            vE = %(VMAX)s(
-                    %(VSUB)s(vWH, vOpen),
-                    %(VSUB)s(vE, vGap));
+            vF_opn = %(VSUB)s(vNH, vOpen);
+            vF_ext = %(VSUB)s(vF, vGap);
+            vF = %(VMAX)s(vF_opn, vF_ext);
+            vE_opn = %(VSUB)s(vWH, vOpen);
+            vE_ext = %(VSUB)s(vE, vGap);
+            vE = %(VMAX)s(vE_opn, vE_ext);
             vMat = %(VSET)s(
                     %(DIAG_MATROW_USE)s
                     );
@@ -149,6 +156,23 @@ parasail_result_t* FNAME(
                 vE = %(VBLEND)s(vE, vNegInf, cond);
             }
             %(SATURATION_CHECK_MID)s
+            /* trace table */
+            {
+                %(VTYPE)s case1 = %(VCMPEQ)s(vWH, vNWH);
+                %(VTYPE)s case2 = %(VCMPEQ)s(vWH, vF);
+                %(VTYPE)s vT = %(VBLEND)s(
+                        %(VBLEND)s(vTIns, vTDel, case2),
+                        vTDiag,
+                        case1);
+                %(VTYPE)s condD = %(VCMPGT)s(vE, vF);
+                %(VTYPE)s condE = %(VCMPGT)s(vE_opn, vE_ext);
+                %(VTYPE)s condF = %(VCMPGT)s(vF_opn, vF_ext);
+                %(VTYPE)s vET = %(VBLEND)s(vTIns, vTDiag, condE);
+                %(VTYPE)s vFT = %(VBLEND)s(vTDel, vTDiag, condF);
+                arr_store_si%(BITS)s(result->trace_table, vT, i, s1Len, j, s2Len);
+                arr_store_si%(BITS)s(result->trace_ins_table, vET, i, s1Len, j, s2Len);
+                arr_store_si%(BITS)s(result->trace_del_table, vFT, i, s1Len, j, s2Len);
+            }
             H_pr[j-%(LAST_POS)s] = (%(INT)s)%(VEXTRACT)s(vWH,0);
             F_pr[j-%(LAST_POS)s] = (%(INT)s)%(VEXTRACT)s(vF,0);
             /* as minor diagonal vector passes across the i or j limit

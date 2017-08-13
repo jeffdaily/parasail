@@ -60,6 +60,7 @@ special_templates = [
 "sg_diag_8.c",
 "sw_diag_8.c",
 "sw_stats_diag_8.c",
+"sw_trace_diag_8.c",
 ]
 
 bias_templates = [
@@ -504,7 +505,7 @@ for template_filename in special_templates:
     if len(parts) == 3:
         table_prefix = "%s_%s_table_%s" % (parts[0], parts[1], parts[2])
         rowcol_prefix = "%s_%s_rowcol_%s" % (parts[0], parts[1], parts[2])
-        trace_prefix = "%s_%s_trace_%s" % (parts[0], parts[1], parts[2])
+        trace_prefix = "%s_%s_%s" % (parts[0], parts[1], parts[2])
     for isa in [sse2,sse41,avx2]:
         params = copy.deepcopy(isa)
         params["WIDTH"] = width

@@ -1387,9 +1387,9 @@ inline static void output_graph(
     fprintf(fop, "%lu %lu 1\n", (unsigned long)graph.size(), edge_count);
     for (size_t i=0; i<graph.size(); ++i) {
         if (graph[i].size() > 0) {
-            fprintf(fop, "%d %f", graph[i][0].first, graph[i][0].second);
+            fprintf(fop, "%d %f", graph[i][0].first+1, graph[i][0].second);
             for (size_t j=1; j<graph[i].size(); ++j) {
-                fprintf(fop, "  %d %f", graph[i][j].first, graph[i][j].second);
+                fprintf(fop, "  %d %f", graph[i][j].first+1, graph[i][j].second);
             }
             fprintf(fop, "\n");
         } else {

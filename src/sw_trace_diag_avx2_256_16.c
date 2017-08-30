@@ -267,7 +267,6 @@ parasail_result_t* FNAME(
                         _mm256_blendv_epi8(vTIns, vTDel, case2),
                         _mm256_blendv_epi8(vTDiag, vTZero, cond_zero),
                         case1);
-                __m256i condD = _mm256_cmpgt_epi16(vE, vF);
                 __m256i condE = _mm256_cmpgt_epi16(vE_opn, vE_ext);
                 __m256i condF = _mm256_cmpgt_epi16(vF_opn, vF_ext);
                 __m256i vET = _mm256_blendv_epi8(vTIns, vTDiag, condE);

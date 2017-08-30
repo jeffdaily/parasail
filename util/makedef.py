@@ -47,6 +47,28 @@ EXPORTS
     parasail_can_use_avx2
     parasail_can_use_sse41
     parasail_can_use_sse2
+; from parasail/memory.h (mostly internal functions)
+    parasail_memalign
+    parasail_memalign_int
+    parasail_memalign_int8_t
+    parasail_memalign_int16_t
+    parasail_memalign_int32_t
+    parasail_memalign_int64_t
+    parasail_free
+    parasail_memset
+    parasail_memset_int
+    parasail_memset_int8_t
+    parasail_memset_int16_t
+    parasail_memset_int32_t
+    parasail_memset_int64_t
+    parasail_result_new
+    parasail_result_new_table1
+    parasail_result_new_table3
+    parasail_result_new_rowcol1
+    parasail_result_new_rowcol3
+    parasail_result_new_trace
+    parasail_profile_new
+    parasail_reverse
 ; from parasail.h, generated names"""
 
 # serial reference implementations (3x2x3 = 18 impl)

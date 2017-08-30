@@ -67,6 +67,7 @@ EXPORTS
     parasail_result_new_trace
     parasail_profile_new
     parasail_reverse
+    parasail_striped_unwind
 ; from parasail.h, generated names
     parasail_nw
     parasail_nw_table

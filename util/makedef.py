@@ -69,6 +69,7 @@ EXPORTS
     parasail_result_new_trace
     parasail_profile_new
     parasail_reverse
+    parasail_striped_unwind
 ; from parasail.h, generated names"""
 
 # serial reference implementations (3x2x3 = 18 impl)

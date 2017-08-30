@@ -717,6 +717,9 @@ TARGET_LINK_LIBRARIES( test_verify_tables parasail )
 ADD_EXECUTABLE( test_verify_rowcols tests/test_verify_rowcols.c ${maybe_getopt} )
 TARGET_LINK_LIBRARIES( test_verify_rowcols parasail )
 
+ADD_EXECUTABLE( test_verify_traces tests/test_verify_traces.c ${maybe_getopt} )
+TARGET_LINK_LIBRARIES( test_verify_traces parasail )
+
 INSTALL( FILES parasail.h DESTINATION include )
 INSTALL( DIRECTORY parasail DESTINATION include )
 INSTALL( TARGETS parasail parasail_aligner parasail_stats

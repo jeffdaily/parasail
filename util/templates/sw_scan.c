@@ -170,6 +170,7 @@ parasail_result_t* PNAME(
         vF = %(VSHIFT)s(vF, %(BYTES)s);
         vF = %(VADD)s(vF, vNegInfFront);
         vH = %(VMAX)s(vHt, vF);
+        vH = %(VMAX)s(vH, vZero);
         for (i=0; i<segLen; ++i) {
             vHt = %(VLOAD)s(pvHt+i);
             vF = %(VMAX)s(

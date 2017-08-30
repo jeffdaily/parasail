@@ -213,6 +213,7 @@ parasail_result_t* PNAME(
         vF = _mm_slli_si128(vF, 1);
         vF = _mm_adds_epi8(vF, vNegInfFront);
         vH = _mm_max_epi8(vHt, vF);
+        vH = _mm_max_epi8(vH, vZero);
         for (i=0; i<segLen; ++i) {
             vHt = _mm_load_si128(pvHt+i);
             vF = _mm_max_epi8(

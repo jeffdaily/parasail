@@ -222,6 +222,7 @@ parasail_result_t* PNAME(
         vF = _mm256_slli_si256_rpl(vF, 2);
         vF = _mm256_add_epi16(vF, vNegInfFront);
         vH = _mm256_max_epi16(vHt, vF);
+        vH = _mm256_max_epi16(vH, vZero);
         for (i=0; i<segLen; ++i) {
             vHt = _mm256_load_si256(pvHt+i);
             vF = _mm256_max_epi16(

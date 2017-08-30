@@ -114,7 +114,6 @@ parasail_result_t* PNAME(
     __m128i vNegInfFront = _mm_set_epi32(0,0,0,NEG_LIMIT);
     __m128i vSegLenXgap = _mm_add_epi32(vNegInfFront,
             _mm_slli_si128(_mm_set1_epi32(-segLen*gap), 4));
-    __m128i vSegLen = _mm_slli_si128(_mm_set1_epi32(segLen), 4);
     parasail_result_t *result = parasail_result_new_trace(segLen, s2Len, sizeof(__m128i));
     __m128i vTZero = _mm_set1_epi32(PARASAIL_ZERO);
     __m128i vTIns  = _mm_set1_epi32(PARASAIL_INS);
@@ -212,7 +211,7 @@ parasail_result_t* PNAME(
             vT = _mm_blendv_epi8_rpl(
                     _mm_blendv_epi8_rpl(vTIns, vTDel, case2),
                     vTDiag, case1);
-            vT = _mm_blendv_epi8_rpl(vT, vZero, case0);
+            vT = _mm_blendv_epi8_rpl(vT, vTZero, case0);
             arr_store(result->trace_table, vT, i, segLen, j);
             _mm_store_si128(pvH+i, vH);
             vSaturationCheckMin = _mm_min_epi32_rpl(vSaturationCheckMin, vH);

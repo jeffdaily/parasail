@@ -78,7 +78,6 @@ parasail_result_t* PNAME(
     %(VTYPE)s vNegInfFront = %(VSET)s(%(SCAN_NEG_INF_FRONT)s);
     %(VTYPE)s vSegLenXgap = %(VADD)s(vNegInfFront,
             %(VSHIFT)s(%(VSET1)s(-segLen*gap), %(BYTES)s));
-    %(VTYPE)s vSegLen = %(VSHIFT)s(%(VSET1)s(segLen), %(BYTES)s);
     parasail_result_t *result = parasail_result_new_trace(segLen, s2Len, sizeof(%(VTYPE)s));
     %(VTYPE)s vTZero = %(VSET1)s(PARASAIL_ZERO);
     %(VTYPE)s vTIns  = %(VSET1)s(PARASAIL_INS);
@@ -176,7 +175,7 @@ parasail_result_t* PNAME(
             vT = %(VBLEND)s(
                     %(VBLEND)s(vTIns, vTDel, case2),
                     vTDiag, case1);
-            vT = %(VBLEND)s(vT, vZero, case0);
+            vT = %(VBLEND)s(vT, vTZero, case0);
             arr_store(result->trace_table, vT, i, segLen, j);
             %(VSTORE)s(pvH+i, vH);
             vSaturationCheckMin = %(VMIN)s(vSaturationCheckMin, vH);

@@ -164,7 +164,6 @@ parasail_result_t* FNAME(
                         %(VBLEND)s(vTIns, vTDel, case2),
                         vTDiag,
                         case1);
-                %(VTYPE)s condD = %(VCMPGT)s(vE, vF);
                 %(VTYPE)s condE = %(VCMPGT)s(vE_opn, vE_ext);
                 %(VTYPE)s condF = %(VCMPGT)s(vF_opn, vF_ext);
                 %(VTYPE)s vET = %(VBLEND)s(vTIns, vTDiag, condE);

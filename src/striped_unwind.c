@@ -18,7 +18,7 @@ static inline int* CONCAT(parasail_striped_unwind_, T) (
         for (i=0; i<column_len; ++i) {
             int32_t i_unwound = i / segWidth + i % segWidth * segLen;
             if (i_unwound < lena) {
-                ret[i_unwound*lenb + j] = array[j*column_len + i];
+                ret[i_unwound*lenb + j] = (int)array[j*column_len + i];
             }
         }
     }

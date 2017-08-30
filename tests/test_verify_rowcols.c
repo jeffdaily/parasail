@@ -12,10 +12,21 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#if defined(_MSC_VER)
+#include "wingetopt/src/getopt.h"
+#else
 #include <unistd.h>
+#endif
+
+#if defined(_MSC_VER)
+#include <io.h>
+#define READ_FUNCTION _read
+#else
+#define READ_FUNCTION read
+#endif
 
 #include "kseq.h"
-KSEQ_INIT(int, read)
+KSEQ_INIT(int, READ_FUNCTION)
 
 #include "parasail.h"
 #include "parasail/cpuid.h"
@@ -155,7 +166,7 @@ static void check_functions(
     unsigned long matrix_index = 0;
     unsigned long gap_index = 0;
     unsigned long function_index = 0;
-    unsigned long pair_index = 0;
+    long long pair_index = 0;
     parasail_function_t *reference_function = NULL;
     const parasail_matrix_t ** matrices = parasail_matrices;
     const parasail_matrix_t * single_matrix[] = {
@@ -193,7 +204,7 @@ static void check_functions(
                     unsigned long a = 0;
                     unsigned long b = 1;
                     k_combination2(pair_index, &a, &b);
-                    /*printf("\t\t\t\tpair=%lu (%lu,%lu)\n", pair_index, a, b);*/
+                    /*printf("\t\t\t\tpair=%lld (%lu,%lu)\n", pair_index, a, b);*/
                     reference_result = reference_function(
                             sequences[a], sizes[a],
                             sequences[b], sizes[b],

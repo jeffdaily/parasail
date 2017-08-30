@@ -1150,8 +1150,8 @@ inline static void process(
         const char &sentinal,
         const int &cutoff)
 {
-    const int n_children = q.children.size();
-    int child_index = 0;
+    const size_t n_children = q.children.size();
+    size_t child_index = 0;
 
     if (q.lcp < cutoff) return;
 

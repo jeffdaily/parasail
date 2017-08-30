@@ -365,11 +365,11 @@ parasail_matrix_t* parasail_matrix_copy(const parasail_matrix_t *original)
         int *new_mapper = NULL;
         int *new_matrix = NULL;
 
-        new_mapper = malloc(mapper_size);
+        new_mapper = (int*)malloc(mapper_size);
         assert(new_mapper);
         (void)memcpy(new_mapper, original->mapper, mapper_size);
 
-        new_matrix = malloc(matrix_size);
+        new_matrix = (int*)malloc(matrix_size);
         assert(new_matrix);
         (void)memcpy(new_matrix, original->matrix, matrix_size);
 

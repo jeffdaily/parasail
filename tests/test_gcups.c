@@ -12,7 +12,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#if defined(_MSC_VER)
+#include "wingetopt/src/getopt.h"
+#else
 #include <unistd.h>
+#endif
 
 #define USE_ZLIB 0
 

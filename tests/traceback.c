@@ -6,9 +6,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 #include <errno.h>
+#if defined(_MSC_VER)
+#include "wingetopt/src/getopt.h"
+#else
 #include <unistd.h>
+#endif
+
+#if defined(_MSC_VER)
+#include <io.h>
+#define READ_FUNCTION _read
+#else
+#define READ_FUNCTION read
+#endif
 
 #include "kseq.h"
 KSEQ_INIT(int, read)

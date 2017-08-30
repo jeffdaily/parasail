@@ -10,14 +10,29 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
+#if defined(_MSC_VER)
+#include "wingetopt/src/getopt.h"
+#else
+#include <unistd.h>
+#endif
 
+#ifdef __MIC__
 #include <errno.h>
 #include <pwd.h>
 #include <unistd.h>
 #include <sys/types.h>
+#endif
+
+#if defined(_MSC_VER)
+#include <io.h>
+#define READ_FUNCTION _read
+#else
+#define READ_FUNCTION read
+#endif
 
 #include "kseq.h"
-KSEQ_INIT(int, read)
+KSEQ_INIT(int, READ_FUNCTION)
 
 #include "parasail.h"
 #include "parasail/memory.h"
@@ -174,8 +189,8 @@ static inline void parse_sequences(
         perror("fopen");
         exit(1);
     }
-    strings = malloc(sizeof(char*) * memory);
-    sizes = malloc(sizeof(unsigned long) * memory);
+    strings = (char**)malloc(sizeof(char*) * memory);
+    sizes = (unsigned long*)malloc(sizeof(unsigned long) * memory);
     seq = kseq_init(fileno(fp));
     while ((l = kseq_read(seq)) >= 0) {
         errno = 0;
@@ -191,14 +206,14 @@ static inline void parse_sequences(
             unsigned long *new_sizes = NULL;
             memory *= 2;
             errno = 0;
-            new_strings = realloc(strings, sizeof(char*) * memory);
+            new_strings = (char**)realloc(strings, sizeof(char*) * memory);
             if (NULL == new_strings) {
                 perror("realloc");
                 exit(1);
             }
             strings = new_strings;
             errno = 0;
-            new_sizes = realloc(sizes, sizeof(unsigned long) * memory);
+            new_sizes = (unsigned long*)realloc(sizes, sizeof(unsigned long) * memory);
             if (NULL == new_sizes) {
                 perror("realloc");
                 exit(1);

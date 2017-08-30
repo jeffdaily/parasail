@@ -12,14 +12,25 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#if defined(_MSC_VER)
+#include "wingetopt/src/getopt.h"
+#else
 #include <unistd.h>
+#endif
 
 #if defined(_OPENMP)
 #include <omp.h>
 #endif
 
+#if defined(_MSC_VER)
+#include <io.h>
+#define READ_FUNCTION _read
+#else
+#define READ_FUNCTION read
+#endif
+
 #include "kseq.h"
-KSEQ_INIT(int, read)
+KSEQ_INIT(int, READ_FUNCTION)
 
 #if HAVE_SSE2
 #include "ssw.h"
@@ -403,11 +414,13 @@ int main(int argc, char **argv)
             local_timer = timer_real();
 #pragma omp parallel
             {
+				long long int seq_count_database_signed = seq_count_database;
+				long long int j_signed = 0;
 #pragma omp for schedule(guided)
-                for (j=0; j<seq_count_database; ++j) {
+                for (j_signed=0; j_signed<seq_count_database_signed; ++j_signed) {
                     parasail_result_t *result = function(
                             sequences_queries[i], sizes_queries[i],
-                            sequences_database[j], sizes_database[j],
+                            sequences_database[j_signed], sizes_database[j_signed],
                             gap_open, gap_extend, matrix);
 #pragma omp atomic
                     saturated_query += result->saturated;
@@ -432,12 +445,14 @@ int main(int argc, char **argv)
                 unsigned long a=0;
                 unsigned long b=1;
                 unsigned long swap=0;
+				long long i_signed = 0;
+				long long limit_signed = limit;
 #pragma omp for schedule(guided)
-                for (i=0; i<limit; ++i) {
+                for (i_signed=0; i_signed<limit_signed; ++i_signed) {
                     parasail_function_t *function = function1;
                     parasail_result_t *result = NULL;
                     unsigned long query_size;
-                    k_combination2(i, &a, &b);
+                    k_combination2(i_signed, &a, &b);
                     if (smallest_first) {
                         if (sizes_database[a] > sizes_database[b]) {
                             swap = a;
@@ -478,7 +493,7 @@ int main(int argc, char **argv)
 #pragma omp atomic
                     saturated += result->saturated;
                     if (result->saturated) {
-#pragma omp 
+#pragma omp critical(printer)
                         {
                             printf("saturated -- (%lu,%lu)\n", a, b);
                         }

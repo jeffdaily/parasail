@@ -3052,6 +3052,1014 @@ parasail_result_t* parasail_nw_rowcol_diag_knc_512_32(
 #if HAVE_SSE2
 #else
 extern
+parasail_result_t* parasail_nw_trace_scan_sse2_128_64(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_nw_trace_scan_sse2_128_32(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_nw_trace_scan_sse2_128_16(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_nw_trace_scan_sse2_128_8(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_nw_trace_scan_sse2_128_sat(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_nw_trace_scan_sse41_128_64(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_nw_trace_scan_sse41_128_32(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_nw_trace_scan_sse41_128_16(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_nw_trace_scan_sse41_128_8(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_nw_trace_scan_sse41_128_sat(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_nw_trace_scan_avx2_256_64(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_nw_trace_scan_avx2_256_32(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_nw_trace_scan_avx2_256_16(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_nw_trace_scan_avx2_256_8(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_nw_trace_scan_avx2_256_sat(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_KNC
+#else
+extern
+parasail_result_t* parasail_nw_trace_scan_knc_512_32(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_nw_trace_striped_sse2_128_64(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_nw_trace_striped_sse2_128_32(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_nw_trace_striped_sse2_128_16(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_nw_trace_striped_sse2_128_8(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_nw_trace_striped_sse2_128_sat(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_nw_trace_striped_sse41_128_64(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_nw_trace_striped_sse41_128_32(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_nw_trace_striped_sse41_128_16(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_nw_trace_striped_sse41_128_8(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_nw_trace_striped_sse41_128_sat(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_nw_trace_striped_avx2_256_64(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_nw_trace_striped_avx2_256_32(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_nw_trace_striped_avx2_256_16(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_nw_trace_striped_avx2_256_8(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_nw_trace_striped_avx2_256_sat(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_KNC
+#else
+extern
+parasail_result_t* parasail_nw_trace_striped_knc_512_32(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_nw_trace_diag_sse2_128_64(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_nw_trace_diag_sse2_128_32(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_nw_trace_diag_sse2_128_16(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_nw_trace_diag_sse2_128_8(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_nw_trace_diag_sse2_128_sat(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_nw_trace_diag_sse41_128_64(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_nw_trace_diag_sse41_128_32(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_nw_trace_diag_sse41_128_16(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_nw_trace_diag_sse41_128_8(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_nw_trace_diag_sse41_128_sat(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_nw_trace_diag_avx2_256_64(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_nw_trace_diag_avx2_256_32(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_nw_trace_diag_avx2_256_16(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_nw_trace_diag_avx2_256_8(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_nw_trace_diag_avx2_256_sat(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_KNC
+#else
+extern
+parasail_result_t* parasail_nw_trace_diag_knc_512_32(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
 parasail_result_t* parasail_nw_stats_scan_sse2_128_64(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
@@ -9080,6 +10088,1014 @@ parasail_result_t* parasail_sg_rowcol_diag_avx2_256_sat(
 #else
 extern
 parasail_result_t* parasail_sg_rowcol_diag_knc_512_32(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sg_trace_scan_sse2_128_64(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sg_trace_scan_sse2_128_32(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sg_trace_scan_sse2_128_16(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sg_trace_scan_sse2_128_8(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sg_trace_scan_sse2_128_sat(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sg_trace_scan_sse41_128_64(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sg_trace_scan_sse41_128_32(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sg_trace_scan_sse41_128_16(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sg_trace_scan_sse41_128_8(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sg_trace_scan_sse41_128_sat(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sg_trace_scan_avx2_256_64(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sg_trace_scan_avx2_256_32(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sg_trace_scan_avx2_256_16(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sg_trace_scan_avx2_256_8(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sg_trace_scan_avx2_256_sat(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_KNC
+#else
+extern
+parasail_result_t* parasail_sg_trace_scan_knc_512_32(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sg_trace_striped_sse2_128_64(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sg_trace_striped_sse2_128_32(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sg_trace_striped_sse2_128_16(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sg_trace_striped_sse2_128_8(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sg_trace_striped_sse2_128_sat(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sg_trace_striped_sse41_128_64(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sg_trace_striped_sse41_128_32(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sg_trace_striped_sse41_128_16(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sg_trace_striped_sse41_128_8(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sg_trace_striped_sse41_128_sat(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sg_trace_striped_avx2_256_64(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sg_trace_striped_avx2_256_32(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sg_trace_striped_avx2_256_16(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sg_trace_striped_avx2_256_8(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sg_trace_striped_avx2_256_sat(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_KNC
+#else
+extern
+parasail_result_t* parasail_sg_trace_striped_knc_512_32(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sg_trace_diag_sse2_128_64(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sg_trace_diag_sse2_128_32(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sg_trace_diag_sse2_128_16(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sg_trace_diag_sse2_128_8(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sg_trace_diag_sse2_128_sat(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sg_trace_diag_sse41_128_64(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sg_trace_diag_sse41_128_32(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sg_trace_diag_sse41_128_16(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sg_trace_diag_sse41_128_8(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sg_trace_diag_sse41_128_sat(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sg_trace_diag_avx2_256_64(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sg_trace_diag_avx2_256_32(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sg_trace_diag_avx2_256_16(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sg_trace_diag_avx2_256_8(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sg_trace_diag_avx2_256_sat(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_KNC
+#else
+extern
+parasail_result_t* parasail_sg_trace_diag_knc_512_32(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
         const int open, const int gap,
@@ -15148,6 +17164,1014 @@ parasail_result_t* parasail_sw_rowcol_diag_knc_512_32(
 #if HAVE_SSE2
 #else
 extern
+parasail_result_t* parasail_sw_trace_scan_sse2_128_64(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sw_trace_scan_sse2_128_32(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sw_trace_scan_sse2_128_16(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sw_trace_scan_sse2_128_8(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sw_trace_scan_sse2_128_sat(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sw_trace_scan_sse41_128_64(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sw_trace_scan_sse41_128_32(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sw_trace_scan_sse41_128_16(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sw_trace_scan_sse41_128_8(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sw_trace_scan_sse41_128_sat(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sw_trace_scan_avx2_256_64(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sw_trace_scan_avx2_256_32(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sw_trace_scan_avx2_256_16(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sw_trace_scan_avx2_256_8(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sw_trace_scan_avx2_256_sat(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_KNC
+#else
+extern
+parasail_result_t* parasail_sw_trace_scan_knc_512_32(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sw_trace_striped_sse2_128_64(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sw_trace_striped_sse2_128_32(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sw_trace_striped_sse2_128_16(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sw_trace_striped_sse2_128_8(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sw_trace_striped_sse2_128_sat(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sw_trace_striped_sse41_128_64(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sw_trace_striped_sse41_128_32(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sw_trace_striped_sse41_128_16(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sw_trace_striped_sse41_128_8(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sw_trace_striped_sse41_128_sat(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sw_trace_striped_avx2_256_64(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sw_trace_striped_avx2_256_32(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sw_trace_striped_avx2_256_16(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sw_trace_striped_avx2_256_8(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sw_trace_striped_avx2_256_sat(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_KNC
+#else
+extern
+parasail_result_t* parasail_sw_trace_striped_knc_512_32(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sw_trace_diag_sse2_128_64(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sw_trace_diag_sse2_128_32(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sw_trace_diag_sse2_128_16(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sw_trace_diag_sse2_128_8(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sw_trace_diag_sse2_128_sat(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sw_trace_diag_sse41_128_64(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sw_trace_diag_sse41_128_32(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sw_trace_diag_sse41_128_16(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sw_trace_diag_sse41_128_8(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sw_trace_diag_sse41_128_sat(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sw_trace_diag_avx2_256_64(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sw_trace_diag_avx2_256_32(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sw_trace_diag_avx2_256_16(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sw_trace_diag_avx2_256_8(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sw_trace_diag_avx2_256_sat(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_KNC
+#else
+extern
+parasail_result_t* parasail_sw_trace_diag_knc_512_32(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
 parasail_result_t* parasail_sw_stats_scan_sse2_128_64(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
@@ -19900,6 +22924,582 @@ parasail_result_t* parasail_nw_rowcol_striped_profile_knc_512_32(
 #if HAVE_SSE2
 #else
 extern
+parasail_result_t* parasail_nw_trace_scan_profile_sse2_128_64(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_nw_trace_scan_profile_sse2_128_32(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_nw_trace_scan_profile_sse2_128_16(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_nw_trace_scan_profile_sse2_128_8(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_nw_trace_scan_profile_sse2_128_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_nw_trace_scan_profile_sse41_128_64(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_nw_trace_scan_profile_sse41_128_32(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_nw_trace_scan_profile_sse41_128_16(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_nw_trace_scan_profile_sse41_128_8(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_nw_trace_scan_profile_sse41_128_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_nw_trace_scan_profile_avx2_256_64(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_nw_trace_scan_profile_avx2_256_32(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_nw_trace_scan_profile_avx2_256_16(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_nw_trace_scan_profile_avx2_256_8(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_nw_trace_scan_profile_avx2_256_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_KNC
+#else
+extern
+parasail_result_t* parasail_nw_trace_scan_profile_knc_512_32(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_nw_trace_striped_profile_sse2_128_64(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_nw_trace_striped_profile_sse2_128_32(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_nw_trace_striped_profile_sse2_128_16(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_nw_trace_striped_profile_sse2_128_8(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_nw_trace_striped_profile_sse2_128_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_nw_trace_striped_profile_sse41_128_64(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_nw_trace_striped_profile_sse41_128_32(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_nw_trace_striped_profile_sse41_128_16(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_nw_trace_striped_profile_sse41_128_8(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_nw_trace_striped_profile_sse41_128_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_nw_trace_striped_profile_avx2_256_64(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_nw_trace_striped_profile_avx2_256_32(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_nw_trace_striped_profile_avx2_256_16(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_nw_trace_striped_profile_avx2_256_8(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_nw_trace_striped_profile_avx2_256_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_KNC
+#else
+extern
+parasail_result_t* parasail_nw_trace_striped_profile_knc_512_32(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
 parasail_result_t* parasail_nw_stats_scan_profile_sse2_128_64(
         const parasail_profile_t * const restrict profile,
         const char * const restrict s2, const int s2Len,
@@ -23339,6 +26939,582 @@ parasail_result_t* parasail_sg_rowcol_striped_profile_avx2_256_sat(
 #else
 extern
 parasail_result_t* parasail_sg_rowcol_striped_profile_knc_512_32(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sg_trace_scan_profile_sse2_128_64(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sg_trace_scan_profile_sse2_128_32(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sg_trace_scan_profile_sse2_128_16(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sg_trace_scan_profile_sse2_128_8(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sg_trace_scan_profile_sse2_128_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sg_trace_scan_profile_sse41_128_64(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sg_trace_scan_profile_sse41_128_32(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sg_trace_scan_profile_sse41_128_16(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sg_trace_scan_profile_sse41_128_8(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sg_trace_scan_profile_sse41_128_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sg_trace_scan_profile_avx2_256_64(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sg_trace_scan_profile_avx2_256_32(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sg_trace_scan_profile_avx2_256_16(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sg_trace_scan_profile_avx2_256_8(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sg_trace_scan_profile_avx2_256_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_KNC
+#else
+extern
+parasail_result_t* parasail_sg_trace_scan_profile_knc_512_32(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sg_trace_striped_profile_sse2_128_64(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sg_trace_striped_profile_sse2_128_32(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sg_trace_striped_profile_sse2_128_16(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sg_trace_striped_profile_sse2_128_8(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sg_trace_striped_profile_sse2_128_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sg_trace_striped_profile_sse41_128_64(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sg_trace_striped_profile_sse41_128_32(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sg_trace_striped_profile_sse41_128_16(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sg_trace_striped_profile_sse41_128_8(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sg_trace_striped_profile_sse41_128_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sg_trace_striped_profile_avx2_256_64(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sg_trace_striped_profile_avx2_256_32(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sg_trace_striped_profile_avx2_256_16(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sg_trace_striped_profile_avx2_256_8(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sg_trace_striped_profile_avx2_256_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_KNC
+#else
+extern
+parasail_result_t* parasail_sg_trace_striped_profile_knc_512_32(
         const parasail_profile_t * const restrict profile,
         const char * const restrict s2, const int s2Len,
         const int open, const int gap)
@@ -26812,6 +30988,582 @@ parasail_result_t* parasail_sw_rowcol_striped_profile_knc_512_32(
 #if HAVE_SSE2
 #else
 extern
+parasail_result_t* parasail_sw_trace_scan_profile_sse2_128_64(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sw_trace_scan_profile_sse2_128_32(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sw_trace_scan_profile_sse2_128_16(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sw_trace_scan_profile_sse2_128_8(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sw_trace_scan_profile_sse2_128_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sw_trace_scan_profile_sse41_128_64(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sw_trace_scan_profile_sse41_128_32(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sw_trace_scan_profile_sse41_128_16(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sw_trace_scan_profile_sse41_128_8(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sw_trace_scan_profile_sse41_128_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sw_trace_scan_profile_avx2_256_64(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sw_trace_scan_profile_avx2_256_32(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sw_trace_scan_profile_avx2_256_16(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sw_trace_scan_profile_avx2_256_8(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sw_trace_scan_profile_avx2_256_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_KNC
+#else
+extern
+parasail_result_t* parasail_sw_trace_scan_profile_knc_512_32(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sw_trace_striped_profile_sse2_128_64(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sw_trace_striped_profile_sse2_128_32(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sw_trace_striped_profile_sse2_128_16(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sw_trace_striped_profile_sse2_128_8(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
+parasail_result_t* parasail_sw_trace_striped_profile_sse2_128_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sw_trace_striped_profile_sse41_128_64(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sw_trace_striped_profile_sse41_128_32(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sw_trace_striped_profile_sse41_128_16(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sw_trace_striped_profile_sse41_128_8(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sw_trace_striped_profile_sse41_128_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sw_trace_striped_profile_avx2_256_64(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sw_trace_striped_profile_avx2_256_32(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sw_trace_striped_profile_avx2_256_16(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sw_trace_striped_profile_avx2_256_8(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_AVX2
+#else
+extern
+parasail_result_t* parasail_sw_trace_striped_profile_avx2_256_sat(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_KNC
+#else
+extern
+parasail_result_t* parasail_sw_trace_striped_profile_knc_512_32(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap)
+{
+    UNUSED(profile);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE2
+#else
+extern
 parasail_result_t* parasail_sw_stats_scan_profile_sse2_128_64(
         const parasail_profile_t * const restrict profile,
         const char * const restrict s2, const int s2Len,
@@ -28646,6 +33398,48 @@ parasail_result_t* parasail_sw_rowcol_blocked_sse41_128_32(
 #else
 extern
 parasail_result_t* parasail_sw_rowcol_blocked_sse41_128_16(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sw_trace_blocked_sse41_128_32(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix)
+{
+    UNUSED(s1);
+    UNUSED(s1Len);
+    UNUSED(s2);
+    UNUSED(s2Len);
+    UNUSED(open);
+    UNUSED(gap);
+    UNUSED(matrix);
+    errno = ENOSYS;
+    return NULL;
+}
+#endif
+
+#if HAVE_SSE41
+#else
+extern
+parasail_result_t* parasail_sw_trace_blocked_sse41_128_16(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
         const int open, const int gap,

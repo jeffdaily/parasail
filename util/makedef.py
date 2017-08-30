@@ -72,7 +72,7 @@ for a in alg:
 # vectorized implementations (3x2x3x3x13 = 702 impl)
 alg = ["nw", "sg", "sw"]
 stats = ["", "_stats"]
-table = ["", "_table", "_rowcol"]
+table = ["", "_table", "_rowcol", "_trace"]
 par = ["_scan", "_striped", "_diag"]
 isa = [
     "_sse2_128_64", "_sse2_128_32", "_sse2_128_16", "_sse2_128_8", "_sse2_128_sat",
@@ -83,6 +83,7 @@ isa = [
 for a in alg:
     for s in stats:
         for t in table:
+            if 'stats' in s and 'trace' in t: continue
             for p in par:
                 for i in isa:
                     print "    parasail_"+a+s+t+p+i
@@ -90,7 +91,7 @@ for a in alg:
 # vectorized profile implementations (3x2x3x2x13 = 468 impl)
 alg = ["nw", "sg", "sw"]
 stats = ["", "_stats"]
-table = ["", "_table", "_rowcol"]
+table = ["", "_table", "_rowcol", "_trace"]
 par = ["_scan_profile", "_striped_profile"]
 isa = [
     "_sse2_128_64", "_sse2_128_32", "_sse2_128_16", "_sse2_128_8", "_sse2_128_sat",
@@ -101,6 +102,7 @@ isa = [
 for a in alg:
     for s in stats:
         for t in table:
+            if 'stats' in s and 'trace' in t: continue
             for p in par:
                 for i in isa:
                     print "    parasail_"+a+s+t+p+i
@@ -121,12 +123,13 @@ for a in alg:
 # dispatching implementations (3x2x3x3x4 = 216 impl)
 alg = ["nw", "sg", "sw"]
 stats = ["", "_stats"]
-table = ["", "_table", "_rowcol"]
+table = ["", "_table", "_rowcol", "_trace"]
 par = ["_scan", "_striped", "_diag"]
 width = ["_64", "_32", "_16", "_8", "_sat"]
 for a in alg:
     for s in stats:
         for t in table:
+            if 'stats' in s and 'trace' in t: continue
             for p in par:
                 for w in width:
                     print "    parasail_"+a+s+t+p+w
@@ -134,12 +137,13 @@ for a in alg:
 # dispatching profile implementations (3x2x3x2x4 = 144 impl)
 alg = ["nw", "sg", "sw"]
 stats = ["", "_stats"]
-table = ["", "_table", "_rowcol"]
+table = ["", "_table", "_rowcol", "_trace"]
 par = ["_scan_profile", "_striped_profile"]
 width = ["_64", "_32", "_16", "_8", "_sat"]
 for a in alg:
     for s in stats:
         for t in table:
+            if 'stats' in s and 'trace' in t: continue
             for p in par:
                 for w in width:
                     print "    parasail_"+a+s+t+p+w
@@ -159,11 +163,12 @@ for s in stats:
 # dispatching saturation check implementations (3x2x3x3 = 54 impl)
 alg = ["nw", "sg", "sw"]
 stats = ["", "_stats"]
-table = ["", "_table", "_rowcol"]
+table = ["", "_table", "_rowcol", "_trace"]
 par = ["_scan", "_striped", "_diag"]
 for a in alg:
     for s in stats:
         for t in table:
+            if 'stats' in s and 'trace' in t: continue
             for p in par:
                 print "    parasail_"+a+s+t+p+"_sat"
 

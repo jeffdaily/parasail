@@ -232,6 +232,54 @@ EXPORTS
     parasail_nw_rowcol_diag_avx2_256_8
     parasail_nw_rowcol_diag_avx2_256_sat
     parasail_nw_rowcol_diag_knc_512_32
+    parasail_nw_trace_scan_sse2_128_64
+    parasail_nw_trace_scan_sse2_128_32
+    parasail_nw_trace_scan_sse2_128_16
+    parasail_nw_trace_scan_sse2_128_8
+    parasail_nw_trace_scan_sse2_128_sat
+    parasail_nw_trace_scan_sse41_128_64
+    parasail_nw_trace_scan_sse41_128_32
+    parasail_nw_trace_scan_sse41_128_16
+    parasail_nw_trace_scan_sse41_128_8
+    parasail_nw_trace_scan_sse41_128_sat
+    parasail_nw_trace_scan_avx2_256_64
+    parasail_nw_trace_scan_avx2_256_32
+    parasail_nw_trace_scan_avx2_256_16
+    parasail_nw_trace_scan_avx2_256_8
+    parasail_nw_trace_scan_avx2_256_sat
+    parasail_nw_trace_scan_knc_512_32
+    parasail_nw_trace_striped_sse2_128_64
+    parasail_nw_trace_striped_sse2_128_32
+    parasail_nw_trace_striped_sse2_128_16
+    parasail_nw_trace_striped_sse2_128_8
+    parasail_nw_trace_striped_sse2_128_sat
+    parasail_nw_trace_striped_sse41_128_64
+    parasail_nw_trace_striped_sse41_128_32
+    parasail_nw_trace_striped_sse41_128_16
+    parasail_nw_trace_striped_sse41_128_8
+    parasail_nw_trace_striped_sse41_128_sat
+    parasail_nw_trace_striped_avx2_256_64
+    parasail_nw_trace_striped_avx2_256_32
+    parasail_nw_trace_striped_avx2_256_16
+    parasail_nw_trace_striped_avx2_256_8
+    parasail_nw_trace_striped_avx2_256_sat
+    parasail_nw_trace_striped_knc_512_32
+    parasail_nw_trace_diag_sse2_128_64
+    parasail_nw_trace_diag_sse2_128_32
+    parasail_nw_trace_diag_sse2_128_16
+    parasail_nw_trace_diag_sse2_128_8
+    parasail_nw_trace_diag_sse2_128_sat
+    parasail_nw_trace_diag_sse41_128_64
+    parasail_nw_trace_diag_sse41_128_32
+    parasail_nw_trace_diag_sse41_128_16
+    parasail_nw_trace_diag_sse41_128_8
+    parasail_nw_trace_diag_sse41_128_sat
+    parasail_nw_trace_diag_avx2_256_64
+    parasail_nw_trace_diag_avx2_256_32
+    parasail_nw_trace_diag_avx2_256_16
+    parasail_nw_trace_diag_avx2_256_8
+    parasail_nw_trace_diag_avx2_256_sat
+    parasail_nw_trace_diag_knc_512_32
     parasail_nw_stats_scan_sse2_128_64
     parasail_nw_stats_scan_sse2_128_32
     parasail_nw_stats_scan_sse2_128_16
@@ -520,6 +568,54 @@ EXPORTS
     parasail_sg_rowcol_diag_avx2_256_8
     parasail_sg_rowcol_diag_avx2_256_sat
     parasail_sg_rowcol_diag_knc_512_32
+    parasail_sg_trace_scan_sse2_128_64
+    parasail_sg_trace_scan_sse2_128_32
+    parasail_sg_trace_scan_sse2_128_16
+    parasail_sg_trace_scan_sse2_128_8
+    parasail_sg_trace_scan_sse2_128_sat
+    parasail_sg_trace_scan_sse41_128_64
+    parasail_sg_trace_scan_sse41_128_32
+    parasail_sg_trace_scan_sse41_128_16
+    parasail_sg_trace_scan_sse41_128_8
+    parasail_sg_trace_scan_sse41_128_sat
+    parasail_sg_trace_scan_avx2_256_64
+    parasail_sg_trace_scan_avx2_256_32
+    parasail_sg_trace_scan_avx2_256_16
+    parasail_sg_trace_scan_avx2_256_8
+    parasail_sg_trace_scan_avx2_256_sat
+    parasail_sg_trace_scan_knc_512_32
+    parasail_sg_trace_striped_sse2_128_64
+    parasail_sg_trace_striped_sse2_128_32
+    parasail_sg_trace_striped_sse2_128_16
+    parasail_sg_trace_striped_sse2_128_8
+    parasail_sg_trace_striped_sse2_128_sat
+    parasail_sg_trace_striped_sse41_128_64
+    parasail_sg_trace_striped_sse41_128_32
+    parasail_sg_trace_striped_sse41_128_16
+    parasail_sg_trace_striped_sse41_128_8
+    parasail_sg_trace_striped_sse41_128_sat
+    parasail_sg_trace_striped_avx2_256_64
+    parasail_sg_trace_striped_avx2_256_32
+    parasail_sg_trace_striped_avx2_256_16
+    parasail_sg_trace_striped_avx2_256_8
+    parasail_sg_trace_striped_avx2_256_sat
+    parasail_sg_trace_striped_knc_512_32
+    parasail_sg_trace_diag_sse2_128_64
+    parasail_sg_trace_diag_sse2_128_32
+    parasail_sg_trace_diag_sse2_128_16
+    parasail_sg_trace_diag_sse2_128_8
+    parasail_sg_trace_diag_sse2_128_sat
+    parasail_sg_trace_diag_sse41_128_64
+    parasail_sg_trace_diag_sse41_128_32
+    parasail_sg_trace_diag_sse41_128_16
+    parasail_sg_trace_diag_sse41_128_8
+    parasail_sg_trace_diag_sse41_128_sat
+    parasail_sg_trace_diag_avx2_256_64
+    parasail_sg_trace_diag_avx2_256_32
+    parasail_sg_trace_diag_avx2_256_16
+    parasail_sg_trace_diag_avx2_256_8
+    parasail_sg_trace_diag_avx2_256_sat
+    parasail_sg_trace_diag_knc_512_32
     parasail_sg_stats_scan_sse2_128_64
     parasail_sg_stats_scan_sse2_128_32
     parasail_sg_stats_scan_sse2_128_16
@@ -808,6 +904,54 @@ EXPORTS
     parasail_sw_rowcol_diag_avx2_256_8
     parasail_sw_rowcol_diag_avx2_256_sat
     parasail_sw_rowcol_diag_knc_512_32
+    parasail_sw_trace_scan_sse2_128_64
+    parasail_sw_trace_scan_sse2_128_32
+    parasail_sw_trace_scan_sse2_128_16
+    parasail_sw_trace_scan_sse2_128_8
+    parasail_sw_trace_scan_sse2_128_sat
+    parasail_sw_trace_scan_sse41_128_64
+    parasail_sw_trace_scan_sse41_128_32
+    parasail_sw_trace_scan_sse41_128_16
+    parasail_sw_trace_scan_sse41_128_8
+    parasail_sw_trace_scan_sse41_128_sat
+    parasail_sw_trace_scan_avx2_256_64
+    parasail_sw_trace_scan_avx2_256_32
+    parasail_sw_trace_scan_avx2_256_16
+    parasail_sw_trace_scan_avx2_256_8
+    parasail_sw_trace_scan_avx2_256_sat
+    parasail_sw_trace_scan_knc_512_32
+    parasail_sw_trace_striped_sse2_128_64
+    parasail_sw_trace_striped_sse2_128_32
+    parasail_sw_trace_striped_sse2_128_16
+    parasail_sw_trace_striped_sse2_128_8
+    parasail_sw_trace_striped_sse2_128_sat
+    parasail_sw_trace_striped_sse41_128_64
+    parasail_sw_trace_striped_sse41_128_32
+    parasail_sw_trace_striped_sse41_128_16
+    parasail_sw_trace_striped_sse41_128_8
+    parasail_sw_trace_striped_sse41_128_sat
+    parasail_sw_trace_striped_avx2_256_64
+    parasail_sw_trace_striped_avx2_256_32
+    parasail_sw_trace_striped_avx2_256_16
+    parasail_sw_trace_striped_avx2_256_8
+    parasail_sw_trace_striped_avx2_256_sat
+    parasail_sw_trace_striped_knc_512_32
+    parasail_sw_trace_diag_sse2_128_64
+    parasail_sw_trace_diag_sse2_128_32
+    parasail_sw_trace_diag_sse2_128_16
+    parasail_sw_trace_diag_sse2_128_8
+    parasail_sw_trace_diag_sse2_128_sat
+    parasail_sw_trace_diag_sse41_128_64
+    parasail_sw_trace_diag_sse41_128_32
+    parasail_sw_trace_diag_sse41_128_16
+    parasail_sw_trace_diag_sse41_128_8
+    parasail_sw_trace_diag_sse41_128_sat
+    parasail_sw_trace_diag_avx2_256_64
+    parasail_sw_trace_diag_avx2_256_32
+    parasail_sw_trace_diag_avx2_256_16
+    parasail_sw_trace_diag_avx2_256_8
+    parasail_sw_trace_diag_avx2_256_sat
+    parasail_sw_trace_diag_knc_512_32
     parasail_sw_stats_scan_sse2_128_64
     parasail_sw_stats_scan_sse2_128_32
     parasail_sw_stats_scan_sse2_128_16
@@ -1048,6 +1192,38 @@ EXPORTS
     parasail_nw_rowcol_striped_profile_avx2_256_8
     parasail_nw_rowcol_striped_profile_avx2_256_sat
     parasail_nw_rowcol_striped_profile_knc_512_32
+    parasail_nw_trace_scan_profile_sse2_128_64
+    parasail_nw_trace_scan_profile_sse2_128_32
+    parasail_nw_trace_scan_profile_sse2_128_16
+    parasail_nw_trace_scan_profile_sse2_128_8
+    parasail_nw_trace_scan_profile_sse2_128_sat
+    parasail_nw_trace_scan_profile_sse41_128_64
+    parasail_nw_trace_scan_profile_sse41_128_32
+    parasail_nw_trace_scan_profile_sse41_128_16
+    parasail_nw_trace_scan_profile_sse41_128_8
+    parasail_nw_trace_scan_profile_sse41_128_sat
+    parasail_nw_trace_scan_profile_avx2_256_64
+    parasail_nw_trace_scan_profile_avx2_256_32
+    parasail_nw_trace_scan_profile_avx2_256_16
+    parasail_nw_trace_scan_profile_avx2_256_8
+    parasail_nw_trace_scan_profile_avx2_256_sat
+    parasail_nw_trace_scan_profile_knc_512_32
+    parasail_nw_trace_striped_profile_sse2_128_64
+    parasail_nw_trace_striped_profile_sse2_128_32
+    parasail_nw_trace_striped_profile_sse2_128_16
+    parasail_nw_trace_striped_profile_sse2_128_8
+    parasail_nw_trace_striped_profile_sse2_128_sat
+    parasail_nw_trace_striped_profile_sse41_128_64
+    parasail_nw_trace_striped_profile_sse41_128_32
+    parasail_nw_trace_striped_profile_sse41_128_16
+    parasail_nw_trace_striped_profile_sse41_128_8
+    parasail_nw_trace_striped_profile_sse41_128_sat
+    parasail_nw_trace_striped_profile_avx2_256_64
+    parasail_nw_trace_striped_profile_avx2_256_32
+    parasail_nw_trace_striped_profile_avx2_256_16
+    parasail_nw_trace_striped_profile_avx2_256_8
+    parasail_nw_trace_striped_profile_avx2_256_sat
+    parasail_nw_trace_striped_profile_knc_512_32
     parasail_nw_stats_scan_profile_sse2_128_64
     parasail_nw_stats_scan_profile_sse2_128_32
     parasail_nw_stats_scan_profile_sse2_128_16
@@ -1240,6 +1416,38 @@ EXPORTS
     parasail_sg_rowcol_striped_profile_avx2_256_8
     parasail_sg_rowcol_striped_profile_avx2_256_sat
     parasail_sg_rowcol_striped_profile_knc_512_32
+    parasail_sg_trace_scan_profile_sse2_128_64
+    parasail_sg_trace_scan_profile_sse2_128_32
+    parasail_sg_trace_scan_profile_sse2_128_16
+    parasail_sg_trace_scan_profile_sse2_128_8
+    parasail_sg_trace_scan_profile_sse2_128_sat
+    parasail_sg_trace_scan_profile_sse41_128_64
+    parasail_sg_trace_scan_profile_sse41_128_32
+    parasail_sg_trace_scan_profile_sse41_128_16
+    parasail_sg_trace_scan_profile_sse41_128_8
+    parasail_sg_trace_scan_profile_sse41_128_sat
+    parasail_sg_trace_scan_profile_avx2_256_64
+    parasail_sg_trace_scan_profile_avx2_256_32
+    parasail_sg_trace_scan_profile_avx2_256_16
+    parasail_sg_trace_scan_profile_avx2_256_8
+    parasail_sg_trace_scan_profile_avx2_256_sat
+    parasail_sg_trace_scan_profile_knc_512_32
+    parasail_sg_trace_striped_profile_sse2_128_64
+    parasail_sg_trace_striped_profile_sse2_128_32
+    parasail_sg_trace_striped_profile_sse2_128_16
+    parasail_sg_trace_striped_profile_sse2_128_8
+    parasail_sg_trace_striped_profile_sse2_128_sat
+    parasail_sg_trace_striped_profile_sse41_128_64
+    parasail_sg_trace_striped_profile_sse41_128_32
+    parasail_sg_trace_striped_profile_sse41_128_16
+    parasail_sg_trace_striped_profile_sse41_128_8
+    parasail_sg_trace_striped_profile_sse41_128_sat
+    parasail_sg_trace_striped_profile_avx2_256_64
+    parasail_sg_trace_striped_profile_avx2_256_32
+    parasail_sg_trace_striped_profile_avx2_256_16
+    parasail_sg_trace_striped_profile_avx2_256_8
+    parasail_sg_trace_striped_profile_avx2_256_sat
+    parasail_sg_trace_striped_profile_knc_512_32
     parasail_sg_stats_scan_profile_sse2_128_64
     parasail_sg_stats_scan_profile_sse2_128_32
     parasail_sg_stats_scan_profile_sse2_128_16
@@ -1432,6 +1640,38 @@ EXPORTS
     parasail_sw_rowcol_striped_profile_avx2_256_8
     parasail_sw_rowcol_striped_profile_avx2_256_sat
     parasail_sw_rowcol_striped_profile_knc_512_32
+    parasail_sw_trace_scan_profile_sse2_128_64
+    parasail_sw_trace_scan_profile_sse2_128_32
+    parasail_sw_trace_scan_profile_sse2_128_16
+    parasail_sw_trace_scan_profile_sse2_128_8
+    parasail_sw_trace_scan_profile_sse2_128_sat
+    parasail_sw_trace_scan_profile_sse41_128_64
+    parasail_sw_trace_scan_profile_sse41_128_32
+    parasail_sw_trace_scan_profile_sse41_128_16
+    parasail_sw_trace_scan_profile_sse41_128_8
+    parasail_sw_trace_scan_profile_sse41_128_sat
+    parasail_sw_trace_scan_profile_avx2_256_64
+    parasail_sw_trace_scan_profile_avx2_256_32
+    parasail_sw_trace_scan_profile_avx2_256_16
+    parasail_sw_trace_scan_profile_avx2_256_8
+    parasail_sw_trace_scan_profile_avx2_256_sat
+    parasail_sw_trace_scan_profile_knc_512_32
+    parasail_sw_trace_striped_profile_sse2_128_64
+    parasail_sw_trace_striped_profile_sse2_128_32
+    parasail_sw_trace_striped_profile_sse2_128_16
+    parasail_sw_trace_striped_profile_sse2_128_8
+    parasail_sw_trace_striped_profile_sse2_128_sat
+    parasail_sw_trace_striped_profile_sse41_128_64
+    parasail_sw_trace_striped_profile_sse41_128_32
+    parasail_sw_trace_striped_profile_sse41_128_16
+    parasail_sw_trace_striped_profile_sse41_128_8
+    parasail_sw_trace_striped_profile_sse41_128_sat
+    parasail_sw_trace_striped_profile_avx2_256_64
+    parasail_sw_trace_striped_profile_avx2_256_32
+    parasail_sw_trace_striped_profile_avx2_256_16
+    parasail_sw_trace_striped_profile_avx2_256_8
+    parasail_sw_trace_striped_profile_avx2_256_sat
+    parasail_sw_trace_striped_profile_knc_512_32
     parasail_sw_stats_scan_profile_sse2_128_64
     parasail_sw_stats_scan_profile_sse2_128_32
     parasail_sw_stats_scan_profile_sse2_128_16
@@ -1579,6 +1819,21 @@ EXPORTS
     parasail_nw_rowcol_diag_16
     parasail_nw_rowcol_diag_8
     parasail_nw_rowcol_diag_sat
+    parasail_nw_trace_scan_64
+    parasail_nw_trace_scan_32
+    parasail_nw_trace_scan_16
+    parasail_nw_trace_scan_8
+    parasail_nw_trace_scan_sat
+    parasail_nw_trace_striped_64
+    parasail_nw_trace_striped_32
+    parasail_nw_trace_striped_16
+    parasail_nw_trace_striped_8
+    parasail_nw_trace_striped_sat
+    parasail_nw_trace_diag_64
+    parasail_nw_trace_diag_32
+    parasail_nw_trace_diag_16
+    parasail_nw_trace_diag_8
+    parasail_nw_trace_diag_sat
     parasail_nw_stats_scan_64
     parasail_nw_stats_scan_32
     parasail_nw_stats_scan_16
@@ -1669,6 +1924,21 @@ EXPORTS
     parasail_sg_rowcol_diag_16
     parasail_sg_rowcol_diag_8
     parasail_sg_rowcol_diag_sat
+    parasail_sg_trace_scan_64
+    parasail_sg_trace_scan_32
+    parasail_sg_trace_scan_16
+    parasail_sg_trace_scan_8
+    parasail_sg_trace_scan_sat
+    parasail_sg_trace_striped_64
+    parasail_sg_trace_striped_32
+    parasail_sg_trace_striped_16
+    parasail_sg_trace_striped_8
+    parasail_sg_trace_striped_sat
+    parasail_sg_trace_diag_64
+    parasail_sg_trace_diag_32
+    parasail_sg_trace_diag_16
+    parasail_sg_trace_diag_8
+    parasail_sg_trace_diag_sat
     parasail_sg_stats_scan_64
     parasail_sg_stats_scan_32
     parasail_sg_stats_scan_16
@@ -1759,6 +2029,21 @@ EXPORTS
     parasail_sw_rowcol_diag_16
     parasail_sw_rowcol_diag_8
     parasail_sw_rowcol_diag_sat
+    parasail_sw_trace_scan_64
+    parasail_sw_trace_scan_32
+    parasail_sw_trace_scan_16
+    parasail_sw_trace_scan_8
+    parasail_sw_trace_scan_sat
+    parasail_sw_trace_striped_64
+    parasail_sw_trace_striped_32
+    parasail_sw_trace_striped_16
+    parasail_sw_trace_striped_8
+    parasail_sw_trace_striped_sat
+    parasail_sw_trace_diag_64
+    parasail_sw_trace_diag_32
+    parasail_sw_trace_diag_16
+    parasail_sw_trace_diag_8
+    parasail_sw_trace_diag_sat
     parasail_sw_stats_scan_64
     parasail_sw_stats_scan_32
     parasail_sw_stats_scan_16
@@ -1834,6 +2119,16 @@ EXPORTS
     parasail_nw_rowcol_striped_profile_16
     parasail_nw_rowcol_striped_profile_8
     parasail_nw_rowcol_striped_profile_sat
+    parasail_nw_trace_scan_profile_64
+    parasail_nw_trace_scan_profile_32
+    parasail_nw_trace_scan_profile_16
+    parasail_nw_trace_scan_profile_8
+    parasail_nw_trace_scan_profile_sat
+    parasail_nw_trace_striped_profile_64
+    parasail_nw_trace_striped_profile_32
+    parasail_nw_trace_striped_profile_16
+    parasail_nw_trace_striped_profile_8
+    parasail_nw_trace_striped_profile_sat
     parasail_nw_stats_scan_profile_64
     parasail_nw_stats_scan_profile_32
     parasail_nw_stats_scan_profile_16
@@ -1894,6 +2189,16 @@ EXPORTS
     parasail_sg_rowcol_striped_profile_16
     parasail_sg_rowcol_striped_profile_8
     parasail_sg_rowcol_striped_profile_sat
+    parasail_sg_trace_scan_profile_64
+    parasail_sg_trace_scan_profile_32
+    parasail_sg_trace_scan_profile_16
+    parasail_sg_trace_scan_profile_8
+    parasail_sg_trace_scan_profile_sat
+    parasail_sg_trace_striped_profile_64
+    parasail_sg_trace_striped_profile_32
+    parasail_sg_trace_striped_profile_16
+    parasail_sg_trace_striped_profile_8
+    parasail_sg_trace_striped_profile_sat
     parasail_sg_stats_scan_profile_64
     parasail_sg_stats_scan_profile_32
     parasail_sg_stats_scan_profile_16
@@ -1954,6 +2259,16 @@ EXPORTS
     parasail_sw_rowcol_striped_profile_16
     parasail_sw_rowcol_striped_profile_8
     parasail_sw_rowcol_striped_profile_sat
+    parasail_sw_trace_scan_profile_64
+    parasail_sw_trace_scan_profile_32
+    parasail_sw_trace_scan_profile_16
+    parasail_sw_trace_scan_profile_8
+    parasail_sw_trace_scan_profile_sat
+    parasail_sw_trace_striped_profile_64
+    parasail_sw_trace_striped_profile_32
+    parasail_sw_trace_striped_profile_16
+    parasail_sw_trace_striped_profile_8
+    parasail_sw_trace_striped_profile_sat
     parasail_sw_stats_scan_profile_64
     parasail_sw_stats_scan_profile_32
     parasail_sw_stats_scan_profile_16
@@ -2025,6 +2340,9 @@ EXPORTS
     parasail_nw_rowcol_scan_sat
     parasail_nw_rowcol_striped_sat
     parasail_nw_rowcol_diag_sat
+    parasail_nw_trace_scan_sat
+    parasail_nw_trace_striped_sat
+    parasail_nw_trace_diag_sat
     parasail_nw_stats_scan_sat
     parasail_nw_stats_striped_sat
     parasail_nw_stats_diag_sat
@@ -2043,6 +2361,9 @@ EXPORTS
     parasail_sg_rowcol_scan_sat
     parasail_sg_rowcol_striped_sat
     parasail_sg_rowcol_diag_sat
+    parasail_sg_trace_scan_sat
+    parasail_sg_trace_striped_sat
+    parasail_sg_trace_diag_sat
     parasail_sg_stats_scan_sat
     parasail_sg_stats_striped_sat
     parasail_sg_stats_diag_sat
@@ -2061,6 +2382,9 @@ EXPORTS
     parasail_sw_rowcol_scan_sat
     parasail_sw_rowcol_striped_sat
     parasail_sw_rowcol_diag_sat
+    parasail_sw_trace_scan_sat
+    parasail_sw_trace_striped_sat
+    parasail_sw_trace_diag_sat
     parasail_sw_stats_scan_sat
     parasail_sw_stats_striped_sat
     parasail_sw_stats_diag_sat

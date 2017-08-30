@@ -272,6 +272,7 @@ parasail_result_t* PNAME(
             int64_t tmp2 = tmp < INT64_MIN ? INT64_MIN : tmp;
             __m128i vHp = _mm_load_si128(&pvHLoad[segLen - 1]);
             vHp = _mm_slli_si128(vHp, 8);
+            vHp = _mm_insert_epi64_rpl(vHp, boundary[j], 0);
             vEF_opn = _mm_slli_si128(vEF_opn, 8);
             vEF_opn = _mm_insert_epi64_rpl(vEF_opn, tmp2, 0);
             vF_ext = _mm_slli_si128(vF_ext, 8);

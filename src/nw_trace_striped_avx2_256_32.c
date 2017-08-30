@@ -231,6 +231,7 @@ parasail_result_t* PNAME(
             int32_t tmp2 = tmp < INT32_MIN ? INT32_MIN : tmp;
             __m256i vHp = _mm256_load_si256(&pvHLoad[segLen - 1]);
             vHp = _mm256_slli_si256_rpl(vHp, 4);
+            vHp = _mm256_insert_epi32_rpl(vHp, boundary[j], 0);
             vEF_opn = _mm256_slli_si256_rpl(vEF_opn, 4);
             vEF_opn = _mm256_insert_epi32_rpl(vEF_opn, tmp2, 0);
             vF_ext = _mm256_slli_si256_rpl(vF_ext, 4);

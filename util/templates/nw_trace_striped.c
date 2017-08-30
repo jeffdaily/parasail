@@ -208,6 +208,7 @@ parasail_result_t* PNAME(
             %(INT)s tmp2 = tmp < INT%(WIDTH)s_MIN ? INT%(WIDTH)s_MIN : tmp;
             %(VTYPE)s vHp = %(VLOAD)s(&pvHLoad[segLen - 1]);
             vHp = %(VSHIFT)s(vHp, %(BYTES)s);
+            vHp = %(VINSERT)s(vHp, boundary[j], 0);
             vEF_opn = %(VSHIFT)s(vEF_opn, %(BYTES)s);
             vEF_opn = %(VINSERT)s(vEF_opn, tmp2, 0);
             vF_ext = %(VSHIFT)s(vF_ext, %(BYTES)s);

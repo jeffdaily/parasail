@@ -138,7 +138,8 @@ static inline int diff_array(
     unsigned long size = s1Len * s2Len;
     int *b = NULL;
     if ((result->flag & PARASAIL_FLAG_TRACE)
-            && (result->flag & PARASAIL_FLAG_STRIPED)) {
+            && ((result->flag & PARASAIL_FLAG_STRIPED)
+            ||  (result->flag & PARASAIL_FLAG_SCAN))) {
         b = parasail_striped_unwind(s1Len, s2Len, result, b_);
     }
     else {
@@ -148,7 +149,8 @@ static inline int diff_array(
         if (a[i] != b[i]) return 1;
     }
     if ((result->flag & PARASAIL_FLAG_TRACE)
-            && (result->flag & PARASAIL_FLAG_STRIPED)) {
+            && ((result->flag & PARASAIL_FLAG_STRIPED)
+            ||  (result->flag & PARASAIL_FLAG_SCAN))) {
         free(b);
     }
     return 0;

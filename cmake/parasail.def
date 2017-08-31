@@ -18,6 +18,7 @@ EXPORTS
     parasail_matrix_set_value
     parasail_nw_banded
     parasail_traceback
+    parasail_cigar
 ; from parasail/io.h
     parasail_open
     parasail_close

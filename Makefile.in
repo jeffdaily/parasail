@@ -187,11 +187,11 @@ libparasail_la_DEPENDENCIES = libparasail_novec.la \
 	$(am__append_9) $(am__append_10) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1)
 am__dirstamp = $(am__leading_dot)dirstamp
-am__objects_1 = src/cpuid.lo src/function_lookup.lo src/io.lo \
-	src/isastubs.lo src/matrix_lookup.lo src/memory.lo src/time.lo \
-	src/nw_dispatch.lo src/sg_dispatch.lo src/sw_dispatch.lo \
-	src/dispatch_profile.lo src/satcheck.lo src/striped_unwind.lo \
-	src/traceback.lo
+am__objects_1 = src/cigar.lo src/cpuid.lo src/function_lookup.lo \
+	src/io.lo src/isastubs.lo src/matrix_lookup.lo src/memory.lo \
+	src/time.lo src/nw_dispatch.lo src/sg_dispatch.lo \
+	src/sw_dispatch.lo src/dispatch_profile.lo src/satcheck.lo \
+	src/striped_unwind.lo src/traceback.lo
 am_libparasail_la_OBJECTS = $(am__objects_1)
 libparasail_la_OBJECTS = $(am_libparasail_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -1953,11 +1953,11 @@ EXTRA_DIST = version.sh DISCLAIMER README.md aclocal.m4 appveyor.yml \
 #################
 # core sources
 #################
-SRC_CORE = src/cpuid.c src/function_lookup.c src/io.c src/isastubs.c \
-	src/matrix_lookup.c src/memory.c src/time.c src/nw_dispatch.c \
-	src/sg_dispatch.c src/sw_dispatch.c src/dispatch_profile.c \
-	src/satcheck.c src/striped_unwind.c src/traceback.c \
-	parasail/memory.h parasail/stats.h
+SRC_CORE = src/cigar.c src/cpuid.c src/function_lookup.c src/io.c \
+	src/isastubs.c src/matrix_lookup.c src/memory.c src/time.c \
+	src/nw_dispatch.c src/sg_dispatch.c src/sw_dispatch.c \
+	src/dispatch_profile.c src/satcheck.c src/striped_unwind.c \
+	src/traceback.c parasail/memory.h parasail/stats.h
 
 #################
 # vector memory
@@ -2547,6 +2547,7 @@ src/$(am__dirstamp):
 src/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) src/$(DEPDIR)
 	@: > src/$(DEPDIR)/$(am__dirstamp)
+src/cigar.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/cpuid.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/function_lookup.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
@@ -4582,6 +4583,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@apps/$(DEPDIR)/parasail_stats.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@contrib/$(DEPDIR)/tests_libssw_la-ssw.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@contrib/sais-lite-lcp/$(DEPDIR)/sais.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/cigar.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/cpuid.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/dispatch_profile.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/function_lookup.Plo@am__quote@

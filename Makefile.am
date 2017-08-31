@@ -146,6 +146,7 @@ SRC_TRACE_KNC =
 # core sources
 #################
 
+SRC_CORE += src/cigar.c
 SRC_CORE += src/cpuid.c
 SRC_CORE += src/function_lookup.c
 SRC_CORE += src/io.c

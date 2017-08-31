@@ -107,6 +107,7 @@ CHECK_LIBRARY_EXISTS( m sqrt "" HAVE_SQRT_M )
 CONFIGURE_FILE( ${CMAKE_CURRENT_LIST_DIR}/cmake/config.h.in ${CMAKE_BINARY_DIR}/config.h )
 
 SET( SRC_CORE
+    src/cigar.c
     src/cpuid.c
     src/function_lookup.c
     src/io.c

@@ -114,6 +114,7 @@ int main(int argc, char **argv)
     int match = 1;
     int mismatch = 0;
     int use_dna = 0;
+    char *cigar = NULL;
 
     while ((c = getopt(argc, argv, "a:x:y:f:m:o:e:dX:Y:")) != -1) {
         switch (c) {
@@ -306,6 +307,11 @@ int main(int argc, char **argv)
     printf("Score:         %d\n", result->score);
     printf("end_query:     %d\n", result->end_query);
     printf("end_ref:       %d\n", result->end_ref);
+
+    /* do the cigar */
+    cigar = parasail_cigar(seqA, lena, seqB, lenb, matrix, result);
+    printf("cigar:         '%s'\n", cigar);
+    free(cigar);
 
     parasail_result_free(result);
 

@@ -34,7 +34,7 @@ test_script:
   - echo test_script
   
 artifacts:
-  - path: %CONFIG_TYPE%/parasail.dll
+  - path: $(CONFIG_TYPE)\parasail.dll
     name: parasail.dll
 
 deploy: off

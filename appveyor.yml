@@ -1,6 +1,6 @@
 platform:
-- x64
-- x86
+  - x64
+  - x86
 
 environment:
   matrix:
@@ -8,14 +8,17 @@ environment:
 # VS 2010
   - BUILD_TYPE: cmake
     VS_VERSION: Visual Studio 10
+    CONFIG_TYPE: Release
 
 # VS 2012
   - BUILD_TYPE: cmake
     VS_VERSION: Visual Studio 11
+    CONFIG_TYPE: Release
 
 # VS 2013
   - BUILD_TYPE: cmake
     VS_VERSION: Visual Studio 12
+    CONFIG_TYPE: Release
 
 shallow_clone: true
 
@@ -25,9 +28,13 @@ build_script:
   - if "%BUILD_TYPE%" == "cmake" if "%platform%" == "x86" SET VS_FULL=%VS_VERSION%
   - if "%BUILD_TYPE%" == "cmake" echo "%VS_FULL%"
   - if "%BUILD_TYPE%" == "cmake" cmake -G "%VS_FULL%" . -DBUILD_SHARED_LIBS=ON
-  - if "%BUILD_TYPE%" == "cmake" cmake --build . --config Release
+  - if "%BUILD_TYPE%" == "cmake" cmake --build . --config %CONFIG_TYPE%
 
 test_script:
   - echo test_script
+  
+artifacts:
+  - path: %CONFIG_TYPE%/parasail.dll
+    name: parasail.dll
 
 deploy: off

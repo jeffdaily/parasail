@@ -213,6 +213,15 @@ def generate_saturation_check(params):
                 vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vH);
                 vSaturationCheckMin = %(VMIN)s(vSaturationCheckMin, vH);
             }""".strip() % params
+        elif "striped" in params["NAME"]:
+            params["SATURATION_CHECK_MID"] = """
+            /* check for saturation */
+            {
+                vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vH);
+                vSaturationCheckMin = %(VMIN)s(vSaturationCheckMin, vH);
+                vSaturationCheckMin = %(VMIN)s(vSaturationCheckMin, vE);
+                vSaturationCheckMin = %(VMIN)s(vSaturationCheckMin, vF);
+            }""".strip() % params
         else:
             params["SATURATION_CHECK_MID"] = """
             /* check for saturation */

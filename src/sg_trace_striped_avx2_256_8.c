@@ -167,6 +167,8 @@ parasail_result_t* PNAME(
             {
                 vSaturationCheckMax = _mm256_max_epi8(vSaturationCheckMax, vH);
                 vSaturationCheckMin = _mm256_min_epi8(vSaturationCheckMin, vH);
+                vSaturationCheckMin = _mm256_min_epi8(vSaturationCheckMin, vE);
+                vSaturationCheckMin = _mm256_min_epi8(vSaturationCheckMin, vF);
             }
 
             {
@@ -237,6 +239,8 @@ parasail_result_t* PNAME(
             {
                 vSaturationCheckMax = _mm256_max_epi8(vSaturationCheckMax, vH);
                 vSaturationCheckMin = _mm256_min_epi8(vSaturationCheckMin, vH);
+                vSaturationCheckMin = _mm256_min_epi8(vSaturationCheckMin, vE);
+                vSaturationCheckMin = _mm256_min_epi8(vSaturationCheckMin, vF);
             }
                 {
                     __m256i vT;

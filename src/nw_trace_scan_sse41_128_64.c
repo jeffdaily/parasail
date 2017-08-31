@@ -21,7 +21,16 @@
 #include "parasail/memory.h"
 #include "parasail/internal_sse.h"
 
-#define NEG_INF (INT64_MIN/(int64_t)(2))
+
+static inline __m128i _mm_cmpgt_epi64_rpl(__m128i a, __m128i b) {
+    __m128i_64_t A;
+    __m128i_64_t B;
+    A.m = a;
+    B.m = b;
+    A.v[0] = (A.v[0]>B.v[0]) ? 0xFFFFFFFFFFFFFFFF : 0;
+    A.v[1] = (A.v[1]>B.v[1]) ? 0xFFFFFFFFFFFFFFFF : 0;
+    return A.m;
+}
 
 #if HAVE_SSE41_MM_INSERT_EPI64
 #define _mm_insert_epi64_rpl _mm_insert_epi64
@@ -65,7 +74,25 @@ static inline int64_t _mm_extract_epi64_rpl(__m128i a, int imm) {
 }
 #endif
 
-#define _mm_rlli_si128_rpl(a,imm) _mm_alignr_epi8(a, a, 16-imm)
+static inline __m128i _mm_min_epi64_rpl(__m128i a, __m128i b) {
+    __m128i_64_t A;
+    __m128i_64_t B;
+    A.m = a;
+    B.m = b;
+    A.v[0] = (A.v[0]<B.v[0]) ? A.v[0] : B.v[0];
+    A.v[1] = (A.v[1]<B.v[1]) ? A.v[1] : B.v[1];
+    return A.m;
+}
+
+static inline __m128i _mm_cmplt_epi64_rpl(__m128i a, __m128i b) {
+    __m128i_64_t A;
+    __m128i_64_t B;
+    A.m = a;
+    B.m = b;
+    A.v[0] = (A.v[0]<B.v[0]) ? 0xFFFFFFFFFFFFFFFF : 0;
+    A.v[1] = (A.v[1]<B.v[1]) ? 0xFFFFFFFFFFFFFFFF : 0;
+    return A.m;
+}
 
 #if HAVE_SSE2_MM_SET1_EPI64X
 #define _mm_set1_epi64x_rpl _mm_set1_epi64x
@@ -79,16 +106,14 @@ static inline __m128i _mm_set1_epi64x_rpl(int64_t i) {
 #endif
 
 
-static inline void arr_store_si128(
-        int *array,
+static inline void arr_store(
+        __m128i *array,
         __m128i vH,
         int32_t t,
         int32_t seglen,
-        int32_t d,
-        int32_t dlen)
+        int32_t d)
 {
-    array[(0*seglen+t)*dlen + d] = (int64_t)_mm_extract_epi64_rpl(vH, 0);
-    array[(1*seglen+t)*dlen + d] = (int64_t)_mm_extract_epi64_rpl(vH, 1);
+    _mm_store_si128(array + (d*seglen+t), vH);
 }
 
 #define FNAME parasail_nw_trace_scan_sse41_128_64
@@ -113,7 +138,6 @@ parasail_result_t* PNAME(
     int32_t i = 0;
     int32_t j = 0;
     int32_t k = 0;
-    int32_t segNum = 0;
     const int s1Len = profile->s1Len;
     int32_t end_query = s1Len-1;
     int32_t end_ref = s2Len-1;
@@ -122,29 +146,36 @@ parasail_result_t* PNAME(
     const int32_t segLen = (s1Len + segWidth - 1) / segWidth;
     const int32_t offset = (s1Len - 1) % segLen;
     const int32_t position = (segWidth - 1) - (s1Len - 1) / segLen;
-    __m128i* const restrict pvP = (__m128i*)profile->profile64.score;
-    __m128i* const restrict pvE = parasail_memalign___m128i(16, segLen);
+    __m128i* const restrict pvP  = (__m128i*)profile->profile64.score;
+    __m128i* const restrict pvE  = parasail_memalign___m128i(16, segLen);
     int64_t* const restrict boundary = parasail_memalign_int64_t(16, s2Len+1);
-    __m128i* const restrict pvHt= parasail_memalign___m128i(16, segLen);
-    __m128i* const restrict pvH = parasail_memalign___m128i(16, segLen);
+    __m128i* const restrict pvHt = parasail_memalign___m128i(16, segLen);
+    __m128i* const restrict pvH  = parasail_memalign___m128i(16, segLen);
+    __m128i* const restrict pvGapper = parasail_memalign___m128i(16, segLen);
     __m128i vGapO = _mm_set1_epi64x_rpl(open);
     __m128i vGapE = _mm_set1_epi64x_rpl(gap);
-    __m128i vNegInf = _mm_set1_epi64x_rpl(NEG_INF);
-    int64_t score = NEG_INF;
-    const int64_t segLenXgap = -segLen*gap;
-    __m128i insert_mask = _mm_cmpeq_epi64(_mm_setzero_si128(),
-            _mm_set_epi64x_rpl(1,0));
-    __m128i vSegLenXgap1 = _mm_set1_epi64x_rpl((segLen-1)*gap);
-    __m128i vSegLenXgap = _mm_blendv_epi8(vNegInf,
-            _mm_set1_epi64x_rpl(segLenXgap),
-            insert_mask);
-    
-    parasail_result_t *result = parasail_result_new_trace(segLen*segWidth, s2Len, 8);
+    const int64_t NEG_LIMIT = (-open < matrix->min ?
+        INT64_MIN + open : INT64_MIN - matrix->min) + 1;
+    const int64_t POS_LIMIT = INT64_MAX - matrix->max - 1;
+    __m128i vZero = _mm_setzero_si128();
+    int64_t score = NEG_LIMIT;
+    __m128i vNegLimit = _mm_set1_epi64x_rpl(NEG_LIMIT);
+    __m128i vPosLimit = _mm_set1_epi64x_rpl(POS_LIMIT);
+    __m128i vSaturationCheckMin = vPosLimit;
+    __m128i vSaturationCheckMax = vNegLimit;
+    __m128i vNegInfFront = _mm_set_epi64x_rpl(0,NEG_LIMIT);
+    __m128i vSegLenXgap = _mm_add_epi64(vNegInfFront,
+            _mm_slli_si128(_mm_set1_epi64x_rpl(-segLen*gap), 8));
+    parasail_result_t *result = parasail_result_new_trace(segLen, s2Len, sizeof(__m128i));
+    __m128i vTIns  = _mm_set1_epi64x_rpl(PARASAIL_INS);
+    __m128i vTDel  = _mm_set1_epi64x_rpl(PARASAIL_DEL);
+    __m128i vTDiag = _mm_set1_epi64x_rpl(PARASAIL_DIAG);
 
     /* initialize H and E */
     {
         int32_t index = 0;
         for (i=0; i<segLen; ++i) {
+            int32_t segNum = 0;
             __m128i_64_t h;
             __m128i_64_t e;
             for (segNum=0; segNum<segWidth; ++segNum) {
@@ -168,65 +199,99 @@ parasail_result_t* PNAME(
         }
     }
 
+    {
+        __m128i vGapper = _mm_sub_epi64(vZero,vGapO);
+        for (i=segLen-1; i>=0; --i) {
+            _mm_store_si128(pvGapper+i, vGapper);
+            vGapper = _mm_sub_epi64(vGapper, vGapE);
+        }
+    }
+
     /* outer loop over database sequence */
     for (j=0; j<s2Len; ++j) {
         __m128i vE;
+        __m128i vE_ext;
+        __m128i vE_opn;
         __m128i vHt;
-        __m128i vFt;
+        __m128i vF;
+        __m128i vF_ext;
+        __m128i vF_opn;
         __m128i vH;
         __m128i vHp;
         __m128i *pvW;
         __m128i vW;
+        __m128i case1;
+        __m128i case2;
+        __m128i vGapper;
+        __m128i vT;
 
         /* calculate E */
         /* calculate Ht */
-        /* calculate Ft first pass */
+        /* calculate F and H first pass */
         vHp = _mm_load_si128(pvH+(segLen-1));
         vHp = _mm_slli_si128(vHp, 8);
         vHp = _mm_insert_epi64_rpl(vHp, boundary[j], 0);
         pvW = pvP + matrix->mapper[(unsigned char)s2[j]]*segLen;
-        vHt = vNegInf;
-        vFt = vNegInf;
+        vHt = _mm_sub_epi64(vNegLimit, pvGapper[0]);
+        vF = vNegLimit;
         for (i=0; i<segLen; ++i) {
             vH = _mm_load_si128(pvH+i);
             vE = _mm_load_si128(pvE+i);
             vW = _mm_load_si128(pvW+i);
-            vE = _mm_max_epi64_rpl(
-                    _mm_sub_epi64(vE, vGapE),
-                    _mm_sub_epi64(vH, vGapO));
-            vFt = _mm_sub_epi64(vFt, vGapE);
-            vFt = _mm_max_epi64_rpl(vFt, vHt);
-            vHt = _mm_max_epi64_rpl(
-                    _mm_add_epi64(vHp, vW),
-                    vE);
+            vGapper = _mm_load_si128(pvGapper+i);
+            vE_opn = _mm_sub_epi64(vH, vGapO);
+            vE_ext = _mm_sub_epi64(vE, vGapE);
+            case1 = _mm_cmpgt_epi64_rpl(vE_opn, vE_ext);
+            vT = _mm_blendv_epi8(vTIns, vTDiag, case1);
+            arr_store(result->trace_ins_table, vT, i, segLen, j);
+            vE = _mm_max_epi64_rpl(vE_opn, vE_ext);
+            vSaturationCheckMin = _mm_min_epi64_rpl(vSaturationCheckMin, vE);
+            vGapper = _mm_add_epi64(vHt, vGapper);
+            vF = _mm_max_epi64_rpl(vF, vGapper);
+            vHp = _mm_add_epi64(vHp, vW);
+            vHt = _mm_max_epi64_rpl(vE, vHp);
             _mm_store_si128(pvE+i, vE);
             _mm_store_si128(pvHt+i, vHt);
+            _mm_store_si128(pvH+i, vHp);
             vHp = vH;
         }
 
-        /* adjust Ft before local prefix scan */
+        /* pseudo prefix scan on F and H */
         vHt = _mm_slli_si128(vHt, 8);
         vHt = _mm_insert_epi64_rpl(vHt, boundary[j+1], 0);
-        vFt = _mm_max_epi64_rpl(vFt,
-                _mm_sub_epi64(vHt, vSegLenXgap1));
-        /* local prefix scan */
-        vFt = _mm_blendv_epi8(vNegInf, vFt, insert_mask);
-            for (i=0; i<segWidth-1; ++i) {
-                __m128i vFtt = _mm_rlli_si128_rpl(vFt, 8);
-                vFtt = _mm_add_epi64(vFtt, vSegLenXgap);
-                vFt = _mm_max_epi64_rpl(vFt, vFtt);
-            }
-        vFt = _mm_rlli_si128_rpl(vFt, 8);
+        vGapper = _mm_load_si128(pvGapper);
+        vGapper = _mm_add_epi64(vHt, vGapper);
+        vF = _mm_max_epi64_rpl(vF, vGapper);
+        for (i=0; i<segWidth-2; ++i) {
+            __m128i vFt = _mm_slli_si128(vF, 8);
+            vFt = _mm_add_epi64(vFt, vSegLenXgap);
+            vF = _mm_max_epi64_rpl(vF, vFt);
+        }
 
-        /* second Ft pass */
-        /* calculate vH */
+        /* calculate final H */
+        vF = _mm_slli_si128(vF, 8);
+        vF = _mm_add_epi64(vF, vNegInfFront);
+        vH = _mm_max_epi64_rpl(vF, vHt);
         for (i=0; i<segLen; ++i) {
-            vFt = _mm_sub_epi64(vFt, vGapE);
-            vFt = _mm_max_epi64_rpl(vFt, vHt);
+            vHp = _mm_load_si128(pvH+i);
             vHt = _mm_load_si128(pvHt+i);
-            vH = _mm_max_epi64_rpl(vHt, _mm_sub_epi64(vFt, vGapO));
+            vF_opn = _mm_sub_epi64(vH, vGapO);
+            vF_ext = _mm_sub_epi64(vF, vGapE);
+            vF = _mm_max_epi64_rpl(vF_opn, vF_ext);
+            case1 = _mm_cmpgt_epi64_rpl(vF_opn, vF_ext);
+            vT = _mm_blendv_epi8(vTDel, vTDiag, case1);
+            arr_store(result->trace_del_table, vT, i, segLen, j);
+            vH = _mm_max_epi64_rpl(vHt, vF);
+            case1 = _mm_cmpeq_epi64(vH, vHp);
+            case2 = _mm_cmpeq_epi64(vH, vF);
+            vT = _mm_blendv_epi8(
+                    _mm_blendv_epi8(vTIns, vTDel, case2),
+                    vTDiag, case1);
+            arr_store(result->trace_table, vT, i, segLen, j);
             _mm_store_si128(pvH+i, vH);
-            
+            vSaturationCheckMin = _mm_min_epi64_rpl(vSaturationCheckMin, vH);
+            vSaturationCheckMin = _mm_min_epi64_rpl(vSaturationCheckMin, vF);
+            vSaturationCheckMax = _mm_max_epi64_rpl(vSaturationCheckMax, vH);
         }
     }
 
@@ -239,7 +304,14 @@ parasail_result_t* PNAME(
         score = (int64_t) _mm_extract_epi64_rpl (vH, 1);
     }
 
-    
+    if (_mm_movemask_epi8(_mm_or_si128(
+            _mm_cmplt_epi64_rpl(vSaturationCheckMin, vNegLimit),
+            _mm_cmpgt_epi64_rpl(vSaturationCheckMax, vPosLimit)))) {
+        result->saturated = 1;
+        score = 0;
+        end_query = 0;
+        end_ref = 0;
+    }
 
     result->score = score;
     result->end_query = end_query;
@@ -248,9 +320,10 @@ parasail_result_t* PNAME(
         | PARASAIL_FLAG_TRACE
         | PARASAIL_FLAG_BITS_64 | PARASAIL_FLAG_LANES_2;
 
-    parasail_free(boundary);
+    parasail_free(pvGapper);
     parasail_free(pvH);
     parasail_free(pvHt);
+    parasail_free(boundary);
     parasail_free(pvE);
 
     return result;

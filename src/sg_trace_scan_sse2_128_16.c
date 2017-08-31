@@ -20,15 +20,12 @@
 #include "parasail/memory.h"
 #include "parasail/internal_sse.h"
 
-#define NEG_INF (INT16_MIN/(int16_t)(2))
 
 static inline __m128i _mm_blendv_epi8_rpl(__m128i a, __m128i b, __m128i mask) {
     a = _mm_andnot_si128(mask, a);
     a = _mm_or_si128(a, _mm_and_si128(mask, b));
     return a;
 }
-
-#define _mm_rlli_si128_rpl(a,imm) _mm_or_si128(_mm_slli_si128(a,imm),_mm_srli_si128(a,16-imm))
 
 static inline int16_t _mm_hmax_epi16_rpl(__m128i a) {
     a = _mm_max_epi16(a, _mm_srli_si128(a, 8));
@@ -38,22 +35,14 @@ static inline int16_t _mm_hmax_epi16_rpl(__m128i a) {
 }
 
 
-static inline void arr_store_si128(
-        int *array,
+static inline void arr_store(
+        __m128i *array,
         __m128i vH,
         int32_t t,
         int32_t seglen,
-        int32_t d,
-        int32_t dlen)
+        int32_t d)
 {
-    array[(0*seglen+t)*dlen + d] = (int16_t)_mm_extract_epi16(vH, 0);
-    array[(1*seglen+t)*dlen + d] = (int16_t)_mm_extract_epi16(vH, 1);
-    array[(2*seglen+t)*dlen + d] = (int16_t)_mm_extract_epi16(vH, 2);
-    array[(3*seglen+t)*dlen + d] = (int16_t)_mm_extract_epi16(vH, 3);
-    array[(4*seglen+t)*dlen + d] = (int16_t)_mm_extract_epi16(vH, 4);
-    array[(5*seglen+t)*dlen + d] = (int16_t)_mm_extract_epi16(vH, 5);
-    array[(6*seglen+t)*dlen + d] = (int16_t)_mm_extract_epi16(vH, 6);
-    array[(7*seglen+t)*dlen + d] = (int16_t)_mm_extract_epi16(vH, 7);
+    _mm_store_si128(array + (d*seglen+t), vH);
 }
 
 #define FNAME parasail_sg_trace_scan_sse2_128_16
@@ -80,107 +69,133 @@ parasail_result_t* PNAME(
     int32_t k = 0;
     int32_t end_query = 0;
     int32_t end_ref = 0;
-    int32_t segNum = 0;
     const int s1Len = profile->s1Len;
     const parasail_matrix_t *matrix = profile->matrix;
     const int32_t segWidth = 8; /* number of values in vector unit */
     const int32_t segLen = (s1Len + segWidth - 1) / segWidth;
     const int32_t offset = (s1Len - 1) % segLen;
     const int32_t position = (segWidth - 1) - (s1Len - 1) / segLen;
-    __m128i* const restrict pvP = (__m128i*)profile->profile16.score;
-    __m128i* const restrict pvE = parasail_memalign___m128i(16, segLen);
-    __m128i* const restrict pvHt= parasail_memalign___m128i(16, segLen);
-    __m128i* const restrict pvH = parasail_memalign___m128i(16, segLen);
+    __m128i* const restrict pvP  = (__m128i*)profile->profile16.score;
+    __m128i* const restrict pvE  = parasail_memalign___m128i(16, segLen);
+    __m128i* const restrict pvHt = parasail_memalign___m128i(16, segLen);
+    __m128i* const restrict pvH  = parasail_memalign___m128i(16, segLen);
+    __m128i* const restrict pvGapper = parasail_memalign___m128i(16, segLen);
     __m128i vGapO = _mm_set1_epi16(open);
     __m128i vGapE = _mm_set1_epi16(gap);
-    __m128i vNegInf = _mm_set1_epi16(NEG_INF);
-    int16_t score = NEG_INF;
-    __m128i vMaxH = vNegInf;
+    const int16_t NEG_LIMIT = (-open < matrix->min ?
+        INT16_MIN + open : INT16_MIN - matrix->min) + 1;
+    const int16_t POS_LIMIT = INT16_MAX - matrix->max - 1;
+    __m128i vZero = _mm_setzero_si128();
+    int16_t score = NEG_LIMIT;
+    __m128i vNegLimit = _mm_set1_epi16(NEG_LIMIT);
+    __m128i vPosLimit = _mm_set1_epi16(POS_LIMIT);
+    __m128i vSaturationCheckMin = vPosLimit;
+    __m128i vSaturationCheckMax = vNegLimit;
+    __m128i vMaxH = vNegLimit;
     __m128i vPosMask = _mm_cmpeq_epi16(_mm_set1_epi16(position),
             _mm_set_epi16(0,1,2,3,4,5,6,7));
-    const int16_t segLenXgap = -segLen*gap;
-    __m128i insert_mask = _mm_cmpeq_epi16(_mm_setzero_si128(),
-            _mm_set_epi16(1,0,0,0,0,0,0,0));
-    __m128i vSegLenXgap1 = _mm_set1_epi16((segLen-1)*gap);
-    __m128i vSegLenXgap = _mm_blendv_epi8_rpl(vNegInf,
-            _mm_set1_epi16(segLenXgap),
-            insert_mask);
-    
-    parasail_result_t *result = parasail_result_new_trace(segLen*segWidth, s2Len, 2);
+    __m128i vNegInfFront = _mm_set_epi16(0,0,0,0,0,0,0,NEG_LIMIT);
+    __m128i vSegLenXgap = _mm_add_epi16(vNegInfFront,
+            _mm_slli_si128(_mm_set1_epi16(-segLen*gap), 2));
+    parasail_result_t *result = parasail_result_new_trace(segLen, s2Len, sizeof(__m128i));
+    __m128i vTIns  = _mm_set1_epi16(PARASAIL_INS);
+    __m128i vTDel  = _mm_set1_epi16(PARASAIL_DEL);
+    __m128i vTDiag = _mm_set1_epi16(PARASAIL_DIAG);
 
     /* initialize H and E */
+    parasail_memset___m128i(pvH, vZero, segLen);
+    parasail_memset___m128i(pvE, vNegLimit, segLen);
     {
-        int32_t index = 0;
-        for (i=0; i<segLen; ++i) {
-            __m128i_16_t h;
-            __m128i_16_t e;
-            for (segNum=0; segNum<segWidth; ++segNum) {
-                h.v[segNum] = 0;
-                e.v[segNum] = NEG_INF;
-            }
-            _mm_store_si128(&pvH[index], h.m);
-            _mm_store_si128(&pvE[index], e.m);
-            ++index;
+        __m128i vGapper = _mm_sub_epi16(vZero,vGapO);
+        for (i=segLen-1; i>=0; --i) {
+            _mm_store_si128(pvGapper+i, vGapper);
+            vGapper = _mm_sub_epi16(vGapper, vGapE);
         }
     }
 
     /* outer loop over database sequence */
     for (j=0; j<s2Len; ++j) {
         __m128i vE;
+        __m128i vE_ext;
+        __m128i vE_opn;
         __m128i vHt;
-        __m128i vFt;
+        __m128i vF;
+        __m128i vF_ext;
+        __m128i vF_opn;
         __m128i vH;
         __m128i vHp;
         __m128i *pvW;
         __m128i vW;
+        __m128i case1;
+        __m128i case2;
+        __m128i vGapper;
+        __m128i vT;
 
         /* calculate E */
         /* calculate Ht */
-        /* calculate Ft first pass */
+        /* calculate F and H first pass */
         vHp = _mm_load_si128(pvH+(segLen-1));
         vHp = _mm_slli_si128(vHp, 2);
         pvW = pvP + matrix->mapper[(unsigned char)s2[j]]*segLen;
-        vHt = vNegInf;
-        vFt = vNegInf;
+        vHt = _mm_sub_epi16(vNegLimit, pvGapper[0]);
+        vF = vNegLimit;
         for (i=0; i<segLen; ++i) {
             vH = _mm_load_si128(pvH+i);
             vE = _mm_load_si128(pvE+i);
             vW = _mm_load_si128(pvW+i);
-            vE = _mm_max_epi16(
-                    _mm_sub_epi16(vE, vGapE),
-                    _mm_sub_epi16(vH, vGapO));
-            vFt = _mm_sub_epi16(vFt, vGapE);
-            vFt = _mm_max_epi16(vFt, vHt);
-            vHt = _mm_max_epi16(
-                    _mm_add_epi16(vHp, vW),
-                    vE);
+            vGapper = _mm_load_si128(pvGapper+i);
+            vE_opn = _mm_sub_epi16(vH, vGapO);
+            vE_ext = _mm_sub_epi16(vE, vGapE);
+            case1 = _mm_cmpgt_epi16(vE_opn, vE_ext);
+            vT = _mm_blendv_epi8_rpl(vTIns, vTDiag, case1);
+            arr_store(result->trace_ins_table, vT, i, segLen, j);
+            vE = _mm_max_epi16(vE_opn, vE_ext);
+            vSaturationCheckMin = _mm_min_epi16(vSaturationCheckMin, vE);
+            vGapper = _mm_add_epi16(vHt, vGapper);
+            vF = _mm_max_epi16(vF, vGapper);
+            vHp = _mm_add_epi16(vHp, vW);
+            vHt = _mm_max_epi16(vE, vHp);
             _mm_store_si128(pvE+i, vE);
             _mm_store_si128(pvHt+i, vHt);
+            _mm_store_si128(pvH+i, vHp);
             vHp = vH;
         }
 
-        /* adjust Ft before local prefix scan */
+        /* pseudo prefix scan on F and H */
         vHt = _mm_slli_si128(vHt, 2);
-        vFt = _mm_max_epi16(vFt,
-                _mm_sub_epi16(vHt, vSegLenXgap1));
-        /* local prefix scan */
-        vFt = _mm_blendv_epi8_rpl(vNegInf, vFt, insert_mask);
-            for (i=0; i<segWidth-1; ++i) {
-                __m128i vFtt = _mm_rlli_si128_rpl(vFt, 2);
-                vFtt = _mm_add_epi16(vFtt, vSegLenXgap);
-                vFt = _mm_max_epi16(vFt, vFtt);
-            }
-        vFt = _mm_rlli_si128_rpl(vFt, 2);
+        vGapper = _mm_load_si128(pvGapper);
+        vGapper = _mm_add_epi16(vHt, vGapper);
+        vF = _mm_max_epi16(vF, vGapper);
+        for (i=0; i<segWidth-2; ++i) {
+            __m128i vFt = _mm_slli_si128(vF, 2);
+            vFt = _mm_add_epi16(vFt, vSegLenXgap);
+            vF = _mm_max_epi16(vF, vFt);
+        }
 
-        /* second Ft pass */
-        /* calculate vH */
+        /* calculate final H */
+        vF = _mm_slli_si128(vF, 2);
+        vF = _mm_add_epi16(vF, vNegInfFront);
+        vH = _mm_max_epi16(vF, vHt);
         for (i=0; i<segLen; ++i) {
-            vFt = _mm_sub_epi16(vFt, vGapE);
-            vFt = _mm_max_epi16(vFt, vHt);
+            vHp = _mm_load_si128(pvH+i);
             vHt = _mm_load_si128(pvHt+i);
-            vH = _mm_max_epi16(vHt, _mm_sub_epi16(vFt, vGapO));
+            vF_opn = _mm_sub_epi16(vH, vGapO);
+            vF_ext = _mm_sub_epi16(vF, vGapE);
+            vF = _mm_max_epi16(vF_opn, vF_ext);
+            case1 = _mm_cmpgt_epi16(vF_opn, vF_ext);
+            vT = _mm_blendv_epi8_rpl(vTDel, vTDiag, case1);
+            arr_store(result->trace_del_table, vT, i, segLen, j);
+            vH = _mm_max_epi16(vHt, vF);
+            case1 = _mm_cmpeq_epi16(vH, vHp);
+            case2 = _mm_cmpeq_epi16(vH, vF);
+            vT = _mm_blendv_epi8_rpl(
+                    _mm_blendv_epi8_rpl(vTIns, vTDel, case2),
+                    vTDiag, case1);
+            arr_store(result->trace_table, vT, i, segLen, j);
             _mm_store_si128(pvH+i, vH);
-            
+            vSaturationCheckMin = _mm_min_epi16(vSaturationCheckMin, vH);
+            vSaturationCheckMin = _mm_min_epi16(vSaturationCheckMin, vF);
+            vSaturationCheckMax = _mm_max_epi16(vSaturationCheckMax, vH);
         }
 
         /* extract vector containing last value from column */
@@ -194,7 +209,7 @@ parasail_result_t* PNAME(
                 end_query = s1Len - 1;
             }
         }
-    }
+    } 
 
     /* max last value from all columns */
     {
@@ -211,7 +226,7 @@ parasail_result_t* PNAME(
     /* max of last column */
     {
         int16_t score_last;
-        vMaxH = vNegInf;
+        vMaxH = vNegLimit;
 
         for (i=0; i<segLen; ++i) {
             __m128i vH = _mm_load_si128(pvH + i);
@@ -220,7 +235,7 @@ parasail_result_t* PNAME(
 
         /* max in vec */
         score_last = _mm_hmax_epi16_rpl(vMaxH);
-        if (score_last > score) {
+        if (score_last > score || (score_last == score && end_ref == s2Len - 1)) {
             score = score_last;
             end_ref = s2Len - 1;
             end_query = s1Len;
@@ -240,7 +255,14 @@ parasail_result_t* PNAME(
         }
     }
 
-    
+    if (_mm_movemask_epi8(_mm_or_si128(
+            _mm_cmplt_epi16(vSaturationCheckMin, vNegLimit),
+            _mm_cmpgt_epi16(vSaturationCheckMax, vPosLimit)))) {
+        result->saturated = 1;
+        score = 0;
+        end_query = 0;
+        end_ref = 0;
+    }
 
     result->score = score;
     result->end_query = end_query;
@@ -249,6 +271,7 @@ parasail_result_t* PNAME(
         | PARASAIL_FLAG_TRACE
         | PARASAIL_FLAG_BITS_16 | PARASAIL_FLAG_LANES_8;
 
+    parasail_free(pvGapper);
     parasail_free(pvH);
     parasail_free(pvHt);
     parasail_free(pvE);

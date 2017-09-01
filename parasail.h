@@ -14,7 +14,7 @@ extern "C" {
 
 /* Version macros for compile-time API version detection */
 #define PARASAIL_VERSION_MAJOR 1
-#define PARASAIL_VERSION_MINOR 2
+#define PARASAIL_VERSION_MINOR 3
 #define PARASAIL_VERSION_PATCH 0
 
 #define PARASAIL_MAKE_VERSION(major, minor, patch) \

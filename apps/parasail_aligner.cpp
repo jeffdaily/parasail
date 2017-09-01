@@ -205,7 +205,8 @@ int main(int argc, char **argv) {
     parasail_function_t *function = NULL;
     parasail_pfunction_t *pfunction = NULL;
     parasail_pcreator_t *pcreator = NULL;
-    int banded = 0;
+    int is_banded = 0;
+    int is_trace = 0;
     int kbandsize = 3;
     const char *matrixname = NULL;
     const parasail_matrix_t *matrix = NULL;
@@ -363,6 +364,9 @@ int main(int argc, char **argv) {
 
     /* select the function */
     if (funcname) {
+        if (NULL != strstr(funcname, "trace")) {
+            is_trace = 1;
+        }
         if (NULL != strstr(funcname, "profile")) {
             pfunction = parasail_lookup_pfunction(funcname);
             if (NULL == pfunction) {
@@ -379,9 +383,9 @@ int main(int argc, char **argv) {
         else {
             function = parasail_lookup_function(funcname);
             if (NULL == function && NULL != strstr(funcname, "nw_banded")) {
-                banded = 1;
+                is_banded = 1;
             }
-            if (NULL == function && 0 == banded) {
+            if (NULL == function && 0 == is_banded) {
                 eprintf(stderr, "Specified function not found.\n");
                 exit(EXIT_FAILURE);
             }
@@ -880,7 +884,7 @@ int main(int argc, char **argv) {
         }
 #endif
     }
-    else if (banded) {
+    else if (is_banded) {
 #ifdef USE_CILK
             cilk_for (size_t index=0; index<vpairs.size(); ++index)
 #else
@@ -1056,6 +1060,24 @@ int main(int argc, char **argv) {
                         result->similar,
                         result->length);
             }
+        }
+        else if (is_trace) {
+            parasail_cigar_t *cigar = parasail_cigar(
+                    (const char*)&T[i_beg], i_len,
+                    (const char*)&T[j_beg], j_len,
+                    matrix, result);
+            char *cigar_string = parasail_cigar_decode(cigar);
+            eprintf(fop, "%d,%d,%ld,%ld,%d,%d,%d,%s\n",
+                    i,
+                    j,
+                    i_len,
+                    j_len,
+                    result->score,
+                    result->end_query,
+                    result->end_ref,
+                    cigar_string);
+            parasail_cigar_free(cigar);
+            free(cigar_string);
         }
         else {
             eprintf(fop, "%d,%d,%ld,%ld,%d,%d,%d\n",

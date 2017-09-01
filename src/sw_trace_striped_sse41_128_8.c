@@ -88,8 +88,6 @@ parasail_result_t* PNAME(
     __m128i vMaxH = vZero;
     __m128i vMaxHUnit = vZero;
     int8_t maxp = INT8_MAX - (int8_t)(matrix->max+1);
-    /*int8_t stop = profile->stop == INT32_MAX ?  INT8_MAX : (int8_t)profile->stop;*/
-    //parasail_result_t *result = parasail_result_new_trace(segLen*segWidth, s2Len, 1);
     parasail_result_t *result = parasail_result_new_trace(segLen, s2Len, sizeof(__m128i));
     __m128i vTZero = _mm_set1_epi8(PARASAIL_ZERO);
     __m128i vTIns  = _mm_set1_epi8(PARASAIL_INS);

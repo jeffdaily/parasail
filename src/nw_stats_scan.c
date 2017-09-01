@@ -152,8 +152,6 @@ parasail_result_t* ENAME(
                 FtL = HL[i-1] + 1;
             }
             else {
-                //FtM = FtM;
-                //FtS = FtS;
                 FtL = FtL + 1;
             }
             if (Ht[i] > Ft_opn) {

@@ -246,7 +246,7 @@ void parasail_traceback(
         parasail_result_t *result);
 
 #ifndef BAM_CIGAR_STR
-//                     0123456789
+/*                     0123456789 */
 #define BAM_CIGAR_STR "MIDNSHP=XB"
 #endif
 #ifndef BAM_CIGAR_SHIFT

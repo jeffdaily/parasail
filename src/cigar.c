@@ -1,5 +1,7 @@
 #if defined(T)
 
+#include <stdint.h>
+
 #define D CONCAT3(int, T, _t)
 
 #if defined(STRIPED)
@@ -61,10 +63,10 @@ static inline parasail_cigar_t* CONCAT(NAME, T) (
     size_t size = sizeof(char)*(lena+lenb);
     parasail_cigar_t *cigar = malloc(sizeof(parasail_cigar_t));
     uint32_t *cigar_reverse = NULL;
-    size_t c_mat = 0;
-    size_t c_mis = 0;
-    size_t c_del = 0;
-    size_t c_ins = 0;
+    uint32_t c_mat = 0;
+    uint32_t c_mis = 0;
+    uint32_t c_del = 0;
+    uint32_t c_ins = 0;
     int i = result->end_query;
     int j = result->end_ref;
     int where = PARASAIL_DIAG;
@@ -199,6 +201,10 @@ static inline parasail_cigar_t* CONCAT(NAME, T) (
 
 #include "parasail.h"
 #include "parasail/memory.h"
+
+#if defined(_MSC_VER)
+#define snprintf _snprintf
+#endif
 
 static inline int weight(
         const char a,

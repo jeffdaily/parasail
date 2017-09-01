@@ -25,6 +25,14 @@ INCLUDE( FindAVX2 )
 INCLUDE( Findxgetbv )
 
 CHECK_TYPE_SIZE( "int" SIZEOF_INT )
+CHECK_TYPE_SIZE( "int8_t" SIZEOF_INT8_T )
+CHECK_TYPE_SIZE( "int16_t" SIZEOF_INT16_T )
+CHECK_TYPE_SIZE( "int32_t" SIZEOF_INT32_T )
+CHECK_TYPE_SIZE( "int64_t" SIZEOF_INT64_T )
+CHECK_TYPE_SIZE( "uint8_t" SIZEOF_UINT8_T )
+CHECK_TYPE_SIZE( "uint16_t" SIZEOF_UINT16_T )
+CHECK_TYPE_SIZE( "uint32_t" SIZEOF_UINT32_T )
+CHECK_TYPE_SIZE( "uint64_t" SIZEOF_UINT64_T )
 
 # Check for restrict keyword
 FOREACH( ac_kw __restrict __restrict__ _Restrict restrict )
@@ -84,6 +92,8 @@ int main(int argc, char *argv[]){return 0;}
         SET( inline " " )
     ENDIF( )
 ENDIF( )
+
+SET( CMAKE_REQUIRED_INCLUDES stdint.h )
 
 INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_LIST_DIR} )
 INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_LIST_DIR}/contrib )

@@ -14,35 +14,6 @@
 #define snprintf _snprintf
 #endif
 
-static inline int weight(
-        const char a,
-        const char b,
-        const parasail_matrix_t *matrix)
-{
-    return matrix->matrix[matrix->mapper[(unsigned char)a]*matrix->size + matrix->mapper[(unsigned char)b]];
-}
-
-static inline char match_char(
-        const char a,
-        const char b,
-        const parasail_matrix_t *matrix)
-{
-    if (a == b) {
-        return '|';
-    }
-    else {
-        int sub = weight(a, b, matrix);
-        if (sub > 0) {
-            return ':';
-        }
-        else {
-            return '.';
-        }
-    }
-
-    return 'X'; /* shouldn't happen */
-}
-
 /* array index is an ASCII character value from a CIGAR,
    element value is the corresponding integer opcode between 0 and 9 */
 const uint8_t parasail_cigar_encoded_ops[] = {

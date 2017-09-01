@@ -7,6 +7,11 @@ This project follows the [Gitflow Workflow model](https://www.atlassian.com/git/
 ## [Unreleased]
 The Unreleased section will be empty for tagged releases. Unreleased functionality appears in the develop branch.
 
+## [1.3] - 2017-09-01
+### Changed
+- Added parasail_aligner option '-G' for output compatible with
+  [GrappoloTK].
+
 ## [1.2] - 2017-01-28
 
 ### Changed
@@ -129,8 +134,9 @@ First stable, production-ready version of parasail.
 
 [parasail-python]: https://github.com/jeffdaily/parasail-python
 
-[Unreleased]: https://github.com/jeffdaily/parasail/compare/v1.2...develop
-[1.2]:   https://github.com/jeffdaily/parasail/compare/v1.1.2...1.2
+[Unreleased]: https://github.com/jeffdaily/parasail/compare/v1.3...develop
+[1.3]:   https://github.com/jeffdaily/parasail/compare/v1.2...v1.3
+[1.2]:   https://github.com/jeffdaily/parasail/compare/v1.1.2...v1.2
 [1.1.2]: https://github.com/jeffdaily/parasail/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/jeffdaily/parasail/compare/v1.1...v1.1.1
 [1.1]:   https://github.com/jeffdaily/parasail/compare/v1.0.3...v1.1
@@ -172,3 +178,4 @@ First stable, production-ready version of parasail.
 [\#1]: https://github.com/jeffdaily/parasail/issues/1
 
 [armintoepfer]: https://github.com/armintoepfer
+[GrappoloTK]: https://github.com/luhowardmark/GrappoloTK

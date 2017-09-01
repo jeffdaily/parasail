@@ -19,6 +19,12 @@ EXPORTS
     parasail_nw_banded
     parasail_traceback
     parasail_cigar
+    parasail_cigar_encode
+    parasail_cigar_encode_string
+    parasail_cigar_decode
+    parasail_cigar_decode_op
+    parasail_cigar_decode_len
+    parasail_cigar_free
 ; from parasail/io.h
     parasail_open
     parasail_close

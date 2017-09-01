@@ -263,12 +263,21 @@ typedef struct parasail_cigar_ {
 /**
  * Produce CIGAR 32-bit unsigned integer from CIGAR operation and CIGAR length.
  *
- * @param[in] length      length of CIGAR
- * @param[in] op_letter   CIGAR operation character ('M', 'I', etc)
- * @return                encoded CIGAR operation and length
+ * @param[in] length    length of CIGAR
+ * @param[in] op_letter CIGAR operation character ('M', 'I', etc)
+ * @return              encoded CIGAR operation and length
  */
 extern
-uint32_t parasail_to_cigar_int (uint32_t length, char op_letter);
+uint32_t parasail_cigar_encode(uint32_t length, char op_letter);
+
+/**
+ * Produce CIGAR 32-bit unsigned integer array from CIGAR string.
+ *
+ * @param[in] cigar CIGAR string, e.g., '3=2I2=1X4D14='
+ * @return          encoded CIGAR
+ */
+extern
+parasail_cigar_t* parasail_cigar_encode_string(const char *cigar);
 
 /**
  * Extract CIGAR operation character from CIGAR 32-bit unsigned integer.
@@ -278,7 +287,7 @@ uint32_t parasail_to_cigar_int (uint32_t length, char op_letter);
  * @return                CIGAR operation character ('M', 'I', etc)
  */
 extern
-char parasail_cigar_int_to_op(uint32_t cigar_int);
+char parasail_cigar_decode_op(uint32_t cigar_int);
 
 /**
  * Extract length of a CIGAR operation from CIGAR 32-bit unsigned integer.
@@ -288,7 +297,17 @@ char parasail_cigar_int_to_op(uint32_t cigar_int);
  * @return                length of CIGAR operation
  */
 extern
-uint32_t parasail_cigar_int_to_len (uint32_t cigar_int);
+uint32_t parasail_cigar_decode_len(uint32_t cigar_int);
+
+/**
+ * Convert CIGAR array into a character array.
+ *
+ * @param[in] cigar   32-bit unsigned integers, representing encoded
+ *                    CIGAR operations and lengths
+ * @return            CIGAR string, e.g., '3=2I2=1X4D14='
+ */
+extern
+char* parasail_cigar_decode(parasail_cigar_t *cigar);
 
 /* allocate and return the cigar for the given alignment */
 extern

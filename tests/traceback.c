@@ -115,6 +115,8 @@ int main(int argc, char **argv)
     int mismatch = 0;
     int use_dna = 0;
     parasail_cigar_t *cigar = NULL;
+    parasail_cigar_t *cigar2 = NULL;
+    char *cigar_string = NULL;
 
     while ((c = getopt(argc, argv, "a:x:y:f:m:o:e:dX:Y:")) != -1) {
         switch (c) {
@@ -317,12 +319,25 @@ int main(int argc, char **argv)
     printf("'\n");
     printf("cigar string:   '");
     for (c=0; c<cigar->len; ++c) {
-        uint32_t len = parasail_cigar_int_to_len(cigar->seq[c]);
-        uint32_t op =  parasail_cigar_int_to_op(cigar->seq[c]);
+        uint32_t len = parasail_cigar_decode_len(cigar->seq[c]);
+        char op =  parasail_cigar_decode_op(cigar->seq[c]);
         printf("%u%c", len, op);
     }
     printf("'\n");
+
+    /* test the encode/decode functionality */
+    cigar_string = parasail_cigar_decode(cigar);
+    printf("cigar string:   '%s'\n", cigar_string);
+    cigar2 = parasail_cigar_encode_string(cigar_string);
+    printf("cigar2 uint32_t:'");
+    for (c=0; c<cigar2->len; ++c) {
+        printf("%u", cigar2->seq[c]);
+    }
+    printf("'\n");
+
+    free(cigar_string);
     parasail_cigar_free(cigar);
+    parasail_cigar_free(cigar2);
 
     parasail_result_free(result);
 

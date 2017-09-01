@@ -30,7 +30,7 @@ do {           \
 #define WRITE(VAL,CHAR)                                         \
 do {                                                            \
     INC;                                                        \
-    cigar->seq[cigar->len-1] = parasail_to_cigar_int(VAL,CHAR); \
+    cigar->seq[cigar->len-1] = parasail_cigar_encode(VAL,CHAR); \
 } while (0)
 
 #define WRITE_ANY         \
@@ -266,17 +266,92 @@ const uint8_t parasail_cigar_encoded_ops[] = {
     0 /* | */, 0 /* } */, 0 /* ~ */, 0 /*  */
 };
 
-uint32_t parasail_to_cigar_int (uint32_t length, char op_letter)
+uint32_t parasail_cigar_encode(uint32_t length, char op_letter)
 {
     return (length << BAM_CIGAR_SHIFT) | (parasail_cigar_encoded_ops[(int)op_letter]);
 }
 
-char parasail_cigar_int_to_op(uint32_t cigar_int) {
+parasail_cigar_t* parasail_cigar_encode_string(const char *cigar)
+{
+    int sscanf_retcode = 0;
+    size_t offset = 0;
+    int chars_read = 0;
+    unsigned int len = 0;
+    char op = 'M';
+    int done = 0;
+    size_t string_length = 0;
+    size_t size = 0;
+    parasail_cigar_t *ret = NULL;
+
+    string_length = strlen(cigar);
+    size = sizeof(uint32_t)*string_length;
+    ret = malloc(sizeof(parasail_cigar_t));
+    ret->seq = malloc(size);
+    ret->len = 0;
+
+    while (!done) {
+        sscanf_retcode = sscanf(
+                &cigar[offset], "%u%c%n", &len, &op, &chars_read);
+        if (2 != sscanf_retcode) {
+            fprintf(stderr, "invalid CIGAR string\n");
+            parasail_cigar_free(ret);
+            return NULL;
+        }
+        offset += chars_read;
+        ret->len += 1;
+        if (ret->len >= size) {
+            size *= 2;
+            ret->seq = realloc(ret->seq, size);
+        }
+        ret->seq[ret->len-1] = parasail_cigar_encode(len, op);
+        if (offset >= string_length) {
+            done = 1;
+        }
+    }
+
+    return ret;
+}
+
+char parasail_cigar_decode_op(uint32_t cigar_int) {
     return (cigar_int & 0xfU) > 9 ? 'M': BAM_CIGAR_STR[cigar_int & 0xfU];
 }
 
-uint32_t parasail_cigar_int_to_len (uint32_t cigar_int) {
+uint32_t parasail_cigar_decode_len(uint32_t cigar_int) {
     return cigar_int >> BAM_CIGAR_SHIFT;
+}
+
+char* parasail_cigar_decode(parasail_cigar_t *cigar)
+{
+#define SIZE 40
+    char *ret = NULL;
+    size_t retlen = 0;
+    size_t size = 0;
+    int i = 0;
+
+    /* initial allocation for 1 op and 3 number characters per cigar int */
+    size = sizeof(char)*cigar->len*4;
+    ret = malloc(size+1);
+    ret[0] = '\0';
+
+    for (i=0; i<cigar->len; ++i) {
+        char tmp[SIZE];
+        char op = parasail_cigar_decode_op(cigar->seq[i]);
+        uint32_t len = parasail_cigar_decode_len(cigar->seq[i]);
+        int snprintf_retcode = snprintf(tmp, SIZE, "%u%c", len, op);
+        if (snprintf_retcode >= SIZE) {
+            fprintf(stderr, "invalid CIGAR\n");
+            free(ret);
+            return NULL;
+        }
+        retlen += snprintf_retcode;
+        if (retlen >= size) {
+            size *= 2;
+            ret = realloc(ret, size+1);
+        }
+        strcat(ret, tmp);
+    }
+
+    return ret;
 }
 
 void parasail_cigar_free(parasail_cigar_t *cigar)

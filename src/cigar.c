@@ -10,32 +10,27 @@
 #define LOC LOC_NOVEC
 #endif
 
-#define INC                            \
-do {                                   \
-    c_len += 1;                        \
-    if (c_len >= size) {               \
-        size = size * 2;               \
-        cigar = realloc(cigar, size);  \
-    }                                  \
+#define INC                                      \
+do {                                             \
+    cigar->len += 1;                             \
+    if (cigar->len >= size) {                    \
+        size = size * 2;                         \
+        cigar->seq = realloc(cigar->seq, size);  \
+    }                                            \
 } while (0);
 
-#define RESET \
-do {          \
-c_mat = 0;    \
-c_mis = 0;    \
-c_del = 0;    \
-c_ins = 0;    \
+#define RESET  \
+do {           \
+    c_mat = 0; \
+    c_mis = 0; \
+    c_del = 0; \
+    c_ins = 0; \
 } while (0)
 
-#define WRITE(VAL,CHAR)                                    \
-do {                                                       \
-    int c = sprintf(tmp, "%llu", (unsigned long long)VAL); \
-    INC;                                                   \
-    cigar[c_len-1] = CHAR;                                 \
-    for (; c > 0; --c) {                                   \
-        INC;                                               \
-        cigar[c_len-1] = tmp[c-1];                         \
-    }                                                      \
+#define WRITE(VAL,CHAR)                                         \
+do {                                                            \
+    INC;                                                        \
+    cigar->seq[cigar->len-1] = parasail_to_cigar_int(VAL,CHAR); \
 } while (0)
 
 #define WRITE_ANY         \
@@ -55,7 +50,7 @@ do {                      \
     RESET;                \
 } while (0)
 
-static inline char* CONCAT(NAME, T) (
+static inline parasail_cigar_t* CONCAT(NAME, T) (
         const char *seqA,
         int lena,
         const char *seqB,
@@ -64,9 +59,8 @@ static inline char* CONCAT(NAME, T) (
         parasail_result_t *result)
 {
     size_t size = sizeof(char)*(lena+lenb);
-    char *cigar = malloc(size);
-    char *cigar_reverse = NULL;
-    size_t c_len = 0;
+    parasail_cigar_t *cigar = malloc(sizeof(parasail_cigar_t));
+    uint32_t *cigar_reverse = NULL;
     size_t c_mat = 0;
     size_t c_mis = 0;
     size_t c_del = 0;
@@ -77,7 +71,8 @@ static inline char* CONCAT(NAME, T) (
     D *HT = (D*)result->trace_table;
     D *ET = (D*)result->trace_ins_table;
     D *FT = (D*)result->trace_del_table;
-    char tmp[20];
+    cigar->seq = malloc(size);
+    cigar->len = 0;
 #if defined(STRIPED)
     int32_t segWidth = 0;
     int32_t segLen = 0;
@@ -180,10 +175,11 @@ static inline char* CONCAT(NAME, T) (
     /* in case we missed the last write */
     WRITE_ANY;
 
-    cigar_reverse = parasail_reverse(cigar, c_len);
-    free(cigar);
+    cigar_reverse = parasail_reverse_uint32_t(cigar->seq, cigar->len);
+    free(cigar->seq);
+    cigar->seq = cigar_reverse;
 
-    return cigar_reverse;
+    return cigar;
 }
 
 #undef D
@@ -233,6 +229,62 @@ static inline char match_char(
     return 'X'; /* shouldn't happen */
 }
 
+/* array index is an ASCII character value from a CIGAR,
+   element value is the corresponding integer opcode between 0 and 9 */
+const uint8_t parasail_cigar_encoded_ops[] = {
+    0,         0,         0,         0,
+    0,         0,         0,         0,
+    0,         0,         0,         0,
+    0,         0,         0,         0,
+    0,         0,         0,         0,
+    0,         0,         0,         0,
+    0,         0,         0,         0,
+    0,         0,         0,         0,
+    0 /*   */, 0 /* ! */, 0 /* " */, 0 /* # */,
+    0 /* $ */, 0 /* % */, 0 /* & */, 0 /* ' */,
+    0 /* ( */, 0 /* ) */, 0 /* * */, 0 /* + */,
+    0 /* , */, 0 /* - */, 0 /* . */, 0 /* / */,
+    0 /* 0 */, 0 /* 1 */, 0 /* 2 */, 0 /* 3 */,
+    0 /* 4 */, 0 /* 5 */, 0 /* 6 */, 0 /* 7 */,
+    0 /* 8 */, 0 /* 9 */, 0 /* : */, 0 /* ; */,
+    0 /* < */, 7 /* = */, 0 /* > */, 0 /* ? */,
+    0 /* @ */, 0 /* A */, 0 /* B */, 0 /* C */,
+    2 /* D */, 0 /* E */, 0 /* F */, 0 /* G */,
+    5 /* H */, 1 /* I */, 0 /* J */, 0 /* K */,
+    0 /* L */, 0 /* M */, 3 /* N */, 0 /* O */,
+    6 /* P */, 0 /* Q */, 0 /* R */, 4 /* S */,
+    0 /* T */, 0 /* U */, 0 /* V */, 0 /* W */,
+    8 /* X */, 0 /* Y */, 0 /* Z */, 0 /* [ */,
+    0 /* \ */, 0 /* ] */, 0 /* ^ */, 0 /* _ */,
+    0 /* ` */, 0 /* a */, 0 /* b */, 0 /* c */,
+    0 /* d */, 0 /* e */, 0 /* f */, 0 /* g */,
+    0 /* h */, 0 /* i */, 0 /* j */, 0 /* k */,
+    0 /* l */, 0 /* m */, 0 /* n */, 0 /* o */,
+    0 /* p */, 0 /* q */, 0 /* r */, 0 /* s */,
+    0 /* t */, 0 /* u */, 0 /* v */, 0 /* w */,
+    0 /* x */, 0 /* y */, 0 /* z */, 0 /* { */,
+    0 /* | */, 0 /* } */, 0 /* ~ */, 0 /*  */
+};
+
+uint32_t parasail_to_cigar_int (uint32_t length, char op_letter)
+{
+    return (length << BAM_CIGAR_SHIFT) | (parasail_cigar_encoded_ops[(int)op_letter]);
+}
+
+char parasail_cigar_int_to_op(uint32_t cigar_int) {
+    return (cigar_int & 0xfU) > 9 ? 'M': BAM_CIGAR_STR[cigar_int & 0xfU];
+}
+
+uint32_t parasail_cigar_int_to_len (uint32_t cigar_int) {
+    return cigar_int >> BAM_CIGAR_SHIFT;
+}
+
+void parasail_cigar_free(parasail_cigar_t *cigar)
+{
+	free(cigar->seq);
+	free(cigar);
+}
+
 #define CONCAT_(X, Y) X##Y
 #define CONCAT(X, Y) CONCAT_(X, Y)
 #define CONCAT3_(X, Y, Z) X##Y##Z
@@ -280,7 +332,7 @@ static inline char match_char(
 #undef T
 #undef STRIPED
 
-char* parasail_cigar(
+parasail_cigar_t* parasail_cigar(
         const char *seqA,
         int lena,
         const char *seqB,

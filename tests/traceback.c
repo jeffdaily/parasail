@@ -114,7 +114,7 @@ int main(int argc, char **argv)
     int match = 1;
     int mismatch = 0;
     int use_dna = 0;
-    char *cigar = NULL;
+    parasail_cigar_t *cigar = NULL;
 
     while ((c = getopt(argc, argv, "a:x:y:f:m:o:e:dX:Y:")) != -1) {
         switch (c) {
@@ -304,14 +304,25 @@ int main(int argc, char **argv)
     /* do the traceback */
     parasail_traceback(seqA, lena, seqB, lenb, matrix, result);
 
-    printf("Score:         %d\n", result->score);
-    printf("end_query:     %d\n", result->end_query);
-    printf("end_ref:       %d\n", result->end_ref);
+    printf("Score:          %d\n", result->score);
+    printf("end_query:      %d\n", result->end_query);
+    printf("end_ref:        %d\n", result->end_ref);
 
     /* do the cigar */
     cigar = parasail_cigar(seqA, lena, seqB, lenb, matrix, result);
-    printf("cigar:         '%s'\n", cigar);
-    free(cigar);
+    printf("cigar uint32_t: '");
+    for (c=0; c<cigar->len; ++c) {
+        printf("%u", cigar->seq[c]);
+    }
+    printf("'\n");
+    printf("cigar string:   '");
+    for (c=0; c<cigar->len; ++c) {
+        uint32_t len = parasail_cigar_int_to_len(cigar->seq[c]);
+        uint32_t op =  parasail_cigar_int_to_op(cigar->seq[c]);
+        printf("%u%c", len, op);
+    }
+    printf("'\n");
+    parasail_cigar_free(cigar);
 
     parasail_result_free(result);
 

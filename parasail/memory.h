@@ -43,6 +43,7 @@ extern parasail_profile_t* parasail_profile_new(
         const char * s1, const int s1Len, const parasail_matrix_t *matrix);
 
 extern char* parasail_reverse(const char *s, int end);
+extern uint32_t* parasail_reverse_uint32_t(const uint32_t *s, int end);
 
 #if SIZEOF_INT == 1
 #define PARASAIL_FLAG_BITS_INT PARASAIL_FLAG_BITS_8

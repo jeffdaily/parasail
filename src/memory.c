@@ -505,3 +505,17 @@ char* parasail_reverse(const char *s, int length)
     return r;
 }
 
+uint32_t* parasail_reverse_uint32_t(const uint32_t *s, int length)
+{
+    uint32_t *r = NULL;
+    int i = 0;
+    int j = 0;
+
+    r = (uint32_t*)malloc(sizeof(uint32_t)*(length));
+    for (i=0,j=length-1; i<length; ++i,--j) {
+        r[i] = s[j];
+    }
+
+    return r;
+}
+

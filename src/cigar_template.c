@@ -2,6 +2,8 @@
 
 #define D CONCAT3(int, T, _t)
 
+#define UNUSED(expr) do { (void)(expr); } while (0)
+
 #if defined(STRIPED)
 #define NAME parasail_cigar_striped_
 #define LOC LOC_STRIPED
@@ -13,7 +15,7 @@
 #define INC                                      \
 do {                                             \
     cigar->len += 1;                             \
-    if (cigar->len >= size) {                    \
+    if ((size_t)cigar->len >= size) {            \
         size = size * 2;                         \
         cigar->seq = realloc(cigar->seq, size);  \
     }                                            \
@@ -99,6 +101,7 @@ static inline parasail_cigar_t* CONCAT(NAME, T) (
 #endif
     cigar->seq = malloc(size);
     cigar->len = 0;
+    UNUSED(matrix);
     while (i >= 0 && j >= 0) {
         LOC
         assert(i >= 0 && j >= 0);

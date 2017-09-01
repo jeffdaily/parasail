@@ -160,7 +160,7 @@ static void check_functions(
         parasail_function_group_t f,
         char **sequences,
         unsigned long *sizes,
-        unsigned long pair_limit,
+        unsigned long pair_limit_,
         const parasail_matrix_t *matrix_,
         gap_score_t gap)
 {
@@ -169,6 +169,7 @@ static void check_functions(
     unsigned long gap_index = 0;
     unsigned long function_index = 0;
     long long pair_index = 0;
+    long long pair_limit = (long long)pair_limit_;
     parasail_function_t *reference_function = NULL;
     const parasail_matrix_t ** matrices = parasail_matrices;
     const parasail_matrix_t * single_matrix[] = {

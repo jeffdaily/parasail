@@ -191,7 +191,6 @@ int main(int argc, char **argv)
 {
     double timer_clock = 0.0;
     unsigned long i = 0;
-    unsigned long j = 0;
     size_t limit = 0;
     char *filename_database = NULL;
     char **sequences_database = NULL;

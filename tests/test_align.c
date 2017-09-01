@@ -355,6 +355,7 @@ int main(int argc, char **argv)
                 break;
             case 'r':
                 use_rdtsc = 1;
+                break;
             case 'R':
                 do_rowcol = 0;
                 break;

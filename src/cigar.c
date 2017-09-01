@@ -113,7 +113,7 @@ parasail_cigar_t* parasail_cigar_encode_string(const char *cigar)
         }
         offset += chars_read;
         ret->len += 1;
-        if (ret->len >= size) {
+        if ((size_t)ret->len >= size) {
             size *= 2;
             ret->seq = realloc(ret->seq, size);
         }

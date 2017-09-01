@@ -71,8 +71,6 @@ static inline parasail_cigar_t* CONCAT(NAME, T) (
     D *HT = (D*)result->trace_table;
     D *ET = (D*)result->trace_ins_table;
     D *FT = (D*)result->trace_del_table;
-    cigar->seq = malloc(size);
-    cigar->len = 0;
 #if defined(STRIPED)
     int32_t segWidth = 0;
     int32_t segLen = 0;
@@ -99,6 +97,8 @@ static inline parasail_cigar_t* CONCAT(NAME, T) (
     }
     segLen = (lena + segWidth - 1) / segWidth;
 #endif
+    cigar->seq = malloc(size);
+    cigar->len = 0;
     while (i >= 0 && j >= 0) {
         LOC
         assert(i >= 0 && j >= 0);

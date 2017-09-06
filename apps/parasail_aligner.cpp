@@ -165,6 +165,17 @@ inline static void output_basic(
         const PairVec &vpairs,
         const vector<parasail_result_t*> &results);
 
+inline static void output_trace(
+        FILE *fop,
+        bool has_query,
+        long sid_crossover,
+        unsigned char *T,
+        const parasail_matrix_t *matrix,
+        const vector<long> &BEG,
+        const vector<long> &END,
+        const PairVec &vpairs,
+        const vector<parasail_result_t*> &results);
+
 inline static void output_tables(
         bool has_query,
         long sid_crossover,
@@ -1080,27 +1091,12 @@ int main(int argc, char **argv) {
         else if (graph_output) {
             output_graph(fop, 0, sid, T, AOL, SIM, OS, matrix, BEG, END, vpairs, results);
         }
-        else if (is_trace) {
-            parasail_cigar_t *cigar = parasail_cigar(
-                    (const char*)&T[i_beg], i_len,
-                    (const char*)&T[j_beg], j_len,
-                    matrix, result);
-            char *cigar_string = parasail_cigar_decode(cigar);
-            eprintf(fop, "%d,%d,%ld,%ld,%d,%d,%d,%s\n",
-                    i,
-                    j,
-                    i_len,
-                    j_len,
-                    result->score,
-                    result->end_query,
-                    result->end_ref,
-                    cigar_string);
-            parasail_cigar_free(cigar);
-            free(cigar_string);
-        }
         else {
             output_stats(fop, has_query, sid_crossover, BEG, END, vpairs, results);
         }
+    }
+    else if (is_trace) {
+        output_trace(fop, has_query, sid_crossover, T, matrix, BEG, END, vpairs, results);
     }
     else {
         output_basic(fop, has_query, sid_crossover, BEG, END, vpairs, results);
@@ -1492,6 +1488,53 @@ inline static void output_basic(
                 result->score,
                 result->end_query,
                 result->end_ref);
+    }
+}
+
+inline static void output_trace(
+        FILE *fop,
+        bool has_query,
+        long sid_crossover,
+        unsigned char *T,
+        const parasail_matrix_t *matrix,
+        const vector<long> &BEG,
+        const vector<long> &END,
+        const PairVec &vpairs,
+        const vector<parasail_result_t*> &results)
+{
+    for (size_t index=0; index<results.size(); ++index) {
+        parasail_result_t *result = results[index];
+        int i = vpairs[index].first;
+        int j = vpairs[index].second;
+        long i_beg = BEG[i];
+        long i_end = END[i];
+        long i_len = i_end-i_beg;
+        long j_beg = BEG[j];
+        long j_end = END[j];
+        long j_len = j_end-j_beg;
+        parasail_cigar_t *cigar = NULL;
+        char *cigar_string = NULL;
+
+        if (has_query) {
+            i = i - sid_crossover;
+        }
+
+        cigar = parasail_cigar(
+                (const char*)&T[i_beg], i_len,
+                (const char*)&T[j_beg], j_len,
+                matrix, result);
+        cigar_string = parasail_cigar_decode(cigar);
+        eprintf(fop, "%d,%d,%ld,%ld,%d,%d,%d,%s\n",
+                i,
+                j,
+                i_len,
+                j_len,
+                result->score,
+                result->end_query,
+                result->end_ref,
+                cigar_string);
+        parasail_cigar_free(cigar);
+        free(cigar_string);
     }
 }
 

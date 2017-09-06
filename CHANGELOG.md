@@ -9,8 +9,9 @@ The Unreleased section will be empty for tagged releases. Unreleased functionali
 
 ## [1.3] - 2017-09-01
 ### Changed
-- Added parasail_aligner option '-G' for output compatible with
-  [GrappoloTK].
+- Added parasail_aligner option '-G' for output compatible with [GrappoloTK].
+- Changed CMake option BUILD_SHARED_LIBS default to ON.
+- Added automatic deployment of CI artifacts to releases.
 
 ## [1.2] - 2017-01-28
 

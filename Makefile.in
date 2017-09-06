@@ -1742,28 +1742,37 @@ AM_CPPFLAGS = -I$(top_srcdir)/contrib \
 	-I$(top_srcdir)/contrib/sais-lite-lcp
 AM_LDFLAGS = 
 LDADD = libparasail.la
-EXTRA_DIST = version.sh DISCLAIMER README.md \
-	bindings/python/parasail.pyx bindings/python/setup.py \
-	bindings/python/test.py contrib/cpuid.c contrib/cpuid_gen4.c \
-	contrib/kseq.h contrib/sais-lite-lcp/COPYING \
-	contrib/sais-lite-lcp/Makefile contrib/sais-lite-lcp/README \
-	contrib/sais-lite-lcp/sais.c contrib/sais-lite-lcp/sais.h \
-	contrib/sais-lite-lcp/sais.hxx contrib/sais-lite-lcp/suftest.c \
-	contrib/sais-lite-lcp/test.c CMakeLists.txt \
+EXTRA_DIST = version.sh .gitignore .travis.yml CHANGELOG.md \
+	CMakeLists.txt COPYING DISCLAIMER README.md aclocal.m4 \
+	appveyor.yml apps/README.md cmake/FindAVX2.cmake \
+	cmake/FindSSE2.cmake cmake/FindSSE41.cmake \
+	cmake/Findxgetbv.cmake cmake/avx2_dummy.c cmake/config.h.in \
+	cmake/parasail.def cmake/sse2_dummy.c cmake/sse41_dummy.c \
+	contrib/cpuid.c contrib/cpuid_gen4.c contrib/kseq.h \
+	contrib/sais-lite-lcp/COPYING contrib/sais-lite-lcp/Makefile \
+	contrib/sais-lite-lcp/README contrib/sais-lite-lcp/sais.c \
+	contrib/sais-lite-lcp/sais.h contrib/sais-lite-lcp/sais.hxx \
+	contrib/sais-lite-lcp/suftest.c contrib/sais-lite-lcp/test.c \
+	contrib/wingetopt/.gitignore contrib/wingetopt/CMakeLists.txt \
+	contrib/wingetopt/README.md contrib/wingetopt/src/getopt.c \
+	contrib/wingetopt/src/getopt.h CMakeLists.txt \
 	cmake/FindAVX2.cmake cmake/FindSSE2.cmake \
 	cmake/FindSSE41.cmake cmake/Findxgetbv.cmake cmake/config.h.in \
-	util/codegen.py util/diff_all.sh util/dispatcher.py \
+	images/perf_haswell.png images/perf_mac.png util/codegen.py \
+	util/diff_all.sh util/dispatcher.py util/func_group_rowcols.py \
 	util/func_group_tables.py util/func_groups.py util/funcs.py \
-	util/gap_tester.py util/isa.py util/isa.pyc util/names.py \
-	util/pygen.py util/tester.py util/matrices/BLOSUM100 \
-	util/matrices/BLOSUM30 util/matrices/BLOSUM35 \
-	util/matrices/BLOSUM40 util/matrices/BLOSUM45 \
-	util/matrices/BLOSUM50 util/matrices/BLOSUM55 \
-	util/matrices/BLOSUM60 util/matrices/BLOSUM62 \
-	util/matrices/BLOSUM65 util/matrices/BLOSUM70 \
-	util/matrices/BLOSUM75 util/matrices/BLOSUM80 \
-	util/matrices/BLOSUM85 util/matrices/BLOSUM90 \
-	util/matrices/DAYHOFF util/matrices/GONNET util/matrices/PAM10 \
+	util/gap_tester.py util/isa.py util/isastubs.py \
+	util/makedef.py util/names.py util/satcheck.py util/tester.py \
+	util/matrices/BLOSUM100 util/matrices/BLOSUM30 \
+	util/matrices/BLOSUM35 util/matrices/BLOSUM40 \
+	util/matrices/BLOSUM45 util/matrices/BLOSUM50 \
+	util/matrices/BLOSUM55 util/matrices/BLOSUM60 \
+	util/matrices/BLOSUM62 util/matrices/BLOSUM65 \
+	util/matrices/BLOSUM70 util/matrices/BLOSUM75 \
+	util/matrices/BLOSUM80 util/matrices/BLOSUM85 \
+	util/matrices/BLOSUM90 util/matrices/BLOSUMN \
+	util/matrices/DAYHOFF util/matrices/EDNAFULL \
+	util/matrices/GONNET util/matrices/NUC.4.4 util/matrices/PAM10 \
 	util/matrices/PAM100 util/matrices/PAM110 util/matrices/PAM120 \
 	util/matrices/PAM130 util/matrices/PAM140 util/matrices/PAM150 \
 	util/matrices/PAM160 util/matrices/PAM170 util/matrices/PAM180 \

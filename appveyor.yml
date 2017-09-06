@@ -5,17 +5,17 @@ platform:
 environment:
   matrix:
 
-# VS 2010
-  - BUILD_TYPE: cmake
-    VS_VERSION: Visual Studio 10
-
 # VS 2012
   - BUILD_TYPE: cmake
-    VS_VERSION: Visual Studio 11
+    VS_VERSION: Visual Studio 11 2012
 
 # VS 2013
   - BUILD_TYPE: cmake
-    VS_VERSION: Visual Studio 12
+    VS_VERSION: Visual Studio 12 2013
+
+# VS 2015
+  - BUILD_TYPE: cmake
+    VS_VERSION: Visual Studio 14 2015
 
 shallow_clone: true
 
@@ -26,8 +26,21 @@ build_script:
   - if "%BUILD_TYPE%" == "cmake" echo "%VS_FULL%"
   - if "%BUILD_TYPE%" == "cmake" cmake -G "%VS_FULL%" . -DBUILD_SHARED_LIBS=ON
   - if "%BUILD_TYPE%" == "cmake" cmake --build . --config Release
+  - if "%BUILD_TYPE%" == "cmake" cmake --build . --config Release --target package
 
 test_script:
   - echo test_script
 
-deploy: off
+artifacts:
+  - path: dist\*
+
+deploy:
+  description: 'Release description'
+  provider: GitHub
+  auth_token:
+    secure: pAqZWDE6h3dlvBzOw9g3s2OYlB/+nd+yZebVru/wmHsUeFXo2KiP1baQ9klc/uLO
+  artifact: dist\*
+  draft: true
+  on:
+    branch: master
+    appveyor_repo_tag: true

@@ -77,7 +77,7 @@ cmake ..
 make
 ```
 
-By default, CMake will only build the parasail library statically.  In order to compile the shared library, at this time you will manually need to edit the line `ADD_LIBRARY( parasail STATIC ...)` to `ADD_LIBRARY( parasail SHARED ...)`.
+By default, CMake will build the parasail shared library.  In order to compile the static library, add `-DBUILD_SHARED_LIBS=OFF` to your `cmake` invocation, or use the `ccmake` utility to toggle the option.
 
 ## C Interface Example
 

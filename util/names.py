@@ -3,10 +3,11 @@
 # serial reference implementations (3x2x3 = 18 impl)
 alg = ["nw", "sg", "sw"]
 stats = ["", "_stats"]
-table = ["", "_table", "_rowcol"]
+table = ["", "_table", "_rowcol", "_trace"]
 for a in alg:
     for s in stats:
         for t in table:
+            if 'trace' in t and 'stats' in s: continue
             print ""
             print "extern"
             print "parasail_result_t* parasail_"+a+s+t+'('
@@ -18,10 +19,11 @@ for a in alg:
 # serial scan reference implementations (3x2x3 = 18 impl)
 alg = ["nw", "sg", "sw"]
 stats = ["", "_stats"]
-table = ["", "_table", "_rowcol"]
+table = ["", "_table", "_rowcol", "_trace"]
 for a in alg:
     for s in stats:
         for t in table:
+            if 'trace' in t and 'stats' in s: continue
             print ""
             print "extern"
             print "parasail_result_t* parasail_"+a+s+t+'_scan('
@@ -33,7 +35,7 @@ for a in alg:
 # vectorized implementations (3x2x3x3x13 = 702 impl)
 alg = ["nw", "sg", "sw"]
 stats = ["", "_stats"]
-table = ["", "_table", "_rowcol"]
+table = ["", "_table", "_rowcol", "_trace"]
 par = ["_scan", "_striped", "_diag"]
 isa = [
     "_sse2_128_64", "_sse2_128_32", "_sse2_128_16", "_sse2_128_8", "_sse2_128_sat",
@@ -44,6 +46,7 @@ isa = [
 for a in alg:
     for s in stats:
         for t in table:
+            if 'trace' in t and 'stats' in s: continue
             for p in par:
                 for i in isa:
                     print ""
@@ -57,7 +60,7 @@ for a in alg:
 # vectorized profile implementations (3x2x3x2x13 = 468 impl)
 alg = ["nw", "sg", "sw"]
 stats = ["", "_stats"]
-table = ["", "_table", "_rowcol"]
+table = ["", "_table", "_rowcol", "_trace"]
 par = ["_scan_profile", "_striped_profile"]
 isa = [
     "_sse2_128_64", "_sse2_128_32", "_sse2_128_16", "_sse2_128_8", "_sse2_128_sat",
@@ -68,6 +71,7 @@ isa = [
 for a in alg:
     for s in stats:
         for t in table:
+            if 'trace' in t and 'stats' in s: continue
             for p in par:
                 for i in isa:
                     print ""
@@ -80,12 +84,13 @@ for a in alg:
 # vectorized implementations of blocked (1x1x3x1x2 = 6 impl)
 alg = ["sw"]
 stats = [""]
-table = ["", "_table", "_rowcol"]
+table = ["", "_table", "_rowcol", "_trace"]
 par = ["_blocked"]
 isa = ["_sse41_128_32", "_sse41_128_16"]
 for a in alg:
     for s in stats:
         for t in table:
+            if 'trace' in t: continue
             for p in par:
                 for i in isa:
                     print ""
@@ -99,12 +104,13 @@ for a in alg:
 # dispatching implementations (3x2x3x3x4 = 216 impl)
 alg = ["nw", "sg", "sw"]
 stats = ["", "_stats"]
-table = ["", "_table", "_rowcol"]
+table = ["", "_table", "_rowcol", "_trace"]
 par = ["_scan", "_striped", "_diag"]
 width = ["_64", "_32", "_16", "_8", "_sat"]
 for a in alg:
     for s in stats:
         for t in table:
+            if 'trace' in t and 'stats' in s: continue
             for p in par:
                 for w in width:
                     print ""
@@ -118,12 +124,13 @@ for a in alg:
 # dispatching profile implementations (3x2x3x2x4 = 144 impl)
 alg = ["nw", "sg", "sw"]
 stats = ["", "_stats"]
-table = ["", "_table", "_rowcol"]
+table = ["", "_table", "_rowcol", "_trace"]
 par = ["_scan_profile", "_striped_profile"]
 width = ["_64", "_32", "_16", "_8", "_sat"]
 for a in alg:
     for s in stats:
         for t in table:
+            if 'trace' in t and 'stats' in s: continue
             for p in par:
                 for w in width:
                     print ""
@@ -152,11 +159,12 @@ for s in stats:
 # dispatching saturation check implementations (3x2x3x3 = 54 impl)
 alg = ["nw", "sg", "sw"]
 stats = ["", "_stats"]
-table = ["", "_table", "_rowcol"]
+table = ["", "_table", "_rowcol", "_trace"]
 par = ["_scan", "_striped", "_diag"]
 for a in alg:
     for s in stats:
         for t in table:
+            if 'trace' in t and 'stats' in s: continue
             for p in par:
                 print ""
                 print "extern"

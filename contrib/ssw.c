@@ -35,7 +35,14 @@
  *
  */
 
+/* this header not part of SSW, created by parasail, provides 'inline' */
+#include "config.h"
+
+#if defined(_MSC_VER)
+#include <intrin.h>
+#else
 #include <emmintrin.h>
+#endif
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -66,8 +73,8 @@
 
 typedef struct {
 	uint16_t score;
-	int32_t ref;	 //0-based position
-	int32_t read;    //alignment ending position on read, 0-based
+	int32_t ref;	 /*0-based position*/
+	int32_t read;    /*alignment ending position on read, 0-based*/
     int32_t *score_table;
 } alignment_end;
 
@@ -77,8 +84,8 @@ typedef struct {
 } cigar;
 
 struct _profile{
-	__m128i* profile_byte;	// 0: none
-	__m128i* profile_word;	// 0: none
+	__m128i* profile_byte;	/* 0: none*/
+	__m128i* profile_word;	/* 0: none*/
 	const int8_t* read;
 	const int8_t* mat;
 	int32_t readLen;
@@ -179,7 +186,7 @@ static __m128i* qP_byte (const int8_t* read_num,
    The returned positions are 0-based.
  */
 static alignment_end* sw_sse2_byte (const int8_t* ref,
-							 int8_t ref_dir,	// 0: forward ref; 1: reverse ref
+							 int8_t ref_dir,	/* 0: forward ref; 1: reverse ref*/
 							 int32_t refLen,
 							 int32_t readLen,
 							 const uint8_t weight_gapO, /* will be used as - */
@@ -231,9 +238,9 @@ static alignment_end* sw_sse2_byte (const int8_t* ref,
 	__m128i vMaxMark = vZero; /* Trace the highest score till the previous column. */
 	__m128i vTemp;
 	int32_t edge, begin = 0, end = refLen, step = 1;
-//	int32_t distance = readLen * 2 / 3;
-//	int32_t distance = readLen / 2;
-//	int32_t distance = readLen;
+	uint8_t *t;
+	int32_t column_len;
+	alignment_end* bests;
 
 	/* outer loop to process the reference sequence */
 	if (ref_dir == 1) {
@@ -242,19 +249,19 @@ static alignment_end* sw_sse2_byte (const int8_t* ref,
 		step = -1;
 	}
 	for (i = begin; LIKELY(i != end); i += step) {
+		const __m128i* vP;
+		__m128i* pv;
 		int32_t cmp;
 		__m128i e, vF = vZero, vMaxColumn = vZero; /* Initialize F value to 0.
 							   Any errors to vH values will be corrected in the Lazy_F loop.
 							 */
-//		max16(maxColumn[i], vMaxColumn);
-//		fprintf(stderr, "middle[%d]: %d\n", i, maxColumn[i]);
 
 		__m128i vH = pvHStore[segLen - 1];
 		vH = _mm_slli_si128 (vH, 1); /* Shift the 128-bit value in vH left by 1 byte. */
-		const __m128i* vP = vProfile + ref[i] * segLen; /* Right part of the vProfile */
+		vP = vProfile + ref[i] * segLen; /* Right part of the vProfile */
 
 		/* Swap the 2 H buffers. */
-		__m128i* pv = pvHLoad;
+		pv = pvHLoad;
 		pvHLoad = pvHStore;
 		pvHStore = pv;
 
@@ -262,11 +269,6 @@ static alignment_end* sw_sse2_byte (const int8_t* ref,
 		for (j = 0; LIKELY(j < segLen); ++j) {
 			vH = _mm_adds_epu8(vH, _mm_load_si128(vP + j));
 			vH = _mm_subs_epu8(vH, vBias); /* vH will be always > 0 */
-	//	max16(maxColumn[i], vH);
-	//	fprintf(stderr, "H[%d]: %d\n", i, maxColumn[i]);
-//	int8_t* t;
-//	int32_t ti;
-//for (t = (int8_t*)&vH, ti = 0; ti < 16; ++ti) fprintf(stderr, "%d\t", *t++);
 
 			/* Get max from vH, vE and vF. */
 			e = _mm_load_si128(pvE + j);
@@ -274,9 +276,6 @@ static alignment_end* sw_sse2_byte (const int8_t* ref,
 			vH = _mm_max_epu8(vH, vF);
 			vMaxColumn = _mm_max_epu8(vMaxColumn, vH);
 
-	//	max16(maxColumn[i], vMaxColumn);
-	//	fprintf(stderr, "middle[%d]: %d\n", i, maxColumn[i]);
-//	for (t = (int8_t*)&vMaxColumn, ti = 0; ti < 16; ++ti) fprintf(stderr, "%d\t", *t++);
 
 			/* Save vH values. */
 			_mm_store_si128(pvHStore + j, vH);
@@ -340,7 +339,7 @@ static alignment_end* sw_sse2_byte (const int8_t* ref,
 
 			if (LIKELY(temp > max)) {
 				max = temp;
-				if (max + bias >= 255) break;	//overflow
+				if (max + bias >= 255) break;	/*overflow*/
 				end_ref = i;
 
 				/* Store the column with the highest alignment score in order to trace the alignment ending position on read. */
@@ -350,13 +349,12 @@ static alignment_end* sw_sse2_byte (const int8_t* ref,
 
 		/* Record the max score of current column. */
 		max16(maxColumn[i], vMaxColumn);
-//		fprintf(stderr, "maxColumn[%d]: %d\n", i, maxColumn[i]);
 		if (maxColumn[i] == terminate) break;
 	}
 
 	/* Trace the alignment ending position on read. */
-	uint8_t *t = (uint8_t*)pvHmax;
-	int32_t column_len = segLen * 16;
+	t = (uint8_t*)pvHmax;
+	column_len = segLen * 16;
 	for (i = 0; LIKELY(i < column_len); ++i, ++t) {
 		int32_t temp;
 		if (*t == max) {
@@ -371,7 +369,7 @@ static alignment_end* sw_sse2_byte (const int8_t* ref,
 	free(pvHStore);
 
 	/* Find the most possible 2nd best alignment. */
-	alignment_end* bests = (alignment_end*) calloc(2, sizeof(alignment_end));
+	bests = (alignment_end*) calloc(2, sizeof(alignment_end));
 	bests[0].score = max + bias >= 255 ? 255 : max;
 	bests[0].ref = end_ref;
 	bests[0].read = end_read;
@@ -382,7 +380,6 @@ static alignment_end* sw_sse2_byte (const int8_t* ref,
 
 	edge = (end_ref - maskLen) > 0 ? (end_ref - maskLen) : 0;
 	for (i = 0; i < edge; i ++) {
-//			fprintf (stderr, "maxColumn[%d]: %d\n", i, maxColumn[i]);
 		if (maxColumn[i] > bests[1].score) {
 			bests[1].score = maxColumn[i];
 			bests[1].ref = i;
@@ -390,7 +387,6 @@ static alignment_end* sw_sse2_byte (const int8_t* ref,
 	}
 	edge = (end_ref + maskLen) > refLen ? refLen : (end_ref + maskLen);
 	for (i = edge + 1; i < refLen; i ++) {
-//			fprintf (stderr, "refLen: %d\tmaxColumn[%d]: %d\n", refLen, i, maxColumn[i]);
 		if (maxColumn[i] > bests[1].score) {
 			bests[1].score = maxColumn[i];
 			bests[1].ref = i;
@@ -403,7 +399,7 @@ static alignment_end* sw_sse2_byte (const int8_t* ref,
 }
 
 static alignment_end* sw_sse2_byte_table (const int8_t* ref,
-							 int8_t ref_dir,	// 0: forward ref; 1: reverse ref
+							 int8_t ref_dir,	/* 0: forward ref; 1: reverse ref*/
 							 int32_t refLen,
 							 int32_t readLen,
 							 const uint8_t weight_gapO, /* will be used as - */
@@ -457,9 +453,9 @@ static alignment_end* sw_sse2_byte_table (const int8_t* ref,
 	__m128i vMaxMark = vZero; /* Trace the highest score till the previous column. */
 	__m128i vTemp;
 	int32_t edge, begin = 0, end = refLen, step = 1;
-//	int32_t distance = readLen * 2 / 3;
-//	int32_t distance = readLen / 2;
-//	int32_t distance = readLen;
+	uint8_t *t;
+	int32_t column_len;
+	alignment_end* bests;
 
 	/* outer loop to process the reference sequence */
 	if (ref_dir == 1) {
@@ -468,19 +464,19 @@ static alignment_end* sw_sse2_byte_table (const int8_t* ref,
 		step = -1;
 	}
 	for (i = begin; LIKELY(i != end); i += step) {
+		const __m128i* vP;
+		__m128i* pv;
 		int32_t cmp;
 		__m128i e, vF = vZero, vMaxColumn = vZero; /* Initialize F value to 0.
 							   Any errors to vH values will be corrected in the Lazy_F loop.
 							 */
-//		max16(maxColumn[i], vMaxColumn);
-//		fprintf(stderr, "middle[%d]: %d\n", i, maxColumn[i]);
 
 		__m128i vH = pvHStore[segLen - 1];
 		vH = _mm_slli_si128 (vH, 1); /* Shift the 128-bit value in vH left by 1 byte. */
-		const __m128i* vP = vProfile + ref[i] * segLen; /* Right part of the vProfile */
+		vP = vProfile + ref[i] * segLen; /* Right part of the vProfile */
 
 		/* Swap the 2 H buffers. */
-		__m128i* pv = pvHLoad;
+		pv = pvHLoad;
 		pvHLoad = pvHStore;
 		pvHStore = pv;
 
@@ -488,11 +484,6 @@ static alignment_end* sw_sse2_byte_table (const int8_t* ref,
 		for (j = 0; LIKELY(j < segLen); ++j) {
 			vH = _mm_adds_epu8(vH, _mm_load_si128(vP + j));
 			vH = _mm_subs_epu8(vH, vBias); /* vH will be always > 0 */
-	//	max16(maxColumn[i], vH);
-	//	fprintf(stderr, "H[%d]: %d\n", i, maxColumn[i]);
-//	int8_t* t;
-//	int32_t ti;
-//for (t = (int8_t*)&vH, ti = 0; ti < 16; ++ti) fprintf(stderr, "%d\t", *t++);
 
 			/* Get max from vH, vE and vF. */
 			e = _mm_load_si128(pvE + j);
@@ -500,9 +491,6 @@ static alignment_end* sw_sse2_byte_table (const int8_t* ref,
 			vH = _mm_max_epu8(vH, vF);
 			vMaxColumn = _mm_max_epu8(vMaxColumn, vH);
 
-	//	max16(maxColumn[i], vMaxColumn);
-	//	fprintf(stderr, "middle[%d]: %d\n", i, maxColumn[i]);
-//	for (t = (int8_t*)&vMaxColumn, ti = 0; ti < 16; ++ti) fprintf(stderr, "%d\t", *t++);
 
 			/* Save vH values. */
 			_mm_store_si128(pvHStore + j, vH);
@@ -568,7 +556,7 @@ static alignment_end* sw_sse2_byte_table (const int8_t* ref,
 
 			if (LIKELY(temp > max)) {
 				max = temp;
-				if (max + bias >= 255) break;	//overflow
+				if (max + bias >= 255) break;	/*overflow*/
 				end_ref = i;
 
 				/* Store the column with the highest alignment score in order to trace the alignment ending position on read. */
@@ -578,13 +566,12 @@ static alignment_end* sw_sse2_byte_table (const int8_t* ref,
 
 		/* Record the max score of current column. */
 		max16(maxColumn[i], vMaxColumn);
-//		fprintf(stderr, "maxColumn[%d]: %d\n", i, maxColumn[i]);
 		if (maxColumn[i] == terminate) break;
 	}
 
 	/* Trace the alignment ending position on read. */
-	uint8_t *t = (uint8_t*)pvHmax;
-	int32_t column_len = segLen * 16;
+	t = (uint8_t*)pvHmax;
+	column_len = segLen * 16;
 	for (i = 0; LIKELY(i < column_len); ++i, ++t) {
 		int32_t temp;
 		if (*t == max) {
@@ -599,7 +586,7 @@ static alignment_end* sw_sse2_byte_table (const int8_t* ref,
 	free(pvHStore);
 
 	/* Find the most possible 2nd best alignment. */
-	alignment_end* bests = (alignment_end*) calloc(2, sizeof(alignment_end));
+	bests = (alignment_end*) calloc(2, sizeof(alignment_end));
     bests[0].score_table = score_table;
 	bests[0].score = max + bias >= 255 ? 255 : max;
 	bests[0].ref = end_ref;
@@ -611,7 +598,6 @@ static alignment_end* sw_sse2_byte_table (const int8_t* ref,
 
 	edge = (end_ref - maskLen) > 0 ? (end_ref - maskLen) : 0;
 	for (i = 0; i < edge; i ++) {
-//			fprintf (stderr, "maxColumn[%d]: %d\n", i, maxColumn[i]);
 		if (maxColumn[i] > bests[1].score) {
 			bests[1].score = maxColumn[i];
 			bests[1].ref = i;
@@ -619,7 +605,6 @@ static alignment_end* sw_sse2_byte_table (const int8_t* ref,
 	}
 	edge = (end_ref + maskLen) > refLen ? refLen : (end_ref + maskLen);
 	for (i = edge + 1; i < refLen; i ++) {
-//			fprintf (stderr, "refLen: %d\tmaxColumn[%d]: %d\n", refLen, i, maxColumn[i]);
 		if (maxColumn[i] > bests[1].score) {
 			bests[1].score = maxColumn[i];
 			bests[1].ref = i;
@@ -656,7 +641,7 @@ static __m128i* qP_word (const int8_t* read_num,
 }
 
 static alignment_end* sw_sse2_word (const int8_t* ref,
-							 int8_t ref_dir,	// 0: forward ref; 1: reverse ref
+							 int8_t ref_dir,	/* 0: forward ref; 1: reverse ref*/
 							 int32_t refLen,
 							 int32_t readLen,
 							 const uint8_t weight_gapO, /* will be used as - */
@@ -700,6 +685,9 @@ static alignment_end* sw_sse2_word (const int8_t* ref,
 	__m128i vMaxMark = vZero; /* Trace the highest score till the previous column. */
 	__m128i vTemp;
 	int32_t edge, begin = 0, end = refLen, step = 1;
+	uint16_t *t;
+	int32_t column_len;
+	alignment_end* bests;
 
 	/* outer loop to process the reference sequence */
 	if (ref_dir == 1) {
@@ -708,6 +696,9 @@ static alignment_end* sw_sse2_word (const int8_t* ref,
 		step = -1;
 	}
 	for (i = begin; LIKELY(i != end); i += step) {
+		__m128i* pv;
+		__m128i vMaxColumn;
+		const __m128i* vP;
 		int32_t cmp;
 		__m128i e, vF = vZero; /* Initialize F value to 0.
 							   Any errors to vH values will be corrected in the Lazy_F loop.
@@ -716,11 +707,11 @@ static alignment_end* sw_sse2_word (const int8_t* ref,
 		vH = _mm_slli_si128 (vH, 2); /* Shift the 128-bit value in vH left by 2 byte. */
 
 		/* Swap the 2 H buffers. */
-		__m128i* pv = pvHLoad;
+		pv = pvHLoad;
 
-		__m128i vMaxColumn = vZero; /* vMaxColumn is used to record the max values of column i. */
+		vMaxColumn = vZero; /* vMaxColumn is used to record the max values of column i. */
 
-		const __m128i* vP = vProfile + ref[i] * segLen; /* Right part of the vProfile */
+		vP = vProfile + ref[i] * segLen; /* Right part of the vProfile */
 		pvHLoad = pvHStore;
 		pvHStore = pv;
 
@@ -787,8 +778,8 @@ end:
 	}
 
 	/* Trace the alignment ending position on read. */
-	uint16_t *t = (uint16_t*)pvHmax;
-	int32_t column_len = segLen * 8;
+	t = (uint16_t*)pvHmax;
+	column_len = segLen * 8;
 	for (i = 0; LIKELY(i < column_len); ++i, ++t) {
 		int32_t temp;
 		if (*t == max) {
@@ -803,7 +794,7 @@ end:
 	free(pvHStore);
 
 	/* Find the most possible 2nd best alignment. */
-	alignment_end* bests = (alignment_end*) calloc(2, sizeof(alignment_end));
+	bests = (alignment_end*) calloc(2, sizeof(alignment_end));
 	bests[0].score = max;
 	bests[0].ref = end_ref;
 	bests[0].read = end_read;
@@ -833,7 +824,7 @@ end:
 }
 
 static alignment_end* sw_sse2_word_table (const int8_t* ref,
-							 int8_t ref_dir,	// 0: forward ref; 1: reverse ref
+							 int8_t ref_dir,	/* 0: forward ref; 1: reverse ref*/
 							 int32_t refLen,
 							 int32_t readLen,
 							 const uint8_t weight_gapO, /* will be used as - */
@@ -879,6 +870,9 @@ static alignment_end* sw_sse2_word_table (const int8_t* ref,
 	__m128i vMaxMark = vZero; /* Trace the highest score till the previous column. */
 	__m128i vTemp;
 	int32_t edge, begin = 0, end = refLen, step = 1;
+	uint16_t *t;
+	int32_t column_len;
+	alignment_end* bests;
 
 	/* outer loop to process the reference sequence */
 	if (ref_dir == 1) {
@@ -887,6 +881,9 @@ static alignment_end* sw_sse2_word_table (const int8_t* ref,
 		step = -1;
 	}
 	for (i = begin; LIKELY(i != end); i += step) {
+		__m128i* pv;
+		__m128i vMaxColumn;
+		const __m128i* vP;
 		int32_t cmp;
 		__m128i e, vF = vZero; /* Initialize F value to 0.
 							   Any errors to vH values will be corrected in the Lazy_F loop.
@@ -895,11 +892,11 @@ static alignment_end* sw_sse2_word_table (const int8_t* ref,
 		vH = _mm_slli_si128 (vH, 2); /* Shift the 128-bit value in vH left by 2 byte. */
 
 		/* Swap the 2 H buffers. */
-		__m128i* pv = pvHLoad;
+		pv = pvHLoad;
 
-		__m128i vMaxColumn = vZero; /* vMaxColumn is used to record the max values of column i. */
+		vMaxColumn = vZero; /* vMaxColumn is used to record the max values of column i. */
 
-		const __m128i* vP = vProfile + ref[i] * segLen; /* Right part of the vProfile */
+		vP = vProfile + ref[i] * segLen; /* Right part of the vProfile */
 		pvHLoad = pvHStore;
 		pvHStore = pv;
 
@@ -968,8 +965,8 @@ end:
 	}
 
 	/* Trace the alignment ending position on read. */
-	uint16_t *t = (uint16_t*)pvHmax;
-	int32_t column_len = segLen * 8;
+	t = (uint16_t*)pvHmax;
+	column_len = segLen * 8;
 	for (i = 0; LIKELY(i < column_len); ++i, ++t) {
 		int32_t temp;
 		if (*t == max) {
@@ -984,7 +981,7 @@ end:
 	free(pvHStore);
 
 	/* Find the most possible 2nd best alignment. */
-	alignment_end* bests = (alignment_end*) calloc(2, sizeof(alignment_end));
+	bests = (alignment_end*) calloc(2, sizeof(alignment_end));
     bests[0].score_table = score_table;
 	bests[0].score = max;
 	bests[0].ref = end_ref;
@@ -1059,8 +1056,8 @@ static cigar* banded_sw (const int8_t* ref,
 		for (j = 1; LIKELY(j < width - 1); j ++) h_b[j] = 0;
 		for (i = 0; LIKELY(i < readLen); i ++) {
 			int32_t beg = 0, end = refLen - 1, u = 0, edge;
-			j = i - band_width;	beg = beg > j ? beg : j; // band start
-			j = i + band_width; end = end < j ? end : j; // band end
+			j = i - band_width;	beg = beg > j ? beg : j; /* band start*/
+			j = i + band_width; end = end < j ? end : j; /* band end*/
 			edge = end + 1 < width - 1 ? end + 1 : width - 1;
 			f = h_b[0] = e_b[0] = h_b[edge] = e_b[edge] = h_c[0] = 0;
 			direction_line = direction + width_d * i * 3;
@@ -1100,13 +1097,13 @@ static cigar* banded_sw (const int8_t* ref,
 	} while (LIKELY(max < score));
 	band_width /= 2;
 
-	// trace back
+	/* trace back*/
 	i = readLen - 1;
 	j = refLen - 1;
-	e = 0;	// Count the number of M, D or I.
-	l = 0;	// record length of current cigar
+	e = 0;	/* Count the number of M, D or I.*/
+	l = 0;	/* record length of current cigar*/
 	op = prev_op = 'M';
-	temp2 = 2;	// h
+	temp2 = 2;	/* h*/
 	while (LIKELY(i > 0)) {
 		set_d(temp1, band_width, i, j, temp2);
 		switch (direction_line[temp1]) {
@@ -1119,7 +1116,7 @@ static cigar* banded_sw (const int8_t* ref,
 				break;
 			case 2:
 			 	--i;
-				temp2 = 0;	// e
+				temp2 = 0;	/* e*/
 				direction_line -= width_d * 3;
 				op = 'I';
 				break;
@@ -1181,7 +1178,7 @@ static cigar* banded_sw (const int8_t* ref,
 		c[l - 1] = to_cigar_int(1, 'M');
 	}
 
-	// reverse cigar
+	/* reverse cigar*/
 	c1 = (uint32_t*)malloc(l * sizeof(uint32_t));
 	s = 0;
 	e = l - 1;
@@ -1249,7 +1246,7 @@ s_align* ssw_align (const s_profile* prof,
 				  	int32_t refLen,
 				  	const uint8_t weight_gapO,
 				  	const uint8_t weight_gapE,
-					const uint8_t flag,	//  (from high to low) bit 5: return the best alignment beginning position; 6: if (ref_end1 - ref_begin1 <= filterd) && (read_end1 - read_begin1 <= filterd), return cigar; 7: if max score >= filters, return cigar; 8: always return cigar; if 6 & 7 are both setted, only return cigar when both filter fulfilled
+					const uint8_t flag,	/*  (from high to low) bit 5: return the best alignment beginning position; 6: if (ref_end1 - ref_begin1 <= filterd) && (read_end1 - read_begin1 <= filterd), return cigar; 7: if max score >= filters, return cigar; 8: always return cigar; if 6 & 7 are both setted, only return cigar when both filter fulfilled*/
 					const uint16_t filters,
 					const int32_t filterd,
 					const int32_t maskLen) {
@@ -1271,7 +1268,7 @@ s_align* ssw_align (const s_profile* prof,
 	}
 #endif
 
-	// Find the alignment scores and ending positions
+	/* Find the alignment scores and ending positions*/
 	if (prof->profile_byte) {
 		bests = sw_sse2_byte(ref, 0, refLen, readLen, weight_gapO, weight_gapE, prof->profile_byte, -1, prof->bias, maskLen);
 		if (prof->profile_word && bests[0].score == 255) {
@@ -1305,7 +1302,7 @@ s_align* ssw_align (const s_profile* prof,
 	free(bests);
 	if (flag == 0 || (flag == 2 && r->score1 < filters)) goto end;
 
-	// Find the beginning position of the best alignment.
+	/* Find the beginning position of the best alignment.*/
 	read_reverse = seq_reverse(prof->read, r->read_end1);
 	if (word == 0) {
 		vP = qP_byte(read_reverse, prof->mat, r->read_end1 + 1, prof->n, prof->bias);
@@ -1321,7 +1318,7 @@ s_align* ssw_align (const s_profile* prof,
 	free(bests_reverse);
 	if ((7&flag) == 0 || ((2&flag) != 0 && r->score1 < filters) || ((4&flag) != 0 && (r->ref_end1 - r->ref_begin1 > filterd || r->read_end1 - r->read_begin1 > filterd))) goto end;
 
-	// Generate cigar.
+	/* Generate cigar.*/
 	refLen = r->ref_end1 - r->ref_begin1 + 1;
 	readLen = r->read_end1 - r->read_begin1 + 1;
 	band_width = abs(refLen - readLen) + 1;
@@ -1345,7 +1342,7 @@ s_align* ssw_align_table (const s_profile* prof,
 				  	int32_t refLen,
 				  	const uint8_t weight_gapO,
 				  	const uint8_t weight_gapE,
-					const uint8_t flag,	//  (from high to low) bit 5: return the best alignment beginning position; 6: if (ref_end1 - ref_begin1 <= filterd) && (read_end1 - read_begin1 <= filterd), return cigar; 7: if max score >= filters, return cigar; 8: always return cigar; if 6 & 7 are both setted, only return cigar when both filter fulfilled
+					const uint8_t flag,	/*  (from high to low) bit 5: return the best alignment beginning position; 6: if (ref_end1 - ref_begin1 <= filterd) && (read_end1 - read_begin1 <= filterd), return cigar; 7: if max score >= filters, return cigar; 8: always return cigar; if 6 & 7 are both setted, only return cigar when both filter fulfilled*/
 					const uint16_t filters,
 					const int32_t filterd,
 					const int32_t maskLen) {
@@ -1367,7 +1364,7 @@ s_align* ssw_align_table (const s_profile* prof,
 	}
 #endif
 
-	// Find the alignment scores and ending positions
+	/* Find the alignment scores and ending positions*/
 	if (prof->profile_byte) {
 		bests = sw_sse2_byte_table(ref, 0, refLen, readLen, weight_gapO, weight_gapE, prof->profile_byte, -1, prof->bias, maskLen);
 		if (prof->profile_word && bests[0].score == 255) {
@@ -1404,7 +1401,7 @@ s_align* ssw_align_table (const s_profile* prof,
 	free(bests);
 	if (flag == 0 || (flag == 2 && r->score1 < filters)) goto end;
 
-	// Find the beginning position of the best alignment.
+	/* Find the beginning position of the best alignment.*/
 	read_reverse = seq_reverse(prof->read, r->read_end1);
 	if (word == 0) {
 		vP = qP_byte(read_reverse, prof->mat, r->read_end1 + 1, prof->n, prof->bias);
@@ -1420,7 +1417,7 @@ s_align* ssw_align_table (const s_profile* prof,
 	free(bests_reverse);
 	if ((7&flag) == 0 || ((2&flag) != 0 && r->score1 < filters) || ((4&flag) != 0 && (r->ref_end1 - r->ref_begin1 > filterd || r->read_end1 - r->read_begin1 > filterd))) goto end;
 
-	// Generate cigar.
+	/* Generate cigar.*/
 	refLen = r->ref_end1 - r->ref_begin1 + 1;
 	readLen = r->read_end1 - r->read_begin1 + 1;
 	band_width = abs(refLen - readLen) + 1;

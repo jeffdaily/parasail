@@ -10,14 +10,29 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
+#if defined(_MSC_VER)
+#include "wingetopt/src/getopt.h"
+#else
+#include <unistd.h>
+#endif
 
+#ifdef __MIC__
 #include <errno.h>
 #include <pwd.h>
 #include <unistd.h>
 #include <sys/types.h>
+#endif
+
+#if defined(_MSC_VER)
+#include <io.h>
+#define READ_FUNCTION _read
+#else
+#define READ_FUNCTION read
+#endif
 
 #include "kseq.h"
-KSEQ_INIT(int, read)
+KSEQ_INIT(int, READ_FUNCTION)
 
 #include "parasail.h"
 #include "parasail/memory.h"
@@ -46,10 +61,12 @@ static const char *get_user_name()
 
 static void print_array(
         const char * filename_,
-        const int * const restrict array,
+        int * array_,
         const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len)
+        const char * const restrict s2, const int s2Len,
+        parasail_result_t *result)
 {
+    int * array = NULL;
     int i;
     int j;
     FILE *f = NULL;
@@ -65,6 +82,14 @@ static void print_array(
 #else
     const char *filename = filename_;
 #endif
+    if ((result->flag & PARASAIL_FLAG_TRACE)
+            && ((result->flag & PARASAIL_FLAG_STRIPED)
+                || (result->flag & PARASAIL_FLAG_SCAN))) {
+        array = parasail_striped_unwind(s1Len, s2Len, result, array_);
+    }
+    else {
+        array = array_;
+    }
     f = fopen(filename, "w");
     if (NULL == f) {
         printf("fopen(\"%s\") error: %s\n", filename, strerror(errno));
@@ -83,6 +108,11 @@ static void print_array(
         fprintf(f, "\n");
     }
     fclose(f);
+    if ((result->flag & PARASAIL_FLAG_TRACE)
+            && ((result->flag & PARASAIL_FLAG_STRIPED)
+                || (result->flag & PARASAIL_FLAG_SCAN))) {
+        free(array);
+    }
 }
 
 static void print_rowcol(
@@ -159,8 +189,8 @@ static inline void parse_sequences(
         perror("fopen");
         exit(1);
     }
-    strings = malloc(sizeof(char*) * memory);
-    sizes = malloc(sizeof(unsigned long) * memory);
+    strings = (char**)malloc(sizeof(char*) * memory);
+    sizes = (unsigned long*)malloc(sizeof(unsigned long) * memory);
     seq = kseq_init(fileno(fp));
     while ((l = kseq_read(seq)) >= 0) {
         errno = 0;
@@ -176,14 +206,14 @@ static inline void parse_sequences(
             unsigned long *new_sizes = NULL;
             memory *= 2;
             errno = 0;
-            new_strings = realloc(strings, sizeof(char*) * memory);
+            new_strings = (char**)realloc(strings, sizeof(char*) * memory);
             if (NULL == new_strings) {
                 perror("realloc");
                 exit(1);
             }
             strings = new_strings;
             errno = 0;
-            new_sizes = realloc(sizes, sizeof(unsigned long) * memory);
+            new_sizes = (unsigned long*)realloc(sizes, sizeof(unsigned long) * memory);
             if (NULL == new_sizes) {
                 perror("realloc");
                 exit(1);
@@ -245,6 +275,7 @@ int main(int argc, char **argv)
     int do_nonstats = 1;
     int do_table = 1;
     int do_rowcol = 1;
+    int do_trace = 1;
     int use_rdtsc = 0;
     int do_sse2 = 1;
     int do_sse41 = 1;
@@ -255,7 +286,7 @@ int main(int argc, char **argv)
     int do_sw = 1;
     int use_dna = 0;
 
-    while ((c = getopt(argc, argv, "a:b:df:i:m:M:n:o:e:rRTNSsBX:")) != -1) {
+    while ((c = getopt(argc, argv, "a:b:df:i:m:M:n:o:e:rRTtNSsBX:")) != -1) {
         switch (c) {
             case 'a':
                 errno = 0;
@@ -324,11 +355,15 @@ int main(int argc, char **argv)
                 break;
             case 'r':
                 use_rdtsc = 1;
+                break;
             case 'R':
                 do_rowcol = 0;
                 break;
             case 'T':
                 do_table = 0;
+                break;
+            case 't':
+                do_trace = 0;
                 break;
             case 'N':
                 do_normal = 0;
@@ -445,7 +480,7 @@ int main(int argc, char **argv)
     f = functions[index++];
     while (f.pointer) {
         char name[16] = {'\0'};
-        int new_limit = f.is_table ? 1 : limit;
+        int new_limit = f.is_table || f.is_rowcol || f.is_trace ? 1 : limit;
         int saturated = 0;
 #if 0
         if (f.is_table && HAVE_KNC) {
@@ -511,6 +546,12 @@ int main(int argc, char **argv)
                 continue;
             }
         }
+        else if (f.is_trace) {
+            if (!do_trace) {
+                f = functions[index++];
+                continue;
+            }
+        }
         else {
             if (!do_normal) {
                 f = functions[index++];
@@ -571,28 +612,28 @@ int main(int argc, char **argv)
                 strcpy(filename, f.alg);
                 strcat(filename, "_scr");
                 strcat(filename, suffix);
-                print_array(filename, result->score_table, seqA, lena, seqB, lenb);
+                print_array(filename, result->score_table, seqA, lena, seqB, lenb, result);
             }
             if (f.is_stats) {
                 char filename[256] = {'\0'};
                 strcpy(filename, f.alg);
                 strcat(filename, "_mch");
                 strcat(filename, suffix);
-                print_array(filename, result->matches_table, seqA, lena, seqB, lenb);
+                print_array(filename, result->matches_table, seqA, lena, seqB, lenb, result);
             }
             if (f.is_stats) {
                 char filename[256] = {'\0'};
                 strcpy(filename, f.alg);
                 strcat(filename, "_sim");
                 strcat(filename, suffix);
-                print_array(filename, result->similar_table, seqA, lena, seqB, lenb);
+                print_array(filename, result->similar_table, seqA, lena, seqB, lenb, result);
             }
             if (f.is_stats) {
                 char filename[256] = {'\0'};
                 strcpy(filename, f.alg);
                 strcat(filename, "_len");
                 strcat(filename, suffix);
-                print_array(filename, result->length_table, seqA, lena, seqB, lenb);
+                print_array(filename, result->length_table, seqA, lena, seqB, lenb, result);
             }
             parasail_result_free(result);
         }
@@ -646,11 +687,57 @@ int main(int argc, char **argv)
             }
             parasail_result_free(result);
         }
+        else if (f.is_trace) {
+            char suffix[256] = {0};
+            if (strlen(f.type)) {
+                strcat(suffix, "_");
+                strcat(suffix, f.type);
+            }
+            if (strlen(f.isa)) {
+                strcat(suffix, "_");
+                strcat(suffix, f.isa);
+            }
+            if (strlen(f.bits)) {
+                strcat(suffix, "_");
+                strcat(suffix, f.bits);
+            }
+            if (strlen(f.width)) {
+                strcat(suffix, "_");
+                strcat(suffix, f.width);
+            }
+            strcat(suffix, ".txt");
+            result = f.pointer(seqA, lena, seqB, lenb, open, extend, matrix);
+            {
+                char filename[256] = {'\0'};
+                strcpy(filename, f.alg);
+                strcat(filename, "_dag");
+                strcat(filename, suffix);
+                print_array(filename, result->trace_table, seqA, lena, seqB, lenb, result);
+            }
+            {
+                char filename[256] = {'\0'};
+                strcpy(filename, f.alg);
+                strcat(filename, "_ins");
+                strcat(filename, suffix);
+                print_array(filename, result->trace_ins_table, seqA, lena, seqB, lenb, result);
+            }
+            {
+                char filename[256] = {'\0'};
+                strcpy(filename, f.alg);
+                strcat(filename, "_del");
+                strcat(filename, suffix);
+                print_array(filename, result->trace_del_table, seqA, lena, seqB, lenb, result);
+            }
+            parasail_result_free(result);
+        }
         if (f.is_table) {
             strcat(name, "_table");
         }
         else if (f.is_rowcol) {
             strcat(name, "_rowcol");
+        }
+        else if (f.is_trace) {
+            strcat(name, "_trace");
         }
         if (use_rdtsc) {
             printf(

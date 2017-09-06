@@ -529,6 +529,15 @@ end:
     result->matches = matches;
     result->similar = similar;
     result->length = length;
+    result->flag = PARASAIL_FLAG_SG | PARASAIL_FLAG_STRIPED
+        | PARASAIL_FLAG_STATS
+        | PARASAIL_FLAG_BITS_8 | PARASAIL_FLAG_LANES_16;
+#ifdef PARASAIL_TABLE
+    result->flag |= PARASAIL_FLAG_TABLE;
+#endif
+#ifdef PARASAIL_ROWCOL
+    result->flag |= PARASAIL_FLAG_ROWCOL;
+#endif
 
     parasail_free(pvEL);
     parasail_free(pvES);

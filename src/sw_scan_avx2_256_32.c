@@ -205,6 +205,7 @@ parasail_result_t* PNAME(
         vF = _mm256_slli_si256_rpl(vF, 4);
         vF = _mm256_add_epi32(vF, vNegInfFront);
         vH = _mm256_max_epi32(vHt, vF);
+        vH = _mm256_max_epi32(vH, vZero);
         for (i=0; i<segLen; ++i) {
             vHt = _mm256_load_si256(pvHt+i);
             vF = _mm256_max_epi32(
@@ -278,6 +279,14 @@ parasail_result_t* PNAME(
     result->score = score;
     result->end_query = end_query;
     result->end_ref = end_ref;
+    result->flag = PARASAIL_FLAG_SW | PARASAIL_FLAG_SCAN
+        | PARASAIL_FLAG_BITS_32 | PARASAIL_FLAG_LANES_8;
+#ifdef PARASAIL_TABLE
+    result->flag |= PARASAIL_FLAG_TABLE;
+#endif
+#ifdef PARASAIL_ROWCOL
+    result->flag |= PARASAIL_FLAG_ROWCOL;
+#endif
 
     parasail_free(pvGapper);
     parasail_free(pvHMax);

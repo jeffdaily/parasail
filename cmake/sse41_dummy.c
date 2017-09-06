@@ -11,7 +11,11 @@
 #ifdef PARASAIL_ROWCOL
 #define ENAME parasail_sse41_dummy_rowcol
 #else
+#ifdef PARASAIL_TRACE
+#define ENAME parasail_sse41_dummy_trace
+#else
 #define ENAME parasail_sse41_dummy
+#endif
 #endif
 #endif
 

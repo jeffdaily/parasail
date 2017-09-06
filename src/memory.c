@@ -146,6 +146,9 @@ parasail_result_t* parasail_result_new()
     result->matches_col = NULL;
     result->similar_col = NULL;
     result->length_col = NULL;
+    result->trace_table = NULL;
+    result->trace_ins_table = NULL;
+    result->trace_del_table = NULL;
 
     return result;
 }
@@ -212,6 +215,28 @@ parasail_result_t* parasail_result_new_table3(const int a, const int b)
     return result;
 }
 
+parasail_result_t* parasail_result_new_trace(const int a, const int b, size_t size)
+{
+    /* declare all variables */
+    parasail_result_t *result = NULL;
+
+    /* validate inputs */
+    assert(a > 0);
+    assert(b > 0);
+
+    /* allocate struct to hold memory */
+    result = parasail_result_new();
+
+    result->trace_table = malloc(size*a*b);
+    assert(result->trace_table);
+    result->trace_ins_table = malloc(size*a*b);
+    assert(result->trace_ins_table);
+    result->trace_del_table = malloc(size*a*b);
+    assert(result->trace_del_table);
+
+    return result;
+}
+
 parasail_result_t* parasail_result_new_rowcol3(const int a, const int b)
 {
     /* declare all variables */
@@ -258,6 +283,9 @@ void parasail_result_free(parasail_result_t *result)
     if (NULL != result->matches_col) free(result->matches_col);
     if (NULL != result->similar_col) free(result->similar_col);
     if (NULL != result->length_col) free(result->length_col);
+    if (NULL != result->trace_table) free(result->trace_table);
+    if (NULL != result->trace_ins_table) free(result->trace_ins_table);
+    if (NULL != result->trace_del_table) free(result->trace_del_table);
     free(result);
 }
 
@@ -337,11 +365,11 @@ parasail_matrix_t* parasail_matrix_copy(const parasail_matrix_t *original)
         int *new_mapper = NULL;
         int *new_matrix = NULL;
 
-        new_mapper = malloc(mapper_size);
+        new_mapper = (int*)malloc(mapper_size);
         assert(new_mapper);
         (void)memcpy(new_mapper, original->mapper, mapper_size);
 
-        new_matrix = malloc(matrix_size);
+        new_matrix = (int*)malloc(matrix_size);
         assert(new_matrix);
         (void)memcpy(new_matrix, original->matrix, matrix_size);
 
@@ -470,6 +498,20 @@ char* parasail_reverse(const char *s, int length)
 
     r = (char*)malloc(sizeof(char)*(length + 1));
     r[length] = '\0';
+    for (i=0,j=length-1; i<length; ++i,--j) {
+        r[i] = s[j];
+    }
+
+    return r;
+}
+
+uint32_t* parasail_reverse_uint32_t(const uint32_t *s, int length)
+{
+    uint32_t *r = NULL;
+    int i = 0;
+    int j = 0;
+
+    r = (uint32_t*)malloc(sizeof(uint32_t)*(length));
     for (i=0,j=length-1; i<length; ++i,--j) {
         r[i] = s[j];
     }

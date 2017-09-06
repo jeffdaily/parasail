@@ -14,7 +14,19 @@ EXPORTS
     parasail_time
     parasail_matrix_lookup
     parasail_matrix_create
+    parasail_matrix_from_file
     parasail_matrix_free
+    parasail_matrix_copy
+    parasail_matrix_set_value
+    parasail_nw_banded
+    parasail_traceback
+    parasail_cigar
+    parasail_cigar_encode
+    parasail_cigar_encode_string
+    parasail_cigar_decode
+    parasail_cigar_decode_op
+    parasail_cigar_decode_len
+    parasail_cigar_free
 ; from parasail/io.h
     parasail_open
     parasail_close
@@ -23,6 +35,7 @@ EXPORTS
     parasail_stat
     parasail_stat_fasta
     parasail_stat_fastq
+    parasail_read
     parasail_pack
     parasail_pack_fasta
     parasail_pack_fastq
@@ -35,33 +48,61 @@ EXPORTS
     parasail_pack_fasta_buffer
     parasail_pack_fastq_buffer
 ; from parasail/cpuid.h
+    parasail_can_use_avx512vbmi
+    parasail_can_use_avx512bw
+    parasail_can_use_avx512f
     parasail_can_use_avx2
     parasail_can_use_sse41
     parasail_can_use_sse2
+; from parasail/memory.h (mostly internal functions)
+    parasail_memalign
+    parasail_memalign_int
+    parasail_memalign_int8_t
+    parasail_memalign_int16_t
+    parasail_memalign_int32_t
+    parasail_memalign_int64_t
+    parasail_free
+    parasail_memset
+    parasail_memset_int
+    parasail_memset_int8_t
+    parasail_memset_int16_t
+    parasail_memset_int32_t
+    parasail_memset_int64_t
+    parasail_result_new
+    parasail_result_new_table1
+    parasail_result_new_table3
+    parasail_result_new_rowcol1
+    parasail_result_new_rowcol3
+    parasail_result_new_trace
+    parasail_profile_new
+    parasail_reverse
+    parasail_striped_unwind
 ; from parasail.h, generated names"""
 
 # serial reference implementations (3x2x3 = 18 impl)
 alg = ["nw", "sg", "sw"]
 stats = ["", "_stats"]
-table = ["", "_table", "_rowcol"]
+table = ["", "_table", "_rowcol", "_trace"]
 for a in alg:
     for s in stats:
         for t in table:
+            if 'stats' in s and 'trace' in t: continue
             print "    parasail_"+a+s+t
 
 # serial scan reference implementations (3x2x3 = 18 impl)
 alg = ["nw", "sg", "sw"]
 stats = ["", "_stats"]
-table = ["", "_table", "_rowcol"]
+table = ["", "_table", "_rowcol", "_trace"]
 for a in alg:
     for s in stats:
         for t in table:
+            if 'stats' in s and 'trace' in t: continue
             print "    parasail_"+a+s+t+"_scan"
 
 # vectorized implementations (3x2x3x3x13 = 702 impl)
 alg = ["nw", "sg", "sw"]
 stats = ["", "_stats"]
-table = ["", "_table", "_rowcol"]
+table = ["", "_table", "_rowcol", "_trace"]
 par = ["_scan", "_striped", "_diag"]
 isa = [
     "_sse2_128_64", "_sse2_128_32", "_sse2_128_16", "_sse2_128_8", "_sse2_128_sat",
@@ -72,6 +113,7 @@ isa = [
 for a in alg:
     for s in stats:
         for t in table:
+            if 'stats' in s and 'trace' in t: continue
             for p in par:
                 for i in isa:
                     print "    parasail_"+a+s+t+p+i
@@ -79,7 +121,7 @@ for a in alg:
 # vectorized profile implementations (3x2x3x2x13 = 468 impl)
 alg = ["nw", "sg", "sw"]
 stats = ["", "_stats"]
-table = ["", "_table", "_rowcol"]
+table = ["", "_table", "_rowcol", "_trace"]
 par = ["_scan_profile", "_striped_profile"]
 isa = [
     "_sse2_128_64", "_sse2_128_32", "_sse2_128_16", "_sse2_128_8", "_sse2_128_sat",
@@ -90,6 +132,7 @@ isa = [
 for a in alg:
     for s in stats:
         for t in table:
+            if 'stats' in s and 'trace' in t: continue
             for p in par:
                 for i in isa:
                     print "    parasail_"+a+s+t+p+i
@@ -110,12 +153,13 @@ for a in alg:
 # dispatching implementations (3x2x3x3x4 = 216 impl)
 alg = ["nw", "sg", "sw"]
 stats = ["", "_stats"]
-table = ["", "_table", "_rowcol"]
+table = ["", "_table", "_rowcol", "_trace"]
 par = ["_scan", "_striped", "_diag"]
 width = ["_64", "_32", "_16", "_8", "_sat"]
 for a in alg:
     for s in stats:
         for t in table:
+            if 'stats' in s and 'trace' in t: continue
             for p in par:
                 for w in width:
                     print "    parasail_"+a+s+t+p+w
@@ -123,12 +167,13 @@ for a in alg:
 # dispatching profile implementations (3x2x3x2x4 = 144 impl)
 alg = ["nw", "sg", "sw"]
 stats = ["", "_stats"]
-table = ["", "_table", "_rowcol"]
+table = ["", "_table", "_rowcol", "_trace"]
 par = ["_scan_profile", "_striped_profile"]
 width = ["_64", "_32", "_16", "_8", "_sat"]
 for a in alg:
     for s in stats:
         for t in table:
+            if 'stats' in s and 'trace' in t: continue
             for p in par:
                 for w in width:
                     print "    parasail_"+a+s+t+p+w
@@ -148,11 +193,12 @@ for s in stats:
 # dispatching saturation check implementations (3x2x3x3 = 54 impl)
 alg = ["nw", "sg", "sw"]
 stats = ["", "_stats"]
-table = ["", "_table", "_rowcol"]
+table = ["", "_table", "_rowcol", "_trace"]
 par = ["_scan", "_striped", "_diag"]
 for a in alg:
     for s in stats:
         for t in table:
+            if 'stats' in s and 'trace' in t: continue
             for p in par:
                 print "    parasail_"+a+s+t+p+"_sat"
 

@@ -44,7 +44,10 @@ int main(void) { return foo(); }
 if(SSE2_C_FLAGS)
 else()
   if(WIN32)
-    set(SSE2_C_FLAG_CANDIDATES "/arch:SSE2")
+    set(SSE2_C_FLAG_CANDIDATES
+      #Empty, if compiler automatically accepts SSE2
+      " "
+      "/arch:SSE2")
   else()
     set(SSE2_C_FLAG_CANDIDATES
       #Empty, if compiler automatically accepts SSE2

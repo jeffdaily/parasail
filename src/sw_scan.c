@@ -116,6 +116,14 @@ parasail_result_t* ENAME(
     result->score = score;
     result->end_query = end_query;
     result->end_ref = end_ref;
+    result->flag = PARASAIL_FLAG_SW | PARASAIL_FLAG_NOVEC_SCAN
+        | PARASAIL_FLAG_BITS_INT | PARASAIL_FLAG_LANES_1;
+#ifdef PARASAIL_TABLE
+    result->flag |= PARASAIL_FLAG_TABLE;
+#endif
+#ifdef PARASAIL_ROWCOL
+    result->flag |= PARASAIL_FLAG_ROWCOL;
+#endif
 
     parasail_free(FtB);
     parasail_free(HtB);

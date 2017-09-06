@@ -170,6 +170,7 @@ parasail_result_t* PNAME(
         vF = %(VSHIFT)s(vF, %(BYTES)s);
         vF = %(VADD)s(vF, vNegInfFront);
         vH = %(VMAX)s(vHt, vF);
+        vH = %(VMAX)s(vH, vZero);
         for (i=0; i<segLen; ++i) {
             vHt = %(VLOAD)s(pvHt+i);
             vF = %(VMAX)s(
@@ -243,6 +244,14 @@ parasail_result_t* PNAME(
     result->score = score;
     result->end_query = end_query;
     result->end_ref = end_ref;
+    result->flag = PARASAIL_FLAG_SW | PARASAIL_FLAG_SCAN
+        | PARASAIL_FLAG_BITS_%(WIDTH)s | PARASAIL_FLAG_LANES_%(LANES)s;
+#ifdef PARASAIL_TABLE
+    result->flag |= PARASAIL_FLAG_TABLE;
+#endif
+#ifdef PARASAIL_ROWCOL
+    result->flag |= PARASAIL_FLAG_ROWCOL;
+#endif
 
     parasail_free(pvGapper);
     parasail_free(pvHMax);

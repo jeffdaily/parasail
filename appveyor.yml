@@ -38,7 +38,7 @@ deploy:
   description: 'Release description'
   provider: GitHub
   auth_token:
-    secure: 6e3bdb0e1c288e5722fb69e7e79d52157b6316ad
+    secure: pAqZWDE6h3dlvBzOw9g3s2OYlB/+nd+yZebVru/wmHsUeFXo2KiP1baQ9klc/uLO
   artifact: dist\*
   draft: true
   on:

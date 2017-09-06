@@ -67,3 +67,16 @@ script:
   - if [[ "$BUILD_TYPE" == "cmake" ]]; then cmake --build . --config Release; fi
   - if [[ "$BUILD_TYPE" == "cmake" ]]; then cmake --build . --config Release --target package; fi
 
+deploy:
+  provider: releases
+  api_key:
+    secure: jcuKmFSZD93XYyCGxl6wa1DuJBO87vDUehlxyLVldLoYS4xfXkItQIAZUjVnBOw89liV/RhMz+ceMA/qONgWAt2bpOqFUv16m7HtsGLFYZzIXdq3icSW8pOZToHLwUViLW4eDyb9I/pjUagVcn76wrpE9dlAAJwDpxCDwZLot0XIaG0AFRlj4YCqJzElHZOdGi05Zt0hE7CI7YsYeZq7O6m5lr0DvL7xo0KEsw9OiynYqRFXBZfwhrP2M4y+KIJp1V+LWm43/EL/l2HTiZHuu04RZRMWm1vB3Tuej4qF2iCVPgkw6Yp6EZcSM/P6sEnpMvtsoZkQVdJXBJRQhwOFjuOKr5gE37cixXuv2LjGIPIHhBRKgh/d4nvsbKFDdOPK8h2UW4utZ+VmnUqzH6SG//ZSVEzZLhLiPJNV96LLWNctnUHiNPy1ag6C9p6tsSSLV96xxlrpLm8EfJrJzNBGC+d83QPiKBSw8z1KKSFG4RlVUpG1MtCtY47bZaklY0zyVNp9Jpw0arQrbmPD7ykI/Hhvoa4l9kLlgN4ZYVf34e9h/XqvSaQ0qseY1az9NdbU1CfXzsHyOsylqzcLZNFZUtjaBHWxmwT9E+lzDOGPyCNGk/DbYiiQmz9jExqENIo0Ap69/v7FbGiLJiMm1jcEJUHmqudRn05FLP8lBdVQkq4=
+  file: dist/*
+  skip_cleanup: true
+  file_glob: true
+  draft: true
+  tag_name: $TRAVIS_TAG
+  on:
+    repo: jeffdaily/parasail
+    tags: true
+

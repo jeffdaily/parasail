@@ -31,4 +31,7 @@ build_script:
 test_script:
   - echo test_script
 
+artifacts:
+  - path: dist\*
+
 deploy: off

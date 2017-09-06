@@ -26,6 +26,7 @@ build_script:
   - if "%BUILD_TYPE%" == "cmake" echo "%VS_FULL%"
   - if "%BUILD_TYPE%" == "cmake" cmake -G "%VS_FULL%" . -DBUILD_SHARED_LIBS=ON
   - if "%BUILD_TYPE%" == "cmake" cmake --build . --config Release
+  - if "%BUILD_TYPE%" == "cmake" cmake --build . --config Release --target package
 
 test_script:
   - echo test_script

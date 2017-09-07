@@ -20,13 +20,49 @@ EXPORTS
     parasail_matrix_set_value
     parasail_nw_banded
     parasail_traceback
-    parasail_cigar
     parasail_cigar_encode
     parasail_cigar_encode_string
-    parasail_cigar_decode
     parasail_cigar_decode_op
     parasail_cigar_decode_len
+    parasail_cigar_decode
+    parasail_result_get_cigar
     parasail_cigar_free
+    parasail_result_is_nw
+    parasail_result_is_sg
+    parasail_result_is_sw
+    parasail_result_is_saturated
+    parasail_result_is_banded
+    parasail_result_is_scan
+    parasail_result_is_striped
+    parasail_result_is_diag
+    parasail_result_is_blocked
+    parasail_result_is_stats
+    parasail_result_is_stats_table
+    parasail_result_is_stats_rowcol
+    parasail_result_is_table
+    parasail_result_is_rowcol
+    parasail_result_is_trace
+    parasail_result_get_score
+    parasail_result_get_end_query
+    parasail_result_get_end_ref
+    parasail_result_get_matches
+    parasail_result_get_similar
+    parasail_result_get_length
+    parasail_result_get_score_table
+    parasail_result_get_matches_table
+    parasail_result_get_similar_table
+    parasail_result_get_length_table
+    parasail_result_get_score_row
+    parasail_result_get_matches_row
+    parasail_result_get_similar_row
+    parasail_result_get_length_row
+    parasail_result_get_score_col
+    parasail_result_get_matches_col
+    parasail_result_get_similar_col
+    parasail_result_get_length_col
+    parasail_result_get_trace_table
+    parasail_result_get_trace_ins_table
+    parasail_result_get_trace_del_table
 ; from parasail/io.h
     parasail_open
     parasail_close

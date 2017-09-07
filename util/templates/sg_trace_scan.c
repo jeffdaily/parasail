@@ -131,7 +131,7 @@ parasail_result_t* PNAME(
             vE_ext = %(VSUB)s(vE, vGapE);
             case1 = %(VCMPGT)s(vE_opn, vE_ext);
             vT = %(VBLEND)s(vTIns, vTDiag, case1);
-            arr_store(result->trace_ins_table, vT, i, segLen, j);
+            arr_store(result->trace->trace_ins_table, vT, i, segLen, j);
             vE = %(VMAX)s(vE_opn, vE_ext);
             vSaturationCheckMin = %(VMIN)s(vSaturationCheckMin, vE);
             vGapper = %(VADD)s(vHt, vGapper);
@@ -167,14 +167,14 @@ parasail_result_t* PNAME(
             vF = %(VMAX)s(vF_opn, vF_ext);
             case1 = %(VCMPGT)s(vF_opn, vF_ext);
             vT = %(VBLEND)s(vTDel, vTDiag, case1);
-            arr_store(result->trace_del_table, vT, i, segLen, j);
+            arr_store(result->trace->trace_del_table, vT, i, segLen, j);
             vH = %(VMAX)s(vHt, vF);
             case1 = %(VCMPEQ)s(vH, vHp);
             case2 = %(VCMPEQ)s(vH, vF);
             vT = %(VBLEND)s(
                     %(VBLEND)s(vTIns, vTDel, case2),
                     vTDiag, case1);
-            arr_store(result->trace_table, vT, i, segLen, j);
+            arr_store(result->trace->trace_table, vT, i, segLen, j);
             %(VSTORE)s(pvH+i, vH);
             vSaturationCheckMin = %(VMIN)s(vSaturationCheckMin, vH);
             vSaturationCheckMin = %(VMIN)s(vSaturationCheckMin, vF);
@@ -241,7 +241,7 @@ parasail_result_t* PNAME(
     if (%(VMOVEMASK)s(%(VOR)s(
             %(VCMPLT)s(vSaturationCheckMin, vNegLimit),
             %(VCMPGT)s(vSaturationCheckMax, vPosLimit)))) {
-        result->saturated = 1;
+        result->flag |= PARASAIL_FLAG_SATURATED;
         score = 0;
         end_query = 0;
         end_ref = 0;

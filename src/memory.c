@@ -127,28 +127,11 @@ parasail_result_t* parasail_result_new()
     result = (parasail_result_t*)malloc(sizeof(parasail_result_t));
     assert(result);
 
-    result->saturated = 0;
     result->score = 0;
-    result->matches = 0;
-    result->similar = 0;
-    result->length = 0;
     result->end_query = 0;
     result->end_ref = 0;
-    result->score_table = NULL;
-    result->matches_table = NULL;
-    result->similar_table = NULL;
-    result->length_table = NULL;
-    result->score_row = NULL;
-    result->matches_row = NULL;
-    result->similar_row = NULL;
-    result->length_row = NULL;
-    result->score_col = NULL;
-    result->matches_col = NULL;
-    result->similar_col = NULL;
-    result->length_col = NULL;
-    result->trace_table = NULL;
-    result->trace_ins_table = NULL;
-    result->trace_del_table = NULL;
+    result->flag = 0;
+    result->extra = NULL;
 
     return result;
 }
@@ -166,8 +149,10 @@ parasail_result_t* parasail_result_new_table1(const int a, const int b)
     result = parasail_result_new();
 
     /* allocate only score table */
-    result->score_table = (int *)malloc(sizeof(int)*a*b);
-    assert(result->score_table);
+    result->tables = (parasail_result_extra_tables_t*)malloc(sizeof(parasail_result_extra_tables_t));
+    assert(result->tables);
+    result->tables->score_table = (int *)malloc(sizeof(int)*a*b);
+    assert(result->tables->score_table);
 
     return result;
 }
@@ -185,10 +170,12 @@ parasail_result_t* parasail_result_new_rowcol1(const int a, const int b)
     result = parasail_result_new();
 
     /* allocate only score col and row */
-    result->score_row = (int *)malloc(sizeof(int)*b);
-    assert(result->score_row);
-    result->score_col = (int *)malloc(sizeof(int)*a);
-    assert(result->score_col);
+    result->rowcols = (parasail_result_extra_rowcols_t*)malloc(sizeof(parasail_result_extra_rowcols_t));
+    assert(result->rowcols);
+    result->rowcols->score_row = (int *)malloc(sizeof(int)*b);
+    assert(result->rowcols->score_row);
+    result->rowcols->score_col = (int *)malloc(sizeof(int)*a);
+    assert(result->rowcols->score_col);
 
     return result;
 }
@@ -203,14 +190,25 @@ parasail_result_t* parasail_result_new_table3(const int a, const int b)
     assert(b > 0);
     
     /* allocate struct to hold memory */
-    result = parasail_result_new_table1(a, b);
+    result = parasail_result_new();
     
-    result->matches_table = (int *)malloc(sizeof(int)*a*b);
-    assert(result->matches_table);
-    result->similar_table = (int *)malloc(sizeof(int)*a*b);
-    assert(result->similar_table);
-    result->length_table = (int *)malloc(sizeof(int)*a*b);
-    assert(result->length_table);
+    /* allocate only tables */
+    result->stats = (parasail_result_extra_stats_t*)
+        malloc(sizeof(parasail_result_extra_stats_t));
+    assert(result->stats);
+
+    result->stats->tables = (parasail_result_extra_stats_tables_t*)
+        malloc(sizeof(parasail_result_extra_stats_tables_t));
+    assert(result->stats->tables);
+
+    result->stats->tables->score_table = (int *)malloc(sizeof(int)*a*b);
+    assert(result->stats->tables->score_table);
+    result->stats->tables->matches_table = (int *)malloc(sizeof(int)*a*b);
+    assert(result->stats->tables->matches_table);
+    result->stats->tables->similar_table = (int *)malloc(sizeof(int)*a*b);
+    assert(result->stats->tables->similar_table);
+    result->stats->tables->length_table = (int *)malloc(sizeof(int)*a*b);
+    assert(result->stats->tables->length_table);
 
     return result;
 }
@@ -227,12 +225,14 @@ parasail_result_t* parasail_result_new_trace(const int a, const int b, size_t si
     /* allocate struct to hold memory */
     result = parasail_result_new();
 
-    result->trace_table = malloc(size*a*b);
-    assert(result->trace_table);
-    result->trace_ins_table = malloc(size*a*b);
-    assert(result->trace_ins_table);
-    result->trace_del_table = malloc(size*a*b);
-    assert(result->trace_del_table);
+    result->trace = (parasail_result_extra_trace_t*)malloc(sizeof(parasail_result_extra_trace_t));
+    assert(result->trace);
+    result->trace->trace_table = malloc(size*a*b);
+    assert(result->trace->trace_table);
+    result->trace->trace_ins_table = malloc(size*a*b);
+    assert(result->trace->trace_ins_table);
+    result->trace->trace_del_table = malloc(size*a*b);
+    assert(result->trace->trace_del_table);
 
     return result;
 }
@@ -247,21 +247,33 @@ parasail_result_t* parasail_result_new_rowcol3(const int a, const int b)
     assert(b > 0);
     
     /* allocate struct to hold memory */
-    result = parasail_result_new_rowcol1(a, b);
+    result = parasail_result_new();
     
-    result->matches_row = (int *)malloc(sizeof(int)*b);
-    assert(result->matches_row);
-    result->similar_row = (int *)malloc(sizeof(int)*b);
-    assert(result->similar_row);
-    result->length_row = (int *)malloc(sizeof(int)*b);
-    assert(result->length_row);
+    result->stats = (parasail_result_extra_stats_t*)
+        malloc(sizeof(parasail_result_extra_stats_t));
+    assert(result->stats);
 
-    result->matches_col = (int *)malloc(sizeof(int)*a);
-    assert(result->matches_col);
-    result->similar_col = (int *)malloc(sizeof(int)*a);
-    assert(result->similar_col);
-    result->length_col = (int *)malloc(sizeof(int)*a);
-    assert(result->length_col);
+    result->stats->rowcols = (parasail_result_extra_stats_rowcols_t*)
+        malloc(sizeof(parasail_result_extra_stats_rowcols_t));
+    assert(result->stats->rowcols);
+
+    result->stats->rowcols->score_row = (int *)malloc(sizeof(int)*b);
+    assert(result->stats->rowcols->score_row);
+    result->stats->rowcols->matches_row = (int *)malloc(sizeof(int)*b);
+    assert(result->stats->rowcols->matches_row);
+    result->stats->rowcols->similar_row = (int *)malloc(sizeof(int)*b);
+    assert(result->stats->rowcols->similar_row);
+    result->stats->rowcols->length_row = (int *)malloc(sizeof(int)*b);
+    assert(result->stats->rowcols->length_row);
+
+    result->stats->rowcols->score_col = (int *)malloc(sizeof(int)*a);
+    assert(result->stats->rowcols->score_col);
+    result->stats->rowcols->matches_col = (int *)malloc(sizeof(int)*a);
+    assert(result->stats->rowcols->matches_col);
+    result->stats->rowcols->similar_col = (int *)malloc(sizeof(int)*a);
+    assert(result->stats->rowcols->similar_col);
+    result->stats->rowcols->length_col = (int *)malloc(sizeof(int)*a);
+    assert(result->stats->rowcols->length_col);
 
     return result;
 }
@@ -271,21 +283,45 @@ void parasail_result_free(parasail_result_t *result)
     /* validate inputs */
     assert(NULL != result);
     
-    if (NULL != result->score_table) free(result->score_table);
-    if (NULL != result->matches_table) free(result->matches_table);
-    if (NULL != result->similar_table) free(result->similar_table);
-    if (NULL != result->length_table) free(result->length_table);
-    if (NULL != result->score_row) free(result->score_row);
-    if (NULL != result->matches_row) free(result->matches_row);
-    if (NULL != result->similar_row) free(result->similar_row);
-    if (NULL != result->length_row) free(result->length_row);
-    if (NULL != result->score_col) free(result->score_col);
-    if (NULL != result->matches_col) free(result->matches_col);
-    if (NULL != result->similar_col) free(result->similar_col);
-    if (NULL != result->length_col) free(result->length_col);
-    if (NULL != result->trace_table) free(result->trace_table);
-    if (NULL != result->trace_ins_table) free(result->trace_ins_table);
-    if (NULL != result->trace_del_table) free(result->trace_del_table);
+    if (result->flag & PARASAIL_FLAG_STATS) {
+        if (result->flag & PARASAIL_FLAG_TABLE) {
+            free(result->stats->tables->score_table);
+            free(result->stats->tables->matches_table);
+            free(result->stats->tables->similar_table);
+            free(result->stats->tables->length_table);
+            free(result->stats->tables);
+        }
+        if (result->flag & PARASAIL_FLAG_ROWCOL) {
+            free(result->stats->rowcols->score_row);
+            free(result->stats->rowcols->matches_row);
+            free(result->stats->rowcols->similar_row);
+            free(result->stats->rowcols->length_row);
+            free(result->stats->rowcols->score_col);
+            free(result->stats->rowcols->matches_col);
+            free(result->stats->rowcols->similar_col);
+            free(result->stats->rowcols->length_col);
+            free(result->stats->rowcols);
+        }
+        free(result->stats);
+    }
+    else {
+        if (result->flag & PARASAIL_FLAG_TABLE) {
+            free(result->tables->score_table);
+            free(result->tables);
+        }
+        if (result->flag & PARASAIL_FLAG_ROWCOL) {
+            free(result->rowcols->score_row);
+            free(result->rowcols->score_col);
+            free(result->rowcols);
+        }
+    }
+    if (result->flag & PARASAIL_FLAG_TRACE) {
+        free(result->trace->trace_table);
+        free(result->trace->trace_ins_table);
+        free(result->trace->trace_del_table);
+        free(result->trace);
+    }
+
     free(result);
 }
 
@@ -517,5 +553,221 @@ uint32_t* parasail_reverse_uint32_t(const uint32_t *s, int length)
     }
 
     return r;
+}
+
+int parasail_result_is_nw(const parasail_result_t * const restrict result)
+{
+    return result->flag & PARASAIL_FLAG_NW;
+}
+
+int parasail_result_is_sg(const parasail_result_t * const restrict result)
+{
+    return result->flag & PARASAIL_FLAG_SG;
+}
+
+int parasail_result_is_sw(const parasail_result_t * const restrict result)
+{
+    return result->flag & PARASAIL_FLAG_SW;
+}
+
+int parasail_result_is_saturated(const parasail_result_t * const restrict result)
+{
+    return result->flag & PARASAIL_FLAG_SATURATED;
+}
+
+int parasail_result_is_banded(const parasail_result_t * const restrict result)
+{
+    return result->flag & PARASAIL_FLAG_BANDED;
+}
+
+int parasail_result_is_scan(const parasail_result_t * const restrict result)
+{
+    return result->flag & PARASAIL_FLAG_SCAN;
+}
+
+int parasail_result_is_striped(const parasail_result_t * const restrict result)
+{
+    return result->flag & PARASAIL_FLAG_STRIPED;
+}
+
+int parasail_result_is_diag(const parasail_result_t * const restrict result)
+{
+    return result->flag & PARASAIL_FLAG_DIAG;
+}
+
+int parasail_result_is_blocked(const parasail_result_t * const restrict result)
+{
+    return result->flag & PARASAIL_FLAG_BLOCKED;
+}
+
+int parasail_result_is_stats(const parasail_result_t * const restrict result)
+{
+    return result->flag & PARASAIL_FLAG_STATS;
+}
+
+int parasail_result_is_stats_table(const parasail_result_t * const restrict result)
+{
+    return result->flag & (PARASAIL_FLAG_STATS|PARASAIL_FLAG_TABLE);
+}
+
+int parasail_result_is_stats_rowcol(const parasail_result_t * const restrict result)
+{
+    return result->flag & (PARASAIL_FLAG_STATS|PARASAIL_FLAG_ROWCOL);
+}
+
+int parasail_result_is_table(const parasail_result_t * const restrict result)
+{
+    return result->flag & PARASAIL_FLAG_TABLE;
+}
+
+int parasail_result_is_rowcol(const parasail_result_t * const restrict result)
+{
+    return result->flag & PARASAIL_FLAG_ROWCOL;
+}
+
+int parasail_result_is_trace(const parasail_result_t * const restrict result)
+{
+    return result->flag & PARASAIL_FLAG_TRACE;
+}
+
+int parasail_result_get_score(const parasail_result_t * const restrict result)
+{
+    return result->score;
+}
+
+int parasail_result_get_end_query(const parasail_result_t * const restrict result)
+{
+    return result->end_query;
+}
+
+int parasail_result_get_end_ref(const parasail_result_t * const restrict result)
+{
+    return result->end_ref;
+}
+
+int parasail_result_get_matches(const parasail_result_t * const restrict result)
+{
+    assert(parasail_result_is_stats(result));
+    return result->stats->matches;
+}
+
+int parasail_result_get_similar(const parasail_result_t * const restrict result)
+{
+    assert(parasail_result_is_stats(result));
+    return result->stats->similar;
+}
+
+int parasail_result_get_length(const parasail_result_t * const restrict result)
+{
+    assert(parasail_result_is_stats(result));
+    return result->stats->length;
+}
+
+int* parasail_result_get_score_table(const parasail_result_t * const restrict result)
+{
+    assert(parasail_result_is_table(result) || parasail_result_is_stats_table(result));
+    if (parasail_result_is_stats_table(result)) {
+        return result->stats->tables->score_table;
+    }
+    if (parasail_result_is_table(result)) {
+        return result->tables->score_table;
+    }
+    return NULL; /* should not reach */
+}
+
+int* parasail_result_get_matches_table(const parasail_result_t * const restrict result)
+{
+    assert(parasail_result_is_stats_table(result));
+    return result->stats->tables->matches_table;
+}
+
+int* parasail_result_get_similar_table(const parasail_result_t * const restrict result)
+{
+    assert(parasail_result_is_stats_table(result));
+    return result->stats->tables->similar_table;
+}
+
+int* parasail_result_get_length_table(const parasail_result_t * const restrict result)
+{
+    assert(parasail_result_is_stats_table(result));
+    return result->stats->tables->length_table;
+}
+
+int* parasail_result_get_score_row(const parasail_result_t * const restrict result)
+{
+    assert(parasail_result_is_stats_rowcol(result) || parasail_result_is_rowcol(result));
+    if (parasail_result_is_stats_rowcol(result)) {
+        return result->stats->rowcols->score_row;
+    }
+    if (parasail_result_is_rowcol(result)) {
+        return result->rowcols->score_row;
+    }
+    return NULL; /* should not reach */
+}
+
+int* parasail_result_get_matches_row(const parasail_result_t * const restrict result)
+{
+    assert(parasail_result_is_stats_rowcol(result));
+    return result->stats->rowcols->matches_row;
+}
+
+int* parasail_result_get_similar_row(const parasail_result_t * const restrict result)
+{
+    assert(parasail_result_is_stats_rowcol(result));
+    return result->stats->rowcols->similar_row;
+}
+
+int* parasail_result_get_length_row(const parasail_result_t * const restrict result)
+{
+    assert(parasail_result_is_stats_rowcol(result));
+    return result->stats->rowcols->length_row;
+}
+
+int* parasail_result_get_score_col(const parasail_result_t * const restrict result)
+{
+    assert(parasail_result_is_stats_rowcol(result) || parasail_result_is_rowcol(result));
+    if (parasail_result_is_stats_rowcol(result)) {
+        return result->stats->rowcols->score_col;
+    }
+    if (parasail_result_is_rowcol(result)) {
+        return result->rowcols->score_col;
+    }
+    return NULL; /* should not reach */
+}
+
+int* parasail_result_get_matches_col(const parasail_result_t * const restrict result)
+{
+    assert(parasail_result_is_stats_rowcol(result));
+    return result->stats->rowcols->matches_col;
+}
+
+int* parasail_result_get_similar_col(const parasail_result_t * const restrict result)
+{
+    assert(parasail_result_is_stats_rowcol(result));
+    return result->stats->rowcols->similar_col;
+}
+
+int* parasail_result_get_length_col(const parasail_result_t * const restrict result)
+{
+    assert(parasail_result_is_stats_rowcol(result));
+    return result->stats->rowcols->length_col;
+}
+
+int* parasail_result_get_trace_table(const parasail_result_t * const restrict result)
+{
+    assert(parasail_result_is_trace(result));
+    return result->trace->trace_table;
+}
+
+int* parasail_result_get_trace_ins_table(const parasail_result_t * const restrict result)
+{
+    assert(parasail_result_is_trace(result));
+    return result->trace->trace_ins_table;
+}
+
+int* parasail_result_get_trace_del_table(const parasail_result_t * const restrict result)
+{
+    assert(parasail_result_is_trace(result));
+    return result->trace->trace_del_table;
 }
 

@@ -79,7 +79,7 @@ parasail_result_t* ENAME(
     {
         int limit = s1Len*s2Len;
         for (i=0; i<limit; ++i) {
-            result->score_table[i] = 0;
+            result->tables->score_table[i] = 0;
         }
     }
 #endif
@@ -129,7 +129,7 @@ parasail_result_t* ENAME(
             H[i] = MAX(E[i], F);
             H[i] = MAX(H[i], H_dag);
 #ifdef PARASAIL_TABLE
-            result->score_table[pos*s2Len + j] = H[i];
+            result->tables->score_table[pos*s2Len + j] = H[i];
 #endif
         }
         colOff += 1;

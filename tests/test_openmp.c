@@ -76,7 +76,9 @@ parasail_result_t* parasail_ssw_(
     profile = ssw_init(s1_num, s1_len, matrix, 24, score_size);
     ssw_result = ssw_align(profile, s2_num, s2_len, -open, -gap, 2, 0, 0, s1_len/2);
     result->score = ssw_result->score1;
-    result->saturated = ssw_result->saturated;
+    if (ssw_result->saturated) {
+        result->flag |= PARASAIL_FLAG_SATURATED;
+    }
     align_destroy(ssw_result);
     init_destroy(profile);
     free(s1_num);
@@ -422,7 +424,7 @@ int main(int argc, char **argv)
                             sequences_database[j_signed], sizes_database[j_signed],
                             gap_open, gap_extend, matrix);
 #pragma omp atomic
-                    saturated_query += result->saturated;
+                    saturated_query += parasail_result_is_saturated(result);
                     parasail_result_free(result);
                 }
             }
@@ -490,8 +492,8 @@ int main(int argc, char **argv)
                                 gap_open, gap_extend, kbandsize, matrix);
                     }
 #pragma omp atomic
-                    saturated += result->saturated;
-                    if (result->saturated) {
+                    saturated += parasail_result_is_saturated(result);
+                    if (parasail_result_is_saturated(result)) {
 #pragma omp critical(printer)
                         {
                             printf("saturated -- (%lu,%lu)\n", a, b);

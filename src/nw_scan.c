@@ -96,17 +96,17 @@ parasail_result_t* ENAME(
             Ft_opn = Ft-open;
             H[i] = MAX(Ht[i], Ft_opn);
 #ifdef PARASAIL_TABLE
-            result->score_table[i*s2Len + j] = H[i];
+            result->tables->score_table[i*s2Len + j] = H[i];
 #endif
         }
         H[-1] = -open - j*gap;
 #ifdef PARASAIL_ROWCOL
         if (j == s2Len-1) {
             for (i=0; i<s1Len; ++i) {
-                result->score_col[i] = H[i];
+                result->rowcols->score_col[i] = H[i];
             }
         }
-        result->score_row[j] = H[s1Len-1];
+        result->rowcols->score_row[j] = H[s1Len-1];
 #endif
     }
 

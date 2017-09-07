@@ -570,13 +570,13 @@ int main(int argc, char **argv)
             timer_nsecs_single = timer_real() - timer_nsecs_single;
             stats_sample_value(&stats_rdtsc, timer_rdtsc_single);
             stats_sample_value(&stats_nsecs, timer_nsecs_single);
-            score = result->score;
-            similar = result->similar;
-            matches = result->matches;
-            length = result->length;
-            end_query = result->end_query;
-            end_ref = result->end_ref;
-            saturated = result->saturated;
+            score = parasail_result_get_score(result);
+            similar = parasail_result_get_score(result);
+            matches = parasail_result_get_score(result);
+            length = parasail_result_get_score(result);
+            end_query = parasail_result_get_score(result);
+            end_ref = parasail_result_get_score(result);
+            saturated = parasail_result_is_saturated(result);
             parasail_result_free(result);
         }
         timer_rdtsc = timer_start()-(timer_rdtsc);
@@ -608,32 +608,36 @@ int main(int argc, char **argv)
             strcat(suffix, ".txt");
             result = f.pointer(seqA, lena, seqB, lenb, open, extend, matrix);
             {
+                int *table = parasail_result_get_score_table(result);
                 char filename[256] = {'\0'};
                 strcpy(filename, f.alg);
                 strcat(filename, "_scr");
                 strcat(filename, suffix);
-                print_array(filename, result->score_table, seqA, lena, seqB, lenb, result);
+                print_array(filename, table, seqA, lena, seqB, lenb, result);
             }
             if (f.is_stats) {
+                int *table = parasail_result_get_matches_table(result);
                 char filename[256] = {'\0'};
                 strcpy(filename, f.alg);
                 strcat(filename, "_mch");
                 strcat(filename, suffix);
-                print_array(filename, result->matches_table, seqA, lena, seqB, lenb, result);
+                print_array(filename, table, seqA, lena, seqB, lenb, result);
             }
             if (f.is_stats) {
+                int *table = parasail_result_get_similar_table(result);
                 char filename[256] = {'\0'};
                 strcpy(filename, f.alg);
                 strcat(filename, "_sim");
                 strcat(filename, suffix);
-                print_array(filename, result->similar_table, seqA, lena, seqB, lenb, result);
+                print_array(filename, table, seqA, lena, seqB, lenb, result);
             }
             if (f.is_stats) {
+                int *table = parasail_result_get_length_table(result);
                 char filename[256] = {'\0'};
                 strcpy(filename, f.alg);
                 strcat(filename, "_len");
                 strcat(filename, suffix);
-                print_array(filename, result->length_table, seqA, lena, seqB, lenb, result);
+                print_array(filename, table, seqA, lena, seqB, lenb, result);
             }
             parasail_result_free(result);
         }
@@ -658,32 +662,40 @@ int main(int argc, char **argv)
             strcat(suffix, ".txt");
             result = f.pointer(seqA, lena, seqB, lenb, open, extend, matrix);
             {
+                int *row = parasail_result_get_score_row(result);
+                int *col = parasail_result_get_score_col(result);
                 char filename[256] = {'\0'};
                 strcpy(filename, f.alg);
                 strcat(filename, "_rowcol_scr");
                 strcat(filename, suffix);
-                print_rowcol(filename, result->score_row, result->score_col, seqA, lena, seqB, lenb);
+                print_rowcol(filename, row, col, seqA, lena, seqB, lenb);
             }
             if (f.is_stats) {
+                int *row = parasail_result_get_matches_row(result);
+                int *col = parasail_result_get_matches_col(result);
                 char filename[256] = {'\0'};
                 strcpy(filename, f.alg);
                 strcat(filename, "_rowcol_mch");
                 strcat(filename, suffix);
-                print_rowcol(filename, result->matches_row, result->matches_col, seqA, lena, seqB, lenb);
+                print_rowcol(filename, row, col, seqA, lena, seqB, lenb);
             }
             if (f.is_stats) {
+                int *row = parasail_result_get_similar_row(result);
+                int *col = parasail_result_get_similar_col(result);
                 char filename[256] = {'\0'};
                 strcpy(filename, f.alg);
                 strcat(filename, "_rowcol_sim");
                 strcat(filename, suffix);
-                print_rowcol(filename, result->similar_row, result->similar_col, seqA, lena, seqB, lenb);
+                print_rowcol(filename, row, col, seqA, lena, seqB, lenb);
             }
             if (f.is_stats) {
+                int *row = parasail_result_get_length_row(result);
+                int *col = parasail_result_get_length_col(result);
                 char filename[256] = {'\0'};
                 strcpy(filename, f.alg);
                 strcat(filename, "_rowcol_len");
                 strcat(filename, suffix);
-                print_rowcol(filename, result->length_row, result->length_col, seqA, lena, seqB, lenb);
+                print_rowcol(filename, row, col, seqA, lena, seqB, lenb);
             }
             parasail_result_free(result);
         }
@@ -708,25 +720,28 @@ int main(int argc, char **argv)
             strcat(suffix, ".txt");
             result = f.pointer(seqA, lena, seqB, lenb, open, extend, matrix);
             {
+                int *table = parasail_result_get_trace_table(result);
                 char filename[256] = {'\0'};
                 strcpy(filename, f.alg);
                 strcat(filename, "_dag");
                 strcat(filename, suffix);
-                print_array(filename, result->trace_table, seqA, lena, seqB, lenb, result);
+                print_array(filename, table, seqA, lena, seqB, lenb, result);
             }
             {
+                int *table = parasail_result_get_trace_ins_table(result);
                 char filename[256] = {'\0'};
                 strcpy(filename, f.alg);
                 strcat(filename, "_ins");
                 strcat(filename, suffix);
-                print_array(filename, result->trace_ins_table, seqA, lena, seqB, lenb, result);
+                print_array(filename, table, seqA, lena, seqB, lenb, result);
             }
             {
+                int *table = parasail_result_get_trace_del_table(result);
                 char filename[256] = {'\0'};
                 strcpy(filename, f.alg);
                 strcat(filename, "_del");
                 strcat(filename, suffix);
-                print_array(filename, result->trace_del_table, seqA, lena, seqB, lenb, result);
+                print_array(filename, table, seqA, lena, seqB, lenb, result);
             }
             parasail_result_free(result);
         }
@@ -785,13 +800,13 @@ int main(int argc, char **argv)
             timer_nsecs_single = timer_real() - timer_nsecs_single;
             stats_sample_value(&stats_rdtsc, timer_rdtsc_single);
             stats_sample_value(&stats_nsecs, timer_nsecs_single);
-            score = result->score;
-            similar = result->similar;
-            matches = result->matches;
-            length = result->length;
-            end_query = result->end_query;
-            end_ref = result->end_ref;
-            saturated = result->saturated;
+            score = parasail_result_get_score(result);
+            similar = parasail_result_get_similar(result);
+            matches = parasail_result_get_matches(result);
+            length = parasail_result_get_length(result);
+            end_query = parasail_result_get_end_query(result);
+            end_ref = parasail_result_get_end_ref(result);
+            saturated = parasail_result_is_saturated(result);
             parasail_result_free(result);
         }
         timer_rdtsc = timer_start()-(timer_rdtsc);

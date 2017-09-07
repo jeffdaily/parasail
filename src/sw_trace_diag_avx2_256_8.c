@@ -385,9 +385,9 @@ parasail_result_t* FNAME(
                 __m256i condF = _mm256_cmpgt_epi8(vF_opn, vF_ext);
                 __m256i vET = _mm256_blendv_epi8(vTIns, vTDiag, condE);
                 __m256i vFT = _mm256_blendv_epi8(vTDel, vTDiag, condF);
-                arr_store_si256(result->trace_table, vT, i, s1Len, j, s2Len);
-                arr_store_si256(result->trace_ins_table, vET, i, s1Len, j, s2Len);
-                arr_store_si256(result->trace_del_table, vFT, i, s1Len, j, s2Len);
+                arr_store_si256(result->trace->trace_table, vT, i, s1Len, j, s2Len);
+                arr_store_si256(result->trace->trace_ins_table, vET, i, s1Len, j, s2Len);
+                arr_store_si256(result->trace->trace_del_table, vFT, i, s1Len, j, s2Len);
             }
             H_pr[j-31] = (int8_t)_mm256_extract_epi8_rpl(vWH,0);
             F_pr[j-31] = (int8_t)_mm256_extract_epi8_rpl(vF,0);
@@ -478,7 +478,7 @@ parasail_result_t* FNAME(
     if (_mm256_movemask_epi8(_mm256_or_si256(
             _mm256_cmpeq_epi8(vSaturationCheckMin, vNegLimit),
             _mm256_cmpeq_epi8(vSaturationCheckMax, vPosLimit)))) {
-        result->saturated = 1;
+        result->flag |= PARASAIL_FLAG_SATURATED;
         score = INT8_MAX;
         end_query = 0;
         end_ref = 0;

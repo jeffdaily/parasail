@@ -181,10 +181,10 @@ parasail_result_t* FNAME(
             }
             %(SATURATION_CHECK_MID)s
 #ifdef PARASAIL_TABLE
-            arr_store_si%(BITS)s(result->score_table, vWH, i, s1Len, j, s2Len);
+            arr_store_si%(BITS)s(result->tables->score_table, vWH, i, s1Len, j, s2Len);
 #endif
 #ifdef PARASAIL_ROWCOL
-            arr_store_rowcol(result->score_row, result->score_col, vWH, i, s1Len, j, s2Len);
+            arr_store_rowcol(result->rowcols->score_row, result->rowcols->score_col, vWH, i, s1Len, j, s2Len);
 #endif
             H_pr[j-%(LAST_POS)s] = (%(INT)s)%(VEXTRACT)s(vWH,0);
             F_pr[j-%(LAST_POS)s] = (%(INT)s)%(VEXTRACT)s(vF,0);

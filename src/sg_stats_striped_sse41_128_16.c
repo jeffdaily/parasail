@@ -276,10 +276,10 @@ STATIC parasail_result_t* PNAME(
             vSaturationCheckMax = _mm_max_epi16(vSaturationCheckMax, vHS);
             vSaturationCheckMax = _mm_max_epi16(vSaturationCheckMax, vHL);
 #ifdef PARASAIL_TABLE
-            arr_store_si128(result->matches_table, vHM, i, segLen, j, s2Len);
-            arr_store_si128(result->similar_table, vHS, i, segLen, j, s2Len);
-            arr_store_si128(result->length_table, vHL, i, segLen, j, s2Len);
-            arr_store_si128(result->score_table, vH, i, segLen, j, s2Len);
+            arr_store_si128(result->stats->tables->matches_table, vHM, i, segLen, j, s2Len);
+            arr_store_si128(result->stats->tables->similar_table, vHS, i, segLen, j, s2Len);
+            arr_store_si128(result->stats->tables->length_table, vHL, i, segLen, j, s2Len);
+            arr_store_si128(result->stats->tables->score_table, vH, i, segLen, j, s2Len);
 #endif
             vEF_opn = _mm_sub_epi16(vH, vGapO);
 
@@ -361,10 +361,10 @@ STATIC parasail_result_t* PNAME(
                 vSaturationCheckMax = _mm_max_epi16(vSaturationCheckMax, vHS);
                 vSaturationCheckMax = _mm_max_epi16(vSaturationCheckMax, vHL);
 #ifdef PARASAIL_TABLE
-                arr_store_si128(result->matches_table, vHM, i, segLen, j, s2Len);
-                arr_store_si128(result->similar_table, vHS, i, segLen, j, s2Len);
-                arr_store_si128(result->length_table, vHL, i, segLen, j, s2Len);
-                arr_store_si128(result->score_table, vH, i, segLen, j, s2Len);
+                arr_store_si128(result->stats->tables->matches_table, vHM, i, segLen, j, s2Len);
+                arr_store_si128(result->stats->tables->similar_table, vHS, i, segLen, j, s2Len);
+                arr_store_si128(result->stats->tables->length_table, vHL, i, segLen, j, s2Len);
+                arr_store_si128(result->stats->tables->score_table, vH, i, segLen, j, s2Len);
 #endif
                 /* Update vF value. */
                 vEF_opn = _mm_sub_epi16(vH, vGapO);
@@ -414,10 +414,10 @@ end:
             vHS = _mm_slli_si128(vHS, 2);
             vHL = _mm_slli_si128(vHL, 2);
         }
-        result->score_row[j] = (int16_t) _mm_extract_epi16 (vH, 7);
-        result->matches_row[j] = (int16_t) _mm_extract_epi16 (vHM, 7);
-        result->similar_row[j] = (int16_t) _mm_extract_epi16 (vHS, 7);
-        result->length_row[j] = (int16_t) _mm_extract_epi16 (vHL, 7);
+        result->stats->rowcols->score_row[j] = (int16_t) _mm_extract_epi16 (vH, 7);
+        result->stats->rowcols->matches_row[j] = (int16_t) _mm_extract_epi16 (vHM, 7);
+        result->stats->rowcols->similar_row[j] = (int16_t) _mm_extract_epi16 (vHS, 7);
+        result->stats->rowcols->length_row[j] = (int16_t) _mm_extract_epi16 (vHL, 7);
 #endif
     }
 
@@ -458,10 +458,10 @@ end:
             __m128i vHM = _mm_load_si128(pvHMStore + i);
             __m128i vHS = _mm_load_si128(pvHSStore + i);
             __m128i vHL = _mm_load_si128(pvHLStore + i);
-            arr_store_col(result->score_col, vH, i, segLen);
-            arr_store_col(result->matches_col, vHM, i, segLen);
-            arr_store_col(result->similar_col, vHS, i, segLen);
-            arr_store_col(result->length_col, vHL, i, segLen);
+            arr_store_col(result->stats->rowcols->score_col, vH, i, segLen);
+            arr_store_col(result->stats->rowcols->matches_col, vHM, i, segLen);
+            arr_store_col(result->stats->rowcols->similar_col, vHS, i, segLen);
+            arr_store_col(result->stats->rowcols->length_col, vHL, i, segLen);
 #endif
             vMaxH = _mm_max_epi16(vH, vMaxH);
         }
@@ -497,7 +497,7 @@ end:
     if (_mm_movemask_epi8(_mm_or_si128(
             _mm_cmplt_epi16(vSaturationCheckMin, vNegLimit),
             _mm_cmpgt_epi16(vSaturationCheckMax, vPosLimit)))) {
-        result->saturated = 1;
+        result->flag |= PARASAIL_FLAG_SATURATED;
         score = 0;
         matches = 0;
         similar = 0;
@@ -509,9 +509,9 @@ end:
     result->score = score;
     result->end_query = end_query;
     result->end_ref = end_ref;
-    result->matches = matches;
-    result->similar = similar;
-    result->length = length;
+    result->stats->matches = matches;
+    result->stats->similar = similar;
+    result->stats->length = length;
     result->flag = PARASAIL_FLAG_SG | PARASAIL_FLAG_STRIPED
         | PARASAIL_FLAG_STATS
         | PARASAIL_FLAG_BITS_16 | PARASAIL_FLAG_LANES_8;
@@ -554,7 +554,7 @@ parasail_result_t* INAME(
 
     /* find the end loc first with the faster implementation */
     parasail_result_t *result = parasail_sg_striped_profile_sse41_128_16(profile, s2, s2Len, open, gap);
-    if (!result->saturated) {
+    if (!parasail_result_is_saturated(result)) {
         int s1Len_new = 0;
         int s2Len_new = 0;
         parasail_result_t *result_final = NULL;

@@ -270,10 +270,10 @@ STATIC parasail_result_t* PNAME(
             vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vHS);
             vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vHL);
 #ifdef PARASAIL_TABLE
-            arr_store(result->matches_table, vHM, i, segLen, j, s2Len, bias);
-            arr_store(result->similar_table, vHS, i, segLen, j, s2Len, bias);
-            arr_store(result->length_table, vHL, i, segLen, j, s2Len, bias);
-            arr_store(result->score_table, vH, i, segLen, j, s2Len, bias);
+            arr_store(result->stats->tables->matches_table, vHM, i, segLen, j, s2Len, bias);
+            arr_store(result->stats->tables->similar_table, vHS, i, segLen, j, s2Len, bias);
+            arr_store(result->stats->tables->length_table, vHL, i, segLen, j, s2Len, bias);
+            arr_store(result->stats->tables->score_table, vH, i, segLen, j, s2Len, bias);
 #endif
             vMaxH = %(VMAX)s(vH, vMaxH);
             vEF_opn = %(VSUB)s(vH, vGapO);
@@ -357,10 +357,10 @@ STATIC parasail_result_t* PNAME(
                 vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vHS);
                 vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vHL);
 #ifdef PARASAIL_TABLE
-                arr_store(result->matches_table, vHM, i, segLen, j, s2Len, bias);
-                arr_store(result->similar_table, vHS, i, segLen, j, s2Len, bias);
-                arr_store(result->length_table, vHL, i, segLen, j, s2Len, bias);
-                arr_store(result->score_table, vH, i, segLen, j, s2Len, bias);
+                arr_store(result->stats->tables->matches_table, vHM, i, segLen, j, s2Len, bias);
+                arr_store(result->stats->tables->similar_table, vHS, i, segLen, j, s2Len, bias);
+                arr_store(result->stats->tables->length_table, vHL, i, segLen, j, s2Len, bias);
+                arr_store(result->stats->tables->score_table, vH, i, segLen, j, s2Len, bias);
 #endif
                 vMaxH = %(VMAX)s(vH, vMaxH);
                 /* Update vF value. */
@@ -402,10 +402,10 @@ end:
                 vHS = %(VSHIFT)s(vHS, %(BYTES)s);
                 vHL = %(VSHIFT)s(vHL, %(BYTES)s);
             }
-            result->score_row[j] = (%(INT)s) %(VEXTRACT)s (vH, %(LAST_POS)s) - bias;
-            result->matches_row[j] = (%(INT)s) %(VEXTRACT)s (vHM, %(LAST_POS)s) - bias;
-            result->similar_row[j] = (%(INT)s) %(VEXTRACT)s (vHS, %(LAST_POS)s) - bias;
-            result->length_row[j] = (%(INT)s) %(VEXTRACT)s (vHL, %(LAST_POS)s) - bias;
+            result->stats->rowcols->score_row[j] = (%(INT)s) %(VEXTRACT)s (vH, %(LAST_POS)s) - bias;
+            result->stats->rowcols->matches_row[j] = (%(INT)s) %(VEXTRACT)s (vHM, %(LAST_POS)s) - bias;
+            result->stats->rowcols->similar_row[j] = (%(INT)s) %(VEXTRACT)s (vHS, %(LAST_POS)s) - bias;
+            result->stats->rowcols->length_row[j] = (%(INT)s) %(VEXTRACT)s (vHL, %(LAST_POS)s) - bias;
         }
 #endif
 
@@ -415,7 +415,7 @@ end:
                 score = %(VHMAX)s(vMaxH);
                 /* if score has potential to overflow, abort early */
                 if (score > maxp) {
-                    result->saturated = 1;
+                    result->flag |= PARASAIL_FLAG_SATURATED;
                     break;
                 }
                 vMaxHUnit = %(VSET1)s(score);
@@ -430,19 +430,19 @@ end:
         %(VTYPE)s vHM = %(VLOAD)s(pvHMStore+i);
         %(VTYPE)s vHS = %(VLOAD)s(pvHSStore+i);
         %(VTYPE)s vHL = %(VLOAD)s(pvHLStore+i);
-        arr_store_col(result->score_col, vH, i, segLen, bias);
-        arr_store_col(result->matches_col, vHM, i, segLen, bias);
-        arr_store_col(result->similar_col, vHS, i, segLen, bias);
-        arr_store_col(result->length_col, vHL, i, segLen, bias);
+        arr_store_col(result->stats->rowcols->score_col, vH, i, segLen, bias);
+        arr_store_col(result->stats->rowcols->matches_col, vHM, i, segLen, bias);
+        arr_store_col(result->stats->rowcols->similar_col, vHS, i, segLen, bias);
+        arr_store_col(result->stats->rowcols->length_col, vHL, i, segLen, bias);
     }
 #endif
 
     if (score == INT%(WIDTH)s_MAX
             || %(VMOVEMASK)s(%(VCMPEQ)s(vSaturationCheckMax,vPosLimit))) {
-        result->saturated = 1;
+        result->flag |= PARASAIL_FLAG_SATURATED;
     }
 
-    if (result->saturated) {
+    if (parasail_result_is_saturated(result)) {
         score = 0;
         end_query = 0;
         end_ref = 0;
@@ -488,11 +488,11 @@ end:
     }
 
     result->score = score - bias;
-    result->matches = matches - bias;
-    result->similar = similar - bias;
-    result->length = length - bias;
     result->end_query = end_query;
     result->end_ref = end_ref;
+    result->stats->matches = matches - bias;
+    result->stats->similar = similar - bias;
+    result->stats->length = length - bias;
     result->flag = PARASAIL_FLAG_SW | PARASAIL_FLAG_STRIPED
         | PARASAIL_FLAG_STATS
         | PARASAIL_FLAG_BITS_%(WIDTH)s | PARASAIL_FLAG_LANES_%(LANES)s;
@@ -539,7 +539,7 @@ parasail_result_t* INAME(
 
     /* find the end loc first with the faster implementation */
     parasail_result_t *result = %(PNAME_BASE)s(profile, s2, s2Len, open, gap);
-    if (!result->saturated) {
+    if (!parasail_result_is_saturated(result)) {
 #if 0
         int s1Len_new = 0;
         int s2Len_new = 0;

@@ -170,10 +170,10 @@ parasail_result_t* ENAME(
             HS[j] = WHS;
             HL[j] = WHL;
 #ifdef PARASAIL_TABLE
-            result->score_table[(i-1)*s2Len + (j-1)] = WH;
-            result->matches_table[(i-1)*s2Len + (j-1)] = WHM;
-            result->similar_table[(i-1)*s2Len + (j-1)] = WHS;
-            result->length_table[(i-1)*s2Len + (j-1)] = WHL;
+            result->stats->tables->score_table[(i-1)*s2Len + (j-1)] = WH;
+            result->stats->tables->matches_table[(i-1)*s2Len + (j-1)] = WHM;
+            result->stats->tables->similar_table[(i-1)*s2Len + (j-1)] = WHS;
+            result->stats->tables->length_table[(i-1)*s2Len + (j-1)] = WHL;
 #endif
             if (WH > score) {
                 score = WH;
@@ -192,27 +192,27 @@ parasail_result_t* ENAME(
             }
         }
 #ifdef PARASAIL_ROWCOL
-        result->score_col[i-1] = WH;
-        result->matches_col[i-1] = WHM;
-        result->similar_col[i-1] = WHS;
-        result->length_col[i-1] = WHL;
+        result->stats->rowcols->score_col[i-1] = WH;
+        result->stats->rowcols->matches_col[i-1] = WHM;
+        result->stats->rowcols->similar_col[i-1] = WHS;
+        result->stats->rowcols->length_col[i-1] = WHL;
 #endif
     }
 #ifdef PARASAIL_ROWCOL
     for (j=1; j<=s2Len; ++j) {
-        result->score_row[j-1] = H[j];
-        result->matches_row[j-1] = HM[j];
-        result->similar_row[j-1] = HS[j];
-        result->length_row[j-1] = HL[j];
+        result->stats->rowcols->score_row[j-1] = H[j];
+        result->stats->rowcols->matches_row[j-1] = HM[j];
+        result->stats->rowcols->similar_row[j-1] = HS[j];
+        result->stats->rowcols->length_row[j-1] = HL[j];
     }
 #endif
 
     result->score = score;
-    result->matches = matches;
-    result->similar = similar;
-    result->length = length;
     result->end_query = end_query;
     result->end_ref = end_ref;
+    result->stats->matches = matches;
+    result->stats->similar = similar;
+    result->stats->length = length;
     result->flag = PARASAIL_FLAG_SW | PARASAIL_FLAG_NOVEC
         | PARASAIL_FLAG_STATS
         | PARASAIL_FLAG_BITS_INT | PARASAIL_FLAG_LANES_1;

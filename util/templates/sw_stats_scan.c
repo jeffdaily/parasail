@@ -356,10 +356,10 @@ parasail_result_t* PNAME(
             vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vHS);
             vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vHL);
 #ifdef PARASAIL_TABLE
-            arr_store_si%(BITS)s(result->score_table, vH, i, segLen, j, s2Len);
-            arr_store_si%(BITS)s(result->matches_table, vHM, i, segLen, j, s2Len);
-            arr_store_si%(BITS)s(result->similar_table, vHS, i, segLen, j, s2Len);
-            arr_store_si%(BITS)s(result->length_table, vHL, i, segLen, j, s2Len);
+            arr_store_si%(BITS)s(result->stats->tables->score_table, vH, i, segLen, j, s2Len);
+            arr_store_si%(BITS)s(result->stats->tables->matches_table, vHM, i, segLen, j, s2Len);
+            arr_store_si%(BITS)s(result->stats->tables->similar_table, vHS, i, segLen, j, s2Len);
+            arr_store_si%(BITS)s(result->stats->tables->length_table, vHL, i, segLen, j, s2Len);
 #endif
             {
                 %(VTYPE)s cond_max = %(VCMPGT)s(vH, vMaxH);
@@ -397,10 +397,10 @@ parasail_result_t* PNAME(
                 vHS = %(VSHIFT)s(vHS, %(BYTES)s);
                 vHL = %(VSHIFT)s(vHL, %(BYTES)s);
             }
-            result->score_row[j] = (%(INT)s) %(VEXTRACT)s (vH, %(LAST_POS)s);
-            result->matches_row[j] = (%(INT)s) %(VEXTRACT)s (vHM, %(LAST_POS)s);
-            result->similar_row[j] = (%(INT)s) %(VEXTRACT)s (vHS, %(LAST_POS)s);
-            result->length_row[j] = (%(INT)s) %(VEXTRACT)s (vHL, %(LAST_POS)s);
+            result->stats->rowcols->score_row[j] = (%(INT)s) %(VEXTRACT)s (vH, %(LAST_POS)s);
+            result->stats->rowcols->matches_row[j] = (%(INT)s) %(VEXTRACT)s (vHM, %(LAST_POS)s);
+            result->stats->rowcols->similar_row[j] = (%(INT)s) %(VEXTRACT)s (vHS, %(LAST_POS)s);
+            result->stats->rowcols->length_row[j] = (%(INT)s) %(VEXTRACT)s (vHL, %(LAST_POS)s);
         }
 #endif
     }
@@ -432,17 +432,17 @@ parasail_result_t* PNAME(
         %(VTYPE)s vHM = %(VLOAD)s(pvHM+i);
         %(VTYPE)s vHS = %(VLOAD)s(pvHS+i);
         %(VTYPE)s vHL = %(VLOAD)s(pvHL+i);
-        arr_store_col(result->score_col, vH, i, segLen);
-        arr_store_col(result->matches_col, vHM, i, segLen);
-        arr_store_col(result->similar_col, vHS, i, segLen);
-        arr_store_col(result->length_col, vHL, i, segLen);
+        arr_store_col(result->stats->rowcols->score_col, vH, i, segLen);
+        arr_store_col(result->stats->rowcols->matches_col, vHM, i, segLen);
+        arr_store_col(result->stats->rowcols->similar_col, vHS, i, segLen);
+        arr_store_col(result->stats->rowcols->length_col, vHL, i, segLen);
     }
 #endif
 
     if (%(VMOVEMASK)s(%(VOR)s(
             %(VCMPLT)s(vSaturationCheckMin, vNegLimit),
             %(VCMPGT)s(vSaturationCheckMax, vPosLimit)))) {
-        result->saturated = 1;
+        result->flag |= PARASAIL_FLAG_SATURATED;
         score = 0;
         matches = 0;
         similar = 0;
@@ -452,11 +452,11 @@ parasail_result_t* PNAME(
     }
 
     result->score = score;
-    result->matches = matches;
-    result->similar = similar;
-    result->length = length;
     result->end_query = end_query;
     result->end_ref = end_ref;
+    result->stats->matches = matches;
+    result->stats->similar = similar;
+    result->stats->length = length;
     result->flag = PARASAIL_FLAG_SW | PARASAIL_FLAG_SCAN
         | PARASAIL_FLAG_STATS
         | PARASAIL_FLAG_BITS_%(WIDTH)s | PARASAIL_FLAG_LANES_%(LANES)s;

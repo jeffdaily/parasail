@@ -436,10 +436,10 @@ parasail_result_t* PNAME(
             vSaturationCheckMax = _mm256_max_epi8(vSaturationCheckMax, vHS);
             vSaturationCheckMax = _mm256_max_epi8(vSaturationCheckMax, vHL);
 #ifdef PARASAIL_TABLE
-            arr_store_si256(result->score_table, vH, i, segLen, j, s2Len);
-            arr_store_si256(result->matches_table, vHM, i, segLen, j, s2Len);
-            arr_store_si256(result->similar_table, vHS, i, segLen, j, s2Len);
-            arr_store_si256(result->length_table, vHL, i, segLen, j, s2Len);
+            arr_store_si256(result->stats->tables->score_table, vH, i, segLen, j, s2Len);
+            arr_store_si256(result->stats->tables->matches_table, vHM, i, segLen, j, s2Len);
+            arr_store_si256(result->stats->tables->similar_table, vHS, i, segLen, j, s2Len);
+            arr_store_si256(result->stats->tables->length_table, vHL, i, segLen, j, s2Len);
 #endif
         } 
         /* extract vector containing last value from column */
@@ -465,10 +465,10 @@ parasail_result_t* PNAME(
                 vHS = _mm256_slli_si256_rpl(vHS, 1);
                 vHL = _mm256_slli_si256_rpl(vHL, 1);
             }
-            result->score_row[j] = (int8_t) _mm256_extract_epi8_rpl (vH, 31);
-            result->matches_row[j] = (int8_t) _mm256_extract_epi8_rpl (vHM, 31);
-            result->similar_row[j] = (int8_t) _mm256_extract_epi8_rpl (vHS, 31);
-            result->length_row[j] = (int8_t) _mm256_extract_epi8_rpl (vHL, 31);
+            result->stats->rowcols->score_row[j] = (int8_t) _mm256_extract_epi8_rpl (vH, 31);
+            result->stats->rowcols->matches_row[j] = (int8_t) _mm256_extract_epi8_rpl (vHM, 31);
+            result->stats->rowcols->similar_row[j] = (int8_t) _mm256_extract_epi8_rpl (vHS, 31);
+            result->stats->rowcols->length_row[j] = (int8_t) _mm256_extract_epi8_rpl (vHL, 31);
 #endif
         }
     }
@@ -498,10 +498,10 @@ parasail_result_t* PNAME(
             __m256i vHM = _mm256_load_si256(pvHM + i);
             __m256i vHS = _mm256_load_si256(pvHS + i);
             __m256i vHL = _mm256_load_si256(pvHL + i);
-            arr_store_col(result->score_col, vH, i, segLen);
-            arr_store_col(result->matches_col, vHM, i, segLen);
-            arr_store_col(result->similar_col, vHS, i, segLen);
-            arr_store_col(result->length_col, vHL, i, segLen);
+            arr_store_col(result->stats->rowcols->score_col, vH, i, segLen);
+            arr_store_col(result->stats->rowcols->matches_col, vHM, i, segLen);
+            arr_store_col(result->stats->rowcols->similar_col, vHS, i, segLen);
+            arr_store_col(result->stats->rowcols->length_col, vHL, i, segLen);
 #endif
             vMaxH = _mm256_max_epi8(vH, vMaxH);
         }
@@ -537,7 +537,7 @@ parasail_result_t* PNAME(
     if (_mm256_movemask_epi8(_mm256_or_si256(
             _mm256_cmplt_epi8_rpl(vSaturationCheckMin, vNegLimit),
             _mm256_cmpgt_epi8(vSaturationCheckMax, vPosLimit)))) {
-        result->saturated = 1;
+        result->flag |= PARASAIL_FLAG_SATURATED;
         score = 0;
         matches = 0;
         similar = 0;
@@ -547,11 +547,11 @@ parasail_result_t* PNAME(
     }
 
     result->score = score;
-    result->matches = matches;
-    result->similar = similar;
-    result->length = length;
     result->end_query = end_query;
     result->end_ref = end_ref;
+    result->stats->matches = matches;
+    result->stats->similar = similar;
+    result->stats->length = length;
     result->flag = PARASAIL_FLAG_SG | PARASAIL_FLAG_SCAN
         | PARASAIL_FLAG_STATS
         | PARASAIL_FLAG_BITS_8 | PARASAIL_FLAG_LANES_32;

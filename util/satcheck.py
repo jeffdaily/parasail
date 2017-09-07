@@ -48,11 +48,11 @@ parasail_result_t* %(PREFIX)s_sat(
     parasail_result_t * result = NULL;
     
     result = %(PREFIX)s_8(s1, s1Len, s2, s2Len, open, gap, matrix);
-    if (result->saturated) {
+    if (parasail_result_is_saturated(result)) {
         parasail_result_free(result);
         result = %(PREFIX)s_16(s1, s1Len, s2, s2Len, open, gap, matrix);
     }
-    if (result->saturated) {
+    if (parasail_result_is_saturated(result)) {
         parasail_result_free(result);
         result = %(PREFIX)s_32(s1, s1Len, s2, s2Len, open, gap, matrix);
     }
@@ -88,11 +88,11 @@ parasail_result_t* %(PREFIX)s_sat(
     parasail_result_t * result = NULL;
     
     result = %(PREFIX)s_8(profile, s2, s2Len, open, gap);
-    if (result->saturated) {
+    if (parasail_result_is_saturated(result)) {
         parasail_result_free(result);
         result = %(PREFIX)s_16(profile, s2, s2Len, open, gap);
     }
-    if (result->saturated) {
+    if (parasail_result_is_saturated(result)) {
         parasail_result_free(result);
         result = %(PREFIX)s_32(profile, s2, s2Len, open, gap);
     }

@@ -308,8 +308,10 @@ int main(int argc, char **argv)
                     (unsigned long)sizes[a],
                     (unsigned long)(sizes[a]+lanes-1)/lanes,
                     (unsigned long)sizes[b],
-                    result->score, result->matches,
-                    result->similar, result->length,
+                    parasail_result_get_score(result),
+                    parasail_result_get_matches(result),
+                    parasail_result_get_similar(result),
+                    parasail_result_get_length(result),
                     (unsigned long)(sizes[a]*sizes[b]),
                     timer_local);
             for (j=0; j<24; ++j) {
@@ -322,7 +324,7 @@ int main(int argc, char **argv)
             }
             printf(",%f\n", sizes[a]*sizes[b]/timer_local);
 #pragma omp atomic
-            saturated += result->saturated;
+            saturated += parasail_result_is_saturated(result);
             parasail_result_free(result);
         }
     }

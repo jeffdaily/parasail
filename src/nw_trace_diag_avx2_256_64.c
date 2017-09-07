@@ -256,9 +256,9 @@ parasail_result_t* FNAME(
                 __m256i condF = _mm256_cmpgt_epi64(vF_opn, vF_ext);
                 __m256i vET = _mm256_blendv_epi8(vTIns, vTDiag, condE);
                 __m256i vFT = _mm256_blendv_epi8(vTDel, vTDiag, condF);
-                arr_store_si256(result->trace_table, vT, i, s1Len, j, s2Len);
-                arr_store_si256(result->trace_ins_table, vET, i, s1Len, j, s2Len);
-                arr_store_si256(result->trace_del_table, vFT, i, s1Len, j, s2Len);
+                arr_store_si256(result->trace->trace_table, vT, i, s1Len, j, s2Len);
+                arr_store_si256(result->trace->trace_ins_table, vET, i, s1Len, j, s2Len);
+                arr_store_si256(result->trace->trace_del_table, vFT, i, s1Len, j, s2Len);
             }
             H_pr[j-3] = (int64_t)_mm256_extract_epi64_rpl(vWH,0);
             F_pr[j-3] = (int64_t)_mm256_extract_epi64_rpl(vF,0);

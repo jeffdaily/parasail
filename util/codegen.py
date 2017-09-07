@@ -154,7 +154,7 @@ def generate_saturation_check_old(params):
             
         params["SATURATION_CHECK_FINAL"] = """
     if (%(VMOVEMASK)s(vSaturationCheck)) {
-        result->saturated = 1;
+        result->flag |= PARASAIL_FLAG_SATURATED;
         score = INT8_MAX;
     }""".strip() % params
 
@@ -174,7 +174,7 @@ def generate_saturation_check_old(params):
 
         params["STATS_SATURATION_CHECK_FINAL"] = """
     if (%(VMOVEMASK)s(vSaturationCheck)) {
-        result->saturated = 1;
+        result->flag |= PARASAIL_FLAG_SATURATED;
         score = INT8_MAX;
     }""".strip() % params
 
@@ -234,7 +234,7 @@ def generate_saturation_check(params):
     if (%(VMOVEMASK)s(%(VOR)s(
             %(VCMPEQ)s(vSaturationCheckMin, vNegLimit),
             %(VCMPEQ)s(vSaturationCheckMax, vPosLimit)))) {
-        result->saturated = 1;
+        result->flag |= PARASAIL_FLAG_SATURATED;
         score = INT8_MAX;
         end_query = 0;
         end_ref = 0;
@@ -284,7 +284,7 @@ def generate_saturation_check(params):
     if (%(VMOVEMASK)s(%(VOR)s(
             %(VCMPEQ)s(vSaturationCheckMin, vNegLimit),
             %(VCMPEQ)s(vSaturationCheckMax, vPosLimit)))) {
-        result->saturated = 1;
+        result->flag |= PARASAIL_FLAG_SATURATED;
         score = INT8_MAX;
         matches = 0;
         similar = 0;

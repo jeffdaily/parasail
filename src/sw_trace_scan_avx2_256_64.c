@@ -200,7 +200,7 @@ parasail_result_t* PNAME(
             vE_ext = _mm256_sub_epi64(vE, vGapE);
             case1 = _mm256_cmpgt_epi64(vE_opn, vE_ext);
             vT = _mm256_blendv_epi8(vTIns, vTDiag, case1);
-            arr_store(result->trace_ins_table, vT, i, segLen, j);
+            arr_store(result->trace->trace_ins_table, vT, i, segLen, j);
             vE = _mm256_max_epi64_rpl(vE_opn, vE_ext);
             vGapper = _mm256_add_epi64(vHt, vGapper);
             vF = _mm256_max_epi64_rpl(vF, vGapper);
@@ -236,7 +236,7 @@ parasail_result_t* PNAME(
             vF = _mm256_max_epi64_rpl(vF_opn, vF_ext);
             case1 = _mm256_cmpgt_epi64(vF_opn, vF_ext);
             vT = _mm256_blendv_epi8(vTDel, vTDiag, case1);
-            arr_store(result->trace_del_table, vT, i, segLen, j);
+            arr_store(result->trace->trace_del_table, vT, i, segLen, j);
             vH = _mm256_max_epi64_rpl(vHt, vF);
             vH = _mm256_max_epi64_rpl(vH, vZero);
             case0 = _mm256_cmpeq_epi64(vH, vZero);
@@ -246,7 +246,7 @@ parasail_result_t* PNAME(
                     _mm256_blendv_epi8(vTIns, vTDel, case2),
                     vTDiag, case1);
             vT = _mm256_blendv_epi8(vT, vTZero, case0);
-            arr_store(result->trace_table, vT, i, segLen, j);
+            arr_store(result->trace->trace_table, vT, i, segLen, j);
             _mm256_store_si256(pvH+i, vH);
             vSaturationCheckMin = _mm256_min_epi64_rpl(vSaturationCheckMin, vH);
             vSaturationCheckMax = _mm256_max_epi64_rpl(vSaturationCheckMax, vH);
@@ -284,7 +284,7 @@ parasail_result_t* PNAME(
     if (_mm256_movemask_epi8(_mm256_or_si256(
             _mm256_cmplt_epi64_rpl(vSaturationCheckMin, vNegLimit),
             _mm256_cmpgt_epi64(vSaturationCheckMax, vPosLimit)))) {
-        result->saturated = 1;
+        result->flag |= PARASAIL_FLAG_SATURATED;
         score = 0;
         end_query = 0;
         end_ref = 0;

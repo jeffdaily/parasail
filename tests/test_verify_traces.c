@@ -217,6 +217,12 @@ static void check_functions(
                     parasail_result_t *result = NULL;
                     unsigned long a = 0;
                     unsigned long b = 1;
+                    int *ref_trace_table = NULL;
+                    int *ref_trace_ins_table = NULL;
+                    int *ref_trace_del_table = NULL;
+                    int *trace_table = NULL;
+                    int *trace_ins_table = NULL;
+                    int *trace_del_table = NULL;
                     k_combination2(pair_index, &a, &b);
                     if (verbose) printf("\t\t\t\tpair=%lld (%lu,%lu)\n", pair_index, a, b);
                     reference_result = reference_function(
@@ -229,7 +235,7 @@ static void check_functions(
                             sequences[b], sizes[b],
                             open, extend,
                             matrix);
-                    if (result->saturated) {
+                    if (parasail_result_is_saturated(result)) {
                         /* no point in comparing a result that saturated */
                         parasail_result_free(reference_result);
                         parasail_result_free(result);
@@ -237,6 +243,12 @@ static void check_functions(
                         saturated += 1;
                         continue;
                     }
+                    ref_trace_table = parasail_result_get_trace_table(reference_result);
+                    ref_trace_ins_table = parasail_result_get_trace_ins_table(reference_result);
+                    ref_trace_del_table = parasail_result_get_trace_del_table(reference_result);
+                    trace_table = parasail_result_get_trace_table(result);
+                    trace_ins_table = parasail_result_get_trace_ins_table(result);
+                    trace_del_table = parasail_result_get_trace_del_table(result);
                     if (reference_result->score != result->score) {
 #pragma omp critical(printer)
                         {
@@ -247,10 +259,7 @@ static void check_functions(
                                     reference_result->score, result->score);
                         }
                     }
-                    if (diff_array(
-                                sizes[a], sizes[b],
-                                reference_result->trace_table,
-                                result->trace_table, result)) {
+                    if (diff_array(sizes[a], sizes[b], ref_trace_table, trace_table, result)) {
 #pragma omp critical(printer)
                         {
                             printf("%s(%lu,%lu,%d,%d,%s) bad trace table\n",
@@ -259,10 +268,7 @@ static void check_functions(
                                     matrixname);
                         }
                     }
-                    if (diff_array(
-                                sizes[a], sizes[b],
-                                reference_result->trace_ins_table,
-                                result->trace_ins_table, result)) {
+                    if (diff_array(sizes[a], sizes[b], ref_trace_ins_table, trace_ins_table, result)) {
 #pragma omp critical(printer)
                         {
                             printf("%s(%lu,%lu,%d,%d,%s) bad ins trace table\n",
@@ -271,10 +277,7 @@ static void check_functions(
                                     matrixname);
                         }
                     }
-                    if (diff_array(
-                                sizes[a], sizes[b],
-                                reference_result->trace_del_table,
-                                result->trace_del_table, result)) {
+                    if (diff_array(sizes[a], sizes[b], ref_trace_del_table, trace_del_table, result)) {
 #pragma omp critical(printer)
                         {
                             printf("%s(%lu,%lu,%d,%d,%s) bad del trace table\n",

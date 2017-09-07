@@ -217,7 +217,7 @@ parasail_result_t* PNAME(
             _mm256_store_si256(pvHStore + i, vH);
             
 #ifdef PARASAIL_TABLE
-            arr_store_si256(result->score_table, vH, i, segLen, j, s2Len);
+            arr_store_si256(result->tables->score_table, vH, i, segLen, j, s2Len);
 #endif
 
             /* Update vE value. */
@@ -247,7 +247,7 @@ parasail_result_t* PNAME(
                 _mm256_store_si256(pvHStore + i, vH);
                 
 #ifdef PARASAIL_TABLE
-                arr_store_si256(result->score_table, vH, i, segLen, j, s2Len);
+                arr_store_si256(result->tables->score_table, vH, i, segLen, j, s2Len);
 #endif
                 vH = _mm256_sub_epi16(vH, vGapO);
                 vF = _mm256_sub_epi16(vF, vGapE);
@@ -266,7 +266,7 @@ end:
             for (k=0; k<position; ++k) {
                 vH = _mm256_slli_si256_rpl(vH, 2);
             }
-            result->score_row[j] = (int16_t) _mm256_extract_epi16_rpl (vH, 15);
+            result->rowcols->score_row[j] = (int16_t) _mm256_extract_epi16_rpl (vH, 15);
         }
 #endif
     }
@@ -274,7 +274,7 @@ end:
 #ifdef PARASAIL_ROWCOL
     for (i=0; i<segLen; ++i) {
         __m256i vH = _mm256_load_si256(pvHStore+i);
-        arr_store_col(result->score_col, vH, i, segLen);
+        arr_store_col(result->rowcols->score_col, vH, i, segLen);
     }
 #endif
 

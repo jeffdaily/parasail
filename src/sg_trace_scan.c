@@ -31,9 +31,9 @@ parasail_result_t* ENAME(
     int * const restrict E  = parasail_memalign_int(16, s1Len);
     int * const restrict HtB= parasail_memalign_int(16, s1Len+1);
     int * const restrict Ht = HtB+1;
-    int * const restrict HT = (int* const restrict)result->trace_table;
-    int * const restrict ET = (int* const restrict)result->trace_ins_table;
-    int * const restrict FT = (int* const restrict)result->trace_del_table;
+    int * const restrict HT = (int* const restrict)result->trace->trace_table;
+    int * const restrict ET = (int* const restrict)result->trace->trace_ins_table;
+    int * const restrict FT = (int* const restrict)result->trace->trace_del_table;
     int * const restrict Ex = parasail_memalign_int(16, s1Len);
     int i = 0;
     int j = 0;

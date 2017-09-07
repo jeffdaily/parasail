@@ -588,10 +588,10 @@ parasail_result_t* FNAME(
                 vSaturationCheckMin = _mm256_min_epi8(vSaturationCheckMin, vWH);
             }
 #ifdef PARASAIL_TABLE
-            arr_store_si256(result->score_table, vWH, i, s1Len, j, s2Len);
+            arr_store_si256(result->tables->score_table, vWH, i, s1Len, j, s2Len);
 #endif
 #ifdef PARASAIL_ROWCOL
-            arr_store_rowcol(result->score_row, result->score_col, vWH, i, s1Len, j, s2Len);
+            arr_store_rowcol(result->rowcols->score_row, result->rowcols->score_col, vWH, i, s1Len, j, s2Len);
 #endif
             H_pr[j-31] = (int8_t)_mm256_extract_epi8_rpl(vWH,0);
             F_pr[j-31] = (int8_t)_mm256_extract_epi8_rpl(vF,0);
@@ -682,7 +682,7 @@ parasail_result_t* FNAME(
     if (_mm256_movemask_epi8(_mm256_or_si256(
             _mm256_cmpeq_epi8(vSaturationCheckMin, vNegLimit),
             _mm256_cmpeq_epi8(vSaturationCheckMax, vPosLimit)))) {
-        result->saturated = 1;
+        result->flag |= PARASAIL_FLAG_SATURATED;
         score = INT8_MAX;
         end_query = 0;
         end_ref = 0;

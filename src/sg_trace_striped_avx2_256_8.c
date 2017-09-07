@@ -122,7 +122,7 @@ parasail_result_t* PNAME(
     parasail_memset___m256i(pvEaStore, _mm256_set1_epi8(-open), segLen);
 
     for (i=0; i<segLen; ++i) {
-        arr_store(result->trace_ins_table, vTDiag, i, segLen, 0);
+        arr_store(result->trace->trace_ins_table, vTDiag, i, segLen, 0);
     }
 
     /* outer loop over database sequence */
@@ -178,7 +178,7 @@ parasail_result_t* PNAME(
                         _mm256_blendv_epi8(vTIns, vTDel, case2),
                         vTDiag, case1);
                 _mm256_store_si256(pvHT + i, vT);
-                arr_store(result->trace_table, vT, i, segLen, j);
+                arr_store(result->trace->trace_table, vT, i, segLen, j);
             }
 
             vEF_opn = _mm256_subs_epi8(vH, vGapO);
@@ -195,7 +195,7 @@ parasail_result_t* PNAME(
                 if (j+1<s2Len) {
                     __m256i cond = _mm256_cmpgt_epi8(vEF_opn, vEa_ext);
                     __m256i vT = _mm256_blendv_epi8(vTIns, vTDiag, cond);
-                    arr_store(result->trace_ins_table, vT, i, segLen, j+1);
+                    arr_store(result->trace->trace_ins_table, vT, i, segLen, j+1);
                 }
             }
 
@@ -206,7 +206,7 @@ parasail_result_t* PNAME(
                 __m256i cond = _mm256_cmpgt_epi8(vEF_opn, vF_ext);
                 __m256i vT = _mm256_blendv_epi8(vTDel, vTDiag, cond);
                 if (i+1<segLen) {
-                    arr_store(result->trace_del_table, vT, i+1, segLen, j);
+                    arr_store(result->trace->trace_del_table, vT, i+1, segLen, j);
                 }
             }
 
@@ -254,13 +254,13 @@ parasail_result_t* PNAME(
                     vT = _mm256_load_si256(pvHT + i);
                     vT = _mm256_blendv_epi8(vT, vTDel, cond);
                     _mm256_store_si256(pvHT + i, vT);
-                    arr_store(result->trace_table, vT, i, segLen, j);
+                    arr_store(result->trace->trace_table, vT, i, segLen, j);
                 }
                 /* Update vF value. */
                 {
                     __m256i cond = _mm256_cmpgt_epi8(vEF_opn, vFa_ext);
                     __m256i vT = _mm256_blendv_epi8(vTDel, vTDiag, cond);
-                    arr_store(result->trace_del_table, vT, i, segLen, j);
+                    arr_store(result->trace->trace_del_table, vT, i, segLen, j);
                 }
                 vEF_opn = _mm256_subs_epi8(vH, vGapO);
                 vF_ext = _mm256_subs_epi8(vF, vGapE);
@@ -274,7 +274,7 @@ parasail_result_t* PNAME(
                     cond = _mm256_cmpgt_epi8(vEF_opn, vEa_ext);
                     vT = _mm256_blendv_epi8(vTIns, vTDiag, cond);
                     if (j+1<s2Len) {
-                        arr_store(result->trace_ins_table, vT, i, segLen, j+1);
+                        arr_store(result->trace->trace_ins_table, vT, i, segLen, j+1);
                     }
                 }
                 if (! _mm256_movemask_epi8(
@@ -346,7 +346,7 @@ end:
     if (_mm256_movemask_epi8(_mm256_or_si256(
             _mm256_cmpeq_epi8(vSaturationCheckMin, vNegLimit),
             _mm256_cmpeq_epi8(vSaturationCheckMax, vPosLimit)))) {
-        result->saturated = 1;
+        result->flag |= PARASAIL_FLAG_SATURATED;
         score = INT8_MAX;
         end_query = 0;
         end_ref = 0;

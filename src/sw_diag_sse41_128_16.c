@@ -270,10 +270,10 @@ parasail_result_t* FNAME(
             }
             
 #ifdef PARASAIL_TABLE
-            arr_store_si128(result->score_table, vWH, i, s1Len, j, s2Len);
+            arr_store_si128(result->tables->score_table, vWH, i, s1Len, j, s2Len);
 #endif
 #ifdef PARASAIL_ROWCOL
-            arr_store_rowcol(result->score_row, result->score_col, vWH, i, s1Len, j, s2Len);
+            arr_store_rowcol(result->rowcols->score_row, result->rowcols->score_col, vWH, i, s1Len, j, s2Len);
 #endif
             H_pr[j-7] = (int16_t)_mm_extract_epi16(vWH,0);
             F_pr[j-7] = (int16_t)_mm_extract_epi16(vF,0);

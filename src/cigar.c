@@ -192,13 +192,13 @@ void parasail_cigar_free(parasail_cigar_t *cigar)
 #undef T
 #undef STRIPED
 
-parasail_cigar_t* parasail_cigar(
+parasail_cigar_t* parasail_result_get_cigar(
+        parasail_result_t *result,
         const char *seqA,
         int lena,
         const char *seqB,
         int lenb,
-        const parasail_matrix_t *matrix,
-        parasail_result_t *result)
+        const parasail_matrix_t *matrix)
 {
     if (result->flag & PARASAIL_FLAG_STRIPED) {
         if (result->flag & PARASAIL_FLAG_BITS_8) {

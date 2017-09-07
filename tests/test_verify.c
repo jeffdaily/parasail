@@ -246,7 +246,7 @@ static void check_functions(
                                     reference_result->flag, result->flag);
                         }
                     }
-                    if (result->saturated) {
+                    if (parasail_result_is_saturated(result)) {
                         /* no point in comparing a result that saturated */
                         parasail_result_free(reference_result);
                         parasail_result_free(result);
@@ -284,34 +284,42 @@ static void check_functions(
                                     reference_result->end_ref, result->end_ref);
                         }
                     }
-                    if (reference_result->matches != result->matches) {
+                    if (parasail_result_is_stats(result)) {
+                        int ref_matches = parasail_result_get_matches(reference_result);
+                        int ref_similar = parasail_result_get_similar(reference_result);
+                        int ref_length = parasail_result_get_length(reference_result);
+                        int matches = parasail_result_get_matches(result);
+                        int similar = parasail_result_get_similar(result);
+                        int length = parasail_result_get_length(result);
+                        if (ref_matches != matches) {
 #pragma omp critical(printer)
-                        {
-                            printf("%s(%lu,%lu,%d,%d,%s) wrong matches (%d!=%d)\n",
-                                    functions[function_index].name,
-                                    a, b, open, extend,
-                                    matrixname,
-                                    reference_result->matches, result->matches);
+                            {
+                                printf("%s(%lu,%lu,%d,%d,%s) wrong matches (%d!=%d)\n",
+                                        functions[function_index].name,
+                                        a, b, open, extend,
+                                        matrixname,
+                                        ref_matches, matches);
+                            }
                         }
-                    }
-                    if (reference_result->similar != result->similar) {
+                        if (ref_similar != similar) {
 #pragma omp critical(printer)
-                        {
-                            printf("%s(%lu,%lu,%d,%d,%s) wrong similar (%d!=%d)\n",
-                                    functions[function_index].name,
-                                    a, b, open, extend,
-                                    matrixname,
-                                    reference_result->similar, result->similar);
+                            {
+                                printf("%s(%lu,%lu,%d,%d,%s) wrong similar (%d!=%d)\n",
+                                        functions[function_index].name,
+                                        a, b, open, extend,
+                                        matrixname,
+                                        ref_similar, similar);
+                            }
                         }
-                    }
-                    if (reference_result->length != result->length) {
+                        if (ref_length != length) {
 #pragma omp critical(printer)
-                        {
-                            printf("%s(%lu,%lu,%d,%d,%s) wrong length (%d!=%d)\n",
-                                    functions[function_index].name,
-                                    a, b, open, extend,
-                                    matrixname,
-                                    reference_result->length, result->length);
+                            {
+                                printf("%s(%lu,%lu,%d,%d,%s) wrong length (%d!=%d)\n",
+                                        functions[function_index].name,
+                                        a, b, open, extend,
+                                        matrixname,
+                                        ref_length, length);
+                            }
                         }
                     }
                     parasail_result_free(reference_result);

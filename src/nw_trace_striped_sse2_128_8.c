@@ -149,7 +149,7 @@ parasail_result_t* PNAME(
     }
 
     for (i=0; i<segLen; ++i) {
-        arr_store(result->trace_ins_table, vTDiag, i, segLen, 0);
+        arr_store(result->trace->trace_ins_table, vTDiag, i, segLen, 0);
     }
 
     /* outer loop over database sequence */
@@ -197,6 +197,8 @@ parasail_result_t* PNAME(
             {
                 vSaturationCheckMax = _mm_max_epi8_rpl(vSaturationCheckMax, vH);
                 vSaturationCheckMin = _mm_min_epi8_rpl(vSaturationCheckMin, vH);
+                vSaturationCheckMin = _mm_min_epi8_rpl(vSaturationCheckMin, vE);
+                vSaturationCheckMin = _mm_min_epi8_rpl(vSaturationCheckMin, vF);
             }
 
             {
@@ -206,7 +208,7 @@ parasail_result_t* PNAME(
                         _mm_blendv_epi8_rpl(vTIns, vTDel, case2),
                         vTDiag, case1);
                 _mm_store_si128(pvHT + i, vT);
-                arr_store(result->trace_table, vT, i, segLen, j);
+                arr_store(result->trace->trace_table, vT, i, segLen, j);
             }
 
             vEF_opn = _mm_subs_epi8(vH, vGapO);
@@ -223,7 +225,7 @@ parasail_result_t* PNAME(
                 if (j+1<s2Len) {
                     __m128i cond = _mm_cmpgt_epi8(vEF_opn, vEa_ext);
                     __m128i vT = _mm_blendv_epi8_rpl(vTIns, vTDiag, cond);
-                    arr_store(result->trace_ins_table, vT, i, segLen, j+1);
+                    arr_store(result->trace->trace_ins_table, vT, i, segLen, j+1);
                 }
             }
 
@@ -234,7 +236,7 @@ parasail_result_t* PNAME(
                 __m128i cond = _mm_cmpgt_epi8(vEF_opn, vF_ext);
                 __m128i vT = _mm_blendv_epi8_rpl(vTDel, vTDiag, cond);
                 if (i+1<segLen) {
-                    arr_store(result->trace_del_table, vT, i+1, segLen, j);
+                    arr_store(result->trace->trace_del_table, vT, i+1, segLen, j);
                 }
             }
 
@@ -271,6 +273,8 @@ parasail_result_t* PNAME(
             {
                 vSaturationCheckMax = _mm_max_epi8_rpl(vSaturationCheckMax, vH);
                 vSaturationCheckMin = _mm_min_epi8_rpl(vSaturationCheckMin, vH);
+                vSaturationCheckMin = _mm_min_epi8_rpl(vSaturationCheckMin, vE);
+                vSaturationCheckMin = _mm_min_epi8_rpl(vSaturationCheckMin, vF);
             }
                 {
                     __m128i vT;
@@ -284,13 +288,13 @@ parasail_result_t* PNAME(
                     vT = _mm_load_si128(pvHT + i);
                     vT = _mm_blendv_epi8_rpl(vT, vTDel, cond);
                     _mm_store_si128(pvHT + i, vT);
-                    arr_store(result->trace_table, vT, i, segLen, j);
+                    arr_store(result->trace->trace_table, vT, i, segLen, j);
                 }
                 /* Update vF value. */
                 {
                     __m128i cond = _mm_cmpgt_epi8(vEF_opn, vFa_ext);
                     __m128i vT = _mm_blendv_epi8_rpl(vTDel, vTDiag, cond);
-                    arr_store(result->trace_del_table, vT, i, segLen, j);
+                    arr_store(result->trace->trace_del_table, vT, i, segLen, j);
                 }
                 vEF_opn = _mm_subs_epi8(vH, vGapO);
                 vF_ext = _mm_subs_epi8(vF, vGapE);
@@ -304,7 +308,7 @@ parasail_result_t* PNAME(
                     cond = _mm_cmpgt_epi8(vEF_opn, vEa_ext);
                     vT = _mm_blendv_epi8_rpl(vTIns, vTDiag, cond);
                     if (j+1<s2Len) {
-                        arr_store(result->trace_ins_table, vT, i, segLen, j+1);
+                        arr_store(result->trace->trace_ins_table, vT, i, segLen, j+1);
                     }
                 }
                 if (! _mm_movemask_epi8(
@@ -336,7 +340,7 @@ end:
     if (_mm_movemask_epi8(_mm_or_si128(
             _mm_cmpeq_epi8(vSaturationCheckMin, vNegLimit),
             _mm_cmpeq_epi8(vSaturationCheckMax, vPosLimit)))) {
-        result->saturated = 1;
+        result->flag |= PARASAIL_FLAG_SATURATED;
         score = INT8_MAX;
         end_query = 0;
         end_ref = 0;

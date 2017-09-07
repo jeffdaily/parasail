@@ -216,9 +216,9 @@ parasail_result_t* FNAME(
                 __m128i condF = _mm_cmpgt_epi16(vF_opn, vF_ext);
                 __m128i vET = _mm_blendv_epi8_rpl(vTIns, vTDiag, condE);
                 __m128i vFT = _mm_blendv_epi8_rpl(vTDel, vTDiag, condF);
-                arr_store_si128(result->trace_table, vT, i, s1Len, j, s2Len);
-                arr_store_si128(result->trace_ins_table, vET, i, s1Len, j, s2Len);
-                arr_store_si128(result->trace_del_table, vFT, i, s1Len, j, s2Len);
+                arr_store_si128(result->trace->trace_table, vT, i, s1Len, j, s2Len);
+                arr_store_si128(result->trace->trace_ins_table, vET, i, s1Len, j, s2Len);
+                arr_store_si128(result->trace->trace_del_table, vFT, i, s1Len, j, s2Len);
             }
             H_pr[j-7] = (int16_t)_mm_extract_epi16(vWH,0);
             F_pr[j-7] = (int16_t)_mm_extract_epi16(vF,0);

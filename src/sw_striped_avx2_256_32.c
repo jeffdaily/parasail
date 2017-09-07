@@ -189,7 +189,7 @@ parasail_result_t* PNAME(
             /* Save vH values. */
             _mm256_store_si256(pvHStore + i, vH);
 #ifdef PARASAIL_TABLE
-            arr_store_si256(result->score_table, vH, i, segLen, j, s2Len);
+            arr_store_si256(result->tables->score_table, vH, i, segLen, j, s2Len);
 #endif
             vMaxH = _mm256_max_epi32(vH, vMaxH);
 
@@ -216,7 +216,7 @@ parasail_result_t* PNAME(
                 vH = _mm256_max_epi32(vH,vF);
                 _mm256_store_si256(pvHStore + i, vH);
 #ifdef PARASAIL_TABLE
-                arr_store_si256(result->score_table, vH, i, segLen, j, s2Len);
+                arr_store_si256(result->tables->score_table, vH, i, segLen, j, s2Len);
 #endif
                 vMaxH = _mm256_max_epi32(vH, vMaxH);
                 vH = _mm256_sub_epi32(vH, vGapO);
@@ -236,7 +236,7 @@ end:
             for (k=0; k<position; ++k) {
                 vH = _mm256_slli_si256_rpl(vH, 4);
             }
-            result->score_row[j] = (int32_t) _mm256_extract_epi32_rpl (vH, 7);
+            result->rowcols->score_row[j] = (int32_t) _mm256_extract_epi32_rpl (vH, 7);
         }
 #endif
 
@@ -246,7 +246,7 @@ end:
                 score = _mm256_hmax_epi32_rpl(vMaxH);
                 /* if score has potential to overflow, abort early */
                 if (score > maxp) {
-                    result->saturated = 1;
+                    result->flag |= PARASAIL_FLAG_SATURATED;
                     break;
                 }
                 vMaxHUnit = _mm256_set1_epi32(score);
@@ -260,15 +260,15 @@ end:
 #ifdef PARASAIL_ROWCOL
     for (i=0; i<segLen; ++i) {
         __m256i vH = _mm256_load_si256(pvHStore+i);
-        arr_store_col(result->score_col, vH, i, segLen);
+        arr_store_col(result->rowcols->score_col, vH, i, segLen);
     }
 #endif
 
     if (score == INT32_MAX) {
-        result->saturated = 1;
+        result->flag |= PARASAIL_FLAG_SATURATED;
     }
 
-    if (result->saturated) {
+    if (parasail_result_is_saturated(result)) {
         score = INT32_MAX;
         end_query = 0;
         end_ref = 0;

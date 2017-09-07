@@ -206,6 +206,8 @@ static void check_functions(
                     parasail_result_t *result = NULL;
                     unsigned long a = 0;
                     unsigned long b = 1;
+                    int *ref_score_table = NULL;
+                    int *score_table = NULL;
                     k_combination2(pair_index, &a, &b);
                     /*if (verbose) printf("\t\t\t\tpair=%lld (%lu,%lu)\n", pair_index, a, b);*/
                     reference_result = reference_function(
@@ -218,7 +220,7 @@ static void check_functions(
                             sequences[b], sizes[b],
                             open, extend,
                             matrix);
-                    if (result->saturated) {
+                    if (parasail_result_is_saturated(result)) {
                         /* no point in comparing a result that saturated */
                         parasail_result_free(reference_result);
                         parasail_result_free(result);
@@ -226,6 +228,8 @@ static void check_functions(
                         saturated += 1;
                         continue;
                     }
+                    ref_score_table = parasail_result_get_score_table(reference_result);
+                    score_table = parasail_result_get_score_table(result);
                     if (reference_result->score != result->score) {
 #pragma omp critical(printer)
                         {
@@ -256,10 +260,7 @@ static void check_functions(
                                     reference_result->end_ref, result->end_ref);
                         }
                     }
-                    if (diff_array(
-                                sizes[a], sizes[b],
-                                reference_result->score_table,
-                                result->score_table)) {
+                    if (diff_array(sizes[a], sizes[b], ref_score_table, score_table)) {
 #pragma omp critical(printer)
                         {
                             printf("%s(%lu,%lu,%d,%d,%s) bad score table\n",
@@ -268,73 +269,75 @@ static void check_functions(
                                     matrixname);
                         }
                     }
-                    if (reference_result->matches_table
-                            && diff_array(
-                                sizes[a], sizes[b],
-                                reference_result->matches_table,
-                                result->matches_table)) {
+                    if (parasail_result_is_stats(result)) {
+                        int ref_matches = parasail_result_get_matches(reference_result);
+                        int ref_similar = parasail_result_get_similar(reference_result);
+                        int ref_length = parasail_result_get_length(reference_result);
+                        int matches = parasail_result_get_matches(result);
+                        int similar = parasail_result_get_similar(result);
+                        int length = parasail_result_get_length(result);
+                        int *ref_matches_table = parasail_result_get_matches_table(reference_result);
+                        int *ref_similar_table = parasail_result_get_similar_table(reference_result);
+                        int *ref_length_table = parasail_result_get_length_table(reference_result);
+                        int *matches_table = parasail_result_get_matches_table(result);
+                        int *similar_table = parasail_result_get_similar_table(result);
+                        int *length_table = parasail_result_get_length_table(result);
+                        if (diff_array(sizes[a], sizes[b], ref_matches_table, matches_table)) {
 #pragma omp critical(printer)
-                        {
-                            printf("%s(%lu,%lu,%d,%d,%s) bad matches table\n",
-                                    functions[function_index].name,
-                                    a, b, open, extend,
-                                    matrixname);
+                            {
+                                printf("%s(%lu,%lu,%d,%d,%s) bad matches table\n",
+                                        functions[function_index].name,
+                                        a, b, open, extend,
+                                        matrixname);
+                            }
                         }
-                    }
-                    if (reference_result->matches != result->matches) {
+                        if (ref_matches != matches) {
 #pragma omp critical(printer)
-                        {
-                            printf("%s(%lu,%lu,%d,%d,%s) wrong matches (%d!=%d)\n",
-                                    functions[function_index].name,
-                                    a, b, open, extend,
-                                    matrixname,
-                                    reference_result->matches, result->matches);
+                            {
+                                printf("%s(%lu,%lu,%d,%d,%s) wrong matches (%d!=%d)\n",
+                                        functions[function_index].name,
+                                        a, b, open, extend,
+                                        matrixname,
+                                        ref_matches, matches);
+                            }
                         }
-                    }
-                    if (reference_result->similar_table
-                            && diff_array(
-                                sizes[a], sizes[b],
-                                reference_result->similar_table,
-                                result->similar_table)) {
+                        if (diff_array(sizes[a], sizes[b], ref_similar_table, similar_table)) {
 #pragma omp critical(printer)
-                        {
-                            printf("%s(%lu,%lu,%d,%d,%s) bad similar table\n",
-                                    functions[function_index].name,
-                                    a, b, open, extend,
-                                    matrixname);
+                            {
+                                printf("%s(%lu,%lu,%d,%d,%s) bad similar table\n",
+                                        functions[function_index].name,
+                                        a, b, open, extend,
+                                        matrixname);
+                            }
                         }
-                    }
-                    if (reference_result->similar != result->similar) {
+                        if (ref_similar != similar) {
 #pragma omp critical(printer)
-                        {
-                            printf("%s(%lu,%lu,%d,%d,%s) wrong similar (%d!=%d)\n",
-                                    functions[function_index].name,
-                                    a, b, open, extend,
-                                    matrixname,
-                                    reference_result->similar, result->similar);
+                            {
+                                printf("%s(%lu,%lu,%d,%d,%s) wrong similar (%d!=%d)\n",
+                                        functions[function_index].name,
+                                        a, b, open, extend,
+                                        matrixname,
+                                        ref_similar, similar);
+                            }
                         }
-                    }
-                    if (reference_result->length_table
-                            && diff_array(
-                                sizes[a], sizes[b],
-                                reference_result->length_table,
-                                result->length_table)) {
+                        if (diff_array(sizes[a], sizes[b], ref_length_table, length_table)) {
 #pragma omp critical(printer)
-                        {
-                            printf("%s(%lu,%lu,%d,%d,%s) bad length table\n",
-                                    functions[function_index].name,
-                                    a, b, open, extend,
-                                    matrixname);
+                            {
+                                printf("%s(%lu,%lu,%d,%d,%s) bad length table\n",
+                                        functions[function_index].name,
+                                        a, b, open, extend,
+                                        matrixname);
+                            }
                         }
-                    }
-                    if (reference_result->length != result->length) {
+                        if (ref_length != length) {
 #pragma omp critical(printer)
-                        {
-                            printf("%s(%lu,%lu,%d,%d,%s) wrong length (%d!=%d)\n",
-                                    functions[function_index].name,
-                                    a, b, open, extend,
-                                    matrixname,
-                                    reference_result->length, result->length);
+                            {
+                                printf("%s(%lu,%lu,%d,%d,%s) wrong length (%d!=%d)\n",
+                                        functions[function_index].name,
+                                        a, b, open, extend,
+                                        matrixname,
+                                        ref_length, length);
+                            }
                         }
                     }
                     parasail_result_free(reference_result);

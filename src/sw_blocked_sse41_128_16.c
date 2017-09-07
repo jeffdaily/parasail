@@ -180,7 +180,7 @@ parasail_result_t* FNAME(
 
             _mm_store_si128(pvH + i, vH);
 #ifdef PARASAIL_TABLE
-            arr_store_si128(result->score_table, vH, i, segWidth, j, s2Len);
+            arr_store_si128(result->tables->score_table, vH, i, segWidth, j, s2Len);
 #endif
             vMaxH = _mm_max_epi16(vMaxH, vH);
 
@@ -198,7 +198,7 @@ parasail_result_t* FNAME(
             for (k=0; k<position; ++k) {
                 vH = _mm_slli_si128(vH, 2);
             }
-            result->score_row[j] = (int16_t) _mm_extract_epi16 (vH, 7);
+            result->rowcols->score_row[j] = (int16_t) _mm_extract_epi16 (vH, 7);
         }
 #endif
     }
@@ -206,7 +206,7 @@ parasail_result_t* FNAME(
 #ifdef PARASAIL_ROWCOL
     for (i=0; i<segLen; ++i) {
         __m128i vH = _mm_load_si128(pvH + i);
-        arr_store_col(result->score_col, vH, i, segWidth);
+        arr_store_col(result->rowcols->score_col, vH, i, segWidth);
     }
 #endif
 

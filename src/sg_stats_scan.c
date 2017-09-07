@@ -186,26 +186,26 @@ parasail_result_t* ENAME(
                 }
             }
 #ifdef PARASAIL_TABLE
-            result->score_table[i*s2Len + j] = H[i];
-            result->matches_table[i*s2Len + j] = HM[i];
-            result->similar_table[i*s2Len + j] = HS[i];
-            result->length_table[i*s2Len + j] = HL[i];
+            result->stats->tables->score_table[i*s2Len + j] = H[i];
+            result->stats->tables->matches_table[i*s2Len + j] = HM[i];
+            result->stats->tables->similar_table[i*s2Len + j] = HS[i];
+            result->stats->tables->length_table[i*s2Len + j] = HL[i];
 #endif
         }
         H[-1] = 0;
 #ifdef PARASAIL_ROWCOL
         if (j == s2Len-1) {
             for (i=0; i<s1Len; ++i) {
-                result->score_col[i] = H[i];
-                result->matches_col[i] = HM[i];
-                result->similar_col[i] = HS[i];
-                result->length_col[i] = HL[i];
+                result->stats->rowcols->score_col[i] = H[i];
+                result->stats->rowcols->matches_col[i] = HM[i];
+                result->stats->rowcols->similar_col[i] = HS[i];
+                result->stats->rowcols->length_col[i] = HL[i];
             }
         }
-        result->score_row[j] = H[s1Len-1];
-        result->matches_row[j] = HM[s1Len-1];
-        result->similar_row[j] = HS[s1Len-1];
-        result->length_row[j] = HL[s1Len-1];
+        result->stats->rowcols->score_row[j] = H[s1Len-1];
+        result->stats->rowcols->matches_row[j] = HM[s1Len-1];
+        result->stats->rowcols->similar_row[j] = HS[s1Len-1];
+        result->stats->rowcols->length_row[j] = HL[s1Len-1];
 #endif
         /* last value from column */
         if (H[s1Len-1] > score) {
@@ -237,11 +237,11 @@ parasail_result_t* ENAME(
     }
 
     result->score = score;
-    result->matches = matches;
-    result->similar = similar;
-    result->length = length;
     result->end_query = end_query;
     result->end_ref = end_ref;
+    result->stats->matches = matches;
+    result->stats->similar = similar;
+    result->stats->length = length;
     result->flag = PARASAIL_FLAG_SG | PARASAIL_FLAG_NOVEC_SCAN
         | PARASAIL_FLAG_STATS
         | PARASAIL_FLAG_BITS_INT | PARASAIL_FLAG_LANES_1;

@@ -252,7 +252,7 @@ int main(int argc, char **argv)
                     sequences_queries[i], sizes_queries[i],
                     sequences_database[j], sizes_database[j],
                     gap_open, gap_extend, matrix);
-            saturated_query += result->saturated;
+            saturated_query += parasail_result_is_saturated(result);
             parasail_result_free(result);
         }
         local_timer = timer_real() - local_timer;

@@ -29,9 +29,9 @@ static inline void CONCAT(NAME, T) (
     int where = PARASAIL_DIAG;
     int c_ins = 0;
     int c_del = 0;
-    D *HT = (D*)result->trace_table;
-    D *ET = (D*)result->trace_ins_table;
-    D *FT = (D*)result->trace_del_table;
+    D *HT = (D*)result->trace->trace_table;
+    D *ET = (D*)result->trace->trace_ins_table;
+    D *FT = (D*)result->trace->trace_del_table;
 #if defined(STRIPED)
     int32_t segWidth = 0;
     int32_t segLen = 0;

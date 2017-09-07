@@ -299,9 +299,10 @@ int main(int argc, char **argv)
     else {
         result = function(seqA, lena, seqB, lenb, open, extend, matrix);
     }
-    assert(result->trace_table);
-    assert(result->trace_ins_table);
-    assert(result->trace_del_table);
+    assert(parasail_result_is_trace(result));
+    assert(result->trace->trace_table);
+    assert(result->trace->trace_ins_table);
+    assert(result->trace->trace_del_table);
 
     /* do the traceback */
     parasail_traceback(seqA, lena, seqB, lenb, matrix, result);
@@ -311,7 +312,7 @@ int main(int argc, char **argv)
     printf("end_ref:        %d\n", result->end_ref);
 
     /* do the cigar */
-    cigar = parasail_cigar(seqA, lena, seqB, lenb, matrix, result);
+    cigar = parasail_result_get_cigar(result, seqA, lena, seqB, lenb, matrix);
     printf("cigar uint32_t: '");
     for (c=0; c<cigar->len; ++c) {
         printf("%u", cigar->seq[c]);
@@ -346,6 +347,12 @@ int main(int argc, char **argv)
     {
         char *dup = strdup(funcname);
         char *loc = strstr(dup, "trace");
+        int score = parasail_result_get_score(result);
+        int end_query = parasail_result_get_end_query(result);
+        int end_ref = parasail_result_get_end_ref(result);
+        int matches = parasail_result_get_matches(result);
+        int similar = parasail_result_get_similar(result);
+        int length = parasail_result_get_length(result);
         if (NULL != loc) {
             /* this works because lengths are same */
             (void)strcpy(loc, "stats");
@@ -358,13 +365,13 @@ int main(int argc, char **argv)
         }
         
         result = function(seqA, lena, seqB, lenb, open, extend, matrix);
-        printf("Length:        %d\n", result->length);
-        printf("Identity:   %d/%d\n", result->matches, result->length);
-        printf("Similarity: %d/%d\n", result->similar, result->length);
-        printf("Gaps:       %d/%d\n", -1, result->length);
-        printf("Score:         %d\n", result->score);
-        printf("end_query:     %d\n", result->end_query);
-        printf("end_ref:       %d\n", result->end_ref);
+        printf("Length:        %d\n", length);
+        printf("Identity:   %d/%d\n", matches, length);
+        printf("Similarity: %d/%d\n", similar, length);
+        printf("Gaps:       %d/%d\n", -1, length);
+        printf("Score:         %d\n", score);
+        printf("end_query:     %d\n", end_query);
+        printf("end_ref:       %d\n", end_ref);
 
         parasail_result_free(result);
 

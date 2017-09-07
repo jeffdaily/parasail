@@ -142,7 +142,7 @@ parasail_result_t* PNAME(
             vE_ext = _mm_sub_epi16(vE, vGapE);
             case1 = _mm_cmpgt_epi16(vE_opn, vE_ext);
             vT = _mm_blendv_epi8(vTIns, vTDiag, case1);
-            arr_store(result->trace_ins_table, vT, i, segLen, j);
+            arr_store(result->trace->trace_ins_table, vT, i, segLen, j);
             vE = _mm_max_epi16(vE_opn, vE_ext);
             vGapper = _mm_add_epi16(vHt, vGapper);
             vF = _mm_max_epi16(vF, vGapper);
@@ -178,7 +178,7 @@ parasail_result_t* PNAME(
             vF = _mm_max_epi16(vF_opn, vF_ext);
             case1 = _mm_cmpgt_epi16(vF_opn, vF_ext);
             vT = _mm_blendv_epi8(vTDel, vTDiag, case1);
-            arr_store(result->trace_del_table, vT, i, segLen, j);
+            arr_store(result->trace->trace_del_table, vT, i, segLen, j);
             vH = _mm_max_epi16(vHt, vF);
             vH = _mm_max_epi16(vH, vZero);
             case0 = _mm_cmpeq_epi16(vH, vZero);
@@ -188,7 +188,7 @@ parasail_result_t* PNAME(
                     _mm_blendv_epi8(vTIns, vTDel, case2),
                     vTDiag, case1);
             vT = _mm_blendv_epi8(vT, vTZero, case0);
-            arr_store(result->trace_table, vT, i, segLen, j);
+            arr_store(result->trace->trace_table, vT, i, segLen, j);
             _mm_store_si128(pvH+i, vH);
             vSaturationCheckMin = _mm_min_epi16(vSaturationCheckMin, vH);
             vSaturationCheckMax = _mm_max_epi16(vSaturationCheckMax, vH);
@@ -226,7 +226,7 @@ parasail_result_t* PNAME(
     if (_mm_movemask_epi8(_mm_or_si128(
             _mm_cmplt_epi16(vSaturationCheckMin, vNegLimit),
             _mm_cmpgt_epi16(vSaturationCheckMax, vPosLimit)))) {
-        result->saturated = 1;
+        result->flag |= PARASAIL_FLAG_SATURATED;
         score = 0;
         end_query = 0;
         end_ref = 0;

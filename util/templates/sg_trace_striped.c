@@ -87,7 +87,7 @@ parasail_result_t* PNAME(
     parasail_memset_%(VTYPE)s(pvEaStore, %(VSET1)s(-open), segLen);
 
     for (i=0; i<segLen; ++i) {
-        arr_store(result->trace_ins_table, vTDiag, i, segLen, 0);
+        arr_store(result->trace->trace_ins_table, vTDiag, i, segLen, 0);
     }
 
     /* outer loop over database sequence */
@@ -137,7 +137,7 @@ parasail_result_t* PNAME(
                         %(VBLEND)s(vTIns, vTDel, case2),
                         vTDiag, case1);
                 %(VSTORE)s(pvHT + i, vT);
-                arr_store(result->trace_table, vT, i, segLen, j);
+                arr_store(result->trace->trace_table, vT, i, segLen, j);
             }
 
             vEF_opn = %(VSUB)s(vH, vGapO);
@@ -154,7 +154,7 @@ parasail_result_t* PNAME(
                 if (j+1<s2Len) {
                     %(VTYPE)s cond = %(VCMPGT)s(vEF_opn, vEa_ext);
                     %(VTYPE)s vT = %(VBLEND)s(vTIns, vTDiag, cond);
-                    arr_store(result->trace_ins_table, vT, i, segLen, j+1);
+                    arr_store(result->trace->trace_ins_table, vT, i, segLen, j+1);
                 }
             }
 
@@ -165,7 +165,7 @@ parasail_result_t* PNAME(
                 %(VTYPE)s cond = %(VCMPGT)s(vEF_opn, vF_ext);
                 %(VTYPE)s vT = %(VBLEND)s(vTDel, vTDiag, cond);
                 if (i+1<segLen) {
-                    arr_store(result->trace_del_table, vT, i+1, segLen, j);
+                    arr_store(result->trace->trace_del_table, vT, i+1, segLen, j);
                 }
             }
 
@@ -207,13 +207,13 @@ parasail_result_t* PNAME(
                     vT = %(VLOAD)s(pvHT + i);
                     vT = %(VBLEND)s(vT, vTDel, cond);
                     %(VSTORE)s(pvHT + i, vT);
-                    arr_store(result->trace_table, vT, i, segLen, j);
+                    arr_store(result->trace->trace_table, vT, i, segLen, j);
                 }
                 /* Update vF value. */
                 {
                     %(VTYPE)s cond = %(VCMPGT)s(vEF_opn, vFa_ext);
                     %(VTYPE)s vT = %(VBLEND)s(vTDel, vTDiag, cond);
-                    arr_store(result->trace_del_table, vT, i, segLen, j);
+                    arr_store(result->trace->trace_del_table, vT, i, segLen, j);
                 }
                 vEF_opn = %(VSUB)s(vH, vGapO);
                 vF_ext = %(VSUB)s(vF, vGapE);
@@ -227,7 +227,7 @@ parasail_result_t* PNAME(
                     cond = %(VCMPGT)s(vEF_opn, vEa_ext);
                     vT = %(VBLEND)s(vTIns, vTDiag, cond);
                     if (j+1<s2Len) {
-                        arr_store(result->trace_ins_table, vT, i, segLen, j+1);
+                        arr_store(result->trace->trace_ins_table, vT, i, segLen, j+1);
                     }
                 }
                 if (! %(VMOVEMASK)s(

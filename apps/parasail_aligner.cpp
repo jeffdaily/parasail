@@ -1302,6 +1302,9 @@ inline static void output_edges(
         long j_beg = BEG[j];
         long j_end = END[j];
         long j_len = j_end-j_beg;
+        int score = parasail_result_get_score(result);
+        int matches = parasail_result_get_matches(result);
+        int length = parasail_result_get_length(result);
 
         if (has_query) {
             i = i - sid_crossover;
@@ -1323,15 +1326,15 @@ inline static void output_edges(
             self_score_ = j_self_score;
         }
 
-        if ((result->length * 100 >= AOL * int(max_len))
-                && (result->matches * 100 >= SIM * result->length)
-                && (result->score * 100 >= OS * self_score_)) {
+        if ((length * 100 >= AOL * int(max_len))
+                && (matches * 100 >= SIM * length)
+                && (score * 100 >= OS * self_score_)) {
             ++edge_count;
             fprintf(fop, "%d,%d,%f,%f,%f\n",
                     i, j,
-                    1.0*result->length/max_len,
-                    1.0*result->matches/result->length,
-                    1.0*result->score/self_score_);
+                    1.0*length/max_len,
+                    1.0*matches/length,
+                    1.0*score/self_score_);
         }
     }
 
@@ -1364,6 +1367,9 @@ inline static void output_graph(
         long j_beg = BEG[j];
         long j_end = END[j];
         long j_len = j_end-j_beg;
+        int score = parasail_result_get_score(result);
+        int matches = parasail_result_get_matches(result);
+        int length = parasail_result_get_length(result);
 
         int self_score_ = 0;
         int max_len = 0;
@@ -1381,20 +1387,20 @@ inline static void output_graph(
             self_score_ = j_self_score;
         }
 
-        if ((result->length * 100 >= AOL * int(max_len))
-                && (result->matches * 100 >= SIM * result->length)
-                && (result->score * 100 >= OS * self_score_)) {
+        if ((length * 100 >= AOL * int(max_len))
+                && (matches * 100 >= SIM * length)
+                && (score * 100 >= OS * self_score_)) {
             float value;
             ++edge_count;
             switch (which) {
                 case 0:
-                    value = 1.0*result->length/max_len;
+                    value = 1.0*length/max_len;
                     break;
                 case 1:
-                    value = 1.0*result->matches/result->length;
+                    value = 1.0*matches/length;
                     break;
                 case 2:
-                    value = 1.0*result->score/self_score_;
+                    value = 1.0*score/self_score_;
                     break;
             }
             graph[i].push_back(make_pair(j,value));
@@ -1447,12 +1453,12 @@ inline static void output_stats(
                 j,
                 i_len,
                 j_len,
-                result->score,
-                result->end_query,
-                result->end_ref,
-                result->matches,
-                result->similar,
-                result->length);
+                parasail_result_get_score(result),
+                parasail_result_get_end_query(result),
+                parasail_result_get_end_ref(result),
+                parasail_result_get_matches(result),
+                parasail_result_get_similar(result),
+                parasail_result_get_length(result));
     }
 }
 
@@ -1485,9 +1491,9 @@ inline static void output_basic(
                 j,
                 i_len,
                 j_len,
-                result->score,
-                result->end_query,
-                result->end_ref);
+                parasail_result_get_score(result),
+                parasail_result_get_end_query(result),
+                parasail_result_get_end_ref(result));
     }
 }
 
@@ -1519,19 +1525,20 @@ inline static void output_trace(
             i = i - sid_crossover;
         }
 
-        cigar = parasail_cigar(
+        cigar = parasail_result_get_cigar(
+                result,
                 (const char*)&T[i_beg], i_len,
                 (const char*)&T[j_beg], j_len,
-                matrix, result);
+                matrix);
         cigar_string = parasail_cigar_decode(cigar);
         eprintf(fop, "%d,%d,%ld,%ld,%d,%d,%d,%s\n",
                 i,
                 j,
                 i_len,
                 j_len,
-                result->score,
-                result->end_query,
-                result->end_ref,
+                parasail_result_get_score(result),
+                parasail_result_get_end_query(result),
+                parasail_result_get_end_ref(result),
                 cigar_string);
         parasail_cigar_free(cigar);
         free(cigar_string);
@@ -1557,6 +1564,7 @@ inline static void output_tables(
         long j_beg = BEG[j];
         long j_end = END[j];
         long j_len = j_end-j_beg;
+        int *table = parasail_result_get_score_table(result);
 
         if (has_query) {
             i = i - sid_crossover;
@@ -1564,7 +1572,7 @@ inline static void output_tables(
 
         char filename[256] = {'\0'};
         sprintf(filename, "parasail_%d_%d.txt", i, j);
-        print_array(filename, result->score_table,
+        print_array(filename, table,
                 (const char*)&T[i_beg], i_len,
                 (const char*)&T[j_beg], j_len);
     }

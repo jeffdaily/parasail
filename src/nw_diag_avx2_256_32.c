@@ -303,10 +303,10 @@ parasail_result_t* FNAME(
             }
             
 #ifdef PARASAIL_TABLE
-            arr_store_si256(result->score_table, vWH, i, s1Len, j, s2Len);
+            arr_store_si256(result->tables->score_table, vWH, i, s1Len, j, s2Len);
 #endif
 #ifdef PARASAIL_ROWCOL
-            arr_store_rowcol(result->score_row, result->score_col, vWH, i, s1Len, j, s2Len);
+            arr_store_rowcol(result->rowcols->score_row, result->rowcols->score_col, vWH, i, s1Len, j, s2Len);
 #endif
             H_pr[j-7] = (int32_t)_mm256_extract_epi32_rpl(vWH,0);
             F_pr[j-7] = (int32_t)_mm256_extract_epi32_rpl(vF,0);

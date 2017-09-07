@@ -125,9 +125,9 @@ DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
 	$(top_srcdir)/configure $(am__configure_deps) \
 	$(srcdir)/config.h.in $(top_srcdir)/build-aux/depcomp \
 	$(include_HEADERS) $(nobase_include_HEADERS) \
-	$(top_srcdir)/build-aux/test-driver COPYING \
-	build-aux/config.guess build-aux/config.sub build-aux/depcomp \
-	build-aux/install-sh build-aux/missing build-aux/ltmain.sh \
+	$(top_srcdir)/build-aux/test-driver build-aux/config.guess \
+	build-aux/config.sub build-aux/depcomp build-aux/install-sh \
+	build-aux/missing build-aux/ltmain.sh \
 	$(top_srcdir)/build-aux/config.guess \
 	$(top_srcdir)/build-aux/config.sub \
 	$(top_srcdir)/build-aux/install-sh \
@@ -1743,7 +1743,7 @@ AM_CPPFLAGS = -I$(top_srcdir)/contrib \
 AM_LDFLAGS = 
 LDADD = libparasail.la
 EXTRA_DIST = version.sh .gitignore .travis.yml CHANGELOG.md \
-	CMakeLists.txt COPYING DISCLAIMER README.md aclocal.m4 \
+	CMakeLists.txt DISCLAIMER LICENSE.md README.md aclocal.m4 \
 	appveyor.yml apps/README.md cmake/FindAVX2.cmake \
 	cmake/FindSSE2.cmake cmake/FindSSE41.cmake \
 	cmake/Findxgetbv.cmake cmake/avx2_dummy.c cmake/config.h.in \

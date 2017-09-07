@@ -980,7 +980,12 @@ tests_test_verify_traces_SOURCES += tests/func_verify_traces.h
 tests_test_verify_traces_CFLAGS  = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_test_verify_traces_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
 
+EXTRA_DIST += .gitignore
+EXTRA_DIST += .travis.yml
+EXTRA_DIST += CHANGELOG.md
+EXTRA_DIST += CMakeLists.txt
 EXTRA_DIST += DISCLAIMER
+EXTRA_DIST += LICENSE.md
 EXTRA_DIST += README.md
 EXTRA_DIST += aclocal.m4
 EXTRA_DIST += appveyor.yml

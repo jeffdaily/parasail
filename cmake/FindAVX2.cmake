@@ -48,9 +48,9 @@ int main(void) { return (int)foo(); }
 if(AVX2_C_FLAGS)
 else()
   if(WIN32)
+    # MSVC can compile AVX intrinsics without the arch flag, however it
+    # will detect that AVX code is found and "consider using /arch:AVX".
     set(AVX2_C_FLAG_CANDIDATES
-      #Empty, if compiler automatically accepts AVX2
-      " "
       "/arch:AVX"
       "/arch:AVX2")
   else()

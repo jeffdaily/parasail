@@ -653,6 +653,10 @@ IF( WIN32 )
     IF( BUILD_SHARED_LIBS )
         LIST( APPEND maybe_def cmake/parasail.def )
     ENDIF( )
+    # Disable C4244 (implicit integer truncation) warning on MSVC builds
+    # because there are too many caused by the 64-bit wide integer
+    # versions of the alignment functions.
+    SET( CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} /wd4244")
 ENDIF( )
 
 ADD_LIBRARY( parasail ${LIB_TYPE}

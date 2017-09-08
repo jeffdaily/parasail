@@ -423,6 +423,7 @@ int main(int argc, char **argv) {
                             optopt);
                 }
                 print_help(progname, EXIT_FAILURE);
+                break;
             default:
                 eprintf(stderr, "default case in getopt\n");
                 exit(EXIT_FAILURE);

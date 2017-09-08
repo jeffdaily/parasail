@@ -721,7 +721,11 @@ AS_CASE(["$ac_cv_search_gzopen"],
         [*no*], [],
         [Z_LIBS="$ac_cv_search_gzopen"])
 AC_SUBST([Z_LIBS])
-AM_CONDITIONAL([HAVE_ZLIB], [test "x$ac_cv_search_gzopen" != xno && test "x$ac_cv_header_zlib_h" = xyes])
+AS_IF([test "x$ac_cv_search_gzopen" != xno && test "x$ac_cv_header_zlib_h" = xyes],
+      [zlib_okay_val=1],
+      [zlib_okay_val=0])
+AM_CONDITIONAL([HAVE_ZLIB], [test "x$zlib_okay_val" = x1])
+AC_DEFINE_UNQUOTED([HAVE_ZLIB], [$zlib_okay_val], [define to 1 if zlib is available])
 
 # For host type checks
 AC_CANONICAL_HOST

@@ -141,7 +141,6 @@ static void print_help(const char *progname, int status) {
             "     cutoff: 7, must be >= 1, exact match length cutoff\n"
             "         -x: if present, don't use suffix array filter\n"
             "         -s: if present, report alignment statistics\n"
-            "         -p: if present, write DP table(s) to file\n"
             " gap_extend: 1, must be >= 0\n"
             "   gap_open: 10, must be >= 0\n"
             "     matrix: blosum62\n"
@@ -197,7 +196,6 @@ int main(int argc, char **argv) {
     int mismatch = 0;
     bool use_dna = false;
     bool use_stats = false;
-    bool use_table = false;
     int ssw_flag = 0;
     ssw_func *function = ssw_align;
     const char *progname = "parasail_aligner";
@@ -247,10 +245,6 @@ int main(int argc, char **argv) {
                     print_help(progname, EXIT_FAILURE);
                 }
                 break;
-            case 'p':
-                use_table = true;
-                function = ssw_align_table;
-                break;
             case 's':
                 use_stats = true;
                 break;
@@ -291,6 +285,7 @@ int main(int argc, char **argv) {
                             optopt);
                 }
                 print_help(progname, EXIT_FAILURE);
+                break;
             default:
                 eprintf(stderr, "default case in getopt\n");
                 exit(EXIT_FAILURE);
@@ -691,11 +686,7 @@ int main(int argc, char **argv) {
         int i = vpairs[index].first;
         int j = vpairs[index].second;
         int i_beg = BEG[i];
-        int i_end = END[i];
-        int i_len = i_end-i_beg;
         int j_beg = BEG[j];
-        int j_end = END[j];
-        int j_len = j_end-j_beg;
 
         if (NULL != qname) {
             i = i - sid_crossover;
@@ -721,13 +712,6 @@ int main(int argc, char **argv) {
                     result->score1,
                     result->read_end1,
                     result->ref_end1);
-        }
-        if (use_table) {
-            char filename[256] = {'\0'};
-            sprintf(filename, "ssw_%d_%d.txt", i, j);
-            print_array(filename, result->score_table,
-                    (const char*)&T[i_beg], i_len,
-                    (const char*)&T[j_beg], j_len);
         }
 
         align_destroy(result);

@@ -6887,13 +6887,23 @@ case "$ac_cv_search_gzopen" in #(
     Z_LIBS="$ac_cv_search_gzopen" ;;
 esac
 
- if test "x$ac_cv_search_gzopen" != xno && test "x$ac_cv_header_zlib_h" = xyes; then
+if test "x$ac_cv_search_gzopen" != xno && test "x$ac_cv_header_zlib_h" = xyes; then :
+  zlib_okay_val=1
+else
+  zlib_okay_val=0
+fi
+ if test "x$zlib_okay_val" = x1; then
   HAVE_ZLIB_TRUE=
   HAVE_ZLIB_FALSE='#'
 else
   HAVE_ZLIB_TRUE='#'
   HAVE_ZLIB_FALSE=
 fi
+
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_ZLIB $zlib_okay_val
+_ACEOF
 
 
 # For host type checks

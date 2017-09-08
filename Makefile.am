@@ -96,6 +96,7 @@ nobase_include_HEADERS += parasail/matrices/pam_map.h
 
 AM_CPPFLAGS += -I$(top_srcdir)/contrib
 AM_CPPFLAGS += -I$(top_srcdir)/contrib/sais-lite-lcp
+AM_CPPFLAGS += -I$(top_srcdir)/contrib/ssw
 AM_CPPFLAGS += -I$(top_srcdir)/src
 
 noinst_LTLIBRARIES += libparasail_novec.la
@@ -850,8 +851,8 @@ libparasail_la_LIBADD += $(MATH_LIBS)
 if HAVE_SSE2
 check_LTLIBRARIES += tests/libssw.la
 tests_libssw_la_SOURCES =
-tests_libssw_la_SOURCES += contrib/ssw.c
-tests_libssw_la_SOURCES += contrib/ssw.h
+tests_libssw_la_SOURCES += contrib/ssw/ssw.c
+tests_libssw_la_SOURCES += contrib/ssw/ssw.h
 tests_libssw_la_CFLAGS  = $(AM_CFLAGS) $(SSE2_CFLAGS)
 endif
 
@@ -881,6 +882,7 @@ check_PROGRAMS += tests/test_verify_rowcols
 check_PROGRAMS += tests/test_verify_traces
 if HAVE_SSE2
 check_PROGRAMS += tests/test_ssw
+check_PROGRAMS += tests/ssw_test
 endif
 
 apps_parasail_aligner_SOURCES = apps/parasail_aligner.cpp
@@ -955,6 +957,16 @@ tests_test_ssw_LDADD    =
 tests_test_ssw_LDADD    += $(LDADD)
 tests_test_ssw_LDADD    += tests/libsais.la
 tests_test_ssw_LDADD    += tests/libssw.la
+
+tests_ssw_test_SOURCES  = contrib/ssw/main.c
+tests_ssw_test_CFLAGS   = $(AM_CFLAGS) $(OPENMP_CFLAGS)
+tests_ssw_test_LDFLAGS  = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
+tests_ssw_test_LDADD    =
+tests_ssw_test_LDADD    += $(LDADD)
+tests_ssw_test_LDADD    += tests/libssw.la
+if HAVE_ZLIB
+tests_ssw_test_LDADD    += $(Z_LIBS)
+endif
 
 tests_test_sw_dispatch_SOURCES = tests/test_sw_dispatch.c
 

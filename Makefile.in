@@ -121,7 +121,6 @@ check_PROGRAMS = tests/traceback$(EXEEXT) tests/test_align$(EXEEXT) \
 @HAVE_SSE2_TRUE@am__append_13 = tests/test_ssw tests/ssw_test
 @HAVE_SSE2_TRUE@am__append_14 = tests/libssw.la
 @HAVE_SSE2_TRUE@am__append_15 = tests/libssw.la
-@HAVE_ZLIB_TRUE@am__append_16 = $(Z_LIBS)
 TESTS = tests/test_isa$(EXEEXT)
 subdir = .
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
@@ -186,13 +185,13 @@ libparasail_la_DEPENDENCIES = libparasail_novec.la \
 	libparasail_novec_table.la libparasail_novec_rowcol.la \
 	$(am__append_6) $(am__append_7) $(am__append_8) \
 	$(am__append_9) $(am__append_10) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 am__dirstamp = $(am__leading_dot)dirstamp
 am__objects_1 = src/cigar.lo src/cpuid.lo src/function_lookup.lo \
 	src/io.lo src/isastubs.lo src/matrix_lookup.lo src/memory.lo \
-	src/time.lo src/nw_dispatch.lo src/sg_dispatch.lo \
-	src/sw_dispatch.lo src/dispatch_profile.lo src/satcheck.lo \
-	src/striped_unwind.lo src/traceback.lo
+	src/parser.lo src/time.lo src/nw_dispatch.lo \
+	src/sg_dispatch.lo src/sw_dispatch.lo src/dispatch_profile.lo \
+	src/satcheck.lo src/striped_unwind.lo src/traceback.lo
 am_libparasail_la_OBJECTS = $(am__objects_1)
 libparasail_la_OBJECTS = $(am_libparasail_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
@@ -1274,9 +1273,7 @@ apps_parasail_stats_LDADD = $(LDADD)
 apps_parasail_stats_DEPENDENCIES = libparasail.la
 am_tests_ssw_test_OBJECTS = contrib/ssw/tests_ssw_test-main.$(OBJEXT)
 tests_ssw_test_OBJECTS = $(am_tests_ssw_test_OBJECTS)
-@HAVE_ZLIB_TRUE@am__DEPENDENCIES_2 = $(am__DEPENDENCIES_1)
-tests_ssw_test_DEPENDENCIES = $(LDADD) tests/libssw.la \
-	$(am__DEPENDENCIES_2)
+tests_ssw_test_DEPENDENCIES = $(LDADD) tests/libssw.la
 tests_ssw_test_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(tests_ssw_test_CFLAGS) $(CFLAGS) $(tests_ssw_test_LDFLAGS) \
@@ -1287,7 +1284,8 @@ tests_test_align_LDADD = $(LDADD)
 tests_test_align_DEPENDENCIES = libparasail.la
 am_tests_test_gcups_OBJECTS = tests/test_gcups.$(OBJEXT)
 tests_test_gcups_OBJECTS = $(am_tests_test_gcups_OBJECTS)
-tests_test_gcups_DEPENDENCIES = $(LDADD) $(am__DEPENDENCIES_1)
+tests_test_gcups_LDADD = $(LDADD)
+tests_test_gcups_DEPENDENCIES = libparasail.la
 am_tests_test_isa_OBJECTS = tests/test_isa.$(OBJEXT)
 tests_test_isa_OBJECTS = $(am_tests_test_isa_OBJECTS)
 tests_test_isa_LDADD = $(LDADD)
@@ -1967,10 +1965,11 @@ EXTRA_DIST = version.sh .gitignore .travis.yml CHANGELOG.md \
 # core sources
 #################
 SRC_CORE = src/cigar.c src/cpuid.c src/function_lookup.c src/io.c \
-	src/isastubs.c src/matrix_lookup.c src/memory.c src/time.c \
-	src/nw_dispatch.c src/sg_dispatch.c src/sw_dispatch.c \
-	src/dispatch_profile.c src/satcheck.c src/striped_unwind.c \
-	src/traceback.c parasail/memory.h parasail/stats.h
+	src/isastubs.c src/matrix_lookup.c src/memory.c src/parser.c \
+	src/time.c src/nw_dispatch.c src/sg_dispatch.c \
+	src/sw_dispatch.c src/dispatch_profile.c src/satcheck.c \
+	src/striped_unwind.c src/traceback.c parasail/memory.h \
+	parasail/stats.h
 
 #################
 # vector memory
@@ -2386,7 +2385,8 @@ libparasail_knc_memory_la_CFLAGS = $(AM_CFLAGS)
 libparasail_la_LIBADD = libparasail_novec.la \
 	libparasail_novec_table.la libparasail_novec_rowcol.la \
 	$(am__append_6) $(am__append_7) $(am__append_8) \
-	$(am__append_9) $(am__append_10) $(CLOCK_LIBS) $(MATH_LIBS)
+	$(am__append_9) $(am__append_10) $(CLOCK_LIBS) $(MATH_LIBS) \
+	$(Z_LIBS)
 @HAVE_SSE2_TRUE@tests_libssw_la_SOURCES = contrib/ssw/ssw.c \
 @HAVE_SSE2_TRUE@	contrib/ssw/ssw.h
 @HAVE_SSE2_TRUE@tests_libssw_la_CFLAGS = $(AM_CFLAGS) $(SSE2_CFLAGS)
@@ -2407,7 +2407,6 @@ tests_traceback_SOURCES = tests/traceback.c
 tests_test_align_SOURCES = tests/test_align.c tests/timer.h \
 	tests/timer_real.h
 tests_test_gcups_SOURCES = tests/test_gcups.c
-tests_test_gcups_LDADD = $(LDADD) $(Z_LIBS)
 tests_test_isa_SOURCES = tests/test_isa.c
 tests_test_matrix_SOURCES = tests/test_matrix.c
 tests_test_openmp_SOURCES = tests/test_openmp.c tests/timer.h \
@@ -2431,7 +2430,7 @@ tests_test_ssw_LDADD = $(LDADD) tests/libsais.la tests/libssw.la
 tests_ssw_test_SOURCES = contrib/ssw/main.c
 tests_ssw_test_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_ssw_test_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
-tests_ssw_test_LDADD = $(LDADD) tests/libssw.la $(am__append_16)
+tests_ssw_test_LDADD = $(LDADD) tests/libssw.la
 tests_test_sw_dispatch_SOURCES = tests/test_sw_dispatch.c
 tests_test_verify_SOURCES = tests/test_verify.c tests/func_verify.h
 tests_test_verify_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)
@@ -2574,6 +2573,7 @@ src/isastubs.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/matrix_lookup.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/memory.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/parser.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/time.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/nw_dispatch.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/sg_dispatch.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
@@ -5491,6 +5491,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/matrix_lookup.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/memory.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/nw_dispatch.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/parser.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/satcheck.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sg_dispatch.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/striped_unwind.Plo@am__quote@

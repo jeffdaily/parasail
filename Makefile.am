@@ -154,6 +154,7 @@ SRC_CORE += src/io.c
 SRC_CORE += src/isastubs.c
 SRC_CORE += src/matrix_lookup.c
 SRC_CORE += src/memory.c
+SRC_CORE += src/parser.c
 SRC_CORE += src/time.c
 SRC_CORE += src/nw_dispatch.c
 SRC_CORE += src/sg_dispatch.c
@@ -847,6 +848,7 @@ libparasail_la_LIBADD += libparasail_knc_rowcol.la
 endif
 libparasail_la_LIBADD += $(CLOCK_LIBS)
 libparasail_la_LIBADD += $(MATH_LIBS)
+libparasail_la_LIBADD += $(Z_LIBS)
 
 if HAVE_SSE2
 check_LTLIBRARIES += tests/libssw.la
@@ -911,9 +913,6 @@ tests_test_align_SOURCES += tests/timer.h
 tests_test_align_SOURCES += tests/timer_real.h
 
 tests_test_gcups_SOURCES = tests/test_gcups.c
-tests_test_gcups_LDADD =
-tests_test_gcups_LDADD += $(LDADD)
-tests_test_gcups_LDADD += $(Z_LIBS)
 
 tests_test_isa_SOURCES = tests/test_isa.c
 
@@ -964,9 +963,6 @@ tests_ssw_test_LDFLAGS  = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
 tests_ssw_test_LDADD    =
 tests_ssw_test_LDADD    += $(LDADD)
 tests_ssw_test_LDADD    += tests/libssw.la
-if HAVE_ZLIB
-tests_ssw_test_LDADD    += $(Z_LIBS)
-endif
 
 tests_test_sw_dispatch_SOURCES = tests/test_sw_dispatch.c
 

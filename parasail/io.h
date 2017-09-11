@@ -30,6 +30,27 @@ typedef struct parasail_file_stat {
     float stddev;
 } parasail_file_stat_t;
 
+typedef struct parasail_string {
+    size_t l;
+    char *s;
+} parasail_string_t;
+
+typedef struct parasail_sequence {
+    parasail_string_t name;
+    parasail_string_t comment;
+    parasail_string_t seq;
+    parasail_string_t qual;
+} parasail_sequence_t;
+
+typedef struct parasail_sequences {
+    parasail_sequence_t *seqs;
+    size_t l;
+} parasail_sequences_t;
+
+parasail_sequences_t* parasail_sequences_from_file(const char *fname);
+
+void parasail_sequences_free(parasail_sequences_t *sequences);
+
 parasail_file_t* parasail_open(const char *fname);
 
 /** Closes file and frees file parameter. */

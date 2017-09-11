@@ -1,9 +1,9 @@
 #include "config.h"
 
 /* getopt needs _POSIX_C_SOURCE 2 */
-/* strdup needs _POSIX_C_SOURCE 200809L */
-#define _POSIX_C_SOURCE 200809L
+#define _POSIX_C_SOURCE 2
 
+#include <ctype.h>
 #include <limits.h>
 #include <math.h>
 #include <stddef.h>
@@ -12,14 +12,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#if defined(_MSC_VER)
+#include "wingetopt/src/getopt.h"
+#else
 #include <unistd.h>
+#endif
 
 #if defined(_OPENMP)
 #include <omp.h>
 #endif
-
-#include "kseq.h"
-KSEQ_INIT(int, read)
 
 #if HAVE_SSE2
 #include "ssw.h"
@@ -27,6 +28,7 @@ KSEQ_INIT(int, read)
 
 #include "parasail.h"
 #include "parasail/function_lookup.h"
+#include "parasail/io.h"
 /*#include "timer.h"*/
 #include "timer_real.h"
 
@@ -41,59 +43,6 @@ static const int8_t table[128] = {
     23, 0,  20, 4,  3,  6,  13, 7,  8,  9,  23, 11, 10, 12, 2,  23,
     14, 5,  1,  15, 16, 23, 19, 17, 22, 18, 21, 23, 23, 23, 23, 23
 };
-
-static inline void parse_sequences(
-        const char *filename, char ***strings_, size_t **sizes_, size_t *count_)
-{
-    FILE* fp;
-    kseq_t *seq = NULL;
-    int l = 0;
-    char **strings = NULL;
-    size_t *sizes = NULL;
-    size_t count = 0;
-    size_t memory = 1000;
-
-    fp = fopen(filename, "r");
-    if(fp == NULL) {
-        perror("fopen");
-        exit(1);
-    }
-    strings = malloc(sizeof(char*) * memory);
-    sizes = malloc(sizeof(size_t) * memory);
-    seq = kseq_init(fileno(fp));
-    while ((l = kseq_read(seq)) >= 0) {
-        strings[count] = strdup(seq->seq.s);
-        if (NULL == strings[count]) {
-            perror("strdup");
-            exit(1);
-        }
-        sizes[count] = seq->seq.l;
-        ++count;
-        if (count >= memory) {
-            char **new_strings = NULL;
-            size_t *new_sizes = NULL;
-            memory *= 2;
-            new_strings = realloc(strings, sizeof(char*) * memory);
-            if (NULL == new_strings) {
-                perror("realloc");
-                exit(1);
-            }
-            strings = new_strings;
-            new_sizes = realloc(sizes, sizeof(size_t) * memory);
-            if (NULL == new_sizes) {
-                perror("realloc");
-                exit(1);
-            }
-            sizes = new_sizes;
-        }
-    }
-    kseq_destroy(seq);
-    fclose(fp);
-
-    *strings_ = strings;
-    *sizes_ = sizes;
-    *count_ = count;
-}
 
 static inline char* rand_string(size_t size)
 {
@@ -151,8 +100,7 @@ int main(int argc, char **argv)
     unsigned long i = 0;
     size_t seq_count = 10;
     size_t limit = 0;
-    char **sequences = NULL;
-    size_t *sizes = NULL;
+    parasail_sequences_t *sequences = NULL;
     char *endptr = NULL;
     char *funcname = NULL;
     parasail_function_t *function = NULL;
@@ -255,17 +203,20 @@ int main(int argc, char **argv)
     }
 
     if (filename) {
-        parse_sequences(filename, &sequences, &sizes, &seq_count);
+        sequences = parasail_sequences_from_file(filename);
+        seq_count = sequences->l;
     }
     else {
         /* generate 'seq_count' number of random strings */
-        sequences = (char**)malloc(sizeof(char*)*seq_count);
-        sizes = (size_t*)malloc(sizeof(size_t)*seq_count);
+        sequences = (parasail_sequences_t*)malloc(sizeof(parasail_sequences_t));
+        sequences->l = seq_count;
+        sequences->seqs = (parasail_sequence_t*)malloc(sizeof(parasail_sequence_t)*seq_count);
         for (i=0; i<seq_count; ++i) {
-            sizes[i] = (rand()%32767)+10;
-            shortest = sizes[i] < shortest ? sizes[i] : shortest;
-            longest = sizes[i] > longest ? sizes[i] : longest;
-            sequences[i] = rand_string(sizes[i]);
+            size_t size = (rand()%32767)+10;
+            sequences->seqs[i].seq.l = size;
+            shortest = size < shortest ? size : shortest;
+            longest = size > longest ? size : longest;
+            sequences->seqs[i].seq.s = rand_string(size);
         }
     }
 
@@ -288,41 +239,45 @@ int main(int argc, char **argv)
 #pragma omp for schedule(dynamic)
         for (i=0; i<limit; ++i) {
             parasail_result_t *result = NULL;
+            char *seq_a = sequences->seqs[a].seq.s;
+            char *seq_b = sequences->seqs[b].seq.s;
+            size_t size_a = sequences->seqs[a].seq.l;
+            size_t size_b = sequences->seqs[b].seq.l;
             k_combination2(i, &a, &b);
             timer_local = timer_real();
-            result = function(sequences[a], sizes[a], sequences[b], sizes[b],
+            result = function(seq_a, size_a, seq_b, size_b,
                     gap_open, gap_extend, matrix);
             timer_local = timer_real() - timer_local;
             for (j=0; j<24; ++j) {
                 a_counts[j] = 0;
                 b_counts[j] = 0;
             }
-            for (j=0; j<sizes[a]; ++j) {
-                a_counts[table[(unsigned)sequences[a][j]]] += 1;
+            for (j=0; j<size_a; ++j) {
+                a_counts[table[(unsigned)seq_a[j]]] += 1;
             }
-            for (j=0; j<sizes[b]; ++j) {
-                b_counts[table[(unsigned)sequences[b][j]]] += 1;
+            for (j=0; j<size_b; ++j) {
+                b_counts[table[(unsigned)seq_b[j]]] += 1;
             }
 #pragma omp critical
             printf("%lu,%lu,%lu,%d,%d,%d,%d,%lu,%f",
-                    (unsigned long)sizes[a],
-                    (unsigned long)(sizes[a]+lanes-1)/lanes,
-                    (unsigned long)sizes[b],
+                    (unsigned long)size_a,
+                    (unsigned long)(size_a+lanes-1)/lanes,
+                    (unsigned long)size_b,
                     parasail_result_get_score(result),
                     parasail_result_get_matches(result),
                     parasail_result_get_similar(result),
                     parasail_result_get_length(result),
-                    (unsigned long)(sizes[a]*sizes[b]),
+                    (unsigned long)(size_a*size_b),
                     timer_local);
             for (j=0; j<24; ++j) {
                 /*printf(",%lu", a_counts[j]);*/
-                printf(",%f", (double)(a_counts[j])/sizes[a]);
+                printf(",%f", (double)(a_counts[j])/size_a);
             }
             for (j=0; j<24; ++j) {
                 /*printf(",%lu", b_counts[j]);*/
-                printf(",%f", (double)(b_counts[j])/sizes[b]);
+                printf(",%f", (double)(b_counts[j])/size_b);
             }
-            printf(",%f\n", sizes[a]*sizes[b]/timer_local);
+            printf(",%f\n", size_a*size_b/timer_local);
 #pragma omp atomic
             saturated += parasail_result_is_saturated(result);
             parasail_result_free(result);

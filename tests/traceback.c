@@ -1,6 +1,7 @@
 #include "config.h"
 
 #include <assert.h>
+#include <ctype.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -13,78 +14,9 @@
 #include <unistd.h>
 #endif
 
-#if defined(_MSC_VER)
-#include <io.h>
-#define READ_FUNCTION _read
-#else
-#define READ_FUNCTION read
-#endif
-
-#include "kseq.h"
-KSEQ_INIT(int, read)
-
 #include "parasail.h"
+#include "parasail/io.h"
 #include "parasail/memory.h"
-
-static inline void parse_sequences(
-        const char *filename,
-        char ***strings_,
-        unsigned long **sizes_,
-        unsigned long *count_)
-{
-    FILE* fp;
-    kseq_t *seq = NULL;
-    int l = 0;
-    char **strings = NULL;
-    unsigned long *sizes = NULL;
-    unsigned long count = 0;
-    unsigned long memory = 1000;
-
-    errno = 0;
-    fp = fopen(filename, "r");
-    if(fp == NULL) {
-        perror("fopen");
-        exit(1);
-    }
-    strings = malloc(sizeof(char*) * memory);
-    sizes = malloc(sizeof(unsigned long) * memory);
-    seq = kseq_init(fileno(fp));
-    while ((l = kseq_read(seq)) >= 0) {
-        errno = 0;
-        strings[count] = strdup(seq->seq.s);
-        if (NULL == strings[count]) {
-            perror("strdup");
-            exit(1);
-        }
-        sizes[count] = seq->seq.l;
-        ++count;
-        if (count >= memory) {
-            char **new_strings = NULL;
-            unsigned long *new_sizes = NULL;
-            memory *= 2;
-            errno = 0;
-            new_strings = realloc(strings, sizeof(char*) * memory);
-            if (NULL == new_strings) {
-                perror("realloc");
-                exit(1);
-            }
-            strings = new_strings;
-            errno = 0;
-            new_sizes = realloc(sizes, sizeof(unsigned long) * memory);
-            if (NULL == new_sizes) {
-                perror("realloc");
-                exit(1);
-            }
-            sizes = new_sizes;
-        }
-    }
-    kseq_destroy(seq);
-    fclose(fp);
-
-    *strings_ = strings;
-    *sizes_ = sizes;
-    *count_ = count;
-}
 
 
 int main(int argc, char **argv)
@@ -98,8 +30,7 @@ int main(int argc, char **argv)
     parasail_result_t *result = NULL;
     int c = 0;
     char *filename = NULL;
-    char **sequences = NULL;
-    unsigned long *sizes = NULL;
+    parasail_sequences_t *sequences = NULL;
     unsigned long seq_count = 0;
     char *endptr = NULL;
     const char *funcname = "sw_trace";
@@ -206,7 +137,8 @@ int main(int argc, char **argv)
     }
 
     if (filename) {
-        parse_sequences(filename, &sequences, &sizes, &seq_count);
+        sequences = parasail_sequences_from_file(filename);
+        seq_count = sequences->l;
     }
     else {
         fprintf(stderr, "no filename specified\n");
@@ -277,10 +209,10 @@ int main(int argc, char **argv)
         exit(EXIT_FAILURE);
     }
 
-    seqA = sequences[seqA_index];
-    seqB = sequences[seqB_index];
-    lena = strlen(seqA);
-    lenb = strlen(seqB);
+    seqA = sequences->seqs[seqA_index].seq.s;
+    seqB = sequences->seqs[seqB_index].seq.s;
+    lena = sequences->seqs[seqA_index].seq.l;
+    lenb = sequences->seqs[seqB_index].seq.l;
 
     printf("        file: %s\n", filename);
     printf("    function: %s\n", funcname);
@@ -347,12 +279,12 @@ int main(int argc, char **argv)
     {
         char *dup = strdup(funcname);
         char *loc = strstr(dup, "trace");
-        int score = parasail_result_get_score(result);
-        int end_query = parasail_result_get_end_query(result);
-        int end_ref = parasail_result_get_end_ref(result);
-        int matches = parasail_result_get_matches(result);
-        int similar = parasail_result_get_similar(result);
-        int length = parasail_result_get_length(result);
+        int score = 0;
+        int end_query = 0;
+        int end_ref = 0;
+        int matches = 0;
+        int similar = 0;
+        int length = 0;
         if (NULL != loc) {
             /* this works because lengths are same */
             (void)strcpy(loc, "stats");
@@ -365,6 +297,13 @@ int main(int argc, char **argv)
         }
         
         result = function(seqA, lena, seqB, lenb, open, extend, matrix);
+        score = parasail_result_get_score(result);
+        end_query = parasail_result_get_end_query(result);
+        end_ref = parasail_result_get_end_ref(result);
+        parasail_result_get_matches(result);
+        parasail_result_get_similar(result);
+        parasail_result_get_length(result);
+
         printf("Length:        %d\n", length);
         printf("Identity:   %d/%d\n", matches, length);
         printf("Similarity: %d/%d\n", similar, length);
@@ -379,14 +318,7 @@ int main(int argc, char **argv)
     }
     /* cleanup parsed sequences */
 
-    {
-        unsigned long s;
-        for (s=0; s<seq_count; ++s) {
-            free(sequences[s]);
-        }
-    }
-    free(sequences);
-    free(sizes);
+    parasail_sequences_free(sequences);
 
     return 0;
 }

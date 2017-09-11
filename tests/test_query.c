@@ -1,9 +1,9 @@
 #include "config.h"
 
 /* getopt needs _POSIX_C_SOURCE 2 */
-/* strdup needs _POSIX_C_SOURCE 200809L */
-#define _POSIX_C_SOURCE 200809L
+#define _POSIX_C_SOURCE 2
 
+#include <ctype.h>
 #include <limits.h>
 #include <math.h>
 #include <stddef.h>
@@ -18,82 +18,22 @@
 #include <omp.h>
 #endif
 
-#include "kseq.h"
-KSEQ_INIT(int, read)
-
 #include "parasail.h"
+#include "parasail/io.h"
 #include "parasail/stats.h"
 /*#include "timer.h"*/
 #include "timer_real.h"
 
-static inline size_t parse_sequences(
-        const char *filename, char ***strings_, size_t **sizes_, size_t *count_)
-{
-    FILE* fp;
-    kseq_t *seq = NULL;
-    int l = 0;
-    char **strings = NULL;
-    size_t *sizes = NULL;
-    size_t count = 0;
-    size_t memory = 1000;
-    size_t biggest = 0;
-
-    fp = fopen(filename, "r");
-    if(fp == NULL) {
-        perror("fopen");
-        exit(1);
-    }
-    strings = malloc(sizeof(char*) * memory);
-    sizes = malloc(sizeof(size_t) * memory);
-    seq = kseq_init(fileno(fp));
-    while ((l = kseq_read(seq)) >= 0) {
-        strings[count] = strdup(seq->seq.s);
-        if (NULL == strings[count]) {
-            perror("strdup");
-            exit(1);
-        }
-        sizes[count] = seq->seq.l;
-        if (sizes[count] > biggest)
-            biggest = sizes[count];
-        ++count;
-        if (count >= memory) {
-            char **new_strings = NULL;
-            size_t *new_sizes = NULL;
-            memory *= 2;
-            new_strings = realloc(strings, sizeof(char*) * memory);
-            if (NULL == new_strings) {
-                perror("realloc");
-                exit(1);
-            }
-            strings = new_strings;
-            new_sizes = realloc(sizes, sizeof(size_t) * memory);
-            if (NULL == new_sizes) {
-                perror("realloc");
-                exit(1);
-            }
-            sizes = new_sizes;
-        }
-    }
-    kseq_destroy(seq);
-    fclose(fp);
-
-    *strings_ = strings;
-    *sizes_ = sizes;
-    *count_ = count;
-    return biggest;
-}
 
 int main(int argc, char **argv)
 {
     unsigned long i = 0;
     unsigned long j = 0;
     char *filename_database = NULL;
-    char **sequences_database = NULL;
-    size_t *sizes_database = NULL;
+    parasail_sequences_t *sequences_database = NULL;
     size_t seq_count_database = 0;
     char *filename_queries = NULL;
-    char **sequences_queries = NULL;
-    size_t *sizes_queries = NULL;
+    parasail_sequences_t *sequences_queries = NULL;
     size_t seq_count_queries = 0;
     char *endptr = NULL;
     char *funcname = NULL;
@@ -210,7 +150,8 @@ int main(int argc, char **argv)
     }
 
     if (filename_database) {
-        (void)parse_sequences(filename_database, &sequences_database, &sizes_database, &seq_count_database);
+        sequences_database = parasail_sequences_from_file(filename_database);
+        seq_count_database = sequences_database->l;
     }
     else {
         fprintf(stderr, "missing database filename\n");
@@ -218,8 +159,14 @@ int main(int argc, char **argv)
     }
 
     if (filename_queries) {
-        biggest = parse_sequences(filename_queries,
-                &sequences_queries, &sizes_queries, &seq_count_queries);
+        sequences_queries = parasail_sequences_from_file(filename_queries);
+        seq_count_queries = sequences_queries->l;
+        biggest = 0;
+        for (i=0; i<seq_count_queries; ++i) {
+            if (sequences_queries->seqs[i].seq.l > biggest) {
+                biggest = sequences_queries->seqs[i].seq.l;
+            }
+        }
     }
     else {
         fprintf(stderr, "missing query filename\n");
@@ -234,30 +181,32 @@ int main(int argc, char **argv)
     for (i=0; i<seq_count_queries; ++i) {
         int saturated_query = 0;
         double local_timer = timer_real();
-        if (truncate > 0 && sizes_queries[i] > (unsigned long)truncate) {
+        if (truncate > 0 && sequences_queries->seqs[i].seq.l > (unsigned long)truncate) {
             continue;
         }
-        if (exact_length > 0 && sizes_queries[i] != (unsigned long)exact_length) {
+        if (exact_length > 0 && sequences_queries->seqs[i].seq.l != (unsigned long)exact_length) {
             continue;
         }
-        if (seen[sizes_queries[i]]) {
+        if (seen[sequences_queries->seqs[i].seq.l]) {
             /*printf("skipping %d\n", i);*/
             continue;
         }
         else {
-            seen[sizes_queries[i]] = 1;
+            seen[sequences_queries->seqs[i].seq.l] = 1;
         }
         for (j=0; j<seq_count_database; ++j) {
             parasail_result_t *result = function(
-                    sequences_queries[i], sizes_queries[i],
-                    sequences_database[j], sizes_database[j],
+                    sequences_queries->seqs[i].seq.s,
+                    sequences_queries->seqs[i].seq.l,
+                    sequences_database->seqs[j].seq.s,
+                    sequences_database->seqs[j].seq.l,
                     gap_open, gap_extend, matrix);
             saturated_query += parasail_result_is_saturated(result);
             parasail_result_free(result);
         }
         local_timer = timer_real() - local_timer;
         printf("%lu\t %lu\t %d\t %f\n",
-                i, (unsigned long)sizes_queries[i],
+                i, (unsigned long)sequences_queries->seqs[i].seq.l,
                 saturated_query,
                 local_timer);
         if (exact_length != 0) {

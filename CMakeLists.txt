@@ -134,6 +134,7 @@ SET( SRC_CORE
     src/isastubs.c
     src/matrix_lookup.c
     src/memory.c
+    src/parser.c
     src/time.c
     src/nw_dispatch.c
     src/sg_dispatch.c
@@ -680,7 +681,9 @@ ADD_LIBRARY( parasail ${LIB_TYPE}
     ${maybe_def}
 )
 
-TARGET_INCLUDE_DIRECTORIES(parasail PUBLIC ${CMAKE_CURRENT_LIST_DIR})
+IF( ZLIB_FOUND )
+TARGET_LINK_LIBRARIES( parasail ${ZLIB_LIBRARIES} )
+ENDIF( )
 
 IF( HAVE_CLOCK_GETTIME_NATIVE )
 ELSEIF( HAVE_CLOCK_GETTIME_RT )

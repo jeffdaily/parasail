@@ -64,13 +64,11 @@ int main(int argc, char **argv) {
             "%25s: %lu\n"
             "%25s: %lu\n"
             "%25s: %lu\n"
-            "%25s: %lu\n"
             "%25s: %f\n"
             "%25s: %f\n",
             "file type", type,
             "sequence count", pfs->sequences,
             "character count", pfs->characters,
-            "label character count", pfs->label_characters,
             "shortest sequence", pfs->shortest,
             "longest sequence", pfs->longest,
             "sequence length mean", pfs->mean,

@@ -85,9 +85,9 @@ bin_PROGRAMS = apps/parasail_aligner$(EXEEXT) \
 check_PROGRAMS = tests/traceback$(EXEEXT) tests/test_align$(EXEEXT) \
 	tests/test_gcups$(EXEEXT) tests/test_isa$(EXEEXT) \
 	tests/test_matrix$(EXEEXT) tests/test_openmp$(EXEEXT) \
-	tests/test_parser$(EXEEXT) tests/test_query$(EXEEXT) \
-	tests/test_scatter$(EXEEXT) tests/test_sw_dispatch$(EXEEXT) \
-	tests/test_verify$(EXEEXT) tests/test_verify_tables$(EXEEXT) \
+	tests/test_query$(EXEEXT) tests/test_scatter$(EXEEXT) \
+	tests/test_sw_dispatch$(EXEEXT) tests/test_verify$(EXEEXT) \
+	tests/test_verify_tables$(EXEEXT) \
 	tests/test_verify_rowcols$(EXEEXT) \
 	tests/test_verify_traces$(EXEEXT) $(am__EXEEXT_2)
 @HAVE_SSE_TRUE@am__append_1 = libparasail_sse_memory.la
@@ -1304,10 +1304,6 @@ tests_test_openmp_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(tests_test_openmp_CFLAGS) $(CFLAGS) \
 	$(tests_test_openmp_LDFLAGS) $(LDFLAGS) -o $@
-am_tests_test_parser_OBJECTS = tests/test_parser.$(OBJEXT)
-tests_test_parser_OBJECTS = $(am_tests_test_parser_OBJECTS)
-tests_test_parser_LDADD = $(LDADD)
-tests_test_parser_DEPENDENCIES = libparasail.la
 am_tests_test_query_OBJECTS =  \
 	tests/tests_test_query-test_query.$(OBJEXT)
 tests_test_query_OBJECTS = $(am_tests_test_query_OBJECTS)
@@ -1456,10 +1452,9 @@ SOURCES = $(libparasail_la_SOURCES) $(libparasail_avx2_la_SOURCES) \
 	$(apps_parasail_stats_SOURCES) $(tests_ssw_test_SOURCES) \
 	$(tests_test_align_SOURCES) $(tests_test_gcups_SOURCES) \
 	$(tests_test_isa_SOURCES) $(tests_test_matrix_SOURCES) \
-	$(tests_test_openmp_SOURCES) $(tests_test_parser_SOURCES) \
-	$(tests_test_query_SOURCES) $(tests_test_scatter_SOURCES) \
-	$(tests_test_ssw_SOURCES) $(tests_test_sw_dispatch_SOURCES) \
-	$(tests_test_verify_SOURCES) \
+	$(tests_test_openmp_SOURCES) $(tests_test_query_SOURCES) \
+	$(tests_test_scatter_SOURCES) $(tests_test_ssw_SOURCES) \
+	$(tests_test_sw_dispatch_SOURCES) $(tests_test_verify_SOURCES) \
 	$(tests_test_verify_rowcols_SOURCES) \
 	$(tests_test_verify_tables_SOURCES) \
 	$(tests_test_verify_traces_SOURCES) $(tests_traceback_SOURCES)
@@ -1489,10 +1484,9 @@ DIST_SOURCES = $(libparasail_la_SOURCES) \
 	$(apps_parasail_stats_SOURCES) $(tests_ssw_test_SOURCES) \
 	$(tests_test_align_SOURCES) $(tests_test_gcups_SOURCES) \
 	$(tests_test_isa_SOURCES) $(tests_test_matrix_SOURCES) \
-	$(tests_test_openmp_SOURCES) $(tests_test_parser_SOURCES) \
-	$(tests_test_query_SOURCES) $(tests_test_scatter_SOURCES) \
-	$(tests_test_ssw_SOURCES) $(tests_test_sw_dispatch_SOURCES) \
-	$(tests_test_verify_SOURCES) \
+	$(tests_test_openmp_SOURCES) $(tests_test_query_SOURCES) \
+	$(tests_test_scatter_SOURCES) $(tests_test_ssw_SOURCES) \
+	$(tests_test_sw_dispatch_SOURCES) $(tests_test_verify_SOURCES) \
 	$(tests_test_verify_rowcols_SOURCES) \
 	$(tests_test_verify_tables_SOURCES) \
 	$(tests_test_verify_traces_SOURCES) $(tests_traceback_SOURCES)
@@ -2416,7 +2410,6 @@ tests_test_gcups_SOURCES = tests/test_gcups.c
 tests_test_gcups_LDADD = $(LDADD) $(Z_LIBS)
 tests_test_isa_SOURCES = tests/test_isa.c
 tests_test_matrix_SOURCES = tests/test_matrix.c
-tests_test_parser_SOURCES = tests/test_parser.c
 tests_test_openmp_SOURCES = tests/test_openmp.c tests/timer.h \
 	tests/timer_real.h
 tests_test_openmp_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)
@@ -4541,12 +4534,6 @@ tests/tests_test_openmp-test_openmp.$(OBJEXT): tests/$(am__dirstamp) \
 tests/test_openmp$(EXEEXT): $(tests_test_openmp_OBJECTS) $(tests_test_openmp_DEPENDENCIES) $(EXTRA_tests_test_openmp_DEPENDENCIES) tests/$(am__dirstamp)
 	@rm -f tests/test_openmp$(EXEEXT)
 	$(AM_V_CCLD)$(tests_test_openmp_LINK) $(tests_test_openmp_OBJECTS) $(tests_test_openmp_LDADD) $(LIBS)
-tests/test_parser.$(OBJEXT): tests/$(am__dirstamp) \
-	tests/$(DEPDIR)/$(am__dirstamp)
-
-tests/test_parser$(EXEEXT): $(tests_test_parser_OBJECTS) $(tests_test_parser_DEPENDENCIES) $(EXTRA_tests_test_parser_DEPENDENCIES) tests/$(am__dirstamp)
-	@rm -f tests/test_parser$(EXEEXT)
-	$(AM_V_CCLD)$(LINK) $(tests_test_parser_OBJECTS) $(tests_test_parser_LDADD) $(LIBS)
 tests/tests_test_query-test_query.$(OBJEXT): tests/$(am__dirstamp) \
 	tests/$(DEPDIR)/$(am__dirstamp)
 
@@ -5514,7 +5501,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_gcups.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_isa.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_matrix.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_parser.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_sw_dispatch.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/tests_test_openmp-test_openmp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/tests_test_query-test_query.Po@am__quote@

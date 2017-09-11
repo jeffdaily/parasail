@@ -7,7 +7,6 @@
  */
 #include "config.h"
 
-#include <assert.h>
 #include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -131,14 +130,6 @@ void parasail_close(parasail_file_t *pf)
     free(pf);
 }
 
-void parasail_free_file_labels(parasail_file_labels_t *labels)
-{
-    free(labels->memory);
-    free(labels->labels);
-    free(labels->sizes);
-    free(labels);
-}
-
 int parasail_is_fasta(const parasail_file_t *pf)
 {
     if (NULL == pf) {
@@ -226,45 +217,15 @@ parasail_file_stat_t* parasail_stat_buffer(const char *buf, off_t size)
 }
 
 /* increments i until T[i] points to final newline character, returns index */
-inline static off_t skip_line(const char *T, off_t i, unsigned long *count)
+inline static off_t skip_line(const char *T, off_t i)
 {
-    unsigned long c = 0;
-
     while (T[i] != '\n' && T[i] != '\r') {
-        ++c;
         ++i;
     }
 
     /* for the case of "\r\n" or "\n\r" */
     if (T[i+1] == '\n' || T[i+1] == '\r') {
         ++i;
-    }
-
-    if (NULL != count) {
-        *count = c;
-    }
-
-    return i;
-}
-
-/* while copying, increments i until T[i] points to final newline character, returns index */
-inline static off_t copy_line(const char *T, off_t i, unsigned long *count, char *buf)
-{
-    unsigned long c = 0;
-
-    while (T[i] != '\n' && T[i] != '\r') {
-        buf[c] = T[i];
-        ++c;
-        ++i;
-    }
-
-    /* for the case of "\r\n" or "\n\r" */
-    if (T[i+1] == '\n' || T[i+1] == '\r') {
-        ++i;
-    }
-
-    if (NULL != count) {
-        *count = c;
     }
 
     return i;
@@ -286,8 +247,6 @@ parasail_file_stat_t* parasail_stat_fasta_buffer(const char *T, off_t size)
     unsigned long seq = 0;
     unsigned long c = 0;
     unsigned long c_tot = 0;
-    unsigned long l = 0;
-    unsigned long l_tot = 0;
     stats_t stats;
     parasail_file_stat_t *pfs = NULL;
 
@@ -304,9 +263,8 @@ parasail_file_stat_t* parasail_stat_fasta_buffer(const char *T, off_t size)
         exit(EXIT_FAILURE);
     }
 
-    i = skip_line(T, i, &l);
+    i = skip_line(T, i);
     ++i;
-    l_tot += l;
 
     /* count that first sequence */
     ++seq;
@@ -318,8 +276,7 @@ parasail_file_stat_t* parasail_stat_fasta_buffer(const char *T, off_t size)
             ++seq;
             stats_sample_value(&stats, c);
             c = 0;
-            i = skip_line(T, i, &l);
-            l_tot += l;
+            i = skip_line(T, i);
         }
         else if (isalpha(T[i])) {
             ++c;
@@ -359,7 +316,6 @@ parasail_file_stat_t* parasail_stat_fasta_buffer(const char *T, off_t size)
 
     pfs->sequences = seq;
     pfs->characters = c_tot;
-    pfs->label_characters = l_tot;
     pfs->shortest = (unsigned long)stats._min;
     pfs->longest = (unsigned long)stats._max;
     pfs->mean = (float)stats._mean;
@@ -397,8 +353,6 @@ parasail_file_stat_t* parasail_stat_fastq_buffer(const char *T, off_t size)
     unsigned long seq = 0;
     unsigned long c = 0;
     unsigned long c_tot = 0;
-    unsigned long l = 0;
-    unsigned long l_tot = 0;
     unsigned long line = 0;
     stats_t stats;
     parasail_file_stat_t *pfs = NULL;
@@ -428,8 +382,7 @@ parasail_file_stat_t* parasail_stat_fastq_buffer(const char *T, off_t size)
         }
         c = 0;
 
-        i = skip_line(T, i, &l);
-        l_tot += l;
+        i = skip_line(T, i);
 
         /* go to next line */
         ++i;
@@ -438,7 +391,6 @@ parasail_file_stat_t* parasail_stat_fastq_buffer(const char *T, off_t size)
         /* rest of next line is the sequence */
         while (T[i] != '\n' && T[i] != '\r') {
             ++c;
-            ++c_tot;
             ++i;
         }
 
@@ -459,14 +411,14 @@ parasail_file_stat_t* parasail_stat_fastq_buffer(const char *T, off_t size)
             exit(EXIT_FAILURE);
         }
 
-        i = skip_line(T, i, NULL);
+        i = skip_line(T, i);
 
         /* go to next line */
         ++i;
         ++line;
 
         /* rest of next line are the quality control values */
-        i = skip_line(T, i, NULL);
+        i = skip_line(T, i);
 
         /* go to next line */
         ++i;
@@ -482,7 +434,6 @@ parasail_file_stat_t* parasail_stat_fastq_buffer(const char *T, off_t size)
 
     pfs->sequences = seq;
     pfs->characters = c_tot;
-    pfs->label_characters = l_tot;
     pfs->shortest = (unsigned long)stats._min;
     pfs->longest = (unsigned long)stats._max;
     pfs->mean = (float)stats._mean;
@@ -505,12 +456,7 @@ char * parasail_read(const parasail_file_t *pf, long * size)
     return buffer;
 }
 
-char * parasail_pack(const parasail_file_t *pf, long * packed_size)
-{
-    return parasail_pack_with_labels(pf, packed_size, NULL);
-}
-
-char * parasail_pack_with_labels(const parasail_file_t *pf, long * packed_size, parasail_file_labels_t **labels)
+char * parasail_pack(const parasail_file_t *pf, long * size)
 {
     char *packed = NULL;
 
@@ -520,10 +466,10 @@ char * parasail_pack_with_labels(const parasail_file_t *pf, long * packed_size, 
     }
 
     if (parasail_is_fasta(pf)) {
-        packed = parasail_pack_fasta_with_labels(pf, packed_size, labels);
+        packed = parasail_pack_fasta(pf, size);
     }
     else if (parasail_is_fastq(pf)) {
-        packed = parasail_pack_fastq_with_labels(pf, packed_size, labels);
+        packed = parasail_pack_fastq(pf, size);
     }
     else {
         fprintf(stderr, "parasail_pack: cannot determine file format\n");
@@ -535,11 +481,6 @@ char * parasail_pack_with_labels(const parasail_file_t *pf, long * packed_size, 
 
 char * parasail_pack_buffer(const char *buf, off_t size, long * packed_size)
 {
-    return parasail_pack_buffer_with_labels(buf, size, packed_size, NULL);
-}
-
-char * parasail_pack_buffer_with_labels(const char *buf, off_t size, long * packed_size, parasail_file_labels_t **labels)
-{
     char *packed = NULL;
 
     if (NULL == buf) {
@@ -548,10 +489,10 @@ char * parasail_pack_buffer_with_labels(const char *buf, off_t size, long * pack
     }
 
     if (parasail_is_fasta_buffer(buf, size)) {
-        packed = parasail_pack_fasta_buffer_with_labels(buf, size, packed_size, labels);
+        packed = parasail_pack_fasta_buffer(buf, size, packed_size);
     }
     else if (parasail_is_fastq_buffer(buf, size)) {
-        packed = parasail_pack_fastq_buffer_with_labels(buf, size, packed_size, labels);
+        packed = parasail_pack_fastq_buffer(buf, size, packed_size);
     }
     else {
         fprintf(stderr, "parasail_pack: cannot determine file format\n");
@@ -563,11 +504,6 @@ char * parasail_pack_buffer_with_labels(const char *buf, off_t size, long * pack
 
 char * parasail_pack_fasta(const parasail_file_t *pf, long * packed_size)
 {
-    return parasail_pack_fasta_with_labels(pf, packed_size, NULL);
-}
-
-char * parasail_pack_fasta_with_labels(const parasail_file_t *pf, long * packed_size, parasail_file_labels_t **labels)
-{
     if (NULL == pf) {
         fprintf(stderr, "parasail_pack_fasta given NULL pointer\n");
         exit(EXIT_FAILURE);
@@ -578,24 +514,15 @@ char * parasail_pack_fasta_with_labels(const parasail_file_t *pf, long * packed_
         exit(EXIT_FAILURE);
     }
 
-    return parasail_pack_fasta_buffer_with_labels(pf->buf, pf->size, packed_size, labels);
+    return parasail_pack_fasta_buffer(pf->buf, pf->size, packed_size);
 }
 
 char * parasail_pack_fasta_buffer(const char *T, off_t size, long * packed_size)
-{
-    return parasail_pack_fasta_buffer_with_labels(T, size, packed_size, NULL);
-}
-
-char * parasail_pack_fasta_buffer_with_labels(const char *T, off_t size, long * packed_size, parasail_file_labels_t **_labels)
 {
     parasail_file_stat_t *pfs = NULL;
     off_t i = 0;
     off_t w = 0;
     char *P = NULL;
-    parasail_file_labels_t *labels = NULL;
-    unsigned long count = 0;
-    unsigned long offset = 0;
-    unsigned long l = 0;
 
     if (NULL == T) {
         fprintf(stderr, "parasail_pack_fasta_buffer given NULL pointer\n");
@@ -611,40 +538,13 @@ char * parasail_pack_fasta_buffer_with_labels(const char *T, off_t size, long * 
 
     P = (char*)malloc(sizeof(char) * (pfs->characters+pfs->sequences+1));
 
-    /* if we will eventually return labels, allocate space now */
-    if (_labels) {
-        size_t mem = sizeof(char) * (pfs->label_characters+pfs->sequences)+1;
-        labels = (parasail_file_labels_t*)malloc(sizeof(parasail_file_labels_t));
-        assert(labels);
-        labels->sequences = pfs->sequences;
-        labels->labels = (char**)malloc(sizeof(char*) * (pfs->sequences));
-        assert(labels->labels);
-        labels->sizes = (unsigned long*)malloc(sizeof(unsigned long) * pfs->sequences);
-        assert(labels->sizes);
-        labels->memory = (char*)malloc(mem);
-        assert(labels->memory);
-        labels->memory[mem-1] = '\0';
-        *_labels = labels;
-    }
-
     /* first line is always first sequence ID */
     if (T[i] != '>') {
         fprintf(stderr, "poorly formatted FASTA file\n");
         exit(EXIT_FAILURE);
     }
 
-    if (labels) {
-        /* copy all but the '>' into buffer, append null */
-        labels->labels[count] = &labels->memory[offset+1];
-        i = copy_line(T, i, &l, &labels->memory[offset]);
-        offset += l;
-        labels->memory[offset] = '\0';
-        offset += 1;
-        count += 1;
-    }
-    else {
-        i = skip_line(T, i, NULL);
-    }
+    i = skip_line(T, i);
     ++i;
 
     /* read rest of file */
@@ -652,18 +552,7 @@ char * parasail_pack_fasta_buffer_with_labels(const char *T, off_t size, long * 
         if (T[i] == '>') {
             /* encountered a new sequence */
             P[w++] = '$';
-            if (labels) {
-                /* copy all but the '>' into buffer, append null */
-                labels->labels[count] = &labels->memory[offset+1];
-                i = copy_line(T, i, &l, &labels->memory[offset]);
-                offset += l;
-                labels->memory[offset] = '\0';
-                offset += 1;
-                count += 1;
-            }
-            else {
-                i = skip_line(T, i, &l);
-            }
+            i = skip_line(T, i);
         }
         else if (isalpha(T[i])) {
             P[w++] = T[i];
@@ -696,11 +585,6 @@ char * parasail_pack_fasta_buffer_with_labels(const char *T, off_t size, long * 
 
 char * parasail_pack_fastq(const parasail_file_t *pf, long * size)
 {
-    return parasail_pack_fastq_with_labels(pf, size, NULL);
-}
-
-char * parasail_pack_fastq_with_labels(const parasail_file_t *pf, long * size, parasail_file_labels_t **labels)
-{
     if (NULL == pf) {
         fprintf(stderr, "parasail_pack_fastq given NULL pointer\n");
         exit(EXIT_FAILURE);
@@ -711,15 +595,10 @@ char * parasail_pack_fastq_with_labels(const parasail_file_t *pf, long * size, p
         exit(EXIT_FAILURE);
     }
 
-    return parasail_pack_fastq_buffer_with_labels(pf->buf, pf->size, size, labels);
+    return parasail_pack_fastq_buffer(pf->buf, pf->size, size);
 }
 
 char * parasail_pack_fastq_buffer(const char *T, off_t size, long * packed_size)
-{
-    return parasail_pack_fastq_buffer_with_labels(T, size, packed_size, NULL);
-}
-
-char * parasail_pack_fastq_buffer_with_labels(const char *T, off_t size, long * packed_size, parasail_file_labels_t **_labels)
 {
     char *P = NULL;
     int first = 1;
@@ -727,10 +606,6 @@ char * parasail_pack_fastq_buffer_with_labels(const char *T, off_t size, long * 
     off_t w = 0;
     unsigned long line = 0;
     parasail_file_stat_t *pfs = NULL;
-    parasail_file_labels_t *labels = NULL;
-    unsigned long count = 0;
-    unsigned long offset = 0;
-    unsigned long l = 0;
 
     if (NULL == T) {
         fprintf(stderr, "parasail_pack_fastq_buffer given NULL pointer\n");
@@ -745,22 +620,6 @@ char * parasail_pack_fastq_buffer_with_labels(const char *T, off_t size, long * 
     pfs = parasail_stat_fastq_buffer(T, size);
 
     P = (char*)malloc(sizeof(char) * (pfs->characters+pfs->sequences+1));
-
-    /* if we will eventually return labels, allocate space now */
-    if (_labels) {
-        size_t mem = sizeof(char) * (pfs->label_characters+pfs->sequences)+1;
-        labels = (parasail_file_labels_t*)malloc(sizeof(parasail_file_labels_t));
-        assert(labels);
-        labels->sequences = pfs->sequences;
-        labels->labels = (char**)malloc(sizeof(char*) * (pfs->sequences));
-        assert(labels->labels);
-        labels->sizes = (unsigned long*)malloc(sizeof(unsigned long) * pfs->sequences);
-        assert(labels->sizes);
-        labels->memory = (char*)malloc(mem);
-        assert(labels->memory);
-        labels->memory[mem-1] = '\0';
-        *_labels = labels;
-    }
 
     /* read file */
     while (i<size) {
@@ -778,18 +637,7 @@ char * parasail_pack_fastq_buffer_with_labels(const char *T, off_t size, long * 
             P[w++] = '$';
         }
 
-		if (labels) {
-			/* copy all but the '@' into buffer, append null */
-			labels->labels[count] = &labels->memory[offset+1];
-			i = copy_line(T, i, &l, &labels->memory[offset]);
-			offset += l;
-			labels->memory[offset] = '\0';
-			offset += 1;
-			count += 1;
-		}
-        else {
-            i = skip_line(T, i, NULL);
-        }
+        i = skip_line(T, i);
 
         /* go to next line */
         ++i;
@@ -816,14 +664,14 @@ char * parasail_pack_fastq_buffer_with_labels(const char *T, off_t size, long * 
             exit(EXIT_FAILURE);
         }
 
-        i = skip_line(T, i, NULL);
+        i = skip_line(T, i);
 
         /* go to next line */
         ++i;
         ++line;
 
         /* rest of next line are the quality control values */
-        i = skip_line(T, i, NULL);
+        i = skip_line(T, i);
 
         /* go to next line */
         ++i;
@@ -987,7 +835,7 @@ parasail_matrix_t* parasail_matrix_from_file(const char *filename)
     while (i<size) {
         if (T[i] == '#') {
             /* ignore comments */
-            i = skip_line(T, i, NULL);
+            i = skip_line(T, i);
         }
         else if (isalpha(T[i]) || T[i] == '*') {
             if (first_alpha) {
@@ -1000,7 +848,7 @@ parasail_matrix_t* parasail_matrix_from_file(const char *filename)
                     perror("malloc");
                     exit(EXIT_FAILURE);
                 }
-                i = skip_line(T, i, NULL);
+                i = skip_line(T, i);
             }
             else {
                 size_t j=0;

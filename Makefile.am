@@ -873,7 +873,6 @@ check_PROGRAMS += tests/test_gcups
 check_PROGRAMS += tests/test_isa
 check_PROGRAMS += tests/test_matrix
 check_PROGRAMS += tests/test_openmp
-check_PROGRAMS += tests/test_parser
 check_PROGRAMS += tests/test_query
 check_PROGRAMS += tests/test_scatter
 check_PROGRAMS += tests/test_sw_dispatch
@@ -919,9 +918,6 @@ tests_test_gcups_LDADD += $(Z_LIBS)
 tests_test_isa_SOURCES = tests/test_isa.c
 
 tests_test_matrix_SOURCES = tests/test_matrix.c
-
-tests_test_parser_SOURCES =
-tests_test_parser_SOURCES += tests/test_parser.c
 
 tests_test_openmp_SOURCES =
 tests_test_openmp_SOURCES += tests/test_openmp.c

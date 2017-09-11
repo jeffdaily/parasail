@@ -66,7 +66,6 @@ EXPORTS
 ; from parasail/io.h
     parasail_open
     parasail_close
-    parasail_free_file_labels
     parasail_is_fasta
     parasail_is_fastq
     parasail_stat
@@ -76,9 +75,6 @@ EXPORTS
     parasail_pack
     parasail_pack_fasta
     parasail_pack_fastq
-    parasail_pack_with_labels
-    parasail_pack_fasta_with_labels
-    parasail_pack_fastq_with_labels
     parasail_is_fasta_buffer
     parasail_is_fastq_buffer
     parasail_stat_buffer
@@ -87,9 +83,6 @@ EXPORTS
     parasail_pack_buffer
     parasail_pack_fasta_buffer
     parasail_pack_fastq_buffer
-    parasail_pack_buffer_with_labels
-    parasail_pack_fasta_buffer_with_labels
-    parasail_pack_fastq_buffer_with_labels
 ; from parasail/cpuid.h
     parasail_can_use_avx512vbmi
     parasail_can_use_avx512bw

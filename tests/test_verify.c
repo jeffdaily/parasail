@@ -277,7 +277,6 @@ static void check_functions(
 
 int main(int argc, char **argv)
 {
-    unsigned long i = 0;
     unsigned long seq_count = 0;
     unsigned long limit = 0;
     parasail_sequences_t *sequences = NULL;

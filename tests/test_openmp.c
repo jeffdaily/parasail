@@ -4,6 +4,7 @@
 /* strdup needs _POSIX_C_SOURCE 200809L */
 #define _POSIX_C_SOURCE 200809L
 
+#include <ctype.h>
 #include <limits.h>
 #include <math.h>
 #include <stddef.h>
@@ -21,16 +22,6 @@
 #if defined(_OPENMP)
 #include <omp.h>
 #endif
-
-#if defined(_MSC_VER)
-#include <io.h>
-#define READ_FUNCTION _read
-#else
-#define READ_FUNCTION read
-#endif
-
-#include "kseq.h"
-KSEQ_INIT(int, READ_FUNCTION)
 
 #if HAVE_SSE2
 #include "ssw.h"

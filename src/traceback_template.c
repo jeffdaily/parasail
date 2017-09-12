@@ -58,9 +58,57 @@ static inline void CONCAT(NAME, T) (
     }
     segLen = (lena + segWidth - 1) / segWidth;
 #endif
-    while (i >= 0 && j >= 0) {
+    /* semi-global alignment includes the end gaps */
+    if (result->flag & PARASAIL_FLAG_SG) {
+        int k;
+        if (result->end_query+1 == lena) {
+            k = lenb-1;
+            while (k > j) {
+                ++c_ins;
+                *(qc++) = '-';
+                *(dc++) = seqB[k];
+                *(ac++) = ' ';
+                --k;
+            }
+        }
+        else if (result->end_ref+1 == lenb) {
+            k = lena-1;
+            while (k > i) {
+                ++c_del;
+                *(qc++) = seqA[k];
+                *(dc++) = '-';
+                *(ac++) = ' ';
+                --k;
+            }
+        }
+        else {
+            assert(0);
+        }
+    }
+    //while (i >= 0 && j >= 0) {
+    while (i >= 0 || j >= 0) {
         LOC
-        assert(i >= 0 && j >= 0);
+        //assert(i >= 0 && j >= 0);
+        if (i < 0) {
+            while (j >= 0) {
+                ++c_ins;
+                *(qc++) = '-';
+                *(dc++) = seqB[j];
+                *(ac++) = ' ';
+                --j;
+            }
+            break;
+        }
+        if (j < 0) {
+            while (i >= 0) {
+                ++c_del;
+                *(qc++) = seqA[i];
+                *(dc++) = '-';
+                *(ac++) = ' ';
+                --i;
+            }
+            break;
+        }
         if (PARASAIL_DIAG == where) {
             if (HT[loc] == PARASAIL_DIAG) {
                 *(qc++) = seqA[i];
@@ -134,11 +182,19 @@ static inline void CONCAT(NAME, T) (
         int sim = 0;
         int gap = 0;
         int len = strlen(a);
-        int q_pindex = result->end_query + 1 - len + c_ins;
-        int d_pindex = result->end_ref + 1 - len + c_del;
+        int q_pindex = 0;
+        int d_pindex = 0;
         int qi = 0;
         int ai = 0;
         int di = 0;
+        if (result->flag & PARASAIL_FLAG_SW) {
+            q_pindex = result->end_query + 1 - len + c_ins;
+            d_pindex = result->end_ref + 1 - len + c_del;
+        }
+        else {
+            q_pindex = 0;
+            d_pindex = 0;
+        }
         qr = parasail_reverse(q, strlen(q));
         ar = parasail_reverse(a, strlen(a));
         dr = parasail_reverse(d, strlen(d));

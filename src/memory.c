@@ -136,6 +136,22 @@ parasail_result_t* parasail_result_new()
     return result;
 }
 
+parasail_result_t* parasail_result_new_stats()
+{
+    /* declare all variables */
+    parasail_result_t *result = NULL;
+
+    /* allocate struct to hold memory */
+    result = parasail_result_new();
+
+    /* allocate only tables */
+    result->stats = (parasail_result_extra_stats_t*)
+        malloc(sizeof(parasail_result_extra_stats_t));
+    assert(result->stats);
+
+    return result;
+}
+
 parasail_result_t* parasail_result_new_table1(const int a, const int b)
 {
     /* declare all variables */
@@ -607,12 +623,12 @@ int parasail_result_is_stats(const parasail_result_t * const restrict result)
 
 int parasail_result_is_stats_table(const parasail_result_t * const restrict result)
 {
-    return result->flag & (PARASAIL_FLAG_STATS|PARASAIL_FLAG_TABLE);
+    return (result->flag & PARASAIL_FLAG_STATS) && (result->flag & PARASAIL_FLAG_TABLE);
 }
 
 int parasail_result_is_stats_rowcol(const parasail_result_t * const restrict result)
 {
-    return result->flag & (PARASAIL_FLAG_STATS|PARASAIL_FLAG_ROWCOL);
+    return (result->flag & PARASAIL_FLAG_STATS) && (result->flag & PARASAIL_FLAG_ROWCOL);
 }
 
 int parasail_result_is_table(const parasail_result_t * const restrict result)

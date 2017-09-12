@@ -346,7 +346,7 @@ end:
     result->score = score;
     result->end_query = end_query;
     result->end_ref = end_ref;
-    result->flag = PARASAIL_FLAG_NW | PARASAIL_FLAG_STRIPED
+    result->flag |= PARASAIL_FLAG_NW | PARASAIL_FLAG_STRIPED
         | PARASAIL_FLAG_BITS_8 | PARASAIL_FLAG_LANES_32;
 #ifdef PARASAIL_TABLE
     result->flag |= PARASAIL_FLAG_TABLE;

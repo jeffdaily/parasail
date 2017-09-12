@@ -119,7 +119,7 @@ parasail_result_t* ENAME(
     result->score = H[s1Len-1];
     result->end_query = s1Len-1;
     result->end_ref = s2Len-1;
-    result->flag = PARASAIL_FLAG_NW | PARASAIL_FLAG_NOVEC_SCAN
+    result->flag |= PARASAIL_FLAG_NW | PARASAIL_FLAG_NOVEC_SCAN
         | PARASAIL_FLAG_TRACE
         | PARASAIL_FLAG_BITS_INT | PARASAIL_FLAG_LANES_1;
 

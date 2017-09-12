@@ -105,6 +105,7 @@ EXPORTS
     parasail_memset_int32_t
     parasail_memset_int64_t
     parasail_result_new
+    parasail_result_new_stats
     parasail_result_new_table1
     parasail_result_new_table3
     parasail_result_new_rowcol1
@@ -112,6 +113,7 @@ EXPORTS
     parasail_result_new_trace
     parasail_profile_new
     parasail_reverse
+    parasail_reverse_uint32_t
     parasail_striped_unwind
 ; from parasail.h, generated names
     parasail_nw

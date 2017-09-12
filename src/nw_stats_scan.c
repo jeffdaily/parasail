@@ -37,7 +37,7 @@ parasail_result_t* ENAME(
 #ifdef PARASAIL_ROWCOL
     parasail_result_t *result = parasail_result_new_rowcol3(s1Len, s2Len);
 #else
-    parasail_result_t *result = parasail_result_new();
+    parasail_result_t *result = parasail_result_new_stats();
 #endif
 #endif
     int * const restrict s1 = parasail_memalign_int(16, s1Len);
@@ -211,7 +211,7 @@ parasail_result_t* ENAME(
     result->stats->matches = HM[s1Len-1];
     result->stats->similar = HS[s1Len-1];
     result->stats->length = HL[s1Len-1];
-    result->flag = PARASAIL_FLAG_NW | PARASAIL_FLAG_NOVEC_SCAN
+    result->flag |= PARASAIL_FLAG_NW | PARASAIL_FLAG_NOVEC_SCAN
         | PARASAIL_FLAG_STATS
         | PARASAIL_FLAG_BITS_INT | PARASAIL_FLAG_LANES_1;
 #ifdef PARASAIL_TABLE

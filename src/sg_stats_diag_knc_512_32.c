@@ -248,7 +248,7 @@ parasail_result_t* FNAME(
 #ifdef PARASAIL_ROWCOL
     parasail_result_t *result = parasail_result_new_rowcol3(s1Len, s2Len);
 #else
-    parasail_result_t *result = parasail_result_new();
+    parasail_result_t *result = parasail_result_new_stats();
 #endif
 #endif
     int i = 0;

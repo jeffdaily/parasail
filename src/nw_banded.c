@@ -138,7 +138,7 @@ parasail_result_t* ENAME(
     result->score = s1Len > s2Len ? H[-low] : H[k];
     result->end_query = s1Len-1;
     result->end_ref = s2Len-1;
-    result->flag = PARASAIL_FLAG_NW | PARASAIL_FLAG_NOVEC
+    result->flag |= PARASAIL_FLAG_NW | PARASAIL_FLAG_NOVEC
         | PARASAIL_FLAG_BANDED
         | PARASAIL_FLAG_BITS_INT | PARASAIL_FLAG_LANES_1;
 #ifdef PARASAIL_TABLE

@@ -95,6 +95,10 @@ parasail_sequences_t* parasail_sequences_from_file(const char *filename)
         sequences[count].comment.l = seq->comment.l;
         sequences[count].seq.l = seq->seq.l;
         sequences[count].qual.l = seq->qual.l;
+        sequences[count].name.s = NULL;
+        sequences[count].comment.s = NULL;
+        sequences[count].seq.s = NULL;
+        sequences[count].qual.s = NULL;
 
         stats_sample_value(&stats, seq->seq.l);
         chars += seq->seq.l;

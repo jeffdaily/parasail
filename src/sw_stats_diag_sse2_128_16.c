@@ -169,7 +169,7 @@ parasail_result_t* FNAME(
 #ifdef PARASAIL_ROWCOL
     parasail_result_t *result = parasail_result_new_rowcol3(s1Len, s2Len);
 #else
-    parasail_result_t *result = parasail_result_new();
+    parasail_result_t *result = parasail_result_new_stats();
 #endif
 #endif
     int32_t i = 0;
@@ -509,7 +509,7 @@ parasail_result_t* FNAME(
     result->stats->matches = matches;
     result->stats->similar = similar;
     result->stats->length = length;
-    result->flag = PARASAIL_FLAG_SW | PARASAIL_FLAG_DIAG
+    result->flag |= PARASAIL_FLAG_SW | PARASAIL_FLAG_DIAG
         | PARASAIL_FLAG_STATS
         | PARASAIL_FLAG_BITS_16 | PARASAIL_FLAG_LANES_8;
 #ifdef PARASAIL_TABLE

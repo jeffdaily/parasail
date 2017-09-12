@@ -288,7 +288,7 @@ parasail_result_t* PNAME(
     result->score = score;
     result->end_query = end_query;
     result->end_ref = end_ref;
-    result->flag = PARASAIL_FLAG_NW | PARASAIL_FLAG_SCAN
+    result->flag |= PARASAIL_FLAG_NW | PARASAIL_FLAG_SCAN
         | PARASAIL_FLAG_BITS_32 | PARASAIL_FLAG_LANES_4;
 #ifdef PARASAIL_TABLE
     result->flag |= PARASAIL_FLAG_TABLE;

@@ -181,7 +181,7 @@ parasail_result_t* PNAME(
     const int32_t offset = (s1Len - 1) % segLen;
     const int32_t position = (segWidth - 1) - (s1Len - 1) / segLen;
 #else
-    parasail_result_t *result = parasail_result_new();
+    parasail_result_t *result = parasail_result_new_stats();
 #endif
 #endif
 
@@ -509,7 +509,7 @@ parasail_result_t* PNAME(
     result->stats->matches = matches;
     result->stats->similar = similar;
     result->stats->length = length;
-    result->flag = PARASAIL_FLAG_SW | PARASAIL_FLAG_SCAN
+    result->flag |= PARASAIL_FLAG_SW | PARASAIL_FLAG_SCAN
         | PARASAIL_FLAG_STATS
         | PARASAIL_FLAG_BITS_16 | PARASAIL_FLAG_LANES_16;
 #ifdef PARASAIL_TABLE

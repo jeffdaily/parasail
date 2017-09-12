@@ -45,9 +45,16 @@ typedef struct parasail_sequence {
 typedef struct parasail_sequences {
     parasail_sequence_t *seqs;
     size_t l;
+    size_t characters;
+    size_t shortest;
+    size_t longest;
+    float mean;
+    float stddev;
 } parasail_sequences_t;
 
 parasail_sequences_t* parasail_sequences_from_file(const char *fname);
+
+char* parasail_sequences_pack(const parasail_sequences_t *sequences, size_t *size);
 
 void parasail_sequences_free(parasail_sequences_t *sequences);
 

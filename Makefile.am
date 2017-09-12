@@ -872,6 +872,7 @@ endif
 check_PROGRAMS += tests/traceback
 check_PROGRAMS += tests/test_align
 check_PROGRAMS += tests/test_gcups
+check_PROGRAMS += tests/test_io
 check_PROGRAMS += tests/test_isa
 check_PROGRAMS += tests/test_matrix
 check_PROGRAMS += tests/test_openmp
@@ -915,6 +916,8 @@ tests_test_align_SOURCES += tests/timer_real.h
 tests_test_gcups_SOURCES = tests/test_gcups.c
 
 tests_test_isa_SOURCES = tests/test_isa.c
+
+tests_test_io_SOURCES = tests/test_io.c
 
 tests_test_matrix_SOURCES = tests/test_matrix.c
 

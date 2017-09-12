@@ -83,11 +83,11 @@ host_triplet = @host@
 bin_PROGRAMS = apps/parasail_aligner$(EXEEXT) \
 	apps/parasail_stats$(EXEEXT) $(am__EXEEXT_1)
 check_PROGRAMS = tests/traceback$(EXEEXT) tests/test_align$(EXEEXT) \
-	tests/test_gcups$(EXEEXT) tests/test_isa$(EXEEXT) \
-	tests/test_matrix$(EXEEXT) tests/test_openmp$(EXEEXT) \
-	tests/test_query$(EXEEXT) tests/test_scatter$(EXEEXT) \
-	tests/test_sw_dispatch$(EXEEXT) tests/test_verify$(EXEEXT) \
-	tests/test_verify_tables$(EXEEXT) \
+	tests/test_gcups$(EXEEXT) tests/test_io$(EXEEXT) \
+	tests/test_isa$(EXEEXT) tests/test_matrix$(EXEEXT) \
+	tests/test_openmp$(EXEEXT) tests/test_query$(EXEEXT) \
+	tests/test_scatter$(EXEEXT) tests/test_sw_dispatch$(EXEEXT) \
+	tests/test_verify$(EXEEXT) tests/test_verify_tables$(EXEEXT) \
 	tests/test_verify_rowcols$(EXEEXT) \
 	tests/test_verify_traces$(EXEEXT) $(am__EXEEXT_2)
 @HAVE_SSE_TRUE@am__append_1 = libparasail_sse_memory.la
@@ -1286,6 +1286,10 @@ am_tests_test_gcups_OBJECTS = tests/test_gcups.$(OBJEXT)
 tests_test_gcups_OBJECTS = $(am_tests_test_gcups_OBJECTS)
 tests_test_gcups_LDADD = $(LDADD)
 tests_test_gcups_DEPENDENCIES = libparasail.la
+am_tests_test_io_OBJECTS = tests/test_io.$(OBJEXT)
+tests_test_io_OBJECTS = $(am_tests_test_io_OBJECTS)
+tests_test_io_LDADD = $(LDADD)
+tests_test_io_DEPENDENCIES = libparasail.la
 am_tests_test_isa_OBJECTS = tests/test_isa.$(OBJEXT)
 tests_test_isa_OBJECTS = $(am_tests_test_isa_OBJECTS)
 tests_test_isa_LDADD = $(LDADD)
@@ -1449,10 +1453,11 @@ SOURCES = $(libparasail_la_SOURCES) $(libparasail_avx2_la_SOURCES) \
 	$(apps_parasail_aligner_cilk_SOURCES) \
 	$(apps_parasail_stats_SOURCES) $(tests_ssw_test_SOURCES) \
 	$(tests_test_align_SOURCES) $(tests_test_gcups_SOURCES) \
-	$(tests_test_isa_SOURCES) $(tests_test_matrix_SOURCES) \
-	$(tests_test_openmp_SOURCES) $(tests_test_query_SOURCES) \
-	$(tests_test_scatter_SOURCES) $(tests_test_ssw_SOURCES) \
-	$(tests_test_sw_dispatch_SOURCES) $(tests_test_verify_SOURCES) \
+	$(tests_test_io_SOURCES) $(tests_test_isa_SOURCES) \
+	$(tests_test_matrix_SOURCES) $(tests_test_openmp_SOURCES) \
+	$(tests_test_query_SOURCES) $(tests_test_scatter_SOURCES) \
+	$(tests_test_ssw_SOURCES) $(tests_test_sw_dispatch_SOURCES) \
+	$(tests_test_verify_SOURCES) \
 	$(tests_test_verify_rowcols_SOURCES) \
 	$(tests_test_verify_tables_SOURCES) \
 	$(tests_test_verify_traces_SOURCES) $(tests_traceback_SOURCES)
@@ -1481,10 +1486,11 @@ DIST_SOURCES = $(libparasail_la_SOURCES) \
 	$(apps_parasail_aligner_cilk_SOURCES) \
 	$(apps_parasail_stats_SOURCES) $(tests_ssw_test_SOURCES) \
 	$(tests_test_align_SOURCES) $(tests_test_gcups_SOURCES) \
-	$(tests_test_isa_SOURCES) $(tests_test_matrix_SOURCES) \
-	$(tests_test_openmp_SOURCES) $(tests_test_query_SOURCES) \
-	$(tests_test_scatter_SOURCES) $(tests_test_ssw_SOURCES) \
-	$(tests_test_sw_dispatch_SOURCES) $(tests_test_verify_SOURCES) \
+	$(tests_test_io_SOURCES) $(tests_test_isa_SOURCES) \
+	$(tests_test_matrix_SOURCES) $(tests_test_openmp_SOURCES) \
+	$(tests_test_query_SOURCES) $(tests_test_scatter_SOURCES) \
+	$(tests_test_ssw_SOURCES) $(tests_test_sw_dispatch_SOURCES) \
+	$(tests_test_verify_SOURCES) \
 	$(tests_test_verify_rowcols_SOURCES) \
 	$(tests_test_verify_tables_SOURCES) \
 	$(tests_test_verify_traces_SOURCES) $(tests_traceback_SOURCES)
@@ -2408,6 +2414,7 @@ tests_test_align_SOURCES = tests/test_align.c tests/timer.h \
 	tests/timer_real.h
 tests_test_gcups_SOURCES = tests/test_gcups.c
 tests_test_isa_SOURCES = tests/test_isa.c
+tests_test_io_SOURCES = tests/test_io.c
 tests_test_matrix_SOURCES = tests/test_matrix.c
 tests_test_openmp_SOURCES = tests/test_openmp.c tests/timer.h \
 	tests/timer_real.h
@@ -4516,6 +4523,12 @@ tests/test_gcups.$(OBJEXT): tests/$(am__dirstamp) \
 tests/test_gcups$(EXEEXT): $(tests_test_gcups_OBJECTS) $(tests_test_gcups_DEPENDENCIES) $(EXTRA_tests_test_gcups_DEPENDENCIES) tests/$(am__dirstamp)
 	@rm -f tests/test_gcups$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(tests_test_gcups_OBJECTS) $(tests_test_gcups_LDADD) $(LIBS)
+tests/test_io.$(OBJEXT): tests/$(am__dirstamp) \
+	tests/$(DEPDIR)/$(am__dirstamp)
+
+tests/test_io$(EXEEXT): $(tests_test_io_OBJECTS) $(tests_test_io_DEPENDENCIES) $(EXTRA_tests_test_io_DEPENDENCIES) tests/$(am__dirstamp)
+	@rm -f tests/test_io$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(tests_test_io_OBJECTS) $(tests_test_io_LDADD) $(LIBS)
 tests/test_isa.$(OBJEXT): tests/$(am__dirstamp) \
 	tests/$(DEPDIR)/$(am__dirstamp)
 
@@ -5500,6 +5513,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/traceback.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_align.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_gcups.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_io.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_isa.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_matrix.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_sw_dispatch.Po@am__quote@

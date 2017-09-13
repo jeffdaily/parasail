@@ -65,6 +65,7 @@ EXPORTS
     parasail_result_get_trace_del_table
 ; from parasail/io.h
     parasail_sequences_from_file
+    parasail_sequences_pack
     parasail_sequences_free
     parasail_open
     parasail_close

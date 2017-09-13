@@ -259,13 +259,17 @@ extern parasail_result_t* parasail_nw_banded(
         const int open, const int gap, const int k,
         const parasail_matrix_t* matrix);
 
-extern void parasail_traceback(
+extern void parasail_traceback_generic(
         const char *seqA,
         int lena,
         const char *seqB,
         int lenb,
+        const char *nameA,
+        const char *nameB,
         const parasail_matrix_t *matrix,
-        parasail_result_t *result);
+        parasail_result_t *result,
+        char match, char pos, char neg,
+        int width);
 
 #ifndef BAM_CIGAR_STR
 /*                     0123456789 */
@@ -280,6 +284,8 @@ extern const uint8_t parasail_cigar_encoded_ops[];
 typedef struct parasail_cigar_ {
     uint32_t *seq;
     int len;
+    int beg_query;
+    int beg_ref;
 } parasail_cigar_t;
 
 /**

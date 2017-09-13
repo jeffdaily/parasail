@@ -236,6 +236,8 @@ int main(int argc, char **argv) {
     const char *fname = NULL;
     const char *qname = NULL;
     const char *oname = "parasail.csv";
+    parasail_sequences_t *sequences = NULL;
+    parasail_sequences_t *queries = NULL;
     unsigned char *T = NULL;
     unsigned char *Q = NULL;
     int num_threads = -1;
@@ -257,6 +259,7 @@ int main(int argc, char **argv) {
     char sentinal = 0;
     int cutoff = 7;
     bool use_filter = true;
+    bool use_emboss_format = true;
     PairSet pairs;
     PairVec vpairs;
     unsigned long count_possible = 0;
@@ -284,8 +287,6 @@ int main(int argc, char **argv) {
     bool pairs_only = false;
     bool edge_output = false;
     bool graph_output = false;
-    bool fpack = false;
-    bool qpack = false;
     bool is_stats = true;
     bool is_table = false;
     bool has_query = false;
@@ -320,10 +321,6 @@ int main(int argc, char **argv) {
                 break;
             case 'f':
                 fname = optarg;
-                break;
-            case 'F':
-                fname = optarg;
-                fpack = true;
                 break;
             case 'g':
                 oname = optarg;
@@ -372,10 +369,6 @@ int main(int argc, char **argv) {
                 break;
             case 'q':
                 qname = optarg;
-                break;
-            case 'Q':
-                qname = optarg;
-                qpack = true;
                 break;
             case 't':
                 num_threads = atoi(optarg);
@@ -550,33 +543,19 @@ int main(int argc, char **argv) {
     
     start = parasail_time();
     if (!has_query) {
-        parasail_file_t *pf = parasail_open(fname);
-        if (fpack) {
-            T = (unsigned char*)parasail_read(pf, &n);
-        }
-        else {
-            T = (unsigned char*)parasail_pack(pf, &n);
-        }
-        parasail_close(pf);
+        size_t count = 0;
+        sequences = parasail_sequences_from_file(fname);
+        T = (unsigned char*)parasail_sequences_pack(sequences, &count);
+        n = count;
     }
     else {
-        parasail_file_t *pf = NULL;
-        pf = parasail_open(fname);
-        if (fpack) {
-            T = (unsigned char*)parasail_read(pf, &t);
-        }
-        else {
-            T = (unsigned char*)parasail_pack(pf, &t);
-        }
-        parasail_close(pf);
-        pf = parasail_open(qname);
-        if (qpack) {
-            Q = (unsigned char*)parasail_read(pf, &q);
-        }
-        else {
-            Q = (unsigned char*)parasail_pack(pf, &q);
-        }
-        parasail_close(pf);
+        size_t count = 0;
+        sequences = parasail_sequences_from_file(fname);
+        T = (unsigned char*)parasail_sequences_pack(sequences, &count);
+        t = count;
+        queries = parasail_sequences_from_file(qname);
+        Q = (unsigned char*)parasail_sequences_pack(queries, &count);
+        q = count;
         n = t+q;
         /* realloc T and copy Q into it */
         T = (unsigned char*)realloc(T, (n+1)*sizeof(unsigned char));
@@ -1097,7 +1076,32 @@ int main(int argc, char **argv) {
         }
     }
     else if (is_trace) {
-        output_trace(fop, has_query, sid_crossover, T, matrix, BEG, END, vpairs, results);
+        if (use_emboss_format) {
+            for (size_t index=0; index<results.size(); ++index) {
+                parasail_result_t *result = results[index];
+                int i = vpairs[index].first;
+                int j = vpairs[index].second;
+
+                if (has_query) {
+                    i = i - sid_crossover;
+                }
+
+                parasail_traceback_generic(
+                        sequences->seqs[i].seq.s,
+                        sequences->seqs[i].seq.l,
+                        sequences->seqs[j].seq.s,
+                        sequences->seqs[j].seq.l,
+                        sequences->seqs[i].name.s,
+                        sequences->seqs[i].name.s,
+                        matrix,
+                        result,
+                        '|', ':', '.',
+                        50);
+            }
+        }
+        else {
+            output_trace(fop, has_query, sid_crossover, T, matrix, BEG, END, vpairs, results);
+        }
     }
     else {
         output_basic(fop, has_query, sid_crossover, BEG, END, vpairs, results);
@@ -1117,6 +1121,9 @@ int main(int argc, char **argv) {
 
     /* Done with input text. */
     free(T);
+
+    /* Done with sequences. */
+    parasail_sequences_free(sequences);
 
     return 0;
 }

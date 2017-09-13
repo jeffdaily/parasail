@@ -15,8 +15,12 @@ static inline void CONCAT(NAME, T) (
         int lena,
         const char *seqB,
         int lenb,
+        const char *nameA,
+        const char *nameB,
         const parasail_matrix_t *matrix,
-        parasail_result_t *result)
+        parasail_result_t *result,
+        char match, char pos, char neg,
+        int width)
 {
     char *q = malloc(sizeof(char)*(lena+lenb));
     char *d = malloc(sizeof(char)*(lena+lenb));
@@ -113,7 +117,7 @@ static inline void CONCAT(NAME, T) (
             if (HT[loc] == PARASAIL_DIAG) {
                 *(qc++) = seqA[i];
                 *(dc++) = seqB[j];
-                *(ac++) = match_char(seqA[i], seqB[j], matrix);
+                *(ac++) = match_char(seqA[i], seqB[j], matrix, match, pos, neg);
                 --i;
                 --j;
             }
@@ -174,7 +178,6 @@ static inline void CONCAT(NAME, T) (
     *(ac++) = '\0';
 
     if (1) {
-#define CUTOFF 50
         char *qr = NULL;
         char *ar = NULL;
         char *dr = NULL;
@@ -187,6 +190,7 @@ static inline void CONCAT(NAME, T) (
         int qi = 0;
         int ai = 0;
         int di = 0;
+
         if (result->flag & PARASAIL_FLAG_SW) {
             q_pindex = result->end_query + 1 - len + c_ins;
             d_pindex = result->end_ref + 1 - len + c_del;
@@ -198,20 +202,20 @@ static inline void CONCAT(NAME, T) (
         qr = parasail_reverse(q, strlen(q));
         ar = parasail_reverse(a, strlen(a));
         dr = parasail_reverse(d, strlen(d));
-        for (i=0; i<len; i+=CUTOFF) {
+        for (i=0; i<len; i+=width) {
             printf("\n");
-            printf("%5d ", q_pindex+1);
-            for (j=0; j<len&&j<CUTOFF&&qi<len; ++j) {
+            printf("%7d ", q_pindex+1);
+            for (j=0; j<len&&j<width&&qi<len; ++j) {
                 if (qr[qi] != '-') ++q_pindex;
                 printf("%c", qr[qi]);
                 ++qi;
             }
-            printf(" %5d\n", q_pindex);
-            printf("      ");
-            for (j=0; j<len&&j<CUTOFF&&ai<len; ++j) {
-                if (ar[ai] == '|') { ++mch; ++sim; }
-                else if (ar[ai] == ':') ++sim;
-                else if (ar[ai] == '.') ;
+            printf(" %7d\n", q_pindex);
+            printf("        ");
+            for (j=0; j<len&&j<width&&ai<len; ++j) {
+                if (ar[ai] == match) { ++mch; ++sim; }
+                else if (ar[ai] == pos) ++sim;
+                else if (ar[ai] == neg) ;
                 else if (ar[ai] == ' ') ++gap;
                 else {
                     printf("bad char in traceback '%c'\n", ar[ai]);
@@ -221,13 +225,13 @@ static inline void CONCAT(NAME, T) (
                 ++ai;
             }
             printf("\n");
-            printf("%5d ", d_pindex+1);
-            for (j=0; j<len&&j<CUTOFF&&di<len; ++j) {
+            printf("%7d ", d_pindex+1);
+            for (j=0; j<len&&j<width&&di<len; ++j) {
                 if (dr[di] != '-') ++d_pindex;
                 printf("%c", dr[di]);
                 ++di;
             }
-            printf(" %5d\n", d_pindex);
+            printf(" %7d\n", d_pindex);
         }
         printf("\n");
         printf("Length: %d\n", len);

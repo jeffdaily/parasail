@@ -19,7 +19,7 @@ EXPORTS
     parasail_matrix_copy
     parasail_matrix_set_value
     parasail_nw_banded
-    parasail_traceback
+    parasail_traceback_generic
     parasail_cigar_encode
     parasail_cigar_encode_string
     parasail_cigar_decode_op

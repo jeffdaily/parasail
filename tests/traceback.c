@@ -237,7 +237,17 @@ int main(int argc, char **argv)
     assert(result->trace->trace_del_table);
 
     /* do the traceback */
-    parasail_traceback(seqA, lena, seqB, lenb, matrix, result);
+    parasail_traceback_generic(seqA, lena, seqB, lenb,
+            sequences->seqs[seqA_index].name.s,
+            sequences->seqs[seqB_index].name.s,
+            matrix, result,
+            '|', ':', '.', 50);
+
+    parasail_traceback_generic(seqA, lena, seqB, lenb,
+            sequences->seqs[seqA_index].name.s,
+            sequences->seqs[seqB_index].name.s,
+            matrix, result,
+            '|', '*', '*', 60);
 
     printf("Score:          %d\n", result->score);
     printf("end_query:      %d\n", result->end_query);
@@ -257,6 +267,9 @@ int main(int argc, char **argv)
         printf("%u%c", len, op);
     }
     printf("'\n");
+
+    printf("beg_query:      %d\n", cigar->beg_query);
+    printf("beg_ref:        %d\n", cigar->beg_ref);
 
     /* test the encode/decode functionality */
     cigar_string = parasail_cigar_decode(cigar);

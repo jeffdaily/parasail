@@ -271,6 +271,73 @@ int main(int argc, char **argv)
     printf("beg_query:      %d\n", cigar->beg_query);
     printf("beg_ref:        %d\n", cigar->beg_ref);
 
+    /* translate cigar into traceback */
+    {
+        uint32_t i;
+        uint32_t j;
+        char *_a = malloc(lena+lenb+1);
+        char *_b = malloc(lena+lenb+1);
+        char *_x = malloc(lena+lenb+1);
+        char *a = _a;
+        char *b = _b;
+        char *x = _x;
+        size_t ao = cigar->beg_query;
+        size_t bo = cigar->beg_ref;
+        uint32_t size = 0;
+        for (c=0; c<cigar->len; ++c) {
+            uint32_t len = parasail_cigar_decode_len(cigar->seq[c]);
+            char op =  parasail_cigar_decode_op(cigar->seq[c]);
+            size += len;
+            for (i=0; i<len; ++i) {
+                if ('=' == op) {
+                    *(a++) = sequences->seqs[seqA_index].seq.s[ao++];
+                    *(b++) = sequences->seqs[seqB_index].seq.s[bo++];
+                    *(x++) = '|';
+                }
+                else if ('X' == op) {
+                    *(a++) = sequences->seqs[seqA_index].seq.s[ao++];
+                    *(b++) = sequences->seqs[seqB_index].seq.s[bo++];
+                    *(x++) = '*';
+                }
+                else if ('D' == op) {
+                    *(a++) = sequences->seqs[seqA_index].seq.s[ao++];
+                    *(b++) = '-';
+                    *(x++) = ' ';
+                }
+                else if ('I' == op) {
+                    *(a++) = '-';
+                    *(b++) = sequences->seqs[seqB_index].seq.s[bo++];
+                    *(x++) = ' ';
+                }
+            }
+        }
+        *a = '\0';
+        *b = '\0';
+        *x = '\0';
+        a = _a;
+        b = _b;
+        x = _x;
+        for (i=0; i<size; i+=60) {
+            printf("\n");
+            for (j=0; j<size&&j<60&&*a!='\0'; ++j) {
+                printf("%c", *(a++));
+            }
+            printf("\n");
+            for (j=0; j<size&&j<60&&*x!='\0'; ++j) {
+                printf("%c", *(x++));
+            }
+            printf("\n");
+            for (j=0; j<size&&j<60&&*b!='\0'; ++j) {
+                printf("%c", *(b++));
+            }
+            printf("\n");
+        }
+        printf("\n");
+        free(_a);
+        free(_b);
+        free(_x);
+    }
+
     /* test the encode/decode functionality */
     cigar_string = parasail_cigar_decode(cigar);
     printf("cigar string:   '%s'\n", cigar_string);

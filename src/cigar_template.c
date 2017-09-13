@@ -101,10 +101,53 @@ static inline parasail_cigar_t* CONCAT(NAME, T) (
 #endif
     cigar->seq = malloc(size);
     cigar->len = 0;
+    cigar->beg_query = 0;
+    cigar->beg_ref = 0;
     UNUSED(matrix);
-    while (i >= 0 && j >= 0) {
+    /* semi-global alignment includes the end gaps */
+    if (result->flag & PARASAIL_FLAG_SG) {
+        int k;
+        if (result->end_query+1 == lena) {
+            k = lenb-1;
+            while (k > j) {
+                ++c_ins;
+                --k;
+            }
+        }
+        else if (result->end_ref+1 == lenb) {
+            k = lena-1;
+            while (k > i) {
+                ++c_del;
+                --k;
+            }
+        }
+        else {
+            assert(0);
+        }
+    }
+    while (i >= 0 || j >= 0) {
         LOC
-        assert(i >= 0 && j >= 0);
+        /*assert(i >= 0 && j >= 0);*/
+        if (i < 0) {
+            if (0 == c_ins) {
+                WRITE_ANY;
+            }
+            while (j >= 0) {
+                ++c_ins;
+                --j;
+            }
+            break;
+        }
+        if (j < 0) {
+            if (0 == c_del) {
+                WRITE_ANY;
+            }
+            while (i >= 0) {
+                ++c_del;
+                --i;
+            }
+            break;
+        }
         if (PARASAIL_DIAG == where) {
             if (HT[loc] == PARASAIL_DIAG) {
                 if (seqA[i] == seqB[j]) {
@@ -181,6 +224,8 @@ static inline parasail_cigar_t* CONCAT(NAME, T) (
     cigar_reverse = parasail_reverse_uint32_t(cigar->seq, cigar->len);
     free(cigar->seq);
     cigar->seq = cigar_reverse;
+    cigar->beg_query = i+1;
+    cigar->beg_ref = j+1;
 
     return cigar;
 }

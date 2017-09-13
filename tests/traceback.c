@@ -241,13 +241,13 @@ int main(int argc, char **argv)
             sequences->seqs[seqA_index].name.s,
             sequences->seqs[seqB_index].name.s,
             matrix, result,
-            '|', ':', '.', 50);
+            '|', ':', '.', 50, 17);
 
     parasail_traceback_generic(seqA, lena, seqB, lenb,
             sequences->seqs[seqA_index].name.s,
             sequences->seqs[seqB_index].name.s,
             matrix, result,
-            '|', '*', '*', 60);
+            '|', '*', '*', 60, 7);
 
     printf("Score:          %d\n", result->score);
     printf("end_query:      %d\n", result->end_query);

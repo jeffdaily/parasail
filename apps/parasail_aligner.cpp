@@ -1092,11 +1092,12 @@ int main(int argc, char **argv) {
                         sequences->seqs[j].seq.s,
                         sequences->seqs[j].seq.l,
                         sequences->seqs[i].name.s,
-                        sequences->seqs[i].name.s,
+                        sequences->seqs[j].name.s,
                         matrix,
                         result,
                         '|', ':', '.',
-                        50);
+                        50,
+                        14);
             }
         }
         else {

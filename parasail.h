@@ -269,7 +269,8 @@ extern void parasail_traceback_generic(
         const parasail_matrix_t *matrix,
         parasail_result_t *result,
         char match, char pos, char neg,
-        int width);
+        int width,
+        int name_width);
 
 #ifndef BAM_CIGAR_STR
 /*                     0123456789 */

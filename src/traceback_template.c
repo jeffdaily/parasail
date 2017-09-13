@@ -20,7 +20,8 @@ static inline void CONCAT(NAME, T) (
         const parasail_matrix_t *matrix,
         parasail_result_t *result,
         char match, char pos, char neg,
-        int width)
+        int width,
+        int name_width)
 {
     char *q = malloc(sizeof(char)*(lena+lenb));
     char *d = malloc(sizeof(char)*(lena+lenb));
@@ -36,6 +37,8 @@ static inline void CONCAT(NAME, T) (
     D *HT = (D*)result->trace->trace_table;
     D *ET = (D*)result->trace->trace_ins_table;
     D *FT = (D*)result->trace->trace_del_table;
+    int namelenA = (NULL == nameA) ? 0 : (int)strlen(nameA);
+    int namelenB = (NULL == nameB) ? 0 : (int)strlen(nameB);
 #if defined(STRIPED)
     int32_t segWidth = 0;
     int32_t segLen = 0;
@@ -204,13 +207,23 @@ static inline void CONCAT(NAME, T) (
         dr = parasail_reverse(d, strlen(d));
         for (i=0; i<len; i+=width) {
             printf("\n");
-            printf("%7d ", q_pindex+1);
+            for (j=0; j<name_width; ++j) {
+                printf("%c", nameA[j]);
+                if (j>=namelenA) break;
+            }
+            for (; j<name_width; ++j) {
+                printf(" ");
+            }
+            printf(" %7d ", q_pindex+1);
             for (j=0; j<len&&j<width&&qi<len; ++j) {
                 if (qr[qi] != '-') ++q_pindex;
                 printf("%c", qr[qi]);
                 ++qi;
             }
             printf(" %7d\n", q_pindex);
+            for (j=0; j<name_width+1; ++j) {
+                printf(" ");
+            }
             printf("        ");
             for (j=0; j<len&&j<width&&ai<len; ++j) {
                 if (ar[ai] == match) { ++mch; ++sim; }
@@ -225,7 +238,14 @@ static inline void CONCAT(NAME, T) (
                 ++ai;
             }
             printf("\n");
-            printf("%7d ", d_pindex+1);
+            for (j=0; j<name_width; ++j) {
+                printf("%c", nameB[j]);
+                if (j>=namelenB) break;
+            }
+            for (; j<name_width; ++j) {
+                printf(" ");
+            }
+            printf(" %7d ", d_pindex+1);
             for (j=0; j<len&&j<width&&di<len; ++j) {
                 if (dr[di] != '-') ++d_pindex;
                 printf("%c", dr[di]);
@@ -235,9 +255,9 @@ static inline void CONCAT(NAME, T) (
         }
         printf("\n");
         printf("Length: %d\n", len);
-        printf("Identity:   %d/%d\n", mch, len);
-        printf("Similarity: %d/%d\n", sim, len);
-        printf("Gaps:       %d/%d\n", gap, len);
+        printf("Identity:   %7d/%d (%4.1f%%)\n", mch, len, 100.0*mch/len);
+        printf("Similarity: %7d/%d (%4.1f%%)\n", sim, len, 100.0*sim/len);
+        printf("Gaps:       %7d/%d (%4.1f%%)\n", gap, len, 100.0*gap/len);
         printf("Score: %d\n", result->score);
         free(qr);
         free(ar);

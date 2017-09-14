@@ -148,7 +148,11 @@ SRC_TRACE_KNC =
 #################
 
 SRC_CORE += src/cigar.c
+if IS_POWER_ISA
+SRC_CORE += src/cpuid_ppc.c
+else
 SRC_CORE += src/cpuid.c
+endif
 SRC_CORE += src/function_lookup.c
 SRC_CORE += src/io.c
 SRC_CORE += src/isastubs.c

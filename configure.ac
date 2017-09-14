@@ -49,6 +49,16 @@ AM_INIT_AUTOMAKE([color-tests foreign parallel-tests silent-rules subdir-objects
 AM_MAINTAINER_MODE
 
 ###############################################################################
+# Platform identity
+###############################################################################
+AC_CANONICAL_HOST
+
+is_power_isa=0
+AS_CASE(["$host_cpu"],
+        [*powerpc*|*ppc*], [is_power_isa=1])
+AM_CONDITIONAL([IS_POWER_ISA], [test "x$is_power_isa" = x1])
+
+###############################################################################
 # C compiler
 ###############################################################################
 AC_MSG_NOTICE
@@ -74,6 +84,8 @@ AC_CHECK_HEADERS([sys/types.h])
 AC_CHECK_HEADERS([unistd.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
+AC_C_BIGENDIAN
+AC_C_CONST
 AC_C_INLINE
 AC_C_RESTRICT
 AC_CHECK_SIZEOF([int])
@@ -685,6 +697,43 @@ AC_DEFINE_UNQUOTED([HAVE_XGETBV], [$pt_cv_xgetbv_val],
     [define to 1 if the C compiler supports xgetbv])
 AM_CONDITIONAL([HAVE_XGETBV], [test "x$pt_cv_xgetbv" = xyes])
 
+AC_CACHE_CHECK([for AltiVec support], [pt_cv_altivec],
+[pt_cv_altivec=no; pt_cv_altivec_val=0
+for flag in default -maltivec -faltivec
+do 
+     save_CFLAGS="$CFLAGS"
+     AS_IF([test "x$flag" != xdefault], [CFLAGS="$CFLAGS $flag"])
+     psl_save_c_werror_flag=$ac_c_werror_flag
+     ac_c_werror_flag=yes
+     AC_LINK_IFELSE([AC_LANG_SOURCE([[
+#include <altivec.h>
+vector signed int vec_2sComp (vector signed int x)
+{
+    vector signed int one = (vector signed int) (1);
+    x = vec_nor (x, x);
+    x = vec_add (x, one);
+    return x;
+}
+int main(void)
+{
+    vector signed int two = (vector signed int) (2);
+    vector signed int result = vec_2sComp(two);
+    return vec_extract(two,0);
+}
+]])],
+        [pt_cv_altivec="$flag"; pt_cv_altivec_val=1])
+     ac_c_werror_flag=$psl_save_c_werror_flag
+     CFLAGS="$save_CFLAGS"
+     AS_IF([test "x$pt_cv_altivec" != xno], [break])
+done])
+AC_DEFINE_UNQUOTED([HAVE_ALTIVEC], [$pt_cv_altivec_val],
+    [define to 1 if the C compiler supports ALTIVEC])
+AM_CONDITIONAL([HAVE_ALTIVEC], [test "x$pt_cv_altivec_val" = x1])
+AS_IF([test "x$pt_cv_altivec" == xdefault], [ALTIVEC_CFLAGS=],
+      [test "x$pt_cv_altivec" != xno],      [ALTIVEC_CFLAGS="$pt_cv_altivec"],
+      [ALTIVEC_CFLAGS="not supported"])
+AC_SUBST([ALTIVEC_CFLAGS])
+
 # Checks for library functions.
 AC_CHECK_FUNCS([_aligned_malloc])
 AC_CHECK_FUNCS([aligned_alloc])
@@ -868,6 +917,7 @@ AC_MSG_NOTICE([           AVX2_CFLAGS=$AVX2_CFLAGS])
 AC_MSG_NOTICE([        AVX512F_CFLAGS=$AVX512F_CFLAGS])
 AC_MSG_NOTICE([       AVX512BW_CFLAGS=$AVX512BW_CFLAGS])
 AC_MSG_NOTICE([     AVX512VBMI_CFLAGS=$AVX512VBMI_CFLAGS])
+AC_MSG_NOTICE([        ALTIVEC_CFLAGS=$ALTIVEC_CFLAGS])
 AC_MSG_NOTICE([                   CXX=$CXX])
 AC_MSG_NOTICE([              CXXFLAGS=$CXXFLAGS])
 AC_MSG_NOTICE([       OPENMP_CXXFLAGS=$OPENMP_CXXFLAGS])

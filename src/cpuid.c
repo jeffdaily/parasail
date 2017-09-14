@@ -301,3 +301,8 @@ int parasail_can_use_sse2()
     return can_use_sse2;
 }
 
+int parasail_can_use_altivec()
+{
+    return 0;
+}
+

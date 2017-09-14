@@ -21,6 +21,8 @@
 #cmakedefine01 HAVE_AVX2_MM256_EXTRACT_EPI32
 #cmakedefine01 HAVE_AVX2_MM256_EXTRACT_EPI16
 #cmakedefine01 HAVE_AVX2_MM256_EXTRACT_EPI8
+#cmakedefine01 HAVE_ALTIVEC
+#cmakedefine01 WORDS_BIGENDIAN
 #ifndef __cplusplus
 #cmakedefine inline ${inline}
 #endif

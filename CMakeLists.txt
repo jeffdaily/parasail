@@ -30,7 +30,16 @@ INCLUDE( FindSSE2 )
 INCLUDE( FindSSE41 )
 INCLUDE( FindAVX2 )
 INCLUDE( Findxgetbv )
+INCLUDE( FindAltiVec )
 INCLUDE( FindZLIB )
+INCLUDE( TestBigEndian )
+
+IF( ${CMAKE_HOST_SYSTEM_PROCESSOR} MATCHES "p(ower)?pc" )
+    SET( IS_POWER_ISA TRUE )
+ELSE( )
+    SET( IS_POWER_ISA FALSE )
+ENDIF( )
+MESSAGE( "IS_POWER_ISA=${IS_POWER_ISA}" )
 
 CHECK_TYPE_SIZE( "int" SIZEOF_INT )
 CHECK_TYPE_SIZE( "int8_t" SIZEOF_INT8_T )
@@ -41,6 +50,7 @@ CHECK_TYPE_SIZE( "uint8_t" SIZEOF_UINT8_T )
 CHECK_TYPE_SIZE( "uint16_t" SIZEOF_UINT16_T )
 CHECK_TYPE_SIZE( "uint32_t" SIZEOF_UINT32_T )
 CHECK_TYPE_SIZE( "uint64_t" SIZEOF_UINT64_T )
+TEST_BIG_ENDIAN( WORDS_BIGENDIAN )
 
 # Check for restrict keyword
 FOREACH( ac_kw __restrict __restrict__ _Restrict restrict )
@@ -128,7 +138,6 @@ CONFIGURE_FILE( ${CMAKE_CURRENT_LIST_DIR}/cmake/config.h.in ${CMAKE_BINARY_DIR}/
 
 SET( SRC_CORE
     src/cigar.c
-    src/cpuid.c
     src/function_lookup.c
     src/io.c
     src/isastubs.c
@@ -144,6 +153,12 @@ SET( SRC_CORE
     src/striped_unwind.c
     src/traceback.c
 )
+
+IF( IS_POWER_ISA )
+    SET( SRC_CORE ${SRC_CORE} src/cpuid_ppc.c )
+ELSE( )
+    SET( SRC_CORE ${SRC_CORE} src/cpuid.c )
+ENDIF( )
 
 SET( SRC_NOVEC
     src/nw.c
@@ -647,6 +662,8 @@ ADD_LIBRARY( sais OBJECT contrib/sais-lite-lcp/sais.c )
 IF( SSE2_FOUND )
     ADD_LIBRARY( ssw OBJECT contrib/ssw/ssw.c )
     SET_TARGET_PROPERTIES( ssw PROPERTIES COMPILE_FLAGS ${SSE2_C_FLAGS} )
+ELSE( )
+    ADD_LIBRARY( ssw OBJECT cmake/ssw_dummy.c )
 ENDIF( )
 
 SET( maybe_def )

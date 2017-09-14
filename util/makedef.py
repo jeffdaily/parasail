@@ -93,6 +93,7 @@ EXPORTS
     parasail_can_use_avx2
     parasail_can_use_sse41
     parasail_can_use_sse2
+    parasail_can_use_altivec
 ; from parasail/memory.h (mostly internal functions)
     parasail_memalign
     parasail_memalign_int

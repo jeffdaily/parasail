@@ -119,6 +119,12 @@ parasail_result_t* %(PREFIX)s_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        %(PREFIX)s_pointer = %(PREFIX2)s_altivec_128_%(WIDTH)s;
+    }
+    else
+#endif
 #endif
     {
         %(PREFIX)s_pointer = parasail_%(BASE)s;
@@ -172,6 +178,12 @@ parasail_result_t* %(PREFIX)s_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         %(PREFIX)s_pointer = %(PREFIX2)s_sse2_128_%(WIDTH)s;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        %(PREFIX)s_pointer = %(PREFIX2)s_altivec_128_%(WIDTH)s;
     }
     else
 #endif

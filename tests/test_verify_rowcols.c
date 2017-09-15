@@ -445,6 +445,21 @@ int main(int argc, char **argv)
     }
 #endif
 
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        if (test_scores) {
+            check_functions(parasail_nw_rowcol_altivec, sequences, limit, matrix, gap);
+            check_functions(parasail_sg_rowcol_altivec, sequences, limit, matrix, gap);
+            check_functions(parasail_sw_rowcol_altivec, sequences, limit, matrix, gap);
+        }
+        if (test_stats) {
+            check_functions(parasail_nw_stats_rowcol_altivec, sequences, limit, matrix, gap);
+            check_functions(parasail_sg_stats_rowcol_altivec, sequences, limit, matrix, gap);
+            check_functions(parasail_sw_stats_rowcol_altivec, sequences, limit, matrix, gap);
+        }
+    }
+#endif
+
     if (test_scores) {
         check_functions(parasail_nw_rowcol_disp, sequences, limit, matrix, gap);
         check_functions(parasail_sg_rowcol_disp, sequences, limit, matrix, gap);

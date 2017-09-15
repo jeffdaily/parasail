@@ -329,6 +329,12 @@ parasail_result_t* parasail_nw_scan_64_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_scan_64_pointer = parasail_nw_scan_altivec_128_64;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_scan_64_pointer = parasail_nw_scan;
@@ -363,6 +369,12 @@ parasail_result_t* parasail_nw_scan_32_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_scan_32_pointer = parasail_nw_scan_sse2_128_32;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_scan_32_pointer = parasail_nw_scan_altivec_128_32;
     }
     else
 #endif
@@ -403,6 +415,12 @@ parasail_result_t* parasail_nw_scan_16_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_scan_16_pointer = parasail_nw_scan_altivec_128_16;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_scan_16_pointer = parasail_nw_scan;
@@ -437,6 +455,12 @@ parasail_result_t* parasail_nw_scan_8_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_scan_8_pointer = parasail_nw_scan_sse2_128_8;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_scan_8_pointer = parasail_nw_scan_altivec_128_8;
     }
     else
 #endif
@@ -477,6 +501,12 @@ parasail_result_t* parasail_nw_striped_64_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_striped_64_pointer = parasail_nw_striped_altivec_128_64;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_striped_64_pointer = parasail_nw;
@@ -511,6 +541,12 @@ parasail_result_t* parasail_nw_striped_32_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_striped_32_pointer = parasail_nw_striped_sse2_128_32;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_striped_32_pointer = parasail_nw_striped_altivec_128_32;
     }
     else
 #endif
@@ -551,6 +587,12 @@ parasail_result_t* parasail_nw_striped_16_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_striped_16_pointer = parasail_nw_striped_altivec_128_16;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_striped_16_pointer = parasail_nw;
@@ -585,6 +627,12 @@ parasail_result_t* parasail_nw_striped_8_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_striped_8_pointer = parasail_nw_striped_sse2_128_8;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_striped_8_pointer = parasail_nw_striped_altivec_128_8;
     }
     else
 #endif
@@ -625,6 +673,12 @@ parasail_result_t* parasail_nw_diag_64_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_diag_64_pointer = parasail_nw_diag_altivec_128_64;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_diag_64_pointer = parasail_nw;
@@ -659,6 +713,12 @@ parasail_result_t* parasail_nw_diag_32_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_diag_32_pointer = parasail_nw_diag_sse2_128_32;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_diag_32_pointer = parasail_nw_diag_altivec_128_32;
     }
     else
 #endif
@@ -699,6 +759,12 @@ parasail_result_t* parasail_nw_diag_16_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_diag_16_pointer = parasail_nw_diag_altivec_128_16;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_diag_16_pointer = parasail_nw;
@@ -733,6 +799,12 @@ parasail_result_t* parasail_nw_diag_8_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_diag_8_pointer = parasail_nw_diag_sse2_128_8;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_diag_8_pointer = parasail_nw_diag_altivec_128_8;
     }
     else
 #endif
@@ -773,6 +845,12 @@ parasail_result_t* parasail_nw_stats_scan_64_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_scan_64_pointer = parasail_nw_stats_scan_altivec_128_64;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_stats_scan_64_pointer = parasail_nw_scan;
@@ -807,6 +885,12 @@ parasail_result_t* parasail_nw_stats_scan_32_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_stats_scan_32_pointer = parasail_nw_stats_scan_sse2_128_32;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_scan_32_pointer = parasail_nw_stats_scan_altivec_128_32;
     }
     else
 #endif
@@ -847,6 +931,12 @@ parasail_result_t* parasail_nw_stats_scan_16_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_scan_16_pointer = parasail_nw_stats_scan_altivec_128_16;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_stats_scan_16_pointer = parasail_nw_scan;
@@ -881,6 +971,12 @@ parasail_result_t* parasail_nw_stats_scan_8_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_stats_scan_8_pointer = parasail_nw_stats_scan_sse2_128_8;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_scan_8_pointer = parasail_nw_stats_scan_altivec_128_8;
     }
     else
 #endif
@@ -921,6 +1017,12 @@ parasail_result_t* parasail_nw_stats_striped_64_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_striped_64_pointer = parasail_nw_stats_striped_altivec_128_64;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_stats_striped_64_pointer = parasail_nw;
@@ -955,6 +1057,12 @@ parasail_result_t* parasail_nw_stats_striped_32_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_stats_striped_32_pointer = parasail_nw_stats_striped_sse2_128_32;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_striped_32_pointer = parasail_nw_stats_striped_altivec_128_32;
     }
     else
 #endif
@@ -995,6 +1103,12 @@ parasail_result_t* parasail_nw_stats_striped_16_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_striped_16_pointer = parasail_nw_stats_striped_altivec_128_16;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_stats_striped_16_pointer = parasail_nw;
@@ -1029,6 +1143,12 @@ parasail_result_t* parasail_nw_stats_striped_8_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_stats_striped_8_pointer = parasail_nw_stats_striped_sse2_128_8;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_striped_8_pointer = parasail_nw_stats_striped_altivec_128_8;
     }
     else
 #endif
@@ -1069,6 +1189,12 @@ parasail_result_t* parasail_nw_stats_diag_64_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_diag_64_pointer = parasail_nw_stats_diag_altivec_128_64;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_stats_diag_64_pointer = parasail_nw;
@@ -1103,6 +1229,12 @@ parasail_result_t* parasail_nw_stats_diag_32_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_stats_diag_32_pointer = parasail_nw_stats_diag_sse2_128_32;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_diag_32_pointer = parasail_nw_stats_diag_altivec_128_32;
     }
     else
 #endif
@@ -1143,6 +1275,12 @@ parasail_result_t* parasail_nw_stats_diag_16_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_diag_16_pointer = parasail_nw_stats_diag_altivec_128_16;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_stats_diag_16_pointer = parasail_nw;
@@ -1177,6 +1315,12 @@ parasail_result_t* parasail_nw_stats_diag_8_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_stats_diag_8_pointer = parasail_nw_stats_diag_sse2_128_8;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_diag_8_pointer = parasail_nw_stats_diag_altivec_128_8;
     }
     else
 #endif
@@ -1217,6 +1361,12 @@ parasail_result_t* parasail_nw_table_scan_64_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_table_scan_64_pointer = parasail_nw_table_scan_altivec_128_64;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_table_scan_64_pointer = parasail_nw_scan;
@@ -1251,6 +1401,12 @@ parasail_result_t* parasail_nw_table_scan_32_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_table_scan_32_pointer = parasail_nw_table_scan_sse2_128_32;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_table_scan_32_pointer = parasail_nw_table_scan_altivec_128_32;
     }
     else
 #endif
@@ -1291,6 +1447,12 @@ parasail_result_t* parasail_nw_table_scan_16_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_table_scan_16_pointer = parasail_nw_table_scan_altivec_128_16;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_table_scan_16_pointer = parasail_nw_scan;
@@ -1325,6 +1487,12 @@ parasail_result_t* parasail_nw_table_scan_8_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_table_scan_8_pointer = parasail_nw_table_scan_sse2_128_8;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_table_scan_8_pointer = parasail_nw_table_scan_altivec_128_8;
     }
     else
 #endif
@@ -1365,6 +1533,12 @@ parasail_result_t* parasail_nw_table_striped_64_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_table_striped_64_pointer = parasail_nw_table_striped_altivec_128_64;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_table_striped_64_pointer = parasail_nw;
@@ -1399,6 +1573,12 @@ parasail_result_t* parasail_nw_table_striped_32_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_table_striped_32_pointer = parasail_nw_table_striped_sse2_128_32;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_table_striped_32_pointer = parasail_nw_table_striped_altivec_128_32;
     }
     else
 #endif
@@ -1439,6 +1619,12 @@ parasail_result_t* parasail_nw_table_striped_16_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_table_striped_16_pointer = parasail_nw_table_striped_altivec_128_16;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_table_striped_16_pointer = parasail_nw;
@@ -1473,6 +1659,12 @@ parasail_result_t* parasail_nw_table_striped_8_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_table_striped_8_pointer = parasail_nw_table_striped_sse2_128_8;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_table_striped_8_pointer = parasail_nw_table_striped_altivec_128_8;
     }
     else
 #endif
@@ -1513,6 +1705,12 @@ parasail_result_t* parasail_nw_table_diag_64_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_table_diag_64_pointer = parasail_nw_table_diag_altivec_128_64;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_table_diag_64_pointer = parasail_nw;
@@ -1547,6 +1745,12 @@ parasail_result_t* parasail_nw_table_diag_32_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_table_diag_32_pointer = parasail_nw_table_diag_sse2_128_32;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_table_diag_32_pointer = parasail_nw_table_diag_altivec_128_32;
     }
     else
 #endif
@@ -1587,6 +1791,12 @@ parasail_result_t* parasail_nw_table_diag_16_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_table_diag_16_pointer = parasail_nw_table_diag_altivec_128_16;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_table_diag_16_pointer = parasail_nw;
@@ -1621,6 +1831,12 @@ parasail_result_t* parasail_nw_table_diag_8_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_table_diag_8_pointer = parasail_nw_table_diag_sse2_128_8;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_table_diag_8_pointer = parasail_nw_table_diag_altivec_128_8;
     }
     else
 #endif
@@ -1661,6 +1877,12 @@ parasail_result_t* parasail_nw_stats_table_scan_64_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_table_scan_64_pointer = parasail_nw_stats_table_scan_altivec_128_64;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_stats_table_scan_64_pointer = parasail_nw_scan;
@@ -1695,6 +1917,12 @@ parasail_result_t* parasail_nw_stats_table_scan_32_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_stats_table_scan_32_pointer = parasail_nw_stats_table_scan_sse2_128_32;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_table_scan_32_pointer = parasail_nw_stats_table_scan_altivec_128_32;
     }
     else
 #endif
@@ -1735,6 +1963,12 @@ parasail_result_t* parasail_nw_stats_table_scan_16_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_table_scan_16_pointer = parasail_nw_stats_table_scan_altivec_128_16;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_stats_table_scan_16_pointer = parasail_nw_scan;
@@ -1769,6 +2003,12 @@ parasail_result_t* parasail_nw_stats_table_scan_8_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_stats_table_scan_8_pointer = parasail_nw_stats_table_scan_sse2_128_8;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_table_scan_8_pointer = parasail_nw_stats_table_scan_altivec_128_8;
     }
     else
 #endif
@@ -1809,6 +2049,12 @@ parasail_result_t* parasail_nw_stats_table_striped_64_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_table_striped_64_pointer = parasail_nw_stats_table_striped_altivec_128_64;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_stats_table_striped_64_pointer = parasail_nw;
@@ -1843,6 +2089,12 @@ parasail_result_t* parasail_nw_stats_table_striped_32_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_stats_table_striped_32_pointer = parasail_nw_stats_table_striped_sse2_128_32;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_table_striped_32_pointer = parasail_nw_stats_table_striped_altivec_128_32;
     }
     else
 #endif
@@ -1883,6 +2135,12 @@ parasail_result_t* parasail_nw_stats_table_striped_16_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_table_striped_16_pointer = parasail_nw_stats_table_striped_altivec_128_16;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_stats_table_striped_16_pointer = parasail_nw;
@@ -1917,6 +2175,12 @@ parasail_result_t* parasail_nw_stats_table_striped_8_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_stats_table_striped_8_pointer = parasail_nw_stats_table_striped_sse2_128_8;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_table_striped_8_pointer = parasail_nw_stats_table_striped_altivec_128_8;
     }
     else
 #endif
@@ -1957,6 +2221,12 @@ parasail_result_t* parasail_nw_stats_table_diag_64_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_table_diag_64_pointer = parasail_nw_stats_table_diag_altivec_128_64;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_stats_table_diag_64_pointer = parasail_nw;
@@ -1991,6 +2261,12 @@ parasail_result_t* parasail_nw_stats_table_diag_32_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_stats_table_diag_32_pointer = parasail_nw_stats_table_diag_sse2_128_32;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_table_diag_32_pointer = parasail_nw_stats_table_diag_altivec_128_32;
     }
     else
 #endif
@@ -2031,6 +2307,12 @@ parasail_result_t* parasail_nw_stats_table_diag_16_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_table_diag_16_pointer = parasail_nw_stats_table_diag_altivec_128_16;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_stats_table_diag_16_pointer = parasail_nw;
@@ -2065,6 +2347,12 @@ parasail_result_t* parasail_nw_stats_table_diag_8_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_stats_table_diag_8_pointer = parasail_nw_stats_table_diag_sse2_128_8;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_table_diag_8_pointer = parasail_nw_stats_table_diag_altivec_128_8;
     }
     else
 #endif
@@ -2105,6 +2393,12 @@ parasail_result_t* parasail_nw_rowcol_scan_64_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_rowcol_scan_64_pointer = parasail_nw_rowcol_scan_altivec_128_64;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_rowcol_scan_64_pointer = parasail_nw_scan;
@@ -2139,6 +2433,12 @@ parasail_result_t* parasail_nw_rowcol_scan_32_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_rowcol_scan_32_pointer = parasail_nw_rowcol_scan_sse2_128_32;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_rowcol_scan_32_pointer = parasail_nw_rowcol_scan_altivec_128_32;
     }
     else
 #endif
@@ -2179,6 +2479,12 @@ parasail_result_t* parasail_nw_rowcol_scan_16_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_rowcol_scan_16_pointer = parasail_nw_rowcol_scan_altivec_128_16;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_rowcol_scan_16_pointer = parasail_nw_scan;
@@ -2213,6 +2519,12 @@ parasail_result_t* parasail_nw_rowcol_scan_8_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_rowcol_scan_8_pointer = parasail_nw_rowcol_scan_sse2_128_8;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_rowcol_scan_8_pointer = parasail_nw_rowcol_scan_altivec_128_8;
     }
     else
 #endif
@@ -2253,6 +2565,12 @@ parasail_result_t* parasail_nw_rowcol_striped_64_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_rowcol_striped_64_pointer = parasail_nw_rowcol_striped_altivec_128_64;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_rowcol_striped_64_pointer = parasail_nw;
@@ -2287,6 +2605,12 @@ parasail_result_t* parasail_nw_rowcol_striped_32_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_rowcol_striped_32_pointer = parasail_nw_rowcol_striped_sse2_128_32;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_rowcol_striped_32_pointer = parasail_nw_rowcol_striped_altivec_128_32;
     }
     else
 #endif
@@ -2327,6 +2651,12 @@ parasail_result_t* parasail_nw_rowcol_striped_16_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_rowcol_striped_16_pointer = parasail_nw_rowcol_striped_altivec_128_16;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_rowcol_striped_16_pointer = parasail_nw;
@@ -2361,6 +2691,12 @@ parasail_result_t* parasail_nw_rowcol_striped_8_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_rowcol_striped_8_pointer = parasail_nw_rowcol_striped_sse2_128_8;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_rowcol_striped_8_pointer = parasail_nw_rowcol_striped_altivec_128_8;
     }
     else
 #endif
@@ -2401,6 +2737,12 @@ parasail_result_t* parasail_nw_rowcol_diag_64_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_rowcol_diag_64_pointer = parasail_nw_rowcol_diag_altivec_128_64;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_rowcol_diag_64_pointer = parasail_nw;
@@ -2435,6 +2777,12 @@ parasail_result_t* parasail_nw_rowcol_diag_32_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_rowcol_diag_32_pointer = parasail_nw_rowcol_diag_sse2_128_32;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_rowcol_diag_32_pointer = parasail_nw_rowcol_diag_altivec_128_32;
     }
     else
 #endif
@@ -2475,6 +2823,12 @@ parasail_result_t* parasail_nw_rowcol_diag_16_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_rowcol_diag_16_pointer = parasail_nw_rowcol_diag_altivec_128_16;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_rowcol_diag_16_pointer = parasail_nw;
@@ -2509,6 +2863,12 @@ parasail_result_t* parasail_nw_rowcol_diag_8_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_rowcol_diag_8_pointer = parasail_nw_rowcol_diag_sse2_128_8;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_rowcol_diag_8_pointer = parasail_nw_rowcol_diag_altivec_128_8;
     }
     else
 #endif
@@ -2549,6 +2909,12 @@ parasail_result_t* parasail_nw_stats_rowcol_scan_64_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_rowcol_scan_64_pointer = parasail_nw_stats_rowcol_scan_altivec_128_64;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_stats_rowcol_scan_64_pointer = parasail_nw_scan;
@@ -2583,6 +2949,12 @@ parasail_result_t* parasail_nw_stats_rowcol_scan_32_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_stats_rowcol_scan_32_pointer = parasail_nw_stats_rowcol_scan_sse2_128_32;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_rowcol_scan_32_pointer = parasail_nw_stats_rowcol_scan_altivec_128_32;
     }
     else
 #endif
@@ -2623,6 +2995,12 @@ parasail_result_t* parasail_nw_stats_rowcol_scan_16_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_rowcol_scan_16_pointer = parasail_nw_stats_rowcol_scan_altivec_128_16;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_stats_rowcol_scan_16_pointer = parasail_nw_scan;
@@ -2657,6 +3035,12 @@ parasail_result_t* parasail_nw_stats_rowcol_scan_8_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_stats_rowcol_scan_8_pointer = parasail_nw_stats_rowcol_scan_sse2_128_8;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_rowcol_scan_8_pointer = parasail_nw_stats_rowcol_scan_altivec_128_8;
     }
     else
 #endif
@@ -2697,6 +3081,12 @@ parasail_result_t* parasail_nw_stats_rowcol_striped_64_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_rowcol_striped_64_pointer = parasail_nw_stats_rowcol_striped_altivec_128_64;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_stats_rowcol_striped_64_pointer = parasail_nw;
@@ -2731,6 +3121,12 @@ parasail_result_t* parasail_nw_stats_rowcol_striped_32_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_stats_rowcol_striped_32_pointer = parasail_nw_stats_rowcol_striped_sse2_128_32;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_rowcol_striped_32_pointer = parasail_nw_stats_rowcol_striped_altivec_128_32;
     }
     else
 #endif
@@ -2771,6 +3167,12 @@ parasail_result_t* parasail_nw_stats_rowcol_striped_16_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_rowcol_striped_16_pointer = parasail_nw_stats_rowcol_striped_altivec_128_16;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_stats_rowcol_striped_16_pointer = parasail_nw;
@@ -2805,6 +3207,12 @@ parasail_result_t* parasail_nw_stats_rowcol_striped_8_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_stats_rowcol_striped_8_pointer = parasail_nw_stats_rowcol_striped_sse2_128_8;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_rowcol_striped_8_pointer = parasail_nw_stats_rowcol_striped_altivec_128_8;
     }
     else
 #endif
@@ -2845,6 +3253,12 @@ parasail_result_t* parasail_nw_stats_rowcol_diag_64_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_rowcol_diag_64_pointer = parasail_nw_stats_rowcol_diag_altivec_128_64;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_stats_rowcol_diag_64_pointer = parasail_nw;
@@ -2879,6 +3293,12 @@ parasail_result_t* parasail_nw_stats_rowcol_diag_32_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_stats_rowcol_diag_32_pointer = parasail_nw_stats_rowcol_diag_sse2_128_32;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_rowcol_diag_32_pointer = parasail_nw_stats_rowcol_diag_altivec_128_32;
     }
     else
 #endif
@@ -2919,6 +3339,12 @@ parasail_result_t* parasail_nw_stats_rowcol_diag_16_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_rowcol_diag_16_pointer = parasail_nw_stats_rowcol_diag_altivec_128_16;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_stats_rowcol_diag_16_pointer = parasail_nw;
@@ -2953,6 +3379,12 @@ parasail_result_t* parasail_nw_stats_rowcol_diag_8_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_stats_rowcol_diag_8_pointer = parasail_nw_stats_rowcol_diag_sse2_128_8;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_rowcol_diag_8_pointer = parasail_nw_stats_rowcol_diag_altivec_128_8;
     }
     else
 #endif
@@ -2993,6 +3425,12 @@ parasail_result_t* parasail_nw_trace_scan_64_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_trace_scan_64_pointer = parasail_nw_trace_scan_altivec_128_64;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_trace_scan_64_pointer = parasail_nw_scan;
@@ -3027,6 +3465,12 @@ parasail_result_t* parasail_nw_trace_scan_32_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_trace_scan_32_pointer = parasail_nw_trace_scan_sse2_128_32;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_trace_scan_32_pointer = parasail_nw_trace_scan_altivec_128_32;
     }
     else
 #endif
@@ -3067,6 +3511,12 @@ parasail_result_t* parasail_nw_trace_scan_16_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_trace_scan_16_pointer = parasail_nw_trace_scan_altivec_128_16;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_trace_scan_16_pointer = parasail_nw_scan;
@@ -3101,6 +3551,12 @@ parasail_result_t* parasail_nw_trace_scan_8_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_trace_scan_8_pointer = parasail_nw_trace_scan_sse2_128_8;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_trace_scan_8_pointer = parasail_nw_trace_scan_altivec_128_8;
     }
     else
 #endif
@@ -3141,6 +3597,12 @@ parasail_result_t* parasail_nw_trace_striped_64_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_trace_striped_64_pointer = parasail_nw_trace_striped_altivec_128_64;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_trace_striped_64_pointer = parasail_nw;
@@ -3175,6 +3637,12 @@ parasail_result_t* parasail_nw_trace_striped_32_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_trace_striped_32_pointer = parasail_nw_trace_striped_sse2_128_32;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_trace_striped_32_pointer = parasail_nw_trace_striped_altivec_128_32;
     }
     else
 #endif
@@ -3215,6 +3683,12 @@ parasail_result_t* parasail_nw_trace_striped_16_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_trace_striped_16_pointer = parasail_nw_trace_striped_altivec_128_16;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_trace_striped_16_pointer = parasail_nw;
@@ -3249,6 +3723,12 @@ parasail_result_t* parasail_nw_trace_striped_8_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_trace_striped_8_pointer = parasail_nw_trace_striped_sse2_128_8;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_trace_striped_8_pointer = parasail_nw_trace_striped_altivec_128_8;
     }
     else
 #endif
@@ -3289,6 +3769,12 @@ parasail_result_t* parasail_nw_trace_diag_64_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_trace_diag_64_pointer = parasail_nw_trace_diag_altivec_128_64;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_trace_diag_64_pointer = parasail_nw;
@@ -3323,6 +3809,12 @@ parasail_result_t* parasail_nw_trace_diag_32_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_trace_diag_32_pointer = parasail_nw_trace_diag_sse2_128_32;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_trace_diag_32_pointer = parasail_nw_trace_diag_altivec_128_32;
     }
     else
 #endif
@@ -3363,6 +3855,12 @@ parasail_result_t* parasail_nw_trace_diag_16_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_trace_diag_16_pointer = parasail_nw_trace_diag_altivec_128_16;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_trace_diag_16_pointer = parasail_nw;
@@ -3397,6 +3895,12 @@ parasail_result_t* parasail_nw_trace_diag_8_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_trace_diag_8_pointer = parasail_nw_trace_diag_sse2_128_8;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_trace_diag_8_pointer = parasail_nw_trace_diag_altivec_128_8;
     }
     else
 #endif
@@ -3436,6 +3940,12 @@ parasail_result_t* parasail_nw_scan_profile_64_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_scan_profile_64_pointer = parasail_nw_scan_profile_altivec_128_64;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_scan_profile_64_pointer = NULL;
@@ -3469,6 +3979,12 @@ parasail_result_t* parasail_nw_scan_profile_32_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_scan_profile_32_pointer = parasail_nw_scan_profile_sse2_128_32;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_scan_profile_32_pointer = parasail_nw_scan_profile_altivec_128_32;
     }
     else
 #endif
@@ -3508,6 +4024,12 @@ parasail_result_t* parasail_nw_scan_profile_16_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_scan_profile_16_pointer = parasail_nw_scan_profile_altivec_128_16;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_scan_profile_16_pointer = NULL;
@@ -3541,6 +4063,12 @@ parasail_result_t* parasail_nw_scan_profile_8_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_scan_profile_8_pointer = parasail_nw_scan_profile_sse2_128_8;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_scan_profile_8_pointer = parasail_nw_scan_profile_altivec_128_8;
     }
     else
 #endif
@@ -3580,6 +4108,12 @@ parasail_result_t* parasail_nw_striped_profile_64_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_striped_profile_64_pointer = parasail_nw_striped_profile_altivec_128_64;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_striped_profile_64_pointer = NULL;
@@ -3613,6 +4147,12 @@ parasail_result_t* parasail_nw_striped_profile_32_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_striped_profile_32_pointer = parasail_nw_striped_profile_sse2_128_32;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_striped_profile_32_pointer = parasail_nw_striped_profile_altivec_128_32;
     }
     else
 #endif
@@ -3652,6 +4192,12 @@ parasail_result_t* parasail_nw_striped_profile_16_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_striped_profile_16_pointer = parasail_nw_striped_profile_altivec_128_16;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_striped_profile_16_pointer = NULL;
@@ -3685,6 +4231,12 @@ parasail_result_t* parasail_nw_striped_profile_8_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_striped_profile_8_pointer = parasail_nw_striped_profile_sse2_128_8;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_striped_profile_8_pointer = parasail_nw_striped_profile_altivec_128_8;
     }
     else
 #endif
@@ -3724,6 +4276,12 @@ parasail_result_t* parasail_nw_stats_scan_profile_64_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_scan_profile_64_pointer = parasail_nw_stats_scan_profile_altivec_128_64;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_stats_scan_profile_64_pointer = NULL;
@@ -3757,6 +4315,12 @@ parasail_result_t* parasail_nw_stats_scan_profile_32_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_stats_scan_profile_32_pointer = parasail_nw_stats_scan_profile_sse2_128_32;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_scan_profile_32_pointer = parasail_nw_stats_scan_profile_altivec_128_32;
     }
     else
 #endif
@@ -3796,6 +4360,12 @@ parasail_result_t* parasail_nw_stats_scan_profile_16_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_scan_profile_16_pointer = parasail_nw_stats_scan_profile_altivec_128_16;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_stats_scan_profile_16_pointer = NULL;
@@ -3829,6 +4399,12 @@ parasail_result_t* parasail_nw_stats_scan_profile_8_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_stats_scan_profile_8_pointer = parasail_nw_stats_scan_profile_sse2_128_8;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_scan_profile_8_pointer = parasail_nw_stats_scan_profile_altivec_128_8;
     }
     else
 #endif
@@ -3868,6 +4444,12 @@ parasail_result_t* parasail_nw_stats_striped_profile_64_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_striped_profile_64_pointer = parasail_nw_stats_striped_profile_altivec_128_64;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_stats_striped_profile_64_pointer = NULL;
@@ -3901,6 +4483,12 @@ parasail_result_t* parasail_nw_stats_striped_profile_32_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_stats_striped_profile_32_pointer = parasail_nw_stats_striped_profile_sse2_128_32;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_striped_profile_32_pointer = parasail_nw_stats_striped_profile_altivec_128_32;
     }
     else
 #endif
@@ -3940,6 +4528,12 @@ parasail_result_t* parasail_nw_stats_striped_profile_16_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_striped_profile_16_pointer = parasail_nw_stats_striped_profile_altivec_128_16;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_stats_striped_profile_16_pointer = NULL;
@@ -3973,6 +4567,12 @@ parasail_result_t* parasail_nw_stats_striped_profile_8_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_stats_striped_profile_8_pointer = parasail_nw_stats_striped_profile_sse2_128_8;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_striped_profile_8_pointer = parasail_nw_stats_striped_profile_altivec_128_8;
     }
     else
 #endif
@@ -4012,6 +4612,12 @@ parasail_result_t* parasail_nw_table_scan_profile_64_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_table_scan_profile_64_pointer = parasail_nw_table_scan_profile_altivec_128_64;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_table_scan_profile_64_pointer = NULL;
@@ -4045,6 +4651,12 @@ parasail_result_t* parasail_nw_table_scan_profile_32_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_table_scan_profile_32_pointer = parasail_nw_table_scan_profile_sse2_128_32;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_table_scan_profile_32_pointer = parasail_nw_table_scan_profile_altivec_128_32;
     }
     else
 #endif
@@ -4084,6 +4696,12 @@ parasail_result_t* parasail_nw_table_scan_profile_16_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_table_scan_profile_16_pointer = parasail_nw_table_scan_profile_altivec_128_16;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_table_scan_profile_16_pointer = NULL;
@@ -4117,6 +4735,12 @@ parasail_result_t* parasail_nw_table_scan_profile_8_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_table_scan_profile_8_pointer = parasail_nw_table_scan_profile_sse2_128_8;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_table_scan_profile_8_pointer = parasail_nw_table_scan_profile_altivec_128_8;
     }
     else
 #endif
@@ -4156,6 +4780,12 @@ parasail_result_t* parasail_nw_table_striped_profile_64_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_table_striped_profile_64_pointer = parasail_nw_table_striped_profile_altivec_128_64;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_table_striped_profile_64_pointer = NULL;
@@ -4189,6 +4819,12 @@ parasail_result_t* parasail_nw_table_striped_profile_32_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_table_striped_profile_32_pointer = parasail_nw_table_striped_profile_sse2_128_32;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_table_striped_profile_32_pointer = parasail_nw_table_striped_profile_altivec_128_32;
     }
     else
 #endif
@@ -4228,6 +4864,12 @@ parasail_result_t* parasail_nw_table_striped_profile_16_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_table_striped_profile_16_pointer = parasail_nw_table_striped_profile_altivec_128_16;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_table_striped_profile_16_pointer = NULL;
@@ -4261,6 +4903,12 @@ parasail_result_t* parasail_nw_table_striped_profile_8_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_table_striped_profile_8_pointer = parasail_nw_table_striped_profile_sse2_128_8;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_table_striped_profile_8_pointer = parasail_nw_table_striped_profile_altivec_128_8;
     }
     else
 #endif
@@ -4300,6 +4948,12 @@ parasail_result_t* parasail_nw_stats_table_scan_profile_64_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_table_scan_profile_64_pointer = parasail_nw_stats_table_scan_profile_altivec_128_64;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_stats_table_scan_profile_64_pointer = NULL;
@@ -4333,6 +4987,12 @@ parasail_result_t* parasail_nw_stats_table_scan_profile_32_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_stats_table_scan_profile_32_pointer = parasail_nw_stats_table_scan_profile_sse2_128_32;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_table_scan_profile_32_pointer = parasail_nw_stats_table_scan_profile_altivec_128_32;
     }
     else
 #endif
@@ -4372,6 +5032,12 @@ parasail_result_t* parasail_nw_stats_table_scan_profile_16_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_table_scan_profile_16_pointer = parasail_nw_stats_table_scan_profile_altivec_128_16;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_stats_table_scan_profile_16_pointer = NULL;
@@ -4405,6 +5071,12 @@ parasail_result_t* parasail_nw_stats_table_scan_profile_8_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_stats_table_scan_profile_8_pointer = parasail_nw_stats_table_scan_profile_sse2_128_8;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_table_scan_profile_8_pointer = parasail_nw_stats_table_scan_profile_altivec_128_8;
     }
     else
 #endif
@@ -4444,6 +5116,12 @@ parasail_result_t* parasail_nw_stats_table_striped_profile_64_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_table_striped_profile_64_pointer = parasail_nw_stats_table_striped_profile_altivec_128_64;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_stats_table_striped_profile_64_pointer = NULL;
@@ -4477,6 +5155,12 @@ parasail_result_t* parasail_nw_stats_table_striped_profile_32_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_stats_table_striped_profile_32_pointer = parasail_nw_stats_table_striped_profile_sse2_128_32;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_table_striped_profile_32_pointer = parasail_nw_stats_table_striped_profile_altivec_128_32;
     }
     else
 #endif
@@ -4516,6 +5200,12 @@ parasail_result_t* parasail_nw_stats_table_striped_profile_16_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_table_striped_profile_16_pointer = parasail_nw_stats_table_striped_profile_altivec_128_16;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_stats_table_striped_profile_16_pointer = NULL;
@@ -4549,6 +5239,12 @@ parasail_result_t* parasail_nw_stats_table_striped_profile_8_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_stats_table_striped_profile_8_pointer = parasail_nw_stats_table_striped_profile_sse2_128_8;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_table_striped_profile_8_pointer = parasail_nw_stats_table_striped_profile_altivec_128_8;
     }
     else
 #endif
@@ -4588,6 +5284,12 @@ parasail_result_t* parasail_nw_rowcol_scan_profile_64_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_rowcol_scan_profile_64_pointer = parasail_nw_rowcol_scan_profile_altivec_128_64;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_rowcol_scan_profile_64_pointer = NULL;
@@ -4621,6 +5323,12 @@ parasail_result_t* parasail_nw_rowcol_scan_profile_32_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_rowcol_scan_profile_32_pointer = parasail_nw_rowcol_scan_profile_sse2_128_32;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_rowcol_scan_profile_32_pointer = parasail_nw_rowcol_scan_profile_altivec_128_32;
     }
     else
 #endif
@@ -4660,6 +5368,12 @@ parasail_result_t* parasail_nw_rowcol_scan_profile_16_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_rowcol_scan_profile_16_pointer = parasail_nw_rowcol_scan_profile_altivec_128_16;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_rowcol_scan_profile_16_pointer = NULL;
@@ -4693,6 +5407,12 @@ parasail_result_t* parasail_nw_rowcol_scan_profile_8_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_rowcol_scan_profile_8_pointer = parasail_nw_rowcol_scan_profile_sse2_128_8;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_rowcol_scan_profile_8_pointer = parasail_nw_rowcol_scan_profile_altivec_128_8;
     }
     else
 #endif
@@ -4732,6 +5452,12 @@ parasail_result_t* parasail_nw_rowcol_striped_profile_64_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_rowcol_striped_profile_64_pointer = parasail_nw_rowcol_striped_profile_altivec_128_64;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_rowcol_striped_profile_64_pointer = NULL;
@@ -4765,6 +5491,12 @@ parasail_result_t* parasail_nw_rowcol_striped_profile_32_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_rowcol_striped_profile_32_pointer = parasail_nw_rowcol_striped_profile_sse2_128_32;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_rowcol_striped_profile_32_pointer = parasail_nw_rowcol_striped_profile_altivec_128_32;
     }
     else
 #endif
@@ -4804,6 +5536,12 @@ parasail_result_t* parasail_nw_rowcol_striped_profile_16_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_rowcol_striped_profile_16_pointer = parasail_nw_rowcol_striped_profile_altivec_128_16;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_rowcol_striped_profile_16_pointer = NULL;
@@ -4837,6 +5575,12 @@ parasail_result_t* parasail_nw_rowcol_striped_profile_8_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_rowcol_striped_profile_8_pointer = parasail_nw_rowcol_striped_profile_sse2_128_8;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_rowcol_striped_profile_8_pointer = parasail_nw_rowcol_striped_profile_altivec_128_8;
     }
     else
 #endif
@@ -4876,6 +5620,12 @@ parasail_result_t* parasail_nw_stats_rowcol_scan_profile_64_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_rowcol_scan_profile_64_pointer = parasail_nw_stats_rowcol_scan_profile_altivec_128_64;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_stats_rowcol_scan_profile_64_pointer = NULL;
@@ -4909,6 +5659,12 @@ parasail_result_t* parasail_nw_stats_rowcol_scan_profile_32_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_stats_rowcol_scan_profile_32_pointer = parasail_nw_stats_rowcol_scan_profile_sse2_128_32;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_rowcol_scan_profile_32_pointer = parasail_nw_stats_rowcol_scan_profile_altivec_128_32;
     }
     else
 #endif
@@ -4948,6 +5704,12 @@ parasail_result_t* parasail_nw_stats_rowcol_scan_profile_16_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_rowcol_scan_profile_16_pointer = parasail_nw_stats_rowcol_scan_profile_altivec_128_16;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_stats_rowcol_scan_profile_16_pointer = NULL;
@@ -4981,6 +5743,12 @@ parasail_result_t* parasail_nw_stats_rowcol_scan_profile_8_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_stats_rowcol_scan_profile_8_pointer = parasail_nw_stats_rowcol_scan_profile_sse2_128_8;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_rowcol_scan_profile_8_pointer = parasail_nw_stats_rowcol_scan_profile_altivec_128_8;
     }
     else
 #endif
@@ -5020,6 +5788,12 @@ parasail_result_t* parasail_nw_stats_rowcol_striped_profile_64_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_rowcol_striped_profile_64_pointer = parasail_nw_stats_rowcol_striped_profile_altivec_128_64;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_stats_rowcol_striped_profile_64_pointer = NULL;
@@ -5053,6 +5827,12 @@ parasail_result_t* parasail_nw_stats_rowcol_striped_profile_32_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_stats_rowcol_striped_profile_32_pointer = parasail_nw_stats_rowcol_striped_profile_sse2_128_32;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_rowcol_striped_profile_32_pointer = parasail_nw_stats_rowcol_striped_profile_altivec_128_32;
     }
     else
 #endif
@@ -5092,6 +5872,12 @@ parasail_result_t* parasail_nw_stats_rowcol_striped_profile_16_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_rowcol_striped_profile_16_pointer = parasail_nw_stats_rowcol_striped_profile_altivec_128_16;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_stats_rowcol_striped_profile_16_pointer = NULL;
@@ -5125,6 +5911,12 @@ parasail_result_t* parasail_nw_stats_rowcol_striped_profile_8_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_stats_rowcol_striped_profile_8_pointer = parasail_nw_stats_rowcol_striped_profile_sse2_128_8;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_stats_rowcol_striped_profile_8_pointer = parasail_nw_stats_rowcol_striped_profile_altivec_128_8;
     }
     else
 #endif
@@ -5164,6 +5956,12 @@ parasail_result_t* parasail_nw_trace_scan_profile_64_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_trace_scan_profile_64_pointer = parasail_nw_trace_scan_profile_altivec_128_64;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_trace_scan_profile_64_pointer = NULL;
@@ -5197,6 +5995,12 @@ parasail_result_t* parasail_nw_trace_scan_profile_32_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_trace_scan_profile_32_pointer = parasail_nw_trace_scan_profile_sse2_128_32;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_trace_scan_profile_32_pointer = parasail_nw_trace_scan_profile_altivec_128_32;
     }
     else
 #endif
@@ -5236,6 +6040,12 @@ parasail_result_t* parasail_nw_trace_scan_profile_16_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_trace_scan_profile_16_pointer = parasail_nw_trace_scan_profile_altivec_128_16;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_trace_scan_profile_16_pointer = NULL;
@@ -5269,6 +6079,12 @@ parasail_result_t* parasail_nw_trace_scan_profile_8_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_trace_scan_profile_8_pointer = parasail_nw_trace_scan_profile_sse2_128_8;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_trace_scan_profile_8_pointer = parasail_nw_trace_scan_profile_altivec_128_8;
     }
     else
 #endif
@@ -5308,6 +6124,12 @@ parasail_result_t* parasail_nw_trace_striped_profile_64_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_trace_striped_profile_64_pointer = parasail_nw_trace_striped_profile_altivec_128_64;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_trace_striped_profile_64_pointer = NULL;
@@ -5341,6 +6163,12 @@ parasail_result_t* parasail_nw_trace_striped_profile_32_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_trace_striped_profile_32_pointer = parasail_nw_trace_striped_profile_sse2_128_32;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_trace_striped_profile_32_pointer = parasail_nw_trace_striped_profile_altivec_128_32;
     }
     else
 #endif
@@ -5380,6 +6208,12 @@ parasail_result_t* parasail_nw_trace_striped_profile_16_dispatcher(
     }
     else
 #endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_trace_striped_profile_16_pointer = parasail_nw_trace_striped_profile_altivec_128_16;
+    }
+    else
+#endif
 #endif
     {
         parasail_nw_trace_striped_profile_16_pointer = NULL;
@@ -5413,6 +6247,12 @@ parasail_result_t* parasail_nw_trace_striped_profile_8_dispatcher(
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
         parasail_nw_trace_striped_profile_8_pointer = parasail_nw_trace_striped_profile_sse2_128_8;
+    }
+    else
+#endif
+#if HAVE_ALTIVEC
+    if (parasail_can_use_altivec()) {
+        parasail_nw_trace_striped_profile_8_pointer = parasail_nw_trace_striped_profile_altivec_128_8;
     }
     else
 #endif

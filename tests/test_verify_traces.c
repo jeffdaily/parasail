@@ -257,6 +257,7 @@ int main(int argc, char **argv)
     int do_sse2 = 1;
     int do_sse41 = 1;
     int do_avx2 = 1;
+    int do_altivec = 1;
     int do_disp = 1;
     int do_nw = 1;
     int do_sg = 1;
@@ -304,6 +305,7 @@ int main(int argc, char **argv)
                 do_sse2 = (NULL == strstr(optarg, "sse2"));
                 do_sse41 = (NULL == strstr(optarg, "sse41"));
                 do_avx2 = (NULL == strstr(optarg, "avx2"));
+                do_altivec = (NULL == strstr(optarg, "altivec"));
                 do_disp = (NULL == strstr(optarg, "disp"));
                 do_nw = (NULL == strstr(optarg, "nw"));
                 do_sg = (NULL == strstr(optarg, "sg"));
@@ -391,6 +393,16 @@ int main(int argc, char **argv)
             if (do_nw) check_functions(parasail_nw_trace_knc, sequences, limit, matrix, gap);
             if (do_sg) check_functions(parasail_sg_trace_knc, sequences, limit, matrix, gap);
             if (do_sw) check_functions(parasail_sw_trace_knc, sequences, limit, matrix, gap);
+        }
+    }
+#endif
+
+#if HAVE_SSE2
+    if (do_altivec && parasail_can_use_altivec()) {
+        if (test_scores) {
+            if (do_nw) check_functions(parasail_nw_trace_altivec, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_trace_altivec, sequences, limit, matrix, gap);
+            if (do_sw) check_functions(parasail_sw_trace_altivec, sequences, limit, matrix, gap);
         }
     }
 #endif

@@ -40,10 +40,11 @@ def print_null():
     print fmt[:-1] % ("NULL", "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0)
 
 isa_to_bits = {
-    "sse2"  : 128,
-    "sse41" : 128,
-    "avx2"  : 256,
-    "knc"   : 512,
+    "sse2"    : 128,
+    "sse41"   : 128,
+    "avx2"    : 256,
+    "knc"     : 512,
+    "altivec" : 128,
 }
 
 for table in ["_trace"]:
@@ -55,7 +56,7 @@ for table in ["_trace"]:
             if stats:
                 is_stats = 1
             pre = "parasail_"+alg+stats+table
-            for isa in ["sse2", "sse41", "avx2"]:
+            for isa in ["sse2", "sse41", "avx2", "altivec"]:
                 print "#if HAVE_%s" % isa.upper()
                 print "static parasail_function_info_t %s_%s_functions[] = {" % (pre, isa)
                 print_fmt(pre,         pre,         alg+stats, "orig", "NA", "32", "32", 1, is_table, is_stats, 1)

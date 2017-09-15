@@ -397,7 +397,7 @@ int main(int argc, char **argv)
     }
 #endif
 
-#if HAVE_SSE2
+#if HAVE_ALTIVEC
     if (do_altivec && parasail_can_use_altivec()) {
         if (test_scores) {
             if (do_nw) check_functions(parasail_nw_trace_altivec, sequences, limit, matrix, gap);

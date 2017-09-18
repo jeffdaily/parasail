@@ -473,7 +473,7 @@ static inline vec128i _mm_and_si128(vec128i a, vec128i b)
 
 static inline vec128i _mm_andnot_si128(vec128i a, vec128i b)
 {
-    return (vec128i) vec_andc((vec16ub) a, (vec16ub) b);
+    return (vec128i) vec_andc((vec16ub) b, (vec16ub) a);
 }
 
 static inline vec128i _mm_or_si128(vec128i a, vec128i b)

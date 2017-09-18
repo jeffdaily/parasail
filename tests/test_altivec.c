@@ -398,25 +398,35 @@ int main(int argc, char **argv)
     printf("mask cmpeq 0 enum ="); print_32(vMask32); printf("\n");
     printf("mask cmpeq 0 enum ="); print_64(vMask64); printf("\n");
 
-    vResult8 = _mm_blendv_epi8(vZero8, vOne8, vMask8);
-    vResult16 = _mm_blendv_epi8(vZero16, vOne16, vMask16);
-    vResult32 = _mm_blendv_epi8(vZero32, vOne32, vMask32);
-    vResult64 = _mm_blendv_epi8(vZero64, vOne64, vMask64);
+    vResult8 = _mm_blendv_epi8(vOne8, vOne8, vMask8);
+    vResult16 = _mm_blendv_epi8(vOne16, vOne16, vMask16);
+    vResult32 = _mm_blendv_epi8(vOne32, vOne32, vMask32);
+    vResult64 = _mm_blendv_epi8(vOne64, vOne64, vMask64);
 
-    printf("blend vZero vOne vMask ="); print_8(vResult8); printf("\n");
-    printf("blend vZero vOne vMask ="); print_16(vResult16); printf("\n");
-    printf("blend vZero vOne vMask ="); print_32(vResult32); printf("\n");
-    printf("blend vZero vOne vMask ="); print_64(vResult64); printf("\n");
+    printf("blend vEnum vOne vMask ="); print_8(vResult8); printf("\n");
+    printf("blend vEnum vOne vMask ="); print_16(vResult16); printf("\n");
+    printf("blend vEnum vOne vMask ="); print_32(vResult32); printf("\n");
+    printf("blend vEnum vOne vMask ="); print_64(vResult64); printf("\n");
 
-    vResult8 = _mm_andnot_si128(vMask8, vZero8);
-    vResult16 = _mm_andnot_si128(vMask16, vZero16);
-    vResult32 = _mm_andnot_si128(vMask32, vZero32);
-    vResult64 = _mm_andnot_si128(vMask64, vZero64);
+    vResult8 = _mm_andnot_si128(vMask8, vOne8);
+    vResult16 = _mm_andnot_si128(vMask16, vOne16);
+    vResult32 = _mm_andnot_si128(vMask32, vOne32);
+    vResult64 = _mm_andnot_si128(vMask64, vOne64);
 
-    printf("andnot vMask vZero ="); print_8(vResult8); printf("\n");
-    printf("andnot vMask vZero ="); print_16(vResult16); printf("\n");
-    printf("andnot vMask vZero ="); print_32(vResult32); printf("\n");
-    printf("andnot vMask vZero ="); print_64(vResult64); printf("\n");
+    printf("andnot vMask vOne ="); print_8(vResult8); printf("\n");
+    printf("andnot vMask vOne ="); print_16(vResult16); printf("\n");
+    printf("andnot vMask vOne ="); print_32(vResult32); printf("\n");
+    printf("andnot vMask vOne ="); print_64(vResult64); printf("\n");
+
+    vResult8 = _mm_and_si128(vMask8, vOne8);
+    vResult16 = _mm_and_si128(vMask16, vOne16);
+    vResult32 = _mm_and_si128(vMask32, vOne32);
+    vResult64 = _mm_and_si128(vMask64, vOne64);
+
+    printf("and vMask vOne ="); print_8(vResult8); printf("\n");
+    printf("and vMask vOne ="); print_16(vResult16); printf("\n");
+    printf("and vMask vOne ="); print_32(vResult32); printf("\n");
+    printf("and vMask vOne ="); print_64(vResult64); printf("\n");
 
     return 0;
 }

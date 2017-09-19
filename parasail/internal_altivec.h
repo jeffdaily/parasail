@@ -72,18 +72,7 @@ static inline vec128i _mm_add_epi32(vec128i a, vec128i b)
 
 static inline vec128i _mm_add_epi64(vec128i a, vec128i b)
 {
-#ifdef __POWER8__
     return (vec128i) vec_add((vec2sd) a, (vec2sd) b);
-#else
-    vec128i_64_t ret;
-    vec128i_64_t _a;
-    vec128i_64_t _b;
-    _a.m = a;
-    _b.m = b;
-    ret.v[0] = _a.v[0] + _b.v[0];
-    ret.v[1] = _a.v[1] + _b.v[1];
-    return ret.m;
-#endif
 }
 
 static inline vec128i _mm_adds_epi8(vec128i a, vec128i b)
@@ -113,18 +102,7 @@ static inline vec128i _mm_sub_epi32(vec128i a, vec128i b)
 
 static inline vec128i _mm_sub_epi64(vec128i a, vec128i b)
 {
-#ifdef __POWER8__
     return (vec128i) vec_sub((vec2sd) a, (vec2sd) b);
-#else
-    vec128i_64_t ret;
-    vec128i_64_t _a;
-    vec128i_64_t _b;
-    _a.m = a;
-    _b.m = b;
-    ret.v[0] = _a.v[0] - _b.v[0];
-    ret.v[1] = _a.v[1] - _b.v[1];
-    return ret.m;
-#endif
 }
 
 static inline vec128i _mm_subs_epi8(vec128i a, vec128i b)
@@ -154,17 +132,7 @@ static inline vec128i _mm_cmpeq_epi32(vec128i a, vec128i b)
 
 static inline vec128i _mm_cmpeq_epi64(vec128i a, vec128i b)
 {
-#ifdef __POWER8__
     return (vec128i) vec_cmpeq((vec2sd) a, (vec2sd) b);
-#else
-    vec128i_64_t A;
-    vec128i_64_t B;
-    A.m = a;
-    B.m = b;
-    A.v[0] = (A.v[0]==B.v[0]) ? 0xFFFFFFFFFFFFFFFF : 0;
-    A.v[1] = (A.v[1]==B.v[1]) ? 0xFFFFFFFFFFFFFFFF : 0;
-    return A.m;
-#endif
 }
 
 static inline vec128i _mm_cmpgt_epi8(vec128i a, vec128i b)
@@ -184,16 +152,7 @@ static inline vec128i _mm_cmpgt_epi32(vec128i a, vec128i b)
 
 static inline vec128i _mm_cmpgt_epi64(vec128i a, vec128i b)
 {
-#ifdef __POWER8__
-#else
-    vec128i_64_t A;
-    vec128i_64_t B;
-    A.m = a;
-    B.m = b;
-    A.v[0] = (A.v[0]>B.v[0]) ? 0xFFFFFFFFFFFFFFFF : 0;
-    A.v[1] = (A.v[1]>B.v[1]) ? 0xFFFFFFFFFFFFFFFF : 0;
-    return A.m;
-#endif
+    return (vec128i) vec_cmpgt((vec2sd) a, (vec2sd) b);
 }
 
 static inline vec128i _mm_cmplt_epi8(vec128i a, vec128i b)
@@ -213,16 +172,7 @@ static inline vec128i _mm_cmplt_epi32(vec128i a, vec128i b)
 
 static inline vec128i _mm_cmplt_epi64(vec128i a, vec128i b)
 {
-#ifdef __POWER8__
-#else
-    vec128i_64_t A;
-    vec128i_64_t B;
-    A.m = a;
-    B.m = b;
-    A.v[0] = (A.v[0]<B.v[0]) ? 0xFFFFFFFFFFFFFFFF : 0;
-    A.v[1] = (A.v[1]<B.v[1]) ? 0xFFFFFFFFFFFFFFFF : 0;
-    return A.m;
-#endif
+    return (vec128i) vec_cmplt((vec2sd) a, (vec2sd) b);
 }
 
 static inline int8_t _mm_extract_epi8(vec128i v, int imm)
@@ -307,7 +257,7 @@ static inline vec128i _mm_insert_epi32(vec128i v, int32_t value, int imm)
 
 static inline vec128i _mm_insert_epi64(vec128i v, int64_t value, int imm)
 {
-    vec128i_32_t A;
+    vec128i_64_t A;
     A.m = v;
 #ifdef WORDS_BIGENDIAN
     A.v[1-imm] = value;
@@ -344,18 +294,7 @@ static inline vec128i _mm_max_epi32(vec128i a, vec128i b)
 
 static inline vec128i _mm_max_epi64(vec128i a, vec128i b)
 {
-#ifdef __POWER8__
     return (vec128i) vec_max((vec2sd) a, (vec2sd) b);
-#else
-    vec128i_64_t ret;
-    vec128i_64_t _a;
-    vec128i_64_t _b;
-    _a.m = a;
-    _b.m = b;
-    ret.v[0] = _a.v[0] > _b.v[0] ? _a.v[0] : _b.v[0];
-    ret.v[1] = _a.v[1] > _b.v[1] ? _a.v[0] : _b.v[0];
-    return ret.m;
-#endif
 }
 
 static inline vec128i _mm_min_epi8(vec128i a, vec128i b)
@@ -375,18 +314,7 @@ static inline vec128i _mm_min_epi32(vec128i a, vec128i b)
 
 static inline vec128i _mm_min_epi64(vec128i a, vec128i b)
 {
-#ifdef __POWER8__
     return (vec128i) vec_min((vec2sd) a, (vec2sd) b);
-#else
-    vec128i_64_t ret;
-    vec128i_64_t _a;
-    vec128i_64_t _b;
-    _a.m = a;
-    _b.m = b;
-    ret.v[0] = _a.v[0] < _b.v[0] ? _a.v[0] : _b.v[0];
-    ret.v[1] = _a.v[1] < _b.v[1] ? _a.v[0] : _b.v[0];
-    return ret.m;
-#endif
 }
 
 static inline int _mm_movemask_epi8(vec128i v)

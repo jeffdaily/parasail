@@ -428,5 +428,12 @@ int main(int argc, char **argv)
     printf("and vMask vOne ="); print_32(vResult32); printf("\n");
     printf("and vMask vOne ="); print_64(vResult64); printf("\n");
 
+#ifdef __POWER7__
+    printf("__POWER7__ defined\n");
+#endif
+#ifdef __POWER8__
+    printf("__POWER8__ defined\n");
+#endif
+
     return 0;
 }

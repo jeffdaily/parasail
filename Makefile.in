@@ -189,7 +189,7 @@ libparasail_la_DEPENDENCIES = libparasail_novec.la \
 am__dirstamp = $(am__leading_dot)dirstamp
 am__objects_1 = src/cigar.lo src/cpuid.lo src/function_lookup.lo \
 	src/io.lo src/isastubs.lo src/matrix_lookup.lo src/memory.lo \
-	src/parser.lo src/time.lo src/nw_dispatch.lo \
+	src/parser.lo src/pssw.lo src/time.lo src/nw_dispatch.lo \
 	src/sg_dispatch.lo src/sw_dispatch.lo src/dispatch_profile.lo \
 	src/satcheck.lo src/striped_unwind.lo src/traceback.lo
 am_libparasail_la_OBJECTS = $(am__objects_1)
@@ -1972,7 +1972,7 @@ EXTRA_DIST = version.sh .gitignore .travis.yml CHANGELOG.md \
 #################
 SRC_CORE = src/cigar.c src/cpuid.c src/function_lookup.c src/io.c \
 	src/isastubs.c src/matrix_lookup.c src/memory.c src/parser.c \
-	src/time.c src/nw_dispatch.c src/sg_dispatch.c \
+	src/pssw.c src/time.c src/nw_dispatch.c src/sg_dispatch.c \
 	src/sw_dispatch.c src/dispatch_profile.c src/satcheck.c \
 	src/striped_unwind.c src/traceback.c parasail/memory.h \
 	parasail/stats.h
@@ -2581,6 +2581,7 @@ src/matrix_lookup.lo: src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/memory.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/parser.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/pssw.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/time.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/nw_dispatch.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/sg_dispatch.lo: src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
@@ -5505,6 +5506,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/memory.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/nw_dispatch.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/parser.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/pssw.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/satcheck.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/sg_dispatch.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/striped_unwind.Plo@am__quote@

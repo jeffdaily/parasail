@@ -155,6 +155,7 @@ SRC_CORE += src/isastubs.c
 SRC_CORE += src/matrix_lookup.c
 SRC_CORE += src/memory.c
 SRC_CORE += src/parser.c
+SRC_CORE += src/pssw.c
 SRC_CORE += src/time.c
 SRC_CORE += src/nw_dispatch.c
 SRC_CORE += src/sg_dispatch.c

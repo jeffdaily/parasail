@@ -55,92 +55,126 @@ parasail_result_ssw_t* parasail_ssw(
 
 parasail_result_ssw_t* parasail_ssw_profile(
         const parasail_profile_t * const restrict profile,
-        const char * const restrict s2, const int s2Len,
+        const char * const restrict s2, const int s2Len_,
         const int open, const int gap)
 {
     const char *s1 = profile->s1;
     const parasail_matrix_t *matrix = profile->matrix;
     parasail_result_t *result = NULL;
+    parasail_result_t *result_reverse = NULL;
+    parasail_result_t *result_final = NULL;
     parasail_result_ssw_t *result_ssw = NULL;
+    int word = 0; /* if word == 1, we jump right to the 16-bit version */
+    char *s1_reverse = NULL;
+    char *s2_reverse = NULL;
+    int s1Len = 0;
+    int s2Len = 0;
+    int s1Off = 0;
+    int s2Off = 0;
     parasail_cigar_t *cigar = NULL;
-    int word = 0;
 
     /* find the end loc first with the faster implementation */
-    result = parasail_sw_striped_profile_8(profile, s2, s2Len, open, gap);
+    result = parasail_sw_striped_profile_8(profile, s2, s2Len_, open, gap);
     if (parasail_result_is_saturated(result)) {
         word = 1;
         parasail_result_free(result);
-        result = parasail_sw_striped_profile_16(profile, s2, s2Len, open, gap);
+        result = parasail_sw_striped_profile_16(profile, s2, s2Len_, open, gap);
     }
 
-    if (!parasail_result_is_saturated(result)) {
-        parasail_result_t *result_reverse = NULL;
-        parasail_result_t *result_final = NULL;
-        char *s1_reverse = NULL;
-        char *s2_reverse = NULL;
-        int s1Len = 0;
-        int s2Len = 0;
-        int s1Off = 0;
-        int s2Off = 0;
+    /* error condition if 16-bit saturated */
+    if (parasail_result_is_saturated(result)) {
+        parasail_result_free(result);
+        return NULL;
+    }
 
-        /* find beginning loc by going in reverse */
-        s1_reverse = parasail_reverse(s1, result->end_query+1);
-        s2_reverse = parasail_reverse(s2, result->end_ref+1);
-        s1Len = result->end_query+1;
-        s2Len = result->end_ref+1;
-        if (0 == word) {
-            result_reverse = parasail_sw_striped_8(
-                    s1_reverse, s1Len,
-                    s2_reverse, s2Len,
-                    open, gap, matrix);
-        }
-        else {
+    /* find beginning loc by going in reverse */
+    s1Len = result->end_query+1;
+    s2Len = result->end_ref+1;
+    s1_reverse = parasail_reverse(s1, s1Len);
+    s2_reverse = parasail_reverse(s2, s2Len);
+    if (0 == word) {
+        result_reverse = parasail_sw_striped_8(
+                s1_reverse, s1Len,
+                s2_reverse, s2Len,
+                open, gap, matrix);
+        if (parasail_result_is_saturated(result_reverse)) {
+            word = 1;
+            parasail_result_free(result_reverse);
             result_reverse = parasail_sw_striped_16(
                     s1_reverse, s1Len,
                     s2_reverse, s2Len,
                     open, gap, matrix);
         }
-        free(s2_reverse);
-        free(s1_reverse);
+    }
+    else {
+        result_reverse = parasail_sw_striped_16(
+                s1_reverse, s1Len,
+                s2_reverse, s2Len,
+                open, gap, matrix);
+    }
+    free(s2_reverse);
+    free(s1_reverse);
 
-        /* run trace version of sw on just the aligned portion */
-        s1Off = result->end_query - result_reverse->end_query;
-        s2Off = result->end_ref - result_reverse->end_ref;
-        s1Len = result_reverse->end_query+1;
-        s2Len = result_reverse->end_ref+1;
-        if (0 == word) {
-            result_final = parasail_sw_trace_striped_8(
-                    &s1[s1Off], s1Len,
-                    &s2[s2Off], s2Len,
-                    open, gap, matrix);
-        }
-        else {
+    /* error condition if 16-bit saturated */
+    if (parasail_result_is_saturated(result_reverse)) {
+        parasail_result_free(result_reverse);
+        parasail_result_free(result);
+        return NULL;
+    }
+
+    /* run trace version of sw on just the aligned portion */
+    s1Off = result->end_query - result_reverse->end_query;
+    s2Off = result->end_ref - result_reverse->end_ref;
+    s1Len = result_reverse->end_query+1;
+    s2Len = result_reverse->end_ref+1;
+    if (0 == word) {
+        result_final = parasail_sw_trace_striped_8(
+                &s1[s1Off], s1Len,
+                &s2[s2Off], s2Len,
+                open, gap, matrix);
+        if (parasail_result_is_saturated(result_final)) {
+            word = 1;
+            parasail_result_free(result_final);
             result_final = parasail_sw_trace_striped_16(
                     &s1[s1Off], s1Len,
                     &s2[s2Off], s2Len,
                     open, gap, matrix);
         }
-
-        /* get cigar from traceback */
-        cigar = parasail_result_get_cigar(result_final,
+    }
+    else {
+        result_final = parasail_sw_trace_striped_16(
                 &s1[s1Off], s1Len,
                 &s2[s2Off], s2Len,
-                matrix);
+                open, gap, matrix);
+    }
 
-        result_ssw = (parasail_result_ssw_t*)malloc(sizeof(parasail_result_ssw_t));
-        result_ssw->score1 = result_final->score;
-        result_ssw->ref_begin1 = s2Off;
-        result_ssw->ref_end1 = result->end_ref;
-        result_ssw->read_begin1 = s1Off;
-        result_ssw->read_end1 = result->end_query;
-        result_ssw->cigar = cigar->seq;
-        result_ssw->cigarLen = cigar->len;
-
-        free(cigar);
+    /* error condition if 16-bit saturated */
+    if (parasail_result_is_saturated(result_final)) {
         parasail_result_free(result_final);
         parasail_result_free(result_reverse);
         parasail_result_free(result);
+        return NULL;
     }
+
+    /* get cigar from traceback */
+    cigar = parasail_result_get_cigar(result_final,
+            &s1[s1Off], s1Len,
+            &s2[s2Off], s2Len,
+            matrix);
+
+    result_ssw = (parasail_result_ssw_t*)malloc(sizeof(parasail_result_ssw_t));
+    result_ssw->score1 = result->score;
+    result_ssw->ref_begin1 = s2Off;
+    result_ssw->ref_end1 = result->end_ref;
+    result_ssw->read_begin1 = s1Off;
+    result_ssw->read_end1 = result->end_query;
+    result_ssw->cigar = cigar->seq;
+    result_ssw->cigarLen = cigar->len;
+
+    free(cigar);
+    parasail_result_free(result_final);
+    parasail_result_free(result_reverse);
+    parasail_result_free(result);
 
     return result_ssw;;
 }

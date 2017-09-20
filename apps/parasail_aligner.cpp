@@ -1084,20 +1084,33 @@ int main(int argc, char **argv) {
 
                 if (has_query) {
                     i = i - sid_crossover;
+                    parasail_traceback_generic(
+                            queries->seqs[i].seq.s,
+                            queries->seqs[i].seq.l,
+                            sequences->seqs[j].seq.s,
+                            sequences->seqs[j].seq.l,
+                            queries->seqs[i].name.s,
+                            sequences->seqs[j].name.s,
+                            matrix,
+                            result,
+                            '|', ':', '.',
+                            50,
+                            14);
                 }
-
-                parasail_traceback_generic(
-                        sequences->seqs[i].seq.s,
-                        sequences->seqs[i].seq.l,
-                        sequences->seqs[j].seq.s,
-                        sequences->seqs[j].seq.l,
-                        sequences->seqs[i].name.s,
-                        sequences->seqs[j].name.s,
-                        matrix,
-                        result,
-                        '|', ':', '.',
-                        50,
-                        14);
+                else {
+                    parasail_traceback_generic(
+                            sequences->seqs[i].seq.s,
+                            sequences->seqs[i].seq.l,
+                            sequences->seqs[j].seq.s,
+                            sequences->seqs[j].seq.l,
+                            sequences->seqs[i].name.s,
+                            sequences->seqs[j].name.s,
+                            matrix,
+                            result,
+                            '|', ':', '.',
+                            50,
+                            14);
+                }
             }
         }
         else {
@@ -1125,6 +1138,9 @@ int main(int argc, char **argv) {
 
     /* Done with sequences. */
     parasail_sequences_free(sequences);
+    if (has_query) {
+        parasail_sequences_free(queries);
+    }
 
     return 0;
 }

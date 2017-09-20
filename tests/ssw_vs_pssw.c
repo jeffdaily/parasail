@@ -335,6 +335,8 @@ int main(int argc, char **argv)
                 int32_t filter = 0;
                 int8_t flag = 2;
                 parasail_result_ssw_t *presult = NULL;
+                parasail_result_t *tresult = NULL;
+                parasail_cigar_t *cigar = NULL;
 
                 printf("read %lu ref %lu\n", (long unsigned)j, (long unsigned)k);
 
@@ -371,6 +373,22 @@ int main(int argc, char **argv)
                 print_cigar(presult->cigar, presult->cigarLen);
 
                 parasail_result_ssw_free(presult);
+
+                /* now trace */
+                tresult = parasail_sw_trace_striped_sat(readSeq, readLen, refSeq, refLen, gap_open, gap_extend, matrix);
+                cigar = parasail_result_get_cigar(tresult,
+                        readSeq, readLen, refSeq, refLen, matrix);
+
+                printf("--TRACE--\n");
+                printf("      score: %d\n", tresult->score);
+                printf("   ref_end1: %d\n", tresult->end_ref);
+                printf("  read_end1: %d\n", tresult->end_query);
+                printf("   cigarLen: %d\n", cigar->len);
+                printf("      cigar: ");
+                print_cigar(cigar->seq, cigar->len);
+
+                parasail_cigar_free(cigar);
+                parasail_result_free(tresult);
             }
 
             init_destroy(p);

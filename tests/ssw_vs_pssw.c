@@ -94,9 +94,10 @@ int main(int argc, char **argv)
     int8_t *table = aa_table;
     int32_t n = 24;
     const char *progname = "ssw_vs_pssw";
+    int do_time = 0;
 
     /* Check arguments. */
-    while ((c = getopt(argc, argv, "de:f:hm:M:o:pX:")) != -1) {
+    while ((c = getopt(argc, argv, "de:f:hm:M:o:tX:")) != -1) {
         switch (c) {
             case 'd':
                 use_dna = 1;
@@ -127,6 +128,9 @@ int main(int argc, char **argv)
                 if (gap_open < 0) {
                     print_help(progname, EXIT_FAILURE);
                 }
+                break;
+            case 't':
+                do_time = 1;
                 break;
             case 'X':
                 mismatch = atoi(optarg);
@@ -205,71 +209,173 @@ int main(int argc, char **argv)
 
     sequences = parasail_sequences_from_file(fname);
 
-    for (j=0; j<sequences->l; ++j) {
-        size_t k = 0;
-        char *readSeq = NULL;
-        int32_t readLen = 0;
-        int32_t maskLen = 0;
-        s_profile *p = NULL;
-        int8_t *num = NULL;
-        int32_t m = 0;
+    if (do_time) {
+        /* ssw timing */
+        start = parasail_time();
+        for (j=0; j<sequences->l; ++j) {
+            size_t k = 0;
+            char *readSeq = NULL;
+            int32_t readLen = 0;
+            int32_t maskLen = 0;
+            s_profile *p = NULL;
+            int8_t *num = NULL;
+            int32_t m = 0;
 
-        /* prep ssw */
-        readSeq = sequences->seqs[j].seq.s;
-        readLen = sequences->seqs[j].seq.l;
-        maskLen = readLen / 2;
-        num = (int8_t*)malloc(readLen);
-        for (m=0; m<readLen; ++m) num[m] = table[(int)readSeq[m]];
-        p = ssw_init(num, readLen, ssw_matrix, n, 2);
+            /* prep ssw */
+            readSeq = sequences->seqs[j].seq.s;
+            readLen = sequences->seqs[j].seq.l;
+            maskLen = readLen / 2;
+            num = (int8_t*)malloc(readLen);
+            for (m=0; m<readLen; ++m) num[m] = table[(int)readSeq[m]];
+            p = ssw_init(num, readLen, ssw_matrix, n, 2);
 
-        for (k=j+1; k<sequences->l; ++k) {
-            int8_t *ref_num = NULL;
-            s_align *result = NULL;
-            char *refSeq = NULL;
-            int32_t refLen = 0;
-            int32_t filter = 0;
-            int8_t flag = 2;
-            parasail_result_ssw_t *presult = NULL;
+            for (k=j+1; k<sequences->l; ++k) {
+                int8_t *ref_num = NULL;
+                s_align *result = NULL;
+                char *refSeq = NULL;
+                int32_t refLen = 0;
+                int32_t filter = 0;
+                int8_t flag = 2;
+                parasail_result_ssw_t *presult = NULL;
 
-            printf("read %lu ref %lu\n", (long unsigned)j, (long unsigned)k);
+                refSeq = sequences->seqs[k].seq.s;
+                refLen = sequences->seqs[k].seq.l;
+                ref_num = (int8_t*)malloc(refLen);
+                for (m=0; m<refLen; ++m) ref_num[m] = table[(int)refSeq[m]];
+                result = ssw_align(p, ref_num, refLen, gap_open, gap_extend, flag, filter, 0, maskLen);
+                align_destroy(result);
+                free(ref_num);
+            }
 
-            refSeq = sequences->seqs[k].seq.s;
-            refLen = sequences->seqs[k].seq.l;
-            ref_num = (int8_t*)malloc(refLen);
-            for (m=0; m<refLen; ++m) ref_num[m] = table[(int)refSeq[m]];
-            result = ssw_align(p, ref_num, refLen, gap_open, gap_extend, flag, filter, 0, maskLen);
-
-            printf("--SSW--\n");
-            printf("      score: %d\n", result->score1);
-            printf(" ref_begin1: %d\n", result->ref_begin1);
-            printf("   ref_end1: %d\n", result->ref_end1);
-            printf("read_begin1: %d\n", result->read_begin1);
-            printf("  read_end1: %d\n", result->read_end1);
-            printf("   cigarLen: %d\n", result->cigarLen);
-            printf("      cigar: ");
-            print_cigar(result->cigar, result->cigarLen);
-
-            align_destroy(result);
-            free(ref_num);
-
-            /* now pssw */
-            presult = parasail_ssw(readSeq, readLen, refSeq, refLen, gap_open, gap_extend, matrix);
-
-            printf("--PSSW--\n");
-            printf("      score: %d\n", presult->score1);
-            printf(" ref_begin1: %d\n", presult->ref_begin1);
-            printf("   ref_end1: %d\n", presult->ref_end1);
-            printf("read_begin1: %d\n", presult->read_begin1);
-            printf("  read_end1: %d\n", presult->read_end1);
-            printf("   cigarLen: %d\n", presult->cigarLen);
-            printf("      cigar: ");
-            print_cigar(presult->cigar, presult->cigarLen);
-
-            parasail_result_ssw_free(presult);
+            init_destroy(p);
+            free(num);
         }
+        finish = parasail_time();
+        printf("  ssw: %f\n", finish-start);
+        /* pssw timing */
+        start = parasail_time();
+        for (j=0; j<sequences->l; ++j) {
+            size_t k = 0;
+            char *readSeq = NULL;
+            int32_t readLen = 0;
 
-        init_destroy(p);
-        free(num);
+            /* prep ssw */
+            readSeq = sequences->seqs[j].seq.s;
+            readLen = sequences->seqs[j].seq.l;
+
+            for (k=j+1; k<sequences->l; ++k) {
+                char *refSeq = NULL;
+                int32_t refLen = 0;
+                parasail_result_ssw_t *result = NULL;
+
+                refSeq = sequences->seqs[k].seq.s;
+                refLen = sequences->seqs[k].seq.l;
+                /* now pssw */
+                result = parasail_ssw(readSeq, readLen, refSeq, refLen, gap_open, gap_extend, matrix);
+                parasail_result_ssw_free(result);
+            }
+        }
+        finish = parasail_time();
+        printf(" pssw: %f\n", finish-start);
+        /* trace timing */
+        start = parasail_time();
+        for (j=0; j<sequences->l; ++j) {
+            size_t k = 0;
+            char *readSeq = NULL;
+            int32_t readLen = 0;
+
+            readSeq = sequences->seqs[j].seq.s;
+            readLen = sequences->seqs[j].seq.l;
+
+            for (k=j+1; k<sequences->l; ++k) {
+                char *refSeq = NULL;
+                int32_t refLen = 0;
+                parasail_result_t *result = NULL;
+                parasail_cigar_t *cigar = NULL;
+
+                refSeq = sequences->seqs[k].seq.s;
+                refLen = sequences->seqs[k].seq.l;
+                result = parasail_sw_trace_striped_8(readSeq, readLen, refSeq, refLen, gap_open, gap_extend, matrix);
+                if (parasail_result_is_saturated(result)) {
+                    parasail_result_free(result);
+                    result = parasail_sw_trace_striped_16(readSeq, readLen, refSeq, refLen, gap_open, gap_extend, matrix);
+                }
+                cigar = parasail_result_get_cigar(result,
+                        readSeq, readLen, refSeq, refLen, matrix);
+                parasail_cigar_free(cigar);
+                parasail_result_free(result);
+            }
+        }
+        finish = parasail_time();
+        printf("trace: %f\n", finish-start);
+    }
+    else {
+        for (j=0; j<sequences->l; ++j) {
+            size_t k = 0;
+            char *readSeq = NULL;
+            int32_t readLen = 0;
+            int32_t maskLen = 0;
+            s_profile *p = NULL;
+            int8_t *num = NULL;
+            int32_t m = 0;
+
+            /* prep ssw */
+            readSeq = sequences->seqs[j].seq.s;
+            readLen = sequences->seqs[j].seq.l;
+            maskLen = readLen / 2;
+            num = (int8_t*)malloc(readLen);
+            for (m=0; m<readLen; ++m) num[m] = table[(int)readSeq[m]];
+            p = ssw_init(num, readLen, ssw_matrix, n, 2);
+
+            for (k=j+1; k<sequences->l; ++k) {
+                int8_t *ref_num = NULL;
+                s_align *result = NULL;
+                char *refSeq = NULL;
+                int32_t refLen = 0;
+                int32_t filter = 0;
+                int8_t flag = 2;
+                parasail_result_ssw_t *presult = NULL;
+
+                printf("read %lu ref %lu\n", (long unsigned)j, (long unsigned)k);
+
+                refSeq = sequences->seqs[k].seq.s;
+                refLen = sequences->seqs[k].seq.l;
+                ref_num = (int8_t*)malloc(refLen);
+                for (m=0; m<refLen; ++m) ref_num[m] = table[(int)refSeq[m]];
+                result = ssw_align(p, ref_num, refLen, gap_open, gap_extend, flag, filter, 0, maskLen);
+
+                printf("--SSW--\n");
+                printf("      score: %d\n", result->score1);
+                printf(" ref_begin1: %d\n", result->ref_begin1);
+                printf("   ref_end1: %d\n", result->ref_end1);
+                printf("read_begin1: %d\n", result->read_begin1);
+                printf("  read_end1: %d\n", result->read_end1);
+                printf("   cigarLen: %d\n", result->cigarLen);
+                printf("      cigar: ");
+                print_cigar(result->cigar, result->cigarLen);
+
+                align_destroy(result);
+                free(ref_num);
+
+                /* now pssw */
+                presult = parasail_ssw(readSeq, readLen, refSeq, refLen, gap_open, gap_extend, matrix);
+
+                printf("--PSSW--\n");
+                printf("      score: %d\n", presult->score1);
+                printf(" ref_begin1: %d\n", presult->ref_begin1);
+                printf("   ref_end1: %d\n", presult->ref_end1);
+                printf("read_begin1: %d\n", presult->read_begin1);
+                printf("  read_end1: %d\n", presult->read_end1);
+                printf("   cigarLen: %d\n", presult->cigarLen);
+                printf("      cigar: ");
+                print_cigar(presult->cigar, presult->cigarLen);
+
+                parasail_result_ssw_free(presult);
+            }
+
+            init_destroy(p);
+            free(num);
+        }
     }
 
     parasail_sequences_free(sequences);

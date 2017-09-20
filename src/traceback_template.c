@@ -208,19 +208,19 @@ static inline void CONCAT(NAME, T) (
         for (i=0; i<len; i+=width) {
             printf("\n");
             for (j=0; j<name_width; ++j) {
-                printf("%c", nameA[j]);
-                if (j>=namelenA) break;
+                printf("%c", nameB[j]);
+                if (j>=namelenB) break;
             }
             for (; j<name_width; ++j) {
                 printf(" ");
             }
-            printf(" %7d ", q_pindex+1);
-            for (j=0; j<len&&j<width&&qi<len; ++j) {
-                if (qr[qi] != '-') ++q_pindex;
-                printf("%c", qr[qi]);
-                ++qi;
+            printf(" %7d ", d_pindex+1);
+            for (j=0; j<len&&j<width&&di<len; ++j) {
+                if (dr[di] != '-') ++d_pindex;
+                printf("%c", dr[di]);
+                ++di;
             }
-            printf(" %7d\n", q_pindex);
+            printf(" %7d\n", d_pindex);
             for (j=0; j<name_width+1; ++j) {
                 printf(" ");
             }
@@ -239,19 +239,19 @@ static inline void CONCAT(NAME, T) (
             }
             printf("\n");
             for (j=0; j<name_width; ++j) {
-                printf("%c", nameB[j]);
-                if (j>=namelenB) break;
+                printf("%c", nameA[j]);
+                if (j>=namelenA) break;
             }
             for (; j<name_width; ++j) {
                 printf(" ");
             }
-            printf(" %7d ", d_pindex+1);
-            for (j=0; j<len&&j<width&&di<len; ++j) {
-                if (dr[di] != '-') ++d_pindex;
-                printf("%c", dr[di]);
-                ++di;
+            printf(" %7d ", q_pindex+1);
+            for (j=0; j<len&&j<width&&qi<len; ++j) {
+                if (qr[qi] != '-') ++q_pindex;
+                printf("%c", qr[qi]);
+                ++qi;
             }
-            printf(" %7d\n", d_pindex);
+            printf(" %7d\n", q_pindex);
         }
         printf("\n");
         printf("Length: %d\n", len);

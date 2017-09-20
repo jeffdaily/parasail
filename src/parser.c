@@ -20,6 +20,7 @@
 #include <io.h>
 #define READ_FUNCTION _read
 #else
+#include <unistd.h>
 #define READ_FUNCTION read
 #endif
 

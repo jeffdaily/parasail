@@ -144,6 +144,7 @@ SET( SRC_CORE
     src/matrix_lookup.c
     src/memory.c
     src/parser.c
+    src/pssw.c
     src/time.c
     src/nw_dispatch.c
     src/sg_dispatch.c

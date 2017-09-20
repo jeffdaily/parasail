@@ -486,6 +486,7 @@ int main(int argc, char **argv)
                 continue;
             }
         }
+        fflush(stdout);
         stats_clear(&stats_rdtsc);
         stats_clear(&stats_nsecs);
         timer_rdtsc = timer_start();
@@ -499,9 +500,16 @@ int main(int argc, char **argv)
             stats_sample_value(&stats_rdtsc, timer_rdtsc_single);
             stats_sample_value(&stats_nsecs, timer_nsecs_single);
             score = parasail_result_get_score(result);
-            similar = parasail_result_get_score(result);
-            matches = parasail_result_get_score(result);
-            length = parasail_result_get_score(result);
+            if (f.is_stats) {
+                similar = parasail_result_get_similar(result);
+                matches = parasail_result_get_matches(result);
+                length = parasail_result_get_length(result);
+            }
+            else {
+                similar = 0;
+                matches = 0;
+                length = 0;
+            }
             end_query = parasail_result_get_score(result);
             end_ref = parasail_result_get_score(result);
             saturated = parasail_result_is_saturated(result);
@@ -514,6 +522,17 @@ int main(int argc, char **argv)
             timer_rdtsc_ref_mean = stats_rdtsc._mean;
         }
         strcpy(name, f.alg);
+        if (f.is_table) {
+            strcat(name, "_table");
+        }
+        else if (f.is_rowcol) {
+            strcat(name, "_rowcol");
+        }
+        else if (f.is_trace) {
+            strcat(name, "_trace");
+        }
+        printf("%-15s %8s %6s %4s %5s %5d ",
+                name, f.type, f.isa, f.bits, f.width, f.lanes);
         /* xeon phi was unable to perform I/O running natively */
         if (f.is_table) {
             char suffix[256] = {0};
@@ -673,22 +692,13 @@ int main(int argc, char **argv)
             }
             parasail_result_free(result);
         }
-        if (f.is_table) {
-            strcat(name, "_table");
-        }
-        else if (f.is_rowcol) {
-            strcat(name, "_rowcol");
-        }
-        else if (f.is_trace) {
-            strcat(name, "_trace");
-        }
         if (use_rdtsc) {
             printf(
-                "%-15s %8s %6s %4s %5s %5d %4d "
+                "%4d "
                 "%8d %8d %8d %8d "
                 "%9d %8d "
                 "%8.1f %5.1f %8.1f %8.0f %8.0f\n",
-                name, f.type, f.isa, f.bits, f.width, f.lanes, saturated,
+                saturated,
                 score, matches, similar, length,
                 end_query, end_ref,
                 saturated ? 0 : stats_rdtsc._mean,
@@ -699,11 +709,11 @@ int main(int argc, char **argv)
         }
         else {
             printf(
-                "%-15s %8s %6s %4s %5s %5d %4d "
+                "%4d "
                 "%8d %8d %8d %8d "
                 "%9d %8d "
                 "%8.3f %5.2f %8.3f %8.3f %8.3f\n",
-                name, f.type, f.isa, f.bits, f.width, f.lanes, saturated,
+                saturated,
                 score, matches, similar, length,
                 end_query, end_ref,
                 saturated ? 0 : stats_nsecs._mean,
@@ -714,6 +724,7 @@ int main(int argc, char **argv)
         }
         f = functions[index++];
     }
+    /* banded test */
     if (do_nw) {
         int saturated = 0;
         stats_clear(&stats_rdtsc);
@@ -761,6 +772,63 @@ int main(int argc, char **argv)
                     "%9d %8d "
                     "%8.3f %5.2f %8.3f %8.3f %8.3f\n",
                     "nw", "banded", "NA", "32", "32", 1, saturated,
+                    score, matches, similar, length,
+                    end_query, end_ref,
+                    saturated ? 0 : stats_nsecs._mean,
+                    saturated ? 0 : pctf(timer_nsecs_ref_mean, stats_nsecs._mean),
+                    saturated ? 0 : stats_stddev(&stats_nsecs),
+                    saturated ? 0 : stats_nsecs._min,
+                    saturated ? 0 : stats_nsecs._max);
+        }
+    }
+    /* ssw test */
+    if (do_sw) {
+        int saturated = 0;
+        stats_clear(&stats_rdtsc);
+        stats_clear(&stats_nsecs);
+        timer_rdtsc = timer_start();
+        timer_nsecs = timer_real();
+        for (i=0; i<limit; ++i) {
+            parasail_result_ssw_t *ssw_result = NULL;
+            timer_rdtsc_single = timer_start();
+            timer_nsecs_single = timer_real();
+            ssw_result = parasail_ssw(seqA, lena, seqB, lenb, open, extend, matrix);
+            timer_rdtsc_single = timer_start()-(timer_rdtsc_single);
+            timer_nsecs_single = timer_real() - timer_nsecs_single;
+            stats_sample_value(&stats_rdtsc, timer_rdtsc_single);
+            stats_sample_value(&stats_nsecs, timer_nsecs_single);
+            score = ssw_result->score1;
+            similar = 0;
+            matches = 0;
+            length = 0;
+            end_query = ssw_result->read_end1;
+            end_ref = ssw_result->ref_end1;
+            parasail_result_ssw_free(ssw_result);
+        }
+        timer_rdtsc = timer_start()-(timer_rdtsc);
+        timer_nsecs = timer_real() - timer_nsecs;
+        if (use_rdtsc) {
+            printf(
+                    "%-15s %8s %6s %4s %5s %5d %4d "
+                    "%8d %8d %8d %8d "
+                    "%9d %8d "
+                    "%8.1f %5.1f %8.1f %8.0f %8.0f\n",
+                    "ssw", "striped", "NA", "16", "16", 1, saturated,
+                    score, matches, similar, length,
+                    end_query, end_ref,
+                    saturated ? 0 : stats_rdtsc._mean,
+                    saturated ? 0 : pctf(timer_rdtsc_ref_mean, stats_rdtsc._mean),
+                    saturated ? 0 : stats_stddev(&stats_rdtsc),
+                    saturated ? 0 : stats_rdtsc._min,
+                    saturated ? 0 : stats_rdtsc._max);
+        }
+        else {
+            printf(
+                    "%-15s %8s %6s %4s %5s %5d %4d "
+                    "%8d %8d %8d %8d "
+                    "%9d %8d "
+                    "%8.3f %5.2f %8.3f %8.3f %8.3f\n",
+                    "ssw", "striped", "NA", "16", "16", 1, saturated,
                     score, matches, similar, length,
                     end_query, end_ref,
                     saturated ? 0 : stats_nsecs._mean,

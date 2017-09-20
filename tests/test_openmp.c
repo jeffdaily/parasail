@@ -35,7 +35,7 @@
 #include "timer_real.h"
 
 #if HAVE_SSE2
-parasail_result_t* parasail_ssw_(
+static parasail_result_t* ssw_(
         const char * const restrict s1, const int s1_len,
         const char * const restrict s2, const int s2_len,
         const int open, const int gap, const parasail_matrix_t * pmatrix,
@@ -80,20 +80,20 @@ parasail_result_t* parasail_ssw_(
     return result;
 }
 
-parasail_result_t* parasail_ssw(
+static parasail_result_t* ssw(
         const char * const restrict s1, const int s1_len,
         const char * const restrict s2, const int s2_len,
         const int open, const int gap, const parasail_matrix_t *matrix)
 {
-    return parasail_ssw_(s1, s1_len, s2, s2_len, open, gap, matrix, 2);
+    return ssw_(s1, s1_len, s2, s2_len, open, gap, matrix, 2);
 }
 
-parasail_result_t* parasail_ssw_16(
+static parasail_result_t* ssw_16(
         const char * const restrict s1, const int s1_len,
         const char * const restrict s2, const int s2_len,
         const int open, const int gap, const parasail_matrix_t *matrix)
 {
-    return parasail_ssw_(s1, s1_len, s2, s2_len, open, gap, matrix, 1);
+    return ssw_(s1, s1_len, s2, s2_len, open, gap, matrix, 1);
 }
 #endif
 
@@ -275,10 +275,10 @@ int main(int argc, char **argv)
 #if HAVE_SSE2
         if (NULL == function1) {
             if (0 == strcmp(funcname1, "ssw_16")) {
-                function1 = parasail_ssw_16;
+                function1 = ssw_16;
             }
             else if (0 == strcmp(funcname1, "ssw_8")) {
-                function1 = parasail_ssw;
+                function1 = ssw;
             }
         }
 #endif

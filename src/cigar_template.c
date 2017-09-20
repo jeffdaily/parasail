@@ -12,13 +12,13 @@
 #define LOC LOC_NOVEC
 #endif
 
-#define INC                                      \
-do {                                             \
-    cigar->len += 1;                             \
-    if ((size_t)cigar->len >= size) {            \
-        size = size * 2;                         \
-        cigar->seq = realloc(cigar->seq, size);  \
-    }                                            \
+#define INC                                                       \
+do {                                                              \
+    cigar->len += 1;                                              \
+    if ((size_t)cigar->len >= size) {                             \
+        size = size * 2;                                          \
+        cigar->seq = realloc(cigar->seq, sizeof(uint32_t)*size);  \
+    }                                                             \
 } while (0);
 
 #define RESET  \
@@ -60,7 +60,7 @@ static inline parasail_cigar_t* CONCAT(NAME, T) (
         const parasail_matrix_t *matrix,
         parasail_result_t *result)
 {
-    size_t size = sizeof(char)*(lena+lenb);
+    size_t size = lena+lenb;
     parasail_cigar_t *cigar = malloc(sizeof(parasail_cigar_t));
     uint32_t *cigar_reverse = NULL;
     uint32_t c_mat = 0;
@@ -99,7 +99,7 @@ static inline parasail_cigar_t* CONCAT(NAME, T) (
     }
     segLen = (lena + segWidth - 1) / segWidth;
 #endif
-    cigar->seq = malloc(size);
+    cigar->seq = malloc(sizeof(uint32_t)*size);
     cigar->len = 0;
     cigar->beg_query = 0;
     cigar->beg_ref = 0;

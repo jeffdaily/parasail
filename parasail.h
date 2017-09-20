@@ -345,6 +345,33 @@ extern parasail_cigar_t* parasail_result_get_cigar(
 /* free the cigar structure */
 extern void parasail_cigar_free(parasail_cigar_t *cigar);
 
+typedef struct parasail_result_ssw {
+    uint16_t score1;
+    int32_t ref_begin1;
+    int32_t ref_end1;
+    int32_t read_begin1;
+    int32_t read_end1;
+    uint32_t *cigar;
+    int32_t cigarLen;
+} parasail_result_ssw_t;
+
+extern parasail_result_ssw_t* parasail_ssw(
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap,
+        const parasail_matrix_t* matrix);
+
+extern parasail_result_ssw_t* parasail_ssw_profile(
+        const parasail_profile_t * const restrict profile,
+        const char * const restrict s2, const int s2Len,
+        const int open, const int gap);
+
+extern parasail_profile_t* parasail_ssw_init(
+        const char * const restrict s1, const int s1Len,
+        const parasail_matrix_t* matrix, const int8_t score_size);
+
+extern void parasail_result_ssw_free(parasail_result_ssw_t *result);
+
 /* The following functions help access result attributes. */
 
 extern int parasail_result_is_nw(const parasail_result_t * const restrict result);

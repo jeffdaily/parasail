@@ -244,8 +244,8 @@ int main(int argc, char **argv)
             '|', ':', '.', 50, 17);
 
     parasail_traceback_generic(seqA, lena, seqB, lenb,
-            sequences->seqs[seqA_index].name.s,
-            sequences->seqs[seqB_index].name.s,
+            "Query:",
+            "Target:",
             matrix, result,
             '|', '*', '*', 60, 7);
 

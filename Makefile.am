@@ -887,6 +887,7 @@ check_PROGRAMS += tests/test_verify_traces
 if HAVE_SSE2
 check_PROGRAMS += tests/test_ssw
 check_PROGRAMS += tests/ssw_test
+check_PROGRAMS += tests/ssw_vs_pssw
 endif
 
 apps_parasail_aligner_SOURCES = apps/parasail_aligner.cpp
@@ -967,6 +968,11 @@ tests_ssw_test_LDFLAGS  = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
 tests_ssw_test_LDADD    =
 tests_ssw_test_LDADD    += $(LDADD)
 tests_ssw_test_LDADD    += tests/libssw.la
+
+tests_ssw_vs_pssw_SOURCES = tests/ssw_vs_pssw.c
+tests_ssw_vs_pssw_LDADD   =
+tests_ssw_vs_pssw_LDADD   += $(LDADD)
+tests_ssw_vs_pssw_LDADD   += tests/libssw.la
 
 tests_test_sw_dispatch_SOURCES = tests/test_sw_dispatch.c
 

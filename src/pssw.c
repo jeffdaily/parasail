@@ -84,8 +84,8 @@ parasail_result_ssw_t* parasail_ssw_profile(
         int s2Off = 0;
 
         /* find beginning loc by going in reverse */
-        s1_reverse = parasail_reverse(s1, result->end_query);
-        s2_reverse = parasail_reverse(s2, result->end_ref);
+        s1_reverse = parasail_reverse(s1, result->end_query+1);
+        s2_reverse = parasail_reverse(s2, result->end_ref+1);
         s1Len = result->end_query+1;
         s2Len = result->end_ref+1;
         if (0 == word) {
@@ -129,12 +129,17 @@ parasail_result_ssw_t* parasail_ssw_profile(
 
         result_ssw = (parasail_result_ssw_t*)malloc(sizeof(parasail_result_ssw_t));
         result_ssw->score1 = result_final->score;
-        result_ssw->ref_begin1 = s1Off;
-        result_ssw->ref_end1 = s1Len;
-        result_ssw->read_begin1 = s2Off;
-        result_ssw->read_end1 = s2Len;
+        result_ssw->ref_begin1 = s2Off;
+        result_ssw->ref_end1 = result->end_ref;
+        result_ssw->read_begin1 = s1Off;
+        result_ssw->read_end1 = result->end_query;
         result_ssw->cigar = cigar->seq;
         result_ssw->cigarLen = cigar->len;
+
+        free(cigar);
+        parasail_result_free(result_final);
+        parasail_result_free(result_reverse);
+        parasail_result_free(result);
     }
 
     return result_ssw;;

@@ -35,6 +35,9 @@ do {                                                            \
     cigar->seq[cigar->len-1] = parasail_cigar_encode(VAL,CHAR); \
 } while (0)
 
+/* internally I accidentally flipped I/D, so rather than go back and
+ * rewrite a bunch of code, I fix the problem by just swapping the
+ * letters here in the cigar output */
 #define WRITE_ANY         \
 do {                      \
     if (c_mat) {          \
@@ -44,10 +47,10 @@ do {                      \
         WRITE(c_mis,'X'); \
     }                     \
     else if (c_del) {     \
-        WRITE(c_del,'D'); \
+        WRITE(c_del,'I'); \
     }                     \
     else if (c_ins) {     \
-        WRITE(c_ins,'I'); \
+        WRITE(c_ins,'D'); \
     }                     \
     RESET;                \
 } while (0)

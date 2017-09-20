@@ -127,28 +127,41 @@ noinst_LTLIBRARIES += libparasail_knc.la
 noinst_LTLIBRARIES += libparasail_knc_table.la
 noinst_LTLIBRARIES += libparasail_knc_rowcol.la
 endif
+if HAVE_ALTIVEC
+noinst_LTLIBRARIES += libparasail_altivec_memory.la
+noinst_LTLIBRARIES += libparasail_altivec.la
+noinst_LTLIBRARIES += libparasail_altivec_table.la
+noinst_LTLIBRARIES += libparasail_altivec_rowcol.la
+endif
 
 SRC_CORE =
 MEM_SRC_SSE =
 MEM_SRC_AVX2 =
 MEM_SRC_KNC =
+MEM_SRC_ALTIVEC =
 SRC_NOVEC =
 SRC_SSE2 =
 SRC_SSE41 =
 SRC_AVX2 =
 SRC_KNC =
+SRC_ALTIVEC =
 SRC_TRACE_NOVEC =
 SRC_TRACE_SSE2 =
 SRC_TRACE_SSE41 =
 SRC_TRACE_AVX2 =
 SRC_TRACE_KNC =
+SRC_TRACE_ALTIVEC =
 
 #################
 # core sources
 #################
 
 SRC_CORE += src/cigar.c
+if IS_POWER_ISA
+SRC_CORE += src/cpuid_ppc.c
+else
 SRC_CORE += src/cpuid.c
+endif
 SRC_CORE += src/function_lookup.c
 SRC_CORE += src/io.c
 SRC_CORE += src/isastubs.c
@@ -178,6 +191,9 @@ MEM_SRC_AVX2 += parasail/internal_avx.h
 
 MEM_SRC_KNC += src/memory_knc.c
 MEM_SRC_KNC += parasail/internal_knc.h
+
+MEM_SRC_ALTIVEC += src/memory_altivec.c
+MEM_SRC_ALTIVEC += parasail/internal_altivec.h
 
 #################
 # serial methods
@@ -267,6 +283,22 @@ SRC_KNC += src/nw_scan_knc_512_32.c
 SRC_KNC += src/sg_scan_knc_512_32.c
 SRC_KNC += src/sw_scan_knc_512_32.c
 
+SRC_ALTIVEC += src/nw_scan_altivec_128_64.c
+SRC_ALTIVEC += src/sg_scan_altivec_128_64.c
+SRC_ALTIVEC += src/sw_scan_altivec_128_64.c
+
+SRC_ALTIVEC += src/nw_scan_altivec_128_32.c
+SRC_ALTIVEC += src/sg_scan_altivec_128_32.c
+SRC_ALTIVEC += src/sw_scan_altivec_128_32.c
+
+SRC_ALTIVEC += src/nw_scan_altivec_128_16.c
+SRC_ALTIVEC += src/sg_scan_altivec_128_16.c
+SRC_ALTIVEC += src/sw_scan_altivec_128_16.c
+
+SRC_ALTIVEC += src/nw_scan_altivec_128_8.c
+SRC_ALTIVEC += src/sg_scan_altivec_128_8.c
+SRC_ALTIVEC += src/sw_scan_altivec_128_8.c
+
 # parallel diag methods
 
 SRC_SSE2 += src/nw_diag_sse2_128_64.c
@@ -320,6 +352,22 @@ SRC_AVX2 += src/sw_diag_avx2_256_8.c
 SRC_KNC += src/nw_diag_knc_512_32.c
 SRC_KNC += src/sg_diag_knc_512_32.c
 SRC_KNC += src/sw_diag_knc_512_32.c
+
+SRC_ALTIVEC += src/nw_diag_altivec_128_64.c
+SRC_ALTIVEC += src/sg_diag_altivec_128_64.c
+SRC_ALTIVEC += src/sw_diag_altivec_128_64.c
+
+SRC_ALTIVEC += src/nw_diag_altivec_128_32.c
+SRC_ALTIVEC += src/sg_diag_altivec_128_32.c
+SRC_ALTIVEC += src/sw_diag_altivec_128_32.c
+
+SRC_ALTIVEC += src/nw_diag_altivec_128_16.c
+SRC_ALTIVEC += src/sg_diag_altivec_128_16.c
+SRC_ALTIVEC += src/sw_diag_altivec_128_16.c
+
+SRC_ALTIVEC += src/nw_diag_altivec_128_8.c
+SRC_ALTIVEC += src/sg_diag_altivec_128_8.c
+SRC_ALTIVEC += src/sw_diag_altivec_128_8.c
 
 # parallel striped methods
 
@@ -375,47 +423,26 @@ SRC_KNC += src/nw_striped_knc_512_32.c
 SRC_KNC += src/sg_striped_knc_512_32.c
 SRC_KNC += src/sw_striped_knc_512_32.c
 
+SRC_ALTIVEC += src/nw_striped_altivec_128_64.c
+SRC_ALTIVEC += src/sg_striped_altivec_128_64.c
+SRC_ALTIVEC += src/sw_striped_altivec_128_64.c
+
+SRC_ALTIVEC += src/nw_striped_altivec_128_32.c
+SRC_ALTIVEC += src/sg_striped_altivec_128_32.c
+SRC_ALTIVEC += src/sw_striped_altivec_128_32.c
+
+SRC_ALTIVEC += src/nw_striped_altivec_128_16.c
+SRC_ALTIVEC += src/sg_striped_altivec_128_16.c
+SRC_ALTIVEC += src/sw_striped_altivec_128_16.c
+
+SRC_ALTIVEC += src/nw_striped_altivec_128_8.c
+SRC_ALTIVEC += src/sg_striped_altivec_128_8.c
+SRC_ALTIVEC += src/sw_striped_altivec_128_8.c
+
 # parallel blocked methods
 
-#SRC_SSE2 += src/nw_blocked_sse2_128_32.c
-#SRC_SSE2 += src/sg_blocked_sse2_128_32.c
-#SRC_SSE2 += src/sw_blocked_sse2_128_32.c
-#
-#SRC_SSE2 += src/nw_blocked_sse2_128_16.c
-#SRC_SSE2 += src/sg_blocked_sse2_128_16.c
-#SRC_SSE2 += src/sw_blocked_sse2_128_16.c
-#
-#SRC_SSE2 += src/nw_blocked_sse2_128_8.c
-#SRC_SSE2 += src/sg_blocked_sse2_128_8.c
-#SRC_SSE2 += src/sw_blocked_sse2_128_8.c
-#
-#SRC_SSE41 += src/nw_blocked_sse41_128_32.c
-#SRC_SSE41 += src/sg_blocked_sse41_128_32.c
 SRC_SSE41 += src/sw_blocked_sse41_128_32.c
-#
-#SRC_SSE41 += src/nw_blocked_sse41_128_16.c
-#SRC_SSE41 += src/sg_blocked_sse41_128_16.c
 SRC_SSE41 += src/sw_blocked_sse41_128_16.c
-#
-#SRC_SSE41 += src/nw_blocked_sse41_128_8.c
-#SRC_SSE41 += src/sg_blocked_sse41_128_8.c
-#SRC_SSE41 += src/sw_blocked_sse41_128_8.c
-#
-#SRC_AVX2 += src/nw_blocked_avx2_256_32.c
-#SRC_AVX2 += src/sg_blocked_avx2_256_32.c
-#SRC_AVX2 += src/sw_blocked_avx2_256_32.c
-#
-#SRC_AVX2 += src/nw_blocked_avx2_256_16.c
-#SRC_AVX2 += src/sg_blocked_avx2_256_16.c
-#SRC_AVX2 += src/sw_blocked_avx2_256_16.c
-#
-#SRC_AVX2 += src/nw_blocked_avx2_256_8.c
-#SRC_AVX2 += src/sg_blocked_avx2_256_8.c
-#SRC_AVX2 += src/sw_blocked_avx2_256_8.c
-#
-#SRC_KNC += src/nw_blocked_knc_512_32.c
-#SRC_KNC += src/sg_blocked_knc_512_32.c
-#SRC_KNC += src/sw_blocked_knc_512_32.c
 
 #########################
 # parallel stats methods
@@ -475,6 +502,22 @@ SRC_KNC += src/nw_stats_scan_knc_512_32.c
 SRC_KNC += src/sg_stats_scan_knc_512_32.c
 SRC_KNC += src/sw_stats_scan_knc_512_32.c
 
+SRC_ALTIVEC += src/nw_stats_scan_altivec_128_64.c
+SRC_ALTIVEC += src/sg_stats_scan_altivec_128_64.c
+SRC_ALTIVEC += src/sw_stats_scan_altivec_128_64.c
+
+SRC_ALTIVEC += src/nw_stats_scan_altivec_128_32.c
+SRC_ALTIVEC += src/sg_stats_scan_altivec_128_32.c
+SRC_ALTIVEC += src/sw_stats_scan_altivec_128_32.c
+
+SRC_ALTIVEC += src/nw_stats_scan_altivec_128_16.c
+SRC_ALTIVEC += src/sg_stats_scan_altivec_128_16.c
+SRC_ALTIVEC += src/sw_stats_scan_altivec_128_16.c
+
+SRC_ALTIVEC += src/nw_stats_scan_altivec_128_8.c
+SRC_ALTIVEC += src/sg_stats_scan_altivec_128_8.c
+SRC_ALTIVEC += src/sw_stats_scan_altivec_128_8.c
+
 # parallel diag methods
 
 SRC_SSE2 += src/nw_stats_diag_sse2_128_64.c
@@ -529,6 +572,22 @@ SRC_KNC += src/nw_stats_diag_knc_512_32.c
 SRC_KNC += src/sg_stats_diag_knc_512_32.c
 SRC_KNC += src/sw_stats_diag_knc_512_32.c
 
+SRC_ALTIVEC += src/nw_stats_diag_altivec_128_64.c
+SRC_ALTIVEC += src/sg_stats_diag_altivec_128_64.c
+SRC_ALTIVEC += src/sw_stats_diag_altivec_128_64.c
+
+SRC_ALTIVEC += src/nw_stats_diag_altivec_128_32.c
+SRC_ALTIVEC += src/sg_stats_diag_altivec_128_32.c
+SRC_ALTIVEC += src/sw_stats_diag_altivec_128_32.c
+
+SRC_ALTIVEC += src/nw_stats_diag_altivec_128_16.c
+SRC_ALTIVEC += src/sg_stats_diag_altivec_128_16.c
+SRC_ALTIVEC += src/sw_stats_diag_altivec_128_16.c
+
+SRC_ALTIVEC += src/nw_stats_diag_altivec_128_8.c
+SRC_ALTIVEC += src/sg_stats_diag_altivec_128_8.c
+SRC_ALTIVEC += src/sw_stats_diag_altivec_128_8.c
+
 # parallel striped methods
 
 SRC_SSE2 += src/nw_stats_striped_sse2_128_64.c
@@ -582,6 +641,22 @@ SRC_AVX2 += src/sw_stats_striped_avx2_256_8.c
 SRC_KNC += src/nw_stats_striped_knc_512_32.c
 SRC_KNC += src/sg_stats_striped_knc_512_32.c
 SRC_KNC += src/sw_stats_striped_knc_512_32.c
+
+SRC_ALTIVEC += src/nw_stats_striped_altivec_128_64.c
+SRC_ALTIVEC += src/sg_stats_striped_altivec_128_64.c
+SRC_ALTIVEC += src/sw_stats_striped_altivec_128_64.c
+
+SRC_ALTIVEC += src/nw_stats_striped_altivec_128_32.c
+SRC_ALTIVEC += src/sg_stats_striped_altivec_128_32.c
+SRC_ALTIVEC += src/sw_stats_striped_altivec_128_32.c
+
+SRC_ALTIVEC += src/nw_stats_striped_altivec_128_16.c
+SRC_ALTIVEC += src/sg_stats_striped_altivec_128_16.c
+SRC_ALTIVEC += src/sw_stats_striped_altivec_128_16.c
+
+SRC_ALTIVEC += src/nw_stats_striped_altivec_128_8.c
+SRC_ALTIVEC += src/sg_stats_striped_altivec_128_8.c
+SRC_ALTIVEC += src/sw_stats_striped_altivec_128_8.c
 
 #########################
 # parallel trace methods
@@ -641,6 +716,22 @@ SRC_TRACE_KNC += src/nw_trace_scan_knc_512_32.c
 SRC_TRACE_KNC += src/sg_trace_scan_knc_512_32.c
 SRC_TRACE_KNC += src/sw_trace_scan_knc_512_32.c
 
+SRC_TRACE_ALTIVEC += src/nw_trace_scan_altivec_128_64.c
+SRC_TRACE_ALTIVEC += src/sg_trace_scan_altivec_128_64.c
+SRC_TRACE_ALTIVEC += src/sw_trace_scan_altivec_128_64.c
+
+SRC_TRACE_ALTIVEC += src/nw_trace_scan_altivec_128_32.c
+SRC_TRACE_ALTIVEC += src/sg_trace_scan_altivec_128_32.c
+SRC_TRACE_ALTIVEC += src/sw_trace_scan_altivec_128_32.c
+
+SRC_TRACE_ALTIVEC += src/nw_trace_scan_altivec_128_16.c
+SRC_TRACE_ALTIVEC += src/sg_trace_scan_altivec_128_16.c
+SRC_TRACE_ALTIVEC += src/sw_trace_scan_altivec_128_16.c
+
+SRC_TRACE_ALTIVEC += src/nw_trace_scan_altivec_128_8.c
+SRC_TRACE_ALTIVEC += src/sg_trace_scan_altivec_128_8.c
+SRC_TRACE_ALTIVEC += src/sw_trace_scan_altivec_128_8.c
+
 # parallel diag methods
 
 SRC_TRACE_SSE2 += src/nw_trace_diag_sse2_128_64.c
@@ -694,6 +785,22 @@ SRC_TRACE_AVX2 += src/sw_trace_diag_avx2_256_8.c
 SRC_TRACE_KNC += src/nw_trace_diag_knc_512_32.c
 SRC_TRACE_KNC += src/sg_trace_diag_knc_512_32.c
 SRC_TRACE_KNC += src/sw_trace_diag_knc_512_32.c
+
+SRC_TRACE_ALTIVEC += src/nw_trace_diag_altivec_128_64.c
+SRC_TRACE_ALTIVEC += src/sg_trace_diag_altivec_128_64.c
+SRC_TRACE_ALTIVEC += src/sw_trace_diag_altivec_128_64.c
+
+SRC_TRACE_ALTIVEC += src/nw_trace_diag_altivec_128_32.c
+SRC_TRACE_ALTIVEC += src/sg_trace_diag_altivec_128_32.c
+SRC_TRACE_ALTIVEC += src/sw_trace_diag_altivec_128_32.c
+
+SRC_TRACE_ALTIVEC += src/nw_trace_diag_altivec_128_16.c
+SRC_TRACE_ALTIVEC += src/sg_trace_diag_altivec_128_16.c
+SRC_TRACE_ALTIVEC += src/sw_trace_diag_altivec_128_16.c
+
+SRC_TRACE_ALTIVEC += src/nw_trace_diag_altivec_128_8.c
+SRC_TRACE_ALTIVEC += src/sg_trace_diag_altivec_128_8.c
+SRC_TRACE_ALTIVEC += src/sw_trace_diag_altivec_128_8.c
 
 # parallel striped methods
 
@@ -749,63 +856,88 @@ SRC_TRACE_KNC += src/nw_trace_striped_knc_512_32.c
 SRC_TRACE_KNC += src/sg_trace_striped_knc_512_32.c
 SRC_TRACE_KNC += src/sw_trace_striped_knc_512_32.c
 
+SRC_TRACE_ALTIVEC += src/nw_trace_striped_altivec_128_64.c
+SRC_TRACE_ALTIVEC += src/sg_trace_striped_altivec_128_64.c
+SRC_TRACE_ALTIVEC += src/sw_trace_striped_altivec_128_64.c
+
+SRC_TRACE_ALTIVEC += src/nw_trace_striped_altivec_128_32.c
+SRC_TRACE_ALTIVEC += src/sg_trace_striped_altivec_128_32.c
+SRC_TRACE_ALTIVEC += src/sw_trace_striped_altivec_128_32.c
+
+SRC_TRACE_ALTIVEC += src/nw_trace_striped_altivec_128_16.c
+SRC_TRACE_ALTIVEC += src/sg_trace_striped_altivec_128_16.c
+SRC_TRACE_ALTIVEC += src/sw_trace_striped_altivec_128_16.c
+
+SRC_TRACE_ALTIVEC += src/nw_trace_striped_altivec_128_8.c
+SRC_TRACE_ALTIVEC += src/sg_trace_striped_altivec_128_8.c
+SRC_TRACE_ALTIVEC += src/sw_trace_striped_altivec_128_8.c
+
 #########################
 # library magic
 #########################
 
 libparasail_la_SOURCES = $(SRC_CORE)
 
-libparasail_novec_la_SOURCES = $(SRC_NOVEC) $(SRC_TRACE_NOVEC)
-libparasail_sse2_la_SOURCES  = $(SRC_SSE2) $(SRC_TRACE_SSE2)
-libparasail_sse41_la_SOURCES = $(SRC_SSE41) $(SRC_TRACE_SSE41)
-libparasail_avx2_la_SOURCES  = $(SRC_AVX2) $(SRC_TRACE_AVX2)
-libparasail_knc_la_SOURCES   = $(SRC_KNC) $(SRC_TRACE_KNC)
+libparasail_novec_la_SOURCES   = $(SRC_NOVEC) $(SRC_TRACE_NOVEC)
+libparasail_sse2_la_SOURCES    = $(SRC_SSE2) $(SRC_TRACE_SSE2)
+libparasail_sse41_la_SOURCES   = $(SRC_SSE41) $(SRC_TRACE_SSE41)
+libparasail_avx2_la_SOURCES    = $(SRC_AVX2) $(SRC_TRACE_AVX2)
+libparasail_knc_la_SOURCES     = $(SRC_KNC) $(SRC_TRACE_KNC)
+libparasail_altivec_la_SOURCES = $(SRC_ALTIVEC) $(SRC_TRACE_ALTIVEC)
 
-libparasail_novec_la_CFLAGS = $(AM_CFLAGS)
-libparasail_sse2_la_CFLAGS  = $(AM_CFLAGS) $(SSE2_CFLAGS)
-libparasail_sse41_la_CFLAGS = $(AM_CFLAGS) $(SSE41_CFLAGS)
-libparasail_avx2_la_CFLAGS  = $(AM_CFLAGS) $(AVX2_CFLAGS)
-libparasail_knc_la_CFLAGS   = $(AM_CFLAGS)
+libparasail_novec_la_CFLAGS   = $(AM_CFLAGS)
+libparasail_sse2_la_CFLAGS    = $(AM_CFLAGS) $(SSE2_CFLAGS)
+libparasail_sse41_la_CFLAGS   = $(AM_CFLAGS) $(SSE41_CFLAGS)
+libparasail_avx2_la_CFLAGS    = $(AM_CFLAGS) $(AVX2_CFLAGS)
+libparasail_knc_la_CFLAGS     = $(AM_CFLAGS)
+libparasail_altivec_la_CFLAGS = $(AM_CFLAGS) $(ALTIVEC_CFLAGS)
 
-libparasail_novec_table_la_SOURCES = $(SRC_NOVEC)
-libparasail_sse2_table_la_SOURCES  = $(SRC_SSE2)
-libparasail_sse41_table_la_SOURCES = $(SRC_SSE41)
-libparasail_avx2_table_la_SOURCES  = $(SRC_AVX2)
-libparasail_knc_table_la_SOURCES   = $(SRC_KNC)
+libparasail_novec_table_la_SOURCES   = $(SRC_NOVEC)
+libparasail_sse2_table_la_SOURCES    = $(SRC_SSE2)
+libparasail_sse41_table_la_SOURCES   = $(SRC_SSE41)
+libparasail_avx2_table_la_SOURCES    = $(SRC_AVX2)
+libparasail_knc_table_la_SOURCES     = $(SRC_KNC)
+libparasail_altivec_table_la_SOURCES = $(SRC_ALTIVEC)
 
-libparasail_novec_table_la_CFLAGS = $(AM_CFLAGS)
-libparasail_sse2_table_la_CFLAGS  = $(AM_CFLAGS) $(SSE2_CFLAGS)
-libparasail_sse41_table_la_CFLAGS = $(AM_CFLAGS) $(SSE41_CFLAGS)
-libparasail_avx2_table_la_CFLAGS  = $(AM_CFLAGS) $(AVX2_CFLAGS)
-libparasail_knc_table_la_CFLAGS   = $(AM_CFLAGS)
+libparasail_novec_table_la_CFLAGS   = $(AM_CFLAGS)
+libparasail_sse2_table_la_CFLAGS    = $(AM_CFLAGS) $(SSE2_CFLAGS)
+libparasail_sse41_table_la_CFLAGS   = $(AM_CFLAGS) $(SSE41_CFLAGS)
+libparasail_avx2_table_la_CFLAGS    = $(AM_CFLAGS) $(AVX2_CFLAGS)
+libparasail_knc_table_la_CFLAGS     = $(AM_CFLAGS)
+libparasail_altivec_table_la_CFLAGS = $(AM_CFLAGS) $(ALTIVEC_CFLAGS)
 
-libparasail_novec_table_la_CPPFLAGS = $(AM_CPPFLAGS) -DPARASAIL_TABLE=1
-libparasail_sse2_table_la_CPPFLAGS  = $(AM_CPPFLAGS) -DPARASAIL_TABLE=1
-libparasail_sse41_table_la_CPPFLAGS = $(AM_CPPFLAGS) -DPARASAIL_TABLE=1
-libparasail_avx2_table_la_CPPFLAGS  = $(AM_CPPFLAGS) -DPARASAIL_TABLE=1
-libparasail_knc_table_la_CPPFLAGS   = $(AM_CPPFLAGS) -DPARASAIL_TABLE=1
+libparasail_novec_table_la_CPPFLAGS   = $(AM_CPPFLAGS) -DPARASAIL_TABLE=1
+libparasail_sse2_table_la_CPPFLAGS    = $(AM_CPPFLAGS) -DPARASAIL_TABLE=1
+libparasail_sse41_table_la_CPPFLAGS   = $(AM_CPPFLAGS) -DPARASAIL_TABLE=1
+libparasail_avx2_table_la_CPPFLAGS    = $(AM_CPPFLAGS) -DPARASAIL_TABLE=1
+libparasail_knc_table_la_CPPFLAGS     = $(AM_CPPFLAGS) -DPARASAIL_TABLE=1
+libparasail_altivec_table_la_CPPFLAGS = $(AM_CPPFLAGS) -DPARASAIL_TABLE=1
 
-libparasail_novec_rowcol_la_SOURCES = $(SRC_NOVEC)
-libparasail_sse2_rowcol_la_SOURCES  = $(SRC_SSE2)
-libparasail_sse41_rowcol_la_SOURCES = $(SRC_SSE41)
-libparasail_avx2_rowcol_la_SOURCES  = $(SRC_AVX2)
-libparasail_knc_rowcol_la_SOURCES   = $(SRC_KNC)
+libparasail_novec_rowcol_la_SOURCES   = $(SRC_NOVEC)
+libparasail_sse2_rowcol_la_SOURCES    = $(SRC_SSE2)
+libparasail_sse41_rowcol_la_SOURCES   = $(SRC_SSE41)
+libparasail_avx2_rowcol_la_SOURCES    = $(SRC_AVX2)
+libparasail_knc_rowcol_la_SOURCES     = $(SRC_KNC)
+libparasail_altivec_rowcol_la_SOURCES = $(SRC_ALTIVEC)
 
-libparasail_novec_rowcol_la_CFLAGS = $(AM_CFLAGS)
-libparasail_sse2_rowcol_la_CFLAGS  = $(AM_CFLAGS) $(SSE2_CFLAGS)
-libparasail_sse41_rowcol_la_CFLAGS = $(AM_CFLAGS) $(SSE41_CFLAGS)
-libparasail_avx2_rowcol_la_CFLAGS  = $(AM_CFLAGS) $(AVX2_CFLAGS)
-libparasail_knc_rowcol_la_CFLAGS   = $(AM_CFLAGS)
+libparasail_novec_rowcol_la_CFLAGS   = $(AM_CFLAGS)
+libparasail_sse2_rowcol_la_CFLAGS    = $(AM_CFLAGS) $(SSE2_CFLAGS)
+libparasail_sse41_rowcol_la_CFLAGS   = $(AM_CFLAGS) $(SSE41_CFLAGS)
+libparasail_avx2_rowcol_la_CFLAGS    = $(AM_CFLAGS) $(AVX2_CFLAGS)
+libparasail_knc_rowcol_la_CFLAGS     = $(AM_CFLAGS)
+libparasail_altivec_rowcol_la_CFLAGS = $(AM_CFLAGS) $(ALTIVEC_CFLAGS)
 
-libparasail_novec_rowcol_la_CPPFLAGS = $(AM_CPPFLAGS) -DPARASAIL_ROWCOL=1
-libparasail_sse2_rowcol_la_CPPFLAGS  = $(AM_CPPFLAGS) -DPARASAIL_ROWCOL=1
-libparasail_sse41_rowcol_la_CPPFLAGS = $(AM_CPPFLAGS) -DPARASAIL_ROWCOL=1
-libparasail_avx2_rowcol_la_CPPFLAGS  = $(AM_CPPFLAGS) -DPARASAIL_ROWCOL=1
-libparasail_knc_rowcol_la_CPPFLAGS   = $(AM_CPPFLAGS) -DPARASAIL_ROWCOL=1
+libparasail_novec_rowcol_la_CPPFLAGS   = $(AM_CPPFLAGS) -DPARASAIL_ROWCOL=1
+libparasail_sse2_rowcol_la_CPPFLAGS    = $(AM_CPPFLAGS) -DPARASAIL_ROWCOL=1
+libparasail_sse41_rowcol_la_CPPFLAGS   = $(AM_CPPFLAGS) -DPARASAIL_ROWCOL=1
+libparasail_avx2_rowcol_la_CPPFLAGS    = $(AM_CPPFLAGS) -DPARASAIL_ROWCOL=1
+libparasail_knc_rowcol_la_CPPFLAGS     = $(AM_CPPFLAGS) -DPARASAIL_ROWCOL=1
+libparasail_altivec_rowcol_la_CPPFLAGS = $(AM_CPPFLAGS) -DPARASAIL_ROWCOL=1
 
-libparasail_sse_memory_la_SOURCES  = $(MEM_SRC_SSE)
-libparasail_avx2_memory_la_SOURCES = $(MEM_SRC_AVX2)
-libparasail_knc_memory_la_SOURCES  = $(MEM_SRC_KNC)
+libparasail_sse_memory_la_SOURCES     = $(MEM_SRC_SSE)
+libparasail_avx2_memory_la_SOURCES    = $(MEM_SRC_AVX2)
+libparasail_knc_memory_la_SOURCES     = $(MEM_SRC_KNC)
+libparasail_altivec_memory_la_SOURCES = $(MEM_SRC_ALTIVEC)
 
 if HAVE_SSE2
 libparasail_sse_memory_la_CFLAGS  = $(AM_CFLAGS) $(SSE2_CFLAGS)
@@ -814,8 +946,9 @@ if HAVE_SSE41
 libparasail_sse_memory_la_CFLAGS  = $(AM_CFLAGS) $(SSE41_CFLAGS)
 endif
 endif
-libparasail_avx2_memory_la_CFLAGS = $(AM_CFLAGS) $(AVX2_CFLAGS)
-libparasail_knc_memory_la_CFLAGS  = $(AM_CFLAGS)
+libparasail_avx2_memory_la_CFLAGS    = $(AM_CFLAGS) $(AVX2_CFLAGS)
+libparasail_knc_memory_la_CFLAGS     = $(AM_CFLAGS)
+libparasail_altivec_memory_la_CFLAGS = $(AM_CFLAGS) $(ALTIVEC_CFLAGS)
 
 libparasail_la_LIBADD =
 libparasail_la_LIBADD += libparasail_novec.la
@@ -845,6 +978,12 @@ libparasail_la_LIBADD += libparasail_knc_memory.la
 libparasail_la_LIBADD += libparasail_knc.la
 libparasail_la_LIBADD += libparasail_knc_table.la
 libparasail_la_LIBADD += libparasail_knc_rowcol.la
+endif
+if HAVE_ALTIVEC
+libparasail_la_LIBADD += libparasail_altivec_memory.la
+libparasail_la_LIBADD += libparasail_altivec.la
+libparasail_la_LIBADD += libparasail_altivec_table.la
+libparasail_la_LIBADD += libparasail_altivec_rowcol.la
 endif
 libparasail_la_LIBADD += $(CLOCK_LIBS)
 libparasail_la_LIBADD += $(MATH_LIBS)
@@ -887,6 +1026,9 @@ if HAVE_SSE2
 check_PROGRAMS += tests/test_ssw
 check_PROGRAMS += tests/ssw_test
 endif
+if HAVE_ALTIVEC
+check_PROGRAMS += tests/test_altivec
+endif
 
 apps_parasail_aligner_SOURCES = apps/parasail_aligner.cpp
 apps_parasail_aligner_CXXFLAGS = $(AM_CXXFLAGS) $(OPENMP_CXXFLAGS)
@@ -912,6 +1054,8 @@ tests_test_align_SOURCES =
 tests_test_align_SOURCES += tests/test_align.c
 tests_test_align_SOURCES += tests/timer.h
 tests_test_align_SOURCES += tests/timer_real.h
+
+tests_test_altivec_SOURCES = tests/test_altivec.c
 
 tests_test_gcups_SOURCES = tests/test_gcups.c
 
@@ -1002,14 +1146,18 @@ EXTRA_DIST += aclocal.m4
 EXTRA_DIST += appveyor.yml
 EXTRA_DIST += apps/README.md
 EXTRA_DIST += cmake/FindAVX2.cmake
+EXTRA_DIST += cmake/FindAltiVec.cmake
 EXTRA_DIST += cmake/FindSSE2.cmake
 EXTRA_DIST += cmake/FindSSE41.cmake
 EXTRA_DIST += cmake/Findxgetbv.cmake
+EXTRA_DIST += cmake/altivec_dummy.c
 EXTRA_DIST += cmake/avx2_dummy.c
 EXTRA_DIST += cmake/config.h.in
 EXTRA_DIST += cmake/parasail.def
+EXTRA_DIST += cmake/parasail.ico
 EXTRA_DIST += cmake/sse2_dummy.c
 EXTRA_DIST += cmake/sse41_dummy.c
+EXTRA_DIST += cmake/ssw_dummy.c
 EXTRA_DIST += contrib/cpuid.c
 EXTRA_DIST += contrib/cpuid_gen4.c
 EXTRA_DIST += contrib/kseq.h
@@ -1026,12 +1174,6 @@ EXTRA_DIST += contrib/wingetopt/CMakeLists.txt
 EXTRA_DIST += contrib/wingetopt/README.md
 EXTRA_DIST += contrib/wingetopt/src/getopt.c
 EXTRA_DIST += contrib/wingetopt/src/getopt.h
-EXTRA_DIST += CMakeLists.txt
-EXTRA_DIST += cmake/FindAVX2.cmake
-EXTRA_DIST += cmake/FindSSE2.cmake
-EXTRA_DIST += cmake/FindSSE41.cmake
-EXTRA_DIST += cmake/Findxgetbv.cmake
-EXTRA_DIST += cmake/config.h.in
 EXTRA_DIST += images/perf_haswell.png
 EXTRA_DIST += images/perf_mac.png
 EXTRA_DIST += util/codegen.py

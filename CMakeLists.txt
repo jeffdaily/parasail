@@ -30,7 +30,16 @@ INCLUDE( FindSSE2 )
 INCLUDE( FindSSE41 )
 INCLUDE( FindAVX2 )
 INCLUDE( Findxgetbv )
+INCLUDE( FindAltiVec )
 INCLUDE( FindZLIB )
+INCLUDE( TestBigEndian )
+
+IF( ${CMAKE_HOST_SYSTEM_PROCESSOR} MATCHES "p(ower)?pc" )
+    SET( IS_POWER_ISA TRUE )
+ELSE( )
+    SET( IS_POWER_ISA FALSE )
+ENDIF( )
+MESSAGE( "IS_POWER_ISA=${IS_POWER_ISA}" )
 
 CHECK_TYPE_SIZE( "int" SIZEOF_INT )
 CHECK_TYPE_SIZE( "int8_t" SIZEOF_INT8_T )
@@ -41,6 +50,7 @@ CHECK_TYPE_SIZE( "uint8_t" SIZEOF_UINT8_T )
 CHECK_TYPE_SIZE( "uint16_t" SIZEOF_UINT16_T )
 CHECK_TYPE_SIZE( "uint32_t" SIZEOF_UINT32_T )
 CHECK_TYPE_SIZE( "uint64_t" SIZEOF_UINT64_T )
+TEST_BIG_ENDIAN( WORDS_BIGENDIAN )
 
 # Check for restrict keyword
 FOREACH( ac_kw __restrict __restrict__ _Restrict restrict )
@@ -128,7 +138,6 @@ CONFIGURE_FILE( ${CMAKE_CURRENT_LIST_DIR}/cmake/config.h.in ${CMAKE_BINARY_DIR}/
 
 SET( SRC_CORE
     src/cigar.c
-    src/cpuid.c
     src/function_lookup.c
     src/io.c
     src/isastubs.c
@@ -144,6 +153,12 @@ SET( SRC_CORE
     src/striped_unwind.c
     src/traceback.c
 )
+
+IF( IS_POWER_ISA )
+    SET( SRC_CORE ${SRC_CORE} src/cpuid_ppc.c )
+ELSE( )
+    SET( SRC_CORE ${SRC_CORE} src/cpuid.c )
+ENDIF( )
 
 SET( SRC_NOVEC
     src/nw.c
@@ -207,15 +222,6 @@ SET( SRC_SSE2
     src/nw_striped_sse2_128_8.c
     src/sg_striped_sse2_128_8.c
     src/sw_striped_sse2_128_8.c
-#   src/nw_blocked_sse2_128_32.c
-#   src/sg_blocked_sse2_128_32.c
-#   src/sw_blocked_sse2_128_32.c
-#   src/nw_blocked_sse2_128_16.c
-#   src/sg_blocked_sse2_128_16.c
-#   src/sw_blocked_sse2_128_16.c
-#   src/nw_blocked_sse2_128_8.c
-#   src/sg_blocked_sse2_128_8.c
-#   src/sw_blocked_sse2_128_8.c
     src/nw_stats_scan_sse2_128_64.c
     src/sg_stats_scan_sse2_128_64.c
     src/sw_stats_scan_sse2_128_64.c
@@ -330,15 +336,8 @@ SET( SRC_SSE41
     src/nw_striped_sse41_128_8.c
     src/sg_striped_sse41_128_8.c
     src/sw_striped_sse41_128_8.c
-#   src/nw_blocked_sse41_128_32.c
-#   src/sg_blocked_sse41_128_32.c
     src/sw_blocked_sse41_128_32.c
-#   src/nw_blocked_sse41_128_16.c
-#   src/sg_blocked_sse41_128_16.c
     src/sw_blocked_sse41_128_16.c
-#   src/nw_blocked_sse41_128_8.c
-#   src/sg_blocked_sse41_128_8.c
-#   src/sw_blocked_sse41_128_8.c
     src/nw_stats_scan_sse41_128_64.c
     src/sg_stats_scan_sse41_128_64.c
     src/sw_stats_scan_sse41_128_64.c
@@ -453,15 +452,6 @@ SET( SRC_AVX2
     src/nw_striped_avx2_256_8.c
     src/sg_striped_avx2_256_8.c
     src/sw_striped_avx2_256_8.c
-#   src/nw_blocked_avx2_256_32.c
-#   src/sg_blocked_avx2_256_32.c
-#   src/sw_blocked_avx2_256_32.c
-#   src/nw_blocked_avx2_256_16.c
-#   src/sg_blocked_avx2_256_16.c
-#   src/sw_blocked_avx2_256_16.c
-#   src/nw_blocked_avx2_256_8.c
-#   src/sg_blocked_avx2_256_8.c
-#   src/sw_blocked_avx2_256_8.c
     src/nw_stats_scan_avx2_256_64.c
     src/sg_stats_scan_avx2_256_64.c
     src/sw_stats_scan_avx2_256_64.c
@@ -550,9 +540,6 @@ SET( SRC_KNC
     src/nw_striped_knc_512_32.c
     src/sg_striped_knc_512_32.c
     src/sw_striped_knc_512_32.c
-#   src/nw_blocked_knc_512_32.c
-#   src/sg_blocked_knc_512_32.c
-#   src/sw_blocked_knc_512_32.c
     src/nw_stats_scan_knc_512_32.c
     src/sg_stats_scan_knc_512_32.c
     src/sw_stats_scan_knc_512_32.c
@@ -574,6 +561,120 @@ SET( SRC_TRACE_KNC
     src/nw_trace_striped_knc_512_32.c
     src/sg_trace_striped_knc_512_32.c
     src/sw_trace_striped_knc_512_32.c
+)
+
+SET( SRC_ALTIVEC
+    src/nw_scan_sse2_128_64.c
+    src/sg_scan_sse2_128_64.c
+    src/sw_scan_sse2_128_64.c
+    src/nw_scan_sse2_128_32.c
+    src/sg_scan_sse2_128_32.c
+    src/sw_scan_sse2_128_32.c
+    src/nw_scan_sse2_128_16.c
+    src/sg_scan_sse2_128_16.c
+    src/sw_scan_sse2_128_16.c
+    src/nw_scan_sse2_128_8.c
+    src/sg_scan_sse2_128_8.c
+    src/sw_scan_sse2_128_8.c
+    src/nw_diag_sse2_128_64.c
+    src/sg_diag_sse2_128_64.c
+    src/sw_diag_sse2_128_64.c
+    src/nw_diag_sse2_128_32.c
+    src/sg_diag_sse2_128_32.c
+    src/sw_diag_sse2_128_32.c
+    src/nw_diag_sse2_128_16.c
+    src/sg_diag_sse2_128_16.c
+    src/sw_diag_sse2_128_16.c
+    src/nw_diag_sse2_128_8.c
+    src/sg_diag_sse2_128_8.c
+    src/sw_diag_sse2_128_8.c
+    src/nw_striped_sse2_128_64.c
+    src/sg_striped_sse2_128_64.c
+    src/sw_striped_sse2_128_64.c
+    src/nw_striped_sse2_128_32.c
+    src/sg_striped_sse2_128_32.c
+    src/sw_striped_sse2_128_32.c
+    src/nw_striped_sse2_128_16.c
+    src/sg_striped_sse2_128_16.c
+    src/sw_striped_sse2_128_16.c
+    src/nw_striped_sse2_128_8.c
+    src/sg_striped_sse2_128_8.c
+    src/sw_striped_sse2_128_8.c
+    src/nw_stats_scan_sse2_128_64.c
+    src/sg_stats_scan_sse2_128_64.c
+    src/sw_stats_scan_sse2_128_64.c
+    src/nw_stats_scan_sse2_128_32.c
+    src/sg_stats_scan_sse2_128_32.c
+    src/sw_stats_scan_sse2_128_32.c
+    src/nw_stats_scan_sse2_128_16.c
+    src/sg_stats_scan_sse2_128_16.c
+    src/sw_stats_scan_sse2_128_16.c
+    src/nw_stats_scan_sse2_128_8.c
+    src/sg_stats_scan_sse2_128_8.c
+    src/sw_stats_scan_sse2_128_8.c
+    src/nw_stats_diag_sse2_128_64.c
+    src/sg_stats_diag_sse2_128_64.c
+    src/sw_stats_diag_sse2_128_64.c
+    src/nw_stats_diag_sse2_128_32.c
+    src/sg_stats_diag_sse2_128_32.c
+    src/sw_stats_diag_sse2_128_32.c
+    src/nw_stats_diag_sse2_128_16.c
+    src/sg_stats_diag_sse2_128_16.c
+    src/sw_stats_diag_sse2_128_16.c
+    src/nw_stats_diag_sse2_128_8.c
+    src/sg_stats_diag_sse2_128_8.c
+    src/sw_stats_diag_sse2_128_8.c
+    src/nw_stats_striped_sse2_128_64.c
+    src/sg_stats_striped_sse2_128_64.c
+    src/sw_stats_striped_sse2_128_64.c
+    src/nw_stats_striped_sse2_128_32.c
+    src/sg_stats_striped_sse2_128_32.c
+    src/sw_stats_striped_sse2_128_32.c
+    src/nw_stats_striped_sse2_128_16.c
+    src/sg_stats_striped_sse2_128_16.c
+    src/sw_stats_striped_sse2_128_16.c
+    src/nw_stats_striped_sse2_128_8.c
+    src/sg_stats_striped_sse2_128_8.c
+    src/sw_stats_striped_sse2_128_8.c
+)
+
+SET( SRC_TRACE_ALTIVEC
+    src/nw_trace_scan_sse2_128_64.c
+    src/sg_trace_scan_sse2_128_64.c
+    src/sw_trace_scan_sse2_128_64.c
+    src/nw_trace_scan_sse2_128_32.c
+    src/sg_trace_scan_sse2_128_32.c
+    src/sw_trace_scan_sse2_128_32.c
+    src/nw_trace_scan_sse2_128_16.c
+    src/sg_trace_scan_sse2_128_16.c
+    src/sw_trace_scan_sse2_128_16.c
+    src/nw_trace_scan_sse2_128_8.c
+    src/sg_trace_scan_sse2_128_8.c
+    src/sw_trace_scan_sse2_128_8.c
+    src/nw_trace_diag_sse2_128_64.c
+    src/sg_trace_diag_sse2_128_64.c
+    src/sw_trace_diag_sse2_128_64.c
+    src/nw_trace_diag_sse2_128_32.c
+    src/sg_trace_diag_sse2_128_32.c
+    src/sw_trace_diag_sse2_128_32.c
+    src/nw_trace_diag_sse2_128_16.c
+    src/sg_trace_diag_sse2_128_16.c
+    src/sw_trace_diag_sse2_128_16.c
+    src/nw_trace_diag_sse2_128_8.c
+    src/sg_trace_diag_sse2_128_8.c
+    src/sw_trace_diag_sse2_128_8.c
+    src/nw_trace_striped_sse2_128_64.c
+    src/sg_trace_striped_sse2_128_64.c
+    src/sw_trace_striped_sse2_128_64.c
+    src/nw_trace_striped_sse2_128_32.c
+    src/sg_trace_striped_sse2_128_32.c
+    src/sw_trace_striped_sse2_128_32.c
+    src/nw_trace_striped_sse2_128_16.c
+    src/sg_trace_striped_sse2_128_16.c
+    src/sw_trace_striped_sse2_128_16.c
+    src/nw_trace_striped_sse2_128_8.c
+    src/sg_trace_striped_sse2_128_8.c
+    src/sw_trace_striped_sse2_128_8.c
 )
 
 ADD_LIBRARY( parasail_core OBJECT ${SRC_CORE} )
@@ -642,11 +743,32 @@ SET_TARGET_PROPERTIES( parasail_avx2_table PROPERTIES COMPILE_DEFINITIONS PARASA
 SET_TARGET_PROPERTIES( parasail_avx2_rowcol PROPERTIES COMPILE_DEFINITIONS PARASAIL_ROWCOL )
 SET_TARGET_PROPERTIES( parasail_avx2_trace PROPERTIES COMPILE_DEFINITIONS PARASAIL_TRACE )
 
+IF( ALTIVEC_FOUND )
+    ADD_LIBRARY( parasail_altivec OBJECT ${SRC_ALTIVEC} src/memory_altivec.c )
+    ADD_LIBRARY( parasail_altivec_table OBJECT ${SRC_ALTIVEC} )
+    ADD_LIBRARY( parasail_altivec_rowcol OBJECT ${SRC_ALTIVEC} )
+    ADD_LIBRARY( parasail_altivec_trace OBJECT ${SRC_TRACE_ALTIVEC} )
+    SET_TARGET_PROPERTIES( parasail_altivec PROPERTIES COMPILE_FLAGS ${ALTIVEC_C_FLAGS} )
+    SET_TARGET_PROPERTIES( parasail_altivec_table PROPERTIES COMPILE_FLAGS ${ALTIVEC_C_FLAGS} )
+    SET_TARGET_PROPERTIES( parasail_altivec_rowcol PROPERTIES COMPILE_FLAGS ${ALTIVEC_C_FLAGS} )
+    SET_TARGET_PROPERTIES( parasail_altivec_trace PROPERTIES COMPILE_FLAGS ${ALTIVEC_C_FLAGS} )
+ELSE( )
+    ADD_LIBRARY( parasail_altivec OBJECT cmake/altivec_dummy.c )
+    ADD_LIBRARY( parasail_altivec_table OBJECT cmake/altivec_dummy.c )
+    ADD_LIBRARY( parasail_altivec_rowcol OBJECT cmake/altivec_dummy.c )
+    ADD_LIBRARY( parasail_altivec_trace OBJECT cmake/altivec_dummy.c )
+ENDIF( )
+SET_TARGET_PROPERTIES( parasail_altivec_table PROPERTIES COMPILE_DEFINITIONS PARASAIL_TABLE )
+SET_TARGET_PROPERTIES( parasail_altivec_rowcol PROPERTIES COMPILE_DEFINITIONS PARASAIL_ROWCOL )
+SET_TARGET_PROPERTIES( parasail_altivec_trace PROPERTIES COMPILE_DEFINITIONS PARASAIL_TRACE )
+
 ADD_LIBRARY( sais OBJECT contrib/sais-lite-lcp/sais.c )
 
 IF( SSE2_FOUND )
     ADD_LIBRARY( ssw OBJECT contrib/ssw/ssw.c )
     SET_TARGET_PROPERTIES( ssw PROPERTIES COMPILE_FLAGS ${SSE2_C_FLAGS} )
+ELSE( )
+    ADD_LIBRARY( ssw OBJECT cmake/ssw_dummy.c )
 ENDIF( )
 
 SET( maybe_def )
@@ -678,6 +800,10 @@ ADD_LIBRARY( parasail ${LIB_TYPE}
     $<TARGET_OBJECTS:parasail_avx2_table>
     $<TARGET_OBJECTS:parasail_avx2_rowcol>
     $<TARGET_OBJECTS:parasail_avx2_trace>
+    $<TARGET_OBJECTS:parasail_altivec>
+    $<TARGET_OBJECTS:parasail_altivec_table>
+    $<TARGET_OBJECTS:parasail_altivec_rowcol>
+    $<TARGET_OBJECTS:parasail_altivec_trace>
     ${maybe_def}
 )
 

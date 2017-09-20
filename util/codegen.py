@@ -18,6 +18,7 @@ import sys
 from isa import sse2
 from isa import sse41
 from isa import avx2
+from isa import altivec
 
 keys = sse2.keys()
 
@@ -442,7 +443,7 @@ def generated_params(template, params):
 for template_filename in template_filenames:
     template = open(template_dir+template_filename).read()
     for width in [64,32,16,8]:
-        for isa in [sse2,sse41,avx2]:
+        for isa in [sse2,sse41,avx2,altivec]:
             params = copy.deepcopy(isa)
             params["WIDTH"] = width
             prefix = template_filename[:-2]
@@ -516,7 +517,7 @@ for template_filename in special_templates:
         table_prefix = "%s_%s_table_%s" % (parts[0], parts[1], parts[2])
         rowcol_prefix = "%s_%s_rowcol_%s" % (parts[0], parts[1], parts[2])
         trace_prefix = "%s_%s_%s" % (parts[0], parts[1], parts[2])
-    for isa in [sse2,sse41,avx2]:
+    for isa in [sse2,sse41,avx2,altivec]:
         params = copy.deepcopy(isa)
         params["WIDTH"] = width
         function_name = "%s_%s%s_%s_%s" % (prefix,
@@ -562,7 +563,7 @@ for template_filename in bias_templates:
     rowcol_prefix_prof = rowcol_prefix + "_profile"
     trace_prefix_prof = trace_prefix + "_profile"
     for width in [16,8]:
-        for isa in [sse2,sse41,avx2]:
+        for isa in [sse2,sse41,avx2,altivec]:
             params = copy.deepcopy(isa)
             params["WIDTH"] = width
             function_name = "%s_%s%s_%s_%s" % (prefix,

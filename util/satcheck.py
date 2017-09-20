@@ -26,7 +26,7 @@ for alg in ["nw", "sg", "sw"]:
         for stats in ["", "_stats"]:
             if 'stats' in stats and 'trace' in table: continue
             for par in ["_scan", "_striped", "_diag"]:
-                for isa in ["", "_sse2_128", "_sse41_128", "_avx2_256"]:
+                for isa in ["", "_sse2_128", "_sse41_128", "_avx2_256", "_altivec_128"]:
                     prefix = "parasail_%s%s%s%s%s"%(alg, stats, table, par, isa)
                     if isa:
                         isa_pre = "#if HAVE_" + isa.split('_')[1].upper()
@@ -67,7 +67,7 @@ for alg in ["nw", "sg", "sw"]:
         for stats in ["", "_stats"]:
             if 'stats' in stats and 'trace' in table: continue
             for par in ["_scan_profile", "_striped_profile"]:
-                for isa in ["", "_sse2_128", "_sse41_128", "_avx2_256"]:
+                for isa in ["", "_sse2_128", "_sse41_128", "_avx2_256", "_altivec_128"]:
                     prefix = "parasail_%s%s%s%s%s"%(alg, stats, table, par, isa)
                     if isa:
                         isa_pre = "#if HAVE_" + isa.split('_')[1].upper()

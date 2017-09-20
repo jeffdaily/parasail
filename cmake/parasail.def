@@ -25,6 +25,10 @@ EXPORTS
     parasail_cigar_decode
     parasail_result_get_cigar
     parasail_cigar_free
+    parasail_ssw
+    parasail_ssw_profile
+    parasail_ssw_init
+    parasail_result_ssw_free
     parasail_result_is_nw
     parasail_result_is_sg
     parasail_result_is_sw

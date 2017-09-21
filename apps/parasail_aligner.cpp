@@ -1176,7 +1176,8 @@ int main(int argc, char **argv) {
                             result,
                             '|', ':', '.',
                             50,
-                            14);
+                            14,
+                            1);
                 }
                 else {
                     parasail_traceback_generic(
@@ -1190,7 +1191,8 @@ int main(int argc, char **argv) {
                             result,
                             '|', ':', '.',
                             50,
-                            14);
+                            14,
+                            1);
                 }
             }
         }
@@ -1250,7 +1252,8 @@ int main(int argc, char **argv) {
                             result,
                             '|', '*', '*',
                             60,
-                            10);
+                            10,
+                            0);
                 }
                 else {
                     parasail_traceback_generic(
@@ -1264,7 +1267,8 @@ int main(int argc, char **argv) {
                             result,
                             '|', '*', '*',
                             60,
-                            10);
+                            10,
+                            0);
                 }
             }
         }

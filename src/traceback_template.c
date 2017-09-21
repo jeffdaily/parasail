@@ -21,7 +21,8 @@ static inline void CONCAT(NAME, T) (
         parasail_result_t *result,
         char match, char pos, char neg,
         int width,
-        int name_width)
+        int name_width,
+        int use_stats)
 {
     char *q = malloc(sizeof(char)*(lena+lenb));
     char *d = malloc(sizeof(char)*(lena+lenb));
@@ -253,12 +254,14 @@ static inline void CONCAT(NAME, T) (
             }
             printf(" %7d\n", q_pindex);
         }
-        printf("\n");
-        printf("Length: %d\n", len);
-        printf("Identity:   %7d/%d (%4.1f%%)\n", mch, len, 100.0*mch/len);
-        printf("Similarity: %7d/%d (%4.1f%%)\n", sim, len, 100.0*sim/len);
-        printf("Gaps:       %7d/%d (%4.1f%%)\n", gap, len, 100.0*gap/len);
-        printf("Score: %d\n", result->score);
+        if (use_stats) {
+            printf("\n");
+            printf("Length: %d\n", len);
+            printf("Identity:   %7d/%d (%4.1f%%)\n", mch, len, 100.0*mch/len);
+            printf("Similarity: %7d/%d (%4.1f%%)\n", sim, len, 100.0*sim/len);
+            printf("Gaps:       %7d/%d (%4.1f%%)\n", gap, len, 100.0*gap/len);
+            printf("Score: %d\n", result->score);
+        }
         free(qr);
         free(ar);
         free(dr);

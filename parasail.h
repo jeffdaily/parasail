@@ -270,7 +270,8 @@ extern void parasail_traceback_generic(
         parasail_result_t *result,
         char match, char pos, char neg,
         int width,
-        int name_width);
+        int name_width,
+        int use_stats);
 
 #ifndef BAM_CIGAR_STR
 /*                     0123456789 */

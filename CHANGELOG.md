@@ -7,6 +7,10 @@ This project follows the [Gitflow Workflow model](https://www.atlassian.com/git/
 ## [Unreleased]
 The Unreleased section will be empty for tagged releases. Unreleased functionality appears in the develop branch.
 
+## [1.3.1] - 2017-09-21
+### Fixed
+- parasail_aligner option '-s' works again.
+
 ## [1.3] - 2017-09-01
 ### Changed
 - Added parasail_aligner option '-G' for output compatible with [GrappoloTK].
@@ -135,7 +139,8 @@ First stable, production-ready version of parasail.
 
 [parasail-python]: https://github.com/jeffdaily/parasail-python
 
-[Unreleased]: https://github.com/jeffdaily/parasail/compare/v1.3...develop
+[Unreleased]: https://github.com/jeffdaily/parasail/compare/v1.3.1...develop
+[1.3.1]: https://github.com/jeffdaily/parasail/compare/v1.3...v1.3.1
 [1.3]:   https://github.com/jeffdaily/parasail/compare/v1.2...v1.3
 [1.2]:   https://github.com/jeffdaily/parasail/compare/v1.1.2...v1.2
 [1.1.2]: https://github.com/jeffdaily/parasail/compare/v1.1.1...v1.1.2

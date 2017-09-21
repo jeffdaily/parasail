@@ -204,7 +204,7 @@ static void print_help(const char *progname, int status) {
             "-f file "
             "[-q query_file] "
             "[-g output_file] "
-            "[-O output_format {EMBOSS,SAM,SAMH}] "
+            "[-O output_format {EMBOSS,SAM,SAMH,SSW}] "
             "\n\n",
             progname);
     eprintf(stderr, "Defaults:\n"
@@ -264,6 +264,7 @@ int main(int argc, char **argv) {
     bool use_emboss_format = false;
     bool use_sam_format = false;
     bool use_sam_header = false;
+    bool use_ssw_format = false;
     PairSet pairs;
     PairVec vpairs;
     unsigned long count_possible = 0;
@@ -503,6 +504,10 @@ int main(int argc, char **argv) {
         }
         else if (NULL != strstr(output_format, "EMBOSS")) {
             use_emboss_format = true;
+            trace_warning = true;
+        }
+        else if (NULL != strstr(output_format, "SSW")) {
+            use_ssw_format = true;
             trace_warning = true;
         }
         else {
@@ -1186,6 +1191,80 @@ int main(int argc, char **argv) {
                             '|', ':', '.',
                             50,
                             14);
+                }
+            }
+        }
+        else if (use_ssw_format) {
+            for (size_t index=0; index<results.size(); ++index) {
+                parasail_result_t *result = results[index];
+                int i = vpairs[index].first;
+                int j = vpairs[index].second;
+                parasail_cigar_t *cigar = NULL;
+
+                if (has_query) {
+                    i = i - sid_crossover;
+                    printf("target_name: %s\n", sequences->seqs[j].name.s);
+                    printf("query_name: %s\n", queries->seqs[i].name.s);
+                    cigar = parasail_result_get_cigar(result,
+                            queries->seqs[i].seq.s,
+                            queries->seqs[i].seq.l,
+                            sequences->seqs[j].seq.s,
+                            sequences->seqs[j].seq.l,
+                            matrix);
+                }
+                else {
+                    printf("target_name: %s\n", sequences->seqs[j].name.s);
+                    printf("query_name: %s\n", sequences->seqs[i].name.s);
+                    cigar = parasail_result_get_cigar(result,
+                            sequences->seqs[i].seq.s,
+                            sequences->seqs[i].seq.l,
+                            sequences->seqs[j].seq.s,
+                            sequences->seqs[j].seq.l,
+                            matrix);
+                }
+
+                printf("optimal_alignment_score: %d"
+                        "\tstrand: +"
+                        "\ttarget_begin: %d"
+                        "\ttarget_end: %d"
+                        "\tquery_begin: %d"
+                        "\tquery_end: %d\n",
+                        result->score,
+                        cigar->beg_ref+1,
+                        parasail_result_get_end_ref(result)+1,
+                        cigar->beg_query+1,
+                        parasail_result_get_end_query(result)+1);
+
+                /* we only needed the cigar for beginning locations */
+                parasail_cigar_free(cigar);
+
+                if (has_query) {
+                    parasail_traceback_generic(
+                            queries->seqs[i].seq.s,
+                            queries->seqs[i].seq.l,
+                            sequences->seqs[j].seq.s,
+                            sequences->seqs[j].seq.l,
+                            "Query:",
+                            "Target:",
+                            matrix,
+                            result,
+                            '|', '*', '*',
+                            60,
+                            10);
+                }
+                else {
+                    parasail_traceback_generic(
+                            sequences->seqs[i].seq.s,
+                            sequences->seqs[i].seq.l,
+                            sequences->seqs[j].seq.s,
+                            sequences->seqs[j].seq.l,
+                            "Query:",
+                            "Target:",
+                            matrix,
+                            result,
+                            '|', '*', '*',
+                            60,
+                            10);
                 }
             }
         }

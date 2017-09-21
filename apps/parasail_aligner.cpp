@@ -208,26 +208,27 @@ static void print_help(const char *progname, int status) {
             "\n\n",
             progname);
     eprintf(stderr, "Defaults:\n"
-            "   funcname: sw_stats_striped_16\n"
-            "     cutoff: 7, must be >= 1, exact match length cutoff\n"
-            "         -x: if present, don't use suffix array filter\n"
-            " gap_extend: 1, must be >= 0\n"
-            "   gap_open: 10, must be >= 0\n"
-            "     matrix: blosum62\n"
-            "         -d: if present, assume DNA alphabet\n"
-            "      match: 1, must be >= 0\n"
-            "   mismatch: 0, must be >= 0\n"
+            "     funcname: sw_stats_striped_16\n"
+            "       cutoff: 7, must be >= 1, exact match length cutoff\n"
+            "           -x: if present, don't use suffix array filter\n"
+            "   gap_extend: 1, must be >= 0\n"
+            "     gap_open: 10, must be >= 0\n"
+            "       matrix: blosum62\n"
+            "           -d: if present, assume DNA alphabet\n"
+            "        match: 1, must be >= 0\n"
+            "     mismatch: 0, must be >= 0\n"
 #ifdef _OPENMP
-            "    threads: system-specific default, must be >= 1\n"
+            "      threads: system-specific default, must be >= 1\n"
 #else
-            "    threads: Warning: ignored; OpenMP was not supported by your compiler\n"
+            "      threads: Warning: ignored; OpenMP was not supported by your compiler\n"
 #endif
-            "        AOL: 80, must be 0 <= AOL <= 100, percent alignment length\n"
-            "        SIM: 40, must be 0 <= SIM <= 100, percent exact matches\n"
-            "         OS: 30, must be 0 <= OS <= 100, percent optimal score over self score\n"
-            "       file: no default, must be in FASTA format\n"
-            " query_file: no default, must be in FASTA format\n"
-            "output_file: parasail.csv\n"
+            "          AOL: 80, must be 0 <= AOL <= 100, percent alignment length\n"
+            "          SIM: 40, must be 0 <= SIM <= 100, percent exact matches\n"
+            "           OS: 30, must be 0 <= OS <= 100, percent optimal score over self score\n"
+            "         file: no default, must be in FASTA format\n"
+            "   query_file: no default, must be in FASTA format\n"
+            "  output_file: parasail.csv\n"
+            "output_format: no deafult, must be one of {EMBOSS,SAM,SAMH,SSW}\n"
             );
     exit(status);
 }
@@ -517,6 +518,10 @@ int main(int argc, char **argv) {
         if (!is_trace && trace_warning) {
             eprintf(stderr, "The selected output format '%s' requires an alignment function that returns a traceback.\n", output_format);
         }
+    }
+    else if (is_trace) {
+        eprintf(stderr, "Please select trace output format.\n");
+        exit(EXIT_FAILURE);
     }
 
     /* select the substitution matrix */

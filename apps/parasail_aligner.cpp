@@ -365,6 +365,12 @@ int main(int argc, char **argv) {
                 qname = optarg;
                 qpack = true;
                 break;
+            case 's':
+                SIM = atoi(optarg);
+                if (SIM < 0 || SIM > 100) {
+                    print_help(progname, EXIT_FAILURE);
+                }
+                break;
             case 't':
                 num_threads = atoi(optarg);
 #ifdef _OPENMP

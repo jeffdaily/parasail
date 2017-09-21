@@ -11,7 +11,7 @@ The alignment routine to use defaults to one of the Smith-Waterman routines, but
 ### Command-Line Interface
 
 ```bash
-usage: parasail_aligner [-a funcname] [-c cutoff] [-x] [-e gap_extend] [-o gap_open] [-m matrix] [-t threads] [-d] [-M match] [-X mismatch] [-l AOL] [-s SIM] [-i OS] -f file [-q query_file] [-g output_file] 
+usage: parasail_aligner [-a funcname] [-c cutoff] [-x] [-e gap_extend] [-o gap_open] [-m matrix] [-t threads] [-d] [-M match] [-X mismatch] [-l AOL] [-s SIM] [-i OS] -v -f file [-q query_file] [-g output_file]
 
 Defaults:
      funcname: sw_stats_striped_16
@@ -27,6 +27,7 @@ Defaults:
           AOL: 80, must be 0 <= AOL <= 100, percent alignment length
           SIM: 40, must be 0 <= SIM <= 100, percent exact matches
            OS: 30, must be 0 <= OS <= 100, percent optimal score over self score
+           -v: verbose output, report input parameters and timing
          file: no default, must be in FASTA/FASTQ format
    query_file: no default, must be in FASTA/FASTQ format
   output_file: parasail.csv

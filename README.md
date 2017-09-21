@@ -28,8 +28,6 @@ Author: Jeff Daily (jeff.daily@pnnl.gov)
     * [Rust](#rust)
     * [Java](#java)
   * [Windows Build](#windows-build)
-    * [Windows \- CMake](#windows---cmake)
-    * [Windows \- Cygwin and mingw64](#windows---cygwin-and-mingw64)
   * [Example Applications](#example-applications)
   * [Citing parasail](#citing-parasail)
   * [License: Battelle BSD\-style](#license-battelle-bsd-style)
@@ -98,7 +96,7 @@ parasail_result_t* the_parasail_function_name(
 
 With respect to traditional database query use, s1 is the query sequence and s2 is the database sequence.  For the functions returning the DP table or last row and column, the dimensions of the DP table are s1Len x s2Len where s1Len is the number of rows and s2Len is the number of columns (in C row-major order).
 
-The return type is a C struct.  Users should treat the result as an opaque pointer and use accessor functions for result attributes.  There are additional functions to determine which alignment function produced the result.
+The return type is a C struct.  Users should treat the result as an opaque pointer and use getter functions for result attributes.  There are additional functions to determine which alignment function produced the result.
 
 ```C
 typedef struct parasail_result {
@@ -109,7 +107,7 @@ typedef struct parasail_result {
     void *extra;
 } parasail_result_t;
 
-/* from parasail.h, the result accessor functions */
+/* from parasail.h, the result getter functions */
 parasail_cigar_t* parasail_result_get_cigar(
         parasail_result_t *result,
         const char *seqA, int lena,
@@ -445,7 +443,7 @@ parasail_cigar_t* parasail_result_get_cigar(
         int lenb,
         const parasail_matrix_t *matrix);
 
-extern void parasail_cigar_free(parasail_cigar_t *cigar);
+void parasail_cigar_free(parasail_cigar_t *cigar);
 
 uint32_t parasail_cigar_encode(uint32_t length, char op_letter);
 

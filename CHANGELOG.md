@@ -15,8 +15,6 @@ The Unreleased section will be empty for tagged releases. Unreleased functionali
 - [SSW] emulation functions.
 - `parasail_result_t` attribute accessor functions.
 - `parasail_traceback_generic()` function for printing tracebacks to stdout.
-- `parasail_sequence_t` and `parasail_sequences_t` objects, used with new
-  `parasail_sequences_from_file()` function based on [kseq.h].
 - Revamped sequence parsing based on [kseq.h].
   - `parasail_sequence_t` and `parasail_sequences_t` objects, used with new `parasail_sequences_from_file()`
   - Support for FASTA, FASTQ.

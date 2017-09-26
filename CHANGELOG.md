@@ -7,7 +7,7 @@ This project follows the [Gitflow Workflow model](https://www.atlassian.com/git/
 ## [Unreleased]
 The Unreleased section will be empty for tagged releases. Unreleased functionality appears in the develop branch.
 
-## [2.0] - 2017-09-21
+## [2.0] - 2017-09-26
 ### Added
 - Alignment trace functions for generating SAM CIGAR output.
 - SAM CIGAR encode, decode, and accessor functions.
@@ -44,6 +44,10 @@ The Unreleased section will be empty for tagged releases. Unreleased functionali
 - Understanding Result [\#32]
 - provide functions that return the full traceback [\#12]
 - smaller memory footprint of parasail_result_t [\#11]
+
+## [1.3.1] - 2017-09-21
+### Fixed
+- parasail_aligner option '-s' works again.
 
 ## [1.3] - 2017-09-01
 ### Changed
@@ -174,7 +178,8 @@ First stable, production-ready version of parasail.
 [parasail-python]: https://github.com/jeffdaily/parasail-python
 
 [Unreleased]: https://github.com/jeffdaily/parasail/compare/v2.0...develop
-[2.0]:   https://github.com/jeffdaily/parasail/compare/v1.3...v2.0
+[2.0]:   https://github.com/jeffdaily/parasail/compare/v1.3.1...v2.0
+[1.3.1]: https://github.com/jeffdaily/parasail/compare/v1.3...v1.3.1
 [1.3]:   https://github.com/jeffdaily/parasail/compare/v1.2...v1.3
 [1.2]:   https://github.com/jeffdaily/parasail/compare/v1.1.2...v1.2
 [1.1.2]: https://github.com/jeffdaily/parasail/compare/v1.1.1...v1.1.2

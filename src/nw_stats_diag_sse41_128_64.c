@@ -193,7 +193,7 @@ parasail_result_t* FNAME(
 #ifdef PARASAIL_ROWCOL
     parasail_result_t *result = parasail_result_new_rowcol3(s1Len, s2Len);
 #else
-    parasail_result_t *result = parasail_result_new();
+    parasail_result_t *result = parasail_result_new_stats();
 #endif
 #endif
     int32_t i = 0;
@@ -413,16 +413,16 @@ parasail_result_t* FNAME(
             vSaturationCheckMax = _mm_max_epi64_rpl(vSaturationCheckMax, vWL);
             vSaturationCheckMax = _mm_max_epi64_rpl(vSaturationCheckMax, vJ);
 #ifdef PARASAIL_TABLE
-            arr_store_si128(result->score_table, vWH, i, s1Len, j, s2Len);
-            arr_store_si128(result->matches_table, vWM, i, s1Len, j, s2Len);
-            arr_store_si128(result->similar_table, vWS, i, s1Len, j, s2Len);
-            arr_store_si128(result->length_table, vWL, i, s1Len, j, s2Len);
+            arr_store_si128(result->stats->tables->score_table, vWH, i, s1Len, j, s2Len);
+            arr_store_si128(result->stats->tables->matches_table, vWM, i, s1Len, j, s2Len);
+            arr_store_si128(result->stats->tables->similar_table, vWS, i, s1Len, j, s2Len);
+            arr_store_si128(result->stats->tables->length_table, vWL, i, s1Len, j, s2Len);
 #endif
 #ifdef PARASAIL_ROWCOL
-            arr_store_rowcol(result->score_row, result->score_col, vWH, i, s1Len, j, s2Len);
-            arr_store_rowcol(result->matches_row, result->matches_col, vWM, i, s1Len, j, s2Len);
-            arr_store_rowcol(result->similar_row, result->similar_col, vWS, i, s1Len, j, s2Len);
-            arr_store_rowcol(result->length_row, result->length_col, vWL, i, s1Len, j, s2Len);
+            arr_store_rowcol(result->stats->rowcols->score_row,   result->stats->rowcols->score_col, vWH, i, s1Len, j, s2Len);
+            arr_store_rowcol(result->stats->rowcols->matches_row, result->stats->rowcols->matches_col, vWM, i, s1Len, j, s2Len);
+            arr_store_rowcol(result->stats->rowcols->similar_row, result->stats->rowcols->similar_col, vWS, i, s1Len, j, s2Len);
+            arr_store_rowcol(result->stats->rowcols->length_row,  result->stats->rowcols->length_col, vWL, i, s1Len, j, s2Len);
 #endif
             H_pr[j-1] = (int64_t)_mm_extract_epi64_rpl(vWH,0);
             HM_pr[j-1] = (int64_t)_mm_extract_epi64_rpl(vWM,0);
@@ -469,7 +469,7 @@ parasail_result_t* FNAME(
     if (_mm_movemask_epi8(_mm_or_si128(
             _mm_cmplt_epi64_rpl(vSaturationCheckMin, vNegLimit),
             _mm_cmpgt_epi64_rpl(vSaturationCheckMax, vPosLimit)))) {
-        result->saturated = 1;
+        result->flag |= PARASAIL_FLAG_SATURATED;
         score = 0;
         matches = 0;
         similar = 0;
@@ -479,11 +479,20 @@ parasail_result_t* FNAME(
     }
 
     result->score = score;
-    result->matches = matches;
-    result->similar = similar;
-    result->length = length;
     result->end_query = end_query;
     result->end_ref = end_ref;
+    result->stats->matches = matches;
+    result->stats->similar = similar;
+    result->stats->length = length;
+    result->flag |= PARASAIL_FLAG_NW | PARASAIL_FLAG_DIAG
+        | PARASAIL_FLAG_STATS
+        | PARASAIL_FLAG_BITS_64 | PARASAIL_FLAG_LANES_2;
+#ifdef PARASAIL_TABLE
+    result->flag |= PARASAIL_FLAG_TABLE;
+#endif
+#ifdef PARASAIL_ROWCOL
+    result->flag |= PARASAIL_FLAG_ROWCOL;
+#endif
 
     parasail_free(_FL_pr);
     parasail_free(_FS_pr);

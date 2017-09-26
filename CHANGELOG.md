@@ -7,6 +7,44 @@ This project follows the [Gitflow Workflow model](https://www.atlassian.com/git/
 ## [Unreleased]
 The Unreleased section will be empty for tagged releases. Unreleased functionality appears in the develop branch.
 
+## [2.0] - 2017-09-26
+### Added
+- Alignment trace functions for generating SAM CIGAR output.
+- SAM CIGAR encode, decode, and accessor functions.
+- Support for AltiVec/POWER ISA.
+- [SSW] emulation functions.
+- `parasail_result_t` attribute accessor functions.
+- `parasail_traceback_generic()` function for printing tracebacks to stdout.
+- Revamped sequence parsing based on [kseq.h].
+  - `parasail_sequence_t` and `parasail_sequences_t` objects, used with new `parasail_sequences_from_file()`
+  - Support for FASTA, FASTQ.
+  - Optional support for compressed input files if libz is found during the build process.
+- parasail_aligner
+  - Verbose mode `-v`. This re-enables output common to v1.x.
+  - Output format `-O {SAMH,SAM,EMBOSS,SSW}`.
+    Requires one format argument as well as the use of a trace-enabled alignment function.
+
+### Changed
+- Reduced size of `parasail_result_t` object. Users should treat the
+  result as an opaque pointer and instead use the new attribute accessor
+  functions.
+
+### Deprecated
+- The 'block' vectorized functions should not be used and will be removed.
+
+### Removed
+- parasail_aligner 'packed' input files.
+
+### Fixed
+- parasail_aligner now understands the stop codon.
+
+### Closed Issues
+- It appears that the `-s` option to specify SAM is not handled by parasail_aligner [\#35]
+- Stop Codon Error [\#34]
+- Understanding Result [\#32]
+- provide functions that return the full traceback [\#12]
+- smaller memory footprint of parasail_result_t [\#11]
+
 ## [1.3.1] - 2017-09-21
 ### Fixed
 - parasail_aligner option '-s' works again.
@@ -139,7 +177,8 @@ First stable, production-ready version of parasail.
 
 [parasail-python]: https://github.com/jeffdaily/parasail-python
 
-[Unreleased]: https://github.com/jeffdaily/parasail/compare/v1.3.1...develop
+[Unreleased]: https://github.com/jeffdaily/parasail/compare/v2.0...develop
+[2.0]:   https://github.com/jeffdaily/parasail/compare/v1.3.1...v2.0
 [1.3.1]: https://github.com/jeffdaily/parasail/compare/v1.3...v1.3.1
 [1.3]:   https://github.com/jeffdaily/parasail/compare/v1.2...v1.3
 [1.2]:   https://github.com/jeffdaily/parasail/compare/v1.1.2...v1.2
@@ -151,6 +190,10 @@ First stable, production-ready version of parasail.
 [1.0.1]: https://github.com/jeffdaily/parasail/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/jeffdaily/parasail/releases/tag/v1.0.0
 
+[\#35]: https://github.com/jeffdaily/parasail/issues/35
+[\#34]: https://github.com/jeffdaily/parasail/issues/34
+[\#33]: https://github.com/jeffdaily/parasail/issues/33
+[\#32]: https://github.com/jeffdaily/parasail/issues/32
 [\#31]: https://github.com/jeffdaily/parasail/issues/31
 [\#30]: https://github.com/jeffdaily/parasail/issues/30
 [\#29]: https://github.com/jeffdaily/parasail/pull/29
@@ -185,3 +228,5 @@ First stable, production-ready version of parasail.
 
 [armintoepfer]: https://github.com/armintoepfer
 [GrappoloTK]: https://github.com/luhowardmark/GrappoloTK
+[SSW]: https://github.com/mengyao/Complete-Striped-Smith-Waterman-Library
+[kseq.h]: http://lh3lh3.users.sourceforge.net/kseq.shtml

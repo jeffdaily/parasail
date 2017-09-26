@@ -79,7 +79,7 @@ parasail_result_t* ENAME(
     {
         int limit = s1Len*s2Len;
         for (i=0; i<limit; ++i) {
-            result->score_table[i] = 0;
+            result->tables->score_table[i] = 0;
         }
     }
 #endif
@@ -129,7 +129,7 @@ parasail_result_t* ENAME(
             H[i] = MAX(E[i], F);
             H[i] = MAX(H[i], H_dag);
 #ifdef PARASAIL_TABLE
-            result->score_table[pos*s2Len + j] = H[i];
+            result->tables->score_table[pos*s2Len + j] = H[i];
 #endif
         }
         colOff += 1;
@@ -138,6 +138,15 @@ parasail_result_t* ENAME(
     result->score = s1Len > s2Len ? H[-low] : H[k];
     result->end_query = s1Len-1;
     result->end_ref = s2Len-1;
+    result->flag |= PARASAIL_FLAG_NW | PARASAIL_FLAG_NOVEC
+        | PARASAIL_FLAG_BANDED
+        | PARASAIL_FLAG_BITS_INT | PARASAIL_FLAG_LANES_1;
+#ifdef PARASAIL_TABLE
+    result->flag |= PARASAIL_FLAG_TABLE;
+#endif
+#ifdef PARASAIL_ROWCOL
+    result->flag |= PARASAIL_FLAG_ROWCOL;
+#endif
 
     parasail_free(EB);
     parasail_free(HB);

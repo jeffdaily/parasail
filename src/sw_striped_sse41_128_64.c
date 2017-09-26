@@ -209,7 +209,7 @@ parasail_result_t* PNAME(
             /* Save vH values. */
             _mm_store_si128(pvHStore + i, vH);
 #ifdef PARASAIL_TABLE
-            arr_store_si128(result->score_table, vH, i, segLen, j, s2Len);
+            arr_store_si128(result->tables->score_table, vH, i, segLen, j, s2Len);
 #endif
             vMaxH = _mm_max_epi64_rpl(vH, vMaxH);
 
@@ -236,7 +236,7 @@ parasail_result_t* PNAME(
                 vH = _mm_max_epi64_rpl(vH,vF);
                 _mm_store_si128(pvHStore + i, vH);
 #ifdef PARASAIL_TABLE
-                arr_store_si128(result->score_table, vH, i, segLen, j, s2Len);
+                arr_store_si128(result->tables->score_table, vH, i, segLen, j, s2Len);
 #endif
                 vMaxH = _mm_max_epi64_rpl(vH, vMaxH);
                 vH = _mm_sub_epi64(vH, vGapO);
@@ -256,7 +256,7 @@ end:
             for (k=0; k<position; ++k) {
                 vH = _mm_slli_si128(vH, 8);
             }
-            result->score_row[j] = (int64_t) _mm_extract_epi64_rpl (vH, 1);
+            result->rowcols->score_row[j] = (int64_t) _mm_extract_epi64_rpl (vH, 1);
         }
 #endif
 
@@ -266,7 +266,7 @@ end:
                 score = _mm_hmax_epi64_rpl(vMaxH);
                 /* if score has potential to overflow, abort early */
                 if (score > maxp) {
-                    result->saturated = 1;
+                    result->flag |= PARASAIL_FLAG_SATURATED;
                     break;
                 }
                 vMaxHUnit = _mm_set1_epi64x_rpl(score);
@@ -280,15 +280,15 @@ end:
 #ifdef PARASAIL_ROWCOL
     for (i=0; i<segLen; ++i) {
         __m128i vH = _mm_load_si128(pvHStore+i);
-        arr_store_col(result->score_col, vH, i, segLen);
+        arr_store_col(result->rowcols->score_col, vH, i, segLen);
     }
 #endif
 
     if (score == INT64_MAX) {
-        result->saturated = 1;
+        result->flag |= PARASAIL_FLAG_SATURATED;
     }
 
-    if (result->saturated) {
+    if (parasail_result_is_saturated(result)) {
         score = INT64_MAX;
         end_query = 0;
         end_ref = 0;
@@ -325,6 +325,14 @@ end:
     result->score = score;
     result->end_query = end_query;
     result->end_ref = end_ref;
+    result->flag |= PARASAIL_FLAG_SW | PARASAIL_FLAG_STRIPED
+        | PARASAIL_FLAG_BITS_64 | PARASAIL_FLAG_LANES_2;
+#ifdef PARASAIL_TABLE
+    result->flag |= PARASAIL_FLAG_TABLE;
+#endif
+#ifdef PARASAIL_ROWCOL
+    result->flag |= PARASAIL_FLAG_ROWCOL;
+#endif
 
     parasail_free(pvE);
     parasail_free(pvHMax);

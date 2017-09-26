@@ -49,6 +49,9 @@ def isa_to_guard(isa):
     elif 'knc' in isa:
         print "#if HAVE_KNC"
         print '#else'
+    elif 'altivec' in isa:
+        print "#if HAVE_ALTIVEC"
+        print '#else'
     else:
         print isa
         assert False
@@ -92,17 +95,19 @@ def body3():
 # vectorized implementations (3x2x3x3x13 = 702 impl)
 alg = ["nw", "sg", "sw"]
 stats = ["", "_stats"]
-table = ["", "_table", "_rowcol"]
+table = ["", "_table", "_rowcol", "_trace"]
 par = ["_scan", "_striped", "_diag"]
 isa = [
     "_sse2_128_64", "_sse2_128_32", "_sse2_128_16", "_sse2_128_8", "_sse2_128_sat",
     "_sse41_128_64", "_sse41_128_32", "_sse41_128_16", "_sse41_128_8", "_sse41_128_sat",
     "_avx2_256_64", "_avx2_256_32", "_avx2_256_16", "_avx2_256_8", "_avx2_256_sat",
-    "_knc_512_32"
+    "_knc_512_32",
+    "_altivec_128_64", "_altivec_128_32", "_altivec_128_16", "_altivec_128_8", "_altivec_128_sat"
     ]
 for a in alg:
     for s in stats:
         for t in table:
+            if 'trace' in t and 'stats' in s: continue
             for p in par:
                 for i in isa:
                     print ""
@@ -118,17 +123,19 @@ for a in alg:
 # vectorized profile implementations (3x2x3x2x13 = 468 impl)
 alg = ["nw", "sg", "sw"]
 stats = ["", "_stats"]
-table = ["", "_table", "_rowcol"]
+table = ["", "_table", "_rowcol", "_trace"]
 par = ["_scan_profile", "_striped_profile"]
 isa = [
     "_sse2_128_64", "_sse2_128_32", "_sse2_128_16", "_sse2_128_8", "_sse2_128_sat",
     "_sse41_128_64", "_sse41_128_32", "_sse41_128_16", "_sse41_128_8", "_sse41_128_sat",
     "_avx2_256_64", "_avx2_256_32", "_avx2_256_16", "_avx2_256_8", "_avx2_256_sat",
-    "_knc_512_32"
+    "_knc_512_32",
+    "_altivec_128_64", "_altivec_128_32", "_altivec_128_16", "_altivec_128_8", "_altivec_128_sat"
     ]
 for a in alg:
     for s in stats:
         for t in table:
+            if 'trace' in t and 'stats' in s: continue
             for p in par:
                 for i in isa:
                     print ""
@@ -143,12 +150,13 @@ for a in alg:
 # vectorized implementations of blocked (1x1x3x1x2 = 6 impl)
 alg = ["sw"]
 stats = [""]
-table = ["", "_table", "_rowcol"]
+table = ["", "_table", "_rowcol", "_trace"]
 par = ["_blocked"]
 isa = ["_sse41_128_32", "_sse41_128_16"]
 for a in alg:
     for s in stats:
         for t in table:
+            if 'trace' in t and 'stats' in s: continue
             for p in par:
                 for i in isa:
                     print ""
@@ -167,6 +175,7 @@ isa = [
     "_sse_128_64", "_sse_128_32", "_sse_128_16", "_sse_128_8", "_sse_128_sat",
     "_avx_256_64", "_avx_256_32", "_avx_256_16", "_avx_256_8", "_avx_256_sat",
     "_knc_512_32",
+    "_altivec_128_64", "_altivec_128_32", "_altivec_128_16", "_altivec_128_8", "_altivec_128_sat",
     ]
 for s in stats:
     for i in isa:

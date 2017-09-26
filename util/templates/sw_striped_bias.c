@@ -161,7 +161,7 @@ parasail_result_t* PNAME(
             /* Save vH values. */
             %(VSTORE)s(pvHStore + i, vH);
 #ifdef PARASAIL_TABLE
-            arr_store_si%(BITS)s(result->score_table, vH, i, segLen, j, s2Len, bias);
+            arr_store_si%(BITS)s(result->tables->score_table, vH, i, segLen, j, s2Len, bias);
 #endif
             vMaxH = %(VMAX)s(vH, vMaxH);
 
@@ -189,7 +189,7 @@ parasail_result_t* PNAME(
                 vH = %(VMAX)s(vH,vF);
                 %(VSTORE)s(pvHStore + i, vH);
 #ifdef PARASAIL_TABLE
-                arr_store_si%(BITS)s(result->score_table, vH, i, segLen, j, s2Len, bias);
+                arr_store_si%(BITS)s(result->tables->score_table, vH, i, segLen, j, s2Len, bias);
 #endif
                 vMaxH = %(VMAX)s(vH, vMaxH);
                 vH = %(VSUB)s(vH, vGapO);
@@ -209,7 +209,7 @@ end:
             for (k=0; k<position; ++k) {
                 vH = %(VSHIFT)s(vH, %(BYTES)s);
             }
-            result->score_row[j] = (%(INT)s) %(VEXTRACT)s (vH, %(LAST_POS)s) - bias;
+            result->rowcols->score_row[j] = (%(INT)s) %(VEXTRACT)s (vH, %(LAST_POS)s) - bias;
         }
 #endif
 
@@ -219,7 +219,7 @@ end:
                 score = %(VHMAX)s(vMaxH);
                 /* if score has potential to overflow, abort early */
                 if (score > maxp) {
-                    result->saturated = 1;
+                    result->flag |= PARASAIL_FLAG_SATURATED;
                     break;
                 }
                 vMaxHUnit = %(VSET1)s(score);
@@ -233,15 +233,15 @@ end:
 #ifdef PARASAIL_ROWCOL
     for (i=0; i<segLen; ++i) {
         %(VTYPE)s vH = %(VLOAD)s(pvHStore+i);
-        arr_store_col(result->score_col, vH, i, segLen, bias);
+        arr_store_col(result->rowcols->score_col, vH, i, segLen, bias);
     }
 #endif
 
     if (score == INT%(WIDTH)s_MAX) {
-        result->saturated = 1;
+        result->flag |= PARASAIL_FLAG_SATURATED;
     }
 
-    if (result->saturated) {
+    if (parasail_result_is_saturated(result)) {
         score = INT%(WIDTH)s_MAX;
         end_query = 0;
         end_ref = 0;
@@ -278,6 +278,14 @@ end:
     result->score = score - bias;
     result->end_query = end_query;
     result->end_ref = end_ref;
+    result->flag |= PARASAIL_FLAG_SW | PARASAIL_FLAG_STRIPED
+        | PARASAIL_FLAG_BITS_%(WIDTH)s | PARASAIL_FLAG_LANES_%(LANES)s;
+#ifdef PARASAIL_TABLE
+    result->flag |= PARASAIL_FLAG_TABLE;
+#endif
+#ifdef PARASAIL_ROWCOL
+    result->flag |= PARASAIL_FLAG_ROWCOL;
+#endif
 
     parasail_free(pvE);
     parasail_free(pvHMax);

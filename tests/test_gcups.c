@@ -4,6 +4,7 @@
 /* strdup needs _POSIX_C_SOURCE 200809L */
 #define _POSIX_C_SOURCE 200809L
 
+#include <ctype.h>
 #include <limits.h>
 #include <math.h>
 #include <stddef.h>
@@ -12,87 +13,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#if defined(_MSC_VER)
+#include "wingetopt/src/getopt.h"
+#else
 #include <unistd.h>
-
-#define USE_ZLIB 0
-
-#include "kseq.h"
-
-#if USE_ZLIB
-#include <zlib.h>
-KSEQ_INIT(gzFile, gzread)
-#else
-KSEQ_INIT(int, read)
 #endif
 
-static inline void parse_sequences(
-        const char *filename, char ***strings_, size_t **sizes_, size_t *count_)
-{
-#if USE_ZLIB
-    gzFile fp;
-#else
-    FILE *fp;
-#endif
-    kseq_t *seq = NULL;
-    int l = 0;
-    char **strings = NULL;
-    size_t *sizes = NULL;
-    size_t count = 0;
-    size_t memory = 1000;
+#include "parasail/io.h"
 
-#if USE_ZLIB
-    fp = gzopen(filename, "r");
-#else
-    fp = fopen(filename, "r");
-    if(fp == NULL) {
-        perror("fopen");
-        exit(1);
-    }
-#endif
-    strings = (char**)malloc(sizeof(char*) * memory);
-    sizes = (size_t*)malloc(sizeof(size_t) * memory);
-#if USE_ZLIB
-    seq = kseq_init(fp);
-#else
-    seq = kseq_init(fileno(fp));
-#endif
-    while ((l = kseq_read(seq)) >= 0) {
-        strings[count] = strdup(seq->seq.s);
-        if (NULL == strings[count]) {
-            perror("strdup");
-            exit(1);
-        }
-        sizes[count] = seq->seq.l;
-        ++count;
-        if (count >= memory) {
-            char **new_strings = NULL;
-            size_t *new_sizes = NULL;
-            memory *= 2;
-            new_strings = realloc(strings, sizeof(char*) * memory);
-            if (NULL == new_strings) {
-                perror("realloc");
-                exit(1);
-            }
-            strings = new_strings;
-            new_sizes = realloc(sizes, sizeof(size_t) * memory);
-            if (NULL == new_sizes) {
-                perror("realloc");
-                exit(1);
-            }
-            sizes = new_sizes;
-        }
-    }
-    kseq_destroy(seq);
-#if USE_ZLIB
-    gzclose(fp);
-#else
-    fclose(fp);
-#endif
-
-    *strings_ = strings;
-    *sizes_ = sizes;
-    *count_ = count;
-}
 
 static inline unsigned long binomial_coefficient(unsigned long n, unsigned long k)
 {
@@ -130,8 +58,7 @@ int main(int argc, char **argv)
     unsigned long i = 0;
     size_t seq_count = 10;
     size_t limit = 0;
-    char **sequences = NULL;
-    size_t *sizes = NULL;
+    parasail_sequences_t *sequences = NULL;
     char *filename = NULL;
     int c = 0;
     int distribution = 0;
@@ -167,7 +94,8 @@ int main(int argc, char **argv)
     }
 
     if (filename) {
-        parse_sequences(filename, &sequences, &sizes, &seq_count);
+        sequences = parasail_sequences_from_file(filename);
+        seq_count = sequences->l;
     }
     else {
         fprintf(stderr, "missing filename\n");
@@ -176,7 +104,7 @@ int main(int argc, char **argv)
 
     if (distribution) {
         for (i=0; i<seq_count; ++i) {
-            printf("%lu\n", (unsigned long)sizes[i]);
+            printf("%lu\n", (unsigned long)sequences->seqs[i].seq.l);
         }
     }
     else {
@@ -191,8 +119,8 @@ int main(int argc, char **argv)
             unsigned long columns=0;
             for (i=0; i<limit; ++i) {
                 k_combination2(i, &a, &b);
-                work += sizes[a]*sizes[b];
-                columns += sizes[b];
+                work += sequences->seqs[a].seq.l*sequences->seqs[b].seq.l;
+                columns += sequences->seqs[b].seq.l;
             }
             printf("work=%lu\n", work);
             printf("columns=%lu\n", columns);

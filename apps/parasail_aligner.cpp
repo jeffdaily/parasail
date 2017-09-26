@@ -165,6 +165,17 @@ inline static void output_basic(
         const PairVec &vpairs,
         const vector<parasail_result_t*> &results);
 
+inline static void output_trace(
+        FILE *fop,
+        bool has_query,
+        long sid_crossover,
+        unsigned char *T,
+        const parasail_matrix_t *matrix,
+        const vector<long> &BEG,
+        const vector<long> &END,
+        const PairVec &vpairs,
+        const vector<parasail_result_t*> &results);
+
 inline static void output_tables(
         bool has_query,
         long sid_crossover,
@@ -190,32 +201,36 @@ static void print_help(const char *progname, int status) {
             "[-l AOL] "
             "[-s SIM] "
             "[-i OS] "
+            "[-v] "
             "-f file "
             "[-q query_file] "
             "[-g output_file] "
+            "[-O output_format {EMBOSS,SAM,SAMH,SSW}] "
             "\n\n",
             progname);
     eprintf(stderr, "Defaults:\n"
-            "   funcname: sw_stats_striped_16\n"
-            "     cutoff: 7, must be >= 1, exact match length cutoff\n"
-            "         -x: if present, don't use suffix array filter\n"
-            " gap_extend: 1, must be >= 0\n"
-            "   gap_open: 10, must be >= 0\n"
-            "     matrix: blosum62\n"
-            "         -d: if present, assume DNA alphabet\n"
-            "      match: 1, must be >= 0\n"
-            "   mismatch: 0, must be >= 0\n"
+            "     funcname: sw_stats_striped_16\n"
+            "       cutoff: 7, must be >= 1, exact match length cutoff\n"
+            "           -x: if present, don't use suffix array filter\n"
+            "   gap_extend: 1, must be >= 0\n"
+            "     gap_open: 10, must be >= 0\n"
+            "       matrix: blosum62\n"
+            "           -d: if present, assume DNA alphabet\n"
+            "        match: 1, must be >= 0\n"
+            "     mismatch: 0, must be >= 0\n"
 #ifdef _OPENMP
-            "    threads: system-specific default, must be >= 1\n"
+            "      threads: system-specific default, must be >= 1\n"
 #else
-            "    threads: Warning: ignored; OpenMP was not supported by your compiler\n"
+            "      threads: Warning: ignored; OpenMP was not supported by your compiler\n"
 #endif
-            "        AOL: 80, must be 0 <= AOL <= 100, percent alignment length\n"
-            "        SIM: 40, must be 0 <= SIM <= 100, percent exact matches\n"
-            "         OS: 30, must be 0 <= OS <= 100, percent optimal score over self score\n"
-            "       file: no default, must be in FASTA format\n"
-            " query_file: no default, must be in FASTA format\n"
-            "output_file: parasail.csv\n"
+            "          AOL: 80, must be 0 <= AOL <= 100, percent alignment length\n"
+            "          SIM: 40, must be 0 <= SIM <= 100, percent exact matches\n"
+            "           OS: 30, must be 0 <= OS <= 100, percent optimal score over self score\n"
+            "           -v: verbose output, report input parameters and timing\n"
+            "         file: no default, must be in FASTA format\n"
+            "   query_file: no default, must be in FASTA format\n"
+            "  output_file: parasail.csv\n"
+            "output_format: no deafult, must be one of {EMBOSS,SAM,SAMH,SSW}\n"
             );
     exit(status);
 }
@@ -225,6 +240,8 @@ int main(int argc, char **argv) {
     const char *fname = NULL;
     const char *qname = NULL;
     const char *oname = "parasail.csv";
+    parasail_sequences_t *sequences = NULL;
+    parasail_sequences_t *queries = NULL;
     unsigned char *T = NULL;
     unsigned char *Q = NULL;
     int num_threads = -1;
@@ -246,6 +263,11 @@ int main(int argc, char **argv) {
     char sentinal = 0;
     int cutoff = 7;
     bool use_filter = true;
+    char *output_format = NULL;
+    bool use_emboss_format = false;
+    bool use_sam_format = false;
+    bool use_sam_header = false;
+    bool use_ssw_format = false;
     PairSet pairs;
     PairVec vpairs;
     unsigned long count_possible = 0;
@@ -260,7 +282,8 @@ int main(int argc, char **argv) {
     parasail_function_t *function = NULL;
     parasail_pfunction_t *pfunction = NULL;
     parasail_pcreator_t *pcreator = NULL;
-    int banded = 0;
+    int is_banded = 0;
+    int is_trace = 0;
     int kbandsize = 3;
     const char *matrixname = NULL;
     const parasail_matrix_t *matrix = NULL;
@@ -272,8 +295,6 @@ int main(int argc, char **argv) {
     bool pairs_only = false;
     bool edge_output = false;
     bool graph_output = false;
-    bool fpack = false;
-    bool qpack = false;
     bool is_stats = true;
     bool is_table = false;
     bool has_query = false;
@@ -281,9 +302,10 @@ int main(int argc, char **argv) {
     int AOL = 80;
     int SIM = 40;
     int OS = 30;
+    bool verbose = false;
 
     /* Check arguments. */
-    while ((c = getopt(argc, argv, "a:c:de:Ef:F:g:Ghi:k:l:m:M:o:pq:Q:s:t:xX:")) != -1) {
+    while ((c = getopt(argc, argv, "a:c:de:Ef:g:Ghi:k:l:m:M:o:O:pq:s:t:vxX:")) != -1) {
         switch (c) {
             case 'a':
                 funcname = optarg;
@@ -308,10 +330,6 @@ int main(int argc, char **argv) {
                 break;
             case 'f':
                 fname = optarg;
-                break;
-            case 'F':
-                fname = optarg;
-                fpack = true;
                 break;
             case 'g':
                 oname = optarg;
@@ -355,15 +373,20 @@ int main(int argc, char **argv) {
                     print_help(progname, EXIT_FAILURE);
                 }
                 break;
+            case 'O':
+                output_format = optarg;
+                break;
             case 'p':
                 pairs_only = true;
                 break;
             case 'q':
                 qname = optarg;
                 break;
-            case 'Q':
-                qname = optarg;
-                qpack = true;
+            case 's':
+                SIM = atoi(optarg);
+                if (SIM < 0 || SIM > 100) {
+                    print_help(progname, EXIT_FAILURE);
+                }
                 break;
             case 's':
                 SIM = atoi(optarg);
@@ -377,6 +400,9 @@ int main(int argc, char **argv) {
 #else
                 printf("-t number of threads requested, but OpenMP was not found during configuration. Running without threads.");
 #endif
+                break;
+            case 'v':
+                verbose = true;
                 break;
             case 'x':
                 use_filter = false;
@@ -393,15 +419,16 @@ int main(int argc, char **argv) {
                         || optopt == 'e'
                         || optopt == 'f'
                         || optopt == 'g'
+                        || optopt == 'i'
+                        || optopt == 'k'
+                        || optopt == 'l'
                         || optopt == 'm'
                         || optopt == 'M'
                         || optopt == 'o'
                         || optopt == 'q'
-                        || optopt == 'X'
-                        || optopt == 'E'
-                        || optopt == 'l'
                         || optopt == 's'
-                        || optopt == 'i'
+                        || optopt == 't'
+                        || optopt == 'X'
                         ) {
                     eprintf(stderr,
                             "Option -%c requires an argument.\n",
@@ -417,6 +444,7 @@ int main(int argc, char **argv) {
                             optopt);
                 }
                 print_help(progname, EXIT_FAILURE);
+                break;
             default:
                 eprintf(stderr, "default case in getopt\n");
                 exit(EXIT_FAILURE);
@@ -441,9 +469,9 @@ int main(int argc, char **argv) {
         else {
             function = parasail_lookup_function(funcname);
             if (NULL == function && NULL != strstr(funcname, "nw_banded")) {
-                banded = 1;
+                is_banded = 1;
             }
-            if (NULL == function && 0 == banded) {
+            if (NULL == function && 0 == is_banded) {
                 eprintf(stderr, "Specified function not found.\n");
                 exit(EXIT_FAILURE);
             }
@@ -454,6 +482,7 @@ int main(int argc, char **argv) {
         exit(EXIT_FAILURE);
     }
 
+    is_trace = (NULL != strstr(funcname, "trace"));
     is_stats = (NULL != strstr(funcname, "stats"));
     is_table = (NULL != strstr(funcname, "table"));
     has_query = (NULL != qname);
@@ -468,6 +497,38 @@ int main(int argc, char **argv) {
     }
     if (graph_output && has_query) {
         eprintf(stderr, "Cannot specify a query file and output as a graph.\n");
+        exit(EXIT_FAILURE);
+    }
+
+    if (NULL != output_format) {
+        bool trace_warning = false;
+        if (NULL != strstr(output_format, "SAMH")) {
+            use_sam_format = true;
+            use_sam_header = true;
+            trace_warning = true;
+        }
+        else if (NULL != strstr(output_format, "SAM")) {
+            use_sam_format = true;
+            trace_warning = true;
+        }
+        else if (NULL != strstr(output_format, "EMBOSS")) {
+            use_emboss_format = true;
+            trace_warning = true;
+        }
+        else if (NULL != strstr(output_format, "SSW")) {
+            use_ssw_format = true;
+            trace_warning = true;
+        }
+        else {
+            eprintf(stderr, "Unknown output format '%s'.\n", output_format);
+            exit(EXIT_FAILURE);
+        }
+        if (!is_trace && trace_warning) {
+            eprintf(stderr, "The selected output format '%s' requires an alignment function that returns a traceback.\n", output_format);
+        }
+    }
+    else if (is_trace) {
+        eprintf(stderr, "Please select trace output format.\n");
         exit(EXIT_FAILURE);
     }
 
@@ -497,38 +558,40 @@ int main(int argc, char **argv) {
     }
 
     /* print the parameters for reference */
-    eprintf(stdout,
-            "%20s: %s\n"
-            "%20s: %d\n"
-            "%20s: %s\n"
-            "%20s: %d\n"
-            "%20s: %d\n"
-            "%20s: %s\n"
-            "%20s: %d\n"
-            "%20s: %d\n"
-            "%20s: %d\n"
-            "%20s: %s\n"
-            "%20s: %s\n"
-            "%20s: %s\n",
-            "funcname", funcname,
-            "cutoff", cutoff,
-            "use filter", use_filter ? "yes" : "no",
-            "gap_extend", gap_extend,
-            "gap_open", gap_open,
-            "matrix", matrixname,
-            "AOL", AOL,
-            "SIM", SIM,
-            "OS", OS,
-            "file", fname,
-            "query", (NULL == qname) ? "<no query>" : qname,
-            "output", oname
-            );
-    if (use_dna) {
+    if (verbose) {
         eprintf(stdout,
+                "%20s: %s\n"
                 "%20s: %d\n"
-                "%20s: %d\n",
-                "match", match,
-                "mismatch", mismatch);
+                "%20s: %s\n"
+                "%20s: %d\n"
+                "%20s: %d\n"
+                "%20s: %s\n"
+                "%20s: %d\n"
+                "%20s: %d\n"
+                "%20s: %d\n"
+                "%20s: %s\n"
+                "%20s: %s\n"
+                "%20s: %s\n",
+                "funcname", funcname,
+                "cutoff", cutoff,
+                "use filter", use_filter ? "yes" : "no",
+                "gap_extend", gap_extend,
+                "gap_open", gap_open,
+                "matrix", matrixname,
+                "AOL", AOL,
+                "SIM", SIM,
+                "OS", OS,
+                "file", fname,
+                "query", (NULL == qname) ? "<no query>" : qname,
+                "output", oname
+                    );
+        if (use_dna) {
+            eprintf(stdout,
+                    "%20s: %d\n"
+                    "%20s: %d\n",
+                    "match", match,
+                    "mismatch", mismatch);
+        }
     }
 
     /* Best to know early whether we can open the output file. */
@@ -540,33 +603,19 @@ int main(int argc, char **argv) {
     
     start = parasail_time();
     if (!has_query) {
-        parasail_file_t *pf = parasail_open(fname);
-        if (fpack) {
-            T = (unsigned char*)parasail_read(pf, &n);
-        }
-        else {
-            T = (unsigned char*)parasail_pack(pf, &n);
-        }
-        parasail_close(pf);
+        size_t count = 0;
+        sequences = parasail_sequences_from_file(fname);
+        T = (unsigned char*)parasail_sequences_pack(sequences, &count);
+        n = count;
     }
     else {
-        parasail_file_t *pf = NULL;
-        pf = parasail_open(fname);
-        if (fpack) {
-            T = (unsigned char*)parasail_read(pf, &t);
-        }
-        else {
-            T = (unsigned char*)parasail_pack(pf, &t);
-        }
-        parasail_close(pf);
-        pf = parasail_open(qname);
-        if (qpack) {
-            Q = (unsigned char*)parasail_read(pf, &q);
-        }
-        else {
-            Q = (unsigned char*)parasail_pack(pf, &q);
-        }
-        parasail_close(pf);
+        size_t count = 0;
+        sequences = parasail_sequences_from_file(fname);
+        T = (unsigned char*)parasail_sequences_pack(sequences, &count);
+        t = count;
+        queries = parasail_sequences_from_file(qname);
+        Q = (unsigned char*)parasail_sequences_pack(queries, &count);
+        q = count;
         n = t+q;
         /* realloc T and copy Q into it */
         T = (unsigned char*)realloc(T, (n+1)*sizeof(unsigned char));
@@ -580,7 +629,9 @@ int main(int argc, char **argv) {
     }
     T[n] = '\0';
     finish = parasail_time();
-    eprintf(stdout, "%20s: %.4f seconds\n", "read and pack time", finish-start);
+    if (verbose) {
+        eprintf(stdout, "%20s: %.4f seconds\n", "read and pack time", finish-start);
+    }
 
     /* Allocate memory for sequence ID array. */
     if (use_filter) {
@@ -600,7 +651,9 @@ int main(int argc, char **argv) {
         }
         sentinal = T[n-off];
     }
-    eprintf(stdout, "%20s: %c\n", "sentinal", sentinal);
+    if (verbose) {
+        eprintf(stdout, "%20s: %c\n", "sentinal", sentinal);
+    }
 
     /* determine actual end of file (last char) */
     {
@@ -610,7 +663,9 @@ int main(int argc, char **argv) {
         }
         n = n - off + 1;
     }
-    eprintf(stdout, "%20s: %ld\n", "end of packed buffer", n);
+    if (verbose) {
+        eprintf(stdout, "%20s: %ld\n", "end of packed buffer", n);
+    }
 
     /* scan T from left to count number of sequences */
     sid = 0;
@@ -623,7 +678,9 @@ int main(int argc, char **argv) {
         eprintf(stderr, "no sentinal(%c) found in input\n", sentinal);
         exit(EXIT_FAILURE);
     }
-    eprintf(stdout, "%20s: %ld\n", "number of sequences", sid);
+    if (verbose) {
+        eprintf(stdout, "%20s: %ld\n", "number of sequences", sid);
+    }
 
     /* scan T from left to build sequence ID and end index */
     /* allocate vectors now that number of sequences is known */
@@ -671,7 +728,7 @@ int main(int argc, char **argv) {
         DB.clear();
         sid_crossover = -1;
     }
-    else {
+    else if (verbose) {
         eprintf(stdout, "%20s: %ld\n", "number of queries", sid - sid_crossover);
         eprintf(stdout, "%20s: %ld\n", "number of db seqs", sid_crossover);
     }
@@ -697,7 +754,9 @@ int main(int argc, char **argv) {
             exit(EXIT_FAILURE);
         }
         finish = parasail_time();
-        eprintf(stdout,"%20s: %.4f seconds\n", "induced SA time", finish-start);
+        if (verbose) {
+            eprintf(stdout,"%20s: %.4f seconds\n", "induced SA time", finish-start);
+        }
 
         /* construct naive BWT: */
         start = parasail_time();
@@ -705,7 +764,9 @@ int main(int argc, char **argv) {
             BWT[i] = (SA[i] > 0) ? T[SA[i]-1] : sentinal;
         }
         finish = parasail_time();
-        eprintf(stdout, "%20s: %.4f seconds\n", "naive BWT time", finish-start);
+        if (verbose) {
+            eprintf(stdout, "%20s: %.4f seconds\n", "naive BWT time", finish-start);
+        }
 
         /* "fix" the LCP array to clamp LCP's that are too long */
         start = parasail_time();
@@ -714,7 +775,9 @@ int main(int argc, char **argv) {
             if (LCP[i] > len) LCP[i] = len;
         }
         finish = parasail_time();
-        eprintf(stdout, "%20s: %.4f seconds\n", "clamp LCP time", finish-start);
+        if (verbose) {
+            eprintf(stdout, "%20s: %.4f seconds\n", "clamp LCP time", finish-start);
+        }
 
         /* The GSA we create will put all sentinals either at the beginning
          * or end of the SA. We don't want to count all of the terminals,
@@ -779,9 +842,11 @@ int main(int argc, char **argv) {
         } else {
             count_possible = (sid-sid_crossover)*sid_crossover;
         }
-        eprintf(stdout, "%20s: %.4f seconds\n", "ESA time", finish-start);
-        eprintf(stdout, "%20s: %lu\n", "possible pairs", count_possible);
-        eprintf(stdout, "%20s: %lu\n", "generated pairs", count_generated);
+        if (verbose) {
+            eprintf(stdout, "%20s: %.4f seconds\n", "ESA time", finish-start);
+            eprintf(stdout, "%20s: %lu\n", "possible pairs", count_possible);
+            eprintf(stdout, "%20s: %lu\n", "generated pairs", count_generated);
+        }
 
         /* Deallocate memory. */
         free(SID);
@@ -789,7 +854,9 @@ int main(int argc, char **argv) {
         free(LCP);
         free(BWT);
 
-        eprintf(stdout, "%20s: %zu\n", "unique pairs", pairs.size());
+        if (verbose) {
+            eprintf(stdout, "%20s: %zu\n", "unique pairs", pairs.size());
+        }
     }
     else {
         /* don't use enhanced SA filter -- generate all pairs */
@@ -811,8 +878,10 @@ int main(int argc, char **argv) {
             }
         }
         finish = parasail_time();
-        eprintf(stdout, "%20s: %.4f seconds\n", "enumerate time", finish-start);
-        eprintf(stdout, "%20s: %zu\n", "unique pairs", vpairs.size());
+        if (verbose) {
+            eprintf(stdout, "%20s: %.4f seconds\n", "enumerate time", finish-start);
+            eprintf(stdout, "%20s: %zu\n", "unique pairs", vpairs.size());
+        }
     }
 
     if (pairs_only) {
@@ -851,7 +920,9 @@ int main(int argc, char **argv) {
         eprintf(stderr, "invalid number of threads chosen (%d)\n", num_threads);
         exit(EXIT_FAILURE);
     }
-    eprintf(stdout, "%20s: %d\n", "omp num threads", num_threads);
+    if (verbose) {
+        eprintf(stdout, "%20s: %d\n", "omp num threads", num_threads);
+    }
 #endif
 #ifdef USE_CILK
     if (-1 == num_threads) {
@@ -866,7 +937,9 @@ int main(int argc, char **argv) {
         eprintf(stderr, "invalid number of threads chosen (%d)\n", num_threads);
         exit(EXIT_FAILURE);
     }
-    eprintf(stdout, "%20s: %d\n", "omp num threads", num_threads);
+    if (verbose) {
+        eprintf(stdout, "%20s: %d\n", "omp num threads", num_threads);
+    }
 #endif
 
     /* OpenMP can't iterate over an STL set. Convert to STL vector. */
@@ -881,7 +954,9 @@ int main(int argc, char **argv) {
     }
     vector<parasail_result_t*> results(vpairs.size(), NULL);
     finish = parasail_time();
-    eprintf(stdout, "%20s: %.4f seconds\n", "openmp prep time", finish-start);
+    if (verbose) {
+        eprintf(stdout, "%20s: %.4f seconds\n", "openmp prep time", finish-start);
+    }
 
     /* create profiles, if necessary */
     vector<parasail_profile_t*> profiles(sid, (parasail_profile_t*)NULL);
@@ -896,7 +971,9 @@ int main(int argc, char **argv) {
                 profile_indices_set.end());
         //profiles.assign(sid, NULL);
         finish = parasail_time();
-        eprintf(stdout, "%20s: %.4f seconds\n", "profile init", finish-start);
+        if (verbose) {
+            eprintf(stdout, "%20s: %.4f seconds\n", "profile init", finish-start);
+        }
         start = parasail_time();
 #ifdef USE_CILK
         cilk_for (size_t index=0; index<profile_indices.size(); ++index)
@@ -918,7 +995,9 @@ int main(int argc, char **argv) {
         }
 #endif
         finish = parasail_time();
-        eprintf(stdout, "%20s: %.4f seconds\n", "profile creation", finish-start);
+        if (verbose) {
+            eprintf(stdout, "%20s: %.4f seconds\n", "profile creation", finish-start);
+        }
     }
 
     /* align pairs */
@@ -959,7 +1038,7 @@ int main(int argc, char **argv) {
         }
 #endif
     }
-    else if (banded) {
+    else if (is_banded) {
 #ifdef USE_CILK
             cilk_for (size_t index=0; index<vpairs.size(); ++index)
 #else
@@ -1038,17 +1117,19 @@ int main(int argc, char **argv) {
         exit(EXIT_FAILURE);
     }
     finish = parasail_time();
+    if (verbose) {
 #ifdef USE_CILK
-    eprintf(stdout, "%20s: %lu cells\n", "work", work.get_value());
+        eprintf(stdout, "%20s: %lu cells\n", "work", work.get_value());
 #else
-    eprintf(stdout, "%20s: %lu cells\n", "work", work);
+        eprintf(stdout, "%20s: %lu cells\n", "work", work);
 #endif
-    eprintf(stdout, "%20s: %.4f seconds\n", "alignment time", finish-start);
+        eprintf(stdout, "%20s: %.4f seconds\n", "alignment time", finish-start);
 #ifdef USE_CILK
-    eprintf(stdout, "%20s: %.4f \n", "gcups", double(work.get_value())/(finish-start)/1000000000);
+        eprintf(stdout, "%20s: %.4f \n", "gcups", double(work.get_value())/(finish-start)/1000000000);
 #else
-    eprintf(stdout, "%20s: %.4f \n", "gcups", double(work)/(finish-start)/1000000000);
+        eprintf(stdout, "%20s: %.4f \n", "gcups", double(work)/(finish-start)/1000000000);
 #endif
+    }
 
     if (pfunction) {
         start = parasail_time();
@@ -1071,7 +1152,9 @@ int main(int argc, char **argv) {
         }
 #endif
         finish = parasail_time();
-        eprintf(stdout, "%20s: %.4f seconds\n", "profile cleanup", finish-start);
+        if (verbose) {
+            eprintf(stdout, "%20s: %.4f seconds\n", "profile cleanup", finish-start);
+        }
     }
 
     /* Output results. */
@@ -1084,6 +1167,204 @@ int main(int argc, char **argv) {
         }
         else {
             output_stats(fop, has_query, sid_crossover, BEG, END, vpairs, results);
+        }
+    }
+    else if (is_trace) {
+        if (use_emboss_format) {
+            for (size_t index=0; index<results.size(); ++index) {
+                parasail_result_t *result = results[index];
+                int i = vpairs[index].first;
+                int j = vpairs[index].second;
+
+                if (has_query) {
+                    i = i - sid_crossover;
+                    parasail_traceback_generic(
+                            queries->seqs[i].seq.s,
+                            queries->seqs[i].seq.l,
+                            sequences->seqs[j].seq.s,
+                            sequences->seqs[j].seq.l,
+                            queries->seqs[i].name.s,
+                            sequences->seqs[j].name.s,
+                            matrix,
+                            result,
+                            '|', ':', '.',
+                            50,
+                            14,
+                            1);
+                }
+                else {
+                    parasail_traceback_generic(
+                            sequences->seqs[i].seq.s,
+                            sequences->seqs[i].seq.l,
+                            sequences->seqs[j].seq.s,
+                            sequences->seqs[j].seq.l,
+                            sequences->seqs[i].name.s,
+                            sequences->seqs[j].name.s,
+                            matrix,
+                            result,
+                            '|', ':', '.',
+                            50,
+                            14,
+                            1);
+                }
+            }
+        }
+        else if (use_ssw_format) {
+            for (size_t index=0; index<results.size(); ++index) {
+                parasail_result_t *result = results[index];
+                int i = vpairs[index].first;
+                int j = vpairs[index].second;
+                parasail_cigar_t *cigar = NULL;
+
+                if (has_query) {
+                    i = i - sid_crossover;
+                    printf("target_name: %s\n", sequences->seqs[j].name.s);
+                    printf("query_name: %s\n", queries->seqs[i].name.s);
+                    cigar = parasail_result_get_cigar(result,
+                            queries->seqs[i].seq.s,
+                            queries->seqs[i].seq.l,
+                            sequences->seqs[j].seq.s,
+                            sequences->seqs[j].seq.l,
+                            matrix);
+                }
+                else {
+                    printf("target_name: %s\n", sequences->seqs[j].name.s);
+                    printf("query_name: %s\n", sequences->seqs[i].name.s);
+                    cigar = parasail_result_get_cigar(result,
+                            sequences->seqs[i].seq.s,
+                            sequences->seqs[i].seq.l,
+                            sequences->seqs[j].seq.s,
+                            sequences->seqs[j].seq.l,
+                            matrix);
+                }
+
+                printf("optimal_alignment_score: %d"
+                        "\tstrand: +"
+                        "\ttarget_begin: %d"
+                        "\ttarget_end: %d"
+                        "\tquery_begin: %d"
+                        "\tquery_end: %d\n",
+                        result->score,
+                        cigar->beg_ref+1,
+                        parasail_result_get_end_ref(result)+1,
+                        cigar->beg_query+1,
+                        parasail_result_get_end_query(result)+1);
+
+                /* we only needed the cigar for beginning locations */
+                parasail_cigar_free(cigar);
+
+                if (has_query) {
+                    parasail_traceback_generic(
+                            queries->seqs[i].seq.s,
+                            queries->seqs[i].seq.l,
+                            sequences->seqs[j].seq.s,
+                            sequences->seqs[j].seq.l,
+                            "Query:",
+                            "Target:",
+                            matrix,
+                            result,
+                            '|', '*', '*',
+                            60,
+                            10,
+                            0);
+                }
+                else {
+                    parasail_traceback_generic(
+                            sequences->seqs[i].seq.s,
+                            sequences->seqs[i].seq.l,
+                            sequences->seqs[j].seq.s,
+                            sequences->seqs[j].seq.l,
+                            "Query:",
+                            "Target:",
+                            matrix,
+                            result,
+                            '|', '*', '*',
+                            60,
+                            10,
+                            0);
+                }
+            }
+        }
+        else if (use_sam_format) {
+            if (use_sam_header && has_query) {
+                fprintf(stdout, "@HD\tVN:1.4\tSO:queryname\n");
+                for (size_t index=0; index<sequences->l; ++index) {
+                    parasail_sequence_t ref_seq = sequences->seqs[index];
+                    fprintf(stdout, "@SQ\tSN:%s\tLN:%d\n",
+                            ref_seq.name.s, (int32_t)ref_seq.seq.l);
+                }
+            }
+            for (size_t index=0; index<results.size(); ++index) {
+                parasail_result_t *result = results[index];
+                int i = vpairs[index].first;
+                int j = vpairs[index].second;
+                parasail_sequence_t ref_seq;
+                parasail_sequence_t read_seq;
+
+                ref_seq = sequences->seqs[j];
+                if (has_query) {
+                    i = i - sid_crossover;
+                    read_seq = queries->seqs[i];
+                }
+                else {
+                    read_seq = sequences->seqs[i];
+                }
+
+                fprintf(stdout, "%s\t", read_seq.name.s);
+                if (result->score == 0) {
+                    fprintf(stdout, "4\t*\t0\t255\t*\t*\t0\t0\t*\t*\n");
+                }
+                else {
+                    int32_t c = 0;
+                    int32_t length = 0;
+                    uint32_t mapq = 255; /* not available */
+                    parasail_cigar_t *cigar = NULL;
+                    uint32_t mismatch = 0;
+
+                    cigar = parasail_result_get_cigar(
+                            result,
+                            read_seq.seq.s, read_seq.seq.l,
+                            ref_seq.seq.s, ref_seq.seq.l,
+                            matrix);
+
+                    fprintf(stdout, "0\t");
+                    fprintf(stdout, "%s\t%d\t%d\t",
+                            ref_seq.name.s, cigar->beg_ref + 1, mapq);
+                    if (cigar->beg_query > 0) {
+                        fprintf(stdout, "%dS", cigar->beg_query);
+                    }
+                    for (c=0; c<cigar->len; ++c) {
+                        char letter = parasail_cigar_decode_op(cigar->seq[c]);
+                        uint32_t length = parasail_cigar_decode_len(cigar->seq[c]);
+                        fprintf(stdout, "%lu%c", (unsigned long)length, letter);
+                        if ('X' == letter || 'I' == letter || 'D' == letter) {
+                            mismatch += length;
+                        }
+                    }
+
+                    length = read_seq.seq.l - result->end_query - 1;
+                    if (length > 0) {
+                        fprintf(stdout, "%dS", length);
+                    }
+                    fprintf(stdout, "\t*\t0\t0\t");
+                    fprintf(stdout, "%s", read_seq.seq.s);
+                    fprintf(stdout, "\t");
+                    if (read_seq.qual.s) {
+                        fprintf (stdout, "%s", read_seq.qual.s);
+                    }
+                    else {
+                        fprintf(stdout, "*");
+                    }
+                    fprintf(stdout, "\tAS:i:%d", result->score);
+                    fprintf(stdout,"\tNM:i:%d\t", mismatch);
+                    fprintf(stdout, "\n");
+
+                    parasail_cigar_free(cigar);
+                }
+            }
+        }
+        else {
+            output_trace(fop, has_query, sid_crossover, T, matrix, BEG, END, vpairs, results);
         }
     }
     else {
@@ -1104,6 +1385,12 @@ int main(int argc, char **argv) {
 
     /* Done with input text. */
     free(T);
+
+    /* Done with sequences. */
+    parasail_sequences_free(sequences);
+    if (has_query) {
+        parasail_sequences_free(queries);
+    }
 
     return 0;
 }
@@ -1169,8 +1456,8 @@ inline static void process(
         const char &sentinal,
         const int &cutoff)
 {
-    const int n_children = q.children.size();
-    int child_index = 0;
+    const size_t n_children = q.children.size();
+    size_t child_index = 0;
 
     if (q.lcp < cutoff) return;
 
@@ -1290,6 +1577,9 @@ inline static void output_edges(
         long j_beg = BEG[j];
         long j_end = END[j];
         long j_len = j_end-j_beg;
+        int score = parasail_result_get_score(result);
+        int matches = parasail_result_get_matches(result);
+        int length = parasail_result_get_length(result);
 
         if (has_query) {
             i = i - sid_crossover;
@@ -1311,15 +1601,15 @@ inline static void output_edges(
             self_score_ = j_self_score;
         }
 
-        if ((result->length * 100 >= AOL * int(max_len))
-                && (result->matches * 100 >= SIM * result->length)
-                && (result->score * 100 >= OS * self_score_)) {
+        if ((length * 100 >= AOL * int(max_len))
+                && (matches * 100 >= SIM * length)
+                && (score * 100 >= OS * self_score_)) {
             ++edge_count;
             fprintf(fop, "%d,%d,%f,%f,%f\n",
                     i, j,
-                    1.0*result->length/max_len,
-                    1.0*result->matches/result->length,
-                    1.0*result->score/self_score_);
+                    1.0*length/max_len,
+                    1.0*matches/length,
+                    1.0*score/self_score_);
         }
     }
 
@@ -1352,6 +1642,9 @@ inline static void output_graph(
         long j_beg = BEG[j];
         long j_end = END[j];
         long j_len = j_end-j_beg;
+        int score = parasail_result_get_score(result);
+        int matches = parasail_result_get_matches(result);
+        int length = parasail_result_get_length(result);
 
         int self_score_ = 0;
         int max_len = 0;
@@ -1369,20 +1662,20 @@ inline static void output_graph(
             self_score_ = j_self_score;
         }
 
-        if ((result->length * 100 >= AOL * int(max_len))
-                && (result->matches * 100 >= SIM * result->length)
-                && (result->score * 100 >= OS * self_score_)) {
+        if ((length * 100 >= AOL * int(max_len))
+                && (matches * 100 >= SIM * length)
+                && (score * 100 >= OS * self_score_)) {
             float value;
             ++edge_count;
             switch (which) {
                 case 0:
-                    value = 1.0*result->length/max_len;
+                    value = 1.0*length/max_len;
                     break;
                 case 1:
-                    value = 1.0*result->matches/result->length;
+                    value = 1.0*matches/length;
                     break;
                 case 2:
-                    value = 1.0*result->score/self_score_;
+                    value = 1.0*score/self_score_;
                     break;
             }
             graph[i].push_back(make_pair(j,value));
@@ -1435,12 +1728,12 @@ inline static void output_stats(
                 j,
                 i_len,
                 j_len,
-                result->score,
-                result->end_query,
-                result->end_ref,
-                result->matches,
-                result->similar,
-                result->length);
+                parasail_result_get_score(result),
+                parasail_result_get_end_query(result),
+                parasail_result_get_end_ref(result),
+                parasail_result_get_matches(result),
+                parasail_result_get_similar(result),
+                parasail_result_get_length(result));
     }
 }
 
@@ -1473,9 +1766,57 @@ inline static void output_basic(
                 j,
                 i_len,
                 j_len,
-                result->score,
-                result->end_query,
-                result->end_ref);
+                parasail_result_get_score(result),
+                parasail_result_get_end_query(result),
+                parasail_result_get_end_ref(result));
+    }
+}
+
+inline static void output_trace(
+        FILE *fop,
+        bool has_query,
+        long sid_crossover,
+        unsigned char *T,
+        const parasail_matrix_t *matrix,
+        const vector<long> &BEG,
+        const vector<long> &END,
+        const PairVec &vpairs,
+        const vector<parasail_result_t*> &results)
+{
+    for (size_t index=0; index<results.size(); ++index) {
+        parasail_result_t *result = results[index];
+        int i = vpairs[index].first;
+        int j = vpairs[index].second;
+        long i_beg = BEG[i];
+        long i_end = END[i];
+        long i_len = i_end-i_beg;
+        long j_beg = BEG[j];
+        long j_end = END[j];
+        long j_len = j_end-j_beg;
+        parasail_cigar_t *cigar = NULL;
+        char *cigar_string = NULL;
+
+        if (has_query) {
+            i = i - sid_crossover;
+        }
+
+        cigar = parasail_result_get_cigar(
+                result,
+                (const char*)&T[i_beg], i_len,
+                (const char*)&T[j_beg], j_len,
+                matrix);
+        cigar_string = parasail_cigar_decode(cigar);
+        eprintf(fop, "%d,%d,%ld,%ld,%d,%d,%d,%s\n",
+                i,
+                j,
+                i_len,
+                j_len,
+                parasail_result_get_score(result),
+                parasail_result_get_end_query(result),
+                parasail_result_get_end_ref(result),
+                cigar_string);
+        parasail_cigar_free(cigar);
+        free(cigar_string);
     }
 }
 
@@ -1498,6 +1839,7 @@ inline static void output_tables(
         long j_beg = BEG[j];
         long j_end = END[j];
         long j_len = j_end-j_beg;
+        int *table = parasail_result_get_score_table(result);
 
         if (has_query) {
             i = i - sid_crossover;
@@ -1505,7 +1847,7 @@ inline static void output_tables(
 
         char filename[256] = {'\0'};
         sprintf(filename, "parasail_%d_%d.txt", i, j);
-        print_array(filename, result->score_table,
+        print_array(filename, table,
                 (const char*)&T[i_beg], i_len,
                 (const char*)&T[j_beg], j_len);
     }

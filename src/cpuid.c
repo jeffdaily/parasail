@@ -133,11 +133,11 @@ static int check_4th_gen_intel_core_features()
 
 static int has_intel_avx512f_features() {
     uint32_t abcd[4];
-    uint32_t osxsave_mask = (1 << 27); // OSX.
-    uint32_t avx512f_mask = (1 << 16) | // AVX-512F
-        (1 << 26) | // AVX-512PF
-        (1 << 27) | // AVX-512ER
-        (1 << 28);  // AVX-512CD
+    uint32_t osxsave_mask = (1 << 27); /* OSX. */
+    uint32_t avx512f_mask = (1 << 16) | /* AVX-512F */
+        (1 << 26) | /* AVX-512PF */
+        (1 << 27) | /* AVX-512ER */
+        (1 << 28);  /* AVX-512CD */
 
     /* CPUID.(EAX=01H, ECX=0H):ECX.OSXSAVE[bit 27]==1 */
     run_cpuid( 1, 0, abcd );
@@ -160,10 +160,10 @@ static int has_intel_avx512f_features() {
 
 static int has_intel_avx512bw_features() {
     uint32_t abcd[4];
-    uint32_t osxsave_mask = (1 << 27); // OSX.
-    uint32_t avx512bw_mask = (1 << 30) | // AVX-512BW
-        (1 << 17) | // AVX-512DQ
-        (1 << 31);  // AVX-512VL
+    uint32_t osxsave_mask = (1 << 27); /* OSX. */
+    uint32_t avx512bw_mask = (1 << 30) | /* AVX-512BW */
+        (1 << 17) | /* AVX-512DQ */
+        (1 << 31);  /* AVX-512VL */
 
     /* CPUID.(EAX=01H, ECX=0H):ECX.OSXSAVE[bit 27]==1 */
     run_cpuid( 1, 0, abcd );
@@ -186,8 +186,8 @@ static int has_intel_avx512bw_features() {
 static int has_intel_avx512vbmi_features()
 {
     uint32_t abcd[4];
-    uint32_t osxsave_mask = (1 << 27); // OSX.
-    uint32_t avx512vbmi_mask = (1 << 1); // AVX-512VBMI
+    uint32_t osxsave_mask = (1 << 27); /* OSX. */
+    uint32_t avx512vbmi_mask = (1 << 1); /* AVX-512VBMI */
 
     /* CPUID.(EAX=01H, ECX=0H):ECX.OSXSAVE[bit 27]==1 */
     run_cpuid( 1, 0, abcd );
@@ -299,5 +299,10 @@ int parasail_can_use_sse2()
         can_use_sse2 = check_sse2();
 
     return can_use_sse2;
+}
+
+int parasail_can_use_altivec()
+{
+    return 0;
 }
 

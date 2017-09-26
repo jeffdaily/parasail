@@ -33,7 +33,8 @@ matrix:
         - MAYBE_ARCH=-DCMAKE_OSX_ARCHITECTURES="i386;x86_64"
 
 before_install:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then rvm get stable || true; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update || true; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install cmake || brew upgrade cmake || true; fi
 
 script:

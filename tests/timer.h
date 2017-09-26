@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 
-#define FORCE_SYS_TIME 1
+/*#define FORCE_SYS_TIME 1*/
 
 #if (defined(__i386__) || defined(__x86_64__) || defined(__powerpc__)) && !defined(_CRAYC) && !defined(FORCE_SYS_TIME)
 #   define HAVE_RDTSC 1

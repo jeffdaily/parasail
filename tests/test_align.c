@@ -1,28 +1,34 @@
 #include "config.h"
 
 /* getopt needs _POSIX_C_SOURCE 2 */
-/* strdup needs _POSIX_C_SOURCE 200809L */
-#define _POSIX_C_SOURCE 200809L
+#define _POSIX_C_SOURCE 2
 
+#include <ctype.h>
 #include <limits.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
+#if defined(_MSC_VER)
+#include "wingetopt/src/getopt.h"
+#else
+#include <unistd.h>
+#endif
 
+#ifdef __MIC__
 #include <errno.h>
 #include <pwd.h>
 #include <unistd.h>
 #include <sys/types.h>
-
-#include "kseq.h"
-KSEQ_INIT(int, read)
+#endif
 
 #include "parasail.h"
-#include "parasail/memory.h"
 #include "parasail/cpuid.h"
 #include "parasail/function_lookup.h"
+#include "parasail/io.h"
+#include "parasail/memory.h"
 #include "parasail/stats.h"
 #include "timer.h"
 #include "timer_real.h"
@@ -46,10 +52,12 @@ static const char *get_user_name()
 
 static void print_array(
         const char * filename_,
-        const int * const restrict array,
+        int * array_,
         const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len)
+        const char * const restrict s2, const int s2Len,
+        parasail_result_t *result)
 {
+    int * array = NULL;
     int i;
     int j;
     FILE *f = NULL;
@@ -65,6 +73,14 @@ static void print_array(
 #else
     const char *filename = filename_;
 #endif
+    if ((result->flag & PARASAIL_FLAG_TRACE)
+            && ((result->flag & PARASAIL_FLAG_STRIPED)
+                || (result->flag & PARASAIL_FLAG_SCAN))) {
+        array = parasail_striped_unwind(s1Len, s2Len, result, array_);
+    }
+    else {
+        array = array_;
+    }
     f = fopen(filename, "w");
     if (NULL == f) {
         printf("fopen(\"%s\") error: %s\n", filename, strerror(errno));
@@ -83,6 +99,11 @@ static void print_array(
         fprintf(f, "\n");
     }
     fclose(f);
+    if ((result->flag & PARASAIL_FLAG_TRACE)
+            && ((result->flag & PARASAIL_FLAG_STRIPED)
+                || (result->flag & PARASAIL_FLAG_SCAN))) {
+        free(array);
+    }
 }
 
 static void print_rowcol(
@@ -139,66 +160,6 @@ static void print_rowcol(
     fclose(f);
 }
 
-static inline void parse_sequences(
-        const char *filename,
-        char ***strings_,
-        unsigned long **sizes_,
-        unsigned long *count_)
-{
-    FILE* fp;
-    kseq_t *seq = NULL;
-    int l = 0;
-    char **strings = NULL;
-    unsigned long *sizes = NULL;
-    unsigned long count = 0;
-    unsigned long memory = 1000;
-
-    errno = 0;
-    fp = fopen(filename, "r");
-    if(fp == NULL) {
-        perror("fopen");
-        exit(1);
-    }
-    strings = malloc(sizeof(char*) * memory);
-    sizes = malloc(sizeof(unsigned long) * memory);
-    seq = kseq_init(fileno(fp));
-    while ((l = kseq_read(seq)) >= 0) {
-        errno = 0;
-        strings[count] = strdup(seq->seq.s);
-        if (NULL == strings[count]) {
-            perror("strdup");
-            exit(1);
-        }
-        sizes[count] = seq->seq.l;
-        ++count;
-        if (count >= memory) {
-            char **new_strings = NULL;
-            unsigned long *new_sizes = NULL;
-            memory *= 2;
-            errno = 0;
-            new_strings = realloc(strings, sizeof(char*) * memory);
-            if (NULL == new_strings) {
-                perror("realloc");
-                exit(1);
-            }
-            strings = new_strings;
-            errno = 0;
-            new_sizes = realloc(sizes, sizeof(unsigned long) * memory);
-            if (NULL == new_sizes) {
-                perror("realloc");
-                exit(1);
-            }
-            sizes = new_sizes;
-        }
-    }
-    kseq_destroy(seq);
-    fclose(fp);
-
-    *strings_ = strings;
-    *sizes_ = sizes;
-    *count_ = count;
-}
-
 
 int main(int argc, char **argv)
 {
@@ -229,10 +190,7 @@ int main(int argc, char **argv)
     stats_t stats_nsecs;
     int c = 0;
     char *filename = NULL;
-    char **sequences = NULL;
-    unsigned long *sizes = NULL;
-    unsigned long seq_count = 0;
-    unsigned long s = 0;
+    parasail_sequences_t *sequences = NULL;
     char *endptr = NULL;
     char *matrixname = NULL;
     const parasail_matrix_t *matrix = NULL;
@@ -245,6 +203,7 @@ int main(int argc, char **argv)
     int do_nonstats = 1;
     int do_table = 1;
     int do_rowcol = 1;
+    int do_trace = 1;
     int use_rdtsc = 0;
     int do_sse2 = 1;
     int do_sse41 = 1;
@@ -255,7 +214,7 @@ int main(int argc, char **argv)
     int do_sw = 1;
     int use_dna = 0;
 
-    while ((c = getopt(argc, argv, "a:b:df:i:m:M:n:o:e:rRTNSsBX:")) != -1) {
+    while ((c = getopt(argc, argv, "a:b:df:i:m:M:n:o:e:rRTtNSsBX:")) != -1) {
         switch (c) {
             case 'a':
                 errno = 0;
@@ -324,11 +283,15 @@ int main(int argc, char **argv)
                 break;
             case 'r':
                 use_rdtsc = 1;
+                break;
             case 'R':
                 do_rowcol = 0;
                 break;
             case 'T':
                 do_table = 0;
+                break;
+            case 't':
+                do_trace = 0;
                 break;
             case 'N':
                 do_normal = 0;
@@ -374,7 +337,7 @@ int main(int argc, char **argv)
     }
 
     if (filename) {
-        parse_sequences(filename, &sequences, &sizes, &seq_count);
+        sequences = parasail_sequences_from_file(filename);
     }
     else {
         fprintf(stderr, "no filename specified\n");
@@ -411,20 +374,20 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    if ((unsigned long)seqA_index >= seq_count) {
+    if ((unsigned long)seqA_index >= sequences->l) {
         fprintf(stderr, "seqA index out of bounds\n");
         exit(1);
     }
 
-    if ((unsigned long)seqB_index >= seq_count) {
+    if ((unsigned long)seqB_index >= sequences->l) {
         fprintf(stderr, "seqB index out of bounds\n");
         exit(1);
     }
 
-    seqA = sequences[seqA_index];
-    seqB = sequences[seqB_index];
-    lena = strlen(seqA);
-    lenb = strlen(seqB);
+    seqA = sequences->seqs[seqA_index].name.s;
+    seqB = sequences->seqs[seqB_index].name.s;
+    lena = sequences->seqs[seqA_index].name.l;
+    lenb = sequences->seqs[seqB_index].name.l;
 
     printf("file: %s\n", filename);
     printf("matrix: %s\n", matrixname);
@@ -445,7 +408,7 @@ int main(int argc, char **argv)
     f = functions[index++];
     while (f.pointer) {
         char name[16] = {'\0'};
-        int new_limit = f.is_table ? 1 : limit;
+        int new_limit = f.is_table || f.is_rowcol || f.is_trace ? 1 : limit;
         int saturated = 0;
 #if 0
         if (f.is_table && HAVE_KNC) {
@@ -511,12 +474,19 @@ int main(int argc, char **argv)
                 continue;
             }
         }
+        else if (f.is_trace) {
+            if (!do_trace) {
+                f = functions[index++];
+                continue;
+            }
+        }
         else {
             if (!do_normal) {
                 f = functions[index++];
                 continue;
             }
         }
+        fflush(stdout);
         stats_clear(&stats_rdtsc);
         stats_clear(&stats_nsecs);
         timer_rdtsc = timer_start();
@@ -529,13 +499,20 @@ int main(int argc, char **argv)
             timer_nsecs_single = timer_real() - timer_nsecs_single;
             stats_sample_value(&stats_rdtsc, timer_rdtsc_single);
             stats_sample_value(&stats_nsecs, timer_nsecs_single);
-            score = result->score;
-            similar = result->similar;
-            matches = result->matches;
-            length = result->length;
-            end_query = result->end_query;
-            end_ref = result->end_ref;
-            saturated = result->saturated;
+            score = parasail_result_get_score(result);
+            if (f.is_stats) {
+                similar = parasail_result_get_similar(result);
+                matches = parasail_result_get_matches(result);
+                length = parasail_result_get_length(result);
+            }
+            else {
+                similar = 0;
+                matches = 0;
+                length = 0;
+            }
+            end_query = parasail_result_get_score(result);
+            end_ref = parasail_result_get_score(result);
+            saturated = parasail_result_is_saturated(result);
             parasail_result_free(result);
         }
         timer_rdtsc = timer_start()-(timer_rdtsc);
@@ -545,6 +522,17 @@ int main(int argc, char **argv)
             timer_rdtsc_ref_mean = stats_rdtsc._mean;
         }
         strcpy(name, f.alg);
+        if (f.is_table) {
+            strcat(name, "_table");
+        }
+        else if (f.is_rowcol) {
+            strcat(name, "_rowcol");
+        }
+        else if (f.is_trace) {
+            strcat(name, "_trace");
+        }
+        printf("%-15s %8s %6s %4s %5s %5d ",
+                name, f.type, f.isa, f.bits, f.width, f.lanes);
         /* xeon phi was unable to perform I/O running natively */
         if (f.is_table) {
             char suffix[256] = {0};
@@ -567,32 +555,36 @@ int main(int argc, char **argv)
             strcat(suffix, ".txt");
             result = f.pointer(seqA, lena, seqB, lenb, open, extend, matrix);
             {
+                int *table = parasail_result_get_score_table(result);
                 char filename[256] = {'\0'};
                 strcpy(filename, f.alg);
                 strcat(filename, "_scr");
                 strcat(filename, suffix);
-                print_array(filename, result->score_table, seqA, lena, seqB, lenb);
+                print_array(filename, table, seqA, lena, seqB, lenb, result);
             }
             if (f.is_stats) {
+                int *table = parasail_result_get_matches_table(result);
                 char filename[256] = {'\0'};
                 strcpy(filename, f.alg);
                 strcat(filename, "_mch");
                 strcat(filename, suffix);
-                print_array(filename, result->matches_table, seqA, lena, seqB, lenb);
+                print_array(filename, table, seqA, lena, seqB, lenb, result);
             }
             if (f.is_stats) {
+                int *table = parasail_result_get_similar_table(result);
                 char filename[256] = {'\0'};
                 strcpy(filename, f.alg);
                 strcat(filename, "_sim");
                 strcat(filename, suffix);
-                print_array(filename, result->similar_table, seqA, lena, seqB, lenb);
+                print_array(filename, table, seqA, lena, seqB, lenb, result);
             }
             if (f.is_stats) {
+                int *table = parasail_result_get_length_table(result);
                 char filename[256] = {'\0'};
                 strcpy(filename, f.alg);
                 strcat(filename, "_len");
                 strcat(filename, suffix);
-                print_array(filename, result->length_table, seqA, lena, seqB, lenb);
+                print_array(filename, table, seqA, lena, seqB, lenb, result);
             }
             parasail_result_free(result);
         }
@@ -617,48 +609,96 @@ int main(int argc, char **argv)
             strcat(suffix, ".txt");
             result = f.pointer(seqA, lena, seqB, lenb, open, extend, matrix);
             {
+                int *row = parasail_result_get_score_row(result);
+                int *col = parasail_result_get_score_col(result);
                 char filename[256] = {'\0'};
                 strcpy(filename, f.alg);
                 strcat(filename, "_rowcol_scr");
                 strcat(filename, suffix);
-                print_rowcol(filename, result->score_row, result->score_col, seqA, lena, seqB, lenb);
+                print_rowcol(filename, row, col, seqA, lena, seqB, lenb);
             }
             if (f.is_stats) {
+                int *row = parasail_result_get_matches_row(result);
+                int *col = parasail_result_get_matches_col(result);
                 char filename[256] = {'\0'};
                 strcpy(filename, f.alg);
                 strcat(filename, "_rowcol_mch");
                 strcat(filename, suffix);
-                print_rowcol(filename, result->matches_row, result->matches_col, seqA, lena, seqB, lenb);
+                print_rowcol(filename, row, col, seqA, lena, seqB, lenb);
             }
             if (f.is_stats) {
+                int *row = parasail_result_get_similar_row(result);
+                int *col = parasail_result_get_similar_col(result);
                 char filename[256] = {'\0'};
                 strcpy(filename, f.alg);
                 strcat(filename, "_rowcol_sim");
                 strcat(filename, suffix);
-                print_rowcol(filename, result->similar_row, result->similar_col, seqA, lena, seqB, lenb);
+                print_rowcol(filename, row, col, seqA, lena, seqB, lenb);
             }
             if (f.is_stats) {
+                int *row = parasail_result_get_length_row(result);
+                int *col = parasail_result_get_length_col(result);
                 char filename[256] = {'\0'};
                 strcpy(filename, f.alg);
                 strcat(filename, "_rowcol_len");
                 strcat(filename, suffix);
-                print_rowcol(filename, result->length_row, result->length_col, seqA, lena, seqB, lenb);
+                print_rowcol(filename, row, col, seqA, lena, seqB, lenb);
             }
             parasail_result_free(result);
         }
-        if (f.is_table) {
-            strcat(name, "_table");
-        }
-        else if (f.is_rowcol) {
-            strcat(name, "_rowcol");
+        else if (f.is_trace) {
+            char suffix[256] = {0};
+            if (strlen(f.type)) {
+                strcat(suffix, "_");
+                strcat(suffix, f.type);
+            }
+            if (strlen(f.isa)) {
+                strcat(suffix, "_");
+                strcat(suffix, f.isa);
+            }
+            if (strlen(f.bits)) {
+                strcat(suffix, "_");
+                strcat(suffix, f.bits);
+            }
+            if (strlen(f.width)) {
+                strcat(suffix, "_");
+                strcat(suffix, f.width);
+            }
+            strcat(suffix, ".txt");
+            result = f.pointer(seqA, lena, seqB, lenb, open, extend, matrix);
+            {
+                int *table = parasail_result_get_trace_table(result);
+                char filename[256] = {'\0'};
+                strcpy(filename, f.alg);
+                strcat(filename, "_dag");
+                strcat(filename, suffix);
+                print_array(filename, table, seqA, lena, seqB, lenb, result);
+            }
+            {
+                int *table = parasail_result_get_trace_ins_table(result);
+                char filename[256] = {'\0'};
+                strcpy(filename, f.alg);
+                strcat(filename, "_ins");
+                strcat(filename, suffix);
+                print_array(filename, table, seqA, lena, seqB, lenb, result);
+            }
+            {
+                int *table = parasail_result_get_trace_del_table(result);
+                char filename[256] = {'\0'};
+                strcpy(filename, f.alg);
+                strcat(filename, "_del");
+                strcat(filename, suffix);
+                print_array(filename, table, seqA, lena, seqB, lenb, result);
+            }
+            parasail_result_free(result);
         }
         if (use_rdtsc) {
             printf(
-                "%-15s %8s %6s %4s %5s %5d %4d "
+                "%4d "
                 "%8d %8d %8d %8d "
                 "%9d %8d "
                 "%8.1f %5.1f %8.1f %8.0f %8.0f\n",
-                name, f.type, f.isa, f.bits, f.width, f.lanes, saturated,
+                saturated,
                 score, matches, similar, length,
                 end_query, end_ref,
                 saturated ? 0 : stats_rdtsc._mean,
@@ -669,11 +709,11 @@ int main(int argc, char **argv)
         }
         else {
             printf(
-                "%-15s %8s %6s %4s %5s %5d %4d "
+                "%4d "
                 "%8d %8d %8d %8d "
                 "%9d %8d "
                 "%8.3f %5.2f %8.3f %8.3f %8.3f\n",
-                name, f.type, f.isa, f.bits, f.width, f.lanes, saturated,
+                saturated,
                 score, matches, similar, length,
                 end_query, end_ref,
                 saturated ? 0 : stats_nsecs._mean,
@@ -684,6 +724,7 @@ int main(int argc, char **argv)
         }
         f = functions[index++];
     }
+    /* banded test */
     if (do_nw) {
         int saturated = 0;
         stats_clear(&stats_rdtsc);
@@ -698,13 +739,13 @@ int main(int argc, char **argv)
             timer_nsecs_single = timer_real() - timer_nsecs_single;
             stats_sample_value(&stats_rdtsc, timer_rdtsc_single);
             stats_sample_value(&stats_nsecs, timer_nsecs_single);
-            score = result->score;
-            similar = result->similar;
-            matches = result->matches;
-            length = result->length;
-            end_query = result->end_query;
-            end_ref = result->end_ref;
-            saturated = result->saturated;
+            score = parasail_result_get_score(result);
+            similar = parasail_result_get_similar(result);
+            matches = parasail_result_get_matches(result);
+            length = parasail_result_get_length(result);
+            end_query = parasail_result_get_end_query(result);
+            end_ref = parasail_result_get_end_ref(result);
+            saturated = parasail_result_is_saturated(result);
             parasail_result_free(result);
         }
         timer_rdtsc = timer_start()-(timer_rdtsc);
@@ -740,13 +781,66 @@ int main(int argc, char **argv)
                     saturated ? 0 : stats_nsecs._max);
         }
     }
+    /* ssw test */
+    if (do_sw) {
+        int saturated = 0;
+        stats_clear(&stats_rdtsc);
+        stats_clear(&stats_nsecs);
+        timer_rdtsc = timer_start();
+        timer_nsecs = timer_real();
+        for (i=0; i<limit; ++i) {
+            parasail_result_ssw_t *ssw_result = NULL;
+            timer_rdtsc_single = timer_start();
+            timer_nsecs_single = timer_real();
+            ssw_result = parasail_ssw(seqA, lena, seqB, lenb, open, extend, matrix);
+            timer_rdtsc_single = timer_start()-(timer_rdtsc_single);
+            timer_nsecs_single = timer_real() - timer_nsecs_single;
+            stats_sample_value(&stats_rdtsc, timer_rdtsc_single);
+            stats_sample_value(&stats_nsecs, timer_nsecs_single);
+            score = ssw_result->score1;
+            similar = 0;
+            matches = 0;
+            length = 0;
+            end_query = ssw_result->read_end1;
+            end_ref = ssw_result->ref_end1;
+            parasail_result_ssw_free(ssw_result);
+        }
+        timer_rdtsc = timer_start()-(timer_rdtsc);
+        timer_nsecs = timer_real() - timer_nsecs;
+        if (use_rdtsc) {
+            printf(
+                    "%-15s %8s %6s %4s %5s %5d %4d "
+                    "%8d %8d %8d %8d "
+                    "%9d %8d "
+                    "%8.1f %5.1f %8.1f %8.0f %8.0f\n",
+                    "ssw", "striped", "NA", "16", "16", 1, saturated,
+                    score, matches, similar, length,
+                    end_query, end_ref,
+                    saturated ? 0 : stats_rdtsc._mean,
+                    saturated ? 0 : pctf(timer_rdtsc_ref_mean, stats_rdtsc._mean),
+                    saturated ? 0 : stats_stddev(&stats_rdtsc),
+                    saturated ? 0 : stats_rdtsc._min,
+                    saturated ? 0 : stats_rdtsc._max);
+        }
+        else {
+            printf(
+                    "%-15s %8s %6s %4s %5s %5d %4d "
+                    "%8d %8d %8d %8d "
+                    "%9d %8d "
+                    "%8.3f %5.2f %8.3f %8.3f %8.3f\n",
+                    "ssw", "striped", "NA", "16", "16", 1, saturated,
+                    score, matches, similar, length,
+                    end_query, end_ref,
+                    saturated ? 0 : stats_nsecs._mean,
+                    saturated ? 0 : pctf(timer_nsecs_ref_mean, stats_nsecs._mean),
+                    saturated ? 0 : stats_stddev(&stats_nsecs),
+                    saturated ? 0 : stats_nsecs._min,
+                    saturated ? 0 : stats_nsecs._max);
+        }
+    }
 
     if (filename) {
-        for (s=0; s<seq_count; ++s) {
-            free(sequences[s]);
-        }
-        free(sequences);
-        free(sizes);
+        parasail_sequences_free(sequences);
     }
 
     return 0;

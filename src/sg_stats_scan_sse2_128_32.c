@@ -172,7 +172,7 @@ parasail_result_t* PNAME(
 #ifdef PARASAIL_ROWCOL
     parasail_result_t *result = parasail_result_new_rowcol3(segLen*segWidth, s2Len);
 #else
-    parasail_result_t *result = parasail_result_new();
+    parasail_result_t *result = parasail_result_new_stats();
 #endif
 #endif
 
@@ -393,10 +393,10 @@ parasail_result_t* PNAME(
             vSaturationCheckMax = _mm_max_epi32_rpl(vSaturationCheckMax, vHS);
             vSaturationCheckMax = _mm_max_epi32_rpl(vSaturationCheckMax, vHL);
 #ifdef PARASAIL_TABLE
-            arr_store_si128(result->score_table, vH, i, segLen, j, s2Len);
-            arr_store_si128(result->matches_table, vHM, i, segLen, j, s2Len);
-            arr_store_si128(result->similar_table, vHS, i, segLen, j, s2Len);
-            arr_store_si128(result->length_table, vHL, i, segLen, j, s2Len);
+            arr_store_si128(result->stats->tables->score_table, vH, i, segLen, j, s2Len);
+            arr_store_si128(result->stats->tables->matches_table, vHM, i, segLen, j, s2Len);
+            arr_store_si128(result->stats->tables->similar_table, vHS, i, segLen, j, s2Len);
+            arr_store_si128(result->stats->tables->length_table, vHL, i, segLen, j, s2Len);
 #endif
         } 
         /* extract vector containing last value from column */
@@ -422,10 +422,10 @@ parasail_result_t* PNAME(
                 vHS = _mm_slli_si128(vHS, 4);
                 vHL = _mm_slli_si128(vHL, 4);
             }
-            result->score_row[j] = (int32_t) _mm_extract_epi32_rpl (vH, 3);
-            result->matches_row[j] = (int32_t) _mm_extract_epi32_rpl (vHM, 3);
-            result->similar_row[j] = (int32_t) _mm_extract_epi32_rpl (vHS, 3);
-            result->length_row[j] = (int32_t) _mm_extract_epi32_rpl (vHL, 3);
+            result->stats->rowcols->score_row[j] = (int32_t) _mm_extract_epi32_rpl (vH, 3);
+            result->stats->rowcols->matches_row[j] = (int32_t) _mm_extract_epi32_rpl (vHM, 3);
+            result->stats->rowcols->similar_row[j] = (int32_t) _mm_extract_epi32_rpl (vHS, 3);
+            result->stats->rowcols->length_row[j] = (int32_t) _mm_extract_epi32_rpl (vHL, 3);
 #endif
         }
     }
@@ -455,10 +455,10 @@ parasail_result_t* PNAME(
             __m128i vHM = _mm_load_si128(pvHM + i);
             __m128i vHS = _mm_load_si128(pvHS + i);
             __m128i vHL = _mm_load_si128(pvHL + i);
-            arr_store_col(result->score_col, vH, i, segLen);
-            arr_store_col(result->matches_col, vHM, i, segLen);
-            arr_store_col(result->similar_col, vHS, i, segLen);
-            arr_store_col(result->length_col, vHL, i, segLen);
+            arr_store_col(result->stats->rowcols->score_col, vH, i, segLen);
+            arr_store_col(result->stats->rowcols->matches_col, vHM, i, segLen);
+            arr_store_col(result->stats->rowcols->similar_col, vHS, i, segLen);
+            arr_store_col(result->stats->rowcols->length_col, vHL, i, segLen);
 #endif
             vMaxH = _mm_max_epi32_rpl(vH, vMaxH);
         }
@@ -494,7 +494,7 @@ parasail_result_t* PNAME(
     if (_mm_movemask_epi8(_mm_or_si128(
             _mm_cmplt_epi32(vSaturationCheckMin, vNegLimit),
             _mm_cmpgt_epi32(vSaturationCheckMax, vPosLimit)))) {
-        result->saturated = 1;
+        result->flag |= PARASAIL_FLAG_SATURATED;
         score = 0;
         matches = 0;
         similar = 0;
@@ -504,11 +504,20 @@ parasail_result_t* PNAME(
     }
 
     result->score = score;
-    result->matches = matches;
-    result->similar = similar;
-    result->length = length;
     result->end_query = end_query;
     result->end_ref = end_ref;
+    result->stats->matches = matches;
+    result->stats->similar = similar;
+    result->stats->length = length;
+    result->flag |= PARASAIL_FLAG_SG | PARASAIL_FLAG_SCAN
+        | PARASAIL_FLAG_STATS
+        | PARASAIL_FLAG_BITS_32 | PARASAIL_FLAG_LANES_4;
+#ifdef PARASAIL_TABLE
+    result->flag |= PARASAIL_FLAG_TABLE;
+#endif
+#ifdef PARASAIL_ROWCOL
+    result->flag |= PARASAIL_FLAG_ROWCOL;
+#endif
 
     parasail_free(pvGapperL);
     parasail_free(pvGapper);

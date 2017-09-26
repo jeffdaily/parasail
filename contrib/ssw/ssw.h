@@ -3,8 +3,8 @@
  *
  *  Created by Mengyao Zhao on 6/22/10.
  *  Copyright 2010 Boston College. All rights reserved.
- *	Version 0.1.4
- *	Last revision by Mengyao Zhao on 01/30/13.
+ *	Version 1.2.3
+ *	Last revision by Mengyao Zhao on 11/29/16.
  *
  */
 
@@ -20,6 +20,12 @@
 extern "C" {
 #endif	/* __cplusplus */
 
+#define MAPSTR "MIDNSHP=X"
+#ifndef BAM_CIGAR_SHIFT
+#define BAM_CIGAR_SHIFT 4u
+#endif
+
+extern const uint8_t encoded_ops[];
 
 /*!	@typedef	structure of the query profile	*/
 struct _profile;
@@ -50,7 +56,6 @@ typedef struct {
 	uint32_t* cigar;
 	int32_t cigarLen;
     int32_t saturated;
-    int32_t *score_table;
 } s_align;
 
 /*!	@function	Create the query profile using the query sequence.
@@ -64,11 +69,11 @@ typedef struct {
 	@note	example for parameter read and mat:
 			If the query sequence is: ACGTATC, the sequence that read points to can be: 1234142
 			Then if the penalty for match is 2 and for mismatch is -2, the substitution matrix of parameter mat will be:
-			  A  C  G  T
-			  2 -2 -2 -2 A
-			 -2  2 -2 -2 C
-			 -2 -2  2 -2 G
-			 -2 -2 -2  2 T
+			//A  C  G  T
+			  2 -2 -2 -2 //A
+			 -2  2 -2 -2 //C
+			 -2 -2  2 -2 //G
+			 -2 -2 -2  2 //T
 			mat is the pointer to the array {2, -2, -2, -2, -2, 2, -2, -2, -2, -2, 2, -2, -2, -2, -2, 2}
 */
 s_profile* ssw_init (const int8_t* read, const int32_t readLen, const int8_t* mat, const int32_t n, const int8_t score_size);
@@ -121,77 +126,61 @@ s_align* ssw_align (const s_profile* prof,
 					const int32_t filterd,
 					const int32_t maskLen);
 
-s_align* ssw_align_table (const s_profile* prof,
-					const int8_t* ref,
-					int32_t refLen,
-					const uint8_t weight_gapO,
-					const uint8_t weight_gapE,
-					const uint8_t flag,
-					const uint16_t filters,
-					const int32_t filterd,
-					const int32_t maskLen);
-
 /*!	@function	Release the memory allocated by function ssw_align.
 	@param	a	pointer to the alignment result structure
 */
 void align_destroy (s_align* a);
+
+/*! @function:
+     1. Calculate the number of mismatches.
+     2. Modify the cigar string:
+         differentiate matches (=), mismatches(X), and softclip(S).
+	@param	ref_begin1	0-based best alignment beginning position on the reference sequence
+	@param	read_begin1	0-based best alignment beginning position on the read sequence
+	@param	read_end1	0-based best alignment ending position on the read sequence
+	@param	ref	pointer to the reference sequence
+	@param	read	pointer to the read sequence
+	@param	readLen	length of the read
+	@param	cigar	best alignment cigar; stored the same as that in BAM format, high 28 bits: length, low 4 bits: M/I/D (0/1/2)
+	@param	cigarLen	length of the cigar string
+ 	@return:
+     The number of mismatches.
+	 The cigar and cigarLen are modified.
+*/
+int32_t mark_mismatch (int32_t ref_begin1,
+					   int32_t read_begin1,
+					   int32_t read_end1,
+					   const int8_t* ref,
+					   const int8_t* read,
+					   int32_t readLen,
+					   uint32_t** cigar, 
+					   int32_t* cigarLen);
 
 /*!	@function		Produce CIGAR 32-bit unsigned integer from CIGAR operation and CIGAR length
 	@param	length		length of CIGAR
 	@param	op_letter	CIGAR operation character ('M', 'I', etc)
 	@return			32-bit unsigned integer, representing encoded CIGAR operation and length
 */
-static inline uint32_t to_cigar_int (uint32_t length, char op_letter)
-{
-	uint32_t res;
-	uint8_t op_code;
-
-	switch (op_letter) {
-		case 'M': /* alignment match (can be a sequence match or mismatch */
-		default:
-			op_code = 0;
-			break;
-		case 'I': /* insertion to the reference */
-			op_code = 1;
-			break;
-		case 'D': /* deletion from the reference */
-			op_code = 2;
-			break;
-		case 'N': /* skipped region from the reference */
-			op_code = 3;
-			break;
-		case 'S': /* soft clipping (clipped sequences present in SEQ) */
-			op_code = 4;
-			break;
-		case 'H': /* hard clipping (clipped sequences NOT present in SEQ) */
-			op_code = 5;
-			break;
-		case 'P': /* padding (silent deletion from padded reference) */
-			op_code = 6;
-			break;
-		case '=': /* sequence match */
-			op_code = 7;
-			break;
-		case 'X': /* sequence mismatch */
-			op_code = 8;
-			break;
-	}
-
-	res = (length << 4) | op_code;
-	return res;
+static inline uint32_t to_cigar_int (uint32_t length, char op_letter) {
+	return (length << BAM_CIGAR_SHIFT) | (encoded_ops[(int)op_letter]);
 }
 
 /*!	@function		Extract CIGAR operation character from CIGAR 32-bit unsigned integer
 	@param	cigar_int	32-bit unsigned integer, representing encoded CIGAR operation and length
 	@return			CIGAR operation character ('M', 'I', etc)
 */
-char cigar_int_to_op (uint32_t cigar_int);
+/*char cigar_int_to_op (uint32_t cigar_int);*/
+static inline char cigar_int_to_op(uint32_t cigar_int) {
+	return (cigar_int & 0xfU) > 8 ? 'M': MAPSTR[cigar_int & 0xfU];
+}
 
 /*!	@function		Extract length of a CIGAR operation from CIGAR 32-bit unsigned integer
 	@param	cigar_int	32-bit unsigned integer, representing encoded CIGAR operation and length
 	@return			length of CIGAR operation
 */
-uint32_t cigar_int_to_len (uint32_t cigar_int);
+static inline uint32_t cigar_int_to_len (uint32_t cigar_int) {
+	return cigar_int >> BAM_CIGAR_SHIFT;
+}
 
 #ifdef __cplusplus
 }

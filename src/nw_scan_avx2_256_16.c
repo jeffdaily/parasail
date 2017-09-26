@@ -261,7 +261,7 @@ parasail_result_t* PNAME(
             vSaturationCheckMin = _mm256_min_epi16(vSaturationCheckMin, vH);
             vSaturationCheckMax = _mm256_max_epi16(vSaturationCheckMax, vH);
 #ifdef PARASAIL_TABLE
-            arr_store_si256(result->score_table, vH, i, segLen, j, s2Len);
+            arr_store_si256(result->tables->score_table, vH, i, segLen, j, s2Len);
 #endif
         } 
 
@@ -273,7 +273,7 @@ parasail_result_t* PNAME(
             for (k=0; k<position; ++k) {
                 vH = _mm256_slli_si256_rpl(vH, 2);
             }
-            result->score_row[j] = (int16_t) _mm256_extract_epi16_rpl (vH, 15);
+            result->rowcols->score_row[j] = (int16_t) _mm256_extract_epi16_rpl (vH, 15);
         }
 #endif
     }
@@ -281,7 +281,7 @@ parasail_result_t* PNAME(
 #ifdef PARASAIL_ROWCOL
     for (i=0; i<segLen; ++i) {
         __m256i vH = _mm256_load_si256(pvH+i);
-        arr_store_col(result->score_col, vH, i, segLen);
+        arr_store_col(result->rowcols->score_col, vH, i, segLen);
     }
 #endif
 
@@ -297,7 +297,7 @@ parasail_result_t* PNAME(
     if (_mm256_movemask_epi8(_mm256_or_si256(
             _mm256_cmplt_epi16_rpl(vSaturationCheckMin, vNegLimit),
             _mm256_cmpgt_epi16(vSaturationCheckMax, vPosLimit)))) {
-        result->saturated = 1;
+        result->flag |= PARASAIL_FLAG_SATURATED;
         score = 0;
         end_query = 0;
         end_ref = 0;
@@ -306,6 +306,14 @@ parasail_result_t* PNAME(
     result->score = score;
     result->end_query = end_query;
     result->end_ref = end_ref;
+    result->flag |= PARASAIL_FLAG_NW | PARASAIL_FLAG_SCAN
+        | PARASAIL_FLAG_BITS_16 | PARASAIL_FLAG_LANES_16;
+#ifdef PARASAIL_TABLE
+    result->flag |= PARASAIL_FLAG_TABLE;
+#endif
+#ifdef PARASAIL_ROWCOL
+    result->flag |= PARASAIL_FLAG_ROWCOL;
+#endif
 
     parasail_free(pvGapper);
     parasail_free(pvH);

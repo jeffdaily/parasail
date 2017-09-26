@@ -21,6 +21,7 @@ int main(int argc, char **argv)
     int cpu_avx512bw;
     int cpu_avx512vbmi;
     int cpu_knc;
+    int cpu_altivec;
     int cc_sse2;
     int cc_sse41;
     int cc_avx2;
@@ -28,6 +29,7 @@ int main(int argc, char **argv)
     int cc_avx512bw;
     int cc_avx512vbmi;
     int cc_knc;
+    int cc_altivec;
 
     UNUSED(argc);
     UNUSED(argv);
@@ -38,6 +40,7 @@ int main(int argc, char **argv)
     cpu_avx512f = parasail_can_use_avx512f();
     cpu_avx512bw = parasail_can_use_avx512bw();
     cpu_avx512vbmi = parasail_can_use_avx512vbmi();
+    cpu_altivec = parasail_can_use_altivec();
 
 #if HAVE_SSE2
     cc_sse2 = 1;
@@ -83,6 +86,12 @@ int main(int argc, char **argv)
     cc_knc = 0;
 #endif
 
+#if HAVE_ALTIVEC
+    cc_altivec = 1;
+#else
+    cc_altivec = 0;
+#endif
+
     printf(" ISA        | Compiler | CPU  \n");
     printf("------------------------------\n");
     printf(" SSE2       |  %s     | %s\n", yesno(cc_sse2), yesno(cpu_sse2));
@@ -92,6 +101,7 @@ int main(int argc, char **argv)
     printf(" AVX512BW   |  %s     | %s\n", yesno(cc_avx512bw), yesno(cpu_avx512bw));
     printf(" AVX512VBMI |  %s     | %s\n", yesno(cc_avx512vbmi), yesno(cpu_avx512vbmi));
     printf(" KNC        |  %s     | %s\n", yesno(cc_knc), yesno(cpu_knc));
+    printf(" ALTIVEC    |  %s     | %s\n", yesno(cc_altivec), yesno(cpu_altivec));
 
     return 0;
 }

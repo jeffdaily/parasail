@@ -246,6 +246,7 @@ parasail_result_t* PNAME(
         vF = _mm256_slli_si256_rpl(vF, 8);
         vF = _mm256_add_epi64(vF, vNegInfFront);
         vH = _mm256_max_epi64_rpl(vHt, vF);
+        vH = _mm256_max_epi64_rpl(vH, vZero);
         for (i=0; i<segLen; ++i) {
             vHt = _mm256_load_si256(pvHt+i);
             vF = _mm256_max_epi64_rpl(
@@ -257,7 +258,7 @@ parasail_result_t* PNAME(
             vSaturationCheckMin = _mm256_min_epi64_rpl(vSaturationCheckMin, vH);
             vSaturationCheckMax = _mm256_max_epi64_rpl(vSaturationCheckMax, vH);
 #ifdef PARASAIL_TABLE
-            arr_store_si256(result->score_table, vH, i, segLen, j, s2Len);
+            arr_store_si256(result->tables->score_table, vH, i, segLen, j, s2Len);
 #endif
             vMaxH = _mm256_max_epi64_rpl(vH, vMaxH);
         } 
@@ -280,7 +281,7 @@ parasail_result_t* PNAME(
             for (k=0; k<position; ++k) {
                 vH = _mm256_slli_si256_rpl(vH, 8);
             }
-            result->score_row[j] = (int64_t) _mm256_extract_epi64_rpl (vH, 3);
+            result->rowcols->score_row[j] = (int64_t) _mm256_extract_epi64_rpl (vH, 3);
         }
 #endif
     }
@@ -303,14 +304,14 @@ parasail_result_t* PNAME(
 #ifdef PARASAIL_ROWCOL
     for (i=0; i<segLen; ++i) {
         __m256i vH = _mm256_load_si256(pvH+i);
-        arr_store_col(result->score_col, vH, i, segLen);
+        arr_store_col(result->rowcols->score_col, vH, i, segLen);
     }
 #endif
 
     if (_mm256_movemask_epi8(_mm256_or_si256(
             _mm256_cmplt_epi64_rpl(vSaturationCheckMin, vNegLimit),
             _mm256_cmpgt_epi64(vSaturationCheckMax, vPosLimit)))) {
-        result->saturated = 1;
+        result->flag |= PARASAIL_FLAG_SATURATED;
         score = 0;
         end_query = 0;
         end_ref = 0;
@@ -319,6 +320,14 @@ parasail_result_t* PNAME(
     result->score = score;
     result->end_query = end_query;
     result->end_ref = end_ref;
+    result->flag |= PARASAIL_FLAG_SW | PARASAIL_FLAG_SCAN
+        | PARASAIL_FLAG_BITS_64 | PARASAIL_FLAG_LANES_4;
+#ifdef PARASAIL_TABLE
+    result->flag |= PARASAIL_FLAG_TABLE;
+#endif
+#ifdef PARASAIL_ROWCOL
+    result->flag |= PARASAIL_FLAG_ROWCOL;
+#endif
 
     parasail_free(pvGapper);
     parasail_free(pvHMax);

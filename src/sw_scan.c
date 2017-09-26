@@ -95,7 +95,7 @@ parasail_result_t* ENAME(
             H[i] = MAX(Ht[i], Ft[i]-open);
             H[i] = MAX(H[i], 0);
 #ifdef PARASAIL_TABLE
-            result->score_table[i*s2Len + j] = H[i];
+            result->tables->score_table[i*s2Len + j] = H[i];
 #endif
             if (H[i] > score) {
                 score = H[i];
@@ -106,16 +106,24 @@ parasail_result_t* ENAME(
 #ifdef PARASAIL_ROWCOL
         if (j == s2Len-1) {
             for (i=0; i<s1Len; ++i) {
-                result->score_col[i] = H[i];
+                result->rowcols->score_col[i] = H[i];
             }
         }
-        result->score_row[j] = H[s1Len-1];
+        result->rowcols->score_row[j] = H[s1Len-1];
 #endif
     }
 
     result->score = score;
     result->end_query = end_query;
     result->end_ref = end_ref;
+    result->flag |= PARASAIL_FLAG_SW | PARASAIL_FLAG_NOVEC_SCAN
+        | PARASAIL_FLAG_BITS_INT | PARASAIL_FLAG_LANES_1;
+#ifdef PARASAIL_TABLE
+    result->flag |= PARASAIL_FLAG_TABLE;
+#endif
+#ifdef PARASAIL_ROWCOL
+    result->flag |= PARASAIL_FLAG_ROWCOL;
+#endif
 
     parasail_free(FtB);
     parasail_free(HtB);

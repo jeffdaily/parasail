@@ -83,11 +83,11 @@ parasail_result_t* ENAME(
             tbl_pr[j] = NWscore + matrow[s2[j-1]];
             Wscore = tbl_pr[j] = MAX(tbl_pr[j],MAX(ins_cr,del_pr[j]));
 #ifdef PARASAIL_TABLE
-            result->score_table[(i-1)*s2Len + (j-1)] = Wscore;
+            result->tables->score_table[(i-1)*s2Len + (j-1)] = Wscore;
 #endif
         }
 #ifdef PARASAIL_ROWCOL
-        result->score_col[i-1] = Wscore;
+        result->rowcols->score_col[i-1] = Wscore;
 #endif
         if (Wscore > score) {
             score = Wscore;
@@ -120,20 +120,28 @@ parasail_result_t* ENAME(
                 end_ref = j-1;
             }
 #ifdef PARASAIL_TABLE
-            result->score_table[(i-1)*s2Len + (j-1)] = Wscore;
+            result->tables->score_table[(i-1)*s2Len + (j-1)] = Wscore;
 #endif
 #ifdef PARASAIL_ROWCOL
-            result->score_row[j-1] = tbl_pr[j];
+            result->rowcols->score_row[j-1] = tbl_pr[j];
 #endif
         }
 #ifdef PARASAIL_ROWCOL
-        result->score_col[i-1] = Wscore;
+        result->rowcols->score_col[i-1] = Wscore;
 #endif
     }
 
     result->score = score;
     result->end_query = end_query;
     result->end_ref = end_ref;
+    result->flag |= PARASAIL_FLAG_SG | PARASAIL_FLAG_NOVEC
+        | PARASAIL_FLAG_BITS_INT | PARASAIL_FLAG_LANES_1;
+#ifdef PARASAIL_TABLE
+    result->flag |= PARASAIL_FLAG_TABLE;
+#endif
+#ifdef PARASAIL_ROWCOL
+    result->flag |= PARASAIL_FLAG_ROWCOL;
+#endif
 
     parasail_free(del_pr);
     parasail_free(tbl_pr);

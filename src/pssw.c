@@ -74,10 +74,20 @@ parasail_result_ssw_t* parasail_ssw_profile(
     parasail_cigar_t *cigar = NULL;
 
     /* find the end loc first with the faster implementation */
-    result = parasail_sw_striped_profile_8(profile, s2, s2Len_, open, gap);
-    if (parasail_result_is_saturated(result)) {
+    if (NULL == profile->profile8.score) {
         word = 1;
-        parasail_result_free(result);
+    }
+
+    /* find the end loc first with the faster implementation */
+    if (0 == word) {
+        result = parasail_sw_striped_profile_8(profile, s2, s2Len_, open, gap);
+        if (parasail_result_is_saturated(result)) {
+            word = 1;
+            parasail_result_free(result);
+            result = parasail_sw_striped_profile_16(profile, s2, s2Len_, open, gap);
+        }
+    }
+    else {
         result = parasail_sw_striped_profile_16(profile, s2, s2Len_, open, gap);
     }
 

@@ -7,6 +7,9 @@ This project follows the [Gitflow Workflow model](https://www.atlassian.com/git/
 ## [Unreleased]
 The Unreleased section will be empty for tagged releases. Unreleased functionality appears in the develop branch.
 
+### Fixed
+- SSW emulation seg fault when using score_size flag.
+
 ## [2.0] - 2017-09-26
 ### Added
 - Alignment trace functions for generating SAM CIGAR output.

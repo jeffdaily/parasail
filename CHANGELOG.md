@@ -7,6 +7,7 @@ This project follows the [Gitflow Workflow model](https://www.atlassian.com/git/
 ## [Unreleased]
 The Unreleased section will be empty for tagged releases. Unreleased functionality appears in the develop branch.
 
+## [2.0.1] - 2017-09-29
 ### Fixed
 - SSW emulation seg fault when using score_size flag.
 
@@ -180,7 +181,8 @@ First stable, production-ready version of parasail.
 
 [parasail-python]: https://github.com/jeffdaily/parasail-python
 
-[Unreleased]: https://github.com/jeffdaily/parasail/compare/v2.0...develop
+[Unreleased]: https://github.com/jeffdaily/parasail/compare/v2.0.1...develop
+[2.0.1]: https://github.com/jeffdaily/parasail/compare/v2.0...v2.0.1
 [2.0]:   https://github.com/jeffdaily/parasail/compare/v1.3.1...v2.0
 [1.3.1]: https://github.com/jeffdaily/parasail/compare/v1.3...v1.3.1
 [1.3]:   https://github.com/jeffdaily/parasail/compare/v1.2...v1.3

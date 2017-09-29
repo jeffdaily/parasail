@@ -21,6 +21,7 @@ Author: Jeff Daily (jeff.daily@pnnl.gov)
     * [SSW Library Emulation](#ssw-library-emulation)
     * [Function Lookup](#function-lookup)
     * [Banded Global Alignment](#banded-global-alignment)
+    * [File Input](#file-input)
     * [Tracebacks](#tracebacks)
   * [Language Bindings](#language-bindings)
     * [C/C\+\+](#cc)
@@ -380,6 +381,9 @@ int main(int argc, char **argv) {
 ```
 
 ### Banded Global Alignment
+
+[back to top]
+
 There is one version of banded global alignment available.  Though it is not vectorized, it might still be faster than using other parasail global alignment functions, especially for large sequences.  The function signature is similar to the other parasail functions with the only exception being `k`, the band width.
 
 ```C
@@ -390,10 +394,50 @@ parasail_result_t* parasail_nw_banded(
         const parasail_matrix_t* matrix);
 ```
 
+### File Input
+
+[back to top]
+
+Parasail can parse FASTA, FASTQ, and gzipped versions of such files. Additionally, some statistics are calculated while the file is parsed.
+
+```C
+typedef struct parasail_string {
+    size_t l;
+    char *s;
+} parasail_string_t;
+
+typedef struct parasail_sequence {
+    parasail_string_t name;
+    parasail_string_t comment;
+    parasail_string_t seq;
+    parasail_string_t qual;
+} parasail_sequence_t;
+
+typedef struct parasail_sequences {
+    parasail_sequence_t *seqs;
+    size_t l;
+    size_t characters;
+    size_t shortest;
+    size_t longest;
+    float mean;
+    float stddev;
+} parasail_sequences_t;
+
+parasail_sequences_t* parasail_sequences_from_file(const char *fname);
+
+void parasail_sequences_free(parasail_sequences_t *sequences);
+```
+
 ### Tracebacks
+
+[back to top]
+
 Parasail supports both printing a traceback to stdout as well as accessing a SAM CIGAR string from a result.  You must use a traceback-capable alignment function.  Refer to the C interface description above for details on how to use a traceback-capable alignment function.
 
 #### Printing Tracebacks
+
+[back to top]
+
 ```C
 void parasail_traceback_generic(
         const char *seqA, int lena,
@@ -425,6 +469,9 @@ Score: 37
 ```
 
 #### SAM CIGAR
+
+[back to top]
+
 The SAM CIGAR is accessed using `parasail_result_get_cigar()`.  The CIGAR is encoded, so use the decode functions to determine the CIGAR operation and length for each uint32_t in the sequence.  Additionally, the query and reference sequence beginning positions are provided as part of the returned CIGAR structure.  Don't forget to free the CIGAR structure when finished.
 
 ```C
@@ -557,4 +604,4 @@ Copyright (c) 2015, Battelle Memorial Institute
     OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
     SUCH DAMAGE.
 
-[back to top]: #parasail-pairwise-sequence-alignment-library
+[back to top]: #table-of-contents

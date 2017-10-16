@@ -49,7 +49,7 @@ install:
   - if [[ "$BUILD_TYPE" == "docker" ]]; then docker pull $DOCKER_IMAGE; fi
 
 script:
-  - if [[ "$BUILD_TYPE" == "docker" ]]; then docker run --rm -v `pwd`:/io $DOCKER_IMAGE $PRE_CMD /io/travis/build-docker.sh $SUFFIX
+  - if [[ "$BUILD_TYPE" == "docker" ]]; then docker run --rm -v `pwd`:/io $DOCKER_IMAGE $PRE_CMD /io/travis/build-docker.sh $SUFFIX; fi
   - if [[ "$BUILD_TYPE" == "make" ]]; then ./configure && make -j 4 && make check -j 4; fi
   - if [[ "$BUILD_TYPE" == "cmake" ]]; then cmake . $MAYBE_ARCH; fi
   - if [[ "$BUILD_TYPE" == "cmake" ]]; then cmake --build . --config Release; fi

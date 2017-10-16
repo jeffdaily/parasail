@@ -7,9 +7,6 @@
  */
 #include "config.h"
 
-/* strdup needs _POSIX_C_SOURCE 200809L */
-#define _POSIX_C_SOURCE 200809L
-
 #include <errno.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -36,6 +33,17 @@ KSEQ_INIT(int, READ_FUNCTION)
 #include "parasail.h"
 #include "parasail/io.h"
 #include "parasail/stats.h"
+
+static char* strdup_rpl(const char *str)
+{
+    size_t l = strlen(str);
+    char *s = (char*)calloc(l + 1, sizeof(char));
+    if(!s) {
+        return NULL;
+    }
+    (void)memcpy(s, str, l);
+    return s;
+}
 
 parasail_sequences_t* parasail_sequences_from_file(const char *filename)
 {
@@ -105,28 +113,28 @@ parasail_sequences_t* parasail_sequences_from_file(const char *filename)
         chars += seq->seq.l;
 
         if (sequences[count].name.l) {
-            sequences[count].name.s = strdup(seq->name.s);
+            sequences[count].name.s = strdup_rpl(seq->name.s);
             if (NULL == sequences[count].name.s) {
                 perror("strdup name");
                 exit(1);
             }
         }
         if (sequences[count].comment.l) {
-            sequences[count].comment.s = strdup(seq->comment.s);
+            sequences[count].comment.s = strdup_rpl(seq->comment.s);
             if (NULL == sequences[count].comment.s) {
                 perror("strdup comment");
                 exit(1);
             }
         }
         if (sequences[count].seq.l) {
-            sequences[count].seq.s = strdup(seq->seq.s);
+            sequences[count].seq.s = strdup_rpl(seq->seq.s);
             if (NULL == sequences[count].seq.s) {
                 perror("strdup seq");
                 exit(1);
             }
         }
         if (sequences[count].qual.l) {
-            sequences[count].qual.s = strdup(seq->qual.s);
+            sequences[count].qual.s = strdup_rpl(seq->qual.s);
             if (NULL == sequences[count].qual.s) {
                 perror("strdup qual");
                 exit(1);

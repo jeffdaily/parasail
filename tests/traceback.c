@@ -18,6 +18,16 @@
 #include "parasail/io.h"
 #include "parasail/memory.h"
 
+static char* strdup_rpl(const char *str)
+{
+    size_t l = strlen(str);
+    char *s = (char*)calloc(l + 1, sizeof(char));
+    if(!s) {
+        return NULL;
+    }
+    (void)memcpy(s, str, l);
+    return s;
+}
 
 int main(int argc, char **argv)
 {
@@ -357,7 +367,7 @@ int main(int argc, char **argv)
     /* let's see how the stats version of the same trace function
      * behaves */
     {
-        char *dup = strdup(funcname);
+        char *dup = strdup_rpl(funcname);
         char *loc = strstr(dup, "trace");
         int score = 0;
         int end_query = 0;

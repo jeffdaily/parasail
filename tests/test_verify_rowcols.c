@@ -1,8 +1,7 @@
 #include "config.h"
 
 /* getopt needs _POSIX_C_SOURCE 2 */
-/* strdup needs _POSIX_C_SOURCE 200809L */
-#define _POSIX_C_SOURCE 200809L
+#define _POSIX_C_SOURCE 2
 
 #include <ctype.h>
 #include <limits.h>

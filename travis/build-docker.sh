@@ -1,6 +1,10 @@
 #!/bin/bash
 set -e -x
 
+SUFFIX=$1
+echo "SUFFIX=$SUFFIX"
+
+cd /io
 name=parasail-`./version.sh`-manylinux1_$SUFFIX
 ./configure --prefix=`pwd`/$name
 make -j 2

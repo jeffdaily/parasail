@@ -10,34 +10,46 @@ addons:
 
 matrix:
   include:
+    - sudo: required
+      services:
+        - docker
+      env: BUILD_TYPE=docker
+           DOCKER_IMAGE=quay.io/pypa/manylinux1_x86_64
+           SUFFIX=x86_64
+    - sudo: required
+      services:
+        - docker
+      env: BUILD_TYPE=docker
+           DOCKER_IMAGE=quay.io/pypa/manylinux1_i686
+           PRE_CMD=linux32
+           SUFFIX=i686
     - os: linux
-      env:
-        - BUILD_TYPE=make
+      env: BUILD_TYPE=make
     - os: linux
-      env:
-        - BUILD_TYPE=cmake
+      env: BUILD_TYPE=cmake
     - os: osx
       osx_image: xcode8.3
-      env:
-        - BUILD_TYPE=cmake
-        - MAYBE_ARCH=-DCMAKE_OSX_ARCHITECTURES="i386;x86_64"
+      env: BUILD_TYPE=cmake
+           MAYBE_ARCH=-DCMAKE_OSX_ARCHITECTURES="i386;x86_64"
     - os: osx
       osx_image: xcode7.3
-      env:
-        - BUILD_TYPE=cmake
-        - MAYBE_ARCH=-DCMAKE_OSX_ARCHITECTURES="i386;x86_64"
+      env: BUILD_TYPE=cmake
+           MAYBE_ARCH=-DCMAKE_OSX_ARCHITECTURES="i386;x86_64"
     - os: osx
       osx_image: xcode6.4
-      env:
-        - BUILD_TYPE=cmake
-        - MAYBE_ARCH=-DCMAKE_OSX_ARCHITECTURES="i386;x86_64"
+      env: BUILD_TYPE=cmake
+           MAYBE_ARCH=-DCMAKE_OSX_ARCHITECTURES="i386;x86_64"
 
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then rvm get stable || true; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update || true; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install cmake || brew upgrade cmake || true; fi
 
+install:
+  - if [[ "$BUILD_TYPE" == "docker" ]]; then docker pull $DOCKER_IMAGE; fi
+
 script:
+  - if [[ "$BUILD_TYPE" == "docker" ]]; then docker run --rm -v `pwd`:/io $DOCKER_IMAGE $PRE_CMD /io/travis/build-docker.sh
   - if [[ "$BUILD_TYPE" == "make" ]]; then ./configure && make -j 4 && make check -j 4; fi
   - if [[ "$BUILD_TYPE" == "cmake" ]]; then cmake . $MAYBE_ARCH; fi
   - if [[ "$BUILD_TYPE" == "cmake" ]]; then cmake --build . --config Release; fi

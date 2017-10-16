@@ -46,12 +46,8 @@
 #define READ_FUNCTION read
 #endif
 
-#if HAVE_ZLIB
 #include <zlib.h>
 KSEQ_INIT(gzFile, gzread)
-#else
-KSEQ_INIT(int, READ_FUNCTION)
-#endif
 
 static void reverse_comple(const char* seq, char* rc) {
 	int32_t end = strlen(seq), start = 0;

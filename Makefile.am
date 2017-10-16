@@ -1025,8 +1025,10 @@ check_PROGRAMS += tests/test_verify_rowcols
 check_PROGRAMS += tests/test_verify_traces
 if HAVE_SSE2
 check_PROGRAMS += tests/test_ssw
-check_PROGRAMS += tests/ssw_test
 check_PROGRAMS += tests/ssw_vs_pssw
+if HAVE_ZLIB
+check_PROGRAMS += tests/ssw_test
+endif
 endif
 if HAVE_ALTIVEC
 check_PROGRAMS += tests/test_altivec

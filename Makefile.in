@@ -90,7 +90,7 @@ check_PROGRAMS = tests/traceback$(EXEEXT) tests/test_align$(EXEEXT) \
 	tests/test_verify$(EXEEXT) tests/test_verify_tables$(EXEEXT) \
 	tests/test_verify_rowcols$(EXEEXT) \
 	tests/test_verify_traces$(EXEEXT) $(am__EXEEXT_2) \
-	$(am__EXEEXT_3)
+	$(am__EXEEXT_3) $(am__EXEEXT_4)
 @HAVE_SSE_TRUE@am__append_1 = libparasail_sse_memory.la
 @HAVE_SSE2_TRUE@am__append_2 = libparasail_sse2.la \
 @HAVE_SSE2_TRUE@	libparasail_sse2_table.la \
@@ -129,11 +129,11 @@ check_PROGRAMS = tests/traceback$(EXEEXT) tests/test_align$(EXEEXT) \
 @HAVE_ALTIVEC_TRUE@	libparasail_altivec_rowcol.la
 @HAVE_SSE2_TRUE@am__append_15 = tests/libssw.la
 @HAVE_CILK_TRUE@am__append_16 = apps/parasail_aligner_cilk
-@HAVE_SSE2_TRUE@am__append_17 = tests/test_ssw tests/ssw_test \
-@HAVE_SSE2_TRUE@	tests/ssw_vs_pssw
-@HAVE_ALTIVEC_TRUE@am__append_18 = tests/test_altivec
-@HAVE_SSE2_TRUE@am__append_19 = tests/libssw.la
+@HAVE_SSE2_TRUE@am__append_17 = tests/test_ssw tests/ssw_vs_pssw
+@HAVE_SSE2_TRUE@@HAVE_ZLIB_TRUE@am__append_18 = tests/ssw_test
+@HAVE_ALTIVEC_TRUE@am__append_19 = tests/test_altivec
 @HAVE_SSE2_TRUE@am__append_20 = tests/libssw.la
+@HAVE_SSE2_TRUE@am__append_21 = tests/libssw.la
 TESTS = tests/test_isa$(EXEEXT)
 subdir = .
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
@@ -1563,9 +1563,10 @@ tests_libssw_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 @HAVE_SSE2_TRUE@am_tests_libssw_la_rpath =
 @HAVE_CILK_TRUE@am__EXEEXT_1 = apps/parasail_aligner_cilk$(EXEEXT)
 @HAVE_SSE2_TRUE@am__EXEEXT_2 = tests/test_ssw$(EXEEXT) \
-@HAVE_SSE2_TRUE@	tests/ssw_test$(EXEEXT) \
 @HAVE_SSE2_TRUE@	tests/ssw_vs_pssw$(EXEEXT)
-@HAVE_ALTIVEC_TRUE@am__EXEEXT_3 = tests/test_altivec$(EXEEXT)
+@HAVE_SSE2_TRUE@@HAVE_ZLIB_TRUE@am__EXEEXT_3 =  \
+@HAVE_SSE2_TRUE@@HAVE_ZLIB_TRUE@	tests/ssw_test$(EXEEXT)
+@HAVE_ALTIVEC_TRUE@am__EXEEXT_4 = tests/test_altivec$(EXEEXT)
 PROGRAMS = $(bin_PROGRAMS)
 am_apps_parasail_aligner_OBJECTS =  \
 	apps/apps_parasail_aligner-parasail_aligner.$(OBJEXT)
@@ -1626,7 +1627,7 @@ tests_test_matrix_DEPENDENCIES = libparasail.la
 am_tests_test_openmp_OBJECTS =  \
 	tests/tests_test_openmp-test_openmp.$(OBJEXT)
 tests_test_openmp_OBJECTS = $(am_tests_test_openmp_OBJECTS)
-tests_test_openmp_DEPENDENCIES = $(LDADD) $(am__append_19)
+tests_test_openmp_DEPENDENCIES = $(LDADD) $(am__append_20)
 tests_test_openmp_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(tests_test_openmp_CFLAGS) $(CFLAGS) \
@@ -1643,7 +1644,7 @@ tests_test_query_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 am_tests_test_scatter_OBJECTS =  \
 	tests/tests_test_scatter-test_scatter.$(OBJEXT)
 tests_test_scatter_OBJECTS = $(am_tests_test_scatter_OBJECTS)
-tests_test_scatter_DEPENDENCIES = $(LDADD) $(am__append_20)
+tests_test_scatter_DEPENDENCIES = $(LDADD) $(am__append_21)
 tests_test_scatter_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(tests_test_scatter_CFLAGS) $(CFLAGS) \
@@ -2826,7 +2827,7 @@ tests_test_openmp_SOURCES = tests/test_openmp.c tests/timer.h \
 	tests/timer_real.h
 tests_test_openmp_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_test_openmp_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
-tests_test_openmp_LDADD = $(LDADD) $(am__append_19)
+tests_test_openmp_LDADD = $(LDADD) $(am__append_20)
 tests_test_query_SOURCES = tests/test_query.c tests/timer.h \
 	tests/timer_real.h
 tests_test_query_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)
@@ -2835,7 +2836,7 @@ tests_test_scatter_SOURCES = tests/test_scatter.c tests/timer.h \
 	tests/timer_real.h
 tests_test_scatter_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_test_scatter_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
-tests_test_scatter_LDADD = $(LDADD) $(am__append_20)
+tests_test_scatter_LDADD = $(LDADD) $(am__append_21)
 tests_test_ssw_SOURCES = tests/test_ssw.cpp
 tests_test_ssw_CXXFLAGS = $(AM_CXXFLAGS) $(OPENMP_CXXFLAGS)
 tests_test_ssw_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CXXFLAGS)

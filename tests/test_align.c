@@ -740,9 +740,9 @@ int main(int argc, char **argv)
             stats_sample_value(&stats_rdtsc, timer_rdtsc_single);
             stats_sample_value(&stats_nsecs, timer_nsecs_single);
             score = parasail_result_get_score(result);
-            similar = parasail_result_get_similar(result);
-            matches = parasail_result_get_matches(result);
-            length = parasail_result_get_length(result);
+            similar = 0;
+            matches = 0;
+            length = 0;
             end_query = parasail_result_get_end_query(result);
             end_ref = parasail_result_get_end_ref(result);
             saturated = parasail_result_is_saturated(result);

@@ -13,6 +13,7 @@ void compare(const char *s1, const char *s2)
     char *cigar_str = NULL;
     int s1Len = (int)strlen(s1);
     int s2Len = (int)strlen(s2);
+    char *sat = "OKAY";
     
     printf("comparing '%s'\n"
            "          '%s'\n", s1, s2);
@@ -21,7 +22,8 @@ void compare(const char *s1, const char *s2)
     result = parasail_nw_trace_scan_profile_sat(profile, s2, s2Len, 9, 1);
     cigar = parasail_result_get_cigar(result, s1, s1Len, s2, s2Len, &parasail_blosum62);
     cigar_str = parasail_cigar_decode(cigar);
-    printf("%10s cigar_str='%s'\n", "prof sat", cigar_str);
+    sat = parasail_result_is_saturated(result) ? "FAIL" : "OKAY";
+    printf("%s %10s cigar_str='%s'\n", sat, "prof sat", cigar_str);
 
     free(cigar_str);
     parasail_cigar_free(cigar);
@@ -31,7 +33,8 @@ void compare(const char *s1, const char *s2)
     result = parasail_nw_trace_striped_sse41_128_8(s1, s1Len, s2, s2Len, 9, 1, &parasail_blosum62);
     cigar = parasail_result_get_cigar(result, s1, s1Len, s2, s2Len, &parasail_blosum62);
     cigar_str = parasail_cigar_decode(cigar);
-    printf("%10s cigar_str='%s'\n", "striped 8", cigar_str);
+    sat = parasail_result_is_saturated(result) ? "FAIL" : "OKAY";
+    printf("%s %10s cigar_str='%s'\n", sat, "striped 8", cigar_str);
 
     free(cigar_str);
     parasail_cigar_free(cigar);
@@ -40,7 +43,8 @@ void compare(const char *s1, const char *s2)
     result = parasail_nw_trace_striped_sse41_128_16(s1, s1Len, s2, s2Len, 9, 1, &parasail_blosum62);
     cigar = parasail_result_get_cigar(result, s1, s1Len, s2, s2Len, &parasail_blosum62);
     cigar_str = parasail_cigar_decode(cigar);
-    printf("%10s cigar_str='%s'\n", "striped 16", cigar_str);
+    sat = parasail_result_is_saturated(result) ? "FAIL" : "OKAY";
+    printf("%s %10s cigar_str='%s'\n", sat, "striped 16", cigar_str);
 
     free(cigar_str);
     parasail_cigar_free(cigar);
@@ -49,7 +53,8 @@ void compare(const char *s1, const char *s2)
     result = parasail_nw_trace_striped_sse41_128_32(s1, s1Len, s2, s2Len, 9, 1, &parasail_blosum62);
     cigar = parasail_result_get_cigar(result, s1, s1Len, s2, s2Len, &parasail_blosum62);
     cigar_str = parasail_cigar_decode(cigar);
-    printf("%10s cigar_str='%s'\n", "striped 32", cigar_str);
+    sat = parasail_result_is_saturated(result) ? "FAIL" : "OKAY";
+    printf("%s %10s cigar_str='%s'\n", sat, "striped 32", cigar_str);
 
     free(cigar_str);
     parasail_cigar_free(cigar);
@@ -58,7 +63,8 @@ void compare(const char *s1, const char *s2)
     result = parasail_nw_trace_striped_sse41_128_64(s1, s1Len, s2, s2Len, 9, 1, &parasail_blosum62);
     cigar = parasail_result_get_cigar(result, s1, s1Len, s2, s2Len, &parasail_blosum62);
     cigar_str = parasail_cigar_decode(cigar);
-    printf("%10s cigar_str='%s'\n", "striped 64", cigar_str);
+    sat = parasail_result_is_saturated(result) ? "FAIL" : "OKAY";
+    printf("%s %10s cigar_str='%s'\n", sat, "striped 64", cigar_str);
 
     free(cigar_str);
     parasail_cigar_free(cigar);
@@ -67,7 +73,8 @@ void compare(const char *s1, const char *s2)
     result = parasail_nw_trace_scan_sse41_128_8(s1, s1Len, s2, s2Len, 9, 1, &parasail_blosum62);
     cigar = parasail_result_get_cigar(result, s1, s1Len, s2, s2Len, &parasail_blosum62);
     cigar_str = parasail_cigar_decode(cigar);
-    printf("%10s cigar_str='%s'\n", "scan 8", cigar_str);
+    sat = parasail_result_is_saturated(result) ? "FAIL" : "OKAY";
+    printf("%s %10s cigar_str='%s'\n", sat, "scan 8", cigar_str);
 
     free(cigar_str);
     parasail_cigar_free(cigar);
@@ -76,7 +83,8 @@ void compare(const char *s1, const char *s2)
     result = parasail_nw_trace_scan_sse41_128_16(s1, s1Len, s2, s2Len, 9, 1, &parasail_blosum62);
     cigar = parasail_result_get_cigar(result, s1, s1Len, s2, s2Len, &parasail_blosum62);
     cigar_str = parasail_cigar_decode(cigar);
-    printf("%10s cigar_str='%s'\n", "scan 16", cigar_str);
+    sat = parasail_result_is_saturated(result) ? "FAIL" : "OKAY";
+    printf("%s %10s cigar_str='%s'\n", sat, "scan 16", cigar_str);
 
     free(cigar_str);
     parasail_cigar_free(cigar);
@@ -85,7 +93,8 @@ void compare(const char *s1, const char *s2)
     result = parasail_nw_trace_scan_sse41_128_32(s1, s1Len, s2, s2Len, 9, 1, &parasail_blosum62);
     cigar = parasail_result_get_cigar(result, s1, s1Len, s2, s2Len, &parasail_blosum62);
     cigar_str = parasail_cigar_decode(cigar);
-    printf("%10s cigar_str='%s'\n", "scan 32", cigar_str);
+    sat = parasail_result_is_saturated(result) ? "FAIL" : "OKAY";
+    printf("%s %10s cigar_str='%s'\n", sat, "scan 32", cigar_str);
 
     free(cigar_str);
     parasail_cigar_free(cigar);
@@ -94,7 +103,8 @@ void compare(const char *s1, const char *s2)
     result = parasail_nw_trace_scan_sse41_128_64(s1, s1Len, s2, s2Len, 9, 1, &parasail_blosum62);
     cigar = parasail_result_get_cigar(result, s1, s1Len, s2, s2Len, &parasail_blosum62);
     cigar_str = parasail_cigar_decode(cigar);
-    printf("%10s cigar_str='%s'\n", "scan 64", cigar_str);
+    sat = parasail_result_is_saturated(result) ? "FAIL" : "OKAY";
+    printf("%s %10s cigar_str='%s'\n", sat, "scan 64", cigar_str);
 
     free(cigar_str);
     parasail_cigar_free(cigar);
@@ -103,7 +113,8 @@ void compare(const char *s1, const char *s2)
     result = parasail_nw_trace_scan(s1, s1Len, s2, s2Len, 9, 1, &parasail_blosum62);
     cigar = parasail_result_get_cigar(result, s1, s1Len, s2, s2Len, &parasail_blosum62);
     cigar_str = parasail_cigar_decode(cigar);
-    printf("%10s cigar_str='%s'\n", "scan", cigar_str);
+    sat = parasail_result_is_saturated(result) ? "FAIL" : "OKAY";
+    printf("%s %10s cigar_str='%s'\n", sat, "scan", cigar_str);
 
     free(cigar_str);
     parasail_cigar_free(cigar);

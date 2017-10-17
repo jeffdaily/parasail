@@ -89,8 +89,8 @@ check_PROGRAMS = tests/traceback$(EXEEXT) tests/test_align$(EXEEXT) \
 	tests/test_scatter$(EXEEXT) tests/test_sw_dispatch$(EXEEXT) \
 	tests/test_verify$(EXEEXT) tests/test_verify_tables$(EXEEXT) \
 	tests/test_verify_rowcols$(EXEEXT) \
-	tests/test_verify_traces$(EXEEXT) $(am__EXEEXT_2) \
-	$(am__EXEEXT_3) $(am__EXEEXT_4)
+	tests/test_verify_traces$(EXEEXT) tests/test_12$(EXEEXT) \
+	$(am__EXEEXT_2) $(am__EXEEXT_3) $(am__EXEEXT_4)
 @HAVE_SSE_TRUE@am__append_1 = libparasail_sse_memory.la
 @HAVE_SSE2_TRUE@am__append_2 = libparasail_sse2.la \
 @HAVE_SSE2_TRUE@	libparasail_sse2_table.la \
@@ -1600,6 +1600,10 @@ tests_ssw_test_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 am_tests_ssw_vs_pssw_OBJECTS = tests/ssw_vs_pssw.$(OBJEXT)
 tests_ssw_vs_pssw_OBJECTS = $(am_tests_ssw_vs_pssw_OBJECTS)
 tests_ssw_vs_pssw_DEPENDENCIES = $(LDADD) tests/libssw.la
+am_tests_test_12_OBJECTS = tests/test_12.$(OBJEXT)
+tests_test_12_OBJECTS = $(am_tests_test_12_OBJECTS)
+tests_test_12_LDADD = $(LDADD)
+tests_test_12_DEPENDENCIES = libparasail.la
 am_tests_test_align_OBJECTS = tests/test_align.$(OBJEXT)
 tests_test_align_OBJECTS = $(am_tests_test_align_OBJECTS)
 tests_test_align_LDADD = $(LDADD)
@@ -1782,13 +1786,13 @@ SOURCES = $(libparasail_la_SOURCES) $(libparasail_altivec_la_SOURCES) \
 	$(apps_parasail_aligner_SOURCES) \
 	$(apps_parasail_aligner_cilk_SOURCES) \
 	$(apps_parasail_stats_SOURCES) $(tests_ssw_test_SOURCES) \
-	$(tests_ssw_vs_pssw_SOURCES) $(tests_test_align_SOURCES) \
-	$(tests_test_altivec_SOURCES) $(tests_test_gcups_SOURCES) \
-	$(tests_test_io_SOURCES) $(tests_test_isa_SOURCES) \
-	$(tests_test_matrix_SOURCES) $(tests_test_openmp_SOURCES) \
-	$(tests_test_query_SOURCES) $(tests_test_scatter_SOURCES) \
-	$(tests_test_ssw_SOURCES) $(tests_test_sw_dispatch_SOURCES) \
-	$(tests_test_verify_SOURCES) \
+	$(tests_ssw_vs_pssw_SOURCES) $(tests_test_12_SOURCES) \
+	$(tests_test_align_SOURCES) $(tests_test_altivec_SOURCES) \
+	$(tests_test_gcups_SOURCES) $(tests_test_io_SOURCES) \
+	$(tests_test_isa_SOURCES) $(tests_test_matrix_SOURCES) \
+	$(tests_test_openmp_SOURCES) $(tests_test_query_SOURCES) \
+	$(tests_test_scatter_SOURCES) $(tests_test_ssw_SOURCES) \
+	$(tests_test_sw_dispatch_SOURCES) $(tests_test_verify_SOURCES) \
 	$(tests_test_verify_rowcols_SOURCES) \
 	$(tests_test_verify_tables_SOURCES) \
 	$(tests_test_verify_traces_SOURCES) $(tests_traceback_SOURCES)
@@ -1820,13 +1824,13 @@ DIST_SOURCES = $(am__libparasail_la_SOURCES_DIST) \
 	$(apps_parasail_aligner_SOURCES) \
 	$(apps_parasail_aligner_cilk_SOURCES) \
 	$(apps_parasail_stats_SOURCES) $(tests_ssw_test_SOURCES) \
-	$(tests_ssw_vs_pssw_SOURCES) $(tests_test_align_SOURCES) \
-	$(tests_test_altivec_SOURCES) $(tests_test_gcups_SOURCES) \
-	$(tests_test_io_SOURCES) $(tests_test_isa_SOURCES) \
-	$(tests_test_matrix_SOURCES) $(tests_test_openmp_SOURCES) \
-	$(tests_test_query_SOURCES) $(tests_test_scatter_SOURCES) \
-	$(tests_test_ssw_SOURCES) $(tests_test_sw_dispatch_SOURCES) \
-	$(tests_test_verify_SOURCES) \
+	$(tests_ssw_vs_pssw_SOURCES) $(tests_test_12_SOURCES) \
+	$(tests_test_align_SOURCES) $(tests_test_altivec_SOURCES) \
+	$(tests_test_gcups_SOURCES) $(tests_test_io_SOURCES) \
+	$(tests_test_isa_SOURCES) $(tests_test_matrix_SOURCES) \
+	$(tests_test_openmp_SOURCES) $(tests_test_query_SOURCES) \
+	$(tests_test_scatter_SOURCES) $(tests_test_ssw_SOURCES) \
+	$(tests_test_sw_dispatch_SOURCES) $(tests_test_verify_SOURCES) \
 	$(tests_test_verify_rowcols_SOURCES) \
 	$(tests_test_verify_tables_SOURCES) \
 	$(tests_test_verify_traces_SOURCES) $(tests_traceback_SOURCES)
@@ -2863,6 +2867,7 @@ tests_test_verify_traces_SOURCES = tests/test_verify_traces.c \
 	tests/func_verify_traces.h
 tests_test_verify_traces_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_test_verify_traces_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
+tests_test_12_SOURCES = tests/test_12.c
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -5446,6 +5451,12 @@ tests/ssw_vs_pssw.$(OBJEXT): tests/$(am__dirstamp) \
 tests/ssw_vs_pssw$(EXEEXT): $(tests_ssw_vs_pssw_OBJECTS) $(tests_ssw_vs_pssw_DEPENDENCIES) $(EXTRA_tests_ssw_vs_pssw_DEPENDENCIES) tests/$(am__dirstamp)
 	@rm -f tests/ssw_vs_pssw$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(tests_ssw_vs_pssw_OBJECTS) $(tests_ssw_vs_pssw_LDADD) $(LIBS)
+tests/test_12.$(OBJEXT): tests/$(am__dirstamp) \
+	tests/$(DEPDIR)/$(am__dirstamp)
+
+tests/test_12$(EXEEXT): $(tests_test_12_OBJECTS) $(tests_test_12_DEPENDENCIES) $(EXTRA_tests_test_12_DEPENDENCIES) tests/$(am__dirstamp)
+	@rm -f tests/test_12$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(tests_test_12_OBJECTS) $(tests_test_12_LDADD) $(LIBS)
 tests/test_align.$(OBJEXT): tests/$(am__dirstamp) \
 	tests/$(DEPDIR)/$(am__dirstamp)
 
@@ -6708,6 +6719,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/time.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/traceback.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/ssw_vs_pssw.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_12.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_align.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_altivec.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_gcups.Po@am__quote@

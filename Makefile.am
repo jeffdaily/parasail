@@ -1023,6 +1023,7 @@ check_PROGRAMS += tests/test_verify
 check_PROGRAMS += tests/test_verify_tables
 check_PROGRAMS += tests/test_verify_rowcols
 check_PROGRAMS += tests/test_verify_traces
+check_PROGRAMS += tests/test_12
 if HAVE_SSE2
 check_PROGRAMS += tests/test_ssw
 check_PROGRAMS += tests/ssw_vs_pssw
@@ -1122,7 +1123,9 @@ tests_ssw_vs_pssw_LDADD   += tests/libssw.la
 
 tests_test_sw_dispatch_SOURCES = tests/test_sw_dispatch.c
 
-tests_test_verify_SOURCES = tests/test_verify.c tests/func_verify.h
+tests_test_verify_SOURCES =
+tests_test_verify_SOURCES += tests/test_verify.c
+tests_test_verify_SOURCES += tests/func_verify.h
 tests_test_verify_CFLAGS  = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_test_verify_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
 
@@ -1143,6 +1146,8 @@ tests_test_verify_traces_SOURCES += tests/test_verify_traces.c
 tests_test_verify_traces_SOURCES += tests/func_verify_traces.h
 tests_test_verify_traces_CFLAGS  = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_test_verify_traces_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
+
+tests_test_12_SOURCES = tests/test_12.c
 
 EXTRA_DIST += .gitignore
 EXTRA_DIST += .travis.yml

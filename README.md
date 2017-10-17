@@ -398,7 +398,7 @@ parasail_result_t* parasail_nw_banded(
 
 [back to top]
 
-Parasail can parse FASTA, FASTQ, and gzipped versions of such files. Additionally, some statistics are calculated while the file is parsed.
+Parasail can parse FASTA, FASTQ, and gzipped versions of such files if zlib was found during the configure step. Additionally, some statistics are calculated while the file is parsed.
 
 ```C
 typedef struct parasail_string {

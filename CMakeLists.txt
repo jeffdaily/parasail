@@ -906,6 +906,15 @@ IF( OPENMP_FOUND )
 ENDIF( )
 TARGET_LINK_LIBRARIES( test_verify_traces parasail )
 
+ADD_EXECUTABLE( test_verify_cigars tests/test_verify_cigars.c ${maybe_getopt} )
+IF( OPENMP_FOUND )
+    SET_TARGET_PROPERTIES( test_verify_cigars PROPERTIES COMPILE_FLAGS ${OpenMP_CXX_FLAGS} )
+    IF( NOT WIN32 )
+        SET_TARGET_PROPERTIES( test_verify_cigars PROPERTIES LINK_FLAGS ${OpenMP_CXX_FLAGS} )
+    ENDIF( )
+ENDIF( )
+TARGET_LINK_LIBRARIES( test_verify_cigars parasail )
+
 INSTALL( FILES parasail.h DESTINATION include )
 INSTALL( DIRECTORY parasail DESTINATION include )
 INSTALL( TARGETS parasail parasail_aligner parasail_stats

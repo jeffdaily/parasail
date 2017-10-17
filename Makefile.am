@@ -1023,6 +1023,7 @@ check_PROGRAMS += tests/test_verify
 check_PROGRAMS += tests/test_verify_tables
 check_PROGRAMS += tests/test_verify_rowcols
 check_PROGRAMS += tests/test_verify_traces
+check_PROGRAMS += tests/test_verify_cigars
 check_PROGRAMS += tests/test_12
 if HAVE_SSE2
 check_PROGRAMS += tests/test_ssw
@@ -1146,6 +1147,12 @@ tests_test_verify_traces_SOURCES += tests/test_verify_traces.c
 tests_test_verify_traces_SOURCES += tests/func_verify_traces.h
 tests_test_verify_traces_CFLAGS  = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_test_verify_traces_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
+
+tests_test_verify_cigars_SOURCES =
+tests_test_verify_cigars_SOURCES += tests/test_verify_cigars.c
+tests_test_verify_cigars_SOURCES += tests/func_verify_traces.h
+tests_test_verify_cigars_CFLAGS  = $(AM_CFLAGS) $(OPENMP_CFLAGS)
+tests_test_verify_cigars_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
 
 tests_test_12_SOURCES = tests/test_12.c
 

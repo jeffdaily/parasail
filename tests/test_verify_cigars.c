@@ -75,35 +75,6 @@ static inline void k_combination2(
     *b = (unsigned long)(i);
 }
 
-static inline int diff_array(
-        unsigned long s1Len,
-        unsigned long s2Len,
-        int *a,
-        int *b_,
-        parasail_result_t *result)
-{
-    unsigned long i = 0;
-    unsigned long size = s1Len * s2Len;
-    int *b = NULL;
-    if ((result->flag & PARASAIL_FLAG_TRACE)
-            && ((result->flag & PARASAIL_FLAG_STRIPED)
-            ||  (result->flag & PARASAIL_FLAG_SCAN))) {
-        b = parasail_striped_unwind(s1Len, s2Len, result, b_);
-    }
-    else {
-        b = b_;
-    }
-    for (i=0; i<size; ++i) {
-        if (a[i] != b[i]) return 1;
-    }
-    if ((result->flag & PARASAIL_FLAG_TRACE)
-            && ((result->flag & PARASAIL_FLAG_STRIPED)
-            ||  (result->flag & PARASAIL_FLAG_SCAN))) {
-        free(b);
-    }
-    return 0;
-}
-
 static void check_functions(
         parasail_function_group_t f,
         parasail_sequences_t *sequences,
@@ -153,12 +124,10 @@ static void check_functions(
                     parasail_result_t *result = NULL;
                     unsigned long a = 0;
                     unsigned long b = 1;
-                    int *ref_trace_table = NULL;
-                    int *ref_trace_ins_table = NULL;
-                    int *ref_trace_del_table = NULL;
-                    int *trace_table = NULL;
-                    int *trace_ins_table = NULL;
-                    int *trace_del_table = NULL;
+                    parasail_cigar_t *ref_cigar = NULL;
+                    parasail_cigar_t *tst_cigar = NULL;
+                    char *ref_cigar_str = NULL;
+                    char *tst_cigar_str = NULL;
                     size_t size_a = sequences->seqs[a].seq.l;
                     size_t size_b = sequences->seqs[b].seq.l;
                     k_combination2(pair_index, &a, &b);
@@ -181,12 +150,16 @@ static void check_functions(
                         saturated += 1;
                         continue;
                     }
-                    ref_trace_table = parasail_result_get_trace_table(reference_result);
-                    ref_trace_ins_table = parasail_result_get_trace_ins_table(reference_result);
-                    ref_trace_del_table = parasail_result_get_trace_del_table(reference_result);
-                    trace_table = parasail_result_get_trace_table(result);
-                    trace_ins_table = parasail_result_get_trace_ins_table(result);
-                    trace_del_table = parasail_result_get_trace_del_table(result);
+                    ref_cigar = parasail_result_get_cigar(reference_result,
+                            sequences->seqs[a].seq.s, size_a,
+                            sequences->seqs[b].seq.s, size_b,
+                            matrix);
+                    tst_cigar = parasail_result_get_cigar(result,
+                            sequences->seqs[a].seq.s, size_a,
+                            sequences->seqs[b].seq.s, size_b,
+                            matrix);
+                    ref_cigar_str = parasail_cigar_decode(ref_cigar);
+                    tst_cigar_str = parasail_cigar_decode(tst_cigar);
                     if (reference_result->score != result->score) {
 #pragma omp critical(printer)
                         {
@@ -197,33 +170,10 @@ static void check_functions(
                                     reference_result->score, result->score);
                         }
                     }
-                    if (diff_array(size_a, size_b, ref_trace_table, trace_table, result)) {
-#pragma omp critical(printer)
-                        {
-                            printf("%s(%lu,%lu,%d,%d,%s) bad trace table\n",
-                                    functions[function_index].name,
-                                    a, b, open, extend,
-                                    matrixname);
-                        }
-                    }
-                    if (diff_array(size_a, size_b, ref_trace_ins_table, trace_ins_table, result)) {
-#pragma omp critical(printer)
-                        {
-                            printf("%s(%lu,%lu,%d,%d,%s) bad ins trace table\n",
-                                    functions[function_index].name,
-                                    a, b, open, extend,
-                                    matrixname);
-                        }
-                    }
-                    if (diff_array(size_a, size_b, ref_trace_del_table, trace_del_table, result)) {
-#pragma omp critical(printer)
-                        {
-                            printf("%s(%lu,%lu,%d,%d,%s) bad del trace table\n",
-                                    functions[function_index].name,
-                                    a, b, open, extend,
-                                    matrixname);
-                        }
-                    }
+                    free(ref_cigar_str);
+                    free(tst_cigar_str);
+                    parasail_cigar_free(ref_cigar);
+                    parasail_cigar_free(tst_cigar);
                     parasail_result_free(reference_result);
                     parasail_result_free(result);
                 }

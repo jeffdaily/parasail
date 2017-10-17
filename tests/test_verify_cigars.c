@@ -75,6 +75,19 @@ static inline void k_combination2(
     *b = (unsigned long)(i);
 }
 
+static inline int diff_cigar(
+        uint32_t *a,
+        uint32_t *b,
+        int lena,
+        int lenb)
+{
+    int i = 0;
+    for (i=0; i<lena; ++i) {
+        if (a[i] != b[i]) return 1;
+    }
+    return 0;
+}
+
 static void check_functions(
         parasail_function_group_t f,
         parasail_sequences_t *sequences,
@@ -168,6 +181,45 @@ static void check_functions(
                                     a, b, open, extend,
                                     matrixname,
                                     reference_result->score, result->score);
+                        }
+                    }
+                    if (ref_cigar->len != tst_cigar->len) {
+#pragma omp critical(printer)
+                        {
+                            printf("%s(%lu,%lu,%d,%d,%s) wrong cigar len (%d!=%d)\n",
+                                    functions[function_index].name,
+                                    a, b, open, extend,
+                                    matrixname,
+                                    ref_cigar->len, tst_cigar->len);
+                        }
+                    }
+                    if (ref_cigar->beg_query != tst_cigar->beg_query) {
+#pragma omp critical(printer)
+                        {
+                            printf("%s(%lu,%lu,%d,%d,%s) wrong cigar beg_query (%d!=%d)\n",
+                                    functions[function_index].name,
+                                    a, b, open, extend,
+                                    matrixname,
+                                    ref_cigar->beg_query, tst_cigar->beg_query);
+                        }
+                    }
+                    if (ref_cigar->beg_ref != tst_cigar->beg_ref) {
+#pragma omp critical(printer)
+                        {
+                            printf("%s(%lu,%lu,%d,%d,%s) wrong cigar beg_ref (%d!=%d)\n",
+                                    functions[function_index].name,
+                                    a, b, open, extend,
+                                    matrixname,
+                                    ref_cigar->beg_ref, tst_cigar->beg_ref);
+                        }
+                    }
+                    if (diff_cigar(ref_cigar->seq, tst_cigar->seq, ref_cigar->len, tst_cigar->len)) {
+#pragma omp critical(printer)
+                        {
+                            printf("%s(%lu,%lu,%d,%d,%s) bad cigar seq\n",
+                                    functions[function_index].name,
+                                    a, b, open, extend,
+                                    matrixname);
                         }
                     }
                     free(ref_cigar_str);

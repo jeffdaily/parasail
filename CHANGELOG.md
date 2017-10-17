@@ -7,6 +7,17 @@ This project follows the [Gitflow Workflow model](https://www.atlassian.com/git/
 ## [Unreleased]
 The Unreleased section will be empty for tagged releases. Unreleased functionality appears in the develop branch.
 
+## [2.0.2] - 2017-10-17
+### Added
+- [manylinux] release builds.
+
+### Fixed
+- Traceback/cigar now works for non-striped alignment functions. A significant bug caused incorrect cigar strings and tracebacks for any alignment routine besides 'striped'.  Thanks to [huxihao] for the issue report on [parasail-python].
+
+### Closed Issues
+- strdup implicitly declared in parser.c [\#37]
+- make check fails without zlib [\#36]
+
 ## [2.0.1] - 2017-09-29
 ### Fixed
 - SSW emulation seg fault when using score_size flag.
@@ -179,9 +190,8 @@ The Unreleased section will be empty for tagged releases. Unreleased functionali
 ## [1.0.0] - 2015-09-16
 First stable, production-ready version of parasail.
 
-[parasail-python]: https://github.com/jeffdaily/parasail-python
-
-[Unreleased]: https://github.com/jeffdaily/parasail/compare/v2.0.1...develop
+[Unreleased]: https://github.com/jeffdaily/parasail/compare/v2.0.2...develop
+[2.0.2]: https://github.com/jeffdaily/parasail/compare/v2.0.1...v2.0.2
 [2.0.1]: https://github.com/jeffdaily/parasail/compare/v2.0...v2.0.1
 [2.0]:   https://github.com/jeffdaily/parasail/compare/v1.3.1...v2.0
 [1.3.1]: https://github.com/jeffdaily/parasail/compare/v1.3...v1.3.1
@@ -195,6 +205,8 @@ First stable, production-ready version of parasail.
 [1.0.1]: https://github.com/jeffdaily/parasail/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/jeffdaily/parasail/releases/tag/v1.0.0
 
+[\#37]: https://github.com/jeffdaily/parasail/issues/37
+[\#36]: https://github.com/jeffdaily/parasail/issues/36
 [\#35]: https://github.com/jeffdaily/parasail/issues/35
 [\#34]: https://github.com/jeffdaily/parasail/issues/34
 [\#33]: https://github.com/jeffdaily/parasail/issues/33
@@ -231,6 +243,9 @@ First stable, production-ready version of parasail.
 [\#2]: https://github.com/jeffdaily/parasail/issues/2
 [\#1]: https://github.com/jeffdaily/parasail/issues/1
 
+[manylinux]: https://github.com/pypa/manylinux
+[parasail-python]: https://github.com/jeffdaily/parasail-python
+[huxihao]: https://github.com/huxihao
 [armintoepfer]: https://github.com/armintoepfer
 [GrappoloTK]: https://github.com/luhowardmark/GrappoloTK
 [SSW]: https://github.com/mengyao/Complete-Striped-Smith-Waterman-Library

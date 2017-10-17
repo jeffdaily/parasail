@@ -200,7 +200,9 @@ parasail_cigar_t* parasail_result_get_cigar(
         int lenb,
         const parasail_matrix_t *matrix)
 {
-    if (result->flag & PARASAIL_FLAG_STRIPED) {
+    assert(parasail_result_is_trace(result));
+
+    if (result->flag & PARASAIL_FLAG_STRIPED || result->flag & PARASAIL_FLAG_SCAN) {
         if (result->flag & PARASAIL_FLAG_BITS_8) {
             return parasail_cigar_striped_8(seqA, lena, seqB, lenb, matrix, result);
         }
@@ -215,18 +217,13 @@ parasail_cigar_t* parasail_result_get_cigar(
         }
     }
     else {
-        if (result->flag & PARASAIL_FLAG_BITS_8) {
-            return parasail_cigar_8(seqA, lena, seqB, lenb, matrix, result);
-        }
-        else if (result->flag & PARASAIL_FLAG_BITS_16) {
-            return parasail_cigar_16(seqA, lena, seqB, lenb, matrix, result);
-        }
-        else if (result->flag & PARASAIL_FLAG_BITS_32) {
-            return parasail_cigar_32(seqA, lena, seqB, lenb, matrix, result);
-        }
-        else if (result->flag & PARASAIL_FLAG_BITS_64) {
-            return parasail_cigar_64(seqA, lena, seqB, lenb, matrix, result);
-        }
+#if SIZEOF_INT == 2
+        return parasail_cigar_16(seqA, lena, seqB, lenb, matrix, result);
+#elif SIZEOF_INT == 4
+        return parasail_cigar_32(seqA, lena, seqB, lenb, matrix, result);
+#elif SIZEOF_INT == 8
+        return parasail_cigar_64(seqA, lena, seqB, lenb, matrix, result);
+#endif
     }
     
     /* should not get here, but to silence warnings */

@@ -384,10 +384,10 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    seqA = sequences->seqs[seqA_index].name.s;
-    seqB = sequences->seqs[seqB_index].name.s;
-    lena = sequences->seqs[seqA_index].name.l;
-    lenb = sequences->seqs[seqB_index].name.l;
+    seqA = sequences->seqs[seqA_index].seq.s;
+    seqB = sequences->seqs[seqB_index].seq.s;
+    lena = sequences->seqs[seqA_index].seq.l;
+    lenb = sequences->seqs[seqB_index].seq.l;
 
     printf("file: %s\n", filename);
     printf("matrix: %s\n", matrixname);

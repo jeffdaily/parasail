@@ -273,14 +273,6 @@ extern void parasail_traceback_generic(
         int name_width,
         int use_stats);
 
-#ifndef BAM_CIGAR_STR
-/*                     0123456789 */
-#define BAM_CIGAR_STR "MIDNSHP=XB"
-#endif
-#ifndef BAM_CIGAR_SHIFT
-#define BAM_CIGAR_SHIFT 4u
-#endif
-
 extern const uint8_t parasail_cigar_encoded_ops[];
 
 typedef struct parasail_cigar_ {

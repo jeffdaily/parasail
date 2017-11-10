@@ -1,5 +1,18 @@
 ACLOCAL_AMFLAGS = -I m4
 
+# fix internal am__is_gnu_make for automake < 1.15
+am__is_gnu_make = { \
+  if test -z '$(MAKELEVEL)'; then \
+    false; \
+  elif test -n '$(MAKE_HOST)'; then \
+    true; \
+  elif test -n '$(MAKE_VERSION)' && test -n '$(CURDIR)'; then \
+    true; \
+  else \
+    false; \
+  fi; \
+}
+
 include_HEADERS = parasail.h
 nobase_include_HEADERS =
 lib_LTLIBRARIES = libparasail.la

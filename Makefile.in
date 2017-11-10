@@ -17,7 +17,6 @@
 
 
 VPATH = @srcdir@
-am__is_gnu_make = test -n '$(MAKEFILE_LIST)' && test -n '$(MAKELEVEL)'
 am__make_running_with_option = \
   case $${target_option-} in \
       ?) ;; \
@@ -2068,6 +2067,20 @@ distuninstallcheck_listfiles = find . -type f -print
 am__distuninstallcheck_listfiles = $(distuninstallcheck_listfiles) \
   | sed 's|^\./|$(prefix)/|' | grep -v '$(infodir)/dir$$'
 distcleancheck_listfiles = find . -type f -print
+
+# fix internal am__is_gnu_make for automake < 1.15
+am__is_gnu_make = { \
+  if test -z '$(MAKELEVEL)'; then \
+    false; \
+  elif test -n '$(MAKE_HOST)'; then \
+    true; \
+  elif test -n '$(MAKE_VERSION)' && test -n '$(CURDIR)'; then \
+    true; \
+  else \
+    false; \
+  fi; \
+}
+
 ACLOCAL = @ACLOCAL@
 ALTIVEC_CFLAGS = @ALTIVEC_CFLAGS@
 AMTAR = @AMTAR@

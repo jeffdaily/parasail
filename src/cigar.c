@@ -14,6 +14,10 @@
 #define snprintf _snprintf
 #endif
 
+/*                     0123456789 */
+#define BAM_CIGAR_STR "MIDNSHP=XB"
+#define BAM_CIGAR_SHIFT 4u
+
 /* array index is an ASCII character value from a CIGAR,
    element value is the corresponding integer opcode between 0 and 9 */
 const uint8_t parasail_cigar_encoded_ops[] = {

@@ -7,6 +7,16 @@ This project follows the [Gitflow Workflow model](https://www.atlassian.com/git/
 ## [Unreleased]
 The Unreleased section will be empty for tagged releases. Unreleased functionality appears in the develop branch.
 
+## [2.0.4] - 2017-11-30
+### Fixed
+- CMake add_subdirectory() of parasail project works again. Thanks to
+  [armintoepfer] for the bug report.
+- Preprocessor symbol clash for cigar tracebacks. [\#40]
+- Patch Makefile.in to avoid automake bug during 'make check'.
+
+### Closed Issues
+- Ambiguous define with htslib [\#40]
+
 ## [2.0.3] - 2017-11-3
 ### Merged Pull Requests
 - Fix installed includes [\#38] ([rkern])
@@ -194,7 +204,8 @@ The Unreleased section will be empty for tagged releases. Unreleased functionali
 ## [1.0.0] - 2015-09-16
 First stable, production-ready version of parasail.
 
-[Unreleased]: https://github.com/jeffdaily/parasail/compare/v2.0.3...develop
+[Unreleased]: https://github.com/jeffdaily/parasail/compare/v2.0.4...develop
+[2.0.4]: https://github.com/jeffdaily/parasail/compare/v2.0.3...v2.0.4
 [2.0.3]: https://github.com/jeffdaily/parasail/compare/v2.0.2...v2.0.3
 [2.0.2]: https://github.com/jeffdaily/parasail/compare/v2.0.1...v2.0.2
 [2.0.1]: https://github.com/jeffdaily/parasail/compare/v2.0...v2.0.1
@@ -210,6 +221,8 @@ First stable, production-ready version of parasail.
 [1.0.1]: https://github.com/jeffdaily/parasail/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/jeffdaily/parasail/releases/tag/v1.0.0
 
+[\#40]: https://github.com/jeffdaily/parasail/issues/40
+[\#39]: https://github.com/jeffdaily/parasail/issues/39
 [\#38]: https://github.com/jeffdaily/parasail/issues/38
 [\#37]: https://github.com/jeffdaily/parasail/issues/37
 [\#36]: https://github.com/jeffdaily/parasail/issues/36

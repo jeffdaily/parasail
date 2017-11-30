@@ -1,6 +1,7 @@
 #include "config.h"
 
 #include <ctype.h>
+#include <stdlib.h>
 
 #if defined(_MSC_VER)
 #include "wingetopt/src/getopt.h"

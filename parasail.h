@@ -17,7 +17,7 @@ extern "C" {
 /* Version macros for compile-time API version detection */
 #define PARASAIL_VERSION_MAJOR 2
 #define PARASAIL_VERSION_MINOR 0
-#define PARASAIL_VERSION_PATCH 3
+#define PARASAIL_VERSION_PATCH 4
 
 #define PARASAIL_MAKE_VERSION(major, minor, patch) \
     ((major) * 10000 + (minor) * 100 + (patch))
@@ -272,14 +272,6 @@ extern void parasail_traceback_generic(
         int width,
         int name_width,
         int use_stats);
-
-#ifndef BAM_CIGAR_STR
-/*                     0123456789 */
-#define BAM_CIGAR_STR "MIDNSHP=XB"
-#endif
-#ifndef BAM_CIGAR_SHIFT
-#define BAM_CIGAR_SHIFT 4u
-#endif
 
 extern const uint8_t parasail_cigar_encoded_ops[];
 

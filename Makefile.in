@@ -80,7 +80,7 @@ POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = apps/parasail_aligner$(EXEEXT) \
-	apps/parasail_stats$(EXEEXT) $(am__EXEEXT_1)
+	apps/parasail_stats$(EXEEXT)
 check_PROGRAMS = tests/traceback$(EXEEXT) tests/test_align$(EXEEXT) \
 	tests/test_gcups$(EXEEXT) tests/test_io$(EXEEXT) \
 	tests/test_isa$(EXEEXT) tests/test_matrix$(EXEEXT) \
@@ -90,7 +90,7 @@ check_PROGRAMS = tests/traceback$(EXEEXT) tests/test_align$(EXEEXT) \
 	tests/test_verify_rowcols$(EXEEXT) \
 	tests/test_verify_traces$(EXEEXT) \
 	tests/test_verify_cigars$(EXEEXT) tests/test_12$(EXEEXT) \
-	$(am__EXEEXT_2) $(am__EXEEXT_3) $(am__EXEEXT_4)
+	$(am__EXEEXT_1) $(am__EXEEXT_2) $(am__EXEEXT_3)
 @HAVE_SSE_TRUE@am__append_1 = libparasail_sse_memory.la
 @HAVE_SSE2_TRUE@am__append_2 = libparasail_sse2.la \
 @HAVE_SSE2_TRUE@	libparasail_sse2_table.la \
@@ -128,12 +128,11 @@ check_PROGRAMS = tests/traceback$(EXEEXT) tests/test_align$(EXEEXT) \
 @HAVE_ALTIVEC_TRUE@	libparasail_altivec_table.la \
 @HAVE_ALTIVEC_TRUE@	libparasail_altivec_rowcol.la
 @HAVE_SSE2_TRUE@am__append_15 = tests/libssw.la
-@HAVE_CILK_TRUE@am__append_16 = apps/parasail_aligner_cilk
-@HAVE_SSE2_TRUE@am__append_17 = tests/test_ssw tests/ssw_vs_pssw
-@HAVE_SSE2_TRUE@@HAVE_ZLIB_TRUE@am__append_18 = tests/ssw_test
-@HAVE_ALTIVEC_TRUE@am__append_19 = tests/test_altivec
+@HAVE_SSE2_TRUE@am__append_16 = tests/test_ssw tests/ssw_vs_pssw
+@HAVE_SSE2_TRUE@@HAVE_ZLIB_TRUE@am__append_17 = tests/ssw_test
+@HAVE_ALTIVEC_TRUE@am__append_18 = tests/test_altivec
+@HAVE_SSE2_TRUE@am__append_19 = tests/libssw.la
 @HAVE_SSE2_TRUE@am__append_20 = tests/libssw.la
-@HAVE_SSE2_TRUE@am__append_21 = tests/libssw.la
 TESTS = tests/test_isa$(EXEEXT)
 subdir = .
 DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/Makefile.am \
@@ -152,9 +151,7 @@ ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ax_openmp.m4 \
 	$(top_srcdir)/m4/libtool.m4 $(top_srcdir)/m4/ltoptions.m4 \
 	$(top_srcdir)/m4/ltsugar.m4 $(top_srcdir)/m4/ltversion.m4 \
-	$(top_srcdir)/m4/lt~obsolete.m4 $(top_srcdir)/m4/ps_cilk.m4 \
-	$(top_srcdir)/m4/ps_compiler_vendor.m4 \
-	$(top_srcdir)/configure.ac
+	$(top_srcdir)/m4/lt~obsolete.m4 $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
@@ -1561,12 +1558,11 @@ tests_libssw_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(tests_libssw_la_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
 	-o $@
 @HAVE_SSE2_TRUE@am_tests_libssw_la_rpath =
-@HAVE_CILK_TRUE@am__EXEEXT_1 = apps/parasail_aligner_cilk$(EXEEXT)
-@HAVE_SSE2_TRUE@am__EXEEXT_2 = tests/test_ssw$(EXEEXT) \
+@HAVE_SSE2_TRUE@am__EXEEXT_1 = tests/test_ssw$(EXEEXT) \
 @HAVE_SSE2_TRUE@	tests/ssw_vs_pssw$(EXEEXT)
-@HAVE_SSE2_TRUE@@HAVE_ZLIB_TRUE@am__EXEEXT_3 =  \
+@HAVE_SSE2_TRUE@@HAVE_ZLIB_TRUE@am__EXEEXT_2 =  \
 @HAVE_SSE2_TRUE@@HAVE_ZLIB_TRUE@	tests/ssw_test$(EXEEXT)
-@HAVE_ALTIVEC_TRUE@am__EXEEXT_4 = tests/test_altivec$(EXEEXT)
+@HAVE_ALTIVEC_TRUE@am__EXEEXT_3 = tests/test_altivec$(EXEEXT)
 PROGRAMS = $(bin_PROGRAMS)
 am_apps_parasail_aligner_OBJECTS =  \
 	apps/apps_parasail_aligner-parasail_aligner.$(OBJEXT)
@@ -1576,16 +1572,6 @@ apps_parasail_aligner_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
 	$(apps_parasail_aligner_CXXFLAGS) $(CXXFLAGS) \
 	$(apps_parasail_aligner_LDFLAGS) $(LDFLAGS) -o $@
-am_apps_parasail_aligner_cilk_OBJECTS =  \
-	apps/apps_parasail_aligner_cilk-parasail_aligner.$(OBJEXT)
-apps_parasail_aligner_cilk_OBJECTS =  \
-	$(am_apps_parasail_aligner_cilk_OBJECTS)
-apps_parasail_aligner_cilk_DEPENDENCIES = $(LDADD) \
-	$(am__DEPENDENCIES_1) tests/libsais.la
-apps_parasail_aligner_cilk_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
-	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
-	$(apps_parasail_aligner_cilk_CXXFLAGS) $(CXXFLAGS) \
-	$(apps_parasail_aligner_cilk_LDFLAGS) $(LDFLAGS) -o $@
 am_apps_parasail_stats_OBJECTS = apps/parasail_stats.$(OBJEXT)
 apps_parasail_stats_OBJECTS = $(am_apps_parasail_stats_OBJECTS)
 apps_parasail_stats_LDADD = $(LDADD)
@@ -1631,7 +1617,7 @@ tests_test_matrix_DEPENDENCIES = libparasail.la
 am_tests_test_openmp_OBJECTS =  \
 	tests/tests_test_openmp-test_openmp.$(OBJEXT)
 tests_test_openmp_OBJECTS = $(am_tests_test_openmp_OBJECTS)
-tests_test_openmp_DEPENDENCIES = $(LDADD) $(am__append_20)
+tests_test_openmp_DEPENDENCIES = $(LDADD) $(am__append_19)
 tests_test_openmp_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(tests_test_openmp_CFLAGS) $(CFLAGS) \
@@ -1648,7 +1634,7 @@ tests_test_query_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 am_tests_test_scatter_OBJECTS =  \
 	tests/tests_test_scatter-test_scatter.$(OBJEXT)
 tests_test_scatter_OBJECTS = $(am_tests_test_scatter_OBJECTS)
-tests_test_scatter_DEPENDENCIES = $(LDADD) $(am__append_21)
+tests_test_scatter_DEPENDENCIES = $(LDADD) $(am__append_20)
 tests_test_scatter_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(tests_test_scatter_CFLAGS) $(CFLAGS) \
@@ -1794,7 +1780,6 @@ SOURCES = $(libparasail_la_SOURCES) $(libparasail_altivec_la_SOURCES) \
 	$(libparasail_sse_memory_la_SOURCES) \
 	$(tests_libsais_la_SOURCES) $(tests_libssw_la_SOURCES) \
 	$(apps_parasail_aligner_SOURCES) \
-	$(apps_parasail_aligner_cilk_SOURCES) \
 	$(apps_parasail_stats_SOURCES) $(tests_ssw_test_SOURCES) \
 	$(tests_ssw_vs_pssw_SOURCES) $(tests_test_12_SOURCES) \
 	$(tests_test_align_SOURCES) $(tests_test_altivec_SOURCES) \
@@ -1833,7 +1818,6 @@ DIST_SOURCES = $(am__libparasail_la_SOURCES_DIST) \
 	$(tests_libsais_la_SOURCES) \
 	$(am__tests_libssw_la_SOURCES_DIST) \
 	$(apps_parasail_aligner_SOURCES) \
-	$(apps_parasail_aligner_cilk_SOURCES) \
 	$(apps_parasail_stats_SOURCES) $(tests_ssw_test_SOURCES) \
 	$(tests_ssw_vs_pssw_SOURCES) $(tests_test_12_SOURCES) \
 	$(tests_test_align_SOURCES) $(tests_test_altivec_SOURCES) \
@@ -2098,8 +2082,6 @@ AWK = @AWK@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
-CILK_CXXFLAGS = @CILK_CXXFLAGS@
-CILK_LIBS = @CILK_LIBS@
 CLOCK_LIBS = @CLOCK_LIBS@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
@@ -2839,12 +2821,6 @@ apps_parasail_aligner_SOURCES = apps/parasail_aligner.cpp
 apps_parasail_aligner_CXXFLAGS = $(AM_CXXFLAGS) $(OPENMP_CXXFLAGS)
 apps_parasail_aligner_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CXXFLAGS)
 apps_parasail_aligner_LDADD = $(LDADD) tests/libsais.la
-apps_parasail_aligner_cilk_SOURCES = apps/parasail_aligner.cpp
-apps_parasail_aligner_cilk_CPPFLAGS = $(AM_CPPFLAGS) -DUSE_CILK=1
-apps_parasail_aligner_cilk_CXXFLAGS = $(AM_CXXFLAGS) $(CILK_CXXFLAGS)
-apps_parasail_aligner_cilk_LDFLAGS = $(AM_LDFLAGS) $(CILK_CXXFLAGS)
-apps_parasail_aligner_cilk_LDADD = $(LDADD) $(CILK_LIBS) \
-	tests/libsais.la
 apps_parasail_stats_SOURCES = apps/parasail_stats.c
 tests_traceback_SOURCES = tests/traceback.c
 tests_test_align_SOURCES = tests/test_align.c tests/timer.h \
@@ -2858,7 +2834,7 @@ tests_test_openmp_SOURCES = tests/test_openmp.c tests/timer.h \
 	tests/timer_real.h
 tests_test_openmp_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_test_openmp_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
-tests_test_openmp_LDADD = $(LDADD) $(am__append_20)
+tests_test_openmp_LDADD = $(LDADD) $(am__append_19)
 tests_test_query_SOURCES = tests/test_query.c tests/timer.h \
 	tests/timer_real.h
 tests_test_query_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)
@@ -2867,7 +2843,7 @@ tests_test_scatter_SOURCES = tests/test_scatter.c tests/timer.h \
 	tests/timer_real.h
 tests_test_scatter_CFLAGS = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_test_scatter_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
-tests_test_scatter_LDADD = $(LDADD) $(am__append_21)
+tests_test_scatter_LDADD = $(LDADD) $(am__append_20)
 tests_test_ssw_SOURCES = tests/test_ssw.cpp
 tests_test_ssw_CXXFLAGS = $(AM_CXXFLAGS) $(OPENMP_CXXFLAGS)
 tests_test_ssw_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CXXFLAGS)
@@ -5454,12 +5430,6 @@ apps/apps_parasail_aligner-parasail_aligner.$(OBJEXT):  \
 apps/parasail_aligner$(EXEEXT): $(apps_parasail_aligner_OBJECTS) $(apps_parasail_aligner_DEPENDENCIES) $(EXTRA_apps_parasail_aligner_DEPENDENCIES) apps/$(am__dirstamp)
 	@rm -f apps/parasail_aligner$(EXEEXT)
 	$(AM_V_CXXLD)$(apps_parasail_aligner_LINK) $(apps_parasail_aligner_OBJECTS) $(apps_parasail_aligner_LDADD) $(LIBS)
-apps/apps_parasail_aligner_cilk-parasail_aligner.$(OBJEXT):  \
-	apps/$(am__dirstamp) apps/$(DEPDIR)/$(am__dirstamp)
-
-apps/parasail_aligner_cilk$(EXEEXT): $(apps_parasail_aligner_cilk_OBJECTS) $(apps_parasail_aligner_cilk_DEPENDENCIES) $(EXTRA_apps_parasail_aligner_cilk_DEPENDENCIES) apps/$(am__dirstamp)
-	@rm -f apps/parasail_aligner_cilk$(EXEEXT)
-	$(AM_V_CXXLD)$(apps_parasail_aligner_cilk_LINK) $(apps_parasail_aligner_cilk_OBJECTS) $(apps_parasail_aligner_cilk_LDADD) $(LIBS)
 apps/parasail_stats.$(OBJEXT): apps/$(am__dirstamp) \
 	apps/$(DEPDIR)/$(am__dirstamp)
 
@@ -5606,7 +5576,6 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@apps/$(DEPDIR)/apps_parasail_aligner-parasail_aligner.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@apps/$(DEPDIR)/apps_parasail_aligner_cilk-parasail_aligner.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@apps/$(DEPDIR)/parasail_stats.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@contrib/sais-lite-lcp/$(DEPDIR)/sais.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@contrib/ssw/$(DEPDIR)/tests_libssw_la-ssw.Plo@am__quote@
@@ -14851,20 +14820,6 @@ apps/apps_parasail_aligner-parasail_aligner.obj: apps/parasail_aligner.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='apps/parasail_aligner.cpp' object='apps/apps_parasail_aligner-parasail_aligner.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(apps_parasail_aligner_CXXFLAGS) $(CXXFLAGS) -c -o apps/apps_parasail_aligner-parasail_aligner.obj `if test -f 'apps/parasail_aligner.cpp'; then $(CYGPATH_W) 'apps/parasail_aligner.cpp'; else $(CYGPATH_W) '$(srcdir)/apps/parasail_aligner.cpp'; fi`
-
-apps/apps_parasail_aligner_cilk-parasail_aligner.o: apps/parasail_aligner.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(apps_parasail_aligner_cilk_CPPFLAGS) $(CPPFLAGS) $(apps_parasail_aligner_cilk_CXXFLAGS) $(CXXFLAGS) -MT apps/apps_parasail_aligner_cilk-parasail_aligner.o -MD -MP -MF apps/$(DEPDIR)/apps_parasail_aligner_cilk-parasail_aligner.Tpo -c -o apps/apps_parasail_aligner_cilk-parasail_aligner.o `test -f 'apps/parasail_aligner.cpp' || echo '$(srcdir)/'`apps/parasail_aligner.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) apps/$(DEPDIR)/apps_parasail_aligner_cilk-parasail_aligner.Tpo apps/$(DEPDIR)/apps_parasail_aligner_cilk-parasail_aligner.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='apps/parasail_aligner.cpp' object='apps/apps_parasail_aligner_cilk-parasail_aligner.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(apps_parasail_aligner_cilk_CPPFLAGS) $(CPPFLAGS) $(apps_parasail_aligner_cilk_CXXFLAGS) $(CXXFLAGS) -c -o apps/apps_parasail_aligner_cilk-parasail_aligner.o `test -f 'apps/parasail_aligner.cpp' || echo '$(srcdir)/'`apps/parasail_aligner.cpp
-
-apps/apps_parasail_aligner_cilk-parasail_aligner.obj: apps/parasail_aligner.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(apps_parasail_aligner_cilk_CPPFLAGS) $(CPPFLAGS) $(apps_parasail_aligner_cilk_CXXFLAGS) $(CXXFLAGS) -MT apps/apps_parasail_aligner_cilk-parasail_aligner.obj -MD -MP -MF apps/$(DEPDIR)/apps_parasail_aligner_cilk-parasail_aligner.Tpo -c -o apps/apps_parasail_aligner_cilk-parasail_aligner.obj `if test -f 'apps/parasail_aligner.cpp'; then $(CYGPATH_W) 'apps/parasail_aligner.cpp'; else $(CYGPATH_W) '$(srcdir)/apps/parasail_aligner.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) apps/$(DEPDIR)/apps_parasail_aligner_cilk-parasail_aligner.Tpo apps/$(DEPDIR)/apps_parasail_aligner_cilk-parasail_aligner.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='apps/parasail_aligner.cpp' object='apps/apps_parasail_aligner_cilk-parasail_aligner.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(apps_parasail_aligner_cilk_CPPFLAGS) $(CPPFLAGS) $(apps_parasail_aligner_cilk_CXXFLAGS) $(CXXFLAGS) -c -o apps/apps_parasail_aligner_cilk-parasail_aligner.obj `if test -f 'apps/parasail_aligner.cpp'; then $(CYGPATH_W) 'apps/parasail_aligner.cpp'; else $(CYGPATH_W) '$(srcdir)/apps/parasail_aligner.cpp'; fi`
 
 tests/tests_test_ssw-test_ssw.o: tests/test_ssw.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tests_test_ssw_CXXFLAGS) $(CXXFLAGS) -MT tests/tests_test_ssw-test_ssw.o -MD -MP -MF tests/$(DEPDIR)/tests_test_ssw-test_ssw.Tpo -c -o tests/tests_test_ssw-test_ssw.o `test -f 'tests/test_ssw.cpp' || echo '$(srcdir)/'`tests/test_ssw.cpp

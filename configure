@@ -658,10 +658,6 @@ LIBTOOL
 OBJDUMP
 DLLTOOL
 AS
-CILK_LIBS
-CILK_CXXFLAGS
-HAVE_CILK_FALSE
-HAVE_CILK_TRUE
 OPENMP_CXXFLAGS
 am__fastdepCXX_FALSE
 am__fastdepCXX_TRUE
@@ -5872,93 +5868,6 @@ else
 fi
 
 
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for C compiler vendor" >&5
-$as_echo_n "checking for C compiler vendor... " >&6; }
-if ${ps_cv_c_compiler_vendor+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-
-ps_save_ac_ext="$ac_ext"
-
-
-ps_cv_c_compiler_vendor=unknown
-ps_cpp_vendor_symbols=
-for vendor in intel ibm pathscale amd cray clang gnu sun hp dec borland comeau kai lcc metrowerks sgi microsoft watcom portland fujitsu
-do
-case $vendor in #(
-  amd) :
-    ps_cpp_vendor_symbols="defined(__OPEN64__)" ;; #(
-  borland) :
-    ps_cpp_vendor_symbols="defined(__BORLANDC__) || defined(__TURBOC__)" ;; #(
-  clang) :
-    ps_cpp_vendor_symbols="defined(__clang__)" ;; #(
-  comeau) :
-    ps_cpp_vendor_symbols="defined(__COMO__)" ;; #(
-  cray) :
-    ps_cpp_vendor_symbols="defined(_CRAYC) || defined(_ADDR64)" ;; #(
-  dec) :
-    ps_cpp_vendor_symbols="defined(__DECC) || defined(__DECCXX) || defined(__DECC_VER) || defined(__DECCXX_VER)" ;; #(
-  fujitsu) :
-    ps_cpp_vendor_symbols="defined(__fcc__) || defined(__fcc_version__) || defined(_FCC_VER) || defined(__FCC_VER_)" ;; #(
-  gnu) :
-    ps_cpp_vendor_symbols="defined(__GNUC__)" ;; #(
-  hp) :
-    ps_cpp_vendor_symbols="defined(__HP_cc) || defined(__HP_aCC)" ;; #(
-  ibm) :
-    ps_cpp_vendor_symbols="defined(__xlc__) || defined(__xlC__) || defined(__IBMC__) || defined(__IBMCPP__)" ;; #(
-  intel) :
-    ps_cpp_vendor_symbols="defined(__ICC) || defined(__ECC) || defined(__INTEL_COMPILER)" ;; #(
-  kai) :
-    ps_cpp_vendor_symbols="defined(__KCC)" ;; #(
-  lcc) :
-    ps_cpp_vendor_symbols="defined(__LCC__)" ;; #(
-  metrowerks) :
-    ps_cpp_vendor_symbols="defined(__MWERKS__)" ;; #(
-  microsoft) :
-    ps_cpp_vendor_symbols="defined(_MSC_VER)" ;; #(
-  pathscale) :
-    ps_cpp_vendor_symbols="defined(__PATHCC__) || defined(__PATHSCALE__)" ;; #(
-  portland) :
-    ps_cpp_vendor_symbols="defined(__PGI)" ;; #(
-  sgi) :
-    ps_cpp_vendor_symbols="defined(__sgi) || defined(sgi)" ;; #(
-  sun) :
-    ps_cpp_vendor_symbols="defined(__SUNPRO_C) || defined(__SUNPRO_CC)" ;; #(
-  watcom) :
-    ps_cpp_vendor_symbols="defined(__WATCOMC__)" ;; #(
-  *) :
-     ;;
-esac
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-int
-main ()
-{
-
-#if !($ps_cpp_vendor_symbols)
-    chokeonthis
-#endif
-
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_compile "$LINENO"; then :
-  ps_cv_c_compiler_vendor=$vendor; break
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-done
-ps_cpp_vendor_symbols=
-ac_ext="$ps_save_ac_ext"
-
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ps_cv_c_compiler_vendor" >&5
-$as_echo "$ps_cv_c_compiler_vendor" >&6; }
-
-
-
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for SSE2 support" >&5
 $as_echo_n "checking for SSE2 support... " >&6; }
 if ${pt_cv_sse2+:} false; then :
@@ -8041,135 +7950,6 @@ $as_echo "$pt_cv_variadic" >&6; }
 cat >>confdefs.h <<_ACEOF
 #define HAVE_VARIADIC_MACROS $pt_cv_variadic_val
 _ACEOF
-
-
-
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for Cilk flag of C++ compiler" >&5
-$as_echo_n "checking for Cilk flag of C++ compiler... " >&6; }
-if ${psl_cv_cxx_cilk+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-
-savecxx_werror_flag=$ac_cxx_werror_flag
-ac_cxx_werror_flag=yes
-saveCXXFLAGS=$CXXFLAGS
-psl_cv_cxx_cilk=unknown
-# Flags to try:  -fcilkplus (gcc), none
-psl_cilk_flags="-fcilkplus none"
-if test "x$CILK_CXXFLAGS" != x; then :
-  psl_cilk_flags="$CILK_CXXFLAGS $psl_cilk_flags"
-fi
-for psl_cilk_flag in $psl_cilk_flags; do
-  case $psl_cilk_flag in #(
-  none) :
-    CXXFLAGS=$saveCXX ;; #(
-  *) :
-    CXXFLAGS="$saveCXXFLAGS $psl_cilk_flag" ;;
-esac
-  try_again=0
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <stdio.h>
-#include <cilk/cilk.h>
-
-static void hello(){
-    int i=0;
-    for(i=0;i<1000000;i++)
-        printf("");
-    printf("Hello ");
-}
-
-static void world(){
-    int i=0;
-    for(i=0;i<1000000;i++)
-        printf("");
-    printf("world! ");
-}
-
-int main(){
-    cilk_spawn hello();
-    cilk_spawn world();
-    printf("Done! ");
-    cilk_for(long i=0;i<1000000;i++)
-        printf("");
-}
-_ACEOF
-  if ac_fn_cxx_try_link "$LINENO"; then :
-  psl_cv_cxx_cilk=$psl_cilk_flag; break
-else
-  try_again=1
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext
-  if test "x$try_again" = x1; then :
-
-    save_LIBS="$LIBS"
-    LIBS="$LIBS -lcilkrts"
-    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-#include <stdio.h>
-#include <cilk/cilk.h>
-
-static void hello(){
-    int i=0;
-    for(i=0;i<1000000;i++)
-        printf("");
-    printf("Hello ");
-}
-
-static void world(){
-    int i=0;
-    for(i=0;i<1000000;i++)
-        printf("");
-    printf("world! ");
-}
-
-int main(){
-    cilk_spawn hello();
-    cilk_spawn world();
-    printf("Done! ");
-    cilk_for(long i=0;i<1000000;i++)
-        printf("");
-}
-_ACEOF
-    if ac_fn_cxx_try_link "$LINENO"; then :
-  psl_cv_cxx_cilk=$psl_cilk_flag; CILK_LIBS=-lcilkrts
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext
-    LIBS="$save_LIBS"
-    if test "x$psl_cv_cxx_cilk" != "xunknown"; then :
-  break
-fi
-fi
-done
-CXXFLAGS=$saveCXXFLAGS
-ac_cxx_werror_flag=$savecxx_werror_flag
-
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $psl_cv_cxx_cilk" >&5
-$as_echo "$psl_cv_cxx_cilk" >&6; }
-if test "x$psl_cv_cxx_cilk" = "xunknown"; then :
-  :
-else
-  if test "x$psl_cv_cxx_cilk" != "xnone"; then :
-  CILK_CXXFLAGS=$psl_cv_cxx_cilk
-fi
-
-$as_echo "#define HAVE_CILK 1" >>confdefs.h
-
-fi
-
- if test "x$psl_cv_cxx_cilk" != "xunknown"; then
-  HAVE_CILK_TRUE=
-  HAVE_CILK_FALSE='#'
-else
-  HAVE_CILK_TRUE='#'
-  HAVE_CILK_FALSE=
-fi
-
-
 
 
 # Checks for library functions.
@@ -19601,10 +19381,6 @@ if test -z "${am__fastdepCXX_TRUE}" && test -z "${am__fastdepCXX_FALSE}"; then
   as_fn_error $? "conditional \"am__fastdepCXX\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
-if test -z "${HAVE_CILK_TRUE}" && test -z "${HAVE_CILK_FALSE}"; then
-  as_fn_error $? "conditional \"HAVE_CILK\" was never defined.
-Usually this means the macro was only invoked conditionally." "$LINENO" 5
-fi
 
 : "${CONFIG_STATUS=./config.status}"
 ac_write_fail=0
@@ -22063,10 +21839,6 @@ $as_echo "$as_me:                    CXX=$CXX" >&6;}
 $as_echo "$as_me:               CXXFLAGS=$CXXFLAGS" >&6;}
 { $as_echo "$as_me:${as_lineno-$LINENO}:        OPENMP_CXXFLAGS=$OPENMP_CXXFLAGS" >&5
 $as_echo "$as_me:        OPENMP_CXXFLAGS=$OPENMP_CXXFLAGS" >&6;}
-{ $as_echo "$as_me:${as_lineno-$LINENO}:          CILK_CXXFLAGS=$CILK_CXXFLAGS" >&5
-$as_echo "$as_me:          CILK_CXXFLAGS=$CILK_CXXFLAGS" >&6;}
-{ $as_echo "$as_me:${as_lineno-$LINENO}:              CILK_LIBS=$CILK_LIBS" >&5
-$as_echo "$as_me:              CILK_LIBS=$CILK_LIBS" >&6;}
 { $as_echo "$as_me:${as_lineno-$LINENO}:                    CPP=$CPP" >&5
 $as_echo "$as_me:                    CPP=$CPP" >&6;}
 { $as_echo "$as_me:${as_lineno-$LINENO}:               CPPFLAGS=$CPPFLAGS" >&5

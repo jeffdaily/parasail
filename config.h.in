@@ -51,9 +51,6 @@
 /* define to 1 if the C compiler supports AVX512VBMI */
 #undef HAVE_AVX512VBMI
 
-/* Define if Cilk is enabled */
-#undef HAVE_CILK
-
 /* Define to 1 if you have the <ctype.h> header file. */
 #undef HAVE_CTYPE_H
 

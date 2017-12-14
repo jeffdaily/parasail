@@ -94,7 +94,6 @@ AX_OPENMP
 AC_SUBST([OPENMP_CFLAGS])
 AM_CONDITIONAL([HAVE_OPENMP],
                [test "x$ax_cv_[]_AC_LANG_ABBREV[]_openmp" != "xunknown"])
-PS_COMPILER_VENDOR
 
 AC_CACHE_CHECK([for SSE2 support], [pt_cv_sse2],
 [pt_cv_sse2=no; pt_cv_sse2_val=0
@@ -871,11 +870,6 @@ int main(void) { test_varargs_macros(); return 0; }
 AC_DEFINE_UNQUOTED([HAVE_VARIADIC_MACROS], [$pt_cv_variadic_val],
     [define to 1 if the CXX compiler supports variadic macros])
 
-PSL_CILK
-AM_CONDITIONAL([HAVE_CILK], [test "x$psl_cv_[]_AC_LANG_ABBREV[]_cilk" != "xunknown"])
-AC_SUBST([CILK_CXXFLAGS])
-AC_SUBST([CILK_LIBS])
-
 # Checks for library functions.
 
 AC_LANG_POP([C++])
@@ -924,8 +918,6 @@ AC_MSG_NOTICE([        ALTIVEC_CFLAGS=$ALTIVEC_CFLAGS])
 AC_MSG_NOTICE([                   CXX=$CXX])
 AC_MSG_NOTICE([              CXXFLAGS=$CXXFLAGS])
 AC_MSG_NOTICE([       OPENMP_CXXFLAGS=$OPENMP_CXXFLAGS])
-AC_MSG_NOTICE([         CILK_CXXFLAGS=$CILK_CXXFLAGS])
-AC_MSG_NOTICE([             CILK_LIBS=$CILK_LIBS])
 AC_MSG_NOTICE([                   CPP=$CPP])
 AC_MSG_NOTICE([              CPPFLAGS=$CPPFLAGS])
 AC_MSG_NOTICE([               LDFLAGS=$LDFLAGS])

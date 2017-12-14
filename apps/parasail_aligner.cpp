@@ -40,12 +40,6 @@
 #include <omp.h>
 #endif
 
-#ifdef USE_CILK
-#include <cilk/cilk.h>
-#include <cilk/cilk_api.h>
-#include <cilk/reducer_opadd.h> 
-#endif
-
 #include "parasail.h"
 #include "parasail/io.h"
 
@@ -272,11 +266,7 @@ int main(int argc, char **argv) {
     PairVec vpairs;
     unsigned long count_possible = 0;
     unsigned long count_generated = 0;
-#ifdef USE_CILK
-    cilk::reducer_opadd<unsigned long> work;
-#else
     unsigned long work = 0;
-#endif
     int c = 0;
     const char *funcname = "sw_stats_striped_16";
     parasail_function_t *function = NULL;
@@ -918,23 +908,6 @@ int main(int argc, char **argv) {
         eprintf(stdout, "%20s: %d\n", "omp num threads", num_threads);
     }
 #endif
-#ifdef USE_CILK
-    if (-1 == num_threads) {
-        /* use defaults */
-    }
-    else if (num_threads >= 1) {
-        char num_threads_str[256];
-        sprintf(num_threads_str, "%d", num_threads);
-        __cilkrts_set_param("nworkers", num_threads_str);
-    }
-    else {
-        eprintf(stderr, "invalid number of threads chosen (%d)\n", num_threads);
-        exit(EXIT_FAILURE);
-    }
-    if (verbose) {
-        eprintf(stdout, "%20s: %d\n", "omp num threads", num_threads);
-    }
-#endif
 
     /* OpenMP can't iterate over an STL set. Convert to STL vector. */
     start = parasail_time();
@@ -969,14 +942,10 @@ int main(int argc, char **argv) {
             eprintf(stdout, "%20s: %.4f seconds\n", "profile init", finish-start);
         }
         start = parasail_time();
-#ifdef USE_CILK
-        cilk_for (size_t index=0; index<profile_indices.size(); ++index)
-#else
 #pragma omp parallel
         {
 #pragma omp for schedule(guided)
             for (long long index=0; index<(long long)profile_indices.size(); ++index)
-#endif
             {
                 int i = profile_indices[index];
                 long i_beg = BEG[i];
@@ -984,10 +953,7 @@ int main(int argc, char **argv) {
                 long i_len = i_end-i_beg;
                 profiles[i] = pcreator((const char*)&T[i_beg], i_len, matrix);
             }
-#ifdef USE_CILK
-#else
         }
-#endif
         finish = parasail_time();
         if (verbose) {
             eprintf(stdout, "%20s: %.4f seconds\n", "profile creation", finish-start);
@@ -997,14 +963,10 @@ int main(int argc, char **argv) {
     /* align pairs */
     start = parasail_time();
     if (function) {
-#ifdef USE_CILK
-            cilk_for (size_t index=0; index<vpairs.size(); ++index)
-#else
 #pragma omp parallel
             {
 #pragma omp for schedule(guided)
             for (long long index=0; index<(long long)vpairs.size(); ++index)
-#endif
             {
                 int i = vpairs[index].first;
                 int j = vpairs[index].second;
@@ -1019,28 +981,17 @@ int main(int argc, char **argv) {
                         (const char*)&T[i_beg], i_len,
                         (const char*)&T[j_beg], j_len,
                         gap_open, gap_extend, matrix);
-#ifdef USE_CILK
-                work += local_work;
-#else
 #pragma omp atomic
                 work += local_work;
-#endif
                 results[index] = result;
             }
-#ifdef USE_CILK
-#else
         }
-#endif
     }
     else if (is_banded) {
-#ifdef USE_CILK
-            cilk_for (size_t index=0; index<vpairs.size(); ++index)
-#else
 #pragma omp parallel
-            {
+        {
 #pragma omp for schedule(guided)
             for (long long index=0; index<(long long)vpairs.size(); ++index)
-#endif
             {
                 int i = vpairs[index].first;
                 int j = vpairs[index].second;
@@ -1055,28 +1006,17 @@ int main(int argc, char **argv) {
                         (const char*)&T[i_beg], i_len,
                         (const char*)&T[j_beg], j_len,
                         gap_open, gap_extend, kbandsize, matrix);
-#ifdef USE_CILK
-                work += local_work;
-#else
 #pragma omp atomic
                 work += local_work;
-#endif
                 results[index] = result;
             }
-#ifdef USE_CILK
-#else
         }
-#endif
     }
     else if (pfunction) {
-#ifdef USE_CILK
-            cilk_for (size_t index=0; index<vpairs.size(); ++index)
-#else
 #pragma omp parallel
         {
 #pragma omp for schedule(guided)
             for (long long index=0; index<(long long)vpairs.size(); ++index)
-#endif
             {
                 int i = vpairs[index].first;
                 int j = vpairs[index].second;
@@ -1092,18 +1032,11 @@ int main(int argc, char **argv) {
                 parasail_result_t *result = pfunction(
                         profile, (const char*)&T[j_beg], j_len,
                         gap_open, gap_extend);
-#ifdef USE_CILK
-                work += local_work;
-#else
 #pragma omp atomic
                 work += local_work;
-#endif
                 results[index] = result;
             }
-#ifdef USE_CILK
-#else
         }
-#endif
     }
     else {
         /* shouldn't get here */
@@ -1112,39 +1045,24 @@ int main(int argc, char **argv) {
     }
     finish = parasail_time();
     if (verbose) {
-#ifdef USE_CILK
-        eprintf(stdout, "%20s: %lu cells\n", "work", work.get_value());
-#else
         eprintf(stdout, "%20s: %lu cells\n", "work", work);
-#endif
         eprintf(stdout, "%20s: %.4f seconds\n", "alignment time", finish-start);
-#ifdef USE_CILK
-        eprintf(stdout, "%20s: %.4f \n", "gcups", double(work.get_value())/(finish-start)/1000000000);
-#else
         eprintf(stdout, "%20s: %.4f \n", "gcups", double(work)/(finish-start)/1000000000);
-#endif
     }
 
     if (pfunction) {
         start = parasail_time();
-#ifdef USE_CILK
-            cilk_for (size_t index=0; index<profiles.size(); ++index)
-#else
 #pragma omp parallel
         {
 #pragma omp for schedule(guided)
             for (long long index=0; index<(long long)profiles.size(); ++index)
-#endif
             {
                 if (NULL != profiles[index]) {
                     parasail_profile_free(profiles[index]);
                 }
             }
             profiles.clear();
-#ifdef USE_CILK
-#else
         }
-#endif
         finish = parasail_time();
         if (verbose) {
             eprintf(stdout, "%20s: %.4f seconds\n", "profile cleanup", finish-start);

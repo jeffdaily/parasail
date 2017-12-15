@@ -26,6 +26,8 @@ AM_LDFLAGS =
 LDADD = libparasail.la
 EXTRA_DIST = version.sh
 
+pkgconfig_DATA = parasail-1.pc
+
 AM_CFLAGS += $(VISIBILITY_FLAGS)
 
 if ON_MINGW
@@ -967,6 +969,8 @@ libparasail_avx2_memory_la_CFLAGS    = $(AM_CFLAGS) $(AVX2_CFLAGS)
 libparasail_knc_memory_la_CFLAGS     = $(AM_CFLAGS)
 libparasail_altivec_memory_la_CFLAGS = $(AM_CFLAGS) $(ALTIVEC_CFLAGS)
 
+libparasail_la_CFLAGS = $(Z_CFLAGS)
+
 libparasail_la_LIBADD =
 libparasail_la_LIBADD += libparasail_novec.la
 libparasail_la_LIBADD += libparasail_novec_table.la
@@ -1329,3 +1333,13 @@ TESTS += tests/test_isa
 
 # alias for 'make check' using 'make test'
 test: check
+
+# Meson files
+EXTRA_DIST += meson.build
+EXTRA_DIST += apps/meson.build
+EXTRA_DIST += contrib/meson.build
+EXTRA_DIST += parasail/meson.build
+EXTRA_DIST += src/meson.build
+EXTRA_DIST += tests/meson.build
+EXTRA_DIST += meson_options.txt
+EXTRA_DIST += src/dummy.c

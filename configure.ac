@@ -73,22 +73,6 @@ AC_MSG_NOTICE
 
 AC_PROG_CC
 
-# Checks for header files.
-AC_CHECK_HEADERS([ctype.h])
-AC_CHECK_HEADERS([errno.h])
-AC_CHECK_HEADERS([fcntl.h])
-AC_CHECK_HEADERS([limits.h])
-AC_CHECK_HEADERS([malloc.h])
-AC_CHECK_HEADERS([sched.h])
-AC_CHECK_HEADERS([stddef.h])
-AC_CHECK_HEADERS([stdint.h])
-AC_CHECK_HEADERS([stdio.h])
-AC_CHECK_HEADERS([stdlib.h])
-AC_CHECK_HEADERS([sys/mman.h])
-AC_CHECK_HEADERS([sys/stat.h])
-AC_CHECK_HEADERS([sys/types.h])
-AC_CHECK_HEADERS([unistd.h])
-
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_BIGENDIAN
 AC_C_CONST
@@ -746,7 +730,6 @@ AC_CHECK_FUNCS([aligned_alloc])
 AC_CHECK_FUNCS([memalign])
 AC_CHECK_FUNCS([memset])
 AC_CHECK_FUNCS([posix_memalign])
-AC_CHECK_FUNCS([_mm_malloc])
 
 # clock_gettime is in librt on linux, libpthread on windows
 parasail_save_LIBS="$LIBS"
@@ -767,18 +750,23 @@ AS_CASE(["$ac_cv_search_sqrt"],
         [MATH_LIBS="$ac_cv_search_sqrt"])
 AC_SUBST([MATH_LIBS])
 
-parasail_save_LIBS="$LIBS"
-AC_CHECK_HEADERS([zlib.h])
-AC_SEARCH_LIBS([gzopen], [z])
-LIBS="$parasail_save_LIBS"
-AS_CASE(["$ac_cv_search_gzopen"],
-        [*none*], [],
-        [*no*], [],
-        [Z_LIBS="$ac_cv_search_gzopen"])
-AC_SUBST([Z_LIBS])
-AS_IF([test "x$ac_cv_search_gzopen" != xno && test "x$ac_cv_header_zlib_h" = xyes],
-      [zlib_okay_val=1],
-      [zlib_okay_val=0])
+PKG_CHECK_MODULES([Z], [zlib], [
+    zlib_okay_val=1
+    ], [
+    parasail_save_LIBS="$LIBS"
+    AC_CHECK_HEADERS([zlib.h])
+    AC_SEARCH_LIBS([gzopen], [z])
+    LIBS="$parasail_save_LIBS"
+    AS_CASE(["$ac_cv_search_gzopen"],
+            [*none*], [],
+            [*no*], [],
+            [Z_LIBS="$ac_cv_search_gzopen"])
+    AC_SUBST([Z_LIBS])
+    AS_IF([test "x$ac_cv_search_gzopen" != xno && test "x$ac_cv_header_zlib_h" = xyes],
+          [zlib_okay_val=1],
+          [zlib_okay_val=0])
+    ])
+
 AM_CONDITIONAL([HAVE_ZLIB], [test "x$zlib_okay_val" = x1])
 AC_DEFINE_UNQUOTED([HAVE_ZLIB], [$zlib_okay_val], [define to 1 if zlib is available])
 
@@ -902,6 +890,15 @@ AC_MSG_NOTICE
 LT_INIT([win32-dll])
 
 ###############################################################################
+# pkg-config
+###############################################################################
+
+AX_REQUIRE_DEFINED([PKG_INSTALLDIR])
+PKG_INSTALLDIR
+
+AX_CREATE_PKGCONFIG_INFO([parasail-1.pc], [], [-lparasail], [Pairwise Sequence Alignment Library], [], [])
+
+###############################################################################
 # The End
 ###############################################################################
 AC_CONFIG_FILES([Makefile])
@@ -935,4 +932,5 @@ AC_MSG_NOTICE([               LDFLAGS=$LDFLAGS])
 AC_MSG_NOTICE([                  LIBS=$LIBS])
 AC_MSG_NOTICE([            CLOCK_LIBS=$CLOCK_LIBS])
 AC_MSG_NOTICE([             MATH_LIBS=$MATH_LIBS])
+AC_MSG_NOTICE([              Z_CFLAGS=$Z_CFLAGS])
 AC_MSG_NOTICE([                Z_LIBS=$Z_LIBS])

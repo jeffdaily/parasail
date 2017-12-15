@@ -26,6 +26,8 @@ AM_LDFLAGS =
 LDADD = libparasail.la
 EXTRA_DIST = version.sh
 
+pkgconfig_DATA = parasail-1.pc
+
 AM_CFLAGS += $(VISIBILITY_FLAGS)
 
 if ON_MINGW
@@ -966,6 +968,8 @@ endif
 libparasail_avx2_memory_la_CFLAGS    = $(AM_CFLAGS) $(AVX2_CFLAGS)
 libparasail_knc_memory_la_CFLAGS     = $(AM_CFLAGS)
 libparasail_altivec_memory_la_CFLAGS = $(AM_CFLAGS) $(ALTIVEC_CFLAGS)
+
+libparasail_la_CFLAGS = $(Z_CFLAGS)
 
 libparasail_la_LIBADD =
 libparasail_la_LIBADD += libparasail_novec.la

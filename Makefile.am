@@ -1333,3 +1333,13 @@ TESTS += tests/test_isa
 
 # alias for 'make check' using 'make test'
 test: check
+
+# Meson files
+EXTRA_DIST += meson.build
+EXTRA_DIST += apps/meson.build
+EXTRA_DIST += contrib/meson.build
+EXTRA_DIST += parasail/meson.build
+EXTRA_DIST += src/meson.build
+EXTRA_DIST += tests/meson.build
+EXTRA_DIST += meson_options.txt
+EXTRA_DIST += src/dummy.c

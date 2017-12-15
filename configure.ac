@@ -73,22 +73,6 @@ AC_MSG_NOTICE
 
 AC_PROG_CC
 
-# Checks for header files.
-AC_CHECK_HEADERS([ctype.h])
-AC_CHECK_HEADERS([errno.h])
-AC_CHECK_HEADERS([fcntl.h])
-AC_CHECK_HEADERS([limits.h])
-AC_CHECK_HEADERS([malloc.h])
-AC_CHECK_HEADERS([sched.h])
-AC_CHECK_HEADERS([stddef.h])
-AC_CHECK_HEADERS([stdint.h])
-AC_CHECK_HEADERS([stdio.h])
-AC_CHECK_HEADERS([stdlib.h])
-AC_CHECK_HEADERS([sys/mman.h])
-AC_CHECK_HEADERS([sys/stat.h])
-AC_CHECK_HEADERS([sys/types.h])
-AC_CHECK_HEADERS([unistd.h])
-
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_BIGENDIAN
 AC_C_CONST
@@ -746,7 +730,6 @@ AC_CHECK_FUNCS([aligned_alloc])
 AC_CHECK_FUNCS([memalign])
 AC_CHECK_FUNCS([memset])
 AC_CHECK_FUNCS([posix_memalign])
-AC_CHECK_FUNCS([_mm_malloc])
 
 # clock_gettime is in librt on linux, libpthread on windows
 parasail_save_LIBS="$LIBS"
@@ -768,7 +751,6 @@ AS_CASE(["$ac_cv_search_sqrt"],
 AC_SUBST([MATH_LIBS])
 
 parasail_save_LIBS="$LIBS"
-AC_CHECK_HEADERS([zlib.h])
 AC_SEARCH_LIBS([gzopen], [z])
 LIBS="$parasail_save_LIBS"
 AS_CASE(["$ac_cv_search_gzopen"],

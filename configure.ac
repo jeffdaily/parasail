@@ -73,6 +73,9 @@ AC_MSG_NOTICE
 
 AC_PROG_CC
 
+# Checks for header files.
+AC_CHECK_HEADERS([malloc.h])
+
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_BIGENDIAN
 AC_C_CONST
@@ -749,25 +752,26 @@ AS_CASE(["$ac_cv_search_sqrt"],
         [MATH_LIBS="$ac_cv_search_sqrt"])
 AC_SUBST([MATH_LIBS])
 
-PKG_CHECK_MODULES([Z], [zlib], [
-    zlib_okay_val=1
-    ], [
-    parasail_save_LIBS="$LIBS"
-    AC_CHECK_HEADERS([zlib.h])
-    AC_SEARCH_LIBS([gzopen], [z])
-    LIBS="$parasail_save_LIBS"
-    AS_CASE(["$ac_cv_search_gzopen"],
-            [*none*], [],
-            [*no*], [],
-            [Z_LIBS="$ac_cv_search_gzopen"])
-    AC_SUBST([Z_LIBS])
-    AS_IF([test "x$ac_cv_search_gzopen" != xno && test "x$ac_cv_header_zlib_h" = xyes],
-          [zlib_okay_val=1],
-          [zlib_okay_val=0])
-    ])
+zlib_okay_val=0
+m4_ifdef([PKG_CHECK_MODULES],
+         [PKG_CHECK_MODULES([Z], [zlib], [zlib_okay_val=1])],
+         [
+parasail_save_LIBS="$LIBS"
+AC_CHECK_HEADERS([zlib.h])
+AC_SEARCH_LIBS([gzopen], [z])
+LIBS="$parasail_save_LIBS"
+AS_CASE(["$ac_cv_search_gzopen"],
+        [*none*], [],
+        [*no*], [],
+        [Z_LIBS="$ac_cv_search_gzopen"])
+AS_IF([test "x$ac_cv_search_gzopen" != xno && test "x$ac_cv_header_zlib_h" = xyes],
+      [zlib_okay_val=1])
+])
 
 AM_CONDITIONAL([HAVE_ZLIB], [test "x$zlib_okay_val" = x1])
 AC_DEFINE_UNQUOTED([HAVE_ZLIB], [$zlib_okay_val], [define to 1 if zlib is available])
+AC_SUBST([Z_CFLAGS])
+AC_SUBST([Z_LIBS])
 
 # For host type checks
 AC_CANONICAL_HOST
@@ -887,8 +891,16 @@ LT_INIT([win32-dll])
 # pkg-config
 ###############################################################################
 
-AX_REQUIRE_DEFINED([PKG_INSTALLDIR])
-PKG_INSTALLDIR
+# Upstream's pkg.m4 (since 0.27) offers this now, but define our own
+# compatible version in case the local version of pkgconfig isn't new enough.
+# https://bugs.freedesktop.org/show_bug.cgi?id=48743
+m4_ifdef([PKG_INSTALLDIR], [PKG_INSTALLDIR],
+    [AC_ARG_WITH([pkgconfigdir],
+                 [AS_HELP_STRING([--with-pkgconfigdir],
+                                 [install directory for pkg-config file])],
+                 [],
+                 [with_pkgconfigdir='$(libdir)/pkgconfig'])
+     AC_SUBST([pkgconfigdir], [${with_pkgconfigdir}])])
 
 AX_CREATE_PKGCONFIG_INFO([parasail-1.pc], [], [-lparasail], [Pairwise Sequence Alignment Library], [], [])
 

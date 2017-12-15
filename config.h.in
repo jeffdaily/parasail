@@ -51,26 +51,14 @@
 /* define to 1 if the C compiler supports AVX512VBMI */
 #undef HAVE_AVX512VBMI
 
-/* Define to 1 if you have the <ctype.h> header file. */
-#undef HAVE_CTYPE_H
-
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
-
-/* Define to 1 if you have the <errno.h> header file. */
-#undef HAVE_ERRNO_H
-
-/* Define to 1 if you have the <fcntl.h> header file. */
-#undef HAVE_FCNTL_H
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 
 /* define to 1 if the C compiler supports KNC */
 #undef HAVE_KNC
-
-/* Define to 1 if you have the <limits.h> header file. */
-#undef HAVE_LIMITS_H
 
 /* Define to 1 if you have the <malloc.h> header file. */
 #undef HAVE_MALLOC_H
@@ -90,9 +78,6 @@
 /* Define to 1 if you have the `posix_memalign' function. */
 #undef HAVE_POSIX_MEMALIGN
 
-/* Define to 1 if you have the <sched.h> header file. */
-#undef HAVE_SCHED_H
-
 /* define to 1 if the C compiler supports SSE2 */
 #undef HAVE_SSE2
 
@@ -111,14 +96,8 @@
 /* define to 1 if the C compiler supports SSE4.1 _mm_insert_epi64 */
 #undef HAVE_SSE41_MM_INSERT_EPI64
 
-/* Define to 1 if you have the <stddef.h> header file. */
-#undef HAVE_STDDEF_H
-
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
-
-/* Define to 1 if you have the <stdio.h> header file. */
-#undef HAVE_STDIO_H
 
 /* Define to 1 if you have the <stdlib.h> header file. */
 #undef HAVE_STDLIB_H
@@ -128,9 +107,6 @@
 
 /* Define to 1 if you have the <string.h> header file. */
 #undef HAVE_STRING_H
-
-/* Define to 1 if you have the <sys/mman.h> header file. */
-#undef HAVE_SYS_MMAN_H
 
 /* Define to 1 if you have the <sys/stat.h> header file. */
 #undef HAVE_SYS_STAT_H
@@ -155,9 +131,6 @@
 
 /* Define to 1 if you have the `_aligned_malloc' function. */
 #undef HAVE__ALIGNED_MALLOC
-
-/* Define to 1 if you have the `_mm_malloc' function. */
-#undef HAVE__MM_MALLOC
 
 /* Define to the sub-directory where libtool stores uninstalled libraries. */
 #undef LT_OBJDIR

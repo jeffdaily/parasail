@@ -7,6 +7,12 @@ This project follows the [Gitflow Workflow model](https://www.atlassian.com/git/
 ## [Unreleased]
 The Unreleased section will be empty for tagged releases. Unreleased functionality appears in the develop branch.
 
+### Closed Issues
+- Add meson build system [\#39]
+
+### Merged Pull Requests
+- Add meson [\#45] ([SoapZA])
+
 ## [2.0.4] - 2017-11-30
 ### Fixed
 - CMake add_subdirectory() of parasail project works again. Thanks to
@@ -221,6 +227,11 @@ First stable, production-ready version of parasail.
 [1.0.1]: https://github.com/jeffdaily/parasail/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/jeffdaily/parasail/releases/tag/v1.0.0
 
+[\#45]: https://github.com/jeffdaily/parasail/pull/45
+[\#44]: https://github.com/jeffdaily/parasail/issues/44
+[\#43]: https://github.com/jeffdaily/parasail/issues/43
+[\#42]: https://github.com/jeffdaily/parasail/issues/42
+[\#41]: https://github.com/jeffdaily/parasail/issues/41
 [\#40]: https://github.com/jeffdaily/parasail/issues/40
 [\#39]: https://github.com/jeffdaily/parasail/issues/39
 [\#38]: https://github.com/jeffdaily/parasail/issues/38
@@ -267,6 +278,7 @@ First stable, production-ready version of parasail.
 [huxihao]: https://github.com/huxihao
 [armintoepfer]: https://github.com/armintoepfer
 [rkern]: https://github.com/rkern
+[SoapZA]: https://github.com/SoapZA
 [GrappoloTK]: https://github.com/luhowardmark/GrappoloTK
 [SSW]: https://github.com/mengyao/Complete-Striped-Smith-Waterman-Library
 [kseq.h]: http://lh3lh3.users.sourceforge.net/kseq.shtml

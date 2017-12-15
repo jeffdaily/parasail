@@ -636,6 +636,9 @@ ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
 LIBOBJS
+pkgconfig_libfile
+pkgconfig_libdir
+pkgconfigdir
 CXXCPP
 LT_SYS_LIBRARY_PATH
 OTOOL64
@@ -668,9 +671,10 @@ CXX
 VISIBILITY_CFLAGS
 ON_MINGW_FALSE
 ON_MINGW_TRUE
+Z_LIBS
+Z_CFLAGS
 HAVE_ZLIB_FALSE
 HAVE_ZLIB_TRUE
-Z_LIBS
 MATH_LIBS
 CLOCK_LIBS
 ALTIVEC_CFLAGS
@@ -817,6 +821,7 @@ with_aix_soname
 with_gnu_ld
 with_sysroot
 enable_libtool_lock
+with_pkgconfigdir
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1477,6 +1482,7 @@ Optional Packages:
   --with-gnu-ld           assume the C compiler uses GNU ld [default=no]
   --with-sysroot[=DIR]    Search for dependent libraries within DIR (or the
                           compiler's sysroot if not specified).
+  --with-pkgconfigdir     install directory for pkg-config file
 
 Some influential environment variables:
   CC          C compiler command
@@ -4876,168 +4882,12 @@ fi
 done
 
 
-for ac_header in ctype.h
-do :
-  ac_fn_c_check_header_mongrel "$LINENO" "ctype.h" "ac_cv_header_ctype_h" "$ac_includes_default"
-if test "x$ac_cv_header_ctype_h" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_CTYPE_H 1
-_ACEOF
-
-fi
-
-done
-
-for ac_header in errno.h
-do :
-  ac_fn_c_check_header_mongrel "$LINENO" "errno.h" "ac_cv_header_errno_h" "$ac_includes_default"
-if test "x$ac_cv_header_errno_h" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_ERRNO_H 1
-_ACEOF
-
-fi
-
-done
-
-for ac_header in fcntl.h
-do :
-  ac_fn_c_check_header_mongrel "$LINENO" "fcntl.h" "ac_cv_header_fcntl_h" "$ac_includes_default"
-if test "x$ac_cv_header_fcntl_h" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_FCNTL_H 1
-_ACEOF
-
-fi
-
-done
-
-for ac_header in limits.h
-do :
-  ac_fn_c_check_header_mongrel "$LINENO" "limits.h" "ac_cv_header_limits_h" "$ac_includes_default"
-if test "x$ac_cv_header_limits_h" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_LIMITS_H 1
-_ACEOF
-
-fi
-
-done
-
 for ac_header in malloc.h
 do :
   ac_fn_c_check_header_mongrel "$LINENO" "malloc.h" "ac_cv_header_malloc_h" "$ac_includes_default"
 if test "x$ac_cv_header_malloc_h" = xyes; then :
   cat >>confdefs.h <<_ACEOF
 #define HAVE_MALLOC_H 1
-_ACEOF
-
-fi
-
-done
-
-for ac_header in sched.h
-do :
-  ac_fn_c_check_header_mongrel "$LINENO" "sched.h" "ac_cv_header_sched_h" "$ac_includes_default"
-if test "x$ac_cv_header_sched_h" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_SCHED_H 1
-_ACEOF
-
-fi
-
-done
-
-for ac_header in stddef.h
-do :
-  ac_fn_c_check_header_mongrel "$LINENO" "stddef.h" "ac_cv_header_stddef_h" "$ac_includes_default"
-if test "x$ac_cv_header_stddef_h" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_STDDEF_H 1
-_ACEOF
-
-fi
-
-done
-
-for ac_header in stdint.h
-do :
-  ac_fn_c_check_header_mongrel "$LINENO" "stdint.h" "ac_cv_header_stdint_h" "$ac_includes_default"
-if test "x$ac_cv_header_stdint_h" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_STDINT_H 1
-_ACEOF
-
-fi
-
-done
-
-for ac_header in stdio.h
-do :
-  ac_fn_c_check_header_mongrel "$LINENO" "stdio.h" "ac_cv_header_stdio_h" "$ac_includes_default"
-if test "x$ac_cv_header_stdio_h" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_STDIO_H 1
-_ACEOF
-
-fi
-
-done
-
-for ac_header in stdlib.h
-do :
-  ac_fn_c_check_header_mongrel "$LINENO" "stdlib.h" "ac_cv_header_stdlib_h" "$ac_includes_default"
-if test "x$ac_cv_header_stdlib_h" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_STDLIB_H 1
-_ACEOF
-
-fi
-
-done
-
-for ac_header in sys/mman.h
-do :
-  ac_fn_c_check_header_mongrel "$LINENO" "sys/mman.h" "ac_cv_header_sys_mman_h" "$ac_includes_default"
-if test "x$ac_cv_header_sys_mman_h" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_SYS_MMAN_H 1
-_ACEOF
-
-fi
-
-done
-
-for ac_header in sys/stat.h
-do :
-  ac_fn_c_check_header_mongrel "$LINENO" "sys/stat.h" "ac_cv_header_sys_stat_h" "$ac_includes_default"
-if test "x$ac_cv_header_sys_stat_h" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_SYS_STAT_H 1
-_ACEOF
-
-fi
-
-done
-
-for ac_header in sys/types.h
-do :
-  ac_fn_c_check_header_mongrel "$LINENO" "sys/types.h" "ac_cv_header_sys_types_h" "$ac_includes_default"
-if test "x$ac_cv_header_sys_types_h" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_SYS_TYPES_H 1
-_ACEOF
-
-fi
-
-done
-
-for ac_header in unistd.h
-do :
-  ac_fn_c_check_header_mongrel "$LINENO" "unistd.h" "ac_cv_header_unistd_h" "$ac_includes_default"
-if test "x$ac_cv_header_unistd_h" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_UNISTD_H 1
 _ACEOF
 
 fi
@@ -7044,17 +6894,6 @@ _ACEOF
 fi
 done
 
-for ac_func in _mm_malloc
-do :
-  ac_fn_c_check_func "$LINENO" "_mm_malloc" "ac_cv_func__mm_malloc"
-if test "x$ac_cv_func__mm_malloc" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE__MM_MALLOC 1
-_ACEOF
-
-fi
-done
-
 
 # clock_gettime is in librt on linux, libpthread on windows
 parasail_save_LIBS="$LIBS"
@@ -7193,6 +7032,8 @@ case "$ac_cv_search_sqrt" in #(
 esac
 
 
+zlib_okay_val=0
+
 parasail_save_LIBS="$LIBS"
 for ac_header in zlib.h
 do :
@@ -7271,12 +7112,11 @@ case "$ac_cv_search_gzopen" in #(
   *) :
     Z_LIBS="$ac_cv_search_gzopen" ;;
 esac
-
 if test "x$ac_cv_search_gzopen" != xno && test "x$ac_cv_header_zlib_h" = xyes; then :
   zlib_okay_val=1
-else
-  zlib_okay_val=0
 fi
+
+
  if test "x$zlib_okay_val" = x1; then
   HAVE_ZLIB_TRUE=
   HAVE_ZLIB_FALSE='#'
@@ -7289,6 +7129,8 @@ fi
 cat >>confdefs.h <<_ACEOF
 #define HAVE_ZLIB $zlib_okay_val
 _ACEOF
+
+
 
 
 # For host type checks
@@ -19179,6 +19021,209 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 ###############################################################################
+# pkg-config
+###############################################################################
+
+# Upstream's pkg.m4 (since 0.27) offers this now, but define our own
+# compatible version in case the local version of pkgconfig isn't new enough.
+# https://bugs.freedesktop.org/show_bug.cgi?id=48743
+
+# Check whether --with-pkgconfigdir was given.
+if test "${with_pkgconfigdir+set}" = set; then :
+  withval=$with_pkgconfigdir;
+else
+  with_pkgconfigdir='$(libdir)/pkgconfig'
+fi
+
+     pkgconfigdir=${with_pkgconfigdir}
+
+
+
+# we need the expanded forms...
+test "x$prefix" = xNONE && prefix=$ac_default_prefix
+test "x$exec_prefix" = xNONE && exec_prefix='${prefix}'
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking our pkgconfig libname" >&5
+$as_echo_n "checking our pkgconfig libname... " >&6; }
+test ".$ax_create_pkgconfig_libname" != "." || \
+ax_create_pkgconfig_libname="`basename parasail-1.pc .pc`"
+test ".$ax_create_pkgconfig_libname" != "." || \
+ax_create_pkgconfig_libname="$PACKAGE"
+ax_create_pkgconfig_libname=`eval echo "$ax_create_pkgconfig_libname"`
+ax_create_pkgconfig_libname=`eval echo "$ax_create_pkgconfig_libname"`
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ax_create_pkgconfig_libname" >&5
+$as_echo "$ax_create_pkgconfig_libname" >&6; }
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking our pkgconfig version" >&5
+$as_echo_n "checking our pkgconfig version... " >&6; }
+test ".$ax_create_pkgconfig_version" != "." || \
+ax_create_pkgconfig_version="${PACKAGE_VERSION}"
+test ".$ax_create_pkgconfig_version" != "." || \
+ax_create_pkgconfig_version="$VERSION"
+ax_create_pkgconfig_version=`eval echo "$ax_create_pkgconfig_version"`
+ax_create_pkgconfig_version=`eval echo "$ax_create_pkgconfig_version"`
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ax_create_pkgconfig_version" >&5
+$as_echo "$ax_create_pkgconfig_version" >&6; }
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking our pkgconfig_libdir" >&5
+$as_echo_n "checking our pkgconfig_libdir... " >&6; }
+test ".$pkgconfig_libdir" = "." && \
+pkgconfig_libdir='${libdir}/pkgconfig'
+ax_create_pkgconfig_libdir=`eval echo "$pkgconfig_libdir"`
+ax_create_pkgconfig_libdir=`eval echo "$ax_create_pkgconfig_libdir"`
+ax_create_pkgconfig_libdir=`eval echo "$ax_create_pkgconfig_libdir"`
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $pkgconfig_libdir" >&5
+$as_echo "$pkgconfig_libdir" >&6; }
+test "$pkgconfig_libdir" != "$ax_create_pkgconfig_libdir" && (
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: expanded our pkgconfig_libdir... $ax_create_pkgconfig_libdir" >&5
+$as_echo "expanded our pkgconfig_libdir... $ax_create_pkgconfig_libdir" >&6; })
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking our pkgconfig_libfile" >&5
+$as_echo_n "checking our pkgconfig_libfile... " >&6; }
+test ".$pkgconfig_libfile" != "." || \
+pkgconfig_libfile="`basename parasail-1.pc`"
+ax_create_pkgconfig_libfile=`eval echo "$pkgconfig_libfile"`
+ax_create_pkgconfig_libfile=`eval echo "$ax_create_pkgconfig_libfile"`
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $pkgconfig_libfile" >&5
+$as_echo "$pkgconfig_libfile" >&6; }
+test "$pkgconfig_libfile" != "$ax_create_pkgconfig_libfile" && (
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: expanded our pkgconfig_libfile... $ax_create_pkgconfig_libfile" >&5
+$as_echo "expanded our pkgconfig_libfile... $ax_create_pkgconfig_libfile" >&6; })
+
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking our package / suffix" >&5
+$as_echo_n "checking our package / suffix... " >&6; }
+ax_create_pkgconfig_suffix="$program_suffix"
+test ".$ax_create_pkgconfig_suffix" != .NONE || ax_create_pkgconfig_suffix=""
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: ${PACKAGE_NAME} / ${ax_create_pkgconfig_suffix}" >&5
+$as_echo "${PACKAGE_NAME} / ${ax_create_pkgconfig_suffix}" >&6; }
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking our pkgconfig description" >&5
+$as_echo_n "checking our pkgconfig description... " >&6; }
+ax_create_pkgconfig_description="Pairwise Sequence Alignment Library"
+test ".$ax_create_pkgconfig_description" != "." || \
+ax_create_pkgconfig_description="$ax_create_pkgconfig_libname Library"
+ax_create_pkgconfig_description=`eval echo "$ax_create_pkgconfig_description"`
+ax_create_pkgconfig_description=`eval echo "$ax_create_pkgconfig_description"`
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ax_create_pkgconfig_description" >&5
+$as_echo "$ax_create_pkgconfig_description" >&6; }
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking our pkgconfig requires" >&5
+$as_echo_n "checking our pkgconfig requires... " >&6; }
+ax_create_pkgconfig_requires="$PACKAGE_REQUIRES"
+ax_create_pkgconfig_requires=`eval echo "$ax_create_pkgconfig_requires"`
+ax_create_pkgconfig_requires=`eval echo "$ax_create_pkgconfig_requires"`
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ax_create_pkgconfig_requires" >&5
+$as_echo "$ax_create_pkgconfig_requires" >&6; }
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking our pkgconfig ext libs" >&5
+$as_echo_n "checking our pkgconfig ext libs... " >&6; }
+ax_create_pkgconfig_pkglibs="$PACKAGE_LIBS"
+test ".$ax_create_pkgconfig_pkglibs" != "." || ax_create_pkgconfig_pkglibs="-l$ax_create_pkgconfig_libname"
+ax_create_pkgconfig_libs="-lparasail"
+ax_create_pkgconfig_libs=`eval echo "$ax_create_pkgconfig_libs"`
+ax_create_pkgconfig_libs=`eval echo "$ax_create_pkgconfig_libs"`
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ax_create_pkgconfig_libs" >&5
+$as_echo "$ax_create_pkgconfig_libs" >&6; }
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking our pkgconfig cppflags" >&5
+$as_echo_n "checking our pkgconfig cppflags... " >&6; }
+ax_create_pkgconfig_cppflags="$PACKAGE_CFLAGS"
+ax_create_pkgconfig_cppflags=`eval echo "$ax_create_pkgconfig_cppflags"`
+ax_create_pkgconfig_cppflags=`eval echo "$ax_create_pkgconfig_cppflags"`
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ax_create_pkgconfig_cppflags" >&5
+$as_echo "$ax_create_pkgconfig_cppflags" >&6; }
+
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking our pkgconfig ldflags" >&5
+$as_echo_n "checking our pkgconfig ldflags... " >&6; }
+ax_create_pkgconfig_ldflags="$PACKAGE_LDFLAGS"
+ax_create_pkgconfig_ldflags=`eval echo "$ax_create_pkgconfig_ldflags"`
+ax_create_pkgconfig_ldflags=`eval echo "$ax_create_pkgconfig_ldflags"`
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ax_create_pkgconfig_ldflags" >&5
+$as_echo "$ax_create_pkgconfig_ldflags" >&6; }
+
+test ".$ax_create_pkgconfig_generate" != "." || \
+ax_create_pkgconfig_generate="parasail-1.pc"
+ax_create_pkgconfig_generate=`eval echo "$ax_create_pkgconfig_generate"`
+ax_create_pkgconfig_generate=`eval echo "$ax_create_pkgconfig_generate"`
+test "$pkgconfig_libfile" != "$ax_create_pkgconfig_generate" && (
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: generate the pkgconfig later... $ax_create_pkgconfig_generate" >&5
+$as_echo "generate the pkgconfig later... $ax_create_pkgconfig_generate" >&6; })
+
+if test ".$ax_create_pkgconfig_src_libdir" = "." ; then
+ax_create_pkgconfig_src_libdir=`pwd`
+ax_create_pkgconfig_src_libdir=`$as_dirname -- "$ax_create_pkgconfig_src_libdir/$ax_create_pkgconfig_generate" ||
+$as_expr X"$ax_create_pkgconfig_src_libdir/$ax_create_pkgconfig_generate" : 'X\(.*[^/]\)//*[^/][^/]*/*$' \| \
+	 X"$ax_create_pkgconfig_src_libdir/$ax_create_pkgconfig_generate" : 'X\(//\)[^/]' \| \
+	 X"$ax_create_pkgconfig_src_libdir/$ax_create_pkgconfig_generate" : 'X\(//\)$' \| \
+	 X"$ax_create_pkgconfig_src_libdir/$ax_create_pkgconfig_generate" : 'X\(/\)' \| . 2>/dev/null ||
+$as_echo X"$ax_create_pkgconfig_src_libdir/$ax_create_pkgconfig_generate" |
+    sed '/^X\(.*[^/]\)\/\/*[^/][^/]*\/*$/{
+	    s//\1/
+	    q
+	  }
+	  /^X\(\/\/\)[^/].*/{
+	    s//\1/
+	    q
+	  }
+	  /^X\(\/\/\)$/{
+	    s//\1/
+	    q
+	  }
+	  /^X\(\/\).*/{
+	    s//\1/
+	    q
+	  }
+	  s/.*/./; q'`
+test ! -d $ax_create_pkgconfig_src_libdir/src || \
+ax_create_pkgconfig_src_libdir="$ax_create_pkgconfig_src_libdir/src"
+case ".$objdir" in
+*libs) ax_create_pkgconfig_src_libdir="$ax_create_pkgconfig_src_libdir/$objdir" ;; esac
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: noninstalled pkgconfig -L $ax_create_pkgconfig_src_libdir" >&5
+$as_echo "noninstalled pkgconfig -L $ax_create_pkgconfig_src_libdir" >&6; }
+fi
+
+if test ".$ax_create_pkgconfig_src_headers" = "." ; then
+ax_create_pkgconfig_src_headers=`pwd`
+v="$ac_top_srcdir" ;
+test ".$v" != "." || v="$ax_spec_dir"
+test ".$v" != "." || v="$srcdir"
+case "$v" in /*) ax_create_pkgconfig_src_headers="" ;; esac
+ax_create_pkgconfig_src_headers=`$as_dirname -- "$ax_create_pkgconfig_src_headers/$v/x" ||
+$as_expr X"$ax_create_pkgconfig_src_headers/$v/x" : 'X\(.*[^/]\)//*[^/][^/]*/*$' \| \
+	 X"$ax_create_pkgconfig_src_headers/$v/x" : 'X\(//\)[^/]' \| \
+	 X"$ax_create_pkgconfig_src_headers/$v/x" : 'X\(//\)$' \| \
+	 X"$ax_create_pkgconfig_src_headers/$v/x" : 'X\(/\)' \| . 2>/dev/null ||
+$as_echo X"$ax_create_pkgconfig_src_headers/$v/x" |
+    sed '/^X\(.*[^/]\)\/\/*[^/][^/]*\/*$/{
+	    s//\1/
+	    q
+	  }
+	  /^X\(\/\/\)[^/].*/{
+	    s//\1/
+	    q
+	  }
+	  /^X\(\/\/\)$/{
+	    s//\1/
+	    q
+	  }
+	  /^X\(\/\).*/{
+	    s//\1/
+	    q
+	  }
+	  s/.*/./; q'`
+test ! -d $ax_create_pkgconfig_src_headers/include || \
+ax_create_pkgconfig_src_headers="$ax_create_pkgconfig_src_headers/include"
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: noninstalled pkgconfig -I $ax_create_pkgconfig_src_headers" >&5
+$as_echo "noninstalled pkgconfig -I $ax_create_pkgconfig_src_headers" >&6; }
+fi
+
+
+ac_config_commands="$ac_config_commands $ax_create_pkgconfig_generate"
+
+
+###############################################################################
 # The End
 ###############################################################################
 ac_config_files="$ac_config_files Makefile"
@@ -20348,6 +20393,28 @@ fi
 
 
 
+ax_create_pkgconfig_generate="$ax_create_pkgconfig_generate"
+pkgconfig_prefix='$prefix'
+pkgconfig_execprefix='$exec_prefix'
+pkgconfig_bindir='$bindir'
+pkgconfig_libdir='$libdir'
+pkgconfig_includedir='$includedir'
+pkgconfig_datarootdir='$datarootdir'
+pkgconfig_datadir='$datadir'
+pkgconfig_sysconfdir='$sysconfdir'
+pkgconfig_suffix='$ax_create_pkgconfig_suffix'
+pkgconfig_package='$PACKAGE_NAME'
+pkgconfig_libname='$ax_create_pkgconfig_libname'
+pkgconfig_description='$ax_create_pkgconfig_description'
+pkgconfig_version='$ax_create_pkgconfig_version'
+pkgconfig_requires='$ax_create_pkgconfig_requires'
+pkgconfig_libs='$ax_create_pkgconfig_libs'
+pkgconfig_ldflags='$ax_create_pkgconfig_ldflags'
+pkgconfig_cppflags='$ax_create_pkgconfig_cppflags'
+pkgconfig_src_libdir='$ax_create_pkgconfig_src_libdir'
+pkgconfig_src_headers='$ax_create_pkgconfig_src_headers'
+
+
 _ACEOF
 
 cat >>$CONFIG_STATUS <<\_ACEOF || ac_write_fail=1
@@ -20359,6 +20426,7 @@ do
     "config.h") CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;
     "depfiles") CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
     "libtool") CONFIG_COMMANDS="$CONFIG_COMMANDS libtool" ;;
+    "$ax_create_pkgconfig_generate") CONFIG_COMMANDS="$CONFIG_COMMANDS $ax_create_pkgconfig_generate" ;;
     "Makefile") CONFIG_FILES="$CONFIG_FILES Makefile" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
@@ -21761,6 +21829,133 @@ compiler_lib_search_path=$lt_compiler_lib_search_path_CXX
 _LT_EOF
 
  ;;
+    "$ax_create_pkgconfig_generate":C)
+pkgconfig_generate="$ax_create_pkgconfig_generate"
+if test ! -f "$pkgconfig_generate.in"
+then generate="true"
+elif grep ' generated by configure ' $pkgconfig_generate.in >/dev/null
+then generate="true"
+else generate="false";
+fi
+if $generate ; then
+{ $as_echo "$as_me:${as_lineno-$LINENO}: creating $pkgconfig_generate.in" >&5
+$as_echo "$as_me: creating $pkgconfig_generate.in" >&6;}
+cat > $pkgconfig_generate.in <<AXEOF
+# generated by configure / remove this line to disable regeneration
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+bindir=@bindir@
+libdir=@libdir@
+datarootdir=@datarootdir@
+datadir=@datadir@
+sysconfdir=@sysconfdir@
+includedir=@includedir@
+package=@PACKAGE@
+suffix=@suffix@
+
+Name: @PACKAGE_NAME@
+Description: @PACKAGE_DESCRIPTION@
+Version: @PACKAGE_VERSION@
+Requires: @PACKAGE_REQUIRES@
+Libs: -L\${libdir} @LDFLAGS@ @LIBS@
+Cflags: -I\${includedir} @CPPFLAGS@
+AXEOF
+fi # DONE generate $pkgconfig_generate.in
+{ $as_echo "$as_me:${as_lineno-$LINENO}: creating $pkgconfig_generate" >&5
+$as_echo "$as_me: creating $pkgconfig_generate" >&6;}
+cat >conftest.sed <<AXEOF
+s|@prefix@|${pkgconfig_prefix}|
+s|@exec_prefix@|${pkgconfig_execprefix}|
+s|@bindir@|${pkgconfig_bindir}|
+s|@libdir@|${pkgconfig_libdir}|
+s|@datarootdir@|${pkgconfig_datarootdir}|
+s|@datadir@|${pkgconfig_datadir}|
+s|@sysconfdir@|${pkgconfig_sysconfdir}|
+s|@includedir@|${pkgconfig_includedir}|
+s|@suffix@|${pkgconfig_suffix}|
+s|@PACKAGE@|${pkgconfig_package}|
+s|@PACKAGE_NAME@|${pkgconfig_libname}|
+s|@PACKAGE_DESCRIPTION@|${pkgconfig_description}|
+s|@PACKAGE_VERSION@|${pkgconfig_version}|
+s|@PACKAGE_REQUIRES@|${pkgconfig_requires}|
+s|@LIBS@|${pkgconfig_libs}|
+s|@LDFLAGS@|${pkgconfig_ldflags}|
+s|@CPPFLAGS@|${pkgconfig_cppflags}|
+AXEOF
+sed -f conftest.sed  $pkgconfig_generate.in > $pkgconfig_generate
+if test ! -s $pkgconfig_generate ; then
+    as_fn_error $? "$pkgconfig_generate is empty" "$LINENO" 5
+fi ; rm conftest.sed # DONE generate $pkgconfig_generate
+pkgconfig_uninstalled=`echo $pkgconfig_generate |sed 's/.pc$/-uninstalled.pc/'`
+{ $as_echo "$as_me:${as_lineno-$LINENO}: creating $pkgconfig_uninstalled" >&5
+$as_echo "$as_me: creating $pkgconfig_uninstalled" >&6;}
+cat >conftest.sed <<AXEOF
+s|@prefix@|${pkgconfig_prefix}|
+s|@exec_prefix@|${pkgconfig_execprefix}|
+s|@bindir@|${pkgconfig_bindir}|
+s|@libdir@|${pkgconfig_src_libdir}|
+s|@datarootdir@|${pkgconfig_datarootdir}|
+s|@datadir@|${pkgconfig_datadir}|
+s|@sysconfdir@|${pkgconfig_sysconfdir}|
+s|@includedir@|${pkgconfig_src_headers}|
+s|@suffix@|${pkgconfig_suffix}|
+s|@PACKAGE@|${pkgconfig_package}|
+s|@PACKAGE_NAME@|${pkgconfig_libname}|
+s|@PACKAGE_DESCRIPTION@|${pkgconfig_description}|
+s|@PACKAGE_VERSION@|${pkgconfig_version}|
+s|@PACKAGE_REQUIRES@|${pkgconfig_requires}|
+s|@LIBS@|${pkgconfig_libs}|
+s|@LDFLAGS@|${pkgconfig_ldflags}|
+s|@CPPFLAGS@|${pkgconfig_cppflags}|
+AXEOF
+sed -f conftest.sed $pkgconfig_generate.in > $pkgconfig_uninstalled
+if test ! -s $pkgconfig_uninstalled ; then
+    as_fn_error $? "$pkgconfig_uninstalled is empty" "$LINENO" 5
+fi ; rm conftest.sed # DONE generate $pkgconfig_uninstalled
+           pkgconfig_requires_add=`echo ${pkgconfig_requires}`
+if test ".$pkgconfig_requires_add" != "." ; then
+           pkgconfig_requires_add="pkg-config $pkgconfig_requires_add"
+    else   pkgconfig_requires_add=":" ; fi
+pkgconfig_uninstalled=`echo $pkgconfig_generate |sed 's/.pc$/-uninstalled.sh/'`
+{ $as_echo "$as_me:${as_lineno-$LINENO}: creating $pkgconfig_uninstalled" >&5
+$as_echo "$as_me: creating $pkgconfig_uninstalled" >&6;}
+cat >conftest.sed <<AXEOF
+s|@prefix@|\"${pkgconfig_prefix}\"|
+s|@exec_prefix@|\"${pkgconfig_execprefix}\"|
+s|@bindir@|\"${pkgconfig_bindir}\"|
+s|@libdir@|\"${pkgconfig_src_libdir}\"|
+s|@datarootdir@|\"${pkgconfig_datarootdir}\"|
+s|@datadir@|\"${pkgconfig_datadir}\"|
+s|@sysconfdir@|\"${pkgconfig_sysconfdir}\"|
+s|@includedir@|\"${pkgconfig_src_headers}\"|
+s|@suffix@|\"${pkgconfig_suffix}\"|
+s|@PACKAGE@|\"${pkgconfig_package}\"|
+s|@PACKAGE_NAME@|\"${pkgconfig_libname}\"|
+s|@PACKAGE_DESCRIPTION@|\"${pkgconfig_description}\"|
+s|@PACKAGE_VERSION@|\"${pkgconfig_version}\"|
+s|@PACKAGE_REQUIRES@|\"${pkgconfig_requires}\"|
+s|@LIBS@|\"${pkgconfig_libs}\"|
+s|@LDFLAGS@|\"${pkgconfig_ldflags}\"|
+s|@CPPFLAGS@|\"${pkgconfig_cppflags}\"|
+s>Name:>for option\\; do case \"\$option\" in --list-all|--name) echo >
+s>Description: *>\\;\\; --help) pkg-config --help \\; echo Buildscript Of >
+s>Version: *>\\;\\; --modversion|--version) echo >
+s>Requires:>\\;\\; --requires) echo $pkgconfig_requires_add>
+s>Libs: *>\\;\\; --libs) echo >
+s>Cflags: *>\\;\\; --cflags) echo >
+/--libs)/a\\
+       $pkgconfig_requires_add
+/--cflags)/a\\
+       $pkgconfig_requires_add\\
+;; --variable=*) eval echo '\$'\`echo \$option | sed -e 's/.*=//'\`\\
+;; --uninstalled) exit 0 \\
+;; *) ;; esac done
+AXEOF
+sed -f conftest.sed  $pkgconfig_generate.in > $pkgconfig_uninstalled
+if test ! -s $pkgconfig_uninstalled ; then
+    as_fn_error $? "$pkgconfig_uninstalled is empty" "$LINENO" 5
+fi ; rm conftest.sed # DONE generate $pkgconfig_uninstalled
+ ;;
 
   esac
 done # for ac_tag
@@ -21851,5 +22046,7 @@ $as_echo "$as_me:                   LIBS=$LIBS" >&6;}
 $as_echo "$as_me:             CLOCK_LIBS=$CLOCK_LIBS" >&6;}
 { $as_echo "$as_me:${as_lineno-$LINENO}:              MATH_LIBS=$MATH_LIBS" >&5
 $as_echo "$as_me:              MATH_LIBS=$MATH_LIBS" >&6;}
+{ $as_echo "$as_me:${as_lineno-$LINENO}:               Z_CFLAGS=$Z_CFLAGS" >&5
+$as_echo "$as_me:               Z_CFLAGS=$Z_CFLAGS" >&6;}
 { $as_echo "$as_me:${as_lineno-$LINENO}:                 Z_LIBS=$Z_LIBS" >&5
 $as_echo "$as_me:                 Z_LIBS=$Z_LIBS" >&6;}

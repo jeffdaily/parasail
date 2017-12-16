@@ -24,10 +24,8 @@ static void print_help(const char *progname, int status) {
 }
 
 int main(int argc, char **argv) {
-    parasail_file_t *pf = NULL;
-    parasail_file_stat_t *pfs = NULL;
-    const char *progname = "parasail_aligner";
-    const char *type = NULL;
+    parasail_sequences_t *sequences = NULL;
+    const char *progname = "parasail_stats";
 
     /* Check arguments. */
     if (argc > 2) {
@@ -40,43 +38,25 @@ int main(int argc, char **argv) {
     }
 
     /* open file */
-    pf = parasail_open(argv[1]);
-
-    /* check type */
-    if (parasail_is_fasta(pf)) {
-        type = "FASTA";
-    }
-    else if (parasail_is_fastq(pf)) {
-        type = "FASTQ";
-    }
-    else {
-        fprintf(stderr, "unrecognized file format\n");
-        exit(EXIT_FAILURE);
-    }
-
-    /* compute stats */
-    pfs = parasail_stat(pf);
+    sequences = parasail_sequences_from_file(argv[1]);
 
     /* print the stats */
     fprintf(stdout,
-            "%25s: %s\n"
             "%25s: %lu\n"
             "%25s: %lu\n"
             "%25s: %lu\n"
             "%25s: %lu\n"
             "%25s: %f\n"
             "%25s: %f\n",
-            "file type", type,
-            "sequence count", pfs->sequences,
-            "character count", pfs->characters,
-            "shortest sequence", pfs->shortest,
-            "longest sequence", pfs->longest,
-            "sequence length mean", pfs->mean,
-            "sequence length stddev", pfs->stddev
+            "sequence count", sequences->l,
+            "character count", sequences->characters,
+            "shortest sequence", sequences->shortest,
+            "longest sequence", sequences->longest,
+            "sequence length mean", sequences->mean,
+            "sequence length stddev", sequences->stddev
             );
 
-    parasail_close(pf);
-    free(pfs);
+    parasail_sequences_free(sequences);
 
     return 0;
 }

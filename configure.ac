@@ -4,7 +4,7 @@
 ###############################################################################
 # Init autoconf
 ###############################################################################
-AC_PREREQ([2.68])
+AC_PREREQ([2.69])
 AC_INIT([Pairwise Sequence Alignment Library],
         [m4_esyscmd([./version.sh])],
         [jeff.daily@pnnl.gov],

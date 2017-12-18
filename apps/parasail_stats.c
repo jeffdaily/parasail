@@ -48,10 +48,10 @@ int main(int argc, char **argv) {
             "%25s: %lu\n"
             "%25s: %f\n"
             "%25s: %f\n",
-            "sequence count", sequences->l,
-            "character count", sequences->characters,
-            "shortest sequence", sequences->shortest,
-            "longest sequence", sequences->longest,
+            "sequence count", (long unsigned)sequences->l,
+            "character count", (long unsigned)sequences->characters,
+            "shortest sequence", (long unsigned)sequences->shortest,
+            "longest sequence", (long unsigned)sequences->longest,
             "sequence length mean", sequences->mean,
             "sequence length stddev", sequences->stddev
             );

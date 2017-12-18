@@ -41,7 +41,7 @@ int main(void) { return foo(); }
 
 # if these are set then do not try to find them again,
 # by avoiding any try_compiles for the flags
-if(SSE2_C_FLAGS)
+if((DEFINED SSE2_C_FLAGS) OR (DEFINED HAVE_SSE2))
 else()
   if(WIN32)
     set(SSE2_C_FLAG_CANDIDATES
@@ -75,12 +75,12 @@ else()
       break()
     endif()
   endforeach()
-endif()
 
-unset(SSE2_C_FLAG_CANDIDATES)
+  unset(SSE2_C_FLAG_CANDIDATES)
   
-set(SSE2_C_FLAGS "${SSE2_C_FLAGS_INTERNAL}"
-  CACHE STRING "C compiler flags for SSE2 intrinsics")
+  set(SSE2_C_FLAGS "${SSE2_C_FLAGS_INTERNAL}"
+    CACHE STRING "C compiler flags for SSE2 intrinsics")
+endif()
 
 list(APPEND _SSE2_REQUIRED_VARS SSE2_C_FLAGS)
 
@@ -118,7 +118,6 @@ if(SSE2_C_FLAGS)
   include(CheckCSourceCompiles)
   set(SAFE_CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS}")
   set(CMAKE_REQUIRED_FLAGS "${SSE2_C_FLAGS}")
-  unset(HAVE_SSE2_MM_SET1_EPI64X CACHE)
   check_c_source_compiles("${SSE2_C_TEST_SOURCE_SET1_EPI64X}" HAVE_SSE2_MM_SET1_EPI64X)
   set(CMAKE_REQUIRED_FLAGS "${SAFE_CMAKE_REQUIRED_FLAGS}")
 endif()
@@ -142,7 +141,6 @@ if(SSE2_C_FLAGS)
   include(CheckCSourceCompiles)
   set(SAFE_CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS}")
   set(CMAKE_REQUIRED_FLAGS "${SSE2_C_FLAGS}")
-  unset(HAVE_SSE2_MM_SET_EPI64X CACHE)
   check_c_source_compiles("${SSE2_C_TEST_SOURCE_SET_EPI64X}" HAVE_SSE2_MM_SET_EPI64X)
   set(CMAKE_REQUIRED_FLAGS "${SAFE_CMAKE_REQUIRED_FLAGS}")
 endif()

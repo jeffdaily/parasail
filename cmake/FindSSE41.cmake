@@ -41,7 +41,7 @@ int main(void) { return foo(); }
 
 # if these are set then do not try to find them again,
 # by avoiding any try_compiles for the flags
-if(SSE41_C_FLAGS)
+if((DEFINED SSE41_C_FLAGS) OR (DEFINED HAVE_SSE41))
 else()
   if(WIN32)
     set(SSE41_C_FLAG_CANDIDATES
@@ -77,12 +77,12 @@ else()
       break()
     endif()
   endforeach()
-endif()
 
-unset(SSE41_C_FLAG_CANDIDATES)
+  unset(SSE41_C_FLAG_CANDIDATES)
   
-set(SSE41_C_FLAGS "${SSE41_C_FLAGS_INTERNAL}"
-  CACHE STRING "C compiler flags for SSE41 intrinsics")
+  set(SSE41_C_FLAGS "${SSE41_C_FLAGS_INTERNAL}"
+    CACHE STRING "C compiler flags for SSE41 intrinsics")
+endif()
 
 list(APPEND _SSE41_REQUIRED_VARS SSE41_C_FLAGS)
 
@@ -122,7 +122,6 @@ if(SSE41_C_FLAGS)
   include(CheckCSourceCompiles)
   set(SAFE_CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS}")
   set(CMAKE_REQUIRED_FLAGS "${SSE41_C_FLAGS}")
-  unset(HAVE_SSE41_MM_INSERT_EPI64 CACHE)
   check_c_source_compiles("${SSE41_C_TEST_SOURCE_INSERT64}" HAVE_SSE41_MM_INSERT_EPI64)
   set(CMAKE_REQUIRED_FLAGS "${SAFE_CMAKE_REQUIRED_FLAGS}")
 endif()
@@ -146,7 +145,6 @@ if(SSE41_C_FLAGS)
   include(CheckCSourceCompiles)
   set(SAFE_CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS}")
   set(CMAKE_REQUIRED_FLAGS "${SSE41_C_FLAGS}")
-  unset(HAVE_SSE41_MM_EXTRACT_EPI64 CACHE)
   check_c_source_compiles("${SSE41_C_TEST_SOURCE_EXTRACT64}" HAVE_SSE41_MM_EXTRACT_EPI64)
   set(CMAKE_REQUIRED_FLAGS "${SAFE_CMAKE_REQUIRED_FLAGS}")
 endif()

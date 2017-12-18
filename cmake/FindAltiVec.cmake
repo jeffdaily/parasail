@@ -44,7 +44,7 @@ int main(void)
 
 # if these are set then do not try to find them again,
 # by avoiding any try_compiles for the flags
-if(ALTIVEC_C_FLAGS)
+if((DEFINED ALTIVEC_C_FLAGS) OR (DEFINED HAVE_ALTIVEC))
 else()
   if(WIN32)
     set(ALTIVEC_C_FLAG_CANDIDATES
@@ -75,12 +75,12 @@ else()
       break()
     endif()
   endforeach()
-endif()
 
-unset(ALTIVEC_C_FLAG_CANDIDATES)
+  unset(ALTIVEC_C_FLAG_CANDIDATES)
   
-set(ALTIVEC_C_FLAGS "${ALTIVEC_C_FLAGS_INTERNAL}"
-  CACHE STRING "C compiler flags for AltiVec intrinsics")
+  set(ALTIVEC_C_FLAGS "${ALTIVEC_C_FLAGS_INTERNAL}"
+    CACHE STRING "C compiler flags for AltiVec intrinsics")
+endif()
 
 list(APPEND _ALTIVEC_REQUIRED_VARS ALTIVEC_C_FLAGS)
 

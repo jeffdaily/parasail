@@ -887,6 +887,12 @@ AC_MSG_NOTICE
 
 LT_INIT([win32-dll])
 
+# Debian resets this to no, but this breaks linking the test suite.
+# Instead of requiring developer to install a non-patched version of Libtool
+# on any Debian they use, we just cancel the effect of Debian's patch here.
+link_all_deplibs=yes
+link_all_deplibs_CXX=yes
+
 ###############################################################################
 # pkg-config
 ###############################################################################

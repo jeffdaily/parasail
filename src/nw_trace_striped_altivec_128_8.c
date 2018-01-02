@@ -78,7 +78,7 @@ parasail_result_t* PNAME(
     vec128i vPosLimit = _mm_set1_epi8(INT8_MAX);
     vec128i vSaturationCheckMin = vPosLimit;
     vec128i vSaturationCheckMax = vNegLimit;
-    parasail_result_t *result = parasail_result_new_trace(segLen*segWidth, s2Len, 1);
+    parasail_result_t *result = parasail_result_new_trace(segLen, s2Len, 16, sizeof(vec128i));
     vec128i vTIns  = _mm_set1_epi8(PARASAIL_INS);
     vec128i vTDel  = _mm_set1_epi8(PARASAIL_DEL);
     vec128i vTDiag = _mm_set1_epi8(PARASAIL_DIAG);

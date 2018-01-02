@@ -7,6 +7,12 @@ This project follows the [Gitflow Workflow model](https://www.atlassian.com/git/
 ## [Unreleased]
 The Unreleased section will be empty for tagged releases. Unreleased functionality appears in the develop branch.
 
+### Fixed
+- Trace functions properly align memory
+
+### Closed Issues
+- Segfault in sw_trace_striped_avx2_256_8 [\#46]
+
 ## [2.0.4] - 2017-11-30
 ### Fixed
 - CMake add_subdirectory() of parasail project works again. Thanks to

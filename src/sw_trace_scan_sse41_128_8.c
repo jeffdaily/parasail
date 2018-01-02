@@ -91,7 +91,7 @@ parasail_result_t* PNAME(
     __m128i vNegInfFront = _mm_set_epi8(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,NEG_LIMIT);
     __m128i vSegLenXgap = _mm_adds_epi8(vNegInfFront,
             _mm_slli_si128(_mm_set1_epi8(-segLen*gap), 1));
-    parasail_result_t *result = parasail_result_new_trace(segLen, s2Len, sizeof(__m128i));
+    parasail_result_t *result = parasail_result_new_trace(segLen, s2Len, 16, sizeof(__m128i));
     __m128i vTZero = _mm_set1_epi8(PARASAIL_ZERO);
     __m128i vTIns  = _mm_set1_epi8(PARASAIL_INS);
     __m128i vTDel  = _mm_set1_epi8(PARASAIL_DEL);

@@ -143,7 +143,7 @@ parasail_result_t* PNAME(
     __m256i vPosMask = _mm256_cmpeq_epi64(_mm256_set1_epi64x_rpl(position),
             _mm256_set_epi64x_rpl(0,1,2,3));
     
-    parasail_result_t *result = parasail_result_new_trace(segLen*segWidth, s2Len, 8);
+    parasail_result_t *result = parasail_result_new_trace(segLen, s2Len, 32, sizeof(__m256i));
     __m256i vTIns  = _mm256_set1_epi64x_rpl(PARASAIL_INS);
     __m256i vTDel  = _mm256_set1_epi64x_rpl(PARASAIL_DEL);
     __m256i vTDiag = _mm256_set1_epi64x_rpl(PARASAIL_DIAG);

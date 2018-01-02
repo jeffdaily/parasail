@@ -76,7 +76,7 @@ parasail_result_t* PNAME(
     vec128i vPosMask = _mm_cmpeq_epi16(_mm_set1_epi16(position),
             _mm_set_epi16(0,1,2,3,4,5,6,7));
     
-    parasail_result_t *result = parasail_result_new_trace(segLen*segWidth, s2Len, 2);
+    parasail_result_t *result = parasail_result_new_trace(segLen, s2Len, 16, sizeof(vec128i));
     vec128i vTIns  = _mm_set1_epi16(PARASAIL_INS);
     vec128i vTDel  = _mm_set1_epi16(PARASAIL_DEL);
     vec128i vTDiag = _mm_set1_epi16(PARASAIL_DIAG);

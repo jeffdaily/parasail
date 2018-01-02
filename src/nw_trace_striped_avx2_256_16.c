@@ -98,7 +98,7 @@ parasail_result_t* PNAME(
     __m256i vNegInf = _mm256_set1_epi16(NEG_INF);
     int16_t score = NEG_INF;
     
-    parasail_result_t *result = parasail_result_new_trace(segLen*segWidth, s2Len, 2);
+    parasail_result_t *result = parasail_result_new_trace(segLen, s2Len, 32, sizeof(__m256i));
     __m256i vTIns  = _mm256_set1_epi16(PARASAIL_INS);
     __m256i vTDel  = _mm256_set1_epi16(PARASAIL_DEL);
     __m256i vTDiag = _mm256_set1_epi16(PARASAIL_DIAG);

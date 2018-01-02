@@ -75,7 +75,7 @@ parasail_result_t* PNAME(
     vec128i vMaxH = vZero;
     vec128i vMaxHUnit = vZero;
     int16_t maxp = INT16_MAX - (int16_t)(matrix->max+1);
-    parasail_result_t *result = parasail_result_new_trace(segLen, s2Len, sizeof(vec128i));
+    parasail_result_t *result = parasail_result_new_trace(segLen, s2Len, 16, sizeof(vec128i));
     vec128i vTZero = _mm_set1_epi16(PARASAIL_ZERO);
     vec128i vTIns  = _mm_set1_epi16(PARASAIL_INS);
     vec128i vTDel  = _mm_set1_epi16(PARASAIL_DEL);

@@ -107,7 +107,7 @@ parasail_result_t* PNAME(
     __m256i vMaxH = vZero;
     __m256i vMaxHUnit = vZero;
     int8_t maxp = INT8_MAX - (int8_t)(matrix->max+1);
-    parasail_result_t *result = parasail_result_new_trace(segLen, s2Len, sizeof(__m256i));
+    parasail_result_t *result = parasail_result_new_trace(segLen, s2Len, 32, sizeof(__m256i));
     __m256i vTZero = _mm256_set1_epi8(PARASAIL_ZERO);
     __m256i vTIns  = _mm256_set1_epi8(PARASAIL_INS);
     __m256i vTDel  = _mm256_set1_epi8(PARASAIL_DEL);

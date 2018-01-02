@@ -8,6 +8,7 @@ This project follows the [Gitflow Workflow model](https://www.atlassian.com/git/
 The Unreleased section will be empty for tagged releases. Unreleased functionality appears in the develop branch.
 
 ### Fixed
+- Trace functions properly align memory
 
 ### Changed
 
@@ -16,6 +17,7 @@ The Unreleased section will be empty for tagged releases. Unreleased functionali
 - parasail_aligner Intel Cilk support
 
 ### Closed Issues
+- Segfault in sw_trace_striped_avx2_256_8 [\#46]
 - Add meson build system [\#39]
 
 ### Merged Pull Requests

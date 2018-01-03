@@ -7,6 +7,7 @@ This project follows the [Gitflow Workflow model](https://www.atlassian.com/git/
 ## [Unreleased]
 The Unreleased section will be empty for tagged releases. Unreleased functionality appears in the develop branch.
 
+## [2.0.5] - 2018-01-03
 ### Fixed
 - Trace functions properly align memory
 
@@ -227,6 +228,12 @@ First stable, production-ready version of parasail.
 [1.0.1]: https://github.com/jeffdaily/parasail/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/jeffdaily/parasail/releases/tag/v1.0.0
 
+[\#46]: https://github.com/jeffdaily/parasail/issues/46
+[\#45]: https://github.com/jeffdaily/parasail/pull/45
+[\#44]: https://github.com/jeffdaily/parasail/issues/44
+[\#43]: https://github.com/jeffdaily/parasail/issues/43
+[\#42]: https://github.com/jeffdaily/parasail/issues/42
+[\#41]: https://github.com/jeffdaily/parasail/issues/41
 [\#40]: https://github.com/jeffdaily/parasail/issues/40
 [\#39]: https://github.com/jeffdaily/parasail/issues/39
 [\#38]: https://github.com/jeffdaily/parasail/issues/38

@@ -147,9 +147,8 @@ parasail_result_t* PNAME(
     vec128i vMaxS = vNegLimit;
     vec128i vMaxL = vNegLimit;
     vec128i vMaxHUnit = vNegLimit;
-    vec128i vNegInfFront = _mm_set_epi8(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,NEG_LIMIT);
-    vec128i vSegLenXgap = _mm_adds_epi8(vNegInfFront,
-            _mm_slli_si128(_mm_set1_epi8(-segLen*gap), 1));
+    vec128i vNegInfFront = vZero;
+    vec128i vSegLenXgap;
     vec128i vSegLen = _mm_slli_si128(_mm_set1_epi8(segLen), 1);
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table3(segLen*segWidth, s2Len);
@@ -162,6 +161,10 @@ parasail_result_t* PNAME(
     parasail_result_t *result = parasail_result_new_stats();
 #endif
 #endif
+
+    vNegInfFront = _mm_insert_epi8(vNegInfFront, NEG_LIMIT, 0);
+    vSegLenXgap = _mm_adds_epi8(vNegInfFront,
+            _mm_slli_si128(_mm_set1_epi8(-segLen*gap), 1));
 
     parasail_memset_vec128i(pvH, vZero, segLen);
     parasail_memset_vec128i(pvHM, vZero, segLen);

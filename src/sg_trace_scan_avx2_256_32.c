@@ -17,6 +17,17 @@
 #include "parasail/internal_avx.h"
 
 
+#if HAVE_AVX2_MM256_INSERT_EPI32
+#define _mm256_insert_epi32_rpl _mm256_insert_epi32
+#else
+static inline __m256i _mm256_insert_epi32_rpl(__m256i a, int32_t i, int imm) {
+    __m256i_32_t A;
+    A.m = a;
+    A.v[imm] = i;
+    return A.m;
+}
+#endif
+
 #if HAVE_AVX2_MM256_EXTRACT_EPI32
 #define _mm256_extract_epi32_rpl _mm256_extract_epi32
 #else
@@ -98,13 +109,16 @@ parasail_result_t* PNAME(
     __m256i vMaxH = vNegLimit;
     __m256i vPosMask = _mm256_cmpeq_epi32(_mm256_set1_epi32(position),
             _mm256_set_epi32(0,1,2,3,4,5,6,7));
-    __m256i vNegInfFront = _mm256_set_epi32(0,0,0,0,0,0,0,NEG_LIMIT);
-    __m256i vSegLenXgap = _mm256_add_epi32(vNegInfFront,
-            _mm256_slli_si256_rpl(_mm256_set1_epi32(-segLen*gap), 4));
+    __m256i vNegInfFront = vZero;
+    __m256i vSegLenXgap;
     parasail_result_t *result = parasail_result_new_trace(segLen, s2Len, 32, sizeof(__m256i));
     __m256i vTIns  = _mm256_set1_epi32(PARASAIL_INS);
     __m256i vTDel  = _mm256_set1_epi32(PARASAIL_DEL);
     __m256i vTDiag = _mm256_set1_epi32(PARASAIL_DIAG);
+
+    vNegInfFront = _mm256_insert_epi32_rpl(vNegInfFront, NEG_LIMIT, 0);
+    vSegLenXgap = _mm256_add_epi32(vNegInfFront,
+            _mm256_slli_si256_rpl(_mm256_set1_epi32(-segLen*gap), 4));
 
     /* initialize H and E */
     parasail_memset___m256i(pvH, vZero, segLen);

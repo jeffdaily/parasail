@@ -18,6 +18,17 @@
 #include "parasail/internal_avx.h"
 
 
+#if HAVE_AVX2_MM256_INSERT_EPI64
+#define _mm256_insert_epi64_rpl _mm256_insert_epi64
+#else
+static inline __m256i _mm256_insert_epi64_rpl(__m256i a, int64_t i, int imm) {
+    __m256i_64_t A;
+    A.m = a;
+    A.v[imm] = i;
+    return A.m;
+}
+#endif
+
 #if HAVE_AVX2_MM256_SET1_EPI64X
 #define _mm256_set1_epi64x_rpl _mm256_set1_epi64x
 #else
@@ -42,19 +53,6 @@ static inline __m256i _mm256_max_epi64_rpl(__m256i a, __m256i b) {
     A.v[3] = (A.v[3]>B.v[3]) ? A.v[3] : B.v[3];
     return A.m;
 }
-
-#if HAVE_AVX2_MM256_SET_EPI64X
-#define _mm256_set_epi64x_rpl _mm256_set_epi64x
-#else
-static inline __m256i _mm256_set_epi64x_rpl(int64_t e3, int64_t e2, int64_t e1, int64_t e0) {
-    __m256i_64_t A;
-    A.v[0] = e0;
-    A.v[1] = e1;
-    A.v[2] = e2;
-    A.v[3] = e3;
-    return A.m;
-}
-#endif
 
 #if HAVE_AVX2_MM256_EXTRACT_EPI64
 #define _mm256_extract_epi64_rpl _mm256_extract_epi64
@@ -193,9 +191,8 @@ parasail_result_t* PNAME(
     __m256i vMaxS = vNegLimit;
     __m256i vMaxL = vNegLimit;
     __m256i vMaxHUnit = vNegLimit;
-    __m256i vNegInfFront = _mm256_set_epi64x_rpl(0,0,0,NEG_LIMIT);
-    __m256i vSegLenXgap = _mm256_add_epi64(vNegInfFront,
-            _mm256_slli_si256_rpl(_mm256_set1_epi64x_rpl(-segLen*gap), 8));
+    __m256i vNegInfFront = vZero;
+    __m256i vSegLenXgap;
     __m256i vSegLen = _mm256_slli_si256_rpl(_mm256_set1_epi64x_rpl(segLen), 8);
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table3(segLen*segWidth, s2Len);
@@ -208,6 +205,10 @@ parasail_result_t* PNAME(
     parasail_result_t *result = parasail_result_new_stats();
 #endif
 #endif
+
+    vNegInfFront = _mm256_insert_epi64_rpl(vNegInfFront, NEG_LIMIT, 0);
+    vSegLenXgap = _mm256_add_epi64(vNegInfFront,
+            _mm256_slli_si256_rpl(_mm256_set1_epi64x_rpl(-segLen*gap), 8));
 
     parasail_memset___m256i(pvH, vZero, segLen);
     parasail_memset___m256i(pvHM, vZero, segLen);

@@ -100,13 +100,16 @@ parasail_result_t* PNAME(
     __m256i vPosLimit = _mm256_set1_epi8(POS_LIMIT);
     __m256i vSaturationCheckMin = vPosLimit;
     __m256i vSaturationCheckMax = vNegLimit;
-    __m256i vNegInfFront = _mm256_set_epi8(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,NEG_LIMIT);
-    __m256i vSegLenXgap = _mm256_adds_epi8(vNegInfFront,
-            _mm256_slli_si256_rpl(_mm256_set1_epi8(-segLen*gap), 1));
+    __m256i vNegInfFront = vZero;
+    __m256i vSegLenXgap;
     parasail_result_t *result = parasail_result_new_trace(segLen, s2Len, 32, sizeof(__m256i));
     __m256i vTIns  = _mm256_set1_epi8(PARASAIL_INS);
     __m256i vTDel  = _mm256_set1_epi8(PARASAIL_DEL);
     __m256i vTDiag = _mm256_set1_epi8(PARASAIL_DIAG);
+
+    vNegInfFront = _mm256_insert_epi8_rpl(vNegInfFront, NEG_LIMIT, 0);
+    vSegLenXgap = _mm256_adds_epi8(vNegInfFront,
+            _mm256_slli_si256_rpl(_mm256_set1_epi8(-segLen*gap), 1));
 
     /* initialize H and E */
     {

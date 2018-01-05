@@ -118,9 +118,8 @@ parasail_result_t* PNAME(
     __m128i vMaxH = vNegLimit;
     __m128i vPosMask = _mm_cmpeq_epi32(_mm_set1_epi32(position),
             _mm_set_epi32(0,1,2,3));
-    __m128i vNegInfFront = _mm_set_epi32(0,0,0,NEG_LIMIT);
-    __m128i vSegLenXgap = _mm_add_epi32(vNegInfFront,
-            _mm_slli_si128(_mm_set1_epi32(-segLen*gap), 4));
+    __m128i vNegInfFront = vZero;
+    __m128i vSegLenXgap;
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
@@ -130,6 +129,10 @@ parasail_result_t* PNAME(
     parasail_result_t *result = parasail_result_new();
 #endif
 #endif
+
+    vNegInfFront = _mm_insert_epi32(vNegInfFront, NEG_LIMIT, 0);
+    vSegLenXgap = _mm_add_epi32(vNegInfFront,
+            _mm_slli_si128(_mm_set1_epi32(-segLen*gap), 4));
 
     /* initialize H and E */
     parasail_memset___m128i(pvH, vZero, segLen);

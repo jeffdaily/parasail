@@ -7,21 +7,31 @@ This project follows the [Gitflow Workflow model](https://www.atlassian.com/git/
 ## [Unreleased]
 The Unreleased section will be empty for tagged releases. Unreleased functionality appears in the develop branch.
 
+### Added
+- meson build system
+
 ### Fixed
-- Trace functions properly align memory
 
 ### Changed
 
 ### Removed
 - Generated autoconf, automake, libtool files
 - parasail_aligner Intel Cilk support
+- KNC ISA
 
 ### Closed Issues
-- Segfault in sw_trace_striped_avx2_256_8 [\#46]
 - Add meson build system [\#39]
 
 ### Merged Pull Requests
 - Add meson [\#45] ([SoapZA])
+
+## [2.0.5] - 2018-01-05
+### Fixed
+- Trace functions properly align memory
+- Intel compiler caused bug in 8- and 16-bit vector scan functions
+
+### Closed Issues
+- Segfault in sw_trace_striped_avx2_256_8 [\#46]
 
 ## [2.0.4] - 2017-11-30
 ### Fixed

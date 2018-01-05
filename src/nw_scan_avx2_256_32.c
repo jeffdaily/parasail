@@ -138,9 +138,8 @@ parasail_result_t* PNAME(
     __m256i vPosLimit = _mm256_set1_epi32(POS_LIMIT);
     __m256i vSaturationCheckMin = vPosLimit;
     __m256i vSaturationCheckMax = vNegLimit;
-    __m256i vNegInfFront = _mm256_set_epi32(0,0,0,0,0,0,0,NEG_LIMIT);
-    __m256i vSegLenXgap = _mm256_add_epi32(vNegInfFront,
-            _mm256_slli_si256_rpl(_mm256_set1_epi32(-segLen*gap), 4));
+    __m256i vNegInfFront = vZero;
+    __m256i vSegLenXgap;
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
@@ -150,6 +149,10 @@ parasail_result_t* PNAME(
     parasail_result_t *result = parasail_result_new();
 #endif
 #endif
+
+    vNegInfFront = _mm256_insert_epi32_rpl(vNegInfFront, NEG_LIMIT, 0);
+    vSegLenXgap = _mm256_add_epi32(vNegInfFront,
+            _mm256_slli_si256_rpl(_mm256_set1_epi32(-segLen*gap), 4));
 
     /* initialize H and E */
     {

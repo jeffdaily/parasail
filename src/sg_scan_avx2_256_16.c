@@ -19,6 +19,17 @@
 
 #define _mm256_cmplt_epi16_rpl(a,b) _mm256_cmpgt_epi16(b,a)
 
+#if HAVE_AVX2_MM256_INSERT_EPI16
+#define _mm256_insert_epi16_rpl _mm256_insert_epi16
+#else
+static inline __m256i _mm256_insert_epi16_rpl(__m256i a, int16_t i, int imm) {
+    __m256i_16_t A;
+    A.m = a;
+    A.v[imm] = i;
+    return A.m;
+}
+#endif
+
 #if HAVE_AVX2_MM256_EXTRACT_EPI16
 #define _mm256_extract_epi16_rpl _mm256_extract_epi16
 #else
@@ -153,9 +164,8 @@ parasail_result_t* PNAME(
     __m256i vMaxH = vNegLimit;
     __m256i vPosMask = _mm256_cmpeq_epi16(_mm256_set1_epi16(position),
             _mm256_set_epi16(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15));
-    __m256i vNegInfFront = _mm256_set_epi16(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,NEG_LIMIT);
-    __m256i vSegLenXgap = _mm256_add_epi16(vNegInfFront,
-            _mm256_slli_si256_rpl(_mm256_set1_epi16(-segLen*gap), 2));
+    __m256i vNegInfFront = vZero;
+    __m256i vSegLenXgap;
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
@@ -165,6 +175,10 @@ parasail_result_t* PNAME(
     parasail_result_t *result = parasail_result_new();
 #endif
 #endif
+
+    vNegInfFront = _mm256_insert_epi16_rpl(vNegInfFront, NEG_LIMIT, 0);
+    vSegLenXgap = _mm256_add_epi16(vNegInfFront,
+            _mm256_slli_si256_rpl(_mm256_set1_epi16(-segLen*gap), 2));
 
     /* initialize H and E */
     parasail_memset___m256i(pvH, vZero, segLen);

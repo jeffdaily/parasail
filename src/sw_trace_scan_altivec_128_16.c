@@ -75,14 +75,17 @@ parasail_result_t* PNAME(
     vec128i vSaturationCheckMax = vNegLimit;
     vec128i vMaxH = vNegLimit;
     vec128i vMaxHUnit = vNegLimit;
-    vec128i vNegInfFront = _mm_set_epi16(0,0,0,0,0,0,0,NEG_LIMIT);
-    vec128i vSegLenXgap = _mm_add_epi16(vNegInfFront,
-            _mm_slli_si128(_mm_set1_epi16(-segLen*gap), 2));
+    vec128i vNegInfFront = vZero;
+    vec128i vSegLenXgap;
     parasail_result_t *result = parasail_result_new_trace(segLen, s2Len, 16, sizeof(vec128i));
     vec128i vTZero = _mm_set1_epi16(PARASAIL_ZERO);
     vec128i vTIns  = _mm_set1_epi16(PARASAIL_INS);
     vec128i vTDel  = _mm_set1_epi16(PARASAIL_DEL);
     vec128i vTDiag = _mm_set1_epi16(PARASAIL_DIAG);
+
+    vNegInfFront = _mm_insert_epi16(vNegInfFront, NEG_LIMIT, 0);
+    vSegLenXgap = _mm_add_epi16(vNegInfFront,
+            _mm_slli_si128(_mm_set1_epi16(-segLen*gap), 2));
 
     parasail_memset_vec128i(pvH, vZero, segLen);
     parasail_memset_vec128i(pvE, vNegLimit, segLen);

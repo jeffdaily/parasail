@@ -33,6 +33,17 @@ static inline __m128i _mm_cmpgt_epi64_rpl(__m128i a, __m128i b) {
     return A.m;
 }
 
+#if HAVE_SSE41_MM_INSERT_EPI64
+#define _mm_insert_epi64_rpl _mm_insert_epi64
+#else
+static inline __m128i _mm_insert_epi64_rpl(__m128i a, int64_t i, int imm) {
+    __m128i_64_t A;
+    A.m = a;
+    A.v[imm] = i;
+    return A.m;
+}
+#endif
+
 static inline __m128i _mm_max_epi64_rpl(__m128i a, __m128i b) {
     __m128i_64_t A;
     __m128i_64_t B;
@@ -42,17 +53,6 @@ static inline __m128i _mm_max_epi64_rpl(__m128i a, __m128i b) {
     A.v[1] = (A.v[1]>B.v[1]) ? A.v[1] : B.v[1];
     return A.m;
 }
-
-#if HAVE_SSE2_MM_SET_EPI64X
-#define _mm_set_epi64x_rpl _mm_set_epi64x
-#else
-static inline __m128i _mm_set_epi64x_rpl(int64_t e1, int64_t e0) {
-    __m128i_64_t A;
-    A.v[0] = e0;
-    A.v[1] = e1;
-    return A.m;
-}
-#endif
 
 #if HAVE_SSE41_MM_EXTRACT_EPI64
 #define _mm_extract_epi64_rpl _mm_extract_epi64
@@ -183,9 +183,8 @@ parasail_result_t* PNAME(
     __m128i vSaturationCheckMax = vNegLimit;
     __m128i vMaxH = vNegLimit;
     __m128i vMaxHUnit = vNegLimit;
-    __m128i vNegInfFront = _mm_set_epi64x_rpl(0,NEG_LIMIT);
-    __m128i vSegLenXgap = _mm_add_epi64(vNegInfFront,
-            _mm_slli_si128(_mm_set1_epi64x_rpl(-segLen*gap), 8));
+    __m128i vNegInfFront = vZero;
+    __m128i vSegLenXgap;
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
@@ -197,6 +196,10 @@ parasail_result_t* PNAME(
     parasail_result_t *result = parasail_result_new();
 #endif
 #endif
+
+    vNegInfFront = _mm_insert_epi64_rpl(vNegInfFront, NEG_LIMIT, 0);
+    vSegLenXgap = _mm_add_epi64(vNegInfFront,
+            _mm_slli_si128(_mm_set1_epi64x_rpl(-segLen*gap), 8));
 
     parasail_memset___m128i(pvH, vZero, segLen);
     parasail_memset___m128i(pvE, vNegLimit, segLen);

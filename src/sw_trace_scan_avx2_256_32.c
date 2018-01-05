@@ -28,6 +28,17 @@ static inline int32_t _mm256_extract_epi32_rpl(__m256i a, int imm) {
 }
 #endif
 
+#if HAVE_AVX2_MM256_INSERT_EPI32
+#define _mm256_insert_epi32_rpl _mm256_insert_epi32
+#else
+static inline __m256i _mm256_insert_epi32_rpl(__m256i a, int32_t i, int imm) {
+    __m256i_32_t A;
+    A.m = a;
+    A.v[imm] = i;
+    return A.m;
+}
+#endif
+
 #define _mm256_cmplt_epi32_rpl(a,b) _mm256_cmpgt_epi32(b,a)
 
 #define _mm256_slli_si256_rpl(a,imm) _mm256_alignr_epi8(a, _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,3,0)), 16-imm)
@@ -96,14 +107,17 @@ parasail_result_t* PNAME(
     __m256i vSaturationCheckMax = vNegLimit;
     __m256i vMaxH = vNegLimit;
     __m256i vMaxHUnit = vNegLimit;
-    __m256i vNegInfFront = _mm256_set_epi32(0,0,0,0,0,0,0,NEG_LIMIT);
-    __m256i vSegLenXgap = _mm256_add_epi32(vNegInfFront,
-            _mm256_slli_si256_rpl(_mm256_set1_epi32(-segLen*gap), 4));
+    __m256i vNegInfFront = vZero;
+    __m256i vSegLenXgap;
     parasail_result_t *result = parasail_result_new_trace(segLen, s2Len, 32, sizeof(__m256i));
     __m256i vTZero = _mm256_set1_epi32(PARASAIL_ZERO);
     __m256i vTIns  = _mm256_set1_epi32(PARASAIL_INS);
     __m256i vTDel  = _mm256_set1_epi32(PARASAIL_DEL);
     __m256i vTDiag = _mm256_set1_epi32(PARASAIL_DIAG);
+
+    vNegInfFront = _mm256_insert_epi32_rpl(vNegInfFront, NEG_LIMIT, 0);
+    vSegLenXgap = _mm256_add_epi32(vNegInfFront,
+            _mm256_slli_si256_rpl(_mm256_set1_epi32(-segLen*gap), 4));
 
     parasail_memset___m256i(pvH, vZero, segLen);
     parasail_memset___m256i(pvE, vNegLimit, segLen);

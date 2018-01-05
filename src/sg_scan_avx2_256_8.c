@@ -17,6 +17,17 @@
 #include "parasail/internal_avx.h"
 
 
+#if HAVE_AVX2_MM256_INSERT_EPI8
+#define _mm256_insert_epi8_rpl _mm256_insert_epi8
+#else
+static inline __m256i _mm256_insert_epi8_rpl(__m256i a, int8_t i, int imm) {
+    __m256i_8_t A;
+    A.m = a;
+    A.v[imm] = i;
+    return A.m;
+}
+#endif
+
 #if HAVE_AVX2_MM256_EXTRACT_EPI8
 #define _mm256_extract_epi8_rpl _mm256_extract_epi8
 #else
@@ -186,9 +197,8 @@ parasail_result_t* PNAME(
     __m256i vMaxH = vNegLimit;
     __m256i vPosMask = _mm256_cmpeq_epi8(_mm256_set1_epi8(position),
             _mm256_set_epi8(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31));
-    __m256i vNegInfFront = _mm256_set_epi8(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,NEG_LIMIT);
-    __m256i vSegLenXgap = _mm256_adds_epi8(vNegInfFront,
-            _mm256_slli_si256_rpl(_mm256_set1_epi8(-segLen*gap), 1));
+    __m256i vNegInfFront = vZero;
+    __m256i vSegLenXgap;
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
@@ -198,6 +208,10 @@ parasail_result_t* PNAME(
     parasail_result_t *result = parasail_result_new();
 #endif
 #endif
+
+    vNegInfFront = _mm256_insert_epi8_rpl(vNegInfFront, NEG_LIMIT, 0);
+    vSegLenXgap = _mm256_adds_epi8(vNegInfFront,
+            _mm256_slli_si256_rpl(_mm256_set1_epi8(-segLen*gap), 1));
 
     /* initialize H and E */
     parasail_memset___m256i(pvH, vZero, segLen);

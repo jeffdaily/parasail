@@ -99,9 +99,8 @@ parasail_result_t* PNAME(
     %(VTYPE)s vSaturationCheckMax = vNegLimit;
     %(VTYPE)s vMaxH = vNegLimit;
     %(VTYPE)s vMaxHUnit = vNegLimit;
-    %(VTYPE)s vNegInfFront = %(VSET)s(%(SCAN_NEG_INF_FRONT)s);
-    %(VTYPE)s vSegLenXgap = %(VADD)s(vNegInfFront,
-            %(VSHIFT)s(%(VSET1)s(-segLen*gap), %(BYTES)s));
+    %(VTYPE)s vNegInfFront = vZero;
+    %(VTYPE)s vSegLenXgap;
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(segLen*segWidth, s2Len);
 #else
@@ -113,6 +112,10 @@ parasail_result_t* PNAME(
     parasail_result_t *result = parasail_result_new();
 #endif
 #endif
+
+    vNegInfFront = %(VINSERT)s(vNegInfFront, NEG_LIMIT, 0);
+    vSegLenXgap = %(VADD)s(vNegInfFront,
+            %(VSHIFT)s(%(VSET1)s(-segLen*gap), %(BYTES)s));
 
     parasail_memset_%(VTYPE)s(pvH, vZero, segLen);
     parasail_memset_%(VTYPE)s(pvE, vNegLimit, segLen);

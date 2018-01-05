@@ -510,8 +510,8 @@ int main(int argc, char **argv)
                 matches = 0;
                 length = 0;
             }
-            end_query = parasail_result_get_score(result);
-            end_ref = parasail_result_get_score(result);
+            end_query = parasail_result_get_end_query(result);
+            end_ref = parasail_result_get_end_ref(result);
             saturated = parasail_result_is_saturated(result);
             parasail_result_free(result);
         }

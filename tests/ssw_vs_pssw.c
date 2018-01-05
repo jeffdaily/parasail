@@ -237,7 +237,6 @@ int main(int argc, char **argv)
                 int32_t refLen = 0;
                 int32_t filter = 0;
                 int8_t flag = 2;
-                parasail_result_ssw_t *presult = NULL;
 
                 refSeq = sequences->seqs[k].seq.s;
                 refLen = sequences->seqs[k].seq.l;

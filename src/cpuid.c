@@ -36,7 +36,7 @@ static void run_cpuid(uint32_t eax, uint32_t ecx, uint32_t* abcd)
 }     
 
 
-#if defined(__INTEL_COMPILER) && (__INTEL_COMPILER >= 1300) && 0 == HAVE_KNC
+#if defined(__INTEL_COMPILER) && (__INTEL_COMPILER >= 1300)
 
 #include <immintrin.h>
 

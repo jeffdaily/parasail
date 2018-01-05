@@ -85,11 +85,6 @@ static const parasail_function_info_t functions[] = {
 {parasail_nw_diag_altivec_128_8,      "parasail_nw_diag_altivec_128_8",      "nw",    "diag", "altivec", "128",  "8", 16, 0, 0, 0, 0, 0},
 {parasail_nw_diag_altivec_128_sat,    "parasail_nw_diag_altivec_128_sat",    "nw",    "diag", "altivec", "128", "sat", 16, 0, 0, 0, 0, 0},
 #endif
-#if HAVE_KNC
-{parasail_nw_scan_knc_512_32,         "parasail_nw_scan_knc_512_32",         "nw",    "scan", "knc",   "512", "32", 16, 0, 0, 0, 0, 0},
-{parasail_nw_striped_knc_512_32,      "parasail_nw_striped_knc_512_32",      "nw", "striped", "knc",   "512", "32", 16, 0, 0, 0, 0, 0},
-{parasail_nw_diag_knc_512_32,         "parasail_nw_diag_knc_512_32",         "nw",    "diag", "knc",   "512", "32", 16, 0, 0, 0, 0, 0},
-#endif
 {parasail_nw_scan_64,                 "parasail_nw_scan_64",                 "nw",    "scan", "disp",   "NA", "64", -1, 0, 0, 0, 0, 0},
 {parasail_nw_scan_32,                 "parasail_nw_scan_32",                 "nw",    "scan", "disp",   "NA", "32", -1, 0, 0, 0, 0, 0},
 {parasail_nw_scan_16,                 "parasail_nw_scan_16",                 "nw",    "scan", "disp",   "NA", "16", -1, 0, 0, 0, 0, 0},
@@ -174,11 +169,6 @@ static const parasail_function_info_t functions[] = {
 {parasail_sg_diag_altivec_128_16,     "parasail_sg_diag_altivec_128_16",     "sg",    "diag", "altivec", "128", "16",  8, 0, 0, 0, 0, 0},
 {parasail_sg_diag_altivec_128_8,      "parasail_sg_diag_altivec_128_8",      "sg",    "diag", "altivec", "128",  "8", 16, 0, 0, 0, 0, 0},
 {parasail_sg_diag_altivec_128_sat,    "parasail_sg_diag_altivec_128_sat",    "sg",    "diag", "altivec", "128", "sat", 16, 0, 0, 0, 0, 0},
-#endif
-#if HAVE_KNC
-{parasail_sg_scan_knc_512_32,         "parasail_sg_scan_knc_512_32",         "sg",    "scan", "knc",   "512", "32", 16, 0, 0, 0, 0, 0},
-{parasail_sg_striped_knc_512_32,      "parasail_sg_striped_knc_512_32",      "sg", "striped", "knc",   "512", "32", 16, 0, 0, 0, 0, 0},
-{parasail_sg_diag_knc_512_32,         "parasail_sg_diag_knc_512_32",         "sg",    "diag", "knc",   "512", "32", 16, 0, 0, 0, 0, 0},
 #endif
 {parasail_sg_scan_64,                 "parasail_sg_scan_64",                 "sg",    "scan", "disp",   "NA", "64", -1, 0, 0, 0, 0, 0},
 {parasail_sg_scan_32,                 "parasail_sg_scan_32",                 "sg",    "scan", "disp",   "NA", "32", -1, 0, 0, 0, 0, 0},
@@ -267,11 +257,6 @@ static const parasail_function_info_t functions[] = {
 {parasail_sw_diag_altivec_128_8,      "parasail_sw_diag_altivec_128_8",      "sw",    "diag", "altivec", "128",  "8", 16, 0, 0, 0, 0, 0},
 {parasail_sw_diag_altivec_128_sat,    "parasail_sw_diag_altivec_128_sat",    "sw",    "diag", "altivec", "128", "sat", 16, 0, 0, 0, 0, 0},
 #endif
-#if HAVE_KNC
-{parasail_sw_scan_knc_512_32,         "parasail_sw_scan_knc_512_32",         "sw",    "scan", "knc",   "512", "32", 16, 0, 0, 0, 0, 0},
-{parasail_sw_striped_knc_512_32,      "parasail_sw_striped_knc_512_32",      "sw", "striped", "knc",   "512", "32", 16, 0, 0, 0, 0, 0},
-{parasail_sw_diag_knc_512_32,         "parasail_sw_diag_knc_512_32",         "sw",    "diag", "knc",   "512", "32", 16, 0, 0, 0, 0, 0},
-#endif
 {parasail_sw_scan_64,                 "parasail_sw_scan_64",                 "sw",    "scan", "disp",   "NA", "64", -1, 0, 0, 0, 0, 0},
 {parasail_sw_scan_32,                 "parasail_sw_scan_32",                 "sw",    "scan", "disp",   "NA", "32", -1, 0, 0, 0, 0, 0},
 {parasail_sw_scan_16,                 "parasail_sw_scan_16",                 "sw",    "scan", "disp",   "NA", "16", -1, 0, 0, 0, 0, 0},
@@ -356,11 +341,6 @@ static const parasail_function_info_t functions[] = {
 {parasail_nw_stats_diag_altivec_128_16, "parasail_nw_stats_diag_altivec_128_16", "nw_stats",    "diag", "altivec", "128", "16",  8, 0, 0, 0, 1, 0},
 {parasail_nw_stats_diag_altivec_128_8, "parasail_nw_stats_diag_altivec_128_8", "nw_stats",    "diag", "altivec", "128",  "8", 16, 0, 0, 0, 1, 0},
 {parasail_nw_stats_diag_altivec_128_sat, "parasail_nw_stats_diag_altivec_128_sat", "nw_stats",    "diag", "altivec", "128", "sat", 16, 0, 0, 0, 1, 0},
-#endif
-#if HAVE_KNC
-{parasail_nw_stats_scan_knc_512_32,   "parasail_nw_stats_scan_knc_512_32",   "nw_stats",    "scan", "knc",   "512", "32", 16, 0, 0, 0, 1, 0},
-{parasail_nw_stats_striped_knc_512_32, "parasail_nw_stats_striped_knc_512_32", "nw_stats", "striped", "knc",   "512", "32", 16, 0, 0, 0, 1, 0},
-{parasail_nw_stats_diag_knc_512_32,   "parasail_nw_stats_diag_knc_512_32",   "nw_stats",    "diag", "knc",   "512", "32", 16, 0, 0, 0, 1, 0},
 #endif
 {parasail_nw_stats_scan_64,           "parasail_nw_stats_scan_64",           "nw_stats",    "scan", "disp",   "NA", "64", -1, 0, 0, 0, 1, 0},
 {parasail_nw_stats_scan_32,           "parasail_nw_stats_scan_32",           "nw_stats",    "scan", "disp",   "NA", "32", -1, 0, 0, 0, 1, 0},
@@ -447,11 +427,6 @@ static const parasail_function_info_t functions[] = {
 {parasail_sg_stats_diag_altivec_128_8, "parasail_sg_stats_diag_altivec_128_8", "sg_stats",    "diag", "altivec", "128",  "8", 16, 0, 0, 0, 1, 0},
 {parasail_sg_stats_diag_altivec_128_sat, "parasail_sg_stats_diag_altivec_128_sat", "sg_stats",    "diag", "altivec", "128", "sat", 16, 0, 0, 0, 1, 0},
 #endif
-#if HAVE_KNC
-{parasail_sg_stats_scan_knc_512_32,   "parasail_sg_stats_scan_knc_512_32",   "sg_stats",    "scan", "knc",   "512", "32", 16, 0, 0, 0, 1, 0},
-{parasail_sg_stats_striped_knc_512_32, "parasail_sg_stats_striped_knc_512_32", "sg_stats", "striped", "knc",   "512", "32", 16, 0, 0, 0, 1, 0},
-{parasail_sg_stats_diag_knc_512_32,   "parasail_sg_stats_diag_knc_512_32",   "sg_stats",    "diag", "knc",   "512", "32", 16, 0, 0, 0, 1, 0},
-#endif
 {parasail_sg_stats_scan_64,           "parasail_sg_stats_scan_64",           "sg_stats",    "scan", "disp",   "NA", "64", -1, 0, 0, 0, 1, 0},
 {parasail_sg_stats_scan_32,           "parasail_sg_stats_scan_32",           "sg_stats",    "scan", "disp",   "NA", "32", -1, 0, 0, 0, 1, 0},
 {parasail_sg_stats_scan_16,           "parasail_sg_stats_scan_16",           "sg_stats",    "scan", "disp",   "NA", "16", -1, 0, 0, 0, 1, 0},
@@ -536,11 +511,6 @@ static const parasail_function_info_t functions[] = {
 {parasail_sw_stats_diag_altivec_128_16, "parasail_sw_stats_diag_altivec_128_16", "sw_stats",    "diag", "altivec", "128", "16",  8, 0, 0, 0, 1, 0},
 {parasail_sw_stats_diag_altivec_128_8, "parasail_sw_stats_diag_altivec_128_8", "sw_stats",    "diag", "altivec", "128",  "8", 16, 0, 0, 0, 1, 0},
 {parasail_sw_stats_diag_altivec_128_sat, "parasail_sw_stats_diag_altivec_128_sat", "sw_stats",    "diag", "altivec", "128", "sat", 16, 0, 0, 0, 1, 0},
-#endif
-#if HAVE_KNC
-{parasail_sw_stats_scan_knc_512_32,   "parasail_sw_stats_scan_knc_512_32",   "sw_stats",    "scan", "knc",   "512", "32", 16, 0, 0, 0, 1, 0},
-{parasail_sw_stats_striped_knc_512_32, "parasail_sw_stats_striped_knc_512_32", "sw_stats", "striped", "knc",   "512", "32", 16, 0, 0, 0, 1, 0},
-{parasail_sw_stats_diag_knc_512_32,   "parasail_sw_stats_diag_knc_512_32",   "sw_stats",    "diag", "knc",   "512", "32", 16, 0, 0, 0, 1, 0},
 #endif
 {parasail_sw_stats_scan_64,           "parasail_sw_stats_scan_64",           "sw_stats",    "scan", "disp",   "NA", "64", -1, 0, 0, 0, 1, 0},
 {parasail_sw_stats_scan_32,           "parasail_sw_stats_scan_32",           "sw_stats",    "scan", "disp",   "NA", "32", -1, 0, 0, 0, 1, 0},
@@ -627,11 +597,6 @@ static const parasail_function_info_t functions[] = {
 {parasail_nw_table_diag_altivec_128_8, "parasail_nw_table_diag_altivec_128_8", "nw",    "diag", "altivec", "128",  "8", 16, 1, 0, 0, 0, 0},
 {parasail_nw_table_diag_altivec_128_sat, "parasail_nw_table_diag_altivec_128_sat", "nw",    "diag", "altivec", "128", "sat", 16, 1, 0, 0, 0, 0},
 #endif
-#if HAVE_KNC
-{parasail_nw_table_scan_knc_512_32,   "parasail_nw_table_scan_knc_512_32",   "nw",    "scan", "knc",   "512", "32", 16, 1, 0, 0, 0, 0},
-{parasail_nw_table_striped_knc_512_32, "parasail_nw_table_striped_knc_512_32", "nw", "striped", "knc",   "512", "32", 16, 1, 0, 0, 0, 0},
-{parasail_nw_table_diag_knc_512_32,   "parasail_nw_table_diag_knc_512_32",   "nw",    "diag", "knc",   "512", "32", 16, 1, 0, 0, 0, 0},
-#endif
 {parasail_nw_table_scan_64,           "parasail_nw_table_scan_64",           "nw",    "scan", "disp",   "NA", "64", -1, 1, 0, 0, 0, 0},
 {parasail_nw_table_scan_32,           "parasail_nw_table_scan_32",           "nw",    "scan", "disp",   "NA", "32", -1, 1, 0, 0, 0, 0},
 {parasail_nw_table_scan_16,           "parasail_nw_table_scan_16",           "nw",    "scan", "disp",   "NA", "16", -1, 1, 0, 0, 0, 0},
@@ -716,11 +681,6 @@ static const parasail_function_info_t functions[] = {
 {parasail_sg_table_diag_altivec_128_16, "parasail_sg_table_diag_altivec_128_16", "sg",    "diag", "altivec", "128", "16",  8, 1, 0, 0, 0, 0},
 {parasail_sg_table_diag_altivec_128_8, "parasail_sg_table_diag_altivec_128_8", "sg",    "diag", "altivec", "128",  "8", 16, 1, 0, 0, 0, 0},
 {parasail_sg_table_diag_altivec_128_sat, "parasail_sg_table_diag_altivec_128_sat", "sg",    "diag", "altivec", "128", "sat", 16, 1, 0, 0, 0, 0},
-#endif
-#if HAVE_KNC
-{parasail_sg_table_scan_knc_512_32,   "parasail_sg_table_scan_knc_512_32",   "sg",    "scan", "knc",   "512", "32", 16, 1, 0, 0, 0, 0},
-{parasail_sg_table_striped_knc_512_32, "parasail_sg_table_striped_knc_512_32", "sg", "striped", "knc",   "512", "32", 16, 1, 0, 0, 0, 0},
-{parasail_sg_table_diag_knc_512_32,   "parasail_sg_table_diag_knc_512_32",   "sg",    "diag", "knc",   "512", "32", 16, 1, 0, 0, 0, 0},
 #endif
 {parasail_sg_table_scan_64,           "parasail_sg_table_scan_64",           "sg",    "scan", "disp",   "NA", "64", -1, 1, 0, 0, 0, 0},
 {parasail_sg_table_scan_32,           "parasail_sg_table_scan_32",           "sg",    "scan", "disp",   "NA", "32", -1, 1, 0, 0, 0, 0},
@@ -809,11 +769,6 @@ static const parasail_function_info_t functions[] = {
 {parasail_sw_table_diag_altivec_128_8, "parasail_sw_table_diag_altivec_128_8", "sw",    "diag", "altivec", "128",  "8", 16, 1, 0, 0, 0, 0},
 {parasail_sw_table_diag_altivec_128_sat, "parasail_sw_table_diag_altivec_128_sat", "sw",    "diag", "altivec", "128", "sat", 16, 1, 0, 0, 0, 0},
 #endif
-#if HAVE_KNC
-{parasail_sw_table_scan_knc_512_32,   "parasail_sw_table_scan_knc_512_32",   "sw",    "scan", "knc",   "512", "32", 16, 1, 0, 0, 0, 0},
-{parasail_sw_table_striped_knc_512_32, "parasail_sw_table_striped_knc_512_32", "sw", "striped", "knc",   "512", "32", 16, 1, 0, 0, 0, 0},
-{parasail_sw_table_diag_knc_512_32,   "parasail_sw_table_diag_knc_512_32",   "sw",    "diag", "knc",   "512", "32", 16, 1, 0, 0, 0, 0},
-#endif
 {parasail_sw_table_scan_64,           "parasail_sw_table_scan_64",           "sw",    "scan", "disp",   "NA", "64", -1, 1, 0, 0, 0, 0},
 {parasail_sw_table_scan_32,           "parasail_sw_table_scan_32",           "sw",    "scan", "disp",   "NA", "32", -1, 1, 0, 0, 0, 0},
 {parasail_sw_table_scan_16,           "parasail_sw_table_scan_16",           "sw",    "scan", "disp",   "NA", "16", -1, 1, 0, 0, 0, 0},
@@ -898,11 +853,6 @@ static const parasail_function_info_t functions[] = {
 {parasail_nw_stats_table_diag_altivec_128_16, "parasail_nw_stats_table_diag_altivec_128_16", "nw_stats",    "diag", "altivec", "128", "16",  8, 1, 0, 0, 1, 0},
 {parasail_nw_stats_table_diag_altivec_128_8, "parasail_nw_stats_table_diag_altivec_128_8", "nw_stats",    "diag", "altivec", "128",  "8", 16, 1, 0, 0, 1, 0},
 {parasail_nw_stats_table_diag_altivec_128_sat, "parasail_nw_stats_table_diag_altivec_128_sat", "nw_stats",    "diag", "altivec", "128", "sat", 16, 1, 0, 0, 1, 0},
-#endif
-#if HAVE_KNC
-{parasail_nw_stats_table_scan_knc_512_32, "parasail_nw_stats_table_scan_knc_512_32", "nw_stats",    "scan", "knc",   "512", "32", 16, 1, 0, 0, 1, 0},
-{parasail_nw_stats_table_striped_knc_512_32, "parasail_nw_stats_table_striped_knc_512_32", "nw_stats", "striped", "knc",   "512", "32", 16, 1, 0, 0, 1, 0},
-{parasail_nw_stats_table_diag_knc_512_32, "parasail_nw_stats_table_diag_knc_512_32", "nw_stats",    "diag", "knc",   "512", "32", 16, 1, 0, 0, 1, 0},
 #endif
 {parasail_nw_stats_table_scan_64,     "parasail_nw_stats_table_scan_64",     "nw_stats",    "scan", "disp",   "NA", "64", -1, 1, 0, 0, 1, 0},
 {parasail_nw_stats_table_scan_32,     "parasail_nw_stats_table_scan_32",     "nw_stats",    "scan", "disp",   "NA", "32", -1, 1, 0, 0, 1, 0},
@@ -989,11 +939,6 @@ static const parasail_function_info_t functions[] = {
 {parasail_sg_stats_table_diag_altivec_128_8, "parasail_sg_stats_table_diag_altivec_128_8", "sg_stats",    "diag", "altivec", "128",  "8", 16, 1, 0, 0, 1, 0},
 {parasail_sg_stats_table_diag_altivec_128_sat, "parasail_sg_stats_table_diag_altivec_128_sat", "sg_stats",    "diag", "altivec", "128", "sat", 16, 1, 0, 0, 1, 0},
 #endif
-#if HAVE_KNC
-{parasail_sg_stats_table_scan_knc_512_32, "parasail_sg_stats_table_scan_knc_512_32", "sg_stats",    "scan", "knc",   "512", "32", 16, 1, 0, 0, 1, 0},
-{parasail_sg_stats_table_striped_knc_512_32, "parasail_sg_stats_table_striped_knc_512_32", "sg_stats", "striped", "knc",   "512", "32", 16, 1, 0, 0, 1, 0},
-{parasail_sg_stats_table_diag_knc_512_32, "parasail_sg_stats_table_diag_knc_512_32", "sg_stats",    "diag", "knc",   "512", "32", 16, 1, 0, 0, 1, 0},
-#endif
 {parasail_sg_stats_table_scan_64,     "parasail_sg_stats_table_scan_64",     "sg_stats",    "scan", "disp",   "NA", "64", -1, 1, 0, 0, 1, 0},
 {parasail_sg_stats_table_scan_32,     "parasail_sg_stats_table_scan_32",     "sg_stats",    "scan", "disp",   "NA", "32", -1, 1, 0, 0, 1, 0},
 {parasail_sg_stats_table_scan_16,     "parasail_sg_stats_table_scan_16",     "sg_stats",    "scan", "disp",   "NA", "16", -1, 1, 0, 0, 1, 0},
@@ -1078,11 +1023,6 @@ static const parasail_function_info_t functions[] = {
 {parasail_sw_stats_table_diag_altivec_128_16, "parasail_sw_stats_table_diag_altivec_128_16", "sw_stats",    "diag", "altivec", "128", "16",  8, 1, 0, 0, 1, 0},
 {parasail_sw_stats_table_diag_altivec_128_8, "parasail_sw_stats_table_diag_altivec_128_8", "sw_stats",    "diag", "altivec", "128",  "8", 16, 1, 0, 0, 1, 0},
 {parasail_sw_stats_table_diag_altivec_128_sat, "parasail_sw_stats_table_diag_altivec_128_sat", "sw_stats",    "diag", "altivec", "128", "sat", 16, 1, 0, 0, 1, 0},
-#endif
-#if HAVE_KNC
-{parasail_sw_stats_table_scan_knc_512_32, "parasail_sw_stats_table_scan_knc_512_32", "sw_stats",    "scan", "knc",   "512", "32", 16, 1, 0, 0, 1, 0},
-{parasail_sw_stats_table_striped_knc_512_32, "parasail_sw_stats_table_striped_knc_512_32", "sw_stats", "striped", "knc",   "512", "32", 16, 1, 0, 0, 1, 0},
-{parasail_sw_stats_table_diag_knc_512_32, "parasail_sw_stats_table_diag_knc_512_32", "sw_stats",    "diag", "knc",   "512", "32", 16, 1, 0, 0, 1, 0},
 #endif
 {parasail_sw_stats_table_scan_64,     "parasail_sw_stats_table_scan_64",     "sw_stats",    "scan", "disp",   "NA", "64", -1, 1, 0, 0, 1, 0},
 {parasail_sw_stats_table_scan_32,     "parasail_sw_stats_table_scan_32",     "sw_stats",    "scan", "disp",   "NA", "32", -1, 1, 0, 0, 1, 0},
@@ -1169,11 +1109,6 @@ static const parasail_function_info_t functions[] = {
 {parasail_nw_rowcol_diag_altivec_128_8, "parasail_nw_rowcol_diag_altivec_128_8", "nw",    "diag", "altivec", "128",  "8", 16, 0, 1, 0, 0, 0},
 {parasail_nw_rowcol_diag_altivec_128_sat, "parasail_nw_rowcol_diag_altivec_128_sat", "nw",    "diag", "altivec", "128", "sat", 16, 0, 1, 0, 0, 0},
 #endif
-#if HAVE_KNC
-{parasail_nw_rowcol_scan_knc_512_32,  "parasail_nw_rowcol_scan_knc_512_32",  "nw",    "scan", "knc",   "512", "32", 16, 0, 1, 0, 0, 0},
-{parasail_nw_rowcol_striped_knc_512_32, "parasail_nw_rowcol_striped_knc_512_32", "nw", "striped", "knc",   "512", "32", 16, 0, 1, 0, 0, 0},
-{parasail_nw_rowcol_diag_knc_512_32,  "parasail_nw_rowcol_diag_knc_512_32",  "nw",    "diag", "knc",   "512", "32", 16, 0, 1, 0, 0, 0},
-#endif
 {parasail_nw_rowcol_scan_64,          "parasail_nw_rowcol_scan_64",          "nw",    "scan", "disp",   "NA", "64", -1, 0, 1, 0, 0, 0},
 {parasail_nw_rowcol_scan_32,          "parasail_nw_rowcol_scan_32",          "nw",    "scan", "disp",   "NA", "32", -1, 0, 1, 0, 0, 0},
 {parasail_nw_rowcol_scan_16,          "parasail_nw_rowcol_scan_16",          "nw",    "scan", "disp",   "NA", "16", -1, 0, 1, 0, 0, 0},
@@ -1258,11 +1193,6 @@ static const parasail_function_info_t functions[] = {
 {parasail_sg_rowcol_diag_altivec_128_16, "parasail_sg_rowcol_diag_altivec_128_16", "sg",    "diag", "altivec", "128", "16",  8, 0, 1, 0, 0, 0},
 {parasail_sg_rowcol_diag_altivec_128_8, "parasail_sg_rowcol_diag_altivec_128_8", "sg",    "diag", "altivec", "128",  "8", 16, 0, 1, 0, 0, 0},
 {parasail_sg_rowcol_diag_altivec_128_sat, "parasail_sg_rowcol_diag_altivec_128_sat", "sg",    "diag", "altivec", "128", "sat", 16, 0, 1, 0, 0, 0},
-#endif
-#if HAVE_KNC
-{parasail_sg_rowcol_scan_knc_512_32,  "parasail_sg_rowcol_scan_knc_512_32",  "sg",    "scan", "knc",   "512", "32", 16, 0, 1, 0, 0, 0},
-{parasail_sg_rowcol_striped_knc_512_32, "parasail_sg_rowcol_striped_knc_512_32", "sg", "striped", "knc",   "512", "32", 16, 0, 1, 0, 0, 0},
-{parasail_sg_rowcol_diag_knc_512_32,  "parasail_sg_rowcol_diag_knc_512_32",  "sg",    "diag", "knc",   "512", "32", 16, 0, 1, 0, 0, 0},
 #endif
 {parasail_sg_rowcol_scan_64,          "parasail_sg_rowcol_scan_64",          "sg",    "scan", "disp",   "NA", "64", -1, 0, 1, 0, 0, 0},
 {parasail_sg_rowcol_scan_32,          "parasail_sg_rowcol_scan_32",          "sg",    "scan", "disp",   "NA", "32", -1, 0, 1, 0, 0, 0},
@@ -1351,11 +1281,6 @@ static const parasail_function_info_t functions[] = {
 {parasail_sw_rowcol_diag_altivec_128_8, "parasail_sw_rowcol_diag_altivec_128_8", "sw",    "diag", "altivec", "128",  "8", 16, 0, 1, 0, 0, 0},
 {parasail_sw_rowcol_diag_altivec_128_sat, "parasail_sw_rowcol_diag_altivec_128_sat", "sw",    "diag", "altivec", "128", "sat", 16, 0, 1, 0, 0, 0},
 #endif
-#if HAVE_KNC
-{parasail_sw_rowcol_scan_knc_512_32,  "parasail_sw_rowcol_scan_knc_512_32",  "sw",    "scan", "knc",   "512", "32", 16, 0, 1, 0, 0, 0},
-{parasail_sw_rowcol_striped_knc_512_32, "parasail_sw_rowcol_striped_knc_512_32", "sw", "striped", "knc",   "512", "32", 16, 0, 1, 0, 0, 0},
-{parasail_sw_rowcol_diag_knc_512_32,  "parasail_sw_rowcol_diag_knc_512_32",  "sw",    "diag", "knc",   "512", "32", 16, 0, 1, 0, 0, 0},
-#endif
 {parasail_sw_rowcol_scan_64,          "parasail_sw_rowcol_scan_64",          "sw",    "scan", "disp",   "NA", "64", -1, 0, 1, 0, 0, 0},
 {parasail_sw_rowcol_scan_32,          "parasail_sw_rowcol_scan_32",          "sw",    "scan", "disp",   "NA", "32", -1, 0, 1, 0, 0, 0},
 {parasail_sw_rowcol_scan_16,          "parasail_sw_rowcol_scan_16",          "sw",    "scan", "disp",   "NA", "16", -1, 0, 1, 0, 0, 0},
@@ -1440,11 +1365,6 @@ static const parasail_function_info_t functions[] = {
 {parasail_nw_stats_rowcol_diag_altivec_128_16, "parasail_nw_stats_rowcol_diag_altivec_128_16", "nw_stats",    "diag", "altivec", "128", "16",  8, 0, 1, 0, 1, 0},
 {parasail_nw_stats_rowcol_diag_altivec_128_8, "parasail_nw_stats_rowcol_diag_altivec_128_8", "nw_stats",    "diag", "altivec", "128",  "8", 16, 0, 1, 0, 1, 0},
 {parasail_nw_stats_rowcol_diag_altivec_128_sat, "parasail_nw_stats_rowcol_diag_altivec_128_sat", "nw_stats",    "diag", "altivec", "128", "sat", 16, 0, 1, 0, 1, 0},
-#endif
-#if HAVE_KNC
-{parasail_nw_stats_rowcol_scan_knc_512_32, "parasail_nw_stats_rowcol_scan_knc_512_32", "nw_stats",    "scan", "knc",   "512", "32", 16, 0, 1, 0, 1, 0},
-{parasail_nw_stats_rowcol_striped_knc_512_32, "parasail_nw_stats_rowcol_striped_knc_512_32", "nw_stats", "striped", "knc",   "512", "32", 16, 0, 1, 0, 1, 0},
-{parasail_nw_stats_rowcol_diag_knc_512_32, "parasail_nw_stats_rowcol_diag_knc_512_32", "nw_stats",    "diag", "knc",   "512", "32", 16, 0, 1, 0, 1, 0},
 #endif
 {parasail_nw_stats_rowcol_scan_64,    "parasail_nw_stats_rowcol_scan_64",    "nw_stats",    "scan", "disp",   "NA", "64", -1, 0, 1, 0, 1, 0},
 {parasail_nw_stats_rowcol_scan_32,    "parasail_nw_stats_rowcol_scan_32",    "nw_stats",    "scan", "disp",   "NA", "32", -1, 0, 1, 0, 1, 0},
@@ -1531,11 +1451,6 @@ static const parasail_function_info_t functions[] = {
 {parasail_sg_stats_rowcol_diag_altivec_128_8, "parasail_sg_stats_rowcol_diag_altivec_128_8", "sg_stats",    "diag", "altivec", "128",  "8", 16, 0, 1, 0, 1, 0},
 {parasail_sg_stats_rowcol_diag_altivec_128_sat, "parasail_sg_stats_rowcol_diag_altivec_128_sat", "sg_stats",    "diag", "altivec", "128", "sat", 16, 0, 1, 0, 1, 0},
 #endif
-#if HAVE_KNC
-{parasail_sg_stats_rowcol_scan_knc_512_32, "parasail_sg_stats_rowcol_scan_knc_512_32", "sg_stats",    "scan", "knc",   "512", "32", 16, 0, 1, 0, 1, 0},
-{parasail_sg_stats_rowcol_striped_knc_512_32, "parasail_sg_stats_rowcol_striped_knc_512_32", "sg_stats", "striped", "knc",   "512", "32", 16, 0, 1, 0, 1, 0},
-{parasail_sg_stats_rowcol_diag_knc_512_32, "parasail_sg_stats_rowcol_diag_knc_512_32", "sg_stats",    "diag", "knc",   "512", "32", 16, 0, 1, 0, 1, 0},
-#endif
 {parasail_sg_stats_rowcol_scan_64,    "parasail_sg_stats_rowcol_scan_64",    "sg_stats",    "scan", "disp",   "NA", "64", -1, 0, 1, 0, 1, 0},
 {parasail_sg_stats_rowcol_scan_32,    "parasail_sg_stats_rowcol_scan_32",    "sg_stats",    "scan", "disp",   "NA", "32", -1, 0, 1, 0, 1, 0},
 {parasail_sg_stats_rowcol_scan_16,    "parasail_sg_stats_rowcol_scan_16",    "sg_stats",    "scan", "disp",   "NA", "16", -1, 0, 1, 0, 1, 0},
@@ -1620,11 +1535,6 @@ static const parasail_function_info_t functions[] = {
 {parasail_sw_stats_rowcol_diag_altivec_128_16, "parasail_sw_stats_rowcol_diag_altivec_128_16", "sw_stats",    "diag", "altivec", "128", "16",  8, 0, 1, 0, 1, 0},
 {parasail_sw_stats_rowcol_diag_altivec_128_8, "parasail_sw_stats_rowcol_diag_altivec_128_8", "sw_stats",    "diag", "altivec", "128",  "8", 16, 0, 1, 0, 1, 0},
 {parasail_sw_stats_rowcol_diag_altivec_128_sat, "parasail_sw_stats_rowcol_diag_altivec_128_sat", "sw_stats",    "diag", "altivec", "128", "sat", 16, 0, 1, 0, 1, 0},
-#endif
-#if HAVE_KNC
-{parasail_sw_stats_rowcol_scan_knc_512_32, "parasail_sw_stats_rowcol_scan_knc_512_32", "sw_stats",    "scan", "knc",   "512", "32", 16, 0, 1, 0, 1, 0},
-{parasail_sw_stats_rowcol_striped_knc_512_32, "parasail_sw_stats_rowcol_striped_knc_512_32", "sw_stats", "striped", "knc",   "512", "32", 16, 0, 1, 0, 1, 0},
-{parasail_sw_stats_rowcol_diag_knc_512_32, "parasail_sw_stats_rowcol_diag_knc_512_32", "sw_stats",    "diag", "knc",   "512", "32", 16, 0, 1, 0, 1, 0},
 #endif
 {parasail_sw_stats_rowcol_scan_64,    "parasail_sw_stats_rowcol_scan_64",    "sw_stats",    "scan", "disp",   "NA", "64", -1, 0, 1, 0, 1, 0},
 {parasail_sw_stats_rowcol_scan_32,    "parasail_sw_stats_rowcol_scan_32",    "sw_stats",    "scan", "disp",   "NA", "32", -1, 0, 1, 0, 1, 0},
@@ -1711,11 +1621,6 @@ static const parasail_function_info_t functions[] = {
 {parasail_nw_trace_diag_altivec_128_8, "parasail_nw_trace_diag_altivec_128_8", "nw",    "diag", "altivec", "128",  "8", 16, 0, 0, 1, 0, 0},
 {parasail_nw_trace_diag_altivec_128_sat, "parasail_nw_trace_diag_altivec_128_sat", "nw",    "diag", "altivec", "128", "sat", 16, 0, 0, 1, 0, 0},
 #endif
-#if HAVE_KNC
-{parasail_nw_trace_scan_knc_512_32,   "parasail_nw_trace_scan_knc_512_32",   "nw",    "scan", "knc",   "512", "32", 16, 0, 0, 1, 0, 0},
-{parasail_nw_trace_striped_knc_512_32, "parasail_nw_trace_striped_knc_512_32", "nw", "striped", "knc",   "512", "32", 16, 0, 0, 1, 0, 0},
-{parasail_nw_trace_diag_knc_512_32,   "parasail_nw_trace_diag_knc_512_32",   "nw",    "diag", "knc",   "512", "32", 16, 0, 0, 1, 0, 0},
-#endif
 {parasail_nw_trace_scan_64,           "parasail_nw_trace_scan_64",           "nw",    "scan", "disp",   "NA", "64", -1, 0, 0, 1, 0, 0},
 {parasail_nw_trace_scan_32,           "parasail_nw_trace_scan_32",           "nw",    "scan", "disp",   "NA", "32", -1, 0, 0, 1, 0, 0},
 {parasail_nw_trace_scan_16,           "parasail_nw_trace_scan_16",           "nw",    "scan", "disp",   "NA", "16", -1, 0, 0, 1, 0, 0},
@@ -1800,11 +1705,6 @@ static const parasail_function_info_t functions[] = {
 {parasail_sg_trace_diag_altivec_128_16, "parasail_sg_trace_diag_altivec_128_16", "sg",    "diag", "altivec", "128", "16",  8, 0, 0, 1, 0, 0},
 {parasail_sg_trace_diag_altivec_128_8, "parasail_sg_trace_diag_altivec_128_8", "sg",    "diag", "altivec", "128",  "8", 16, 0, 0, 1, 0, 0},
 {parasail_sg_trace_diag_altivec_128_sat, "parasail_sg_trace_diag_altivec_128_sat", "sg",    "diag", "altivec", "128", "sat", 16, 0, 0, 1, 0, 0},
-#endif
-#if HAVE_KNC
-{parasail_sg_trace_scan_knc_512_32,   "parasail_sg_trace_scan_knc_512_32",   "sg",    "scan", "knc",   "512", "32", 16, 0, 0, 1, 0, 0},
-{parasail_sg_trace_striped_knc_512_32, "parasail_sg_trace_striped_knc_512_32", "sg", "striped", "knc",   "512", "32", 16, 0, 0, 1, 0, 0},
-{parasail_sg_trace_diag_knc_512_32,   "parasail_sg_trace_diag_knc_512_32",   "sg",    "diag", "knc",   "512", "32", 16, 0, 0, 1, 0, 0},
 #endif
 {parasail_sg_trace_scan_64,           "parasail_sg_trace_scan_64",           "sg",    "scan", "disp",   "NA", "64", -1, 0, 0, 1, 0, 0},
 {parasail_sg_trace_scan_32,           "parasail_sg_trace_scan_32",           "sg",    "scan", "disp",   "NA", "32", -1, 0, 0, 1, 0, 0},
@@ -1891,11 +1791,6 @@ static const parasail_function_info_t functions[] = {
 {parasail_sw_trace_diag_altivec_128_8, "parasail_sw_trace_diag_altivec_128_8", "sw",    "diag", "altivec", "128",  "8", 16, 0, 0, 1, 0, 0},
 {parasail_sw_trace_diag_altivec_128_sat, "parasail_sw_trace_diag_altivec_128_sat", "sw",    "diag", "altivec", "128", "sat", 16, 0, 0, 1, 0, 0},
 #endif
-#if HAVE_KNC
-{parasail_sw_trace_scan_knc_512_32,   "parasail_sw_trace_scan_knc_512_32",   "sw",    "scan", "knc",   "512", "32", 16, 0, 0, 1, 0, 0},
-{parasail_sw_trace_striped_knc_512_32, "parasail_sw_trace_striped_knc_512_32", "sw", "striped", "knc",   "512", "32", 16, 0, 0, 1, 0, 0},
-{parasail_sw_trace_diag_knc_512_32,   "parasail_sw_trace_diag_knc_512_32",   "sw",    "diag", "knc",   "512", "32", 16, 0, 0, 1, 0, 0},
-#endif
 {parasail_sw_trace_scan_64,           "parasail_sw_trace_scan_64",           "sw",    "scan", "disp",   "NA", "64", -1, 0, 0, 1, 0, 0},
 {parasail_sw_trace_scan_32,           "parasail_sw_trace_scan_32",           "sw",    "scan", "disp",   "NA", "32", -1, 0, 0, 1, 0, 0},
 {parasail_sw_trace_scan_16,           "parasail_sw_trace_scan_16",           "sw",    "scan", "disp",   "NA", "16", -1, 0, 0, 1, 0, 0},
@@ -1963,10 +1858,6 @@ static const parasail_pfunction_info_t pfunctions[] = {
 {parasail_nw_striped_profile_altivec_128_8, parasail_profile_create_altivec_128_8, "parasail_nw_striped_profile_altivec_128_8", "nw", "striped_profile", "altivec", "128",  "8", 16, 0, 0, 0, 0, 0},
 {parasail_nw_striped_profile_altivec_128_sat, parasail_profile_create_altivec_128_sat, "parasail_nw_striped_profile_altivec_128_sat", "nw", "striped_profile", "altivec", "128", "sat", 16, 0, 0, 0, 0, 0},
 #endif
-#if HAVE_KNC
-{parasail_nw_scan_profile_knc_512_32, parasail_profile_create_knc_512_32,  "parasail_nw_scan_profile_knc_512_32", "nw", "scan_profile", "knc",   "512", "32", 16, 0, 0, 0, 0, 0},
-{parasail_nw_striped_profile_knc_512_32, parasail_profile_create_knc_512_32,  "parasail_nw_striped_profile_knc_512_32", "nw", "striped_profile", "knc",   "512", "32", 16, 0, 0, 0, 0, 0},
-#endif
 {parasail_nw_scan_profile_64,         parasail_profile_create_64,          "parasail_nw_scan_profile_64",         "nw", "scan_profile", "disp",   "NA", "64", -1, 0, 0, 0, 0, 0},
 {parasail_nw_scan_profile_32,         parasail_profile_create_32,          "parasail_nw_scan_profile_32",         "nw", "scan_profile", "disp",   "NA", "32", -1, 0, 0, 0, 0, 0},
 {parasail_nw_scan_profile_16,         parasail_profile_create_16,          "parasail_nw_scan_profile_16",         "nw", "scan_profile", "disp",   "NA", "16", -1, 0, 0, 0, 0, 0},
@@ -2024,10 +1915,6 @@ static const parasail_pfunction_info_t pfunctions[] = {
 {parasail_sg_striped_profile_altivec_128_16, parasail_profile_create_altivec_128_16, "parasail_sg_striped_profile_altivec_128_16", "sg", "striped_profile", "altivec", "128", "16",  8, 0, 0, 0, 0, 0},
 {parasail_sg_striped_profile_altivec_128_8, parasail_profile_create_altivec_128_8, "parasail_sg_striped_profile_altivec_128_8", "sg", "striped_profile", "altivec", "128",  "8", 16, 0, 0, 0, 0, 0},
 {parasail_sg_striped_profile_altivec_128_sat, parasail_profile_create_altivec_128_sat, "parasail_sg_striped_profile_altivec_128_sat", "sg", "striped_profile", "altivec", "128", "sat", 16, 0, 0, 0, 0, 0},
-#endif
-#if HAVE_KNC
-{parasail_sg_scan_profile_knc_512_32, parasail_profile_create_knc_512_32,  "parasail_sg_scan_profile_knc_512_32", "sg", "scan_profile", "knc",   "512", "32", 16, 0, 0, 0, 0, 0},
-{parasail_sg_striped_profile_knc_512_32, parasail_profile_create_knc_512_32,  "parasail_sg_striped_profile_knc_512_32", "sg", "striped_profile", "knc",   "512", "32", 16, 0, 0, 0, 0, 0},
 #endif
 {parasail_sg_scan_profile_64,         parasail_profile_create_64,          "parasail_sg_scan_profile_64",         "sg", "scan_profile", "disp",   "NA", "64", -1, 0, 0, 0, 0, 0},
 {parasail_sg_scan_profile_32,         parasail_profile_create_32,          "parasail_sg_scan_profile_32",         "sg", "scan_profile", "disp",   "NA", "32", -1, 0, 0, 0, 0, 0},
@@ -2087,10 +1974,6 @@ static const parasail_pfunction_info_t pfunctions[] = {
 {parasail_sw_striped_profile_altivec_128_8, parasail_profile_create_altivec_128_8, "parasail_sw_striped_profile_altivec_128_8", "sw", "striped_profile", "altivec", "128",  "8", 16, 0, 0, 0, 0, 0},
 {parasail_sw_striped_profile_altivec_128_sat, parasail_profile_create_altivec_128_sat, "parasail_sw_striped_profile_altivec_128_sat", "sw", "striped_profile", "altivec", "128", "sat", 16, 0, 0, 0, 0, 0},
 #endif
-#if HAVE_KNC
-{parasail_sw_scan_profile_knc_512_32, parasail_profile_create_knc_512_32,  "parasail_sw_scan_profile_knc_512_32", "sw", "scan_profile", "knc",   "512", "32", 16, 0, 0, 0, 0, 0},
-{parasail_sw_striped_profile_knc_512_32, parasail_profile_create_knc_512_32,  "parasail_sw_striped_profile_knc_512_32", "sw", "striped_profile", "knc",   "512", "32", 16, 0, 0, 0, 0, 0},
-#endif
 {parasail_sw_scan_profile_64,         parasail_profile_create_64,          "parasail_sw_scan_profile_64",         "sw", "scan_profile", "disp",   "NA", "64", -1, 0, 0, 0, 0, 0},
 {parasail_sw_scan_profile_32,         parasail_profile_create_32,          "parasail_sw_scan_profile_32",         "sw", "scan_profile", "disp",   "NA", "32", -1, 0, 0, 0, 0, 0},
 {parasail_sw_scan_profile_16,         parasail_profile_create_16,          "parasail_sw_scan_profile_16",         "sw", "scan_profile", "disp",   "NA", "16", -1, 0, 0, 0, 0, 0},
@@ -2148,10 +2031,6 @@ static const parasail_pfunction_info_t pfunctions[] = {
 {parasail_nw_stats_striped_profile_altivec_128_16, parasail_profile_create_stats_altivec_128_16, "parasail_nw_stats_striped_profile_altivec_128_16", "nw_stats", "striped_profile", "altivec", "128", "16",  8, 0, 0, 0, 1, 0},
 {parasail_nw_stats_striped_profile_altivec_128_8, parasail_profile_create_stats_altivec_128_8, "parasail_nw_stats_striped_profile_altivec_128_8", "nw_stats", "striped_profile", "altivec", "128",  "8", 16, 0, 0, 0, 1, 0},
 {parasail_nw_stats_striped_profile_altivec_128_sat, parasail_profile_create_stats_altivec_128_sat, "parasail_nw_stats_striped_profile_altivec_128_sat", "nw_stats", "striped_profile", "altivec", "128", "sat", 16, 0, 0, 0, 1, 0},
-#endif
-#if HAVE_KNC
-{parasail_nw_stats_scan_profile_knc_512_32, parasail_profile_create_stats_knc_512_32, "parasail_nw_stats_scan_profile_knc_512_32", "nw_stats", "scan_profile", "knc",   "512", "32", 16, 0, 0, 0, 1, 0},
-{parasail_nw_stats_striped_profile_knc_512_32, parasail_profile_create_stats_knc_512_32, "parasail_nw_stats_striped_profile_knc_512_32", "nw_stats", "striped_profile", "knc",   "512", "32", 16, 0, 0, 0, 1, 0},
 #endif
 {parasail_nw_stats_scan_profile_64,   parasail_profile_create_stats_64,    "parasail_nw_stats_scan_profile_64",   "nw_stats", "scan_profile", "disp",   "NA", "64", -1, 0, 0, 0, 1, 0},
 {parasail_nw_stats_scan_profile_32,   parasail_profile_create_stats_32,    "parasail_nw_stats_scan_profile_32",   "nw_stats", "scan_profile", "disp",   "NA", "32", -1, 0, 0, 0, 1, 0},
@@ -2211,10 +2090,6 @@ static const parasail_pfunction_info_t pfunctions[] = {
 {parasail_sg_stats_striped_profile_altivec_128_8, parasail_profile_create_stats_altivec_128_8, "parasail_sg_stats_striped_profile_altivec_128_8", "sg_stats", "striped_profile", "altivec", "128",  "8", 16, 0, 0, 0, 1, 0},
 {parasail_sg_stats_striped_profile_altivec_128_sat, parasail_profile_create_stats_altivec_128_sat, "parasail_sg_stats_striped_profile_altivec_128_sat", "sg_stats", "striped_profile", "altivec", "128", "sat", 16, 0, 0, 0, 1, 0},
 #endif
-#if HAVE_KNC
-{parasail_sg_stats_scan_profile_knc_512_32, parasail_profile_create_stats_knc_512_32, "parasail_sg_stats_scan_profile_knc_512_32", "sg_stats", "scan_profile", "knc",   "512", "32", 16, 0, 0, 0, 1, 0},
-{parasail_sg_stats_striped_profile_knc_512_32, parasail_profile_create_stats_knc_512_32, "parasail_sg_stats_striped_profile_knc_512_32", "sg_stats", "striped_profile", "knc",   "512", "32", 16, 0, 0, 0, 1, 0},
-#endif
 {parasail_sg_stats_scan_profile_64,   parasail_profile_create_stats_64,    "parasail_sg_stats_scan_profile_64",   "sg_stats", "scan_profile", "disp",   "NA", "64", -1, 0, 0, 0, 1, 0},
 {parasail_sg_stats_scan_profile_32,   parasail_profile_create_stats_32,    "parasail_sg_stats_scan_profile_32",   "sg_stats", "scan_profile", "disp",   "NA", "32", -1, 0, 0, 0, 1, 0},
 {parasail_sg_stats_scan_profile_16,   parasail_profile_create_stats_16,    "parasail_sg_stats_scan_profile_16",   "sg_stats", "scan_profile", "disp",   "NA", "16", -1, 0, 0, 0, 1, 0},
@@ -2272,10 +2147,6 @@ static const parasail_pfunction_info_t pfunctions[] = {
 {parasail_sw_stats_striped_profile_altivec_128_16, parasail_profile_create_stats_altivec_128_16, "parasail_sw_stats_striped_profile_altivec_128_16", "sw_stats", "striped_profile", "altivec", "128", "16",  8, 0, 0, 0, 1, 0},
 {parasail_sw_stats_striped_profile_altivec_128_8, parasail_profile_create_stats_altivec_128_8, "parasail_sw_stats_striped_profile_altivec_128_8", "sw_stats", "striped_profile", "altivec", "128",  "8", 16, 0, 0, 0, 1, 0},
 {parasail_sw_stats_striped_profile_altivec_128_sat, parasail_profile_create_stats_altivec_128_sat, "parasail_sw_stats_striped_profile_altivec_128_sat", "sw_stats", "striped_profile", "altivec", "128", "sat", 16, 0, 0, 0, 1, 0},
-#endif
-#if HAVE_KNC
-{parasail_sw_stats_scan_profile_knc_512_32, parasail_profile_create_stats_knc_512_32, "parasail_sw_stats_scan_profile_knc_512_32", "sw_stats", "scan_profile", "knc",   "512", "32", 16, 0, 0, 0, 1, 0},
-{parasail_sw_stats_striped_profile_knc_512_32, parasail_profile_create_stats_knc_512_32, "parasail_sw_stats_striped_profile_knc_512_32", "sw_stats", "striped_profile", "knc",   "512", "32", 16, 0, 0, 0, 1, 0},
 #endif
 {parasail_sw_stats_scan_profile_64,   parasail_profile_create_stats_64,    "parasail_sw_stats_scan_profile_64",   "sw_stats", "scan_profile", "disp",   "NA", "64", -1, 0, 0, 0, 1, 0},
 {parasail_sw_stats_scan_profile_32,   parasail_profile_create_stats_32,    "parasail_sw_stats_scan_profile_32",   "sw_stats", "scan_profile", "disp",   "NA", "32", -1, 0, 0, 0, 1, 0},
@@ -2335,10 +2206,6 @@ static const parasail_pfunction_info_t pfunctions[] = {
 {parasail_nw_table_striped_profile_altivec_128_8, parasail_profile_create_altivec_128_8, "parasail_nw_table_striped_profile_altivec_128_8", "nw", "striped_profile", "altivec", "128",  "8", 16, 1, 0, 0, 0, 0},
 {parasail_nw_table_striped_profile_altivec_128_sat, parasail_profile_create_altivec_128_sat, "parasail_nw_table_striped_profile_altivec_128_sat", "nw", "striped_profile", "altivec", "128", "sat", 16, 1, 0, 0, 0, 0},
 #endif
-#if HAVE_KNC
-{parasail_nw_table_scan_profile_knc_512_32, parasail_profile_create_knc_512_32,  "parasail_nw_table_scan_profile_knc_512_32", "nw", "scan_profile", "knc",   "512", "32", 16, 1, 0, 0, 0, 0},
-{parasail_nw_table_striped_profile_knc_512_32, parasail_profile_create_knc_512_32,  "parasail_nw_table_striped_profile_knc_512_32", "nw", "striped_profile", "knc",   "512", "32", 16, 1, 0, 0, 0, 0},
-#endif
 {parasail_nw_table_scan_profile_64,   parasail_profile_create_64,          "parasail_nw_table_scan_profile_64",   "nw", "scan_profile", "disp",   "NA", "64", -1, 1, 0, 0, 0, 0},
 {parasail_nw_table_scan_profile_32,   parasail_profile_create_32,          "parasail_nw_table_scan_profile_32",   "nw", "scan_profile", "disp",   "NA", "32", -1, 1, 0, 0, 0, 0},
 {parasail_nw_table_scan_profile_16,   parasail_profile_create_16,          "parasail_nw_table_scan_profile_16",   "nw", "scan_profile", "disp",   "NA", "16", -1, 1, 0, 0, 0, 0},
@@ -2396,10 +2263,6 @@ static const parasail_pfunction_info_t pfunctions[] = {
 {parasail_sg_table_striped_profile_altivec_128_16, parasail_profile_create_altivec_128_16, "parasail_sg_table_striped_profile_altivec_128_16", "sg", "striped_profile", "altivec", "128", "16",  8, 1, 0, 0, 0, 0},
 {parasail_sg_table_striped_profile_altivec_128_8, parasail_profile_create_altivec_128_8, "parasail_sg_table_striped_profile_altivec_128_8", "sg", "striped_profile", "altivec", "128",  "8", 16, 1, 0, 0, 0, 0},
 {parasail_sg_table_striped_profile_altivec_128_sat, parasail_profile_create_altivec_128_sat, "parasail_sg_table_striped_profile_altivec_128_sat", "sg", "striped_profile", "altivec", "128", "sat", 16, 1, 0, 0, 0, 0},
-#endif
-#if HAVE_KNC
-{parasail_sg_table_scan_profile_knc_512_32, parasail_profile_create_knc_512_32,  "parasail_sg_table_scan_profile_knc_512_32", "sg", "scan_profile", "knc",   "512", "32", 16, 1, 0, 0, 0, 0},
-{parasail_sg_table_striped_profile_knc_512_32, parasail_profile_create_knc_512_32,  "parasail_sg_table_striped_profile_knc_512_32", "sg", "striped_profile", "knc",   "512", "32", 16, 1, 0, 0, 0, 0},
 #endif
 {parasail_sg_table_scan_profile_64,   parasail_profile_create_64,          "parasail_sg_table_scan_profile_64",   "sg", "scan_profile", "disp",   "NA", "64", -1, 1, 0, 0, 0, 0},
 {parasail_sg_table_scan_profile_32,   parasail_profile_create_32,          "parasail_sg_table_scan_profile_32",   "sg", "scan_profile", "disp",   "NA", "32", -1, 1, 0, 0, 0, 0},
@@ -2459,10 +2322,6 @@ static const parasail_pfunction_info_t pfunctions[] = {
 {parasail_sw_table_striped_profile_altivec_128_8, parasail_profile_create_altivec_128_8, "parasail_sw_table_striped_profile_altivec_128_8", "sw", "striped_profile", "altivec", "128",  "8", 16, 1, 0, 0, 0, 0},
 {parasail_sw_table_striped_profile_altivec_128_sat, parasail_profile_create_altivec_128_sat, "parasail_sw_table_striped_profile_altivec_128_sat", "sw", "striped_profile", "altivec", "128", "sat", 16, 1, 0, 0, 0, 0},
 #endif
-#if HAVE_KNC
-{parasail_sw_table_scan_profile_knc_512_32, parasail_profile_create_knc_512_32,  "parasail_sw_table_scan_profile_knc_512_32", "sw", "scan_profile", "knc",   "512", "32", 16, 1, 0, 0, 0, 0},
-{parasail_sw_table_striped_profile_knc_512_32, parasail_profile_create_knc_512_32,  "parasail_sw_table_striped_profile_knc_512_32", "sw", "striped_profile", "knc",   "512", "32", 16, 1, 0, 0, 0, 0},
-#endif
 {parasail_sw_table_scan_profile_64,   parasail_profile_create_64,          "parasail_sw_table_scan_profile_64",   "sw", "scan_profile", "disp",   "NA", "64", -1, 1, 0, 0, 0, 0},
 {parasail_sw_table_scan_profile_32,   parasail_profile_create_32,          "parasail_sw_table_scan_profile_32",   "sw", "scan_profile", "disp",   "NA", "32", -1, 1, 0, 0, 0, 0},
 {parasail_sw_table_scan_profile_16,   parasail_profile_create_16,          "parasail_sw_table_scan_profile_16",   "sw", "scan_profile", "disp",   "NA", "16", -1, 1, 0, 0, 0, 0},
@@ -2520,10 +2379,6 @@ static const parasail_pfunction_info_t pfunctions[] = {
 {parasail_nw_stats_table_striped_profile_altivec_128_16, parasail_profile_create_stats_altivec_128_16, "parasail_nw_stats_table_striped_profile_altivec_128_16", "nw_stats", "striped_profile", "altivec", "128", "16",  8, 1, 0, 0, 1, 0},
 {parasail_nw_stats_table_striped_profile_altivec_128_8, parasail_profile_create_stats_altivec_128_8, "parasail_nw_stats_table_striped_profile_altivec_128_8", "nw_stats", "striped_profile", "altivec", "128",  "8", 16, 1, 0, 0, 1, 0},
 {parasail_nw_stats_table_striped_profile_altivec_128_sat, parasail_profile_create_stats_altivec_128_sat, "parasail_nw_stats_table_striped_profile_altivec_128_sat", "nw_stats", "striped_profile", "altivec", "128", "sat", 16, 1, 0, 0, 1, 0},
-#endif
-#if HAVE_KNC
-{parasail_nw_stats_table_scan_profile_knc_512_32, parasail_profile_create_stats_knc_512_32, "parasail_nw_stats_table_scan_profile_knc_512_32", "nw_stats", "scan_profile", "knc",   "512", "32", 16, 1, 0, 0, 1, 0},
-{parasail_nw_stats_table_striped_profile_knc_512_32, parasail_profile_create_stats_knc_512_32, "parasail_nw_stats_table_striped_profile_knc_512_32", "nw_stats", "striped_profile", "knc",   "512", "32", 16, 1, 0, 0, 1, 0},
 #endif
 {parasail_nw_stats_table_scan_profile_64, parasail_profile_create_stats_64,    "parasail_nw_stats_table_scan_profile_64", "nw_stats", "scan_profile", "disp",   "NA", "64", -1, 1, 0, 0, 1, 0},
 {parasail_nw_stats_table_scan_profile_32, parasail_profile_create_stats_32,    "parasail_nw_stats_table_scan_profile_32", "nw_stats", "scan_profile", "disp",   "NA", "32", -1, 1, 0, 0, 1, 0},
@@ -2583,10 +2438,6 @@ static const parasail_pfunction_info_t pfunctions[] = {
 {parasail_sg_stats_table_striped_profile_altivec_128_8, parasail_profile_create_stats_altivec_128_8, "parasail_sg_stats_table_striped_profile_altivec_128_8", "sg_stats", "striped_profile", "altivec", "128",  "8", 16, 1, 0, 0, 1, 0},
 {parasail_sg_stats_table_striped_profile_altivec_128_sat, parasail_profile_create_stats_altivec_128_sat, "parasail_sg_stats_table_striped_profile_altivec_128_sat", "sg_stats", "striped_profile", "altivec", "128", "sat", 16, 1, 0, 0, 1, 0},
 #endif
-#if HAVE_KNC
-{parasail_sg_stats_table_scan_profile_knc_512_32, parasail_profile_create_stats_knc_512_32, "parasail_sg_stats_table_scan_profile_knc_512_32", "sg_stats", "scan_profile", "knc",   "512", "32", 16, 1, 0, 0, 1, 0},
-{parasail_sg_stats_table_striped_profile_knc_512_32, parasail_profile_create_stats_knc_512_32, "parasail_sg_stats_table_striped_profile_knc_512_32", "sg_stats", "striped_profile", "knc",   "512", "32", 16, 1, 0, 0, 1, 0},
-#endif
 {parasail_sg_stats_table_scan_profile_64, parasail_profile_create_stats_64,    "parasail_sg_stats_table_scan_profile_64", "sg_stats", "scan_profile", "disp",   "NA", "64", -1, 1, 0, 0, 1, 0},
 {parasail_sg_stats_table_scan_profile_32, parasail_profile_create_stats_32,    "parasail_sg_stats_table_scan_profile_32", "sg_stats", "scan_profile", "disp",   "NA", "32", -1, 1, 0, 0, 1, 0},
 {parasail_sg_stats_table_scan_profile_16, parasail_profile_create_stats_16,    "parasail_sg_stats_table_scan_profile_16", "sg_stats", "scan_profile", "disp",   "NA", "16", -1, 1, 0, 0, 1, 0},
@@ -2644,10 +2495,6 @@ static const parasail_pfunction_info_t pfunctions[] = {
 {parasail_sw_stats_table_striped_profile_altivec_128_16, parasail_profile_create_stats_altivec_128_16, "parasail_sw_stats_table_striped_profile_altivec_128_16", "sw_stats", "striped_profile", "altivec", "128", "16",  8, 1, 0, 0, 1, 0},
 {parasail_sw_stats_table_striped_profile_altivec_128_8, parasail_profile_create_stats_altivec_128_8, "parasail_sw_stats_table_striped_profile_altivec_128_8", "sw_stats", "striped_profile", "altivec", "128",  "8", 16, 1, 0, 0, 1, 0},
 {parasail_sw_stats_table_striped_profile_altivec_128_sat, parasail_profile_create_stats_altivec_128_sat, "parasail_sw_stats_table_striped_profile_altivec_128_sat", "sw_stats", "striped_profile", "altivec", "128", "sat", 16, 1, 0, 0, 1, 0},
-#endif
-#if HAVE_KNC
-{parasail_sw_stats_table_scan_profile_knc_512_32, parasail_profile_create_stats_knc_512_32, "parasail_sw_stats_table_scan_profile_knc_512_32", "sw_stats", "scan_profile", "knc",   "512", "32", 16, 1, 0, 0, 1, 0},
-{parasail_sw_stats_table_striped_profile_knc_512_32, parasail_profile_create_stats_knc_512_32, "parasail_sw_stats_table_striped_profile_knc_512_32", "sw_stats", "striped_profile", "knc",   "512", "32", 16, 1, 0, 0, 1, 0},
 #endif
 {parasail_sw_stats_table_scan_profile_64, parasail_profile_create_stats_64,    "parasail_sw_stats_table_scan_profile_64", "sw_stats", "scan_profile", "disp",   "NA", "64", -1, 1, 0, 0, 1, 0},
 {parasail_sw_stats_table_scan_profile_32, parasail_profile_create_stats_32,    "parasail_sw_stats_table_scan_profile_32", "sw_stats", "scan_profile", "disp",   "NA", "32", -1, 1, 0, 0, 1, 0},
@@ -2707,10 +2554,6 @@ static const parasail_pfunction_info_t pfunctions[] = {
 {parasail_nw_rowcol_striped_profile_altivec_128_8, parasail_profile_create_altivec_128_8, "parasail_nw_rowcol_striped_profile_altivec_128_8", "nw", "striped_profile", "altivec", "128",  "8", 16, 0, 1, 0, 0, 0},
 {parasail_nw_rowcol_striped_profile_altivec_128_sat, parasail_profile_create_altivec_128_sat, "parasail_nw_rowcol_striped_profile_altivec_128_sat", "nw", "striped_profile", "altivec", "128", "sat", 16, 0, 1, 0, 0, 0},
 #endif
-#if HAVE_KNC
-{parasail_nw_rowcol_scan_profile_knc_512_32, parasail_profile_create_knc_512_32,  "parasail_nw_rowcol_scan_profile_knc_512_32", "nw", "scan_profile", "knc",   "512", "32", 16, 0, 1, 0, 0, 0},
-{parasail_nw_rowcol_striped_profile_knc_512_32, parasail_profile_create_knc_512_32,  "parasail_nw_rowcol_striped_profile_knc_512_32", "nw", "striped_profile", "knc",   "512", "32", 16, 0, 1, 0, 0, 0},
-#endif
 {parasail_nw_rowcol_scan_profile_64,  parasail_profile_create_64,          "parasail_nw_rowcol_scan_profile_64",  "nw", "scan_profile", "disp",   "NA", "64", -1, 0, 1, 0, 0, 0},
 {parasail_nw_rowcol_scan_profile_32,  parasail_profile_create_32,          "parasail_nw_rowcol_scan_profile_32",  "nw", "scan_profile", "disp",   "NA", "32", -1, 0, 1, 0, 0, 0},
 {parasail_nw_rowcol_scan_profile_16,  parasail_profile_create_16,          "parasail_nw_rowcol_scan_profile_16",  "nw", "scan_profile", "disp",   "NA", "16", -1, 0, 1, 0, 0, 0},
@@ -2768,10 +2611,6 @@ static const parasail_pfunction_info_t pfunctions[] = {
 {parasail_sg_rowcol_striped_profile_altivec_128_16, parasail_profile_create_altivec_128_16, "parasail_sg_rowcol_striped_profile_altivec_128_16", "sg", "striped_profile", "altivec", "128", "16",  8, 0, 1, 0, 0, 0},
 {parasail_sg_rowcol_striped_profile_altivec_128_8, parasail_profile_create_altivec_128_8, "parasail_sg_rowcol_striped_profile_altivec_128_8", "sg", "striped_profile", "altivec", "128",  "8", 16, 0, 1, 0, 0, 0},
 {parasail_sg_rowcol_striped_profile_altivec_128_sat, parasail_profile_create_altivec_128_sat, "parasail_sg_rowcol_striped_profile_altivec_128_sat", "sg", "striped_profile", "altivec", "128", "sat", 16, 0, 1, 0, 0, 0},
-#endif
-#if HAVE_KNC
-{parasail_sg_rowcol_scan_profile_knc_512_32, parasail_profile_create_knc_512_32,  "parasail_sg_rowcol_scan_profile_knc_512_32", "sg", "scan_profile", "knc",   "512", "32", 16, 0, 1, 0, 0, 0},
-{parasail_sg_rowcol_striped_profile_knc_512_32, parasail_profile_create_knc_512_32,  "parasail_sg_rowcol_striped_profile_knc_512_32", "sg", "striped_profile", "knc",   "512", "32", 16, 0, 1, 0, 0, 0},
 #endif
 {parasail_sg_rowcol_scan_profile_64,  parasail_profile_create_64,          "parasail_sg_rowcol_scan_profile_64",  "sg", "scan_profile", "disp",   "NA", "64", -1, 0, 1, 0, 0, 0},
 {parasail_sg_rowcol_scan_profile_32,  parasail_profile_create_32,          "parasail_sg_rowcol_scan_profile_32",  "sg", "scan_profile", "disp",   "NA", "32", -1, 0, 1, 0, 0, 0},
@@ -2831,10 +2670,6 @@ static const parasail_pfunction_info_t pfunctions[] = {
 {parasail_sw_rowcol_striped_profile_altivec_128_8, parasail_profile_create_altivec_128_8, "parasail_sw_rowcol_striped_profile_altivec_128_8", "sw", "striped_profile", "altivec", "128",  "8", 16, 0, 1, 0, 0, 0},
 {parasail_sw_rowcol_striped_profile_altivec_128_sat, parasail_profile_create_altivec_128_sat, "parasail_sw_rowcol_striped_profile_altivec_128_sat", "sw", "striped_profile", "altivec", "128", "sat", 16, 0, 1, 0, 0, 0},
 #endif
-#if HAVE_KNC
-{parasail_sw_rowcol_scan_profile_knc_512_32, parasail_profile_create_knc_512_32,  "parasail_sw_rowcol_scan_profile_knc_512_32", "sw", "scan_profile", "knc",   "512", "32", 16, 0, 1, 0, 0, 0},
-{parasail_sw_rowcol_striped_profile_knc_512_32, parasail_profile_create_knc_512_32,  "parasail_sw_rowcol_striped_profile_knc_512_32", "sw", "striped_profile", "knc",   "512", "32", 16, 0, 1, 0, 0, 0},
-#endif
 {parasail_sw_rowcol_scan_profile_64,  parasail_profile_create_64,          "parasail_sw_rowcol_scan_profile_64",  "sw", "scan_profile", "disp",   "NA", "64", -1, 0, 1, 0, 0, 0},
 {parasail_sw_rowcol_scan_profile_32,  parasail_profile_create_32,          "parasail_sw_rowcol_scan_profile_32",  "sw", "scan_profile", "disp",   "NA", "32", -1, 0, 1, 0, 0, 0},
 {parasail_sw_rowcol_scan_profile_16,  parasail_profile_create_16,          "parasail_sw_rowcol_scan_profile_16",  "sw", "scan_profile", "disp",   "NA", "16", -1, 0, 1, 0, 0, 0},
@@ -2892,10 +2727,6 @@ static const parasail_pfunction_info_t pfunctions[] = {
 {parasail_nw_stats_rowcol_striped_profile_altivec_128_16, parasail_profile_create_stats_altivec_128_16, "parasail_nw_stats_rowcol_striped_profile_altivec_128_16", "nw_stats", "striped_profile", "altivec", "128", "16",  8, 0, 1, 0, 1, 0},
 {parasail_nw_stats_rowcol_striped_profile_altivec_128_8, parasail_profile_create_stats_altivec_128_8, "parasail_nw_stats_rowcol_striped_profile_altivec_128_8", "nw_stats", "striped_profile", "altivec", "128",  "8", 16, 0, 1, 0, 1, 0},
 {parasail_nw_stats_rowcol_striped_profile_altivec_128_sat, parasail_profile_create_stats_altivec_128_sat, "parasail_nw_stats_rowcol_striped_profile_altivec_128_sat", "nw_stats", "striped_profile", "altivec", "128", "sat", 16, 0, 1, 0, 1, 0},
-#endif
-#if HAVE_KNC
-{parasail_nw_stats_rowcol_scan_profile_knc_512_32, parasail_profile_create_stats_knc_512_32, "parasail_nw_stats_rowcol_scan_profile_knc_512_32", "nw_stats", "scan_profile", "knc",   "512", "32", 16, 0, 1, 0, 1, 0},
-{parasail_nw_stats_rowcol_striped_profile_knc_512_32, parasail_profile_create_stats_knc_512_32, "parasail_nw_stats_rowcol_striped_profile_knc_512_32", "nw_stats", "striped_profile", "knc",   "512", "32", 16, 0, 1, 0, 1, 0},
 #endif
 {parasail_nw_stats_rowcol_scan_profile_64, parasail_profile_create_stats_64,    "parasail_nw_stats_rowcol_scan_profile_64", "nw_stats", "scan_profile", "disp",   "NA", "64", -1, 0, 1, 0, 1, 0},
 {parasail_nw_stats_rowcol_scan_profile_32, parasail_profile_create_stats_32,    "parasail_nw_stats_rowcol_scan_profile_32", "nw_stats", "scan_profile", "disp",   "NA", "32", -1, 0, 1, 0, 1, 0},
@@ -2955,10 +2786,6 @@ static const parasail_pfunction_info_t pfunctions[] = {
 {parasail_sg_stats_rowcol_striped_profile_altivec_128_8, parasail_profile_create_stats_altivec_128_8, "parasail_sg_stats_rowcol_striped_profile_altivec_128_8", "sg_stats", "striped_profile", "altivec", "128",  "8", 16, 0, 1, 0, 1, 0},
 {parasail_sg_stats_rowcol_striped_profile_altivec_128_sat, parasail_profile_create_stats_altivec_128_sat, "parasail_sg_stats_rowcol_striped_profile_altivec_128_sat", "sg_stats", "striped_profile", "altivec", "128", "sat", 16, 0, 1, 0, 1, 0},
 #endif
-#if HAVE_KNC
-{parasail_sg_stats_rowcol_scan_profile_knc_512_32, parasail_profile_create_stats_knc_512_32, "parasail_sg_stats_rowcol_scan_profile_knc_512_32", "sg_stats", "scan_profile", "knc",   "512", "32", 16, 0, 1, 0, 1, 0},
-{parasail_sg_stats_rowcol_striped_profile_knc_512_32, parasail_profile_create_stats_knc_512_32, "parasail_sg_stats_rowcol_striped_profile_knc_512_32", "sg_stats", "striped_profile", "knc",   "512", "32", 16, 0, 1, 0, 1, 0},
-#endif
 {parasail_sg_stats_rowcol_scan_profile_64, parasail_profile_create_stats_64,    "parasail_sg_stats_rowcol_scan_profile_64", "sg_stats", "scan_profile", "disp",   "NA", "64", -1, 0, 1, 0, 1, 0},
 {parasail_sg_stats_rowcol_scan_profile_32, parasail_profile_create_stats_32,    "parasail_sg_stats_rowcol_scan_profile_32", "sg_stats", "scan_profile", "disp",   "NA", "32", -1, 0, 1, 0, 1, 0},
 {parasail_sg_stats_rowcol_scan_profile_16, parasail_profile_create_stats_16,    "parasail_sg_stats_rowcol_scan_profile_16", "sg_stats", "scan_profile", "disp",   "NA", "16", -1, 0, 1, 0, 1, 0},
@@ -3016,10 +2843,6 @@ static const parasail_pfunction_info_t pfunctions[] = {
 {parasail_sw_stats_rowcol_striped_profile_altivec_128_16, parasail_profile_create_stats_altivec_128_16, "parasail_sw_stats_rowcol_striped_profile_altivec_128_16", "sw_stats", "striped_profile", "altivec", "128", "16",  8, 0, 1, 0, 1, 0},
 {parasail_sw_stats_rowcol_striped_profile_altivec_128_8, parasail_profile_create_stats_altivec_128_8, "parasail_sw_stats_rowcol_striped_profile_altivec_128_8", "sw_stats", "striped_profile", "altivec", "128",  "8", 16, 0, 1, 0, 1, 0},
 {parasail_sw_stats_rowcol_striped_profile_altivec_128_sat, parasail_profile_create_stats_altivec_128_sat, "parasail_sw_stats_rowcol_striped_profile_altivec_128_sat", "sw_stats", "striped_profile", "altivec", "128", "sat", 16, 0, 1, 0, 1, 0},
-#endif
-#if HAVE_KNC
-{parasail_sw_stats_rowcol_scan_profile_knc_512_32, parasail_profile_create_stats_knc_512_32, "parasail_sw_stats_rowcol_scan_profile_knc_512_32", "sw_stats", "scan_profile", "knc",   "512", "32", 16, 0, 1, 0, 1, 0},
-{parasail_sw_stats_rowcol_striped_profile_knc_512_32, parasail_profile_create_stats_knc_512_32, "parasail_sw_stats_rowcol_striped_profile_knc_512_32", "sw_stats", "striped_profile", "knc",   "512", "32", 16, 0, 1, 0, 1, 0},
 #endif
 {parasail_sw_stats_rowcol_scan_profile_64, parasail_profile_create_stats_64,    "parasail_sw_stats_rowcol_scan_profile_64", "sw_stats", "scan_profile", "disp",   "NA", "64", -1, 0, 1, 0, 1, 0},
 {parasail_sw_stats_rowcol_scan_profile_32, parasail_profile_create_stats_32,    "parasail_sw_stats_rowcol_scan_profile_32", "sw_stats", "scan_profile", "disp",   "NA", "32", -1, 0, 1, 0, 1, 0},
@@ -3079,10 +2902,6 @@ static const parasail_pfunction_info_t pfunctions[] = {
 {parasail_nw_trace_striped_profile_altivec_128_8, parasail_profile_create_altivec_128_8, "parasail_nw_trace_striped_profile_altivec_128_8", "nw", "striped_profile", "altivec", "128",  "8", 16, 0, 0, 1, 0, 0},
 {parasail_nw_trace_striped_profile_altivec_128_sat, parasail_profile_create_altivec_128_sat, "parasail_nw_trace_striped_profile_altivec_128_sat", "nw", "striped_profile", "altivec", "128", "sat", 16, 0, 0, 1, 0, 0},
 #endif
-#if HAVE_KNC
-{parasail_nw_trace_scan_profile_knc_512_32, parasail_profile_create_knc_512_32,  "parasail_nw_trace_scan_profile_knc_512_32", "nw", "scan_profile", "knc",   "512", "32", 16, 0, 0, 1, 0, 0},
-{parasail_nw_trace_striped_profile_knc_512_32, parasail_profile_create_knc_512_32,  "parasail_nw_trace_striped_profile_knc_512_32", "nw", "striped_profile", "knc",   "512", "32", 16, 0, 0, 1, 0, 0},
-#endif
 {parasail_nw_trace_scan_profile_64,   parasail_profile_create_64,          "parasail_nw_trace_scan_profile_64",   "nw", "scan_profile", "disp",   "NA", "64", -1, 0, 0, 1, 0, 0},
 {parasail_nw_trace_scan_profile_32,   parasail_profile_create_32,          "parasail_nw_trace_scan_profile_32",   "nw", "scan_profile", "disp",   "NA", "32", -1, 0, 0, 1, 0, 0},
 {parasail_nw_trace_scan_profile_16,   parasail_profile_create_16,          "parasail_nw_trace_scan_profile_16",   "nw", "scan_profile", "disp",   "NA", "16", -1, 0, 0, 1, 0, 0},
@@ -3141,10 +2960,6 @@ static const parasail_pfunction_info_t pfunctions[] = {
 {parasail_sg_trace_striped_profile_altivec_128_8, parasail_profile_create_altivec_128_8, "parasail_sg_trace_striped_profile_altivec_128_8", "sg", "striped_profile", "altivec", "128",  "8", 16, 0, 0, 1, 0, 0},
 {parasail_sg_trace_striped_profile_altivec_128_sat, parasail_profile_create_altivec_128_sat, "parasail_sg_trace_striped_profile_altivec_128_sat", "sg", "striped_profile", "altivec", "128", "sat", 16, 0, 0, 1, 0, 0},
 #endif
-#if HAVE_KNC
-{parasail_sg_trace_scan_profile_knc_512_32, parasail_profile_create_knc_512_32,  "parasail_sg_trace_scan_profile_knc_512_32", "sg", "scan_profile", "knc",   "512", "32", 16, 0, 0, 1, 0, 0},
-{parasail_sg_trace_striped_profile_knc_512_32, parasail_profile_create_knc_512_32,  "parasail_sg_trace_striped_profile_knc_512_32", "sg", "striped_profile", "knc",   "512", "32", 16, 0, 0, 1, 0, 0},
-#endif
 {parasail_sg_trace_scan_profile_64,   parasail_profile_create_64,          "parasail_sg_trace_scan_profile_64",   "sg", "scan_profile", "disp",   "NA", "64", -1, 0, 0, 1, 0, 0},
 {parasail_sg_trace_scan_profile_32,   parasail_profile_create_32,          "parasail_sg_trace_scan_profile_32",   "sg", "scan_profile", "disp",   "NA", "32", -1, 0, 0, 1, 0, 0},
 {parasail_sg_trace_scan_profile_16,   parasail_profile_create_16,          "parasail_sg_trace_scan_profile_16",   "sg", "scan_profile", "disp",   "NA", "16", -1, 0, 0, 1, 0, 0},
@@ -3202,10 +3017,6 @@ static const parasail_pfunction_info_t pfunctions[] = {
 {parasail_sw_trace_striped_profile_altivec_128_16, parasail_profile_create_altivec_128_16, "parasail_sw_trace_striped_profile_altivec_128_16", "sw", "striped_profile", "altivec", "128", "16",  8, 0, 0, 1, 0, 0},
 {parasail_sw_trace_striped_profile_altivec_128_8, parasail_profile_create_altivec_128_8, "parasail_sw_trace_striped_profile_altivec_128_8", "sw", "striped_profile", "altivec", "128",  "8", 16, 0, 0, 1, 0, 0},
 {parasail_sw_trace_striped_profile_altivec_128_sat, parasail_profile_create_altivec_128_sat, "parasail_sw_trace_striped_profile_altivec_128_sat", "sw", "striped_profile", "altivec", "128", "sat", 16, 0, 0, 1, 0, 0},
-#endif
-#if HAVE_KNC
-{parasail_sw_trace_scan_profile_knc_512_32, parasail_profile_create_knc_512_32,  "parasail_sw_trace_scan_profile_knc_512_32", "sw", "scan_profile", "knc",   "512", "32", 16, 0, 0, 1, 0, 0},
-{parasail_sw_trace_striped_profile_knc_512_32, parasail_profile_create_knc_512_32,  "parasail_sw_trace_striped_profile_knc_512_32", "sw", "striped_profile", "knc",   "512", "32", 16, 0, 0, 1, 0, 0},
 #endif
 {parasail_sw_trace_scan_profile_64,   parasail_profile_create_64,          "parasail_sw_trace_scan_profile_64",   "sw", "scan_profile", "disp",   "NA", "64", -1, 0, 0, 1, 0, 0},
 {parasail_sw_trace_scan_profile_32,   parasail_profile_create_32,          "parasail_sw_trace_scan_profile_32",   "sw", "scan_profile", "disp",   "NA", "32", -1, 0, 0, 1, 0, 0},

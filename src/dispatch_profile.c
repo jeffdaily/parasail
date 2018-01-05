@@ -43,12 +43,6 @@ parasail_profile_t* parasail_profile_create_64_dispatcher(
         const char * const restrict s1, const int s1Len,
         const parasail_matrix_t *matrix)
 {
-#if HAVE_KNC
-    if (1) {
-        parasail_profile_create_64_pointer = parasail_profile_create_knc_512_32;
-    }
-    else
-#endif
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
         parasail_profile_create_64_pointer = parasail_profile_create_avx_256_64;
@@ -78,12 +72,6 @@ parasail_profile_t* parasail_profile_create_32_dispatcher(
         const char * const restrict s1, const int s1Len,
         const parasail_matrix_t *matrix)
 {
-#if HAVE_KNC
-    if (1) {
-        parasail_profile_create_32_pointer = parasail_profile_create_knc_512_32;
-    }
-    else
-#endif
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
         parasail_profile_create_32_pointer = parasail_profile_create_avx_256_32;
@@ -113,12 +101,6 @@ parasail_profile_t* parasail_profile_create_16_dispatcher(
         const char * const restrict s1, const int s1Len,
         const parasail_matrix_t *matrix)
 {
-#if HAVE_KNC
-    if (1) {
-        parasail_profile_create_16_pointer = parasail_profile_create_knc_512_32;
-    }
-    else
-#endif
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
         parasail_profile_create_16_pointer = parasail_profile_create_avx_256_16;
@@ -148,12 +130,6 @@ parasail_profile_t* parasail_profile_create_8_dispatcher(
         const char * const restrict s1, const int s1Len,
         const parasail_matrix_t *matrix)
 {
-#if HAVE_KNC
-    if (1) {
-        parasail_profile_create_8_pointer = parasail_profile_create_knc_512_32;
-    }
-    else
-#endif
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
         parasail_profile_create_8_pointer = parasail_profile_create_avx_256_8;
@@ -183,12 +159,6 @@ parasail_profile_t* parasail_profile_create_sat_dispatcher(
         const char * const restrict s1, const int s1Len,
         const parasail_matrix_t *matrix)
 {
-#if HAVE_KNC
-    if (1) {
-        parasail_profile_create_sat_pointer = parasail_profile_create_knc_512_32;
-    }
-    else
-#endif
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
         parasail_profile_create_sat_pointer = parasail_profile_create_avx_256_sat;
@@ -218,12 +188,6 @@ parasail_profile_t* parasail_profile_create_stats_64_dispatcher(
         const char * const restrict s1, const int s1Len,
         const parasail_matrix_t *matrix)
 {
-#if HAVE_KNC
-    if (1) {
-        parasail_profile_create_stats_64_pointer = parasail_profile_create_stats_knc_512_32;
-    }
-    else
-#endif
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
         parasail_profile_create_stats_64_pointer = parasail_profile_create_stats_avx_256_64;
@@ -253,12 +217,6 @@ parasail_profile_t* parasail_profile_create_stats_32_dispatcher(
         const char * const restrict s1, const int s1Len,
         const parasail_matrix_t *matrix)
 {
-#if HAVE_KNC
-    if (1) {
-        parasail_profile_create_stats_32_pointer = parasail_profile_create_stats_knc_512_32;
-    }
-    else
-#endif
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
         parasail_profile_create_stats_32_pointer = parasail_profile_create_stats_avx_256_32;
@@ -288,12 +246,6 @@ parasail_profile_t* parasail_profile_create_stats_16_dispatcher(
         const char * const restrict s1, const int s1Len,
         const parasail_matrix_t *matrix)
 {
-#if HAVE_KNC
-    if (1) {
-        parasail_profile_create_stats_16_pointer = parasail_profile_create_stats_knc_512_32;
-    }
-    else
-#endif
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
         parasail_profile_create_stats_16_pointer = parasail_profile_create_stats_avx_256_16;
@@ -323,12 +275,6 @@ parasail_profile_t* parasail_profile_create_stats_8_dispatcher(
         const char * const restrict s1, const int s1Len,
         const parasail_matrix_t *matrix)
 {
-#if HAVE_KNC
-    if (1) {
-        parasail_profile_create_stats_8_pointer = parasail_profile_create_stats_knc_512_32;
-    }
-    else
-#endif
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
         parasail_profile_create_stats_8_pointer = parasail_profile_create_stats_avx_256_8;
@@ -358,12 +304,6 @@ parasail_profile_t* parasail_profile_create_stats_sat_dispatcher(
         const char * const restrict s1, const int s1Len,
         const parasail_matrix_t *matrix)
 {
-#if HAVE_KNC
-    if (1) {
-        parasail_profile_create_stats_sat_pointer = parasail_profile_create_stats_knc_512_32;
-    }
-    else
-#endif
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
         parasail_profile_create_stats_sat_pointer = parasail_profile_create_stats_avx_256_sat;

@@ -469,21 +469,6 @@ int main(int argc, char **argv)
     }
 #endif
 
-#if HAVE_KNC
-    {
-        if (test_scores) {
-            if (do_nw) check_functions(parasail_nw_table_knc, sequences, limit, matrix, gap);
-            if (do_sg) check_functions(parasail_sg_table_knc, sequences, limit, matrix, gap);
-            if (do_sw) check_functions(parasail_sw_table_knc, sequences, limit, matrix, gap);
-        }
-        if (test_stats) {
-            if (do_nw) check_functions(parasail_nw_stats_table_knc, sequences, limit, matrix, gap);
-            if (do_sg) check_functions(parasail_sg_stats_table_knc, sequences, limit, matrix, gap);
-            if (do_sw) check_functions(parasail_sw_stats_table_knc, sequences, limit, matrix, gap);
-        }
-    }
-#endif
-
 #if HAVE_ALTIVEC
     if (do_altivec && parasail_can_use_altivec()) {
         if (test_scores) {

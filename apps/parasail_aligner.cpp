@@ -1398,18 +1398,6 @@ inline static void process(
     }
 }
 
-#ifdef __MIC__
-static const char *get_user_name()
-{
-    uid_t uid = geteuid();
-    struct passwd *pw = getpwuid(uid);
-    if (pw) {
-        return pw->pw_name;
-    }
-    return "";
-}
-#endif
-
 inline static void print_array(
         const char * filename_,
         const int * const restrict array,
@@ -1419,18 +1407,8 @@ inline static void print_array(
     int i;
     int j;
     FILE *f = NULL;
-#ifdef __MIC__
-    const char *username = get_user_name();
-    char filename[4096] = {0};
-    strcat(filename, "/tmp/");
-    if (username[0] != '\0') {
-        strcat(filename, username);
-        strcat(filename, "/");
-    }
-    strcat(filename, filename_);
-#else
     const char *filename = filename_;
-#endif
+
     f = fopen(filename, "w");
     if (NULL == f) {
         printf("fopen(\"%s\") error: %s\n", filename, strerror(errno));

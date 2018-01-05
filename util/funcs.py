@@ -67,7 +67,6 @@ isa_to_bits = {
     "sse2"    : 128,
     "sse41"   : 128,
     "avx2"    : 256,
-    "knc"     : 512,
     "altivec" : 128,
 }
 
@@ -110,14 +109,6 @@ for table in ["", "_table", "_rowcol", "_trace"]:
                         and not stats and "trace" not in table):
                     par = "blocked"
                     for width in [32, 16]:
-                        name = "%s_%s_%s_%s_%s" % (pre, par, isa, bits, width)
-                        print_fmt(name, name, alg+stats, par, isa, bits, width, bits/width, is_table, is_rowcol, is_trace, is_stats, 0)
-                print "#endif"
-            for isa in ["knc"]:
-                print "#if HAVE_%s" % isa.upper()
-                bits = isa_to_bits[isa]
-                for par in ["scan", "striped", "diag"]:
-                    for width in [32]:
                         name = "%s_%s_%s_%s_%s" % (pre, par, isa, bits, width)
                         print_fmt(name, name, alg+stats, par, isa, bits, width, bits/width, is_table, is_rowcol, is_trace, is_stats, 0)
                 print "#endif"
@@ -166,15 +157,6 @@ for table in ["", "_table", "_rowcol", "_trace"]:
                         else:
                             creator = "parasail_profile_create%s_%s_%s_%s" % (stats, isa[:3], bits, width)
                         print_pfmt(name, creator, name, alg+stats, par, isa, bits, width, elem, is_table, is_rowcol, is_trace, is_stats, 0)
-                print "#endif"
-            for isa in ["knc"]:
-                print "#if HAVE_%s" % isa.upper()
-                bits = isa_to_bits[isa]
-                for par in ["scan_profile", "striped_profile"]:
-                    for width in [32]:
-                        name = "%s_%s_%s_%s_%s" % (pre, par, isa, bits, width)
-                        creator = "parasail_profile_create%s_%s_%s_%s" % (stats, isa, bits, width)
-                        print_pfmt(name, creator, name, alg+stats, par, isa, bits, width, bits/width, is_table, is_rowcol, is_trace, is_stats, 0)
                 print "#endif"
             # also print the dispatcher function
             for par in ["scan_profile", "striped_profile"]:

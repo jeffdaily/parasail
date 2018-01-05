@@ -17,13 +17,6 @@
 #include <unistd.h>
 #endif
 
-#ifdef __MIC__
-#include <errno.h>
-#include <pwd.h>
-#include <unistd.h>
-#include <sys/types.h>
-#endif
-
 #include "parasail.h"
 #include "parasail/cpuid.h"
 #include "parasail/function_lookup.h"
@@ -38,18 +31,6 @@ static double pctf(double orig, double new)
     return orig / new;
 }
 
-#ifdef __MIC__
-static const char *get_user_name()
-{
-    uid_t uid = geteuid();
-    struct passwd *pw = getpwuid(uid);
-    if (pw) {
-        return pw->pw_name;
-    }
-    return "";
-}
-#endif
-
 static void print_array(
         const char * filename_,
         int * array_,
@@ -61,18 +42,8 @@ static void print_array(
     int i;
     int j;
     FILE *f = NULL;
-#ifdef __MIC__
-    const char *username = get_user_name();
-    char filename[4096] = {0};
-    strcat(filename, "/tmp/");
-    if (username[0] != '\0') {
-        strcat(filename, username);
-        strcat(filename, "/");
-    }
-    strcat(filename, filename_);
-#else
     const char *filename = filename_;
-#endif
+
     if ((result->flag & PARASAIL_FLAG_TRACE)
             && ((result->flag & PARASAIL_FLAG_STRIPED)
                 || (result->flag & PARASAIL_FLAG_SCAN))) {
@@ -116,18 +87,8 @@ static void print_rowcol(
     int i;
     int j;
     FILE *f = NULL;
-#ifdef __MIC__
-    const char *username = get_user_name();
-    char filename[4096] = {0};
-    strcat(filename, "/tmp/");
-    if (username[0] != '\0') {
-        strcat(filename, username);
-        strcat(filename, "/");
-    }
-    strcat(filename, filename_);
-#else
     const char *filename = filename_;
-#endif
+
     f = fopen(filename, "w");
     if (NULL == f) {
         printf("fopen(\"%s\") error: %s\n", filename, strerror(errno));
@@ -410,12 +371,6 @@ int main(int argc, char **argv)
         char name[16] = {'\0'};
         int new_limit = f.is_table || f.is_rowcol || f.is_trace ? 1 : limit;
         int saturated = 0;
-#if 0
-        if (f.is_table && HAVE_KNC) {
-            f = functions[index++];
-            continue;
-        }
-#endif
         if ((0 == strncmp(f.isa, "sse2",  4) && 0 == parasail_can_use_sse2()) 
                 || (0 == strncmp(f.isa, "sse41", 5) && 0 == parasail_can_use_sse41())
                 || (0 == strncmp(f.isa, "avx2",  4) && 0 == parasail_can_use_avx2())) {

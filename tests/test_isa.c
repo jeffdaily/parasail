@@ -20,7 +20,6 @@ int main(int argc, char **argv)
     int cpu_avx512f;
     int cpu_avx512bw;
     int cpu_avx512vbmi;
-    int cpu_knc;
     int cpu_altivec;
     int cc_sse2;
     int cc_sse41;
@@ -28,7 +27,6 @@ int main(int argc, char **argv)
     int cc_avx512f;
     int cc_avx512bw;
     int cc_avx512vbmi;
-    int cc_knc;
     int cc_altivec;
 
     UNUSED(argc);
@@ -78,14 +76,6 @@ int main(int argc, char **argv)
     cc_avx512vbmi = 0;
 #endif
 
-#ifdef __MIC__
-    cpu_knc = 1;
-    cc_knc = 1;
-#else
-    cpu_knc = 0;
-    cc_knc = 0;
-#endif
-
 #if HAVE_ALTIVEC
     cc_altivec = 1;
 #else
@@ -100,7 +90,6 @@ int main(int argc, char **argv)
     printf(" AVX512F    |  %s     | %s\n", yesno(cc_avx512f), yesno(cpu_avx512f));
     printf(" AVX512BW   |  %s     | %s\n", yesno(cc_avx512bw), yesno(cpu_avx512bw));
     printf(" AVX512VBMI |  %s     | %s\n", yesno(cc_avx512vbmi), yesno(cpu_avx512vbmi));
-    printf(" KNC        |  %s     | %s\n", yesno(cc_knc), yesno(cpu_knc));
     printf(" ALTIVEC    |  %s     | %s\n", yesno(cc_altivec), yesno(cpu_altivec));
 
     return 0;

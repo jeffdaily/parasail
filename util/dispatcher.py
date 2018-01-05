@@ -95,12 +95,6 @@ parasail_result_t* %(PREFIX)s_dispatcher(
         const int open, const int gap,
         const parasail_matrix_t *matrix)
 {
-#if HAVE_KNC
-    if (1) {
-        %(PREFIX)s_pointer = %(PREFIX2)s_knc_512_32;
-    }
-    else
-#else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
         %(PREFIX)s_pointer = %(PREFIX2)s_avx2_256_%(WIDTH)s;
@@ -124,7 +118,6 @@ parasail_result_t* %(PREFIX)s_dispatcher(
         %(PREFIX)s_pointer = %(PREFIX2)s_altivec_128_%(WIDTH)s;
     }
     else
-#endif
 #endif
     {
         %(PREFIX)s_pointer = parasail_%(BASE)s;
@@ -157,12 +150,6 @@ parasail_result_t* %(PREFIX)s_dispatcher(
         const char * const restrict s2, const int s2Len,
         const int open, const int gap)
 {
-#if HAVE_KNC
-    if (1) {
-        %(PREFIX)s_pointer = %(PREFIX2)s_knc_512_32;
-    }
-    else
-#else
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
         %(PREFIX)s_pointer = %(PREFIX2)s_avx2_256_%(WIDTH)s;
@@ -186,7 +173,6 @@ parasail_result_t* %(PREFIX)s_dispatcher(
         %(PREFIX)s_pointer = %(PREFIX2)s_altivec_128_%(WIDTH)s;
     }
     else
-#endif
 #endif
     {
         %(PREFIX)s_pointer = NULL;

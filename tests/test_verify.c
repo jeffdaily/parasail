@@ -132,7 +132,7 @@ static void check_functions(
                     ++function_index) {
                 unsigned long saturated = 0;
                 if (verbose) printf("\t\t\t%s\n", functions[function_index].name);
-#pragma omp parallel for
+#pragma omp parallel for default(none)
                 for (pair_index=0; pair_index<pair_limit; ++pair_index) {
                     parasail_result_t *reference_result = NULL;
                     parasail_result_t *result = NULL;
@@ -434,21 +434,6 @@ int main(int argc, char **argv)
             if (do_nw) check_functions(parasail_nw_stats_avx2, sequences, limit, matrix, gap);
             if (do_sg) check_functions(parasail_sg_stats_avx2, sequences, limit, matrix, gap);
             if (do_sw) check_functions(parasail_sw_stats_avx2, sequences, limit, matrix, gap);
-        }
-    }
-#endif
-
-#if HAVE_KNC
-    {
-        if (test_scores) {
-            if (do_nw) check_functions(parasail_nw_knc, sequences, limit, matrix, gap);
-            if (do_sg) check_functions(parasail_sg_knc, sequences, limit, matrix, gap);
-            if (do_sw) check_functions(parasail_sw_knc, sequences, limit, matrix, gap);
-        }
-        if (test_stats) {
-            if (do_nw) check_functions(parasail_nw_stats_knc, sequences, limit, matrix, gap);
-            if (do_sg) check_functions(parasail_sg_stats_knc, sequences, limit, matrix, gap);
-            if (do_sw) check_functions(parasail_sw_stats_knc, sequences, limit, matrix, gap);
         }
     }
 #endif

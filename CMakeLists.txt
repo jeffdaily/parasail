@@ -532,40 +532,6 @@ SET( SRC_TRACE_AVX2
     src/sw_trace_striped_avx2_256_8.c
 )
 
-SET( SRC_KNC
-    src/memory_knc.c
-    src/nw_scan_knc_512_32.c
-    src/sg_scan_knc_512_32.c
-    src/sw_scan_knc_512_32.c
-    src/nw_diag_knc_512_32.c
-    src/sg_diag_knc_512_32.c
-    src/sw_diag_knc_512_32.c
-    src/nw_striped_knc_512_32.c
-    src/sg_striped_knc_512_32.c
-    src/sw_striped_knc_512_32.c
-    src/nw_stats_scan_knc_512_32.c
-    src/sg_stats_scan_knc_512_32.c
-    src/sw_stats_scan_knc_512_32.c
-    src/nw_stats_diag_knc_512_32.c
-    src/sg_stats_diag_knc_512_32.c
-    src/sw_stats_diag_knc_512_32.c
-    src/nw_stats_striped_knc_512_32.c
-    src/sg_stats_striped_knc_512_32.c
-    src/sw_stats_striped_knc_512_32.c
-)
-
-SET( SRC_TRACE_KNC
-    src/nw_trace_scan_knc_512_32.c
-    src/sg_trace_scan_knc_512_32.c
-    src/sw_trace_scan_knc_512_32.c
-    src/nw_trace_diag_knc_512_32.c
-    src/sg_trace_diag_knc_512_32.c
-    src/sw_trace_diag_knc_512_32.c
-    src/nw_trace_striped_knc_512_32.c
-    src/sg_trace_striped_knc_512_32.c
-    src/sw_trace_striped_knc_512_32.c
-)
-
 SET( SRC_ALTIVEC
     src/nw_scan_sse2_128_64.c
     src/sg_scan_sse2_128_64.c

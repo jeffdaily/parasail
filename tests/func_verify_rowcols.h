@@ -95,17 +95,6 @@ static parasail_function_info_t parasail_nw_rowcol_altivec_functions[] = {
 };
 static parasail_function_group_t parasail_nw_rowcol_altivec = {"parasail_nw_rowcol_altivec", parasail_nw_rowcol_altivec_functions};
 #endif
-#if HAVE_KNC
-static parasail_function_info_t parasail_nw_rowcol_knc_functions[] = {
-{parasail_nw_rowcol,                  "parasail_nw_rowcol",                  "nw",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 0, 1},
-{parasail_nw_rowcol_scan,             "parasail_nw_rowcol_scan",             "nw",    "scan", "NA",     "32", "32",  1, 0, 0, 0, 0, 0},
-{parasail_nw_rowcol_scan_knc_512_32,  "parasail_nw_rowcol_scan_knc_512_32",  "nw",    "scan", "knc",   "512", "32", 16, 0, 0, 0, 0, 0},
-{parasail_nw_rowcol_striped_knc_512_32, "parasail_nw_rowcol_striped_knc_512_32", "nw", "striped", "knc",   "512", "32", 16, 0, 0, 0, 0, 0},
-{parasail_nw_rowcol_diag_knc_512_32,  "parasail_nw_rowcol_diag_knc_512_32",  "nw",    "diag", "knc",   "512", "32", 16, 0, 0, 0, 0, 0},
-{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
-};
-static parasail_function_group_t parasail_nw_rowcol_knc = {"parasail_nw_rowcol_knc", parasail_nw_rowcol_knc_functions};
-#endif
 static parasail_function_info_t parasail_nw_rowcol_disp_functions[] = {
 {parasail_nw_rowcol,                  "parasail_nw_rowcol",                  "nw",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 0, 1},
 {parasail_nw_rowcol_scan,             "parasail_nw_rowcol_scan",             "nw",    "scan", "NA",     "32", "32",  1, 0, 0, 0, 0, 0},
@@ -206,17 +195,6 @@ static parasail_function_info_t parasail_sg_rowcol_altivec_functions[] = {
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
 };
 static parasail_function_group_t parasail_sg_rowcol_altivec = {"parasail_sg_rowcol_altivec", parasail_sg_rowcol_altivec_functions};
-#endif
-#if HAVE_KNC
-static parasail_function_info_t parasail_sg_rowcol_knc_functions[] = {
-{parasail_sg_rowcol,                  "parasail_sg_rowcol",                  "sg",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 0, 1},
-{parasail_sg_rowcol_scan,             "parasail_sg_rowcol_scan",             "sg",    "scan", "NA",     "32", "32",  1, 0, 0, 0, 0, 0},
-{parasail_sg_rowcol_scan_knc_512_32,  "parasail_sg_rowcol_scan_knc_512_32",  "sg",    "scan", "knc",   "512", "32", 16, 0, 0, 0, 0, 0},
-{parasail_sg_rowcol_striped_knc_512_32, "parasail_sg_rowcol_striped_knc_512_32", "sg", "striped", "knc",   "512", "32", 16, 0, 0, 0, 0, 0},
-{parasail_sg_rowcol_diag_knc_512_32,  "parasail_sg_rowcol_diag_knc_512_32",  "sg",    "diag", "knc",   "512", "32", 16, 0, 0, 0, 0, 0},
-{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
-};
-static parasail_function_group_t parasail_sg_rowcol_knc = {"parasail_sg_rowcol_knc", parasail_sg_rowcol_knc_functions};
 #endif
 static parasail_function_info_t parasail_sg_rowcol_disp_functions[] = {
 {parasail_sg_rowcol,                  "parasail_sg_rowcol",                  "sg",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 0, 1},
@@ -319,17 +297,6 @@ static parasail_function_info_t parasail_sw_rowcol_altivec_functions[] = {
 };
 static parasail_function_group_t parasail_sw_rowcol_altivec = {"parasail_sw_rowcol_altivec", parasail_sw_rowcol_altivec_functions};
 #endif
-#if HAVE_KNC
-static parasail_function_info_t parasail_sw_rowcol_knc_functions[] = {
-{parasail_sw_rowcol,                  "parasail_sw_rowcol",                  "sw",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 0, 1},
-{parasail_sw_rowcol_scan,             "parasail_sw_rowcol_scan",             "sw",    "scan", "NA",     "32", "32",  1, 0, 0, 0, 0, 0},
-{parasail_sw_rowcol_scan_knc_512_32,  "parasail_sw_rowcol_scan_knc_512_32",  "sw",    "scan", "knc",   "512", "32", 16, 0, 0, 0, 0, 0},
-{parasail_sw_rowcol_striped_knc_512_32, "parasail_sw_rowcol_striped_knc_512_32", "sw", "striped", "knc",   "512", "32", 16, 0, 0, 0, 0, 0},
-{parasail_sw_rowcol_diag_knc_512_32,  "parasail_sw_rowcol_diag_knc_512_32",  "sw",    "diag", "knc",   "512", "32", 16, 0, 0, 0, 0, 0},
-{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
-};
-static parasail_function_group_t parasail_sw_rowcol_knc = {"parasail_sw_rowcol_knc", parasail_sw_rowcol_knc_functions};
-#endif
 static parasail_function_info_t parasail_sw_rowcol_disp_functions[] = {
 {parasail_sw_rowcol,                  "parasail_sw_rowcol",                  "sw",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 0, 1},
 {parasail_sw_rowcol_scan,             "parasail_sw_rowcol_scan",             "sw",    "scan", "NA",     "32", "32",  1, 0, 0, 0, 0, 0},
@@ -430,17 +397,6 @@ static parasail_function_info_t parasail_nw_stats_rowcol_altivec_functions[] = {
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
 };
 static parasail_function_group_t parasail_nw_stats_rowcol_altivec = {"parasail_nw_stats_rowcol_altivec", parasail_nw_stats_rowcol_altivec_functions};
-#endif
-#if HAVE_KNC
-static parasail_function_info_t parasail_nw_stats_rowcol_knc_functions[] = {
-{parasail_nw_stats_rowcol,            "parasail_nw_stats_rowcol",            "nw_stats",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 1, 1},
-{parasail_nw_stats_rowcol_scan,       "parasail_nw_stats_rowcol_scan",       "nw_stats",    "scan", "NA",     "32", "32",  1, 0, 0, 0, 1, 0},
-{parasail_nw_stats_rowcol_scan_knc_512_32, "parasail_nw_stats_rowcol_scan_knc_512_32", "nw_stats",    "scan", "knc",   "512", "32", 16, 0, 0, 0, 1, 0},
-{parasail_nw_stats_rowcol_striped_knc_512_32, "parasail_nw_stats_rowcol_striped_knc_512_32", "nw_stats", "striped", "knc",   "512", "32", 16, 0, 0, 0, 1, 0},
-{parasail_nw_stats_rowcol_diag_knc_512_32, "parasail_nw_stats_rowcol_diag_knc_512_32", "nw_stats",    "diag", "knc",   "512", "32", 16, 0, 0, 0, 1, 0},
-{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
-};
-static parasail_function_group_t parasail_nw_stats_rowcol_knc = {"parasail_nw_stats_rowcol_knc", parasail_nw_stats_rowcol_knc_functions};
 #endif
 static parasail_function_info_t parasail_nw_stats_rowcol_disp_functions[] = {
 {parasail_nw_stats_rowcol,            "parasail_nw_stats_rowcol",            "nw_stats",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 1, 1},
@@ -543,17 +499,6 @@ static parasail_function_info_t parasail_sg_stats_rowcol_altivec_functions[] = {
 };
 static parasail_function_group_t parasail_sg_stats_rowcol_altivec = {"parasail_sg_stats_rowcol_altivec", parasail_sg_stats_rowcol_altivec_functions};
 #endif
-#if HAVE_KNC
-static parasail_function_info_t parasail_sg_stats_rowcol_knc_functions[] = {
-{parasail_sg_stats_rowcol,            "parasail_sg_stats_rowcol",            "sg_stats",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 1, 1},
-{parasail_sg_stats_rowcol_scan,       "parasail_sg_stats_rowcol_scan",       "sg_stats",    "scan", "NA",     "32", "32",  1, 0, 0, 0, 1, 0},
-{parasail_sg_stats_rowcol_scan_knc_512_32, "parasail_sg_stats_rowcol_scan_knc_512_32", "sg_stats",    "scan", "knc",   "512", "32", 16, 0, 0, 0, 1, 0},
-{parasail_sg_stats_rowcol_striped_knc_512_32, "parasail_sg_stats_rowcol_striped_knc_512_32", "sg_stats", "striped", "knc",   "512", "32", 16, 0, 0, 0, 1, 0},
-{parasail_sg_stats_rowcol_diag_knc_512_32, "parasail_sg_stats_rowcol_diag_knc_512_32", "sg_stats",    "diag", "knc",   "512", "32", 16, 0, 0, 0, 1, 0},
-{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
-};
-static parasail_function_group_t parasail_sg_stats_rowcol_knc = {"parasail_sg_stats_rowcol_knc", parasail_sg_stats_rowcol_knc_functions};
-#endif
 static parasail_function_info_t parasail_sg_stats_rowcol_disp_functions[] = {
 {parasail_sg_stats_rowcol,            "parasail_sg_stats_rowcol",            "sg_stats",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 1, 1},
 {parasail_sg_stats_rowcol_scan,       "parasail_sg_stats_rowcol_scan",       "sg_stats",    "scan", "NA",     "32", "32",  1, 0, 0, 0, 1, 0},
@@ -654,17 +599,6 @@ static parasail_function_info_t parasail_sw_stats_rowcol_altivec_functions[] = {
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
 };
 static parasail_function_group_t parasail_sw_stats_rowcol_altivec = {"parasail_sw_stats_rowcol_altivec", parasail_sw_stats_rowcol_altivec_functions};
-#endif
-#if HAVE_KNC
-static parasail_function_info_t parasail_sw_stats_rowcol_knc_functions[] = {
-{parasail_sw_stats_rowcol,            "parasail_sw_stats_rowcol",            "sw_stats",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 1, 1},
-{parasail_sw_stats_rowcol_scan,       "parasail_sw_stats_rowcol_scan",       "sw_stats",    "scan", "NA",     "32", "32",  1, 0, 0, 0, 1, 0},
-{parasail_sw_stats_rowcol_scan_knc_512_32, "parasail_sw_stats_rowcol_scan_knc_512_32", "sw_stats",    "scan", "knc",   "512", "32", 16, 0, 0, 0, 1, 0},
-{parasail_sw_stats_rowcol_striped_knc_512_32, "parasail_sw_stats_rowcol_striped_knc_512_32", "sw_stats", "striped", "knc",   "512", "32", 16, 0, 0, 0, 1, 0},
-{parasail_sw_stats_rowcol_diag_knc_512_32, "parasail_sw_stats_rowcol_diag_knc_512_32", "sw_stats",    "diag", "knc",   "512", "32", 16, 0, 0, 0, 1, 0},
-{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
-};
-static parasail_function_group_t parasail_sw_stats_rowcol_knc = {"parasail_sw_stats_rowcol_knc", parasail_sw_stats_rowcol_knc_functions};
 #endif
 static parasail_function_info_t parasail_sw_stats_rowcol_disp_functions[] = {
 {parasail_sw_stats_rowcol,            "parasail_sw_stats_rowcol",            "sw_stats",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 1, 1},

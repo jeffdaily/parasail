@@ -45,7 +45,6 @@ isa_to_bits = {
     "sse2"    : 128,
     "sse41"   : 128,
     "avx2"    : 256,
-    "knc"     : 512,
     "altivec" : 128,
 }
 
@@ -69,19 +68,6 @@ for table in ["_table"]:
                 for par in ["scan", "striped", "diag"]:
                     widths = [64, 32, 16, 8]
                     for width in widths:
-                        name = "%s_%s_%s_%s_%s" % (pre, par, isa, bits, width)
-                        print_fmt(name, name, alg+stats, par, isa, bits, width, bits/width, is_table, is_rowcol, is_trace, is_stats, 0)
-                print_null()
-                print "};"
-                print 'static parasail_function_group_t %s_%s = {"%s_%s", %s_%s_functions};' % ((pre, isa)*3)
-                print "#endif"
-            for isa in ["knc"]:
-                print "#if HAVE_%s" % isa.upper()
-                print "static parasail_function_info_t %s_%s_functions[] = {" % (pre, isa)
-                print_fmt(pre,         pre,         alg+stats, "orig", "NA", "32", "32", 1, is_table, is_rowcol, is_trace, is_stats, 1)
-                bits = isa_to_bits[isa]
-                for par in ["scan", "striped", "diag"]:
-                    for width in [32]:
                         name = "%s_%s_%s_%s_%s" % (pre, par, isa, bits, width)
                         print_fmt(name, name, alg+stats, par, isa, bits, width, bits/width, is_table, is_rowcol, is_trace, is_stats, 0)
                 print_null()

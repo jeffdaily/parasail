@@ -540,21 +540,6 @@ AC_DEFINE_UNQUOTED([HAVE_AVX2_MM256_EXTRACT_EPI8],
     [$pt_cv_avx2_mm256_extract_epi8_val],
     [define to 1 if the C compiler supports AVX2 _mm256_extract_epi8])
 
-AC_CACHE_CHECK([for KNC],
-    [pt_cv_knc],
-    [AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
-#ifdef __MIC__
-#include <immintrin.h>
-#else
-#error CHOKE
-#endif
-]])],
-        [pt_cv_knc=yes; pt_cv_knc_val=1],
-        [pt_cv_knc=no; pt_cv_knc_val=0])])
-AC_DEFINE_UNQUOTED([HAVE_KNC], [$pt_cv_knc_val],
-    [define to 1 if the C compiler supports KNC])
-AM_CONDITIONAL([HAVE_KNC], [test "x$pt_cv_knc" = xyes])
-
 AC_CACHE_CHECK([for AVX512F support], [pt_cv_avx512f],
 [pt_cv_avx512f=no; pt_cv_avx512f_val=0
 for flag in default -mavx512f -xMIC-AVX512 -march=knl

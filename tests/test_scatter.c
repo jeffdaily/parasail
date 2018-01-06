@@ -241,9 +241,11 @@ int main(int argc, char **argv)
             parasail_result_t *result = NULL;
             char *seq_a = sequences->seqs[a].seq.s;
             char *seq_b = sequences->seqs[b].seq.s;
-            size_t size_a = sequences->seqs[a].seq.l;
-            size_t size_b = sequences->seqs[b].seq.l;
+            size_t size_a = 0;
+            size_t size_b = 0;
             k_combination2(i, &a, &b);
+            size_a = sequences->seqs[a].seq.l;
+            size_b = sequences->seqs[b].seq.l;
             timer_local = timer_real();
             result = function(seq_a, size_a, seq_b, size_b,
                     gap_open, gap_extend, matrix);

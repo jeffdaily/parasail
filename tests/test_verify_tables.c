@@ -142,9 +142,11 @@ static void check_functions(
                     unsigned long b = 1;
                     int *ref_score_table = NULL;
                     int *score_table = NULL;
-                    size_t size_a = sequences->seqs[a].seq.l;
-                    size_t size_b = sequences->seqs[b].seq.l;
+                    size_t size_a = 0;
+                    size_t size_b = 0;
                     k_combination2(pair_index, &a, &b);
+                    size_a = sequences->seqs[a].seq.l;
+                    size_b = sequences->seqs[b].seq.l;
                     /*if (verbose) printf("\t\t\t\tpair=%lld (%lu,%lu)\n", pair_index, a, b);*/
                     reference_result = reference_function(
                             sequences->seqs[a].seq.s, size_a,

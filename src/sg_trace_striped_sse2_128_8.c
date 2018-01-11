@@ -336,7 +336,7 @@ end:
 
         /* max in vec */
         score_last = _mm_hmax_epi8_rpl(vMaxH);
-        if (score_last > score) {
+        if (score_last > score || (score_last == score && end_ref == s2Len - 1)) {
             score = score_last;
             end_ref = s2Len - 1;
             end_query = s1Len;
@@ -381,5 +381,4 @@ end:
 
     return result;
 }
-
 

@@ -48,7 +48,7 @@ parasail_result_t* FNAME(
     %(INT)s * const restrict s2 = s2B+PAD; /* will allow later for negative indices */
     %(INT)s * const restrict H_pr = _H_pr+PAD;
     %(INT)s * const restrict F_pr = _F_pr+PAD;
-    parasail_result_t *result = parasail_result_new_trace_old(s1Len, s2Len, %(ALIGNMENT)s, sizeof(int));
+    parasail_result_t *result = parasail_result_new_trace(s1Len, s2Len, %(ALIGNMENT)s, sizeof(int));
     %(INDEX)s i = 0;
     %(INDEX)s j = 0;
     %(INDEX)s end_query = 0;
@@ -77,6 +77,10 @@ parasail_result_t* FNAME(
     %(VTYPE)s vTDiag = %(VSET1)s(PARASAIL_DIAG);
     %(VTYPE)s vTIns = %(VSET1)s(PARASAIL_INS);
     %(VTYPE)s vTDel = %(VSET1)s(PARASAIL_DEL);
+    %(VTYPE)s vTDiagE = %(VSET1)s(PARASAIL_DIAG_E);
+    %(VTYPE)s vTInsE = %(VSET1)s(PARASAIL_INS_E);
+    %(VTYPE)s vTDiagF = %(VSET1)s(PARASAIL_DIAG_F);
+    %(VTYPE)s vTDelF = %(VSET1)s(PARASAIL_DEL_F);
     %(SATURATION_CHECK_INIT)s
 
     /* convert _s1 from char to int in range 0-23 */
@@ -177,11 +181,11 @@ parasail_result_t* FNAME(
                         case1);
                 %(VTYPE)s condE = %(VCMPGT)s(vE_opn, vE_ext);
                 %(VTYPE)s condF = %(VCMPGT)s(vF_opn, vF_ext);
-                %(VTYPE)s vET = %(VBLEND)s(vTIns, vTDiag, condE);
-                %(VTYPE)s vFT = %(VBLEND)s(vTDel, vTDiag, condF);
+                %(VTYPE)s vET = %(VBLEND)s(vTInsE, vTDiagE, condE);
+                %(VTYPE)s vFT = %(VBLEND)s(vTDelF, vTDiagF, condF);
+                vT = %(VOR)s(vT, vET);
+                vT = %(VOR)s(vT, vFT);
                 arr_store_si%(BITS)s(result->trace->trace_table, vT, i, s1Len, j, s2Len);
-                arr_store_si%(BITS)s(result->trace->trace_ins_table, vET, i, s1Len, j, s2Len);
-                arr_store_si%(BITS)s(result->trace->trace_del_table, vFT, i, s1Len, j, s2Len);
             }
             H_pr[j-%(LAST_POS)s] = (%(INT)s)%(VEXTRACT)s(vWH,0);
             F_pr[j-%(LAST_POS)s] = (%(INT)s)%(VEXTRACT)s(vF,0);

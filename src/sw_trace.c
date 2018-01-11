@@ -95,7 +95,9 @@ parasail_result_t* ENAME(
             HT[(i-1)*s2Len + (j-1)] |= (WH == H_dag) ? PARASAIL_DIAG
                                     : (WH == F[j])   ? PARASAIL_DEL
                                                      : PARASAIL_INS;
-            if (0 == WH) HT[(i-1)*s2Len + (j-1)] = PARASAIL_ZERO;
+            if (0 == WH) {
+                HT[(i-1)*s2Len + (j-1)] &= PARASAIL_ZERO_MASK;
+            }
         }
     }
 

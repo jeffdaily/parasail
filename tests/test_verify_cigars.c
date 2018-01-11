@@ -169,10 +169,35 @@ static void check_functions(
                             sequences->seqs[a].seq.s, size_a,
                             sequences->seqs[b].seq.s, size_b,
                             matrix);
+                    if (NULL == ref_cigar) {
+#pragma omp critical(printer)
+                        {
+                            printf("%s(%lu,%lu,%d,%d,%s) invalid ref cigar\n",
+                                    functions[function_index].name,
+                                    a, b, open, extend,
+                                    matrixname);
+                        }
+                        parasail_result_free(reference_result);
+                        parasail_result_free(result);
+                        continue;
+                    }
                     tst_cigar = parasail_result_get_cigar(result,
                             sequences->seqs[a].seq.s, size_a,
                             sequences->seqs[b].seq.s, size_b,
                             matrix);
+                    if (NULL == tst_cigar) {
+#pragma omp critical(printer)
+                        {
+                            printf("%s(%lu,%lu,%d,%d,%s) invalid test cigar\n",
+                                    functions[function_index].name,
+                                    a, b, open, extend,
+                                    matrixname);
+                        }
+                        parasail_cigar_free(ref_cigar);
+                        parasail_result_free(reference_result);
+                        parasail_result_free(result);
+                        continue;
+                    }
                     ref_cigar_str = parasail_cigar_decode(ref_cigar);
                     tst_cigar_str = parasail_cigar_decode(tst_cigar);
                     if (reference_result->score != result->score) {

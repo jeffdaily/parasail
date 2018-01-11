@@ -115,7 +115,7 @@ parasail_result_t* ENAME(
             }
             if (0 >= H[i]) {
                 H[i] = 0;
-                HT[i*s2Len + j] = PARASAIL_ZERO;
+                HT[i*s2Len + j] &= PARASAIL_ZERO_MASK;
             }
             if (H[i] > score) {
                 score = H[i];

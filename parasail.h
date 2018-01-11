@@ -27,14 +27,15 @@ extern "C" {
                           PARASAIL_VERSION_PATCH)
 
 /* for traceback */
-#define PARASAIL_ZERO   (1 << 0)
-#define PARASAIL_INS    (1 << 1)
-#define PARASAIL_DEL    (1 << 2)
-#define PARASAIL_DIAG   (1 << 3)
-#define PARASAIL_DIAG_E (1 << 4)
-#define PARASAIL_INS_E  (1 << 5)
-#define PARASAIL_DIAG_F (1 << 6)
-#define PARASAIL_DEL_F  (1 << 7)
+#define PARASAIL_ZERO_MASK 120 /* all bits set except the first three */
+#define PARASAIL_ZERO   0
+#define PARASAIL_INS    1
+#define PARASAIL_DEL    2
+#define PARASAIL_DIAG   4
+#define PARASAIL_DIAG_E 8
+#define PARASAIL_INS_E  16
+#define PARASAIL_DIAG_F 32
+#define PARASAIL_DEL_F  64
 
 /*                                            3         2         1          */
 /*                                           10987654321098765432109876543210*/

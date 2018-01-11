@@ -53,7 +53,7 @@ parasail_result_t* FNAME(
     int64_t * const restrict s2 = s2B+PAD; /* will allow later for negative indices */
     int64_t * const restrict H_pr = _H_pr+PAD;
     int64_t * const restrict F_pr = _F_pr+PAD;
-    parasail_result_t *result = parasail_result_new_trace_old(s1Len, s2Len, 16, sizeof(int));
+    parasail_result_t *result = parasail_result_new_trace(s1Len, s2Len, 16, sizeof(int));
     int32_t i = 0;
     int32_t j = 0;
     int32_t end_query = s1Len-1;
@@ -80,6 +80,10 @@ parasail_result_t* FNAME(
     vec128i vTDiag = _mm_set1_epi64(PARASAIL_DIAG);
     vec128i vTIns = _mm_set1_epi64(PARASAIL_INS);
     vec128i vTDel = _mm_set1_epi64(PARASAIL_DEL);
+    vec128i vTDiagE = _mm_set1_epi64(PARASAIL_DIAG_E);
+    vec128i vTInsE = _mm_set1_epi64(PARASAIL_INS_E);
+    vec128i vTDiagF = _mm_set1_epi64(PARASAIL_DIAG_F);
+    vec128i vTDelF = _mm_set1_epi64(PARASAIL_DEL_F);
     
 
     /* convert _s1 from char to int in range 0-23 */
@@ -179,11 +183,11 @@ parasail_result_t* FNAME(
                         case1);
                 vec128i condE = _mm_cmpgt_epi64(vE_opn, vE_ext);
                 vec128i condF = _mm_cmpgt_epi64(vF_opn, vF_ext);
-                vec128i vET = _mm_blendv_epi8(vTIns, vTDiag, condE);
-                vec128i vFT = _mm_blendv_epi8(vTDel, vTDiag, condF);
+                vec128i vET = _mm_blendv_epi8(vTInsE, vTDiagE, condE);
+                vec128i vFT = _mm_blendv_epi8(vTDelF, vTDiagF, condF);
+                vT = _mm_or_si128(vT, vET);
+                vT = _mm_or_si128(vT, vFT);
                 arr_store_si128(result->trace->trace_table, vT, i, s1Len, j, s2Len);
-                arr_store_si128(result->trace->trace_ins_table, vET, i, s1Len, j, s2Len);
-                arr_store_si128(result->trace->trace_del_table, vFT, i, s1Len, j, s2Len);
             }
             H_pr[j-1] = (int64_t)_mm_extract_epi64(vWH,0);
             F_pr[j-1] = (int64_t)_mm_extract_epi64(vF,0);

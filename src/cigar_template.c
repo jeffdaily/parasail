@@ -123,7 +123,8 @@ static inline parasail_cigar_t* CONCAT(NAME, T) (
             }
         }
         else {
-            assert(0);
+            parasail_cigar_free(cigar);
+            return NULL;
         }
     }
     while (i >= 0 || j >= 0) {
@@ -172,11 +173,9 @@ static inline parasail_cigar_t* CONCAT(NAME, T) (
             else if (HT[loc] & PARASAIL_DEL) {
                 where = PARASAIL_DEL;
             }
-            else if (HT[loc] & PARASAIL_ZERO) {
-                break;
-            }
+            /* no bits were set, so this is the zero condition */
             else {
-                assert(0);
+                break;
             }
         }
         else if (PARASAIL_INS == where) {
@@ -192,7 +191,8 @@ static inline parasail_cigar_t* CONCAT(NAME, T) (
                 where = PARASAIL_INS;
             }
             else {
-                assert(0);
+                parasail_cigar_free(cigar);
+                return NULL;
             }
         }
         else if (PARASAIL_DEL == where) {
@@ -208,14 +208,16 @@ static inline parasail_cigar_t* CONCAT(NAME, T) (
                 where = PARASAIL_DEL;
             }
             else {
-                assert(0);
+                parasail_cigar_free(cigar);
+                return NULL;
             }
         }
         else if (PARASAIL_ZERO == where) {
             break;
         }
         else {
-            assert(0);
+            parasail_cigar_free(cigar);
+            return NULL;
         }
     }
 

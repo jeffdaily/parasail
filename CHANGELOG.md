@@ -25,6 +25,10 @@ The Unreleased section will be empty for tagged releases. Unreleased functionali
 ### Merged Pull Requests
 - Add meson [\#45] ([SoapZA])
 
+## [2.0.6] - 2018-01-11
+### Fixed
+- Semi-global trace functions were reporting the wrong end location
+
 ## [2.0.5] - 2018-01-05
 ### Fixed
 - Trace functions properly align memory
@@ -230,7 +234,9 @@ The Unreleased section will be empty for tagged releases. Unreleased functionali
 ## [1.0.0] - 2015-09-16
 First stable, production-ready version of parasail.
 
-[Unreleased]: https://github.com/jeffdaily/parasail/compare/v2.0.4...develop
+[Unreleased]: https://github.com/jeffdaily/parasail/compare/v2.0.6...develop
+[2.0.6]: https://github.com/jeffdaily/parasail/compare/v2.0.5...v2.0.6
+[2.0.5]: https://github.com/jeffdaily/parasail/compare/v2.0.4...v2.0.5
 [2.0.4]: https://github.com/jeffdaily/parasail/compare/v2.0.3...v2.0.4
 [2.0.3]: https://github.com/jeffdaily/parasail/compare/v2.0.2...v2.0.3
 [2.0.2]: https://github.com/jeffdaily/parasail/compare/v2.0.1...v2.0.2

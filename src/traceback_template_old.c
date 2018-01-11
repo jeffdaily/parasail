@@ -3,10 +3,10 @@
 #define D CONCAT3(int, T, _t)
 
 #if defined(STRIPED)
-#define NAME parasail_traceback_striped_
+#define NAME parasail_traceback_old_striped_
 #define LOC LOC_STRIPED
 #else
-#define NAME parasail_traceback_
+#define NAME parasail_traceback_old_
 #define LOC LOC_NOVEC
 #endif
 
@@ -36,6 +36,8 @@ static inline void CONCAT(NAME, T) (
     int c_ins = 0;
     int c_del = 0;
     D *HT = (D*)result->trace->trace_table;
+    D *ET = (D*)result->trace->trace_ins_table;
+    D *FT = (D*)result->trace->trace_del_table;
     int namelenA = (NULL == nameA) ? 0 : (int)strlen(nameA);
     int namelenB = (NULL == nameB) ? 0 : (int)strlen(nameB);
 #if defined(STRIPED)
@@ -116,20 +118,20 @@ static inline void CONCAT(NAME, T) (
             break;
         }
         if (PARASAIL_DIAG == where) {
-            if (HT[loc] & PARASAIL_DIAG) {
+            if (HT[loc] == PARASAIL_DIAG) {
                 *(qc++) = seqA[i];
                 *(dc++) = seqB[j];
                 *(ac++) = match_char(seqA[i], seqB[j], matrix, match, pos, neg);
                 --i;
                 --j;
             }
-            else if (HT[loc] & PARASAIL_INS) {
+            else if (HT[loc] == PARASAIL_INS) {
                 where = PARASAIL_INS;
             }
-            else if (HT[loc] & PARASAIL_DEL) {
+            else if (HT[loc] == PARASAIL_DEL) {
                 where = PARASAIL_DEL;
             }
-            else if (HT[loc] & PARASAIL_ZERO) {
+            else if (HT[loc] == PARASAIL_ZERO) {
                 break;
             }
             else {
@@ -142,10 +144,10 @@ static inline void CONCAT(NAME, T) (
             *(dc++) = seqB[j];
             *(ac++) = ' ';
             --j;
-            if (HT[loc] & PARASAIL_DIAG_E) {
+            if (ET[loc] == PARASAIL_DIAG) {
                 where = PARASAIL_DIAG;
             }
-            else if (HT[loc] & PARASAIL_INS_E) {
+            else if (ET[loc] == PARASAIL_INS) {
                 where = PARASAIL_INS;
             }
             else {
@@ -158,10 +160,10 @@ static inline void CONCAT(NAME, T) (
             *(dc++) = '-';
             *(ac++) = ' ';
             --i;
-            if (HT[loc] & PARASAIL_DIAG_F) {
+            if (FT[loc] == PARASAIL_DIAG) {
                 where = PARASAIL_DIAG;
             }
-            else if (HT[loc] & PARASAIL_DEL_F) {
+            else if (FT[loc] == PARASAIL_DEL) {
                 where = PARASAIL_DEL;
             }
             else {

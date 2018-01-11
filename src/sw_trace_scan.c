@@ -32,8 +32,6 @@ parasail_result_t* ENAME(
     int * const restrict HtB= parasail_memalign_int(16, s1Len+1);
     int * const restrict Ht = HtB+1;
     int * const restrict HT = (int* const restrict)result->trace->trace_table;
-    int * const restrict ET = (int* const restrict)result->trace->trace_ins_table;
-    int * const restrict FT = (int* const restrict)result->trace->trace_del_table;
     int * const restrict Ex = parasail_memalign_int(16, s1Len);
     int i = 0;
     int j = 0;
@@ -69,8 +67,8 @@ parasail_result_t* ENAME(
             int E_opn = H[i]-open;
             int E_ext = E[i]-gap;
             E[i] = MAX(E_ext, E_opn);
-            ET[i*s2Len + j] = (E_opn > E_ext) ? PARASAIL_DIAG
-                                              : PARASAIL_INS;
+            HT[i*s2Len + j] = (E_opn > E_ext) ? PARASAIL_DIAG_E
+                                              : PARASAIL_INS_E;
         }
         /* calculate Ht */
         Ht[-1] = 0;
@@ -92,27 +90,27 @@ parasail_result_t* ENAME(
             }
             Ft_opn = Ft-open;
             if (H[i-1] > Ft_ext) {
-                FT[i*s2Len + j] = PARASAIL_DIAG;
+                HT[i*s2Len + j] |= PARASAIL_DIAG_F;
             }
             else {
-                FT[i*s2Len + j] = PARASAIL_DEL;
+                HT[i*s2Len + j] |= PARASAIL_DEL_F;
             }
             if (Ht[i] > Ft_opn) {
                 H[i] = Ht[i];
-                HT[i*s2Len + j] = Ex[i] ? PARASAIL_INS : PARASAIL_DIAG;
+                HT[i*s2Len + j] |= Ex[i] ? PARASAIL_INS : PARASAIL_DIAG;
             }
             else {
                 H[i] = Ft_opn;
                 if (Ht[i] == Ft_opn) {
                     if (Ex[i]) {
-                        HT[i*s2Len + j] = PARASAIL_DEL;
+                        HT[i*s2Len + j] |= PARASAIL_DEL;
                     }
                     else {
-                        HT[i*s2Len + j] = PARASAIL_DIAG;
+                        HT[i*s2Len + j] |= PARASAIL_DIAG;
                     }
                 }
                 else {
-                    HT[i*s2Len + j] = PARASAIL_DEL;
+                    HT[i*s2Len + j] |= PARASAIL_DEL;
                 }
             }
             if (0 >= H[i]) {

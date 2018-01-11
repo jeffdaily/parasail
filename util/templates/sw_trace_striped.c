@@ -75,7 +75,7 @@ parasail_result_t* PNAME(
     %(VTYPE)s vMaxH = vZero;
     %(VTYPE)s vMaxHUnit = vZero;
     %(INT)s maxp = INT%(WIDTH)s_MAX - (%(INT)s)(matrix->max+1);
-    parasail_result_t *result = parasail_result_new_trace(segLen, s2Len, %(ALIGNMENT)s, sizeof(%(VTYPE)s));
+    parasail_result_t *result = parasail_result_new_trace_old(segLen, s2Len, %(ALIGNMENT)s, sizeof(%(VTYPE)s));
     %(VTYPE)s vTZero = %(VSET1)s(PARASAIL_ZERO);
     %(VTYPE)s vTIns  = %(VSET1)s(PARASAIL_INS);
     %(VTYPE)s vTDel  = %(VSET1)s(PARASAIL_DEL);

@@ -245,6 +245,28 @@ parasail_result_t* parasail_result_new_trace(const int a, const int b, const siz
     assert(result->trace);
     result->trace->trace_table = parasail_memalign(alignment, size*a*b);
     assert(result->trace->trace_table);
+    result->trace->trace_ins_table = NULL;
+    result->trace->trace_del_table = NULL;
+
+    return result;
+}
+
+parasail_result_t* parasail_result_new_trace_old(const int a, const int b, const size_t alignment, const size_t size)
+{
+    /* declare all variables */
+    parasail_result_t *result = NULL;
+
+    /* validate inputs */
+    assert(a > 0);
+    assert(b > 0);
+
+    /* allocate struct to hold memory */
+    result = parasail_result_new();
+
+    result->trace = (parasail_result_extra_trace_t*)malloc(sizeof(parasail_result_extra_trace_t));
+    assert(result->trace);
+    result->trace->trace_table = parasail_memalign(alignment, size*a*b);
+    assert(result->trace->trace_table);
     result->trace->trace_ins_table = parasail_memalign(alignment, size*a*b);
     assert(result->trace->trace_ins_table);
     result->trace->trace_del_table = parasail_memalign(alignment, size*a*b);
@@ -333,8 +355,10 @@ void parasail_result_free(parasail_result_t *result)
     }
     if (result->flag & PARASAIL_FLAG_TRACE) {
         parasail_free(result->trace->trace_table);
-        parasail_free(result->trace->trace_ins_table);
-        parasail_free(result->trace->trace_del_table);
+        if (NULL != result->trace->trace_ins_table)
+            parasail_free(result->trace->trace_ins_table);
+        if (NULL != result->trace->trace_del_table)
+            parasail_free(result->trace->trace_del_table);
         free(result->trace);
     }
 

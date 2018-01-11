@@ -48,7 +48,7 @@ parasail_result_t* FNAME(
     %(INT)s * const restrict s2 = s2B+PAD; /* will allow later for negative indices */
     %(INT)s * const restrict H_pr = _H_pr+PAD;
     %(INT)s * const restrict F_pr = _F_pr+PAD;
-    parasail_result_t *result = parasail_result_new_trace(s1Len, s2Len, %(ALIGNMENT)s, sizeof(int));
+    parasail_result_t *result = parasail_result_new_trace_old(s1Len, s2Len, %(ALIGNMENT)s, sizeof(int));
     %(INDEX)s i = 0;
     %(INDEX)s j = 0;
     %(INDEX)s end_query = 0;

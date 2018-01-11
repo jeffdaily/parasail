@@ -106,7 +106,7 @@ parasail_result_t* PNAME(
     __m256i vPosMask = _mm256_cmpeq_epi32(_mm256_set1_epi32(position),
             _mm256_set_epi32(0,1,2,3,4,5,6,7));
     
-    parasail_result_t *result = parasail_result_new_trace(segLen, s2Len, 32, sizeof(__m256i));
+    parasail_result_t *result = parasail_result_new_trace_old(segLen, s2Len, 32, sizeof(__m256i));
     __m256i vTIns  = _mm256_set1_epi32(PARASAIL_INS);
     __m256i vTDel  = _mm256_set1_epi32(PARASAIL_DEL);
     __m256i vTDiag = _mm256_set1_epi32(PARASAIL_DIAG);

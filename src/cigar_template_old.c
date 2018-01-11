@@ -5,10 +5,10 @@
 #define UNUSED(expr) do { (void)(expr); } while (0)
 
 #if defined(STRIPED)
-#define NAME parasail_cigar_striped_
+#define NAME parasail_cigar_old_striped_
 #define LOC LOC_STRIPED
 #else
-#define NAME parasail_cigar_
+#define NAME parasail_cigar_old_
 #define LOC LOC_NOVEC
 #endif
 
@@ -74,6 +74,8 @@ static inline parasail_cigar_t* CONCAT(NAME, T) (
     int j = result->end_ref;
     int where = PARASAIL_DIAG;
     D *HT = (D*)result->trace->trace_table;
+    D *ET = (D*)result->trace->trace_ins_table;
+    D *FT = (D*)result->trace->trace_del_table;
 #if defined(STRIPED)
     int32_t segWidth = 0;
     int32_t segLen = 0;
@@ -150,7 +152,7 @@ static inline parasail_cigar_t* CONCAT(NAME, T) (
             break;
         }
         if (PARASAIL_DIAG == where) {
-            if (HT[loc] & PARASAIL_DIAG) {
+            if (HT[loc] == PARASAIL_DIAG) {
                 if (seqA[i] == seqB[j]) {
                     if (0 == c_mat) {
                         WRITE_ANY;
@@ -166,13 +168,13 @@ static inline parasail_cigar_t* CONCAT(NAME, T) (
                 --i;
                 --j;
             }
-            else if (HT[loc] & PARASAIL_INS) {
+            else if (HT[loc] == PARASAIL_INS) {
                 where = PARASAIL_INS;
             }
-            else if (HT[loc] & PARASAIL_DEL) {
+            else if (HT[loc] == PARASAIL_DEL) {
                 where = PARASAIL_DEL;
             }
-            else if (HT[loc] & PARASAIL_ZERO) {
+            else if (HT[loc] == PARASAIL_ZERO) {
                 break;
             }
             else {
@@ -185,10 +187,10 @@ static inline parasail_cigar_t* CONCAT(NAME, T) (
             }
             c_ins += 1;
             --j;
-            if (HT[loc] & PARASAIL_DIAG_E) {
+            if (ET[loc] == PARASAIL_DIAG) {
                 where = PARASAIL_DIAG;
             }
-            else if (HT[loc] & PARASAIL_INS_E) {
+            else if (ET[loc] == PARASAIL_INS) {
                 where = PARASAIL_INS;
             }
             else {
@@ -201,10 +203,10 @@ static inline parasail_cigar_t* CONCAT(NAME, T) (
             }
             c_del += 1;
             --i;
-            if (HT[loc] & PARASAIL_DIAG_F) {
+            if (FT[loc] == PARASAIL_DIAG) {
                 where = PARASAIL_DIAG;
             }
-            else if (HT[loc] & PARASAIL_DEL_F) {
+            else if (FT[loc] == PARASAIL_DEL) {
                 where = PARASAIL_DEL;
             }
             else {

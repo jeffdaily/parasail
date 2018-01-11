@@ -80,7 +80,7 @@ parasail_result_t* PNAME(
     __m128i vNegInf = _mm_set1_epi16(NEG_INF);
     int16_t score = NEG_INF;
     
-    parasail_result_t *result = parasail_result_new_trace(segLen, s2Len, 16, sizeof(__m128i));
+    parasail_result_t *result = parasail_result_new_trace_old(segLen, s2Len, 16, sizeof(__m128i));
     __m128i vTIns  = _mm_set1_epi16(PARASAIL_INS);
     __m128i vTDel  = _mm_set1_epi16(PARASAIL_DEL);
     __m128i vTDiag = _mm_set1_epi16(PARASAIL_DIAG);

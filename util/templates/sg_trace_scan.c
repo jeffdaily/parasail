@@ -79,7 +79,7 @@ parasail_result_t* PNAME(
             %(VSET)s(%(POSITION_MASK)s));
     %(VTYPE)s vNegInfFront = vZero;
     %(VTYPE)s vSegLenXgap;
-    parasail_result_t *result = parasail_result_new_trace(segLen, s2Len, %(ALIGNMENT)s, sizeof(%(VTYPE)s));
+    parasail_result_t *result = parasail_result_new_trace_old(segLen, s2Len, %(ALIGNMENT)s, sizeof(%(VTYPE)s));
     %(VTYPE)s vTIns  = %(VSET1)s(PARASAIL_INS);
     %(VTYPE)s vTDel  = %(VSET1)s(PARASAIL_DEL);
     %(VTYPE)s vTDiag = %(VSET1)s(PARASAIL_DIAG);

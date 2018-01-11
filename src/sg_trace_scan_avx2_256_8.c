@@ -113,7 +113,7 @@ parasail_result_t* PNAME(
             _mm256_set_epi8(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31));
     __m256i vNegInfFront = vZero;
     __m256i vSegLenXgap;
-    parasail_result_t *result = parasail_result_new_trace(segLen, s2Len, 32, sizeof(__m256i));
+    parasail_result_t *result = parasail_result_new_trace_old(segLen, s2Len, 32, sizeof(__m256i));
     __m256i vTIns  = _mm256_set1_epi8(PARASAIL_INS);
     __m256i vTDel  = _mm256_set1_epi8(PARASAIL_DEL);
     __m256i vTDiag = _mm256_set1_epi8(PARASAIL_DIAG);

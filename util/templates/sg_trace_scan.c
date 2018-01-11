@@ -28,6 +28,15 @@ static inline void arr_store(
     %(VSTORE)s(array + (d*seglen+t), vH);
 }
 
+static inline %(VTYPE)s arr_load(
+        %(VTYPE)s *array,
+        %(INDEX)s t,
+        %(INDEX)s seglen,
+        %(INDEX)s d)
+{
+    return %(VLOAD)s(array + (d*seglen+t));
+}
+
 #define FNAME %(NAME_TRACE)s
 #define PNAME %(PNAME_TRACE)s
 
@@ -79,10 +88,14 @@ parasail_result_t* PNAME(
             %(VSET)s(%(POSITION_MASK)s));
     %(VTYPE)s vNegInfFront = vZero;
     %(VTYPE)s vSegLenXgap;
-    parasail_result_t *result = parasail_result_new_trace_old(segLen, s2Len, %(ALIGNMENT)s, sizeof(%(VTYPE)s));
+    parasail_result_t *result = parasail_result_new_trace(segLen, s2Len, %(ALIGNMENT)s, sizeof(%(VTYPE)s));
     %(VTYPE)s vTIns  = %(VSET1)s(PARASAIL_INS);
     %(VTYPE)s vTDel  = %(VSET1)s(PARASAIL_DEL);
     %(VTYPE)s vTDiag = %(VSET1)s(PARASAIL_DIAG);
+    %(VTYPE)s vTDiagE = %(VSET1)s(PARASAIL_DIAG_E);
+    %(VTYPE)s vTInsE = %(VSET1)s(PARASAIL_INS_E);
+    %(VTYPE)s vTDiagF = %(VSET1)s(PARASAIL_DIAG_F);
+    %(VTYPE)s vTDelF = %(VSET1)s(PARASAIL_DEL_F);
 
     vNegInfFront = %(VINSERT)s(vNegInfFront, NEG_LIMIT, 0);
     vSegLenXgap = %(VADD)s(vNegInfFront,
@@ -116,6 +129,8 @@ parasail_result_t* PNAME(
         %(VTYPE)s case2;
         %(VTYPE)s vGapper;
         %(VTYPE)s vT;
+        %(VTYPE)s vET;
+        %(VTYPE)s vFT;
 
         /* calculate E */
         /* calculate Ht */
@@ -133,8 +148,8 @@ parasail_result_t* PNAME(
             vE_opn = %(VSUB)s(vH, vGapO);
             vE_ext = %(VSUB)s(vE, vGapE);
             case1 = %(VCMPGT)s(vE_opn, vE_ext);
-            vT = %(VBLEND)s(vTIns, vTDiag, case1);
-            arr_store(result->trace->trace_ins_table, vT, i, segLen, j);
+            vET = %(VBLEND)s(vTInsE, vTDiagE, case1);
+            arr_store(result->trace->trace_table, vET, i, segLen, j);
             vE = %(VMAX)s(vE_opn, vE_ext);
             vSaturationCheckMin = %(VMIN)s(vSaturationCheckMin, vE);
             vGapper = %(VADD)s(vHt, vGapper);
@@ -163,20 +178,22 @@ parasail_result_t* PNAME(
         vF = %(VADD)s(vF, vNegInfFront);
         vH = %(VMAX)s(vF, vHt);
         for (i=0; i<segLen; ++i) {
+            vET = arr_load(result->trace->trace_table, i, segLen, j);
             vHp = %(VLOAD)s(pvH+i);
             vHt = %(VLOAD)s(pvHt+i);
             vF_opn = %(VSUB)s(vH, vGapO);
             vF_ext = %(VSUB)s(vF, vGapE);
             vF = %(VMAX)s(vF_opn, vF_ext);
             case1 = %(VCMPGT)s(vF_opn, vF_ext);
-            vT = %(VBLEND)s(vTDel, vTDiag, case1);
-            arr_store(result->trace->trace_del_table, vT, i, segLen, j);
+            vFT = %(VBLEND)s(vTDelF, vTDiagF, case1);
             vH = %(VMAX)s(vHt, vF);
             case1 = %(VCMPEQ)s(vH, vHp);
             case2 = %(VCMPEQ)s(vH, vF);
             vT = %(VBLEND)s(
                     %(VBLEND)s(vTIns, vTDel, case2),
                     vTDiag, case1);
+            vT = %(VOR)s(vT, vET);
+            vT = %(VOR)s(vT, vFT);
             arr_store(result->trace->trace_table, vT, i, segLen, j);
             %(VSTORE)s(pvH+i, vH);
             vSaturationCheckMin = %(VMIN)s(vSaturationCheckMin, vH);

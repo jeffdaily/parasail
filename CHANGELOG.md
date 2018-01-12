@@ -13,6 +13,7 @@ The Unreleased section will be empty for tagged releases. Unreleased functionali
 ### Fixed
 
 ### Changed
+- Reduce memory used by all trace routines
 
 ### Removed
 - Generated autoconf, automake, libtool files
@@ -20,6 +21,7 @@ The Unreleased section will be empty for tagged releases. Unreleased functionali
 - KNC ISA
 
 ### Closed Issues
+- Speedup and memory reduction of backtracing alignment [\#43]
 - Add meson build system [\#39]
 
 ### Merged Pull Requests

@@ -23,7 +23,7 @@ parasail_result_t* ENAME(
         const char * const restrict _s2, const int s2Len,
         const int open, const int gap, const parasail_matrix_t *matrix)
 {
-    parasail_result_t *result = parasail_result_new_trace(s1Len, s2Len, 16, sizeof(int));
+    parasail_result_t *result = parasail_result_new_trace(s1Len, s2Len, 16, sizeof(int8_t));
     int * const restrict s1 = parasail_memalign_int(16, s1Len);
     int * const restrict s2 = parasail_memalign_int(16, s2Len);
     int * const restrict HB = parasail_memalign_int(16, s1Len+1);
@@ -31,7 +31,7 @@ parasail_result_t* ENAME(
     int * const restrict E  = parasail_memalign_int(16, s1Len);
     int * const restrict HtB= parasail_memalign_int(16, s1Len+1);
     int * const restrict Ht = HtB+1;
-    int * const restrict HT = (int* const restrict)result->trace->trace_table;
+    int8_t * const restrict HT = (int8_t* const restrict)result->trace->trace_table;
     int * const restrict Ex = parasail_memalign_int(16, s1Len);
     int i = 0;
     int j = 0;

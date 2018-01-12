@@ -129,11 +129,8 @@ static inline void CONCAT(NAME, T) (
             else if (HT[loc] & PARASAIL_DEL) {
                 where = PARASAIL_DEL;
             }
-            else if (HT[loc] & PARASAIL_ZERO) {
-                break;
-            }
             else {
-                assert(0);
+                break;
             }
         }
         else if (PARASAIL_INS == where) {

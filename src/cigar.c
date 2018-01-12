@@ -220,17 +220,8 @@ parasail_cigar_t* parasail_result_get_cigar(
             return parasail_cigar_striped_64(seqA, lena, seqB, lenb, matrix, result);
         }
     }
-    else if (result->flag & PARASAIL_FLAG_NOVEC || result->flag & PARASAIL_FLAG_NOVEC_SCAN) {
-        return parasail_cigar_8(seqA, lena, seqB, lenb, matrix, result);
-    }
     else {
-#if SIZEOF_INT == 2
-        return parasail_cigar_16(seqA, lena, seqB, lenb, matrix, result);
-#elif SIZEOF_INT == 4
-        return parasail_cigar_32(seqA, lena, seqB, lenb, matrix, result);
-#elif SIZEOF_INT == 8
-        return parasail_cigar_64(seqA, lena, seqB, lenb, matrix, result);
-#endif
+        return parasail_cigar_8(seqA, lena, seqB, lenb, matrix, result);
     }
 
     /* should not get here, but to silence warnings */

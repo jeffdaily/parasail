@@ -78,6 +78,7 @@ if not os.path.exists(output_dir):
 
 def generate_printer(params):
     text = ""
+    trace = ""
     bias = ""
     rowcol = ""
     bias_rowcol = ""
@@ -86,8 +87,10 @@ def generate_printer(params):
             params["LANE"] = lane
             if params["LANES"] / 10:
                 text += "    array[(%(LANE)2d*seglen+t)*dlen + d] = (%(INT)s)%(VEXTRACT)s(vH, %(LANE)2d);\n" % params
+                trace += "    array[(%(LANE)2d*seglen+t)*dlen + d] = (int8_t)%(VEXTRACT)s(vH, %(LANE)2d);\n" % params
             else:
                 text += "    array[(%(LANE)s*seglen+t)*dlen + d] = (%(INT)s)%(VEXTRACT)s(vH, %(LANE)s);\n" % params
+                trace += "    array[(%(LANE)s*seglen+t)*dlen + d] = (int8_t)%(VEXTRACT)s(vH, %(LANE)s);\n" % params
         for lane in range(params["LANES"]):
             params["LANE"] = lane
             if params["LANES"] / 10:
@@ -114,6 +117,10 @@ def generate_printer(params):
     if (0 <= i+%(LANE)s && i+%(LANE)s < s1Len && 0 <= j-%(LANE)s && j-%(LANE)s < s2Len) {
         array[(i+%(LANE)s)*s2Len + (j-%(LANE)s)] = (%(INT)s)%(VEXTRACT)s(vWH, %(LANE_END)s);
     }\n"""[1:] % params
+            trace += """
+    if (0 <= i+%(LANE)s && i+%(LANE)s < s1Len && 0 <= j-%(LANE)s && j-%(LANE)s < s2Len) {
+        array[(i+%(LANE)s)*s2Len + (j-%(LANE)s)] = (int8_t)%(VEXTRACT)s(vWH, %(LANE_END)s);
+    }\n"""[1:] % params
         for lane in range(params["LANES"]):
             params["LANE"] = lane
             params["LANE_END"] = params["LANES"]-lane-1
@@ -129,6 +136,7 @@ def generate_printer(params):
         print "bad printer name"
         sys.exit(1)
     params["PRINTER"] = text[:-1] # remove last newline
+    params["PRINTER_TRACE"] = trace[:-1] # remove last newline
     params["PRINTER_BIAS"] = bias[:-1] # remove last newline
     params["PRINTER_ROWCOL"] = rowcol[:-1] # remove last newline
     params["PRINTER_BIAS_ROWCOL"] = bias_rowcol[:-1] # remove last newline

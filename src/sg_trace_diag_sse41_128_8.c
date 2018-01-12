@@ -24,7 +24,7 @@
 
 
 static inline void arr_store_si128(
-        int *array,
+        int8_t *array,
         __m128i vWH,
         int32_t i,
         int32_t s1Len,
@@ -100,7 +100,7 @@ parasail_result_t* FNAME(
     int8_t * const restrict s2 = s2B+PAD; /* will allow later for negative indices */
     int8_t * const restrict H_pr = _H_pr+PAD;
     int8_t * const restrict F_pr = _F_pr+PAD;
-    parasail_result_t *result = parasail_result_new_trace(s1Len, s2Len, 16, sizeof(int));
+    parasail_result_t *result = parasail_result_new_trace(s1Len, s2Len, 16, sizeof(int8_t));
     int32_t i = 0;
     int32_t j = 0;
     int32_t end_query = 0;

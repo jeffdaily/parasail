@@ -104,7 +104,7 @@ static inline __m128i _mm_set1_epi64x_rpl(int64_t i) {
 
 
 static inline void arr_store_si128(
-        int *array,
+        int8_t *array,
         __m128i vWH,
         int32_t i,
         int32_t s1Len,
@@ -112,10 +112,10 @@ static inline void arr_store_si128(
         int32_t s2Len)
 {
     if (0 <= i+0 && i+0 < s1Len && 0 <= j-0 && j-0 < s2Len) {
-        array[(i+0)*s2Len + (j-0)] = (int64_t)_mm_extract_epi64_rpl(vWH, 1);
+        array[(i+0)*s2Len + (j-0)] = (int8_t)_mm_extract_epi64_rpl(vWH, 1);
     }
     if (0 <= i+1 && i+1 < s1Len && 0 <= j-1 && j-1 < s2Len) {
-        array[(i+1)*s2Len + (j-1)] = (int64_t)_mm_extract_epi64_rpl(vWH, 0);
+        array[(i+1)*s2Len + (j-1)] = (int8_t)_mm_extract_epi64_rpl(vWH, 0);
     }
 }
 
@@ -138,7 +138,7 @@ parasail_result_t* FNAME(
     int64_t * const restrict s2 = s2B+PAD; /* will allow later for negative indices */
     int64_t * const restrict H_pr = _H_pr+PAD;
     int64_t * const restrict F_pr = _F_pr+PAD;
-    parasail_result_t *result = parasail_result_new_trace(s1Len, s2Len, 16, sizeof(int));
+    parasail_result_t *result = parasail_result_new_trace(s1Len, s2Len, 16, sizeof(int8_t));
     int32_t i = 0;
     int32_t j = 0;
     int32_t end_query = 0;

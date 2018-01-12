@@ -36,8 +36,6 @@ static inline void CONCAT(NAME, T) (
     int c_ins = 0;
     int c_del = 0;
     D *HT = (D*)result->trace->trace_table;
-    D *ET = (D*)result->trace->trace_ins_table;
-    D *FT = (D*)result->trace->trace_del_table;
     int namelenA = (NULL == nameA) ? 0 : (int)strlen(nameA);
     int namelenB = (NULL == nameB) ? 0 : (int)strlen(nameB);
 #if defined(STRIPED)
@@ -118,24 +116,21 @@ static inline void CONCAT(NAME, T) (
             break;
         }
         if (PARASAIL_DIAG == where) {
-            if (HT[loc] == PARASAIL_DIAG) {
+            if (HT[loc] & PARASAIL_DIAG) {
                 *(qc++) = seqA[i];
                 *(dc++) = seqB[j];
                 *(ac++) = match_char(seqA[i], seqB[j], matrix, match, pos, neg);
                 --i;
                 --j;
             }
-            else if (HT[loc] == PARASAIL_INS) {
+            else if (HT[loc] & PARASAIL_INS) {
                 where = PARASAIL_INS;
             }
-            else if (HT[loc] == PARASAIL_DEL) {
+            else if (HT[loc] & PARASAIL_DEL) {
                 where = PARASAIL_DEL;
             }
-            else if (HT[loc] == PARASAIL_ZERO) {
-                break;
-            }
             else {
-                assert(0);
+                break;
             }
         }
         else if (PARASAIL_INS == where) {
@@ -144,10 +139,10 @@ static inline void CONCAT(NAME, T) (
             *(dc++) = seqB[j];
             *(ac++) = ' ';
             --j;
-            if (ET[loc] == PARASAIL_DIAG) {
+            if (HT[loc] & PARASAIL_DIAG_E) {
                 where = PARASAIL_DIAG;
             }
-            else if (ET[loc] == PARASAIL_INS) {
+            else if (HT[loc] & PARASAIL_INS_E) {
                 where = PARASAIL_INS;
             }
             else {
@@ -160,10 +155,10 @@ static inline void CONCAT(NAME, T) (
             *(dc++) = '-';
             *(ac++) = ' ';
             --i;
-            if (FT[loc] == PARASAIL_DIAG) {
+            if (HT[loc] & PARASAIL_DIAG_F) {
                 where = PARASAIL_DIAG;
             }
-            else if (FT[loc] == PARASAIL_DEL) {
+            else if (HT[loc] & PARASAIL_DEL_F) {
                 where = PARASAIL_DEL;
             }
             else {

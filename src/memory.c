@@ -245,10 +245,8 @@ parasail_result_t* parasail_result_new_trace(const int a, const int b, const siz
     assert(result->trace);
     result->trace->trace_table = parasail_memalign(alignment, size*a*b);
     assert(result->trace->trace_table);
-    result->trace->trace_ins_table = parasail_memalign(alignment, size*a*b);
-    assert(result->trace->trace_ins_table);
-    result->trace->trace_del_table = parasail_memalign(alignment, size*a*b);
-    assert(result->trace->trace_del_table);
+    result->trace->trace_ins_table = NULL;
+    result->trace->trace_del_table = NULL;
 
     return result;
 }
@@ -333,8 +331,10 @@ void parasail_result_free(parasail_result_t *result)
     }
     if (result->flag & PARASAIL_FLAG_TRACE) {
         parasail_free(result->trace->trace_table);
-        parasail_free(result->trace->trace_ins_table);
-        parasail_free(result->trace->trace_del_table);
+        if (NULL != result->trace->trace_ins_table)
+            parasail_free(result->trace->trace_ins_table);
+        if (NULL != result->trace->trace_del_table)
+            parasail_free(result->trace->trace_del_table);
         free(result->trace);
     }
 

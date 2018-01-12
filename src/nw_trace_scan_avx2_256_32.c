@@ -53,6 +53,15 @@ static inline void arr_store(
     _mm256_store_si256(array + (d*seglen+t), vH);
 }
 
+static inline __m256i arr_load(
+        __m256i *array,
+        int32_t t,
+        int32_t seglen,
+        int32_t d)
+{
+    return _mm256_load_si256(array + (d*seglen+t));
+}
+
 #define FNAME parasail_nw_trace_scan_avx2_256_32
 #define PNAME parasail_nw_trace_scan_profile_avx2_256_32
 
@@ -106,6 +115,10 @@ parasail_result_t* PNAME(
     __m256i vTIns  = _mm256_set1_epi32(PARASAIL_INS);
     __m256i vTDel  = _mm256_set1_epi32(PARASAIL_DEL);
     __m256i vTDiag = _mm256_set1_epi32(PARASAIL_DIAG);
+    __m256i vTDiagE = _mm256_set1_epi32(PARASAIL_DIAG_E);
+    __m256i vTInsE = _mm256_set1_epi32(PARASAIL_INS_E);
+    __m256i vTDiagF = _mm256_set1_epi32(PARASAIL_DIAG_F);
+    __m256i vTDelF = _mm256_set1_epi32(PARASAIL_DEL_F);
 
     vNegInfFront = _mm256_insert_epi32_rpl(vNegInfFront, NEG_LIMIT, 0);
     vSegLenXgap = _mm256_add_epi32(vNegInfFront,
@@ -164,6 +177,8 @@ parasail_result_t* PNAME(
         __m256i case2;
         __m256i vGapper;
         __m256i vT;
+        __m256i vET;
+        __m256i vFT;
 
         /* calculate E */
         /* calculate Ht */
@@ -182,8 +197,8 @@ parasail_result_t* PNAME(
             vE_opn = _mm256_sub_epi32(vH, vGapO);
             vE_ext = _mm256_sub_epi32(vE, vGapE);
             case1 = _mm256_cmpgt_epi32(vE_opn, vE_ext);
-            vT = _mm256_blendv_epi8(vTIns, vTDiag, case1);
-            arr_store(result->trace->trace_ins_table, vT, i, segLen, j);
+            vET = _mm256_blendv_epi8(vTInsE, vTDiagE, case1);
+            arr_store(result->trace->trace_table, vET, i, segLen, j);
             vE = _mm256_max_epi32(vE_opn, vE_ext);
             vSaturationCheckMin = _mm256_min_epi32(vSaturationCheckMin, vE);
             vGapper = _mm256_add_epi32(vHt, vGapper);
@@ -213,20 +228,22 @@ parasail_result_t* PNAME(
         vF = _mm256_add_epi32(vF, vNegInfFront);
         vH = _mm256_max_epi32(vF, vHt);
         for (i=0; i<segLen; ++i) {
+            vET = arr_load(result->trace->trace_table, i, segLen, j);
             vHp = _mm256_load_si256(pvH+i);
             vHt = _mm256_load_si256(pvHt+i);
             vF_opn = _mm256_sub_epi32(vH, vGapO);
             vF_ext = _mm256_sub_epi32(vF, vGapE);
             vF = _mm256_max_epi32(vF_opn, vF_ext);
             case1 = _mm256_cmpgt_epi32(vF_opn, vF_ext);
-            vT = _mm256_blendv_epi8(vTDel, vTDiag, case1);
-            arr_store(result->trace->trace_del_table, vT, i, segLen, j);
+            vFT = _mm256_blendv_epi8(vTDelF, vTDiagF, case1);
             vH = _mm256_max_epi32(vHt, vF);
             case1 = _mm256_cmpeq_epi32(vH, vHp);
             case2 = _mm256_cmpeq_epi32(vH, vF);
             vT = _mm256_blendv_epi8(
                     _mm256_blendv_epi8(vTIns, vTDel, case2),
                     vTDiag, case1);
+			vT = _mm256_or_si256(vT, vET);
+			vT = _mm256_or_si256(vT, vFT);
             arr_store(result->trace->trace_table, vT, i, segLen, j);
             _mm256_store_si256(pvH+i, vH);
             vSaturationCheckMin = _mm256_min_epi32(vSaturationCheckMin, vH);

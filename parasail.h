@@ -27,10 +27,17 @@ extern "C" {
                           PARASAIL_VERSION_PATCH)
 
 /* for traceback */
-#define PARASAIL_ZERO 0
-#define PARASAIL_INS  1
-#define PARASAIL_DEL  2
-#define PARASAIL_DIAG 3
+#define PARASAIL_ZERO_MASK 120 /* all bits set except the first three */
+#define PARASAIL_E_MASK 103 /* all bits set except the E bits */
+#define PARASAIL_F_MASK 31 /* all bits set except the F bits */
+#define PARASAIL_ZERO   0
+#define PARASAIL_INS    1
+#define PARASAIL_DEL    2
+#define PARASAIL_DIAG   4
+#define PARASAIL_DIAG_E 8
+#define PARASAIL_INS_E  16
+#define PARASAIL_DIAG_F 32
+#define PARASAIL_DEL_F  64
 
 /*                                            3         2         1          */
 /*                                           10987654321098765432109876543210*/
@@ -112,7 +119,7 @@ typedef struct parasail_result_extra_rowcols {
 } parasail_result_extra_rowcols_t;
 
 typedef struct parasail_result_extra_trace {
-    void * restrict trace_table;    /* DP table of score traceback */
+    void * restrict trace_table;    /* DP table of traceback */
     void * restrict trace_ins_table;/* DP table of insertions traceback */
     void * restrict trace_del_table;/* DP table of deletions traceback */
 } parasail_result_extra_trace_t;

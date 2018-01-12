@@ -31,6 +31,15 @@ static inline void arr_store(
     _mm_store_si128(array + (d*seglen+t), vH);
 }
 
+static inline vec128i arr_load(
+        vec128i *array,
+        int32_t t,
+        int32_t seglen,
+        int32_t d)
+{
+    return _mm_load_si128(array + (d*seglen+t));
+}
+
 #define FNAME parasail_sg_trace_striped_altivec_128_8
 #define PNAME parasail_sg_trace_striped_profile_altivec_128_8
 
@@ -83,6 +92,12 @@ parasail_result_t* PNAME(
     vec128i vTIns  = _mm_set1_epi8(PARASAIL_INS);
     vec128i vTDel  = _mm_set1_epi8(PARASAIL_DEL);
     vec128i vTDiag = _mm_set1_epi8(PARASAIL_DIAG);
+    vec128i vTDiagE = _mm_set1_epi8(PARASAIL_DIAG_E);
+    vec128i vTInsE = _mm_set1_epi8(PARASAIL_INS_E);
+    vec128i vTDiagF = _mm_set1_epi8(PARASAIL_DIAG_F);
+    vec128i vTDelF = _mm_set1_epi8(PARASAIL_DEL_F);
+    vec128i vTMask = _mm_set1_epi8(PARASAIL_ZERO_MASK);
+    vec128i vFTMask = _mm_set1_epi8(PARASAIL_F_MASK);
 
     /* initialize H and E */
     parasail_memset_vec128i(pvHStore, _mm_set1_epi8(0), segLen);
@@ -90,7 +105,7 @@ parasail_result_t* PNAME(
     parasail_memset_vec128i(pvEaStore, _mm_set1_epi8(-open), segLen);
 
     for (i=0; i<segLen; ++i) {
-        arr_store(result->trace->trace_ins_table, vTDiag, i, segLen, 0);
+        arr_store(result->trace->trace_table, vTDiagE, i, segLen, 0);
     }
 
     /* outer loop over database sequence */
@@ -140,12 +155,14 @@ parasail_result_t* PNAME(
             }
 
             {
+                vec128i vTAll = arr_load(result->trace->trace_table, i, segLen, j);
                 vec128i case1 = _mm_cmpeq_epi8(vH, vH_dag);
                 vec128i case2 = _mm_cmpeq_epi8(vH, vF);
                 vec128i vT = _mm_blendv_epi8(
                         _mm_blendv_epi8(vTIns, vTDel, case2),
                         vTDiag, case1);
                 _mm_store_si128(pvHT + i, vT);
+                vT = _mm_or_si128(vT, vTAll);
                 arr_store(result->trace->trace_table, vT, i, segLen, j);
             }
 
@@ -162,20 +179,20 @@ parasail_result_t* PNAME(
                 _mm_store_si128(pvEaStore + i, vEa);
                 if (j+1<s2Len) {
                     vec128i cond = _mm_cmpgt_epi8(vEF_opn, vEa_ext);
-                    vec128i vT = _mm_blendv_epi8(vTIns, vTDiag, cond);
-                    arr_store(result->trace->trace_ins_table, vT, i, segLen, j+1);
+                    vec128i vT = _mm_blendv_epi8(vTInsE, vTDiagE, cond);
+                    arr_store(result->trace->trace_table, vT, i, segLen, j+1);
                 }
             }
 
             /* Update vF value. */
             vF_ext = _mm_subs_epi8(vF, vGapE);
             vF = _mm_max_epi8(vEF_opn, vF_ext);
-            {
+			if (i+1<segLen) {
+                vec128i vTAll = arr_load(result->trace->trace_table, i+1, segLen, j);
                 vec128i cond = _mm_cmpgt_epi8(vEF_opn, vF_ext);
-                vec128i vT = _mm_blendv_epi8(vTDel, vTDiag, cond);
-                if (i+1<segLen) {
-                    arr_store(result->trace->trace_del_table, vT, i+1, segLen, j);
-                }
+                vec128i vT = _mm_blendv_epi8(vTDelF, vTDiagF, cond);
+                vT = _mm_or_si128(vT, vTAll);
+				arr_store(result->trace->trace_table, vT, i+1, segLen, j);
             }
 
             /* Load the next vH. */
@@ -211,6 +228,7 @@ parasail_result_t* PNAME(
                 vSaturationCheckMin = _mm_min_epi8(vSaturationCheckMin, vF);
             }
                 {
+                    vec128i vTAll;
                     vec128i vT;
                     vec128i case1;
                     vec128i case2;
@@ -219,30 +237,34 @@ parasail_result_t* PNAME(
                     case1 = _mm_cmpeq_epi8(vH, vHp);
                     case2 = _mm_cmpeq_epi8(vH, vF);
                     cond = _mm_andnot_si128(case1,case2);
+                    vTAll = arr_load(result->trace->trace_table, i, segLen, j);
                     vT = _mm_load_si128(pvHT + i);
                     vT = _mm_blendv_epi8(vT, vTDel, cond);
                     _mm_store_si128(pvHT + i, vT);
-                    arr_store(result->trace->trace_table, vT, i, segLen, j);
+                    vTAll = _mm_and_si128(vTAll, vTMask);
+                    vTAll = _mm_or_si128(vTAll, vT);
+                    arr_store(result->trace->trace_table, vTAll, i, segLen, j);
                 }
                 /* Update vF value. */
                 {
+                    vec128i vTAll = arr_load(result->trace->trace_table, i, segLen, j);
                     vec128i cond = _mm_cmpgt_epi8(vEF_opn, vFa_ext);
-                    vec128i vT = _mm_blendv_epi8(vTDel, vTDiag, cond);
-                    arr_store(result->trace->trace_del_table, vT, i, segLen, j);
+                    vec128i vT = _mm_blendv_epi8(vTDelF, vTDiagF, cond);
+                    vTAll = _mm_and_si128(vTAll, vFTMask);
+                    vTAll = _mm_or_si128(vTAll, vT);
+                    arr_store(result->trace->trace_table, vTAll, i, segLen, j);
                 }
                 vEF_opn = _mm_subs_epi8(vH, vGapO);
                 vF_ext = _mm_subs_epi8(vF, vGapE);
                 {
-                    vec128i vT;
-                    vec128i cond;
                     vec128i vEa = _mm_load_si128(pvEaLoad + i);
                     vec128i vEa_ext = _mm_subs_epi8(vEa, vGapE);
                     vEa = _mm_max_epi8(vEF_opn, vEa_ext);
                     _mm_store_si128(pvEaStore + i, vEa);
-                    cond = _mm_cmpgt_epi8(vEF_opn, vEa_ext);
-                    vT = _mm_blendv_epi8(vTIns, vTDiag, cond);
                     if (j+1<s2Len) {
-                        arr_store(result->trace->trace_ins_table, vT, i, segLen, j+1);
+						vec128i cond = _mm_cmpgt_epi8(vEF_opn, vEa_ext);
+						vec128i vT = _mm_blendv_epi8(vTInsE, vTDiagE, cond);
+                        arr_store(result->trace->trace_table, vT, i, segLen, j+1);
                     }
                 }
                 if (! _mm_movemask_epi8(

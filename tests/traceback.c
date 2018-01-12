@@ -243,8 +243,6 @@ int main(int argc, char **argv)
     }
     assert(parasail_result_is_trace(result));
     assert(result->trace->trace_table);
-    assert(result->trace->trace_ins_table);
-    assert(result->trace->trace_del_table);
 
     /* do the traceback */
     parasail_traceback_generic(seqA, lena, seqB, lenb,

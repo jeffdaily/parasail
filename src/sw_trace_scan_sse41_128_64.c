@@ -111,6 +111,15 @@ static inline void arr_store(
     _mm_store_si128(array + (d*seglen+t), vH);
 }
 
+static inline __m128i arr_load(
+        __m128i *array,
+        int32_t t,
+        int32_t seglen,
+        int32_t d)
+{
+    return _mm_load_si128(array + (d*seglen+t));
+}
+
 #define FNAME parasail_sw_trace_scan_sse41_128_64
 #define PNAME parasail_sw_trace_scan_profile_sse41_128_64
 
@@ -164,6 +173,10 @@ parasail_result_t* PNAME(
     __m128i vTIns  = _mm_set1_epi64x_rpl(PARASAIL_INS);
     __m128i vTDel  = _mm_set1_epi64x_rpl(PARASAIL_DEL);
     __m128i vTDiag = _mm_set1_epi64x_rpl(PARASAIL_DIAG);
+    __m128i vTDiagE = _mm_set1_epi64x_rpl(PARASAIL_DIAG_E);
+    __m128i vTInsE = _mm_set1_epi64x_rpl(PARASAIL_INS_E);
+    __m128i vTDiagF = _mm_set1_epi64x_rpl(PARASAIL_DIAG_F);
+    __m128i vTDelF = _mm_set1_epi64x_rpl(PARASAIL_DEL_F);
 
     vNegInfFront = _mm_insert_epi64_rpl(vNegInfFront, NEG_LIMIT, 0);
     vSegLenXgap = _mm_add_epi64(vNegInfFront,
@@ -197,6 +210,8 @@ parasail_result_t* PNAME(
         __m128i case0;
         __m128i vGapper;
         __m128i vT;
+        __m128i vET;
+        __m128i vFT;
 
         /* calculate E */
         /* calculate Ht */
@@ -214,8 +229,8 @@ parasail_result_t* PNAME(
             vE_opn = _mm_sub_epi64(vH, vGapO);
             vE_ext = _mm_sub_epi64(vE, vGapE);
             case1 = _mm_cmpgt_epi64_rpl(vE_opn, vE_ext);
-            vT = _mm_blendv_epi8(vTIns, vTDiag, case1);
-            arr_store(result->trace->trace_ins_table, vT, i, segLen, j);
+            vET = _mm_blendv_epi8(vTInsE, vTDiagE, case1);
+            arr_store(result->trace->trace_table, vET, i, segLen, j);
             vE = _mm_max_epi64_rpl(vE_opn, vE_ext);
             vGapper = _mm_add_epi64(vHt, vGapper);
             vF = _mm_max_epi64_rpl(vF, vGapper);
@@ -244,14 +259,14 @@ parasail_result_t* PNAME(
         vH = _mm_max_epi64_rpl(vF, vHt);
         vH = _mm_max_epi64_rpl(vH, vZero);
         for (i=0; i<segLen; ++i) {
+            vET = arr_load(result->trace->trace_table, i, segLen, j);
             vHp = _mm_load_si128(pvH+i);
             vHt = _mm_load_si128(pvHt+i);
             vF_opn = _mm_sub_epi64(vH, vGapO);
             vF_ext = _mm_sub_epi64(vF, vGapE);
             vF = _mm_max_epi64_rpl(vF_opn, vF_ext);
             case1 = _mm_cmpgt_epi64_rpl(vF_opn, vF_ext);
-            vT = _mm_blendv_epi8(vTDel, vTDiag, case1);
-            arr_store(result->trace->trace_del_table, vT, i, segLen, j);
+            vFT = _mm_blendv_epi8(vTDelF, vTDiagF, case1);
             vH = _mm_max_epi64_rpl(vHt, vF);
             vH = _mm_max_epi64_rpl(vH, vZero);
             case0 = _mm_cmpeq_epi64(vH, vZero);
@@ -261,6 +276,8 @@ parasail_result_t* PNAME(
                     _mm_blendv_epi8(vTIns, vTDel, case2),
                     vTDiag, case1);
             vT = _mm_blendv_epi8(vT, vTZero, case0);
+            vT = _mm_or_si128(vT, vET);
+            vT = _mm_or_si128(vT, vFT);
             arr_store(result->trace->trace_table, vT, i, segLen, j);
             _mm_store_si128(pvH+i, vH);
             vSaturationCheckMin = _mm_min_epi64_rpl(vSaturationCheckMin, vH);

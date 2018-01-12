@@ -19,7 +19,7 @@
 
 
 static inline void arr_store_si128(
-        int *array,
+        int8_t *array,
         vec128i vWH,
         int32_t i,
         int32_t s1Len,
@@ -27,16 +27,16 @@ static inline void arr_store_si128(
         int32_t s2Len)
 {
     if (0 <= i+0 && i+0 < s1Len && 0 <= j-0 && j-0 < s2Len) {
-        array[(i+0)*s2Len + (j-0)] = (int32_t)_mm_extract_epi32(vWH, 3);
+        array[(i+0)*s2Len + (j-0)] = (int8_t)_mm_extract_epi32(vWH, 3);
     }
     if (0 <= i+1 && i+1 < s1Len && 0 <= j-1 && j-1 < s2Len) {
-        array[(i+1)*s2Len + (j-1)] = (int32_t)_mm_extract_epi32(vWH, 2);
+        array[(i+1)*s2Len + (j-1)] = (int8_t)_mm_extract_epi32(vWH, 2);
     }
     if (0 <= i+2 && i+2 < s1Len && 0 <= j-2 && j-2 < s2Len) {
-        array[(i+2)*s2Len + (j-2)] = (int32_t)_mm_extract_epi32(vWH, 1);
+        array[(i+2)*s2Len + (j-2)] = (int8_t)_mm_extract_epi32(vWH, 1);
     }
     if (0 <= i+3 && i+3 < s1Len && 0 <= j-3 && j-3 < s2Len) {
-        array[(i+3)*s2Len + (j-3)] = (int32_t)_mm_extract_epi32(vWH, 0);
+        array[(i+3)*s2Len + (j-3)] = (int8_t)_mm_extract_epi32(vWH, 0);
     }
 }
 
@@ -59,7 +59,7 @@ parasail_result_t* FNAME(
     int32_t * const restrict s2 = s2B+PAD; /* will allow later for negative indices */
     int32_t * const restrict H_pr = _H_pr+PAD;
     int32_t * const restrict F_pr = _F_pr+PAD;
-    parasail_result_t *result = parasail_result_new_trace(s1Len, s2Len, 16, sizeof(int));
+    parasail_result_t *result = parasail_result_new_trace(s1Len, s2Len, 16, sizeof(int8_t));
     int32_t i = 0;
     int32_t j = 0;
     int32_t end_query = 0;
@@ -84,6 +84,10 @@ parasail_result_t* FNAME(
     vec128i vTDiag = _mm_set1_epi32(PARASAIL_DIAG);
     vec128i vTIns = _mm_set1_epi32(PARASAIL_INS);
     vec128i vTDel = _mm_set1_epi32(PARASAIL_DEL);
+	vec128i vTDiagE = _mm_set1_epi32(PARASAIL_DIAG_E);
+	vec128i vTInsE = _mm_set1_epi32(PARASAIL_INS_E);
+	vec128i vTDiagF = _mm_set1_epi32(PARASAIL_DIAG_F);
+	vec128i vTDelF = _mm_set1_epi32(PARASAIL_DEL_F);
     
 
     /* convert _s1 from char to int in range 0-23 */
@@ -183,11 +187,11 @@ parasail_result_t* FNAME(
                         case1);
                 vec128i condE = _mm_cmpgt_epi32(vE_opn, vE_ext);
                 vec128i condF = _mm_cmpgt_epi32(vF_opn, vF_ext);
-                vec128i vET = _mm_blendv_epi8(vTIns, vTDiag, condE);
-                vec128i vFT = _mm_blendv_epi8(vTDel, vTDiag, condF);
+                vec128i vET = _mm_blendv_epi8(vTInsE, vTDiagE, condE);
+                vec128i vFT = _mm_blendv_epi8(vTDelF, vTDiagF, condF);
+                vT = _mm_or_si128(vT, vET);
+                vT = _mm_or_si128(vT, vFT);
                 arr_store_si128(result->trace->trace_table, vT, i, s1Len, j, s2Len);
-                arr_store_si128(result->trace->trace_ins_table, vET, i, s1Len, j, s2Len);
-                arr_store_si128(result->trace->trace_del_table, vFT, i, s1Len, j, s2Len);
             }
             H_pr[j-3] = (int32_t)_mm_extract_epi32(vWH,0);
             F_pr[j-3] = (int32_t)_mm_extract_epi32(vF,0);

@@ -120,13 +120,7 @@ void parasail_traceback_generic(
         }
     }
     else {
-#if SIZEOF_INT == 2
-        parasail_traceback_16(seqA, lena, seqB, lenb, nameA, nameB, matrix, result, match, pos, neg, width, name_width, use_stats);
-#elif SIZEOF_INT == 4
-        parasail_traceback_32(seqA, lena, seqB, lenb, nameA, nameB, matrix, result, match, pos, neg, width, name_width, use_stats);
-#elif SIZEOF_INT == 8
-        parasail_traceback_64(seqA, lena, seqB, lenb, nameA, nameB, matrix, result, match, pos, neg, width, name_width, use_stats);
-#endif
+        parasail_traceback_8(seqA, lena, seqB, lenb, nameA, nameB, matrix, result, match, pos, neg, width, name_width, use_stats);
     }
 }
 

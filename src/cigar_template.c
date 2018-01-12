@@ -74,8 +74,6 @@ static inline parasail_cigar_t* CONCAT(NAME, T) (
     int j = result->end_ref;
     int where = PARASAIL_DIAG;
     D *HT = (D*)result->trace->trace_table;
-    D *ET = (D*)result->trace->trace_ins_table;
-    D *FT = (D*)result->trace->trace_del_table;
 #if defined(STRIPED)
     int32_t segWidth = 0;
     int32_t segLen = 0;
@@ -125,7 +123,8 @@ static inline parasail_cigar_t* CONCAT(NAME, T) (
             }
         }
         else {
-            assert(0);
+            parasail_cigar_free(cigar);
+            return NULL;
         }
     }
     while (i >= 0 || j >= 0) {
@@ -152,7 +151,7 @@ static inline parasail_cigar_t* CONCAT(NAME, T) (
             break;
         }
         if (PARASAIL_DIAG == where) {
-            if (HT[loc] == PARASAIL_DIAG) {
+            if (HT[loc] & PARASAIL_DIAG) {
                 if (seqA[i] == seqB[j]) {
                     if (0 == c_mat) {
                         WRITE_ANY;
@@ -168,17 +167,15 @@ static inline parasail_cigar_t* CONCAT(NAME, T) (
                 --i;
                 --j;
             }
-            else if (HT[loc] == PARASAIL_INS) {
+            else if (HT[loc] & PARASAIL_INS) {
                 where = PARASAIL_INS;
             }
-            else if (HT[loc] == PARASAIL_DEL) {
+            else if (HT[loc] & PARASAIL_DEL) {
                 where = PARASAIL_DEL;
             }
-            else if (HT[loc] == PARASAIL_ZERO) {
-                break;
-            }
+            /* no bits were set, so this is the zero condition */
             else {
-                assert(0);
+                break;
             }
         }
         else if (PARASAIL_INS == where) {
@@ -187,14 +184,15 @@ static inline parasail_cigar_t* CONCAT(NAME, T) (
             }
             c_ins += 1;
             --j;
-            if (ET[loc] == PARASAIL_DIAG) {
+            if (HT[loc] & PARASAIL_DIAG_E) {
                 where = PARASAIL_DIAG;
             }
-            else if (ET[loc] == PARASAIL_INS) {
+            else if (HT[loc] & PARASAIL_INS_E) {
                 where = PARASAIL_INS;
             }
             else {
-                assert(0);
+                parasail_cigar_free(cigar);
+                return NULL;
             }
         }
         else if (PARASAIL_DEL == where) {
@@ -203,21 +201,23 @@ static inline parasail_cigar_t* CONCAT(NAME, T) (
             }
             c_del += 1;
             --i;
-            if (FT[loc] == PARASAIL_DIAG) {
+            if (HT[loc] & PARASAIL_DIAG_F) {
                 where = PARASAIL_DIAG;
             }
-            else if (FT[loc] == PARASAIL_DEL) {
+            else if (HT[loc] & PARASAIL_DEL_F) {
                 where = PARASAIL_DEL;
             }
             else {
-                assert(0);
+                parasail_cigar_free(cigar);
+                return NULL;
             }
         }
         else if (PARASAIL_ZERO == where) {
             break;
         }
         else {
-            assert(0);
+            parasail_cigar_free(cigar);
+            return NULL;
         }
     }
 

@@ -221,15 +221,9 @@ parasail_cigar_t* parasail_result_get_cigar(
         }
     }
     else {
-#if SIZEOF_INT == 2
-        return parasail_cigar_16(seqA, lena, seqB, lenb, matrix, result);
-#elif SIZEOF_INT == 4
-        return parasail_cigar_32(seqA, lena, seqB, lenb, matrix, result);
-#elif SIZEOF_INT == 8
-        return parasail_cigar_64(seqA, lena, seqB, lenb, matrix, result);
-#endif
+        return parasail_cigar_8(seqA, lena, seqB, lenb, matrix, result);
     }
-    
+
     /* should not get here, but to silence warnings */
     return NULL;
 }

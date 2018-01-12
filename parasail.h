@@ -28,6 +28,8 @@ extern "C" {
 
 /* for traceback */
 #define PARASAIL_ZERO_MASK 120 /* all bits set except the first three */
+#define PARASAIL_E_MASK 103 /* all bits set except the E bits */
+#define PARASAIL_F_MASK 31 /* all bits set except the F bits */
 #define PARASAIL_ZERO   0
 #define PARASAIL_INS    1
 #define PARASAIL_DEL    2

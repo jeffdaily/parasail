@@ -31,6 +31,15 @@ static inline void arr_store(
     %(VSTORE)s(array + (d*seglen+t), vH);
 }
 
+static inline %(VTYPE)s arr_load(
+        %(VTYPE)s *array,
+        %(INDEX)s t,
+        %(INDEX)s seglen,
+        %(INDEX)s d)
+{
+    return %(VLOAD)s(array + (d*seglen+t));
+}
+
 #define FNAME %(NAME_TRACE)s
 #define PNAME %(PNAME_TRACE)s
 
@@ -76,10 +85,16 @@ parasail_result_t* PNAME(
     %(VTYPE)s vPosMask = %(VCMPEQ)s(%(VSET1)s(position),
             %(VSET)s(%(POSITION_MASK)s));
     %(SATURATION_CHECK_INIT)s
-    parasail_result_t *result = parasail_result_new_trace_old(segLen, s2Len, %(ALIGNMENT)s, sizeof(%(VTYPE)s));
+    parasail_result_t *result = parasail_result_new_trace(segLen, s2Len, %(ALIGNMENT)s, sizeof(%(VTYPE)s));
     %(VTYPE)s vTIns  = %(VSET1)s(PARASAIL_INS);
     %(VTYPE)s vTDel  = %(VSET1)s(PARASAIL_DEL);
     %(VTYPE)s vTDiag = %(VSET1)s(PARASAIL_DIAG);
+    %(VTYPE)s vTDiagE = %(VSET1)s(PARASAIL_DIAG_E);
+    %(VTYPE)s vTInsE = %(VSET1)s(PARASAIL_INS_E);
+    %(VTYPE)s vTDiagF = %(VSET1)s(PARASAIL_DIAG_F);
+    %(VTYPE)s vTDelF = %(VSET1)s(PARASAIL_DEL_F);
+    %(VTYPE)s vTMask = %(VSET1)s(PARASAIL_ZERO_MASK);
+    %(VTYPE)s vFTMask = %(VSET1)s(PARASAIL_F_MASK);
 
     /* initialize H and E */
     parasail_memset_%(VTYPE)s(pvHStore, %(VSET1)s(0), segLen);
@@ -87,7 +102,7 @@ parasail_result_t* PNAME(
     parasail_memset_%(VTYPE)s(pvEaStore, %(VSET1)s(-open), segLen);
 
     for (i=0; i<segLen; ++i) {
-        arr_store(result->trace->trace_ins_table, vTDiag, i, segLen, 0);
+        arr_store(result->trace->trace_table, vTDiagE, i, segLen, 0);
     }
 
     /* outer loop over database sequence */
@@ -131,12 +146,14 @@ parasail_result_t* PNAME(
             %(SATURATION_CHECK_MID)s
 
             {
+                %(VTYPE)s vTAll = arr_load(result->trace->trace_table, i, segLen, j);
                 %(VTYPE)s case1 = %(VCMPEQ)s(vH, vH_dag);
                 %(VTYPE)s case2 = %(VCMPEQ)s(vH, vF);
                 %(VTYPE)s vT = %(VBLEND)s(
                         %(VBLEND)s(vTIns, vTDel, case2),
                         vTDiag, case1);
                 %(VSTORE)s(pvHT + i, vT);
+                vT = %(VOR)s(vT, vTAll);
                 arr_store(result->trace->trace_table, vT, i, segLen, j);
             }
 
@@ -153,20 +170,20 @@ parasail_result_t* PNAME(
                 %(VSTORE)s(pvEaStore + i, vEa);
                 if (j+1<s2Len) {
                     %(VTYPE)s cond = %(VCMPGT)s(vEF_opn, vEa_ext);
-                    %(VTYPE)s vT = %(VBLEND)s(vTIns, vTDiag, cond);
-                    arr_store(result->trace->trace_ins_table, vT, i, segLen, j+1);
+                    %(VTYPE)s vT = %(VBLEND)s(vTInsE, vTDiagE, cond);
+                    arr_store(result->trace->trace_table, vT, i, segLen, j+1);
                 }
             }
 
             /* Update vF value. */
             vF_ext = %(VSUB)s(vF, vGapE);
             vF = %(VMAX)s(vEF_opn, vF_ext);
-            {
+			if (i+1<segLen) {
+                %(VTYPE)s vTAll = arr_load(result->trace->trace_table, i+1, segLen, j);
                 %(VTYPE)s cond = %(VCMPGT)s(vEF_opn, vF_ext);
-                %(VTYPE)s vT = %(VBLEND)s(vTDel, vTDiag, cond);
-                if (i+1<segLen) {
-                    arr_store(result->trace->trace_del_table, vT, i+1, segLen, j);
-                }
+                %(VTYPE)s vT = %(VBLEND)s(vTDelF, vTDiagF, cond);
+                vT = %(VOR)s(vT, vTAll);
+				arr_store(result->trace->trace_table, vT, i+1, segLen, j);
             }
 
             /* Load the next vH. */
@@ -196,6 +213,7 @@ parasail_result_t* PNAME(
                 %(VSTORE)s(pvHStore + i, vH);
                 %(SATURATION_CHECK_MID)s
                 {
+                    %(VTYPE)s vTAll;
                     %(VTYPE)s vT;
                     %(VTYPE)s case1;
                     %(VTYPE)s case2;
@@ -204,30 +222,34 @@ parasail_result_t* PNAME(
                     case1 = %(VCMPEQ)s(vH, vHp);
                     case2 = %(VCMPEQ)s(vH, vF);
                     cond = %(VANDNOT)s(case1,case2);
+                    vTAll = arr_load(result->trace->trace_table, i, segLen, j);
                     vT = %(VLOAD)s(pvHT + i);
                     vT = %(VBLEND)s(vT, vTDel, cond);
                     %(VSTORE)s(pvHT + i, vT);
-                    arr_store(result->trace->trace_table, vT, i, segLen, j);
+                    vTAll = %(VAND)s(vTAll, vTMask);
+                    vTAll = %(VOR)s(vTAll, vT);
+                    arr_store(result->trace->trace_table, vTAll, i, segLen, j);
                 }
                 /* Update vF value. */
                 {
+                    %(VTYPE)s vTAll = arr_load(result->trace->trace_table, i, segLen, j);
                     %(VTYPE)s cond = %(VCMPGT)s(vEF_opn, vFa_ext);
-                    %(VTYPE)s vT = %(VBLEND)s(vTDel, vTDiag, cond);
-                    arr_store(result->trace->trace_del_table, vT, i, segLen, j);
+                    %(VTYPE)s vT = %(VBLEND)s(vTDelF, vTDiagF, cond);
+                    vTAll = %(VAND)s(vTAll, vFTMask);
+                    vTAll = %(VOR)s(vTAll, vT);
+                    arr_store(result->trace->trace_table, vTAll, i, segLen, j);
                 }
                 vEF_opn = %(VSUB)s(vH, vGapO);
                 vF_ext = %(VSUB)s(vF, vGapE);
                 {
-                    %(VTYPE)s vT;
-                    %(VTYPE)s cond;
                     %(VTYPE)s vEa = %(VLOAD)s(pvEaLoad + i);
                     %(VTYPE)s vEa_ext = %(VSUB)s(vEa, vGapE);
                     vEa = %(VMAX)s(vEF_opn, vEa_ext);
                     %(VSTORE)s(pvEaStore + i, vEa);
-                    cond = %(VCMPGT)s(vEF_opn, vEa_ext);
-                    vT = %(VBLEND)s(vTIns, vTDiag, cond);
                     if (j+1<s2Len) {
-                        arr_store(result->trace->trace_ins_table, vT, i, segLen, j+1);
+						%(VTYPE)s cond = %(VCMPGT)s(vEF_opn, vEa_ext);
+						%(VTYPE)s vT = %(VBLEND)s(vTInsE, vTDiagE, cond);
+                        arr_store(result->trace->trace_table, vT, i, segLen, j+1);
                     }
                 }
                 if (! %(VMOVEMASK)s(

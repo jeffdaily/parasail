@@ -34,7 +34,9 @@
 #include <cstdlib>
 #include <cstring>
 #include <set>
+#include <sstream>
 #include <stack>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -396,14 +398,20 @@ int main(int argc, char **argv) {
                 funcname = optarg;
                 break;
             case 'b':
-                batch_size = atoll(optarg);
-                if (batch_size < 0) {
-                    print_help(progname, EXIT_FAILURE);
+                {
+                    std::string numStr = optarg;
+                    std::istringstream iss(numStr);
+                    iss>>batch_size;
+                    if (batch_size < 0) {
+                    eprintf(stderr, "batch size must be >= 0\n");
+                        print_help(progname, EXIT_FAILURE);
+                    }
                 }
                 break;
             case 'c':
                 cutoff = atoi(optarg);
                 if (cutoff <= 0) {
+                    eprintf(stderr, "cutoff must be > 0\n");
                     print_help(progname, EXIT_FAILURE);
                 }
                 break;
@@ -413,6 +421,7 @@ int main(int argc, char **argv) {
             case 'e':
                 gap_extend = atoi(optarg);
                 if (gap_extend < 0) {
+                    eprintf(stderr, "gap extend must be >= 0\n");
                     print_help(progname, EXIT_FAILURE);
                 }
                 break;
@@ -440,6 +449,7 @@ int main(int argc, char **argv) {
             case 'k':
                 kbandsize = atoi(optarg);
                 if (kbandsize <= 0) {
+                    eprintf(stderr, "band size must be > 0\n");
                     print_help(progname, EXIT_FAILURE);
                 }
                 break;
@@ -461,6 +471,7 @@ int main(int argc, char **argv) {
             case 'o':
                 gap_open = atoi(optarg);
                 if (gap_open < 0) {
+                    eprintf(stderr, "gap open must be >= 0\n");
                     print_help(progname, EXIT_FAILURE);
                 }
                 break;

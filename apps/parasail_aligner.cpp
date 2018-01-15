@@ -38,6 +38,9 @@
 
 #ifdef _OPENMP
 #include <omp.h>
+#define THREAD_DOC "      threads: system-specific default, must be >= 1\n"
+#else
+#define THREAD_DOC "      threads: Warning: ignored; OpenMP was not supported by your compiler\n"
 #endif
 
 #include "parasail.h"
@@ -125,7 +128,9 @@ inline static void output_edges(
         const vector<long> &BEG,
         const vector<long> &END,
         const PairVec &vpairs,
-        const vector<parasail_result_t*> &results);
+        const vector<parasail_result_t*> &results,
+        long long start,
+        long long stop);
 
 inline static void output_graph(
         FILE *fop,
@@ -139,7 +144,9 @@ inline static void output_graph(
         const vector<long> &BEG,
         const vector<long> &END,
         const PairVec &vpairs,
-        const vector<parasail_result_t*> &results);
+        const vector<parasail_result_t*> &results,
+        long long start,
+        long long stop);
 
 inline static void output_stats(
         FILE *fop,
@@ -148,7 +155,9 @@ inline static void output_stats(
         const vector<long> &BEG,
         const vector<long> &END,
         const PairVec &vpairs,
-        const vector<parasail_result_t*> &results);
+        const vector<parasail_result_t*> &results,
+        long long start,
+        long long stop);
 
 inline static void output_basic(
         FILE *fop,
@@ -157,7 +166,43 @@ inline static void output_basic(
         const vector<long> &BEG,
         const vector<long> &END,
         const PairVec &vpairs,
-        const vector<parasail_result_t*> &results);
+        const vector<parasail_result_t*> &results,
+        long long start,
+        long long stop);
+
+inline static void output_emboss(
+        bool has_query,
+        long sid_crossover,
+        const parasail_matrix_t *matrix,
+        const PairVec &vpairs,
+        parasail_sequences_t *queries,
+        parasail_sequences_t *sequences,
+        const vector<parasail_result_t*> &results,
+        long long start,
+        long long stop);
+
+inline static void output_ssw(
+        bool has_query,
+        long sid_crossover,
+        const parasail_matrix_t *matrix,
+        const PairVec &vpairs,
+        parasail_sequences_t *queries,
+        parasail_sequences_t *sequences,
+        const vector<parasail_result_t*> &results,
+        long long start,
+        long long stop);
+
+inline static void output_sam(
+        bool use_sam_header,
+        bool has_query,
+        long sid_crossover,
+        const parasail_matrix_t *matrix,
+        const PairVec &vpairs,
+        parasail_sequences_t *queries,
+        parasail_sequences_t *sequences,
+        const vector<parasail_result_t*> &results,
+        long long start,
+        long long stop);
 
 inline static void output_trace(
         FILE *fop,
@@ -168,7 +213,9 @@ inline static void output_trace(
         const vector<long> &BEG,
         const vector<long> &END,
         const PairVec &vpairs,
-        const vector<parasail_result_t*> &results);
+        const vector<parasail_result_t*> &results,
+        long long start,
+        long long stop);
 
 inline static void output_tables(
         bool has_query,
@@ -177,7 +224,37 @@ inline static void output_tables(
         const vector<long> &BEG,
         const vector<long> &END,
         const PairVec &vpairs,
-        const vector<parasail_result_t*> &results);
+        const vector<parasail_result_t*> &results,
+        long long start,
+        long long stop);
+
+inline static void output(
+        bool is_stats,
+        bool is_table,
+        bool is_trace,
+        bool edge_output,
+        bool graph_output,
+        bool use_emboss_format,
+        bool use_ssw_format,
+        bool use_sam_format,
+        bool use_sam_header,
+        FILE *fop,
+        bool has_query,
+        long sid_crossover,
+        unsigned long sid,
+        unsigned char *T,
+        int AOL,
+        int SIM,
+        int OS,
+        const parasail_matrix_t *matrix,
+        const vector<long> &BEG,
+        const vector<long> &END,
+        const PairVec &vpairs,
+        parasail_sequences_t *queries,
+        parasail_sequences_t *sequences,
+        const vector<parasail_result_t*> &results,
+        long long start,
+        long long stop);
 
 static void print_help(const char *progname, int status) {
     eprintf(stderr, "\nusage: %s "
@@ -200,6 +277,7 @@ static void print_help(const char *progname, int status) {
             "[-q query_file] "
             "[-g output_file] "
             "[-O output_format {EMBOSS,SAM,SAMH,SSW}] "
+            "[-b batch_size] "
             "\n\n",
             progname);
     eprintf(stderr, "Defaults:\n"
@@ -212,11 +290,7 @@ static void print_help(const char *progname, int status) {
             "           -d: if present, assume DNA alphabet\n"
             "        match: 1, must be >= 0\n"
             "     mismatch: 0, must be >= 0\n"
-#ifdef _OPENMP
-            "      threads: system-specific default, must be >= 1\n"
-#else
-            "      threads: Warning: ignored; OpenMP was not supported by your compiler\n"
-#endif
+THREAD_DOC
             "          AOL: 80, must be 0 <= AOL <= 100, percent alignment length\n"
             "          SIM: 40, must be 0 <= SIM <= 100, percent exact matches\n"
             "           OS: 30, must be 0 <= OS <= 100, percent optimal score over self score\n"
@@ -225,6 +299,7 @@ static void print_help(const char *progname, int status) {
             "   query_file: no default, must be in FASTA format\n"
             "  output_file: parasail.csv\n"
             "output_format: no deafult, must be one of {EMBOSS,SAM,SAMH,SSW}\n"
+            "   batch_size: 0 (all), how many alignments before writing output\n"
             );
     exit(status);
 }
@@ -293,12 +368,19 @@ int main(int argc, char **argv) {
     int SIM = 40;
     int OS = 30;
     bool verbose = false;
+    long long batch_size = 0;
 
     /* Check arguments. */
-    while ((c = getopt(argc, argv, "a:c:de:Ef:g:Ghi:k:l:m:M:o:O:pq:s:t:vxX:")) != -1) {
+    while ((c = getopt(argc, argv, "a:b:c:de:Ef:g:Ghi:k:l:m:M:o:O:pq:s:t:vxX:")) != -1) {
         switch (c) {
             case 'a':
                 funcname = optarg;
+                break;
+            case 'b':
+                batch_size = atoll(optarg);
+                if (batch_size < 0) {
+                    print_help(progname, EXIT_FAILURE);
+                }
                 break;
             case 'c':
                 cutoff = atoi(optarg);
@@ -555,7 +637,8 @@ int main(int argc, char **argv) {
                 "%20s: %d\n"
                 "%20s: %s\n"
                 "%20s: %s\n"
-                "%20s: %s\n",
+                "%20s: %s\n"
+                "%20s: %lld\n",
                 "funcname", funcname,
                 "cutoff", cutoff,
                 "use filter", use_filter ? "yes" : "no",
@@ -567,7 +650,8 @@ int main(int argc, char **argv) {
                 "OS", OS,
                 "file", fname,
                 "query", (NULL == qname) ? "<no query>" : qname,
-                "output", oname
+                "output", oname,
+                "batch_size", batch_size
                     );
         if (use_dna) {
             eprintf(stdout,
@@ -942,17 +1026,14 @@ int main(int argc, char **argv) {
             eprintf(stdout, "%20s: %.4f seconds\n", "profile init", finish-start);
         }
         start = parasail_time();
-#pragma omp parallel
+#pragma omp parallel for schedule(guided)
+        for (long long index=0; index<(long long)profile_indices.size(); ++index)
         {
-#pragma omp for schedule(guided)
-            for (long long index=0; index<(long long)profile_indices.size(); ++index)
-            {
-                int i = profile_indices[index];
-                long i_beg = BEG[i];
-                long i_end = END[i];
-                long i_len = i_end-i_beg;
-                profiles[i] = pcreator((const char*)&T[i_beg], i_len, matrix);
-            }
+            int i = profile_indices[index];
+            long i_beg = BEG[i];
+            long i_end = END[i];
+            long i_len = i_end-i_beg;
+            profiles[i] = pcreator((const char*)&T[i_beg], i_len, matrix);
         }
         finish = parasail_time();
         if (verbose) {
@@ -963,10 +1044,13 @@ int main(int argc, char **argv) {
     /* align pairs */
     start = parasail_time();
     if (function) {
-#pragma omp parallel
-            {
-#pragma omp for schedule(guided)
-            for (long long index=0; index<(long long)vpairs.size(); ++index)
+        long long vpairs_size = (long long)vpairs.size();
+        long long step = batch_size ? batch_size : vpairs_size;
+        for (long long start=0; start<vpairs_size; start+=step) {
+            long long stop = start+step;
+            if (stop > vpairs_size) stop = vpairs_size;
+#pragma omp parallel for schedule(guided)
+            for (long long index=start; index<stop; ++index)
             {
                 int i = vpairs[index].first;
                 int j = vpairs[index].second;
@@ -985,13 +1069,25 @@ int main(int argc, char **argv) {
                 work += local_work;
                 results[index] = result;
             }
+            output(is_stats, is_table, is_trace, edge_output, graph_output,
+                    use_emboss_format, use_ssw_format, use_sam_format,
+                    use_sam_header, fop, has_query, sid_crossover, sid, T, AOL,
+                    SIM, OS, matrix, BEG, END, vpairs, queries, sequences,
+                    results, start, stop);
+            for (long long index=start; index<stop; ++index) {
+                parasail_result_t *result = results[index];
+                parasail_result_free(result);
+            }
         }
     }
     else if (is_banded) {
-#pragma omp parallel
-        {
-#pragma omp for schedule(guided)
-            for (long long index=0; index<(long long)vpairs.size(); ++index)
+        long long vpairs_size = (long long)vpairs.size();
+        long long step = batch_size ? batch_size : vpairs_size;
+        for (long long start=0; start<vpairs_size; start+=step) {
+            long long stop = start+step;
+            if (stop > vpairs_size) stop = vpairs_size;
+#pragma omp parallel for schedule(guided)
+            for (long long index=start; index<stop; ++index)
             {
                 int i = vpairs[index].first;
                 int j = vpairs[index].second;
@@ -1010,13 +1106,25 @@ int main(int argc, char **argv) {
                 work += local_work;
                 results[index] = result;
             }
+            output(is_stats, is_table, is_trace, edge_output, graph_output,
+                    use_emboss_format, use_ssw_format, use_sam_format,
+                    use_sam_header, fop, has_query, sid_crossover, sid, T, AOL,
+                    SIM, OS, matrix, BEG, END, vpairs, queries, sequences,
+                    results, start, stop);
+            for (long long index=start; index<stop; ++index) {
+                parasail_result_t *result = results[index];
+                parasail_result_free(result);
+            }
         }
     }
     else if (pfunction) {
-#pragma omp parallel
-        {
-#pragma omp for schedule(guided)
-            for (long long index=0; index<(long long)vpairs.size(); ++index)
+        long long vpairs_size = (long long)vpairs.size();
+        long long step = batch_size ? batch_size : vpairs_size;
+        for (long long start=0; start<vpairs_size; start+=step) {
+            long long stop = start+step;
+            if (stop > vpairs_size) stop = vpairs_size;
+#pragma omp parallel for schedule(guided)
+            for (long long index=start; index<stop; ++index)
             {
                 int i = vpairs[index].first;
                 int j = vpairs[index].second;
@@ -1036,6 +1144,15 @@ int main(int argc, char **argv) {
                 work += local_work;
                 results[index] = result;
             }
+            output(is_stats, is_table, is_trace, edge_output, graph_output,
+                    use_emboss_format, use_ssw_format, use_sam_format,
+                    use_sam_header, fop, has_query, sid_crossover, sid, T, AOL,
+                    SIM, OS, matrix, BEG, END, vpairs, queries, sequences,
+                    results, start, stop);
+            for (long long index=start; index<stop; ++index) {
+                parasail_result_t *result = results[index];
+                parasail_result_free(result);
+            }
         }
     }
     else {
@@ -1052,244 +1169,18 @@ int main(int argc, char **argv) {
 
     if (pfunction) {
         start = parasail_time();
-#pragma omp parallel
+#pragma omp parallel for schedule(guided)
+        for (long long index=0; index<(long long)profiles.size(); ++index)
         {
-#pragma omp for schedule(guided)
-            for (long long index=0; index<(long long)profiles.size(); ++index)
-            {
-                if (NULL != profiles[index]) {
-                    parasail_profile_free(profiles[index]);
-                }
+            if (NULL != profiles[index]) {
+                parasail_profile_free(profiles[index]);
             }
-            profiles.clear();
         }
+        profiles.clear();
         finish = parasail_time();
         if (verbose) {
             eprintf(stdout, "%20s: %.4f seconds\n", "profile cleanup", finish-start);
         }
-    }
-
-    /* Output results. */
-    if (is_stats) {
-        if (edge_output) {
-            output_edges(fop, has_query, sid_crossover, T, AOL, SIM, OS, matrix, BEG, END, vpairs, results);
-        }
-        else if (graph_output) {
-            output_graph(fop, 0, sid, T, AOL, SIM, OS, matrix, BEG, END, vpairs, results);
-        }
-        else {
-            output_stats(fop, has_query, sid_crossover, BEG, END, vpairs, results);
-        }
-    }
-    else if (is_trace) {
-        if (use_emboss_format) {
-            for (size_t index=0; index<results.size(); ++index) {
-                parasail_result_t *result = results[index];
-                int i = vpairs[index].first;
-                int j = vpairs[index].second;
-
-                if (has_query) {
-                    i = i - sid_crossover;
-                    parasail_traceback_generic(
-                            queries->seqs[i].seq.s,
-                            queries->seqs[i].seq.l,
-                            sequences->seqs[j].seq.s,
-                            sequences->seqs[j].seq.l,
-                            queries->seqs[i].name.s,
-                            sequences->seqs[j].name.s,
-                            matrix,
-                            result,
-                            '|', ':', '.',
-                            50,
-                            14,
-                            1);
-                }
-                else {
-                    parasail_traceback_generic(
-                            sequences->seqs[i].seq.s,
-                            sequences->seqs[i].seq.l,
-                            sequences->seqs[j].seq.s,
-                            sequences->seqs[j].seq.l,
-                            sequences->seqs[i].name.s,
-                            sequences->seqs[j].name.s,
-                            matrix,
-                            result,
-                            '|', ':', '.',
-                            50,
-                            14,
-                            1);
-                }
-            }
-        }
-        else if (use_ssw_format) {
-            for (size_t index=0; index<results.size(); ++index) {
-                parasail_result_t *result = results[index];
-                int i = vpairs[index].first;
-                int j = vpairs[index].second;
-                parasail_cigar_t *cigar = NULL;
-
-                if (has_query) {
-                    i = i - sid_crossover;
-                    printf("target_name: %s\n", sequences->seqs[j].name.s);
-                    printf("query_name: %s\n", queries->seqs[i].name.s);
-                    cigar = parasail_result_get_cigar(result,
-                            queries->seqs[i].seq.s,
-                            queries->seqs[i].seq.l,
-                            sequences->seqs[j].seq.s,
-                            sequences->seqs[j].seq.l,
-                            matrix);
-                }
-                else {
-                    printf("target_name: %s\n", sequences->seqs[j].name.s);
-                    printf("query_name: %s\n", sequences->seqs[i].name.s);
-                    cigar = parasail_result_get_cigar(result,
-                            sequences->seqs[i].seq.s,
-                            sequences->seqs[i].seq.l,
-                            sequences->seqs[j].seq.s,
-                            sequences->seqs[j].seq.l,
-                            matrix);
-                }
-
-                printf("optimal_alignment_score: %d"
-                        "\tstrand: +"
-                        "\ttarget_begin: %d"
-                        "\ttarget_end: %d"
-                        "\tquery_begin: %d"
-                        "\tquery_end: %d\n",
-                        result->score,
-                        cigar->beg_ref+1,
-                        parasail_result_get_end_ref(result)+1,
-                        cigar->beg_query+1,
-                        parasail_result_get_end_query(result)+1);
-
-                /* we only needed the cigar for beginning locations */
-                parasail_cigar_free(cigar);
-
-                if (has_query) {
-                    parasail_traceback_generic(
-                            queries->seqs[i].seq.s,
-                            queries->seqs[i].seq.l,
-                            sequences->seqs[j].seq.s,
-                            sequences->seqs[j].seq.l,
-                            "Query:",
-                            "Target:",
-                            matrix,
-                            result,
-                            '|', '*', '*',
-                            60,
-                            10,
-                            0);
-                }
-                else {
-                    parasail_traceback_generic(
-                            sequences->seqs[i].seq.s,
-                            sequences->seqs[i].seq.l,
-                            sequences->seqs[j].seq.s,
-                            sequences->seqs[j].seq.l,
-                            "Query:",
-                            "Target:",
-                            matrix,
-                            result,
-                            '|', '*', '*',
-                            60,
-                            10,
-                            0);
-                }
-            }
-        }
-        else if (use_sam_format) {
-            if (use_sam_header && has_query) {
-                fprintf(stdout, "@HD\tVN:1.4\tSO:queryname\n");
-                for (size_t index=0; index<sequences->l; ++index) {
-                    parasail_sequence_t ref_seq = sequences->seqs[index];
-                    fprintf(stdout, "@SQ\tSN:%s\tLN:%d\n",
-                            ref_seq.name.s, (int32_t)ref_seq.seq.l);
-                }
-            }
-            for (size_t index=0; index<results.size(); ++index) {
-                parasail_result_t *result = results[index];
-                int i = vpairs[index].first;
-                int j = vpairs[index].second;
-                parasail_sequence_t ref_seq;
-                parasail_sequence_t read_seq;
-
-                ref_seq = sequences->seqs[j];
-                if (has_query) {
-                    i = i - sid_crossover;
-                    read_seq = queries->seqs[i];
-                }
-                else {
-                    read_seq = sequences->seqs[i];
-                }
-
-                fprintf(stdout, "%s\t", read_seq.name.s);
-                if (result->score == 0) {
-                    fprintf(stdout, "4\t*\t0\t255\t*\t*\t0\t0\t*\t*\n");
-                }
-                else {
-                    int32_t c = 0;
-                    int32_t length = 0;
-                    uint32_t mapq = 255; /* not available */
-                    parasail_cigar_t *cigar = NULL;
-                    uint32_t mismatch = 0;
-
-                    cigar = parasail_result_get_cigar(
-                            result,
-                            read_seq.seq.s, read_seq.seq.l,
-                            ref_seq.seq.s, ref_seq.seq.l,
-                            matrix);
-
-                    fprintf(stdout, "0\t");
-                    fprintf(stdout, "%s\t%d\t%d\t",
-                            ref_seq.name.s, cigar->beg_ref + 1, mapq);
-                    if (cigar->beg_query > 0) {
-                        fprintf(stdout, "%dS", cigar->beg_query);
-                    }
-                    for (c=0; c<cigar->len; ++c) {
-                        char letter = parasail_cigar_decode_op(cigar->seq[c]);
-                        uint32_t length = parasail_cigar_decode_len(cigar->seq[c]);
-                        fprintf(stdout, "%lu%c", (unsigned long)length, letter);
-                        if ('X' == letter || 'I' == letter || 'D' == letter) {
-                            mismatch += length;
-                        }
-                    }
-
-                    length = read_seq.seq.l - result->end_query - 1;
-                    if (length > 0) {
-                        fprintf(stdout, "%dS", length);
-                    }
-                    fprintf(stdout, "\t*\t0\t0\t");
-                    fprintf(stdout, "%s", read_seq.seq.s);
-                    fprintf(stdout, "\t");
-                    if (read_seq.qual.s) {
-                        fprintf (stdout, "%s", read_seq.qual.s);
-                    }
-                    else {
-                        fprintf(stdout, "*");
-                    }
-                    fprintf(stdout, "\tAS:i:%d", result->score);
-                    fprintf(stdout,"\tNM:i:%d\t", mismatch);
-                    fprintf(stdout, "\n");
-
-                    parasail_cigar_free(cigar);
-                }
-            }
-        }
-        else {
-            output_trace(fop, has_query, sid_crossover, T, matrix, BEG, END, vpairs, results);
-        }
-    }
-    else {
-        output_basic(fop, has_query, sid_crossover, BEG, END, vpairs, results);
-    }
-    if (is_table) {
-        output_tables(has_query, sid_crossover, T, BEG, END, vpairs, results);
-    }
-
-    /* free results */
-    for (size_t index=0; index<results.size(); ++index) {
-        parasail_result_t *result = results[index];
-        parasail_result_free(result);
     }
 
     /* close output file */
@@ -1454,10 +1345,12 @@ inline static void output_edges(
         const vector<long> &BEG,
         const vector<long> &END,
         const PairVec &vpairs,
-        const vector<parasail_result_t*> &results)
+        const vector<parasail_result_t*> &results,
+        long long start,
+        long long stop)
 {
     unsigned long edge_count = 0;
-    for (size_t index=0; index<results.size(); ++index) {
+    for (long long index=start; index<stop; ++index) {
         parasail_result_t *result = results[index];
         int i = vpairs[index].first;
         int j = vpairs[index].second;
@@ -1518,11 +1411,13 @@ inline static void output_graph(
         const vector<long> &BEG,
         const vector<long> &END,
         const PairVec &vpairs,
-        const vector<parasail_result_t*> &results)
+        const vector<parasail_result_t*> &results,
+        long long start,
+        long long stop)
 {
     vector<vector<pair<int,float> > > graph(sid);
     unsigned long edge_count = 0;
-    for (size_t index=0; index<results.size(); ++index) {
+    for (long long index=start; index<stop; ++index) {
         parasail_result_t *result = results[index];
         int i = vpairs[index].first;
         int j = vpairs[index].second;
@@ -1596,9 +1491,11 @@ inline static void output_stats(
         const vector<long> &BEG,
         const vector<long> &END,
         const PairVec &vpairs,
-        const vector<parasail_result_t*> &results)
+        const vector<parasail_result_t*> &results,
+        long long start,
+        long long stop)
 {
-    for (size_t index=0; index<results.size(); ++index) {
+    for (long long index=start; index<stop; ++index) {
         parasail_result_t *result = results[index];
         int i = vpairs[index].first;
         int j = vpairs[index].second;
@@ -1634,9 +1531,11 @@ inline static void output_basic(
         const vector<long> &BEG,
         const vector<long> &END,
         const PairVec &vpairs,
-        const vector<parasail_result_t*> &results)
+        const vector<parasail_result_t*> &results,
+        long long start,
+        long long stop)
 {
-    for (size_t index=0; index<results.size(); ++index) {
+    for (long long index=start; index<stop; ++index) {
         parasail_result_t *result = results[index];
         int i = vpairs[index].first;
         int j = vpairs[index].second;
@@ -1662,6 +1561,233 @@ inline static void output_basic(
     }
 }
 
+inline static void output_emboss(
+        bool has_query,
+        long sid_crossover,
+        const parasail_matrix_t *matrix,
+        const PairVec &vpairs,
+        parasail_sequences_t *queries,
+        parasail_sequences_t *sequences,
+        const vector<parasail_result_t*> &results,
+        long long start,
+        long long stop)
+{
+    for (long long index=start; index<stop; ++index) {
+        parasail_result_t *result = results[index];
+        int i = vpairs[index].first;
+        int j = vpairs[index].second;
+
+        if (has_query) {
+            i = i - sid_crossover;
+            parasail_traceback_generic(
+                    queries->seqs[i].seq.s,
+                    queries->seqs[i].seq.l,
+                    sequences->seqs[j].seq.s,
+                    sequences->seqs[j].seq.l,
+                    queries->seqs[i].name.s,
+                    sequences->seqs[j].name.s,
+                    matrix,
+                    result,
+                    '|', ':', '.',
+                    50,
+                    14,
+                    1);
+        }
+        else {
+            parasail_traceback_generic(
+                    sequences->seqs[i].seq.s,
+                    sequences->seqs[i].seq.l,
+                    sequences->seqs[j].seq.s,
+                    sequences->seqs[j].seq.l,
+                    sequences->seqs[i].name.s,
+                    sequences->seqs[j].name.s,
+                    matrix,
+                    result,
+                    '|', ':', '.',
+                    50,
+                    14,
+                    1);
+        }
+    }
+}
+
+inline static void output_ssw(
+        bool has_query,
+        long sid_crossover,
+        const parasail_matrix_t *matrix,
+        const PairVec &vpairs,
+        parasail_sequences_t *queries,
+        parasail_sequences_t *sequences,
+        const vector<parasail_result_t*> &results,
+        long long start,
+        long long stop)
+{
+    for (long long index=start; index<stop; ++index) {
+        parasail_result_t *result = results[index];
+        int i = vpairs[index].first;
+        int j = vpairs[index].second;
+        parasail_cigar_t *cigar = NULL;
+
+        if (has_query) {
+            i = i - sid_crossover;
+            printf("target_name: %s\n", sequences->seqs[j].name.s);
+            printf("query_name: %s\n", queries->seqs[i].name.s);
+            cigar = parasail_result_get_cigar(result,
+                    queries->seqs[i].seq.s,
+                    queries->seqs[i].seq.l,
+                    sequences->seqs[j].seq.s,
+                    sequences->seqs[j].seq.l,
+                    matrix);
+        }
+        else {
+            printf("target_name: %s\n", sequences->seqs[j].name.s);
+            printf("query_name: %s\n", sequences->seqs[i].name.s);
+            cigar = parasail_result_get_cigar(result,
+                    sequences->seqs[i].seq.s,
+                    sequences->seqs[i].seq.l,
+                    sequences->seqs[j].seq.s,
+                    sequences->seqs[j].seq.l,
+                    matrix);
+        }
+
+        printf("optimal_alignment_score: %d"
+                "\tstrand: +"
+                "\ttarget_begin: %d"
+                "\ttarget_end: %d"
+                "\tquery_begin: %d"
+                "\tquery_end: %d\n",
+                result->score,
+                cigar->beg_ref+1,
+                parasail_result_get_end_ref(result)+1,
+                cigar->beg_query+1,
+                parasail_result_get_end_query(result)+1);
+
+        /* we only needed the cigar for beginning locations */
+        parasail_cigar_free(cigar);
+
+        if (has_query) {
+            parasail_traceback_generic(
+                    queries->seqs[i].seq.s,
+                    queries->seqs[i].seq.l,
+                    sequences->seqs[j].seq.s,
+                    sequences->seqs[j].seq.l,
+                    "Query:",
+                    "Target:",
+                    matrix,
+                    result,
+                    '|', '*', '*',
+                    60,
+                    10,
+                    0);
+        }
+        else {
+            parasail_traceback_generic(
+                    sequences->seqs[i].seq.s,
+                    sequences->seqs[i].seq.l,
+                    sequences->seqs[j].seq.s,
+                    sequences->seqs[j].seq.l,
+                    "Query:",
+                    "Target:",
+                    matrix,
+                    result,
+                    '|', '*', '*',
+                    60,
+                    10,
+                    0);
+        }
+    }
+}
+
+inline static void output_sam(
+        bool use_sam_header,
+        bool has_query,
+        long sid_crossover,
+        const parasail_matrix_t *matrix,
+        const PairVec &vpairs,
+        parasail_sequences_t *queries,
+        parasail_sequences_t *sequences,
+        const vector<parasail_result_t*> &results,
+        long long start,
+        long long stop)
+{
+    if (use_sam_header && has_query && 0 == start) {
+        fprintf(stdout, "@HD\tVN:1.4\tSO:queryname\n");
+        for (size_t index=0; index<sequences->l; ++index) {
+            parasail_sequence_t ref_seq = sequences->seqs[index];
+            fprintf(stdout, "@SQ\tSN:%s\tLN:%d\n",
+                    ref_seq.name.s, (int32_t)ref_seq.seq.l);
+        }
+    }
+    for (long long index=start; index<stop; ++index) {
+        parasail_result_t *result = results[index];
+        int i = vpairs[index].first;
+        int j = vpairs[index].second;
+        parasail_sequence_t ref_seq;
+        parasail_sequence_t read_seq;
+
+        ref_seq = sequences->seqs[j];
+        if (has_query) {
+            i = i - sid_crossover;
+            read_seq = queries->seqs[i];
+        }
+        else {
+            read_seq = sequences->seqs[i];
+        }
+
+        fprintf(stdout, "%s\t", read_seq.name.s);
+        if (result->score == 0) {
+            fprintf(stdout, "4\t*\t0\t255\t*\t*\t0\t0\t*\t*\n");
+        }
+        else {
+            int32_t c = 0;
+            int32_t length = 0;
+            uint32_t mapq = 255; /* not available */
+            parasail_cigar_t *cigar = NULL;
+            uint32_t mismatch = 0;
+
+            cigar = parasail_result_get_cigar(
+                    result,
+                    read_seq.seq.s, read_seq.seq.l,
+                    ref_seq.seq.s, ref_seq.seq.l,
+                    matrix);
+
+            fprintf(stdout, "0\t");
+            fprintf(stdout, "%s\t%d\t%d\t",
+                    ref_seq.name.s, cigar->beg_ref + 1, mapq);
+            if (cigar->beg_query > 0) {
+                fprintf(stdout, "%dS", cigar->beg_query);
+            }
+            for (c=0; c<cigar->len; ++c) {
+                char letter = parasail_cigar_decode_op(cigar->seq[c]);
+                uint32_t length = parasail_cigar_decode_len(cigar->seq[c]);
+                fprintf(stdout, "%lu%c", (unsigned long)length, letter);
+                if ('X' == letter || 'I' == letter || 'D' == letter) {
+                    mismatch += length;
+                }
+            }
+
+            length = read_seq.seq.l - result->end_query - 1;
+            if (length > 0) {
+                fprintf(stdout, "%dS", length);
+            }
+            fprintf(stdout, "\t*\t0\t0\t");
+            fprintf(stdout, "%s", read_seq.seq.s);
+            fprintf(stdout, "\t");
+            if (read_seq.qual.s) {
+                fprintf (stdout, "%s", read_seq.qual.s);
+            }
+            else {
+                fprintf(stdout, "*");
+            }
+            fprintf(stdout, "\tAS:i:%d", result->score);
+            fprintf(stdout,"\tNM:i:%d\t", mismatch);
+            fprintf(stdout, "\n");
+
+            parasail_cigar_free(cigar);
+        }
+    }
+}
+
 inline static void output_trace(
         FILE *fop,
         bool has_query,
@@ -1671,9 +1797,11 @@ inline static void output_trace(
         const vector<long> &BEG,
         const vector<long> &END,
         const PairVec &vpairs,
-        const vector<parasail_result_t*> &results)
+        const vector<parasail_result_t*> &results,
+        long long start,
+        long long stop)
 {
-    for (size_t index=0; index<results.size(); ++index) {
+    for (long long index=start; index<stop; ++index) {
         parasail_result_t *result = results[index];
         int i = vpairs[index].first;
         int j = vpairs[index].second;
@@ -1717,9 +1845,11 @@ inline static void output_tables(
         const vector<long> &BEG,
         const vector<long> &END,
         const PairVec &vpairs,
-        const vector<parasail_result_t*> &results)
+        const vector<parasail_result_t*> &results,
+        long long start,
+        long long stop)
 {
-    for (size_t index=0; index<results.size(); ++index) {
+    for (long long index=start; index<stop; ++index) {
         parasail_result_t *result = results[index];
         int i = vpairs[index].first;
         int j = vpairs[index].second;
@@ -1740,6 +1870,67 @@ inline static void output_tables(
         print_array(filename, table,
                 (const char*)&T[i_beg], i_len,
                 (const char*)&T[j_beg], j_len);
+    }
+}
+
+inline static void output(
+        bool is_stats,
+        bool is_table,
+        bool is_trace,
+        bool edge_output,
+        bool graph_output,
+        bool use_emboss_format,
+        bool use_ssw_format,
+        bool use_sam_format,
+        bool use_sam_header,
+        FILE *fop,
+        bool has_query,
+        long sid_crossover,
+        unsigned long sid,
+        unsigned char *T,
+        int AOL,
+        int SIM,
+        int OS,
+        const parasail_matrix_t *matrix,
+        const vector<long> &BEG,
+        const vector<long> &END,
+        const PairVec &vpairs,
+        parasail_sequences_t *queries,
+        parasail_sequences_t *sequences,
+        const vector<parasail_result_t*> &results,
+        long long start,
+        long long stop)
+{
+    if (is_stats) {
+        if (edge_output) {
+            output_edges(fop, has_query, sid_crossover, T, AOL, SIM, OS, matrix, BEG, END, vpairs, results, start, stop);
+        }
+        else if (graph_output) {
+            output_graph(fop, 0, sid, T, AOL, SIM, OS, matrix, BEG, END, vpairs, results, start, stop);
+        }
+        else {
+            output_stats(fop, has_query, sid_crossover, BEG, END, vpairs, results, start, stop);
+        }
+    }
+    else if (is_trace) {
+        if (use_emboss_format) {
+            output_emboss(has_query, sid_crossover, matrix, vpairs, queries, sequences, results, start, stop);
+        }
+        else if (use_ssw_format) {
+            output_ssw(has_query, sid_crossover, matrix, vpairs, queries, sequences, results, start, stop);
+        }
+        else if (use_sam_format) {
+            output_sam(use_sam_header, has_query, sid_crossover, matrix, vpairs, queries, sequences, results, start, stop);
+        }
+        else {
+            output_trace(fop, has_query, sid_crossover, T, matrix, BEG, END, vpairs, results, start, stop);
+        }
+    }
+    else {
+        output_basic(fop, has_query, sid_crossover, BEG, END, vpairs, results, start, stop);
+    }
+    if (is_table) {
+        output_tables(has_query, sid_crossover, T, BEG, END, vpairs, results, start, stop);
     }
 }
 

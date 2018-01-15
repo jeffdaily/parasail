@@ -4,14 +4,12 @@ Though the parasail library is the focus of this work, we do provide one example
 
 ## parasail_aligner
 
-The aligner tool will take a FASTA- or FASTQ- formatted database file as input and align all of the database sequences against a set of query sequences found in a second FASTA- or FASTQ-formatted database file.  Alternatively, if only one file is supplied, all of the sequences in the file will be compared against themselves.  If parasail was linked against libz, the input files can also be gzip compressed.
-
-The alignment routine to use defaults to one of the Smith-Waterman routines, but any of the parasail routines (including the profile-based ones) may be selected using the appropriate command-line parameter (`-a`).  Follow the naming conventions for parasail functions in order to select the desired alignment routine.  The aligner assumes amino acid sequences; use `-d` to indicate DNA sequences as well as `-M` and `-X` to indicate the match and mismatch scores, respectively.
+The aligner tool will take a FASTA- or FASTQ-formatted database file as input and align all of the database sequences against a set of query sequences found in a second FASTA- or FASTQ-formatted database file.  Alternatively, if only one file is supplied, all of the sequences in the file will be compared against themselves.  If parasail was linked against libz, the input files can also be gzip compressed.
 
 ### Command-Line Interface
 
 ```bash
-usage: parasail_aligner [-a funcname] [-c cutoff] [-x] [-e gap_extend] [-o gap_open] [-m matrix] [-t threads] [-d] [-M match] [-X mismatch] [-l AOL] [-s SIM] [-i OS] -v -f file [-q query_file] [-g output_file]
+usage: parasail_aligner [-a funcname] [-c cutoff] [-x] [-e gap_extend] [-o gap_open] [-m matrix] [-t threads] [-d] [-M match] [-X mismatch] [-k band size (for nw_banded)] [-l AOL] [-s SIM] [-i OS] [-v] -f file [-q query_file] [-g output_file] [-O output_format {EMBOSS,SAM,SAMH,SSW}] [-b batch_size]
 
 Defaults:
      funcname: sw_stats_striped_16
@@ -32,11 +30,40 @@ Defaults:
    query_file: no default, must be in FASTA/FASTQ format
   output_file: parasail.csv
 output_format: no deafult, must be one of {EMBOSS,SAM,SAMH,SSW}
+   batch_size: 0 (all), how many alignments before writing output
 ```
 
-### Using the Enhanced Suffix Array Filter
+#### Using the Enhanced Suffix Array Filter
 
-One feature of this tool is its ability to filter out sequence pairs based on an exact-match cutoff.  Using the cutoff paramter (`-c`), the filter will keep only those pairs of sequences which contain an exact match of length greater than or equal to the cutoff.  The assumption is that any pair of sequences which are highly similar should also contain an exact-matching k-mer of at length at least c, our cutoff.  This is similar to the seed and extend model of sequence alignment found in other tools, however, our filter allows for arbitrarily long exact-matches (aka seeds) and once a match is found the entire alignment is performed rather than extending the seed.  The filter is turned on by default but can be disabled using the -x command-line parameter.
+One feature of this tool is its ability to filter out sequence pairs based on an exact-match cutoff.  Using the cutoff paramter (`-c`), the filter will keep only those pairs of sequences which contain an exact match of length greater than or equal to the cutoff.  The assumption is that any pair of sequences which are highly similar should also contain an exact-matching k-mer of length at least c, our cutoff.  This is similar to the seed and extend model of sequence alignment found in other tools, however, our filter allows for arbitrarily long exact-matches (aka seeds) and once a match is found the entire alignment is performed rather than extending the seed.  The filter is turned on by default but can be disabled using the -x command-line parameter.
+
+#### Alignment Function
+
+Please review the function naming conventions of the top-level parasail README.
+
+The alignment routine to use defaults to one of the stats Smith-Waterman routines, but any of the parasail routines (including the profile-based routines and the global banded routine) may be selected using the appropriate command-line parameter (`-a`).  Follow the naming conventions for parasail functions in order to select the desired alignment routine.
+
+#### DNA Mode
+
+The aligner assumes amino acid sequences; use `-d` to indicate DNA sequences as well as `-M` and `-X` to indicate the match and mismatch scores, respectively.
+
+#### Substitution Matrix Selection
+
+Please review the substitution matrix section of the top-level parasail README.
+
+Using the `-m` parameter, you can select from a variety of built-in matrices, e.g., blosum50, pam100. You can also specify a matrix filename if the file is of the appropriate format (see README). For DNA alignments using a simple match/mismatch scoring criteria, use `-M` and `-X` to create the simple substitution matrix (see above).
+
+#### Threading
+
+If your compiler supports OpenMP and parasail's configure script is able to detect the support, then the parasail_aligner will be compiled with OpenMP parallel for loops. You can control the number of threads using the `-t` parameter.
+
+If you are using threading in conjunction with batch mode, threading occurs within a batch of alignments.
+
+#### Batch Mode
+
+For very large inputs or when using traceback-capable routines, the parasail_aligner can use a significant amount of memory. The batch mode was added to work around storing all alignment results until all had been computed. The `-b` parameter indicates how many alignments to perform before writing results to output and freeing their memory. The default is 0 indicating all results will be computed first; this is the same as the previous default behavior.
+
+The larger the batch size, the better the runtime performance. This is a tuning parameter to balance between memory requirements and performance. Ideally, you would not need to use batch mode.
 
 ### Output
 
@@ -113,7 +140,7 @@ If a statistics-calculating function is used, for example 'sw_stats_striped_16',
 
 ### Generating a Homology Graph
 
-The parasail_aligner already can take a FASTA- or FASTQ-formatted set of sequences and all of the sequences in the file will be compared against themselves.  If the 'edge' parameter (`-E`) in combination with any of the statistics-calculating parasail routines are selected, this changes the output calculation.  The reason statistics must be calculated is that the output depends on them.  This application is used in a metagenomics workflow, creating a homology graph as output which is later processed by a community detection application.  The 'edges' in the graph consist of any highly similar pair of sequences such that their alignment meets certain criteria.
+The parasail_aligner already can take a FASTA- or FASTQ-formatted set of sequences and all of the sequences in the file will be compared against themselves.  If the 'edge' parameter (`-E`) in combination with any of the statistics-calculating parasail routines is selected, this changes the output calculation.  The reason statistics must be calculated is that the output depends on them.  This application is used in a metagenomics workflow, creating a homology graph as output which is later processed by a community detection application.  The 'edges' in the graph consist of any highly similar pair of sequences such that their alignment meets certain criteria.
 
  * AOL = percent alignment length -- the alignment must cover at least XX percent of the longer sequence.
  * SIM = percent exact matches -- the alignment must contain at least XX percent exact character matches.

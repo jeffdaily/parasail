@@ -8,6 +8,7 @@ This project follows the [Gitflow Workflow model](https://www.atlassian.com/git/
 The Unreleased section will be empty for tagged releases. Unreleased functionality appears in the develop branch.
 
 ### Added
+- parasail_aligner -b batch_size to help reduce memory overhead
 - meson build system
 
 ### Fixed

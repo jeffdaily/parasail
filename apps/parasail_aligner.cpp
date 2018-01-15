@@ -1040,8 +1040,14 @@ int main(int argc, char **argv) {
     start = parasail_time();
     if (vpairs.empty()) {
         if (pairs.empty()) {
-            eprintf(stderr, "pairs and vpairs were empty\n");
-            exit(EXIT_FAILURE);
+            if (use_filter) {
+                eprintf(stderr, "no alignment work, either the filter removed all alignemnts or the input file(s) were empty\n");
+                exit(EXIT_FAILURE);
+            }
+            else {
+                eprintf(stderr, "no alignment work, perhaps the input file(s) were empty\n");
+                exit(EXIT_FAILURE);
+            }
         }
         vpairs.assign(pairs.begin(), pairs.end());
         pairs.clear();

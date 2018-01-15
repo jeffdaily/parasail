@@ -9,6 +9,7 @@ The Unreleased section will be empty for tagged releases. Unreleased functionali
 
 ### Added
 - parasail_aligner -b batch_size to help reduce memory overhead
+- parasail_aligner can take an input file on stdin
 - meson build system
 
 ### Fixed

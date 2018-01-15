@@ -19,8 +19,10 @@
 #include <errno.h>
 #include <sys/types.h>
 #if defined(_MSC_VER)
+#include <windows.h>
 #include "wingetopt/src/getopt.h"
 #else
+#include <poll.h>
 #include <pwd.h>
 #include <unistd.h>
 #endif
@@ -304,6 +306,22 @@ THREAD_DOC
     exit(status);
 }
 
+#if defined(_MSC_VER)
+static int stdin_has_data() {
+    return (WaitForSingleObject(GetStdHandle(STD_INPUT_HANDLE), 0) == WAIT_OBJECT_0);
+}
+#else
+static int stdin_has_data() {
+    int timeout = 100; // wait 100ms
+    struct pollfd fd;
+    fd.fd = 0;
+    fd.events = POLLIN;
+    fd.revents = 0;
+    int ret = poll(&fd, 1, timeout);
+    return (ret > 0 && (fd.revents & POLLIN));
+}
+#endif
+
 int main(int argc, char **argv) {
     FILE *fop = NULL;
     const char *fname = NULL;
@@ -369,6 +387,7 @@ int main(int argc, char **argv) {
     int OS = 30;
     bool verbose = false;
     long long batch_size = 0;
+    bool has_stdin = false;
 
     /* Check arguments. */
     while ((c = getopt(argc, argv, "a:b:c:de:Ef:g:Ghi:k:l:m:M:o:O:pq:s:t:vxX:")) != -1) {
@@ -548,10 +567,33 @@ int main(int argc, char **argv) {
         exit(EXIT_FAILURE);
     }
 
+    has_stdin = stdin_has_data();
+    if (has_stdin) {
+        if (fname == NULL) {
+            fname = "stdin";
+        }
+        else if (qname == NULL) {
+            qname = "stdin";
+            has_query = true;
+        }
+        else {
+            eprintf(stderr, "input file, query file, and stdin detected; max inputs is 2\n");
+            exit(EXIT_FAILURE);
+        }
+    }
+    else {
+        if (fname == NULL) {
+            eprintf(stderr, "missing input file\n");
+            print_help(progname, EXIT_FAILURE);
+        }
+        else if (qname != NULL) {
+            has_query = true;
+        }
+    }
+
     is_trace = (NULL != strstr(funcname, "trace"));
     is_stats = (NULL != strstr(funcname, "stats"));
     is_table = (NULL != strstr(funcname, "table"));
-    has_query = (NULL != qname);
 
     if (edge_output && graph_output) {
         eprintf(stderr, "Can only request one of edge or graph output.\n");
@@ -618,9 +660,8 @@ int main(int argc, char **argv) {
         }
     }
 
-    if (fname == NULL) {
-        eprintf(stderr, "missing input file\n");
-        print_help(progname, EXIT_FAILURE);
+    if (is_trace) {
+        oname = "stdout";
     }
 
     /* print the parameters for reference */
@@ -663,10 +704,12 @@ int main(int argc, char **argv) {
     }
 
     /* Best to know early whether we can open the output file. */
-    if((fop = fopen(oname, "w")) == NULL) {
-        eprintf(stderr, "%s: Cannot open output file `%s': ", progname, oname);
-        perror("fopen");
-        exit(EXIT_FAILURE);
+    if (!is_trace) {
+        if ((fop = fopen(oname, "w")) == NULL) {
+            eprintf(stderr, "%s: Cannot open output file `%s': ", progname, oname);
+            perror("fopen");
+            exit(EXIT_FAILURE);
+        }
     }
     
     start = parasail_time();

@@ -6,6 +6,8 @@ Though the parasail library is the focus of this work, we do provide one example
 
 The aligner tool will take a FASTA- or FASTQ-formatted database file as input and align all of the database sequences against a set of query sequences found in a second FASTA- or FASTQ-formatted database file.  Alternatively, if only one file is supplied, all of the sequences in the file will be compared against themselves.  If parasail was linked against libz, the input files can also be gzip compressed.
 
+The parasail_aligner can also receive an input file piped from another program in order to use the aligner as part of a larger workflow. If the database file is specified with `-q`, and input is detected on stdin, then this input is assumed to be the query file. If neither the database file or the query file is specified, and input is detected on stdin, then this input is assumed to be the single database file.
+
 ### Command-Line Interface
 
 ```bash

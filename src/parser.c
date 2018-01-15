@@ -51,6 +51,7 @@ parasail_sequences_t* parasail_sequences_from_file(const char *filename)
     gzFile fp;
 #else
     FILE* fp;
+    int is_stdin = 0;
 #endif
     kseq_t *seq = NULL;
     int l = 0;
@@ -74,21 +75,36 @@ parasail_sequences_t* parasail_sequences_from_file(const char *filename)
         exit(1);
     }
 
-    /* open the file */
-    errno = 0;
+    /* check for stdin instead of a normal filename */
+    if (0 == strncmp("stdin", filename, 5)) {
 #if HAVE_ZLIB
-    fp = gzopen(filename, "r");
-    if (fp == Z_NULL) {
-        perror("gzopen");
-        exit(1);
-    }
+        fp = gzdopen(fileno(stdin), "r");
+        if (fp == Z_NULL) {
+            perror("gzdopen");
+            exit(1);
+        }
 #else
-    fp = fopen(filename, "r");
-    if (fp == NULL) {
-        perror("fopen");
-        exit(1);
-    }
+        fp = stdin;
+        is_stdin = 1;
 #endif
+    }
+    else {
+        /* open the file */
+        errno = 0;
+#if HAVE_ZLIB
+        fp = gzopen(filename, "r");
+        if (fp == Z_NULL) {
+            perror("gzopen");
+            exit(1);
+        }
+#else
+        fp = fopen(filename, "r");
+        if (fp == NULL) {
+            perror("fopen");
+            exit(1);
+        }
+#endif
+    }
     
     /* initialize kseq structures */
 #if HAVE_ZLIB
@@ -160,7 +176,9 @@ parasail_sequences_t* parasail_sequences_from_file(const char *filename)
 #if HAVE_ZLIB
     gzclose(fp);
 #else
-    fclose(fp);
+    if (!is_stdin) {
+        fclose(fp);
+    }
 #endif
 
     retval->seqs = sequences;

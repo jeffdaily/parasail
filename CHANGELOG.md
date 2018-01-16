@@ -7,15 +7,15 @@ This project follows the [Gitflow Workflow model](https://www.atlassian.com/git/
 ## [Unreleased]
 The Unreleased section will be empty for tagged releases. Unreleased functionality appears in the develop branch.
 
+## [2.1] - 2018-01-15
 ### Added
 - parasail_aligner -b batch_size to help reduce memory overhead
 - parasail_aligner can take an input file on stdin
 - meson build system
 
-### Fixed
-
 ### Changed
 - Reduce memory used by all trace routines
+- parasail_sequences_from_file(filename) can read from "stdin"
 
 ### Removed
 - Generated autoconf, automake, libtool files
@@ -23,6 +23,7 @@ The Unreleased section will be empty for tagged releases. Unreleased functionali
 - KNC ISA
 
 ### Closed Issues
+- Large Memory Consumption with Traceback [\#44]
 - Speedup and memory reduction of backtracing alignment [\#43]
 - Add meson build system [\#39]
 
@@ -238,7 +239,8 @@ The Unreleased section will be empty for tagged releases. Unreleased functionali
 ## [1.0.0] - 2015-09-16
 First stable, production-ready version of parasail.
 
-[Unreleased]: https://github.com/jeffdaily/parasail/compare/v2.0.6...develop
+[Unreleased]: https://github.com/jeffdaily/parasail/compare/v2.1...develop
+[2.1]:   https://github.com/jeffdaily/parasail/compare/v2.0.6...v2.1
 [2.0.6]: https://github.com/jeffdaily/parasail/compare/v2.0.5...v2.0.6
 [2.0.5]: https://github.com/jeffdaily/parasail/compare/v2.0.4...v2.0.5
 [2.0.4]: https://github.com/jeffdaily/parasail/compare/v2.0.3...v2.0.4

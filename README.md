@@ -53,9 +53,11 @@ parasail supports the SSE2, SSE4.1, AVX2, and AltiVec instruction sets.  In many
 
 [back to top]
 
-The GNU autotools-based installation is the preferred method, though the CMake build works just as well.  Both are provided because it often makes it easier to include parasail as a submodule inside other projects using one or the other build tool.  Every attempt has been made to make installation a smooth process.  For example, there are no required external dependencies.  However, if you still run into issues, please [file an issue](https://github.com/jeffdaily/parasail/issues/new).
+The GNU autotools-based installation is the preferred method, though the CMake build works just as well. There is also a contributed Meson build.  The various build files are provided because it often makes it easier to include parasail as a submodule inside other projects using one a preferred build tool.  Every attempt has been made to make installation a smooth process.  For example, there are no required external dependencies.  However, if you still run into issues, please [file an issue](https://github.com/jeffdaily/parasail/issues/new).
 
 ### autotools build
+
+If you are building from a git clone, the autotools files must first be generated using `autoreconf -fi`. The custom source distributions will already contain generated autotools files.
 
 parasail follows the typical configure, make, make install steps of other GNU autotools-based installations.  By default, this will build both a static and shared library as well as the parasail_aligner application.  There is no automated test suite at this time, but running `make check` will build some additional test programs such as test_isa for reporting your compiler and CPU capabilities.
 
@@ -66,7 +68,7 @@ Don't forget to link your application to the parasail library.  For example, `gc
 
 ### CMake build
 
-The CMakeLists.txt file will compile and link the parasail library as well as the parasail_aligner application and the test_isa test program.  It will not build any of the other test programs.
+The CMakeLists.txt file will compile and link the parasail library as well as the parasail_aligner application and the test_isa test program.  It builds some of the other test programs.
 
 If you are familiar with CMake, the build process should be familiar.  For example, on Linux-based systems, create a directory for your build.  It is safe to do so within the source distribution of parasail.  For example:
 
@@ -80,6 +82,11 @@ make
 ```
 
 By default, CMake will build the parasail shared library.  In order to compile the static library, add `-DBUILD_SHARED_LIBS=OFF` to your `cmake` invocation, or use the `ccmake` utility to toggle the option.  The static and shared libraries must be built as separate cmake projects.
+
+### Meson build
+
+Please follow http://mesonbuild.com/Quick-guide.html for how to use
+Meson. The Meson build files are maintained by @SoapZA.
 
 ## C Interface Example
 

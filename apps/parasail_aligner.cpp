@@ -20,6 +20,7 @@
 #include <sys/types.h>
 #if defined(_MSC_VER)
 #include <windows.h>
+#include <io.h>
 #include "wingetopt/src/getopt.h"
 #else
 #include <poll.h>
@@ -310,7 +311,21 @@ THREAD_DOC
 
 #if defined(_MSC_VER)
 static int stdin_has_data() {
-    return (WaitForSingleObject(GetStdHandle(STD_INPUT_HANDLE), 0) == WAIT_OBJECT_0);
+	int stdinHandle = fileno(stdin);
+	long stdinFileLength = filelength(stdinHandle);
+	if (stdinFileLength < 0) {
+		return 0;
+	}
+	else if (stdinFileLength == 0) {
+		int retval = fseek(stdin, 0, 0);
+		if (retval < 0) {
+			return 0;
+		}
+		else {
+			return 1;
+		}
+	}
+	return 1;
 }
 #else
 static int stdin_has_data() {
@@ -722,7 +737,7 @@ int main(int argc, char **argv) {
             exit(EXIT_FAILURE);
         }
     }
-    
+
     start = parasail_time();
     if (!has_query) {
         size_t count = 0;

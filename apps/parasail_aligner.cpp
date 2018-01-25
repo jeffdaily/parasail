@@ -150,6 +150,8 @@ inline static void output_graph(
         const vector<long> &END,
         const PairVec &vpairs,
         const vector<parasail_result_t*> &results,
+        vector<vector<pair<int,float> > > &graph,
+        unsigned long edge_count,
         long long start,
         long long stop);
 
@@ -238,7 +240,6 @@ inline static void output(
         bool is_table,
         bool is_trace,
         bool edge_output,
-        bool graph_output,
         bool use_emboss_format,
         bool use_ssw_format,
         bool use_sam_format,
@@ -1121,6 +1122,11 @@ int main(int argc, char **argv) {
     if (function) {
         long long vpairs_size = (long long)vpairs.size();
         long long step = batch_size ? batch_size : vpairs_size;
+        vector<vector<pair<int,float> > > graph;
+        unsigned long edge_count = 0;
+        if (graph_output) {
+            graph.reserve(sid);
+        }
         for (long long start=0; start<vpairs_size; start+=step) {
             long long stop = start+step;
             if (stop > vpairs_size) stop = vpairs_size;
@@ -1144,15 +1150,28 @@ int main(int argc, char **argv) {
                 work += local_work;
                 results[index] = result;
             }
-            output(is_stats, is_table, is_trace, edge_output, graph_output,
-                    use_emboss_format, use_ssw_format, use_sam_format,
-                    use_sam_header, fop, has_query, sid_crossover, sid, T, AOL,
-                    SIM, OS, matrix, BEG, END, vpairs, queries, sequences,
-                    results, start, stop);
+            if (graph_output) {
+                output_graph(NULL, 0, sid, T, AOL, SIM, OS, matrix, BEG,
+                        END, vpairs, results, graph, edge_count, start,
+                        stop);
+            }
+            else {
+                output(is_stats, is_table, is_trace, edge_output,
+                        use_emboss_format, use_ssw_format,
+                        use_sam_format, use_sam_header, fop, has_query,
+                        sid_crossover, sid, T, AOL, SIM, OS, matrix,
+                        BEG, END, vpairs, queries, sequences, results,
+                        start, stop);
+            }
             for (long long index=start; index<stop; ++index) {
                 parasail_result_t *result = results[index];
                 parasail_result_free(result);
             }
+        }
+        if (graph_output) {
+            output_graph(fop, 0, sid, T, AOL, SIM, OS, matrix, BEG,
+                    END, vpairs, results, graph, edge_count, 0,
+                    vpairs_size);
         }
     }
     else if (is_banded) {
@@ -1181,7 +1200,7 @@ int main(int argc, char **argv) {
                 work += local_work;
                 results[index] = result;
             }
-            output(is_stats, is_table, is_trace, edge_output, graph_output,
+            output(is_stats, is_table, is_trace, edge_output,
                     use_emboss_format, use_ssw_format, use_sam_format,
                     use_sam_header, fop, has_query, sid_crossover, sid, T, AOL,
                     SIM, OS, matrix, BEG, END, vpairs, queries, sequences,
@@ -1219,7 +1238,7 @@ int main(int argc, char **argv) {
                 work += local_work;
                 results[index] = result;
             }
-            output(is_stats, is_table, is_trace, edge_output, graph_output,
+            output(is_stats, is_table, is_trace, edge_output,
                     use_emboss_format, use_ssw_format, use_sam_format,
                     use_sam_header, fop, has_query, sid_crossover, sid, T, AOL,
                     SIM, OS, matrix, BEG, END, vpairs, queries, sequences,
@@ -1487,11 +1506,11 @@ inline static void output_graph(
         const vector<long> &END,
         const PairVec &vpairs,
         const vector<parasail_result_t*> &results,
+        vector<vector<pair<int,float> > > &graph,
+        unsigned long edge_count,
         long long start,
         long long stop)
 {
-    vector<vector<pair<int,float> > > graph(sid);
-    unsigned long edge_count = 0;
     for (long long index=start; index<stop; ++index) {
         parasail_result_t *result = results[index];
         int i = vpairs[index].first;
@@ -1543,20 +1562,21 @@ inline static void output_graph(
         }
     }
 
-    fprintf(fop, "%lu %lu 1\n", (unsigned long)graph.size(), edge_count);
-    for (size_t i=0; i<graph.size(); ++i) {
-        if (graph[i].size() > 0) {
-            fprintf(fop, "%d %f", graph[i][0].first+1, graph[i][0].second);
-            for (size_t j=1; j<graph[i].size(); ++j) {
-                fprintf(fop, "  %d %f", graph[i][j].first+1, graph[i][j].second);
+    if (NULL != fop) {
+        fprintf(fop, "%lu %lu 1\n", (unsigned long)graph.size(), edge_count);
+        for (size_t i=0; i<graph.size(); ++i) {
+            if (graph[i].size() > 0) {
+                fprintf(fop, "%d %f", graph[i][0].first+1, graph[i][0].second);
+                for (size_t j=1; j<graph[i].size(); ++j) {
+                    fprintf(fop, "  %d %f", graph[i][j].first+1, graph[i][j].second);
+                }
+                fprintf(fop, "\n");
+            } else {
+                fprintf(fop, "\n");
             }
-            fprintf(fop, "\n");
-        } else {
-            fprintf(fop, "\n");
         }
+        fprintf(stdout, "%20s: %lu\n", "edges count", edge_count);
     }
-
-    fprintf(stdout, "%20s: %lu\n", "edges count", edge_count);
 }
 
 inline static void output_stats(
@@ -1953,7 +1973,6 @@ inline static void output(
         bool is_table,
         bool is_trace,
         bool edge_output,
-        bool graph_output,
         bool use_emboss_format,
         bool use_ssw_format,
         bool use_sam_format,
@@ -1979,9 +1998,6 @@ inline static void output(
     if (is_stats) {
         if (edge_output) {
             output_edges(fop, has_query, sid_crossover, T, AOL, SIM, OS, matrix, BEG, END, vpairs, results, start, stop);
-        }
-        else if (graph_output) {
-            output_graph(fop, 0, sid, T, AOL, SIM, OS, matrix, BEG, END, vpairs, results, start, stop);
         }
         else {
             output_stats(fop, has_query, sid_crossover, BEG, END, vpairs, results, start, stop);

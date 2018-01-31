@@ -287,11 +287,13 @@ static void print_help(const char *progname, int status) {
             "[-s SIM] "
             "[-i OS] "
             "[-v] "
+            "[-V] "
             "-f file "
             "[-q query_file] "
             "[-g output_file] "
             "[-O output_format {EMBOSS,SAM,SAMH,SSW}] "
             "[-b batch_size] "
+            "[-r memory_budget] "
             "\n\n",
             progname);
     eprintf(stderr, "Defaults:\n"
@@ -307,14 +309,18 @@ static void print_help(const char *progname, int status) {
 THREAD_DOC
             "          AOL: 80, must be 0 <= AOL <= 100, percent alignment length\n"
             "          SIM: 40, must be 0 <= SIM <= 100, percent exact matches\n"
-            "           OS: 30, must be 0 <= OS <= 100, percent optimal score over self score\n"
+            "           OS: 30, must be 0 <= OS <= 100, percent optimal score\n"
+            "                                           over self score\n"
             "           -v: verbose output, report input parameters and timing\n"
             "           -V: verbose memory output, report memory use\n"
             "         file: no default, must be in FASTA format\n"
             "   query_file: no default, must be in FASTA format\n"
             "  output_file: parasail.csv\n"
             "output_format: no deafult, must be one of {EMBOSS,SAM,SAMH,SSW}\n"
-            "   batch_size: 0 (all), how many alignments before writing output\n"
+            "   batch_size: 0 (calculate based on memory budget),\n"
+            "               how many alignments before writing output\n"
+            "memory_budget: 2GB or half available from system query (%.3f GB)\n",
+        getMemorySize()/2.0*GB
             );
     exit(status);
 }

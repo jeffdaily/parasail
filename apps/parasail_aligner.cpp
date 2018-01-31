@@ -62,6 +62,8 @@
 
 #define GB 1.0E-9
 
+extern "C" size_t getMemorySize(void);
+
 using ::std::bad_alloc;
 using ::std::istringstream;
 using ::std::make_pair;
@@ -369,7 +371,8 @@ vector<long long> calc_batches(
 
     /* if user specified batch size on command line, we use it */
     if (0 != batch_size) {
-        for (long long batch=batch_size; batch<vpairs.size(); batch+=batch_size) {
+        size_t batch_size_ = static_cast<size_t>(batch_size);
+        for (size_t batch=batch_size_; batch<vpairs.size(); batch+=batch_size_) {
             batches.push_back(batch);
         }
         batches.push_back(vpairs.size());
@@ -580,9 +583,20 @@ int main(int argc, char **argv) {
     long long batch_size = 0;
     bool has_stdin = false;
     size_t memsize = 0; /* for temporary use */
-    size_t memory_budget = 2.0/GB; /* 2GB default */
+    size_t memory_budget = 0;
     size_t bytes_used = 0;
     size_t profile_bits = 0;
+
+    /* establish default memory budget */
+    memory_budget = getMemorySize();
+    if (0 == memory_budget) {
+        /* error occurred, guess reasonable default */
+        memory_budget = 2.0/GB;
+    }
+    else {
+        /* use half available memory */
+        memory_budget = memory_budget / 2;
+    }
 
     /* Check arguments. */
     while ((c = getopt(argc, argv, "a:b:c:de:Ef:g:Ghi:k:l:m:M:o:O:pq:r:s:t:vVxX:")) != -1) {
@@ -1359,7 +1373,8 @@ int main(int argc, char **argv) {
     /* finally tally the pair memory */
     bytes_used += vpairs.size()*sizeof(Pair);
     /* pre-allocate result pointers */
-    vector<parasail_result_t*> results(vpairs.size(), NULL);
+    vector<parasail_result_t*> results(vpairs.size(),
+            static_cast<parasail_result_t*>(NULL));
     bytes_used += vpairs.size()*sizeof(parasail_result_t*);
     finish = parasail_time();
     if (verbose) {

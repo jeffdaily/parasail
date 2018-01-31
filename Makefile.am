@@ -989,7 +989,9 @@ if HAVE_ALTIVEC
 check_PROGRAMS += tests/test_altivec
 endif
 
-apps_parasail_aligner_SOURCES = apps/parasail_aligner.cpp
+apps_parasail_aligner_SOURCES =
+apps_parasail_aligner_SOURCES += apps/parasail_aligner.cpp
+apps_parasail_aligner_SOURCES += contrib/getMemorySize.c
 apps_parasail_aligner_CXXFLAGS = $(AM_CXXFLAGS) $(OPENMP_CXXFLAGS)
 apps_parasail_aligner_LDFLAGS  = $(AM_LDFLAGS) $(OPENMP_CXXFLAGS)
 apps_parasail_aligner_LDADD =

@@ -802,7 +802,7 @@ IF( WIN32 )
     LIST( APPEND maybe_getopt contrib/wingetopt/src/getopt.c )
 ENDIF( )
 
-ADD_EXECUTABLE( parasail_aligner apps/parasail_aligner.cpp $<TARGET_OBJECTS:sais> ${maybe_getopt} )
+ADD_EXECUTABLE( parasail_aligner apps/parasail_aligner.cpp contrib/getMemorySize.c $<TARGET_OBJECTS:sais> ${maybe_getopt} )
 IF( OPENMP_FOUND )
     SET_TARGET_PROPERTIES( parasail_aligner PROPERTIES COMPILE_FLAGS ${OpenMP_CXX_FLAGS} )
     IF( NOT WIN32 )

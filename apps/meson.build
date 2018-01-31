@@ -9,7 +9,7 @@ executable(
   install : true,
   include_directories : parasail_include_directories,
   link_with : parasail_lib,
-  dependencies : parasail_contrib_sais)
+  dependencies : [parasail_contrib_sais, parasail_contrib_getMemorySize])
 
 executable(
   'parasail_stats', [

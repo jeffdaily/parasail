@@ -17,3 +17,9 @@ parasail_contrib_ssw = declare_dependency(
     'ssw',
     files(['ssw/ssw.c']),
     include_directories : parasail_include_directories))
+
+parasail_contrib_getMemorySize = declare_dependency(
+  link_with : static_library(
+    'getMemorySize',
+    files(['getMemorySize.c']))
+  )

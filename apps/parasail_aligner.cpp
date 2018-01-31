@@ -1395,7 +1395,7 @@ int main(int argc, char **argv) {
         vector<int> profile_indices(
                 profile_indices_set.begin(),
                 profile_indices_set.end());
-        profiles.assign(sid, NULL);
+        profiles.assign(sid, static_cast<parasail_profile_t*>(NULL));
         bytes_used += sizeof(parasail_profile_t*) * sid;
         finish = parasail_time();
         if (verbose) {

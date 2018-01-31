@@ -28,6 +28,7 @@
 #include <unistd.h>
 #endif
 
+#include <algorithm>
 #include <cctype>
 #include <cfloat>
 #include <climits>
@@ -59,12 +60,17 @@
 #define eprintf fprintf
 #endif
 
+#define GB 1.0E-9
+
 using ::std::bad_alloc;
+using ::std::istringstream;
 using ::std::make_pair;
 using ::std::pair;
 using ::std::set;
 using ::std::size_t;
 using ::std::stack;
+using ::std::string;
+using ::std::transform;
 using ::std::vector;
 
 typedef pair<int,int> Pair;
@@ -140,7 +146,6 @@ inline static void output_edges(
 inline static void output_graph(
         FILE *fop,
         int which,
-        unsigned long count,
         unsigned char *T,
         int AOL,
         int SIM,
@@ -151,7 +156,7 @@ inline static void output_graph(
         const PairVec &vpairs,
         const vector<parasail_result_t*> &results,
         vector<vector<pair<int,float> > > &graph,
-        unsigned long edge_count,
+        unsigned long &edge_count,
         long long start,
         long long stop);
 
@@ -247,7 +252,6 @@ inline static void output(
         FILE *fop,
         bool has_query,
         long sid_crossover,
-        unsigned long sid,
         unsigned char *T,
         int AOL,
         int SIM,
@@ -261,6 +265,8 @@ inline static void output(
         const vector<parasail_result_t*> &results,
         long long start,
         long long stop);
+
+inline static size_t parse_bytes(const char*);
 
 static void print_help(const char *progname, int status) {
     eprintf(stderr, "\nusage: %s "
@@ -301,6 +307,7 @@ THREAD_DOC
             "          SIM: 40, must be 0 <= SIM <= 100, percent exact matches\n"
             "           OS: 30, must be 0 <= OS <= 100, percent optimal score over self score\n"
             "           -v: verbose output, report input parameters and timing\n"
+            "           -V: verbose memory output, report memory use\n"
             "         file: no default, must be in FASTA format\n"
             "   query_file: no default, must be in FASTA format\n"
             "  output_file: parasail.csv\n"
@@ -330,7 +337,7 @@ static int stdin_has_data() {
 }
 #else
 static int stdin_has_data() {
-    int timeout = 100; // wait 100ms
+    int timeout = 100; /* wait 100ms */
     struct pollfd fd;
     fd.fd = 0;
     fd.events = POLLIN;
@@ -339,6 +346,169 @@ static int stdin_has_data() {
     return (ret > 0 && (fd.revents & POLLIN));
 }
 #endif
+
+template <class info>
+vector<long long> calc_batches(
+        long long batch_size,
+        bool verbose_memory,
+        size_t memory_budget,
+        const info *function_info,
+        const PairVec &vpairs,
+        const vector<long> &BEG,
+        const vector<long> &END,
+        size_t &memory_estimate)
+{
+    vector<long long> batches;
+    batches.push_back(0);
+    size_t result_size = sizeof(parasail_result_t);
+    memory_estimate = 0;
+
+    if (verbose_memory) {
+        eprintf(stdout, "%20s: %.4f GB\n", "memory remaining", memory_budget*GB);
+    }
+
+    /* if user specified batch size on command line, we use it */
+    if (0 != batch_size) {
+        for (long long batch=batch_size; batch<vpairs.size(); batch+=batch_size) {
+            batches.push_back(batch);
+        }
+        batches.push_back(vpairs.size());
+        if (verbose_memory) {
+            for (size_t batch=0; batch<batches.size()-1; ++batch) {
+                long long start = batches[batch];
+                long long stop = batches[batch+1];
+                eprintf(stdout, "%20s: %lld-%lld\t%.4f GB\n", "batch",
+                        start, stop, memory_estimate*GB);
+            }
+        }
+        return batches;
+    }
+
+    if (function_info->is_table
+            || function_info->is_rowcol
+            || function_info->is_trace) {
+        size_t multiplier = 1;
+        if (function_info->is_table) {
+            if (function_info->is_stats) {
+                multiplier = 4;
+                result_size += sizeof(parasail_result_extra_stats_t);
+                result_size += sizeof(parasail_result_extra_stats_tables_t);
+            }
+            else {
+                multiplier = 1;
+                result_size += sizeof(parasail_result_extra_tables_t);
+            }
+        }
+        else if (function_info->is_rowcol) {
+            if (function_info->is_stats) {
+                multiplier = 4;
+                result_size += sizeof(parasail_result_extra_stats_t);
+                result_size += sizeof(parasail_result_extra_stats_rowcols_t);
+            }
+            else {
+                multiplier = 1;
+                result_size += sizeof(parasail_result_extra_rowcols_t);
+            }
+        }
+        else /* if (function_info->is_trace) */ {
+            result_size += sizeof(parasail_result_extra_trace_t);
+        }
+        int i = vpairs[0].first;
+        int j = vpairs[0].second;
+        long i_beg = BEG[i];
+        long i_end = END[i];
+        long i_len = i_end-i_beg;
+        long j_beg = BEG[j];
+        long j_end = END[j];
+        long j_len = j_end-j_beg;
+        size_t current_size = 0;
+        if (function_info->is_table) {
+            current_size = sizeof(int) * multiplier * i_len * j_len;
+        }
+        else if (function_info->is_rowcol) {
+            current_size = sizeof(int) * multiplier * (i_len + j_len);
+        }
+        else /* if (function_info->is_trace) */ {
+            current_size = sizeof(int8_t) * multiplier * i_len * j_len;
+        }
+        memory_estimate = current_size;
+        for (size_t index=1; index<vpairs.size(); ++index) {
+            i = vpairs[index].first;
+            j = vpairs[index].second;
+            i_beg = BEG[i];
+            i_end = END[i];
+            i_len = i_end-i_beg;
+            j_beg = BEG[j];
+            j_end = END[j];
+            j_len = j_end-j_beg;
+            unsigned long local_size = 0;
+            if (function_info->is_table) {
+                local_size = sizeof(int) * multiplier * i_len * j_len;
+            }
+            else if (function_info->is_rowcol) {
+                local_size = sizeof(int) * multiplier * (i_len + j_len);
+            }
+            else /* if (function_info->is_trace) */ {
+                local_size = sizeof(int8_t) * multiplier * i_len * j_len;
+            }
+            if ((current_size + local_size) > memory_budget) {
+                batches.push_back(index);
+                if (current_size > memory_estimate) {
+                    memory_estimate = current_size;
+                }
+                if (verbose_memory) {
+                    long long start = batches[batches.size()-2];
+                    long long stop = batches[batches.size()-1];
+                    eprintf(stdout, "%20s: %lld-%lld\t%.4f GB\n", "batch",
+                            start, stop, current_size*GB);
+                }
+                current_size = local_size;
+            }
+            else {
+                current_size += local_size;
+            }
+        }
+        if (current_size > memory_estimate) {
+            memory_estimate = current_size;
+        }
+        batches.push_back(vpairs.size());
+        if (verbose_memory) {
+            long long start = batches[batches.size()-2];
+            long long stop = batches[batches.size()-1];
+            eprintf(stdout, "%20s: %lld-%lld\t%.4f GB\n", "batch",
+                    start, stop, current_size*GB);
+        }
+    }
+    else {
+        if (function_info->is_stats) {
+            result_size += sizeof(parasail_result_extra_stats_t);
+        }
+        /* the score, and perhaps stats */
+        size_t results_per_batch = memory_budget / result_size;
+        size_t how_many_batches = vpairs.size() / results_per_batch;
+        for (size_t i=0; i<how_many_batches; ++i) {
+            batches.push_back((i+1)*results_per_batch);
+        }
+        batches.push_back(vpairs.size());
+        if (results_per_batch > vpairs.size()) {
+            memory_estimate = result_size*vpairs.size();
+        }
+        else {
+            memory_estimate = result_size*results_per_batch;
+        }
+        if (verbose_memory) {
+            for (size_t batch=0; batch<batches.size()-1; ++batch) {
+                long long start = batches[batch];
+                long long stop = batches[batch+1];
+                eprintf(stdout, "%20s: %lld-%lld\t%.4f GB\n", "batch",
+                        start, stop, memory_estimate*GB);
+            }
+        }
+    }
+
+    return batches;
+}
+
 
 int main(int argc, char **argv) {
     FILE *fop = NULL;
@@ -380,6 +550,8 @@ int main(int argc, char **argv) {
     unsigned long work = 0;
     int c = 0;
     const char *funcname = "sw_stats_striped_16";
+    const parasail_function_info_t *function_info = NULL;
+    const parasail_pfunction_info_t *pfunction_info = NULL;
     parasail_function_t *function = NULL;
     parasail_pfunction_t *pfunction = NULL;
     parasail_pcreator_t *pcreator = NULL;
@@ -404,19 +576,24 @@ int main(int argc, char **argv) {
     int SIM = 40;
     int OS = 30;
     bool verbose = false;
+    bool verbose_memory = false;
     long long batch_size = 0;
     bool has_stdin = false;
+    size_t memsize = 0; /* for temporary use */
+    size_t memory_budget = 2.0/GB; /* 2GB default */
+    size_t bytes_used = 0;
+    size_t profile_bits = 0;
 
     /* Check arguments. */
-    while ((c = getopt(argc, argv, "a:b:c:de:Ef:g:Ghi:k:l:m:M:o:O:pq:s:t:vxX:")) != -1) {
+    while ((c = getopt(argc, argv, "a:b:c:de:Ef:g:Ghi:k:l:m:M:o:O:pq:r:s:t:vVxX:")) != -1) {
         switch (c) {
             case 'a':
                 funcname = optarg;
                 break;
             case 'b':
                 {
-                    std::string numStr = optarg;
-                    std::istringstream iss(numStr);
+                    string numStr = optarg;
+                    istringstream iss(numStr);
                     iss>>batch_size;
                     if (batch_size < 0) {
                     eprintf(stderr, "batch size must be >= 0\n");
@@ -500,6 +677,9 @@ int main(int argc, char **argv) {
             case 'q':
                 qname = optarg;
                 break;
+            case 'r':
+                memory_budget = parse_bytes(optarg);
+                break;
             case 's':
                 SIM = atoi(optarg);
                 if (SIM < 0 || SIM > 100) {
@@ -510,11 +690,14 @@ int main(int argc, char **argv) {
                 num_threads = atoi(optarg);
 #ifdef _OPENMP
 #else
-                printf("-t number of threads requested, but OpenMP was not found during configuration. Running without threads.");
+                eprintf(stdout, "-t number of threads requested, but OpenMP was not found during configuration. Running without threads.");
 #endif
                 break;
             case 'v':
                 verbose = true;
+                break;
+            case 'V':
+                verbose_memory = true;
                 break;
             case 'x':
                 use_filter = false;
@@ -566,27 +749,30 @@ int main(int argc, char **argv) {
     /* select the function */
     if (funcname) {
         if (NULL != strstr(funcname, "profile")) {
-            pfunction = parasail_lookup_pfunction(funcname);
-            if (NULL == pfunction) {
+            pfunction_info = parasail_lookup_pfunction_info(funcname);
+            if (NULL == pfunction_info) {
                 eprintf(stderr, "Specified profile function not found.\n");
                 exit(EXIT_FAILURE);
             }
-            pcreator = parasail_lookup_pcreator(funcname);
-            if (NULL == pcreator) {
-                eprintf(stderr, "Specified profile creator function not found.\n");
-                exit(EXIT_FAILURE);
+            pfunction = pfunction_info->pointer;
+            pcreator = pfunction_info->creator;
+            if (NULL == strstr(funcname, "sat")) {
+                profile_bits = atoi(pfunction_info->width);
             }
-
+            else {
+                profile_bits = 56; /* 8+16+32 */
+            }
         }
         else {
-            function = parasail_lookup_function(funcname);
-            if (NULL == function && NULL != strstr(funcname, "nw_banded")) {
+            function_info = parasail_lookup_function_info(funcname);
+            if (NULL == function_info && NULL != strstr(funcname, "nw_banded")) {
                 is_banded = 1;
             }
-            if (NULL == function && 0 == is_banded) {
+            if (NULL == function_info && 0 == is_banded) {
                 eprintf(stderr, "Specified function not found.\n");
                 exit(EXIT_FAILURE);
             }
+            function = function_info->pointer;
         }
     }
     else {
@@ -660,6 +846,7 @@ int main(int argc, char **argv) {
         }
         if (!is_trace && trace_warning) {
             eprintf(stderr, "The selected output format '%s' requires an alignment function that returns a traceback.\n", output_format);
+            exit(EXIT_FAILURE);
         }
     }
     else if (is_trace) {
@@ -706,7 +893,8 @@ int main(int argc, char **argv) {
                 "%20s: %s\n"
                 "%20s: %s\n"
                 "%20s: %s\n"
-                "%20s: %lld\n",
+                "%20s: %lld\n"
+                "%20s: %.4f GB\n",
                 "funcname", funcname,
                 "cutoff", cutoff,
                 "use filter", use_filter ? "yes" : "no",
@@ -719,7 +907,8 @@ int main(int argc, char **argv) {
                 "file", fname,
                 "query", (NULL == qname) ? "<no query>" : qname,
                 "output", oname,
-                "batch_size", batch_size
+                "batch_size", batch_size,
+                "memory_budget", memory_budget*GB
                     );
         if (use_dna) {
             eprintf(stdout,
@@ -729,11 +918,15 @@ int main(int argc, char **argv) {
                     "mismatch", mismatch);
         }
     }
+    if (verbose_memory) {
+        eprintf(stdout, "%20s: %.4f GB\n", "memory budget", memory_budget*GB);
+    }
 
     /* Best to know early whether we can open the output file. */
     if (!is_trace) {
         if ((fop = fopen(oname, "w")) == NULL) {
-            eprintf(stderr, "%s: Cannot open output file `%s': ", progname, oname);
+            eprintf(stderr, "%s: Cannot open output file `%s': ",
+                    progname, oname);
             perror("fopen");
             exit(EXIT_FAILURE);
         }
@@ -745,15 +938,45 @@ int main(int argc, char **argv) {
         sequences = parasail_sequences_from_file(fname);
         T = (unsigned char*)parasail_sequences_pack(sequences, &count);
         n = count;
+        if (is_trace) {
+            /* This does not include name, comment, or qual strings. */
+            bytes_used += sizeof(parasail_sequence_t) * sequences->l;
+            bytes_used += sequences->characters;
+        }
+        else {
+            /* If we aren't using tracebacks, we can discard sequences now. */
+            parasail_sequences_free(sequences);
+        }
+        bytes_used += count;
     }
     else {
         size_t count = 0;
         sequences = parasail_sequences_from_file(fname);
         T = (unsigned char*)parasail_sequences_pack(sequences, &count);
         t = count;
+        if (is_trace) {
+            /* This does not include name, comment, or qual strings. */
+            bytes_used += sizeof(parasail_sequence_t) * sequences->l;
+            bytes_used += sequences->characters;
+        }
+        else {
+            /* If we aren't using tracebacks, we can discard sequences now. */
+            parasail_sequences_free(sequences);
+        }
+        bytes_used += count;
         queries = parasail_sequences_from_file(qname);
         Q = (unsigned char*)parasail_sequences_pack(queries, &count);
         q = count;
+        if (is_trace) {
+            /* This does not include name, comment, or qual strings. */
+            bytes_used += sizeof(parasail_sequence_t) * queries->l;
+            bytes_used += queries->characters;
+        }
+        else {
+            /* If we aren't using tracebacks, we can discard queries now. */
+            parasail_sequences_free(queries);
+        }
+        bytes_used += count;
         n = t+q;
         /* realloc T and copy Q into it */
         T = (unsigned char*)realloc(T, (n+1)*sizeof(unsigned char));
@@ -770,15 +993,23 @@ int main(int argc, char **argv) {
     if (verbose) {
         eprintf(stdout, "%20s: %.4f seconds\n", "read and pack time", finish-start);
     }
+    if (verbose_memory) {
+        eprintf(stdout, "%20s: %.4f GB\n", "read and pack memory", bytes_used*GB);
+    }
 
     /* Allocate memory for sequence ID array. */
     if (use_filter) {
-        SID = (int *)malloc((size_t)n * sizeof(int));
+        memsize = (size_t)n * sizeof(int);
+        SID = (int *)malloc(memsize);
         if(SID == NULL) {
-            eprintf(stderr, "%s: Cannot allocate memory.\n", progname);
             perror("malloc");
+            eprintf(stderr, "%s: Cannot allocate suffix ID memory.\n", progname);
+            eprintf(stderr, "Attempted %llu bytes. %llu already used.\n",
+                    (unsigned long long)memsize,
+                    (unsigned long long)bytes_used);
             exit(EXIT_FAILURE);
         }
+        bytes_used += memsize;
     }
 
     /* determine sentinal */
@@ -823,13 +1054,21 @@ int main(int argc, char **argv) {
     /* scan T from left to build sequence ID and end index */
     /* allocate vectors now that number of sequences is known */
     try {
+        memsize = sizeof(long)*(sid+1);
         BEG.reserve(sid+1);
+        bytes_used += memsize;
         END.reserve(sid+1);
+        bytes_used += memsize;
         if (use_filter) {
+            memsize = sizeof(int)*(sid+1);
             DB.reserve(sid+1);
+            bytes_used += memsize;
         }
     } catch (const bad_alloc&) {
-        eprintf(stderr, "Cannot allocate memory for vectors\n");
+        eprintf(stderr, "Cannot allocate memory for vectors.\n");
+        eprintf(stderr, "Attempted %llu bytes. %llu already used.\n",
+                (unsigned long long)memsize,
+                (unsigned long long)bytes_used);
         exit(EXIT_FAILURE);
     }
     sid = 0;
@@ -863,26 +1102,56 @@ int main(int argc, char **argv) {
 
     /* if we don't have a query file, clear the DB flags */
     if (!has_query) {
-        DB.clear();
+        /* vector::clear() might not deallocate memory.
+         * Use swap with temporary instead */
+        vector<int>().swap(DB);
         sid_crossover = -1;
     }
     else if (verbose) {
-        eprintf(stdout, "%20s: %ld\n", "number of queries", sid - sid_crossover);
+        eprintf(stdout, "%20s: %ld\n", "number of queries", sid-sid_crossover);
         eprintf(stdout, "%20s: %ld\n", "number of db seqs", sid_crossover);
     }
 
     /* use the enhanced SA filter */
     if (use_filter) {
+        size_t memsize_local = 0;
         /* Allocate memory for enhanced SA. */
-        SA = (int *)malloc((size_t)(n+1) * sizeof(int)); /* +1 for LCP */
-        LCP = (int *)malloc((size_t)(n+1) * sizeof(int)); /* +1 for lcp tree */
-        BWT = (unsigned char *)malloc((size_t)(n+1) * sizeof(unsigned char));
-        if((SA == NULL) || (LCP == NULL) || (BWT == NULL))
-        {
-            eprintf(stderr, "%s: Cannot allocate ESA memory.\n", progname);
+        memsize = (size_t)(n+1) * sizeof(int); /* +1 for LCP */
+        SA = (int *)malloc(memsize);
+        if (SA == NULL) {
             perror("malloc");
+            eprintf(stderr, "%s: Cannot allocate SA memory.\n", progname);
+            eprintf(stderr, "Attempted %llu bytes. %llu already used.\n",
+                    (unsigned long long)memsize,
+                    (unsigned long long)bytes_used);
             exit(EXIT_FAILURE);
         }
+        memsize_local += memsize;
+        bytes_used += memsize;
+        memsize = (size_t)(n+1) * sizeof(int); /* +1 for lcp tree */
+        LCP = (int *)malloc(memsize);
+        if (LCP == NULL) {
+            perror("malloc");
+            eprintf(stderr, "%s: Cannot allocate LCP memory.\n", progname);
+            eprintf(stderr, "Attempted %llu bytes. %llu already used.\n",
+                    (unsigned long long)memsize,
+                    (unsigned long long)bytes_used);
+            exit(EXIT_FAILURE);
+        }
+        memsize_local += memsize;
+        bytes_used += memsize;
+        memsize = (size_t)(n+1) * sizeof(unsigned char);
+        BWT = (unsigned char *)malloc(memsize);
+        if (BWT == NULL) {
+            perror("malloc");
+            eprintf(stderr, "%s: Cannot allocate BWT memory.\n", progname);
+            eprintf(stderr, "Attempted %llu bytes. %llu already used.\n",
+                    (unsigned long long)memsize,
+                    (unsigned long long)bytes_used);
+            exit(EXIT_FAILURE);
+        }
+        memsize_local += memsize;
+        bytes_used += memsize;
 
         /* Construct the suffix and LCP arrays.
          * The following sais routine is from Fischer, with bugs fixed. */
@@ -991,6 +1260,8 @@ int main(int argc, char **argv) {
         free(SA);
         free(LCP);
         free(BWT);
+        bytes_used -= (size_t)n * sizeof(int); /* SID */
+        bytes_used -= memsize_local; /* SA,LCP,BWT */
 
         if (verbose) {
             eprintf(stdout, "%20s: %zu\n", "unique pairs", pairs.size());
@@ -1077,16 +1348,29 @@ int main(int argc, char **argv) {
             }
         }
         vpairs.assign(pairs.begin(), pairs.end());
-        pairs.clear();
+        /* set::clear() might not deallocate memory.
+         * Use swap with temporary instead */
+        PairSet().swap(pairs);
+        /* don't increment bytes_used since memory use should remain same */
     }
+    if (!pairs.empty()) {
+        eprintf(stderr, "failed to free pair memory, continuing\n");
+    }
+    /* finally tally the pair memory */
+    bytes_used += vpairs.size()*sizeof(Pair);
+    /* pre-allocate result pointers */
     vector<parasail_result_t*> results(vpairs.size(), NULL);
+    bytes_used += vpairs.size()*sizeof(parasail_result_t*);
     finish = parasail_time();
     if (verbose) {
         eprintf(stdout, "%20s: %.4f seconds\n", "openmp prep time", finish-start);
     }
+    if (verbose_memory) {
+        eprintf(stdout, "%20s: %.4f GB\n", "openmp prep memory", bytes_used*GB);
+    }
 
     /* create profiles, if necessary */
-    vector<parasail_profile_t*> profiles(sid, (parasail_profile_t*)NULL);
+    vector<parasail_profile_t*> profiles;
     if (pfunction) {
         start = parasail_time();
         set<int> profile_indices_set;
@@ -1096,7 +1380,8 @@ int main(int argc, char **argv) {
         vector<int> profile_indices(
                 profile_indices_set.begin(),
                 profile_indices_set.end());
-        //profiles.assign(sid, NULL);
+        profiles.assign(sid, NULL);
+        bytes_used += sizeof(parasail_profile_t*) * sid;
         finish = parasail_time();
         if (verbose) {
             eprintf(stdout, "%20s: %.4f seconds\n", "profile init", finish-start);
@@ -1109,26 +1394,45 @@ int main(int argc, char **argv) {
             long i_beg = BEG[i];
             long i_end = END[i];
             long i_len = i_end-i_beg;
+            size_t local_mem = matrix->size * i_len * profile_bits;
             profiles[i] = pcreator((const char*)&T[i_beg], i_len, matrix);
+#pragma omp atomic
+            bytes_used += local_mem;
         }
         finish = parasail_time();
         if (verbose) {
             eprintf(stdout, "%20s: %.4f seconds\n", "profile creation", finish-start);
         }
+        if (verbose_memory) {
+            eprintf(stdout, "%20s: %.4f GB\n", "profile creation memory", bytes_used*GB);
+        }
+    }
+
+    if (bytes_used > memory_budget) {
+        eprintf(stderr, "memory budget exceeded prior to alignment phase\n");
+        return 0;
     }
 
     /* align pairs */
     start = parasail_time();
     if (function) {
+        size_t memory_estimate;
         long long vpairs_size = (long long)vpairs.size();
-        long long step = batch_size ? batch_size : vpairs_size;
+        vector<long long> batches = calc_batches(
+                batch_size,
+                verbose && verbose_memory,
+                memory_budget-bytes_used, function_info,
+                vpairs, BEG, END,
+                memory_estimate);
+        bytes_used += memory_estimate;
         vector<vector<pair<int,float> > > graph;
         unsigned long edge_count = 0;
         if (graph_output) {
-            graph.reserve(sid);
+            graph.resize(sid);
         }
-        for (long long start=0; start<vpairs_size; start+=step) {
-            long long stop = start+step;
+        for (size_t batch=0; batch<batches.size()-1; ++batch) {
+            long long start = batches[batch];
+            long long stop = batches[batch+1];
             if (stop > vpairs_size) stop = vpairs_size;
 #pragma omp parallel for schedule(guided)
             for (long long index=start; index<stop; ++index)
@@ -1151,7 +1455,7 @@ int main(int argc, char **argv) {
                 results[index] = result;
             }
             if (graph_output) {
-                output_graph(NULL, 0, sid, T, AOL, SIM, OS, matrix, BEG,
+                output_graph(NULL, 0, T, AOL, SIM, OS, matrix, BEG,
                         END, vpairs, results, graph, edge_count, start,
                         stop);
             }
@@ -1159,7 +1463,7 @@ int main(int argc, char **argv) {
                 output(is_stats, is_table, is_trace, edge_output,
                         use_emboss_format, use_ssw_format,
                         use_sam_format, use_sam_header, fop, has_query,
-                        sid_crossover, sid, T, AOL, SIM, OS, matrix,
+                        sid_crossover, T, AOL, SIM, OS, matrix,
                         BEG, END, vpairs, queries, sequences, results,
                         start, stop);
             }
@@ -1169,16 +1473,24 @@ int main(int argc, char **argv) {
             }
         }
         if (graph_output) {
-            output_graph(fop, 0, sid, T, AOL, SIM, OS, matrix, BEG,
+            output_graph(fop, 0, T, AOL, SIM, OS, matrix, BEG,
                     END, vpairs, results, graph, edge_count, 0,
                     vpairs_size);
         }
     }
     else if (is_banded) {
+        size_t memory_estimate;
         long long vpairs_size = (long long)vpairs.size();
-        long long step = batch_size ? batch_size : vpairs_size;
-        for (long long start=0; start<vpairs_size; start+=step) {
-            long long stop = start+step;
+        vector<long long> batches = calc_batches(
+                batch_size,
+                verbose && verbose_memory,
+                memory_budget-bytes_used, function_info,
+                vpairs, BEG, END,
+                memory_estimate);
+        bytes_used += memory_estimate;
+        for (size_t batch=0; batch<batches.size()-1; ++batch) {
+            long long start = batches[batch];
+            long long stop = batches[batch+1];
             if (stop > vpairs_size) stop = vpairs_size;
 #pragma omp parallel for schedule(guided)
             for (long long index=start; index<stop; ++index)
@@ -1202,7 +1514,7 @@ int main(int argc, char **argv) {
             }
             output(is_stats, is_table, is_trace, edge_output,
                     use_emboss_format, use_ssw_format, use_sam_format,
-                    use_sam_header, fop, has_query, sid_crossover, sid, T, AOL,
+                    use_sam_header, fop, has_query, sid_crossover, T, AOL,
                     SIM, OS, matrix, BEG, END, vpairs, queries, sequences,
                     results, start, stop);
             for (long long index=start; index<stop; ++index) {
@@ -1212,10 +1524,23 @@ int main(int argc, char **argv) {
         }
     }
     else if (pfunction) {
+        size_t memory_estimate;
         long long vpairs_size = (long long)vpairs.size();
-        long long step = batch_size ? batch_size : vpairs_size;
-        for (long long start=0; start<vpairs_size; start+=step) {
-            long long stop = start+step;
+        vector<long long> batches = calc_batches(
+                batch_size,
+                verbose && verbose_memory,
+                memory_budget-bytes_used, function_info,
+                vpairs, BEG, END,
+                memory_estimate);
+        bytes_used += memory_estimate;
+        vector<vector<pair<int,float> > > graph;
+        unsigned long edge_count = 0;
+        if (graph_output) {
+            graph.resize(sid);
+        }
+        for (size_t batch=0; batch<batches.size()-1; ++batch) {
+            long long start = batches[batch];
+            long long stop = batches[batch+1];
             if (stop > vpairs_size) stop = vpairs_size;
 #pragma omp parallel for schedule(guided)
             for (long long index=start; index<stop; ++index)
@@ -1238,15 +1563,28 @@ int main(int argc, char **argv) {
                 work += local_work;
                 results[index] = result;
             }
-            output(is_stats, is_table, is_trace, edge_output,
-                    use_emboss_format, use_ssw_format, use_sam_format,
-                    use_sam_header, fop, has_query, sid_crossover, sid, T, AOL,
-                    SIM, OS, matrix, BEG, END, vpairs, queries, sequences,
-                    results, start, stop);
+            if (graph_output) {
+                output_graph(NULL, 0, T, AOL, SIM, OS, matrix, BEG,
+                        END, vpairs, results, graph, edge_count, start,
+                        stop);
+            }
+            else {
+                output(is_stats, is_table, is_trace, edge_output,
+                        use_emboss_format, use_ssw_format,
+                        use_sam_format, use_sam_header, fop, has_query,
+                        sid_crossover, T, AOL, SIM, OS, matrix,
+                        BEG, END, vpairs, queries, sequences, results,
+                        start, stop);
+            }
             for (long long index=start; index<stop; ++index) {
                 parasail_result_t *result = results[index];
                 parasail_result_free(result);
             }
+        }
+        if (graph_output) {
+            output_graph(fop, 0, T, AOL, SIM, OS, matrix, BEG,
+                    END, vpairs, results, graph, edge_count, 0,
+                    vpairs_size);
         }
     }
     else {
@@ -1259,6 +1597,9 @@ int main(int argc, char **argv) {
         eprintf(stdout, "%20s: %lu cells\n", "work", work);
         eprintf(stdout, "%20s: %.4f seconds\n", "alignment time", finish-start);
         eprintf(stdout, "%20s: %.4f \n", "gcups", double(work)/(finish-start)/1000000000);
+    }
+    if (verbose_memory) {
+        eprintf(stdout, "%20s: %.4f GB\n", "post-result memory", bytes_used*GB);
     }
 
     if (pfunction) {
@@ -1283,10 +1624,12 @@ int main(int argc, char **argv) {
     /* Done with input text. */
     free(T);
 
-    /* Done with sequences. */
-    parasail_sequences_free(sequences);
-    if (has_query) {
-        parasail_sequences_free(queries);
+    /* Done with sequences if we were using tracebacks. */
+    if (is_trace) {
+        parasail_sequences_free(sequences);
+        if (has_query) {
+            parasail_sequences_free(queries);
+        }
     }
 
     return 0;
@@ -1396,7 +1739,7 @@ inline static void print_array(
 
     f = fopen(filename, "w");
     if (NULL == f) {
-        printf("fopen(\"%s\") error: %s\n", filename, strerror(errno));
+        eprintf(stderr, "fopen(\"%s\") error: %s\n", filename, strerror(errno));
         exit(-1);
     }
     fprintf(f, " ");
@@ -1496,7 +1839,6 @@ inline static void output_edges(
 inline static void output_graph(
         FILE *fop,
         int which,
-        unsigned long sid,
         unsigned char *T,
         int AOL,
         int SIM,
@@ -1507,62 +1849,63 @@ inline static void output_graph(
         const PairVec &vpairs,
         const vector<parasail_result_t*> &results,
         vector<vector<pair<int,float> > > &graph,
-        unsigned long edge_count,
+        unsigned long &edge_count,
         long long start,
         long long stop)
 {
-    for (long long index=start; index<stop; ++index) {
-        parasail_result_t *result = results[index];
-        int i = vpairs[index].first;
-        int j = vpairs[index].second;
-        long i_beg = BEG[i];
-        long i_end = END[i];
-        long i_len = i_end-i_beg;
-        long j_beg = BEG[j];
-        long j_end = END[j];
-        long j_len = j_end-j_beg;
-        int score = parasail_result_get_score(result);
-        int matches = parasail_result_get_matches(result);
-        int length = parasail_result_get_length(result);
+    if (NULL == fop) {
+        for (long long index=start; index<stop; ++index) {
+            parasail_result_t *result = results[index];
+            int i = vpairs[index].first;
+            int j = vpairs[index].second;
+            long i_beg = BEG[i];
+            long i_end = END[i];
+            long i_len = i_end-i_beg;
+            long j_beg = BEG[j];
+            long j_end = END[j];
+            long j_len = j_end-j_beg;
+            int score = parasail_result_get_score(result);
+            int matches = parasail_result_get_matches(result);
+            int length = parasail_result_get_length(result);
 
-        int self_score_ = 0;
-        int max_len = 0;
-        int i_self_score = self_score(
-                (const char*)&T[i_beg], i_len, matrix);
-        int j_self_score = self_score(
-                (const char*)&T[j_beg], j_len, matrix);
+            int self_score_ = 0;
+            int max_len = 0;
+            int i_self_score = self_score(
+                    (const char*)&T[i_beg], i_len, matrix);
+            int j_self_score = self_score(
+                    (const char*)&T[j_beg], j_len, matrix);
 
-        if (i_len > j_len) {
-            max_len = i_len;
-            self_score_ = i_self_score;
-        }
-        else {
-            max_len = j_len;
-            self_score_ = j_self_score;
-        }
-
-        if ((length * 100 >= AOL * int(max_len))
-                && (matches * 100 >= SIM * length)
-                && (score * 100 >= OS * self_score_)) {
-            float value;
-            ++edge_count;
-            switch (which) {
-                case 0:
-                    value = 1.0*length/max_len;
-                    break;
-                case 1:
-                    value = 1.0*matches/length;
-                    break;
-                case 2:
-                    value = 1.0*score/self_score_;
-                    break;
+            if (i_len > j_len) {
+                max_len = i_len;
+                self_score_ = i_self_score;
             }
-            graph[i].push_back(make_pair(j,value));
-            graph[j].push_back(make_pair(i,value));
+            else {
+                max_len = j_len;
+                self_score_ = j_self_score;
+            }
+
+            if ((length * 100 >= AOL * int(max_len))
+                    && (matches * 100 >= SIM * length)
+                    && (score * 100 >= OS * self_score_)) {
+                float value;
+                ++edge_count;
+                switch (which) {
+                    case 0:
+                        value = 1.0*length/max_len;
+                        break;
+                    case 1:
+                        value = 1.0*matches/length;
+                        break;
+                    case 2:
+                        value = 1.0*score/self_score_;
+                        break;
+                }
+                graph[i].push_back(make_pair(j,value));
+                graph[j].push_back(make_pair(i,value));
+            }
         }
     }
-
-    if (NULL != fop) {
+    else {
         fprintf(fop, "%lu %lu 1\n", (unsigned long)graph.size(), edge_count);
         for (size_t i=0; i<graph.size(); ++i) {
             if (graph[i].size() > 0) {
@@ -1980,7 +2323,6 @@ inline static void output(
         FILE *fop,
         bool has_query,
         long sid_crossover,
-        unsigned long sid,
         unsigned char *T,
         int AOL,
         int SIM,
@@ -2023,5 +2365,58 @@ inline static void output(
     if (is_table) {
         output_tables(has_query, sid_crossover, T, BEG, END, vpairs, results, start, stop);
     }
+}
+
+inline static size_t parse_bytes(const char *value)
+{
+    size_t multiplier = 0;
+    double base = 0;
+    string unit;
+    istringstream iss(value);
+
+    iss >> base;
+    if (!iss) {
+        eprintf(stderr, "could not parse memory value\n");
+        return 0;
+    }
+    iss >> unit;
+    if (!iss || unit.empty()) {
+        eprintf(stderr, "could not parse memory unit, default to bytes\n");
+        unit = "b";
+    }
+    transform(unit.begin(), unit.end(), unit.begin(), ::tolower);
+
+    if ("b" == unit
+            || "byte" == unit
+            || "bytes" == unit) {
+        multiplier = 1ULL;
+    }
+    else if ("kb" == unit
+            || "kbyte" == unit
+            || "kbytes" == unit
+            || "kilobyte" == unit
+            || "kilobytes" == unit) {
+        multiplier = 1000ULL;
+    }
+    else if ("mb" == unit
+            || "mbyte" == unit
+            || "mbytes" == unit
+            || "megabyte" == unit
+            || "megabytes" == unit) {
+        multiplier = 1000ULL * 1000ULL;
+    }
+    else if ("gb" == unit
+            || "gbyte" == unit
+            || "gbytes" == unit
+            || "gigabyte" == unit
+            || "gigabytes" == unit) {
+        multiplier = 1000ULL * 1000ULL * 1000ULL;
+    }
+    else {
+        eprintf(stderr, "could not parse byte unit\n");
+        return 0;
+    }
+
+    return static_cast<size_t>(multiplier*base);
 }
 

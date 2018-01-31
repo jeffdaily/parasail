@@ -11,7 +11,7 @@ The parasail_aligner can also receive an input file piped from another program i
 ### Command-Line Interface
 
 ```bash
-usage: parasail_aligner [-a funcname] [-c cutoff] [-x] [-e gap_extend] [-o gap_open] [-m matrix] [-t threads] [-d] [-M match] [-X mismatch] [-k band size (for nw_banded)] [-l AOL] [-s SIM] [-i OS] [-v] -f file [-q query_file] [-g output_file] [-O output_format {EMBOSS,SAM,SAMH,SSW}] [-b batch_size]
+usage: parasail_aligner [-a funcname] [-c cutoff] [-x] [-e gap_extend] [-o gap_open] [-m matrix] [-t threads] [-d] [-M match] [-X mismatch] [-k band size (for nw_banded)] [-l AOL] [-s SIM] [-i OS] [-v] [-V] -f file [-q query_file] [-g output_file] [-O output_format {EMBOSS,SAM,SAMH,SSW}] [-b batch_size] [-r memory_budget]
 
 Defaults:
      funcname: sw_stats_striped_16
@@ -23,16 +23,20 @@ Defaults:
            -d: if present, assume DNA alphabet
         match: 1, must be >= 0
      mismatch: 0, must be >= 0
-      threads: system-specific default, must be >= 1
+      threads: Warning: ignored; OpenMP was not supported by your compiler
           AOL: 80, must be 0 <= AOL <= 100, percent alignment length
           SIM: 40, must be 0 <= SIM <= 100, percent exact matches
-           OS: 30, must be 0 <= OS <= 100, percent optimal score over self score
+           OS: 30, must be 0 <= OS <= 100, percent optimal score
+                                           over self score
            -v: verbose output, report input parameters and timing
-         file: no default, must be in FASTA/FASTQ format
-   query_file: no default, must be in FASTA/FASTQ format
+           -V: verbose memory output, report memory use
+         file: no default, must be in FASTA format
+   query_file: no default, must be in FASTA format
   output_file: parasail.csv
 output_format: no deafult, must be one of {EMBOSS,SAM,SAMH,SSW}
-   batch_size: 0 (all), how many alignments before writing output
+   batch_size: 0 (calculate based on memory budget),
+               how many alignments before writing output
+memory_budget: 2GB or half available from system query (X.XXX GB)
 ```
 
 #### Using the Enhanced Suffix Array Filter
@@ -61,11 +65,15 @@ If your compiler supports OpenMP and parasail's configure script is able to dete
 
 If you are using threading in conjunction with batch mode, threading occurs within a batch of alignments.
 
-#### Batch Mode
+#### Memory Concerns and Batch Mode
 
-For very large inputs or when using traceback-capable routines, the parasail_aligner can use a significant amount of memory. The batch mode was added to work around storing all alignment results until all had been computed. The `-b` parameter indicates how many alignments to perform before writing results to output and freeing their memory. The default is 0 indicating all results will be computed first; this is the same as the previous default behavior.
+For very large inputs or when using traceback-capable routines, the parasail_aligner can use a significant amount of memory. Instead of storing all alignment results until the end, the aligner will complete a batch of alignments, write the results, and free their memory before attempting the next batch of alignments.  There are two modes for using batches, either explicitly specifying how many alignments per batch `-b` or specifying a memory budget `-r`.
 
-The larger the batch size, the better the runtime performance. This is a tuning parameter to balance between memory requirements and performance. Ideally, you would not need to use batch mode.
+The `-b` parameter indicates how many alignments to perform before writing results to output and freeing their memory. The default is 0 indicating the memory budget will be used instead.
+
+The `-r` parameter indicates how much memory can be used. By default, it will query the system for the amount of physical memory and set the limit to half of the physical memory.
+
+The larger the batch size, the better the runtime performance. This is a tuning parameter to balance between memory requirements and performance. Ideally, you will not need to specify either batch size or memory budget; the default settings are sufficient for most cases.
 
 ### Output
 

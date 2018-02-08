@@ -7,6 +7,9 @@ This project follows the [Gitflow Workflow model](https://www.atlassian.com/git/
 ## [Unreleased]
 The Unreleased section will be empty for tagged releases. Unreleased functionality appears in the develop branch.
 
+### Fixed
+- parasail_aligner would seg fault at the end if not producing trace output
+
 ## [2.1] - 2018-01-15
 ### Added
 - parasail_aligner -b batch_size to help reduce memory overhead

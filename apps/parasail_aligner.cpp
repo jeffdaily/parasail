@@ -1313,7 +1313,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    if (pairs_only) {
+    if (!is_trace && pairs_only) {
         /* Done with input text. */
         free(T);
         if (vpairs.empty() && !pairs.empty()) {
@@ -1640,7 +1640,9 @@ int main(int argc, char **argv) {
     }
 
     /* close output file */
-    fclose(fop);
+    if (!is_trace) {
+        fclose(fop);
+    }
 
     /* Done with input text. */
     free(T);

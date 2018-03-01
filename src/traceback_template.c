@@ -204,8 +204,8 @@ static inline void CONCAT(NAME, T) (
         for (i=0; i<len; i+=width) {
             printf("\n");
             for (j=0; j<name_width; ++j) {
+                if (j >= namelenB) break;
                 printf("%c", nameB[j]);
-                if (j>=namelenB) break;
             }
             for (; j<name_width; ++j) {
                 printf(" ");
@@ -235,8 +235,8 @@ static inline void CONCAT(NAME, T) (
             }
             printf("\n");
             for (j=0; j<name_width; ++j) {
+                if (j >= namelenA) break;
                 printf("%c", nameA[j]);
-                if (j>=namelenA) break;
             }
             for (; j<name_width; ++j) {
                 printf(" ");

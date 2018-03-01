@@ -185,13 +185,13 @@ There are over 1,000 functions within the parasail library.  To make it easier t
   - Required, select vectorization strategy -- striped is a good place to start, but scan is often faster for global alignment.
   - Optional, select vector instruction set. Otherwise, best will be chosen for you.
   - Required, select solution width. 'sat' will attempt 8-bit solution but if overflow is detected it will then perform the 16-bit operation. Can be faster in some cases, though 16-bit is often sufficient.
-  - `parasail_ {nw,sg,sw} [_stats] [{_table,_rowcol}] {_striped,_scan,_diag} [{_sse2_128,_sse4_128,_avx2_256,_altivec_128}] {_8,_16,_32,_64,_sat}`
+  - `parasail_ {nw,sg,sw} [_stats] [{_table,_rowcol}] {_striped,_scan,_diag} [{_sse2_128,_sse41_128,_avx2_256,_altivec_128}] {_8,_16,_32,_64,_sat}`
 - Vectorized, traceback-capable.
   - Required, select one of global (nw), semi-global (sg), or local (sw) alignment.
   - Required, select vectorization strategy -- striped is a good place to start, but scan is often faster for global alignment.
   - Optional, select vector instruction set. Otherwise, best will be chosen for you.
   - Required, select solution width. 'sat' will attempt 8-bit solution but if overflow is detected it will then perform the 16-bit operation. Can be faster in some cases, though 16-bit is often sufficient.
-  - `parasail_ {nw,sg,sw} _trace {_striped,_scan,_diag} [{_sse2_128,_sse4_128,_avx2_256,_altivec_128}] {_8,_16,_32,_64,_sat}`
+  - `parasail_ {nw,sg,sw} _trace {_striped,_scan,_diag} [{_sse2_128,_sse41_128,_avx2_256,_altivec_128}] {_8,_16,_32,_64,_sat}`
 
 For example:
 

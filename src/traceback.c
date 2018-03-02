@@ -10,6 +10,11 @@
 #include "parasail.h"
 #include "parasail/memory.h"
 
+/* snprintf is available in VS 2015 and later */
+#if defined(_MSC_VER) && _MSC_VER < 1900
+#define snprintf _snprintf
+#endif
+
 static inline int weight(
         const char a,
         const char b,

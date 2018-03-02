@@ -32,19 +32,19 @@ static inline void CONCAT(NAME, T) (
     char *qc = q;
     char *dc = d;
     char *ac = a;
-    int i = result->end_query;
-    int j = result->end_ref;
+    int64_t i = result->end_query;
+    int64_t j = result->end_ref;
     int where = PARASAIL_DIAG;
-    int c_ins = 0;
-    int c_del = 0;
+    int64_t c_ins = 0;
+    int64_t c_del = 0;
     D *HT = (D*)result->trace->trace_table;
-    int namelenA = (NULL == nameA) ? 0 : (int)strlen(nameA);
-    int namelenB = (NULL == nameB) ? 0 : (int)strlen(nameB);
+    int64_t namelenA = (NULL == nameA) ? 0 : (int64_t)strlen(nameA);
+    int64_t namelenB = (NULL == nameB) ? 0 : (int64_t)strlen(nameB);
     char tmp[32];
     int _int_width = 0;
 #if defined(STRIPED)
-    int32_t segWidth = 0;
-    int32_t segLen = 0;
+    int64_t segWidth = 0;
+    int64_t segLen = 0;
     if (result->flag & PARASAIL_FLAG_LANES_1) {
         segWidth = 1;
     }
@@ -194,15 +194,15 @@ static inline void CONCAT(NAME, T) (
         char *qr = NULL;
         char *ar = NULL;
         char *dr = NULL;
-        int mch = 0;
-        int sim = 0;
-        int gap = 0;
-        int len = strlen(a);
-        int q_pindex = 0;
-        int d_pindex = 0;
-        int qi = 0;
-        int ai = 0;
-        int di = 0;
+        int64_t mch = 0;
+        int64_t sim = 0;
+        int64_t gap = 0;
+        int64_t len = strlen(a);
+        int64_t q_pindex = 0;
+        int64_t d_pindex = 0;
+        int64_t qi = 0;
+        int64_t ai = 0;
+        int64_t di = 0;
 
         if (result->flag & PARASAIL_FLAG_SW) {
             q_pindex = result->end_query + 1 - len + c_ins;
@@ -224,13 +224,13 @@ static inline void CONCAT(NAME, T) (
             for (; j<name_width; ++j) {
                 fprintf(stream, " ");
             }
-            fprintf(stream, " %*d ", int_width, d_pindex+1);
+            fprintf(stream, " %*lld ", int_width, d_pindex+1);
             for (j=0; j<len&&j<width&&di<len; ++j) {
                 if (dr[di] != '-') ++d_pindex;
                 fprintf(stream, "%c", dr[di]);
                 ++di;
             }
-            fprintf(stream, " %*d\n", int_width, d_pindex);
+            fprintf(stream, " %*lld\n", int_width, d_pindex);
             for (j=0; j<name_width+1+int_width+1; ++j) {
                 fprintf(stream, " ");
             }
@@ -254,20 +254,20 @@ static inline void CONCAT(NAME, T) (
             for (; j<name_width; ++j) {
                 fprintf(stream, " ");
             }
-            fprintf(stream, " %*d ", int_width, q_pindex+1);
+            fprintf(stream, " %*lld ", int_width, q_pindex+1);
             for (j=0; j<len&&j<width&&qi<len; ++j) {
                 if (qr[qi] != '-') ++q_pindex;
                 fprintf(stream, "%c", qr[qi]);
                 ++qi;
             }
-            fprintf(stream, " %*d\n", int_width, q_pindex);
+            fprintf(stream, " %*lld\n", int_width, q_pindex);
         }
         if (use_stats) {
             fprintf(stream, "\n");
-            fprintf(stream, "Length: %d\n", len);
-            fprintf(stream, "Identity:   %*d/%d (%4.1f%%)\n", int_width, mch, len, 100.0*mch/len);
-            fprintf(stream, "Similarity: %*d/%d (%4.1f%%)\n", int_width, sim, len, 100.0*sim/len);
-            fprintf(stream, "Gaps:       %*d/%d (%4.1f%%)\n", int_width, gap, len, 100.0*gap/len);
+            fprintf(stream, "Length: %lld\n", len);
+            fprintf(stream, "Identity:   %*lld/%lld (%4.1f%%)\n", int_width, mch, len, 100.0*mch/len);
+            fprintf(stream, "Similarity: %*lld/%lld (%4.1f%%)\n", int_width, sim, len, 100.0*sim/len);
+            fprintf(stream, "Gaps:       %*lld/%lld (%4.1f%%)\n", int_width, gap, len, 100.0*gap/len);
             fprintf(stream, "Score: %d\n", result->score);
         }
         free(qr);

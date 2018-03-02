@@ -361,6 +361,7 @@ parasail_matrix_t* parasail_matrix_create(
     size_t c = 0;
 
     size = strlen(alphabet);
+    assert(size < INT_MAX);
     size1 = size + 1;
 
     matrix = (int*)malloc(sizeof(int)*size1*size1);
@@ -382,7 +383,7 @@ parasail_matrix_t* parasail_matrix_create(
 
     mapper = (int*)malloc(sizeof(int)*256);
     assert(mapper);
-    parasail_memset_int(mapper, size, 256);
+    parasail_memset_int(mapper, (int)size, 256);
     for (i=0; i<size; ++i) {
         mapper[toupper((unsigned char)alphabet[i])] = (int)i;
         mapper[tolower((unsigned char)alphabet[i])] = (int)i;
@@ -542,11 +543,11 @@ void parasail_profile_free(parasail_profile_t *profile)
     free(profile);
 }
 
-char* parasail_reverse(const char *s, int length)
+char* parasail_reverse(const char *s, size_t length)
 {
     char *r = NULL;
-    int i = 0;
-    int j = 0;
+    size_t i = 0;
+    size_t j = 0;
 
     r = (char*)malloc(sizeof(char)*(length + 1));
     r[length] = '\0';
@@ -557,11 +558,11 @@ char* parasail_reverse(const char *s, int length)
     return r;
 }
 
-uint32_t* parasail_reverse_uint32_t(const uint32_t *s, int length)
+uint32_t* parasail_reverse_uint32_t(const uint32_t *s, size_t length)
 {
     uint32_t *r = NULL;
-    int i = 0;
-    int j = 0;
+    size_t i = 0;
+    size_t j = 0;
 
     r = (uint32_t*)malloc(sizeof(uint32_t)*(length));
     for (i=0,j=length-1; i<length; ++i,--j) {

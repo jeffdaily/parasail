@@ -43,8 +43,8 @@ extern parasail_result_t* parasail_result_new_trace(const int a, const int b, co
 extern parasail_profile_t* parasail_profile_new(
         const char * s1, const int s1Len, const parasail_matrix_t *matrix);
 
-extern char* parasail_reverse(const char *s, int end);
-extern uint32_t* parasail_reverse_uint32_t(const uint32_t *s, int end);
+extern char* parasail_reverse(const char *s, size_t end);
+extern uint32_t* parasail_reverse_uint32_t(const uint32_t *s, size_t end);
 
 #if SIZEOF_INT == 1
 #define PARASAIL_FLAG_BITS_INT PARASAIL_FLAG_BITS_8

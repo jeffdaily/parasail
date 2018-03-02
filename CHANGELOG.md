@@ -9,6 +9,9 @@ The Unreleased section will be empty for tagged releases. Unreleased functionali
 
 ### Fixed
 - parasail_aligner would seg fault at the end if not producing trace output
+- parasail_traceback_generic()
+  - sequence name buffers no longer overrun
+  - alignment indexes can now be longer than 7 digits
 
 ## [2.1] - 2018-01-15
 ### Added

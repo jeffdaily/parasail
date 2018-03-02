@@ -106,22 +106,26 @@ static inline void CONCAT(NAME, T) (
         LOC
         //assert(i >= 0 && j >= 0);
         if (i < 0) {
-            while (j >= 0) {
-                ++c_ins;
-                *(qc++) = '-';
-                *(dc++) = seqB[j];
-                *(ac++) = ' ';
-                --j;
+            if (!(result->flag & PARASAIL_FLAG_SW)) {
+                while (j >= 0) {
+                    ++c_ins;
+                    *(qc++) = '-';
+                    *(dc++) = seqB[j];
+                    *(ac++) = ' ';
+                    --j;
+                }
             }
             break;
         }
         if (j < 0) {
-            while (i >= 0) {
-                ++c_del;
-                *(qc++) = seqA[i];
-                *(dc++) = '-';
-                *(ac++) = ' ';
-                --i;
+            if (!(result->flag & PARASAIL_FLAG_SW)) {
+                while (i >= 0) {
+                    ++c_del;
+                    *(qc++) = seqA[i];
+                    *(dc++) = '-';
+                    *(ac++) = ' ';
+                    --i;
+                }
             }
             break;
         }

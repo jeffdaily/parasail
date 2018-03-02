@@ -185,6 +185,7 @@ inline static void output_basic(
         long long stop);
 
 inline static void output_emboss(
+        FILE *fop,
         bool has_query,
         long sid_crossover,
         const parasail_matrix_t *matrix,
@@ -196,6 +197,7 @@ inline static void output_emboss(
         long long stop);
 
 inline static void output_ssw(
+        FILE *fop,
         bool has_query,
         long sid_crossover,
         const parasail_matrix_t *matrix,
@@ -207,6 +209,7 @@ inline static void output_ssw(
         long long stop);
 
 inline static void output_sam(
+        FILE *fop,
         bool use_sam_header,
         bool has_query,
         long sid_crossover,
@@ -524,6 +527,7 @@ int main(int argc, char **argv) {
     const char *fname = NULL;
     const char *qname = NULL;
     const char *oname = "parasail.csv";
+    bool oname_from_user = false;
     parasail_sequences_t *sequences = NULL;
     parasail_sequences_t *queries = NULL;
     unsigned char *T = NULL;
@@ -646,6 +650,7 @@ int main(int argc, char **argv) {
                 break;
             case 'g':
                 oname = optarg;
+                oname_from_user = true;
                 break;
             case 'G':
                 graph_output = true;
@@ -894,7 +899,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    if (is_trace) {
+    if (is_trace && !oname_from_user) {
         oname = "stdout";
     }
 
@@ -943,13 +948,16 @@ int main(int argc, char **argv) {
     }
 
     /* Best to know early whether we can open the output file. */
-    if (!is_trace) {
+    if (oname_from_user || !is_trace) {
         if ((fop = fopen(oname, "w")) == NULL) {
             eprintf(stderr, "%s: Cannot open output file `%s': ",
                     progname, oname);
             perror("fopen");
             exit(EXIT_FAILURE);
         }
+    }
+    else {
+        fop = stdout;
     }
 
     start = parasail_time();
@@ -1640,7 +1648,7 @@ int main(int argc, char **argv) {
     }
 
     /* close output file */
-    if (!is_trace) {
+    if (oname_from_user || !is_trace) {
         fclose(fop);
     }
 
@@ -2023,6 +2031,7 @@ inline static void output_basic(
 }
 
 inline static void output_emboss(
+        FILE *fop,
         bool has_query,
         long sid_crossover,
         const parasail_matrix_t *matrix,
@@ -2040,7 +2049,7 @@ inline static void output_emboss(
 
         if (has_query) {
             i = i - sid_crossover;
-            parasail_traceback_generic(
+            parasail_traceback_generic_extra(
                     queries->seqs[i].seq.s,
                     queries->seqs[i].seq.l,
                     sequences->seqs[j].seq.s,
@@ -2052,10 +2061,12 @@ inline static void output_emboss(
                     '|', ':', '.',
                     50,
                     14,
-                    1);
+                    1,
+                    7,
+                    fop);
         }
         else {
-            parasail_traceback_generic(
+            parasail_traceback_generic_extra(
                     sequences->seqs[i].seq.s,
                     sequences->seqs[i].seq.l,
                     sequences->seqs[j].seq.s,
@@ -2067,12 +2078,15 @@ inline static void output_emboss(
                     '|', ':', '.',
                     50,
                     14,
-                    1);
+                    1,
+                    7,
+                    fop);
         }
     }
 }
 
 inline static void output_ssw(
+        FILE *fop,
         bool has_query,
         long sid_crossover,
         const parasail_matrix_t *matrix,
@@ -2091,8 +2105,8 @@ inline static void output_ssw(
 
         if (has_query) {
             i = i - sid_crossover;
-            printf("target_name: %s\n", sequences->seqs[j].name.s);
-            printf("query_name: %s\n", queries->seqs[i].name.s);
+            fprintf(fop, "target_name: %s\n", sequences->seqs[j].name.s);
+            fprintf(fop, "query_name: %s\n", queries->seqs[i].name.s);
             cigar = parasail_result_get_cigar(result,
                     queries->seqs[i].seq.s,
                     queries->seqs[i].seq.l,
@@ -2101,8 +2115,8 @@ inline static void output_ssw(
                     matrix);
         }
         else {
-            printf("target_name: %s\n", sequences->seqs[j].name.s);
-            printf("query_name: %s\n", sequences->seqs[i].name.s);
+            fprintf(fop, "target_name: %s\n", sequences->seqs[j].name.s);
+            fprintf(fop, "query_name: %s\n", sequences->seqs[i].name.s);
             cigar = parasail_result_get_cigar(result,
                     sequences->seqs[i].seq.s,
                     sequences->seqs[i].seq.l,
@@ -2111,7 +2125,7 @@ inline static void output_ssw(
                     matrix);
         }
 
-        printf("optimal_alignment_score: %d"
+        fprintf(fop, "optimal_alignment_score: %d"
                 "\tstrand: +"
                 "\ttarget_begin: %d"
                 "\ttarget_end: %d"
@@ -2127,7 +2141,7 @@ inline static void output_ssw(
         parasail_cigar_free(cigar);
 
         if (has_query) {
-            parasail_traceback_generic(
+            parasail_traceback_generic_extra(
                     queries->seqs[i].seq.s,
                     queries->seqs[i].seq.l,
                     sequences->seqs[j].seq.s,
@@ -2139,10 +2153,12 @@ inline static void output_ssw(
                     '|', '*', '*',
                     60,
                     10,
-                    0);
+                    0,
+                    7,
+                    fop);
         }
         else {
-            parasail_traceback_generic(
+            parasail_traceback_generic_extra(
                     sequences->seqs[i].seq.s,
                     sequences->seqs[i].seq.l,
                     sequences->seqs[j].seq.s,
@@ -2154,12 +2170,15 @@ inline static void output_ssw(
                     '|', '*', '*',
                     60,
                     10,
-                    0);
+                    0,
+                    7,
+                    fop);
         }
     }
 }
 
 inline static void output_sam(
+        FILE *fop,
         bool use_sam_header,
         bool has_query,
         long sid_crossover,
@@ -2172,10 +2191,10 @@ inline static void output_sam(
         long long stop)
 {
     if (use_sam_header && has_query && 0 == start) {
-        fprintf(stdout, "@HD\tVN:1.4\tSO:queryname\n");
+        fprintf(fop, "@HD\tVN:1.4\tSO:queryname\n");
         for (size_t index=0; index<sequences->l; ++index) {
             parasail_sequence_t ref_seq = sequences->seqs[index];
-            fprintf(stdout, "@SQ\tSN:%s\tLN:%d\n",
+            fprintf(fop, "@SQ\tSN:%s\tLN:%d\n",
                     ref_seq.name.s, (int32_t)ref_seq.seq.l);
         }
     }
@@ -2195,9 +2214,9 @@ inline static void output_sam(
             read_seq = sequences->seqs[i];
         }
 
-        fprintf(stdout, "%s\t", read_seq.name.s);
+        fprintf(fop, "%s\t", read_seq.name.s);
         if (result->score == 0) {
-            fprintf(stdout, "4\t*\t0\t255\t*\t*\t0\t0\t*\t*\n");
+            fprintf(fop, "4\t*\t0\t255\t*\t*\t0\t0\t*\t*\n");
         }
         else {
             int32_t c = 0;
@@ -2212,16 +2231,16 @@ inline static void output_sam(
                     ref_seq.seq.s, ref_seq.seq.l,
                     matrix);
 
-            fprintf(stdout, "0\t");
-            fprintf(stdout, "%s\t%d\t%d\t",
+            fprintf(fop, "0\t");
+            fprintf(fop, "%s\t%d\t%d\t",
                     ref_seq.name.s, cigar->beg_ref + 1, mapq);
             if (cigar->beg_query > 0) {
-                fprintf(stdout, "%dS", cigar->beg_query);
+                fprintf(fop, "%dS", cigar->beg_query);
             }
             for (c=0; c<cigar->len; ++c) {
                 char letter = parasail_cigar_decode_op(cigar->seq[c]);
                 uint32_t length = parasail_cigar_decode_len(cigar->seq[c]);
-                fprintf(stdout, "%lu%c", (unsigned long)length, letter);
+                fprintf(fop, "%lu%c", (unsigned long)length, letter);
                 if ('X' == letter || 'I' == letter || 'D' == letter) {
                     mismatch += length;
                 }
@@ -2229,20 +2248,20 @@ inline static void output_sam(
 
             length = read_seq.seq.l - result->end_query - 1;
             if (length > 0) {
-                fprintf(stdout, "%dS", length);
+                fprintf(fop, "%dS", length);
             }
-            fprintf(stdout, "\t*\t0\t0\t");
-            fprintf(stdout, "%s", read_seq.seq.s);
-            fprintf(stdout, "\t");
+            fprintf(fop, "\t*\t0\t0\t");
+            fprintf(fop, "%s", read_seq.seq.s);
+            fprintf(fop, "\t");
             if (read_seq.qual.s) {
-                fprintf (stdout, "%s", read_seq.qual.s);
+                fprintf (fop, "%s", read_seq.qual.s);
             }
             else {
-                fprintf(stdout, "*");
+                fprintf(fop, "*");
             }
-            fprintf(stdout, "\tAS:i:%d", result->score);
-            fprintf(stdout,"\tNM:i:%d\t", mismatch);
-            fprintf(stdout, "\n");
+            fprintf(fop, "\tAS:i:%d", result->score);
+            fprintf(fop,"\tNM:i:%d\t", mismatch);
+            fprintf(fop, "\n");
 
             parasail_cigar_free(cigar);
         }
@@ -2370,13 +2389,13 @@ inline static void output(
     }
     else if (is_trace) {
         if (use_emboss_format) {
-            output_emboss(has_query, sid_crossover, matrix, vpairs, queries, sequences, results, start, stop);
+            output_emboss(fop, has_query, sid_crossover, matrix, vpairs, queries, sequences, results, start, stop);
         }
         else if (use_ssw_format) {
-            output_ssw(has_query, sid_crossover, matrix, vpairs, queries, sequences, results, start, stop);
+            output_ssw(fop, has_query, sid_crossover, matrix, vpairs, queries, sequences, results, start, stop);
         }
         else if (use_sam_format) {
-            output_sam(use_sam_header, has_query, sid_crossover, matrix, vpairs, queries, sequences, results, start, stop);
+            output_sam(fop, use_sam_header, has_query, sid_crossover, matrix, vpairs, queries, sequences, results, start, stop);
         }
         else {
             output_trace(fop, has_query, sid_crossover, T, matrix, BEG, END, vpairs, results, start, stop);

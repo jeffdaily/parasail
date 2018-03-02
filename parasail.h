@@ -8,6 +8,7 @@
 #ifndef _PARASAIL_H_
 #define _PARASAIL_H_
 
+#include <stdio.h>
 #include <stdint.h>
 
 #ifdef __cplusplus
@@ -279,6 +280,22 @@ extern void parasail_traceback_generic(
         int width,
         int name_width,
         int use_stats);
+
+extern void parasail_traceback_generic_extra(
+        const char *seqA,
+        int lena,
+        const char *seqB,
+        int lenb,
+        const char *nameA,
+        const char *nameB,
+        const parasail_matrix_t *matrix,
+        parasail_result_t *result,
+        char match, char pos, char neg,
+        int width,
+        int name_width,
+        int use_stats,
+        int int_width,
+        FILE *stream);
 
 extern const uint8_t parasail_cigar_encoded_ops[];
 

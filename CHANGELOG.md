@@ -7,6 +7,13 @@ This project follows the [Gitflow Workflow model](https://www.atlassian.com/git/
 ## [Unreleased]
 The Unreleased section will be empty for tagged releases. Unreleased functionality appears in the develop branch.
 
+### Added
+- parasail_traceback_generic_extra() to specify index width, FILE stream
+
+### Changed
+- parasail_aligner with tracebacks can now redirect to a file using `-g`.
+  Default is still stdout.
+
 ### Fixed
 - parasail_aligner would seg fault at the end if not producing trace output
 - parasail_traceback_generic()

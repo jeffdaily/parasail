@@ -22,7 +22,9 @@ static inline void CONCAT(NAME, T) (
         char match, char pos, char neg,
         int width,
         int name_width,
-        int use_stats)
+        int use_stats,
+        int int_width,
+        FILE *stream)
 {
     char *q = malloc(sizeof(char)*(lena+lenb));
     char *d = malloc(sizeof(char)*(lena+lenb));
@@ -39,7 +41,7 @@ static inline void CONCAT(NAME, T) (
     int namelenA = (NULL == nameA) ? 0 : (int)strlen(nameA);
     int namelenB = (NULL == nameB) ? 0 : (int)strlen(nameB);
     char tmp[32];
-    int int_width = 0;
+    int _int_width = 0;
 #if defined(STRIPED)
     int32_t segWidth = 0;
     int32_t segLen = 0;
@@ -67,8 +69,11 @@ static inline void CONCAT(NAME, T) (
     segLen = (lena + segWidth - 1) / segWidth;
 #endif
     /* how wide does our index label need to be? */
-    int_width = snprintf(tmp, 32, "%llu", (uint64_t)lena+(uint64_t)lenb);
-    int_width = int_width < 7 ? 7 : int_width;
+    _int_width = snprintf(tmp, 32, "%llu", (uint64_t)lena+(uint64_t)lenb);
+    /* if requested int width is too small, override it */
+    if (int_width < _int_width) {
+        int_width = _int_width;
+    }
     /* semi-global alignment includes the end gaps */
     if (result->flag & PARASAIL_FLAG_SG) {
         int k;
@@ -207,23 +212,23 @@ static inline void CONCAT(NAME, T) (
         ar = parasail_reverse(a, strlen(a));
         dr = parasail_reverse(d, strlen(d));
         for (i=0; i<len; i+=width) {
-            printf("\n");
+            fprintf(stream, "\n");
             for (j=0; j<name_width; ++j) {
                 if (j >= namelenB) break;
-                printf("%c", nameB[j]);
+                fprintf(stream, "%c", nameB[j]);
             }
             for (; j<name_width; ++j) {
-                printf(" ");
+                fprintf(stream, " ");
             }
-            printf(" %*d ", int_width, d_pindex+1);
+            fprintf(stream, " %*d ", int_width, d_pindex+1);
             for (j=0; j<len&&j<width&&di<len; ++j) {
                 if (dr[di] != '-') ++d_pindex;
-                printf("%c", dr[di]);
+                fprintf(stream, "%c", dr[di]);
                 ++di;
             }
-            printf(" %*d\n", int_width, d_pindex);
+            fprintf(stream, " %*d\n", int_width, d_pindex);
             for (j=0; j<name_width+1+int_width+1; ++j) {
-                printf(" ");
+                fprintf(stream, " ");
             }
             for (j=0; j<len&&j<width&&ai<len; ++j) {
                 if (ar[ai] == match) { ++mch; ++sim; }
@@ -231,44 +236,44 @@ static inline void CONCAT(NAME, T) (
                 else if (ar[ai] == neg) ;
                 else if (ar[ai] == ' ') ++gap;
                 else {
-                    printf("bad char in traceback '%c'\n", ar[ai]);
+                    fprintf(stderr, "bad char in traceback '%c'\n", ar[ai]);
                     assert(0);
                 }
-                printf("%c", ar[ai]);
+                fprintf(stream, "%c", ar[ai]);
                 ++ai;
             }
-            printf("\n");
+            fprintf(stream, "\n");
             for (j=0; j<name_width; ++j) {
                 if (j >= namelenA) break;
-                printf("%c", nameA[j]);
+                fprintf(stream, "%c", nameA[j]);
             }
             for (; j<name_width; ++j) {
-                printf(" ");
+                fprintf(stream, " ");
             }
-            printf(" %*d ", int_width, q_pindex+1);
+            fprintf(stream, " %*d ", int_width, q_pindex+1);
             for (j=0; j<len&&j<width&&qi<len; ++j) {
                 if (qr[qi] != '-') ++q_pindex;
-                printf("%c", qr[qi]);
+                fprintf(stream, "%c", qr[qi]);
                 ++qi;
             }
-            printf(" %*d\n", int_width, q_pindex);
+            fprintf(stream, " %*d\n", int_width, q_pindex);
         }
         if (use_stats) {
-            printf("\n");
-            printf("Length: %d\n", len);
-            printf("Identity:   %*d/%d (%4.1f%%)\n", int_width, mch, len, 100.0*mch/len);
-            printf("Similarity: %*d/%d (%4.1f%%)\n", int_width, sim, len, 100.0*sim/len);
-            printf("Gaps:       %*d/%d (%4.1f%%)\n", int_width, gap, len, 100.0*gap/len);
-            printf("Score: %d\n", result->score);
+            fprintf(stream, "\n");
+            fprintf(stream, "Length: %d\n", len);
+            fprintf(stream, "Identity:   %*d/%d (%4.1f%%)\n", int_width, mch, len, 100.0*mch/len);
+            fprintf(stream, "Similarity: %*d/%d (%4.1f%%)\n", int_width, sim, len, 100.0*sim/len);
+            fprintf(stream, "Gaps:       %*d/%d (%4.1f%%)\n", int_width, gap, len, 100.0*gap/len);
+            fprintf(stream, "Score: %d\n", result->score);
         }
         free(qr);
         free(ar);
         free(dr);
     }
     else {
-        printf("%s\n", q);
-        printf("%s\n", a);
-        printf("%s\n", d);
+        fprintf(stream, "%s\n", q);
+        fprintf(stream, "%s\n", a);
+        fprintf(stream, "%s\n", d);
     }
 
     free(q);

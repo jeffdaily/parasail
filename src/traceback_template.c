@@ -38,6 +38,8 @@ static inline void CONCAT(NAME, T) (
     D *HT = (D*)result->trace->trace_table;
     int namelenA = (NULL == nameA) ? 0 : (int)strlen(nameA);
     int namelenB = (NULL == nameB) ? 0 : (int)strlen(nameB);
+    char tmp[32];
+    int int_width = 0;
 #if defined(STRIPED)
     int32_t segWidth = 0;
     int32_t segLen = 0;
@@ -64,6 +66,9 @@ static inline void CONCAT(NAME, T) (
     }
     segLen = (lena + segWidth - 1) / segWidth;
 #endif
+    /* how wide does our index label need to be? */
+    int_width = snprintf(tmp, 32, "%llu", (uint64_t)lena+(uint64_t)lenb);
+    int_width = int_width < 7 ? 7 : int_width;
     /* semi-global alignment includes the end gaps */
     if (result->flag & PARASAIL_FLAG_SG) {
         int k;
@@ -210,17 +215,16 @@ static inline void CONCAT(NAME, T) (
             for (; j<name_width; ++j) {
                 printf(" ");
             }
-            printf(" %7d ", d_pindex+1);
+            printf(" %*d ", int_width, d_pindex+1);
             for (j=0; j<len&&j<width&&di<len; ++j) {
                 if (dr[di] != '-') ++d_pindex;
                 printf("%c", dr[di]);
                 ++di;
             }
-            printf(" %7d\n", d_pindex);
-            for (j=0; j<name_width+1; ++j) {
+            printf(" %*d\n", int_width, d_pindex);
+            for (j=0; j<name_width+1+int_width+1; ++j) {
                 printf(" ");
             }
-            printf("        ");
             for (j=0; j<len&&j<width&&ai<len; ++j) {
                 if (ar[ai] == match) { ++mch; ++sim; }
                 else if (ar[ai] == pos) ++sim;
@@ -241,20 +245,20 @@ static inline void CONCAT(NAME, T) (
             for (; j<name_width; ++j) {
                 printf(" ");
             }
-            printf(" %7d ", q_pindex+1);
+            printf(" %*d ", int_width, q_pindex+1);
             for (j=0; j<len&&j<width&&qi<len; ++j) {
                 if (qr[qi] != '-') ++q_pindex;
                 printf("%c", qr[qi]);
                 ++qi;
             }
-            printf(" %7d\n", q_pindex);
+            printf(" %*d\n", int_width, q_pindex);
         }
         if (use_stats) {
             printf("\n");
             printf("Length: %d\n", len);
-            printf("Identity:   %7d/%d (%4.1f%%)\n", mch, len, 100.0*mch/len);
-            printf("Similarity: %7d/%d (%4.1f%%)\n", sim, len, 100.0*sim/len);
-            printf("Gaps:       %7d/%d (%4.1f%%)\n", gap, len, 100.0*gap/len);
+            printf("Identity:   %*d/%d (%4.1f%%)\n", int_width, mch, len, 100.0*mch/len);
+            printf("Similarity: %*d/%d (%4.1f%%)\n", int_width, sim, len, 100.0*sim/len);
+            printf("Gaps:       %*d/%d (%4.1f%%)\n", int_width, gap, len, 100.0*gap/len);
             printf("Score: %d\n", result->score);
         }
         free(qr);

@@ -70,13 +70,13 @@ static inline parasail_cigar_t* CONCAT(NAME, T) (
     uint32_t c_mis = 0;
     uint32_t c_del = 0;
     uint32_t c_ins = 0;
-    int i = result->end_query;
-    int j = result->end_ref;
+    int64_t i = result->end_query;
+    int64_t j = result->end_ref;
     int where = PARASAIL_DIAG;
     D *HT = (D*)result->trace->trace_table;
 #if defined(STRIPED)
-    int32_t segWidth = 0;
-    int32_t segLen = 0;
+    int64_t segWidth = 0;
+    int64_t segLen = 0;
     if (result->flag & PARASAIL_FLAG_LANES_1) {
         segWidth = 1;
     }
@@ -107,7 +107,7 @@ static inline parasail_cigar_t* CONCAT(NAME, T) (
     UNUSED(matrix);
     /* semi-global alignment includes the end gaps */
     if (result->flag & PARASAIL_FLAG_SG) {
-        int k;
+        int64_t k;
         if (result->end_query+1 == lena) {
             k = lenb-1;
             while (k > j) {

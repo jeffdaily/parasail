@@ -153,8 +153,8 @@ void parasail_cigar_free(parasail_cigar_t *cigar)
 #define CONCAT(X, Y) CONCAT_(X, Y)
 #define CONCAT3_(X, Y, Z) X##Y##Z
 #define CONCAT3(X, Y, Z) CONCAT3_(X, Y, Z)
-#define LOC_NOVEC int loc = i*lenb + j;
-#define LOC_STRIPED int loc = j*segLen*segWidth + (i%segLen)*segWidth + (i/segLen);
+#define LOC_NOVEC int64_t loc = i*lenb + j;
+#define LOC_STRIPED int64_t loc = j*segLen*segWidth + (i%segLen)*segWidth + (i/segLen);
 
 #define T 8
 #include "cigar_template.c"

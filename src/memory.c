@@ -9,6 +9,7 @@
 
 #include <assert.h>
 #include <ctype.h>
+#include <limits.h>
 #ifdef HAVE_MALLOC_H
 #include <malloc.h>
 #endif

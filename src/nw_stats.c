@@ -159,10 +159,10 @@ parasail_result_t* ENAME(
             HS[j] = WHS;
             HL[j] = WHL;
 #ifdef PARASAIL_TABLE
-            result->stats->tables->score_table[(i-1)*s2Len + (j-1)] = WH;
-            result->stats->tables->matches_table[(i-1)*s2Len + (j-1)] = WHM;
-            result->stats->tables->similar_table[(i-1)*s2Len + (j-1)] = WHS;
-            result->stats->tables->length_table[(i-1)*s2Len + (j-1)] = WHL;
+            result->stats->tables->score_table[1LL*(i-1)*s2Len + (j-1)] = WH;
+            result->stats->tables->matches_table[1LL*(i-1)*s2Len + (j-1)] = WHM;
+            result->stats->tables->similar_table[1LL*(i-1)*s2Len + (j-1)] = WHS;
+            result->stats->tables->length_table[1LL*(i-1)*s2Len + (j-1)] = WHL;
 #endif
         }
 #ifdef PARASAIL_ROWCOL

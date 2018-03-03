@@ -83,7 +83,7 @@ parasail_result_t* ENAME(
             tbl_pr[j] = NWscore + matrow[s2[j-1]];
             Wscore = tbl_pr[j] = MAX(tbl_pr[j],MAX(ins_cr,del_pr[j]));
 #ifdef PARASAIL_TABLE
-            result->tables->score_table[(i-1)*s2Len + (j-1)] = Wscore;
+            result->tables->score_table[1LL*(i-1)*s2Len + (j-1)] = Wscore;
 #endif
         }
 #ifdef PARASAIL_ROWCOL
@@ -120,7 +120,7 @@ parasail_result_t* ENAME(
                 end_ref = j-1;
             }
 #ifdef PARASAIL_TABLE
-            result->tables->score_table[(i-1)*s2Len + (j-1)] = Wscore;
+            result->tables->score_table[1LL*(i-1)*s2Len + (j-1)] = Wscore;
 #endif
 #ifdef PARASAIL_ROWCOL
             result->rowcols->score_row[j-1] = tbl_pr[j];

@@ -192,10 +192,10 @@ parasail_result_t* ENAME(
                 HL[i] = 0;
             }
 #ifdef PARASAIL_TABLE
-            result->stats->tables->score_table[i*s2Len + j] = H[i];
-            result->stats->tables->matches_table[i*s2Len + j] = HM[i];
-            result->stats->tables->similar_table[i*s2Len + j] = HS[i];
-            result->stats->tables->length_table[i*s2Len + j] = HL[i];
+            result->stats->tables->score_table[1LL*i*s2Len + j] = H[i];
+            result->stats->tables->matches_table[1LL*i*s2Len + j] = HM[i];
+            result->stats->tables->similar_table[1LL*i*s2Len + j] = HS[i];
+            result->stats->tables->length_table[1LL*i*s2Len + j] = HL[i];
 #endif
             /* max value */
             if (H[i] > score) {

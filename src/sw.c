@@ -104,7 +104,7 @@ parasail_result_t* ENAME(
             }
             score = MAX(score,WH);
 #ifdef PARASAIL_TABLE
-            result->tables->score_table[(i-1)*s2Len + (j-1)] = WH;
+            result->tables->score_table[1LL*(i-1)*s2Len + (j-1)] = WH;
 #endif
         }
 #ifdef PARASAIL_ROWCOL

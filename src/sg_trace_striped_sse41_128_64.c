@@ -101,7 +101,7 @@ static inline void arr_store(
         int32_t seglen,
         int32_t d)
 {
-    _mm_store_si128(array + (d*seglen+t), vH);
+    _mm_store_si128(array + (1LL*d*seglen+t), vH);
 }
 
 static inline __m128i arr_load(
@@ -110,7 +110,7 @@ static inline __m128i arr_load(
         int32_t seglen,
         int32_t d)
 {
-    return _mm_load_si128(array + (d*seglen+t));
+    return _mm_load_si128(array + (1LL*d*seglen+t));
 }
 
 #define FNAME parasail_sg_trace_striped_sse41_128_64

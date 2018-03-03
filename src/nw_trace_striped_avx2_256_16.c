@@ -51,7 +51,7 @@ static inline void arr_store(
         int32_t seglen,
         int32_t d)
 {
-    _mm256_store_si256(array + (d*seglen+t), vH);
+    _mm256_store_si256(array + (1LL*d*seglen+t), vH);
 }
 
 static inline __m256i arr_load(
@@ -60,7 +60,7 @@ static inline __m256i arr_load(
         int32_t seglen,
         int32_t d)
 {
-    return _mm256_load_si256(array + (d*seglen+t));
+    return _mm256_load_si256(array + (1LL*d*seglen+t));
 }
 
 #define FNAME parasail_nw_trace_striped_avx2_256_16

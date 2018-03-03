@@ -39,14 +39,14 @@ static inline void arr_store_si128(
         int32_t d,
         int32_t dlen)
 {
-    array[(0*seglen+t)*dlen + d] = (int16_t)_mm_extract_epi16(vH, 0);
-    array[(1*seglen+t)*dlen + d] = (int16_t)_mm_extract_epi16(vH, 1);
-    array[(2*seglen+t)*dlen + d] = (int16_t)_mm_extract_epi16(vH, 2);
-    array[(3*seglen+t)*dlen + d] = (int16_t)_mm_extract_epi16(vH, 3);
-    array[(4*seglen+t)*dlen + d] = (int16_t)_mm_extract_epi16(vH, 4);
-    array[(5*seglen+t)*dlen + d] = (int16_t)_mm_extract_epi16(vH, 5);
-    array[(6*seglen+t)*dlen + d] = (int16_t)_mm_extract_epi16(vH, 6);
-    array[(7*seglen+t)*dlen + d] = (int16_t)_mm_extract_epi16(vH, 7);
+    array[1LL*(0*seglen+t)*dlen + d] = (int16_t)_mm_extract_epi16(vH, 0);
+    array[1LL*(1*seglen+t)*dlen + d] = (int16_t)_mm_extract_epi16(vH, 1);
+    array[1LL*(2*seglen+t)*dlen + d] = (int16_t)_mm_extract_epi16(vH, 2);
+    array[1LL*(3*seglen+t)*dlen + d] = (int16_t)_mm_extract_epi16(vH, 3);
+    array[1LL*(4*seglen+t)*dlen + d] = (int16_t)_mm_extract_epi16(vH, 4);
+    array[1LL*(5*seglen+t)*dlen + d] = (int16_t)_mm_extract_epi16(vH, 5);
+    array[1LL*(6*seglen+t)*dlen + d] = (int16_t)_mm_extract_epi16(vH, 6);
+    array[1LL*(7*seglen+t)*dlen + d] = (int16_t)_mm_extract_epi16(vH, 7);
 }
 #endif
 

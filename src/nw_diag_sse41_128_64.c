@@ -86,10 +86,10 @@ static inline void arr_store_si128(
         int32_t s2Len)
 {
     if (0 <= i+0 && i+0 < s1Len && 0 <= j-0 && j-0 < s2Len) {
-        array[(i+0)*s2Len + (j-0)] = (int64_t)_mm_extract_epi64_rpl(vWH, 1);
+        array[1LL*(i+0)*s2Len + (j-0)] = (int64_t)_mm_extract_epi64_rpl(vWH, 1);
     }
     if (0 <= i+1 && i+1 < s1Len && 0 <= j-1 && j-1 < s2Len) {
-        array[(i+1)*s2Len + (j-1)] = (int64_t)_mm_extract_epi64_rpl(vWH, 0);
+        array[1LL*(i+1)*s2Len + (j-1)] = (int64_t)_mm_extract_epi64_rpl(vWH, 0);
     }
 }
 #endif

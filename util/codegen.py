@@ -86,11 +86,11 @@ def generate_printer(params):
         for lane in range(params["LANES"]):
             params["LANE"] = lane
             if params["LANES"] / 10:
-                text += "    array[(%(LANE)2d*seglen+t)*dlen + d] = (%(INT)s)%(VEXTRACT)s(vH, %(LANE)2d);\n" % params
-                trace += "    array[(%(LANE)2d*seglen+t)*dlen + d] = (int8_t)%(VEXTRACT)s(vH, %(LANE)2d);\n" % params
+                text += "    array[1LL*(%(LANE)2d*seglen+t)*dlen + d] = (%(INT)s)%(VEXTRACT)s(vH, %(LANE)2d);\n" % params
+                trace += "    array[1LL*(%(LANE)2d*seglen+t)*dlen + d] = (int8_t)%(VEXTRACT)s(vH, %(LANE)2d);\n" % params
             else:
-                text += "    array[(%(LANE)s*seglen+t)*dlen + d] = (%(INT)s)%(VEXTRACT)s(vH, %(LANE)s);\n" % params
-                trace += "    array[(%(LANE)s*seglen+t)*dlen + d] = (int8_t)%(VEXTRACT)s(vH, %(LANE)s);\n" % params
+                text += "    array[1LL*(%(LANE)s*seglen+t)*dlen + d] = (%(INT)s)%(VEXTRACT)s(vH, %(LANE)s);\n" % params
+                trace += "    array[1LL*(%(LANE)s*seglen+t)*dlen + d] = (int8_t)%(VEXTRACT)s(vH, %(LANE)s);\n" % params
         for lane in range(params["LANES"]):
             params["LANE"] = lane
             if params["LANES"] / 10:
@@ -100,9 +100,9 @@ def generate_printer(params):
         for lane in range(params["LANES"]):
             params["LANE"] = lane
             if params["LANES"] / 10:
-                bias += "    array[(%(LANE)2d*seglen+t)*dlen + d] = (%(INT)s)%(VEXTRACT)s(vH, %(LANE)2d) - bias;\n" % params
+                bias += "    array[1LL*(%(LANE)2d*seglen+t)*dlen + d] = (%(INT)s)%(VEXTRACT)s(vH, %(LANE)2d) - bias;\n" % params
             else:
-                bias += "    array[(%(LANE)s*seglen+t)*dlen + d] = (%(INT)s)%(VEXTRACT)s(vH, %(LANE)s) - bias;\n" % params
+                bias += "    array[1LL*(%(LANE)s*seglen+t)*dlen + d] = (%(INT)s)%(VEXTRACT)s(vH, %(LANE)s) - bias;\n" % params
         for lane in range(params["LANES"]):
             params["LANE"] = lane
             if params["LANES"] / 10:
@@ -115,11 +115,11 @@ def generate_printer(params):
             params["LANE_END"] = params["LANES"]-lane-1
             text += """
     if (0 <= i+%(LANE)s && i+%(LANE)s < s1Len && 0 <= j-%(LANE)s && j-%(LANE)s < s2Len) {
-        array[(i+%(LANE)s)*s2Len + (j-%(LANE)s)] = (%(INT)s)%(VEXTRACT)s(vWH, %(LANE_END)s);
+        array[1LL*(i+%(LANE)s)*s2Len + (j-%(LANE)s)] = (%(INT)s)%(VEXTRACT)s(vWH, %(LANE_END)s);
     }\n"""[1:] % params
             trace += """
     if (0 <= i+%(LANE)s && i+%(LANE)s < s1Len && 0 <= j-%(LANE)s && j-%(LANE)s < s2Len) {
-        array[(i+%(LANE)s)*s2Len + (j-%(LANE)s)] = (int8_t)%(VEXTRACT)s(vWH, %(LANE_END)s);
+        array[1LL*(i+%(LANE)s)*s2Len + (j-%(LANE)s)] = (int8_t)%(VEXTRACT)s(vWH, %(LANE_END)s);
     }\n"""[1:] % params
         for lane in range(params["LANES"]):
             params["LANE"] = lane

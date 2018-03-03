@@ -28,7 +28,7 @@ static inline void arr_store(
         %(INDEX)s seglen,
         %(INDEX)s d)
 {
-    %(VSTORE)s(array + (d*seglen+t), vH);
+    %(VSTORE)s(array + (1LL*d*seglen+t), vH);
 }
 
 static inline %(VTYPE)s arr_load(
@@ -37,7 +37,7 @@ static inline %(VTYPE)s arr_load(
         %(INDEX)s seglen,
         %(INDEX)s d)
 {
-    return %(VLOAD)s(array + (d*seglen+t));
+    return %(VLOAD)s(array + (1LL*d*seglen+t));
 }
 
 #define FNAME %(NAME_TRACE)s

@@ -52,28 +52,28 @@ static inline void arr_store_si256(
         int32_t s2Len)
 {
     if (0 <= i+0 && i+0 < s1Len && 0 <= j-0 && j-0 < s2Len) {
-        array[(i+0)*s2Len + (j-0)] = (int32_t)_mm256_extract_epi32_rpl(vWH, 7);
+        array[1LL*(i+0)*s2Len + (j-0)] = (int32_t)_mm256_extract_epi32_rpl(vWH, 7);
     }
     if (0 <= i+1 && i+1 < s1Len && 0 <= j-1 && j-1 < s2Len) {
-        array[(i+1)*s2Len + (j-1)] = (int32_t)_mm256_extract_epi32_rpl(vWH, 6);
+        array[1LL*(i+1)*s2Len + (j-1)] = (int32_t)_mm256_extract_epi32_rpl(vWH, 6);
     }
     if (0 <= i+2 && i+2 < s1Len && 0 <= j-2 && j-2 < s2Len) {
-        array[(i+2)*s2Len + (j-2)] = (int32_t)_mm256_extract_epi32_rpl(vWH, 5);
+        array[1LL*(i+2)*s2Len + (j-2)] = (int32_t)_mm256_extract_epi32_rpl(vWH, 5);
     }
     if (0 <= i+3 && i+3 < s1Len && 0 <= j-3 && j-3 < s2Len) {
-        array[(i+3)*s2Len + (j-3)] = (int32_t)_mm256_extract_epi32_rpl(vWH, 4);
+        array[1LL*(i+3)*s2Len + (j-3)] = (int32_t)_mm256_extract_epi32_rpl(vWH, 4);
     }
     if (0 <= i+4 && i+4 < s1Len && 0 <= j-4 && j-4 < s2Len) {
-        array[(i+4)*s2Len + (j-4)] = (int32_t)_mm256_extract_epi32_rpl(vWH, 3);
+        array[1LL*(i+4)*s2Len + (j-4)] = (int32_t)_mm256_extract_epi32_rpl(vWH, 3);
     }
     if (0 <= i+5 && i+5 < s1Len && 0 <= j-5 && j-5 < s2Len) {
-        array[(i+5)*s2Len + (j-5)] = (int32_t)_mm256_extract_epi32_rpl(vWH, 2);
+        array[1LL*(i+5)*s2Len + (j-5)] = (int32_t)_mm256_extract_epi32_rpl(vWH, 2);
     }
     if (0 <= i+6 && i+6 < s1Len && 0 <= j-6 && j-6 < s2Len) {
-        array[(i+6)*s2Len + (j-6)] = (int32_t)_mm256_extract_epi32_rpl(vWH, 1);
+        array[1LL*(i+6)*s2Len + (j-6)] = (int32_t)_mm256_extract_epi32_rpl(vWH, 1);
     }
     if (0 <= i+7 && i+7 < s1Len && 0 <= j-7 && j-7 < s2Len) {
-        array[(i+7)*s2Len + (j-7)] = (int32_t)_mm256_extract_epi32_rpl(vWH, 0);
+        array[1LL*(i+7)*s2Len + (j-7)] = (int32_t)_mm256_extract_epi32_rpl(vWH, 0);
     }
 }
 #endif

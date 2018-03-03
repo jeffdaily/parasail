@@ -32,10 +32,10 @@ static inline void arr_store_si128(
         int32_t d,
         int32_t dlen)
 {
-    array[(0*seglen+t)*dlen + d] = (int32_t)_mm_extract_epi32(vH, 0);
-    array[(1*seglen+t)*dlen + d] = (int32_t)_mm_extract_epi32(vH, 1);
-    array[(2*seglen+t)*dlen + d] = (int32_t)_mm_extract_epi32(vH, 2);
-    array[(3*seglen+t)*dlen + d] = (int32_t)_mm_extract_epi32(vH, 3);
+    array[1LL*(0*seglen+t)*dlen + d] = (int32_t)_mm_extract_epi32(vH, 0);
+    array[1LL*(1*seglen+t)*dlen + d] = (int32_t)_mm_extract_epi32(vH, 1);
+    array[1LL*(2*seglen+t)*dlen + d] = (int32_t)_mm_extract_epi32(vH, 2);
+    array[1LL*(3*seglen+t)*dlen + d] = (int32_t)_mm_extract_epi32(vH, 3);
 }
 #endif
 

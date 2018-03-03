@@ -72,100 +72,100 @@ static inline void arr_store_si256(
         int32_t s2Len)
 {
     if (0 <= i+0 && i+0 < s1Len && 0 <= j-0 && j-0 < s2Len) {
-        array[(i+0)*s2Len + (j-0)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 31);
+        array[1LL*(i+0)*s2Len + (j-0)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 31);
     }
     if (0 <= i+1 && i+1 < s1Len && 0 <= j-1 && j-1 < s2Len) {
-        array[(i+1)*s2Len + (j-1)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 30);
+        array[1LL*(i+1)*s2Len + (j-1)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 30);
     }
     if (0 <= i+2 && i+2 < s1Len && 0 <= j-2 && j-2 < s2Len) {
-        array[(i+2)*s2Len + (j-2)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 29);
+        array[1LL*(i+2)*s2Len + (j-2)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 29);
     }
     if (0 <= i+3 && i+3 < s1Len && 0 <= j-3 && j-3 < s2Len) {
-        array[(i+3)*s2Len + (j-3)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 28);
+        array[1LL*(i+3)*s2Len + (j-3)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 28);
     }
     if (0 <= i+4 && i+4 < s1Len && 0 <= j-4 && j-4 < s2Len) {
-        array[(i+4)*s2Len + (j-4)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 27);
+        array[1LL*(i+4)*s2Len + (j-4)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 27);
     }
     if (0 <= i+5 && i+5 < s1Len && 0 <= j-5 && j-5 < s2Len) {
-        array[(i+5)*s2Len + (j-5)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 26);
+        array[1LL*(i+5)*s2Len + (j-5)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 26);
     }
     if (0 <= i+6 && i+6 < s1Len && 0 <= j-6 && j-6 < s2Len) {
-        array[(i+6)*s2Len + (j-6)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 25);
+        array[1LL*(i+6)*s2Len + (j-6)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 25);
     }
     if (0 <= i+7 && i+7 < s1Len && 0 <= j-7 && j-7 < s2Len) {
-        array[(i+7)*s2Len + (j-7)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 24);
+        array[1LL*(i+7)*s2Len + (j-7)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 24);
     }
     if (0 <= i+8 && i+8 < s1Len && 0 <= j-8 && j-8 < s2Len) {
-        array[(i+8)*s2Len + (j-8)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 23);
+        array[1LL*(i+8)*s2Len + (j-8)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 23);
     }
     if (0 <= i+9 && i+9 < s1Len && 0 <= j-9 && j-9 < s2Len) {
-        array[(i+9)*s2Len + (j-9)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 22);
+        array[1LL*(i+9)*s2Len + (j-9)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 22);
     }
     if (0 <= i+10 && i+10 < s1Len && 0 <= j-10 && j-10 < s2Len) {
-        array[(i+10)*s2Len + (j-10)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 21);
+        array[1LL*(i+10)*s2Len + (j-10)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 21);
     }
     if (0 <= i+11 && i+11 < s1Len && 0 <= j-11 && j-11 < s2Len) {
-        array[(i+11)*s2Len + (j-11)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 20);
+        array[1LL*(i+11)*s2Len + (j-11)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 20);
     }
     if (0 <= i+12 && i+12 < s1Len && 0 <= j-12 && j-12 < s2Len) {
-        array[(i+12)*s2Len + (j-12)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 19);
+        array[1LL*(i+12)*s2Len + (j-12)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 19);
     }
     if (0 <= i+13 && i+13 < s1Len && 0 <= j-13 && j-13 < s2Len) {
-        array[(i+13)*s2Len + (j-13)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 18);
+        array[1LL*(i+13)*s2Len + (j-13)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 18);
     }
     if (0 <= i+14 && i+14 < s1Len && 0 <= j-14 && j-14 < s2Len) {
-        array[(i+14)*s2Len + (j-14)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 17);
+        array[1LL*(i+14)*s2Len + (j-14)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 17);
     }
     if (0 <= i+15 && i+15 < s1Len && 0 <= j-15 && j-15 < s2Len) {
-        array[(i+15)*s2Len + (j-15)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 16);
+        array[1LL*(i+15)*s2Len + (j-15)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 16);
     }
     if (0 <= i+16 && i+16 < s1Len && 0 <= j-16 && j-16 < s2Len) {
-        array[(i+16)*s2Len + (j-16)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 15);
+        array[1LL*(i+16)*s2Len + (j-16)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 15);
     }
     if (0 <= i+17 && i+17 < s1Len && 0 <= j-17 && j-17 < s2Len) {
-        array[(i+17)*s2Len + (j-17)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 14);
+        array[1LL*(i+17)*s2Len + (j-17)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 14);
     }
     if (0 <= i+18 && i+18 < s1Len && 0 <= j-18 && j-18 < s2Len) {
-        array[(i+18)*s2Len + (j-18)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 13);
+        array[1LL*(i+18)*s2Len + (j-18)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 13);
     }
     if (0 <= i+19 && i+19 < s1Len && 0 <= j-19 && j-19 < s2Len) {
-        array[(i+19)*s2Len + (j-19)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 12);
+        array[1LL*(i+19)*s2Len + (j-19)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 12);
     }
     if (0 <= i+20 && i+20 < s1Len && 0 <= j-20 && j-20 < s2Len) {
-        array[(i+20)*s2Len + (j-20)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 11);
+        array[1LL*(i+20)*s2Len + (j-20)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 11);
     }
     if (0 <= i+21 && i+21 < s1Len && 0 <= j-21 && j-21 < s2Len) {
-        array[(i+21)*s2Len + (j-21)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 10);
+        array[1LL*(i+21)*s2Len + (j-21)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 10);
     }
     if (0 <= i+22 && i+22 < s1Len && 0 <= j-22 && j-22 < s2Len) {
-        array[(i+22)*s2Len + (j-22)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 9);
+        array[1LL*(i+22)*s2Len + (j-22)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 9);
     }
     if (0 <= i+23 && i+23 < s1Len && 0 <= j-23 && j-23 < s2Len) {
-        array[(i+23)*s2Len + (j-23)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 8);
+        array[1LL*(i+23)*s2Len + (j-23)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 8);
     }
     if (0 <= i+24 && i+24 < s1Len && 0 <= j-24 && j-24 < s2Len) {
-        array[(i+24)*s2Len + (j-24)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 7);
+        array[1LL*(i+24)*s2Len + (j-24)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 7);
     }
     if (0 <= i+25 && i+25 < s1Len && 0 <= j-25 && j-25 < s2Len) {
-        array[(i+25)*s2Len + (j-25)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 6);
+        array[1LL*(i+25)*s2Len + (j-25)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 6);
     }
     if (0 <= i+26 && i+26 < s1Len && 0 <= j-26 && j-26 < s2Len) {
-        array[(i+26)*s2Len + (j-26)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 5);
+        array[1LL*(i+26)*s2Len + (j-26)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 5);
     }
     if (0 <= i+27 && i+27 < s1Len && 0 <= j-27 && j-27 < s2Len) {
-        array[(i+27)*s2Len + (j-27)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 4);
+        array[1LL*(i+27)*s2Len + (j-27)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 4);
     }
     if (0 <= i+28 && i+28 < s1Len && 0 <= j-28 && j-28 < s2Len) {
-        array[(i+28)*s2Len + (j-28)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 3);
+        array[1LL*(i+28)*s2Len + (j-28)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 3);
     }
     if (0 <= i+29 && i+29 < s1Len && 0 <= j-29 && j-29 < s2Len) {
-        array[(i+29)*s2Len + (j-29)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 2);
+        array[1LL*(i+29)*s2Len + (j-29)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 2);
     }
     if (0 <= i+30 && i+30 < s1Len && 0 <= j-30 && j-30 < s2Len) {
-        array[(i+30)*s2Len + (j-30)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 1);
+        array[1LL*(i+30)*s2Len + (j-30)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 1);
     }
     if (0 <= i+31 && i+31 < s1Len && 0 <= j-31 && j-31 < s2Len) {
-        array[(i+31)*s2Len + (j-31)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 0);
+        array[1LL*(i+31)*s2Len + (j-31)] = (int8_t)_mm256_extract_epi8_rpl(vWH, 0);
     }
 }
 #endif

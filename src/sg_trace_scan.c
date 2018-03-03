@@ -67,8 +67,8 @@ parasail_result_t* ENAME(
             int E_opn = H[i]-open;
             int E_ext = E[i]-gap;
             E[i] = MAX(E_ext, E_opn);
-            HT[i*s2Len + j] = (E_opn > E_ext) ? PARASAIL_DIAG_E
-                                              : PARASAIL_INS_E;
+            HT[1LL*i*s2Len + j] = (E_opn > E_ext) ? PARASAIL_DIAG_E
+                                                  : PARASAIL_INS_E;
         }
         /* calculate Ht */
         Ht[-1] = 0;
@@ -90,27 +90,27 @@ parasail_result_t* ENAME(
             }
             Ft_opn = Ft-open;
             if (H[i-1] > Ft_ext) {
-                HT[i*s2Len + j] |= PARASAIL_DIAG_F;
+                HT[1LL*i*s2Len + j] |= PARASAIL_DIAG_F;
             }
             else {
-                HT[i*s2Len + j] |= PARASAIL_DEL_F;
+                HT[1LL*i*s2Len + j] |= PARASAIL_DEL_F;
             }
             if (Ht[i] > Ft_opn) {
                 H[i] = Ht[i];
-                HT[i*s2Len + j] |= Ex[i] ? PARASAIL_INS : PARASAIL_DIAG;
+                HT[1LL*i*s2Len + j] |= Ex[i] ? PARASAIL_INS : PARASAIL_DIAG;
             }
             else {
                 H[i] = Ft_opn;
                 if (Ht[i] == Ft_opn) {
                     if (Ex[i]) {
-                        HT[i*s2Len + j] |= PARASAIL_DEL;
+                        HT[1LL*i*s2Len + j] |= PARASAIL_DEL;
                     }
                     else {
-                        HT[i*s2Len + j] |= PARASAIL_DIAG;
+                        HT[1LL*i*s2Len + j] |= PARASAIL_DIAG;
                     }
                 }
                 else {
-                    HT[i*s2Len + j] |= PARASAIL_DEL;
+                    HT[1LL*i*s2Len + j] |= PARASAIL_DEL;
                 }
             }
         }
@@ -129,8 +129,8 @@ parasail_result_t* ENAME(
             int E_opn = H[i]-open;
             int E_ext = E[i]-gap;
             E[i] = MAX(E_ext, E_opn);
-            HT[i*s2Len + j] = (E_opn > E_ext) ? PARASAIL_DIAG_E
-                                              : PARASAIL_INS_E;
+            HT[1LL*i*s2Len + j] = (E_opn > E_ext) ? PARASAIL_DIAG_E
+                                                  : PARASAIL_INS_E;
         }
         /* calculate Ht */
         Ht[-1] = 0;
@@ -152,27 +152,27 @@ parasail_result_t* ENAME(
             }
             Ft_opn = Ft-open;
             if (H[i-1] > Ft_ext) {
-                HT[i*s2Len + j] |= PARASAIL_DIAG_F;
+                HT[1LL*i*s2Len + j] |= PARASAIL_DIAG_F;
             }
             else {
-                HT[i*s2Len + j] |= PARASAIL_DEL_F;
+                HT[1LL*i*s2Len + j] |= PARASAIL_DEL_F;
             }
             if (Ht[i] > Ft_opn) {
                 H[i] = Ht[i];
-                HT[i*s2Len + j] |= Ex[i] ? PARASAIL_INS : PARASAIL_DIAG;
+                HT[1LL*i*s2Len + j] |= Ex[i] ? PARASAIL_INS : PARASAIL_DIAG;
             }
             else {
                 H[i] = Ft_opn;
                 if (Ht[i] == Ft_opn) {
                     if (Ex[i]) {
-                        HT[i*s2Len + j] |= PARASAIL_DEL;
+                        HT[1LL*i*s2Len + j] |= PARASAIL_DEL;
                     }
                     else {
-                        HT[i*s2Len + j] |= PARASAIL_DIAG;
+                        HT[1LL*i*s2Len + j] |= PARASAIL_DIAG;
                     }
                 }
                 else {
-                    HT[i*s2Len + j] |= PARASAIL_DEL;
+                    HT[1LL*i*s2Len + j] |= PARASAIL_DEL;
                 }
             }
             if (H[i] > score) {

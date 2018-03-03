@@ -75,13 +75,13 @@ parasail_result_t* ENAME(
             WH = MAX(H_dag, E);
             WH = MAX(WH, F[j]);
             H[j] = WH;
-            HT[(i-1)*s2Len + (j-1)] = (F_opn > F_ext) ? PARASAIL_DIAG_F
-                                                      : PARASAIL_DEL_F;
-            HT[(i-1)*s2Len + (j-1)] |= (E_opn > E_ext) ? PARASAIL_DIAG_E
-                                                       : PARASAIL_INS_E;
-            HT[(i-1)*s2Len + (j-1)] |= (WH == H_dag) ? PARASAIL_DIAG
-                                    : (WH == F[j])   ? PARASAIL_DEL
-                                                     : PARASAIL_INS;
+            HT[1LL*(i-1)*s2Len + (j-1)] = (F_opn > F_ext) ? PARASAIL_DIAG_F
+                                                          : PARASAIL_DEL_F;
+            HT[1LL*(i-1)*s2Len + (j-1)] |= (E_opn > E_ext) ? PARASAIL_DIAG_E
+                                                           : PARASAIL_INS_E;
+            HT[1LL*(i-1)*s2Len + (j-1)] |= (WH == H_dag) ? PARASAIL_DIAG
+                                        : (WH == F[j])   ? PARASAIL_DEL
+                                                         : PARASAIL_INS;
         }
     }
 

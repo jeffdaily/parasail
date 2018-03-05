@@ -8,7 +8,9 @@ This project follows the [Gitflow Workflow model](https://www.atlassian.com/git/
 The Unreleased section will be empty for tagged releases. Unreleased functionality appears in the develop branch.
 
 ### Added
-- parasail_traceback_generic_extra() to specify index width, FILE stream
+- `parasail_traceback_generic_extra()` to specify index width, FILE stream
+- `parasail_free_unaligned()` to free memory that wasn't allocated using
+  `parasail_memalign()`, e.g., from `parasail_cigar_decode()`
 
 ### Changed
 - parasail_aligner with tracebacks can now redirect to a file using `-g`.
@@ -16,9 +18,29 @@ The Unreleased section will be empty for tagged releases. Unreleased functionali
 
 ### Fixed
 - parasail_aligner would seg fault at the end if not producing trace output
-- parasail_traceback_generic()
+- `parasail_traceback_generic()`
   - sequence name buffers no longer overrun
   - alignment indexes can now be longer than 7 digits
+- Alignment routines that store data in a large array, such as any
+  returning the DP table or traceback, now use a 64-bit offset into the
+  array allowing for the alignment of longer sequences.
+- parasail_traceback_generic() now properly truncates local alignment
+  output (see \#55)
+
+### Closed Issues
+- parasail_aligner need not show any residues beyond the aligned
+  segments when running a local alignment (SW) [\#55]
+- Question: does "sat" function cause the solution width to go higher
+  than 16? [\#54]
+- Crashes of parasail_aligner running under window cause an error
+  message box to be displayed [\#53]
+- Traceback output does not get sent to file specified as argument to -g
+  option [\#52]
+- readme.md erroneously refers to "sse4" rather than "sse41" [\#51]
+- test_isa informs me that avx2 is not available, but it should be [\#50]
+- EMBOSS and SSW style tracebacks can put sequence and match lines
+  out-of-register [\#49]
+- Reliable segmentation fault with all traceback alignments [\#47]
 
 ## [2.1] - 2018-01-15
 ### Added

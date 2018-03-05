@@ -79,7 +79,7 @@ The larger the batch size, the better the runtime performance. This is a tuning 
 
 #### Traceback Output
 
-If a trace-capable alignment function is used, e.g., `sw_trace`, then the output will be to stdout.  You must select an output format from one of SAM, SAMH, EMBOSS, or SSW.  This is what the outputs look like using the single target and single query sequence shown below, using the default values for the aligner and the `sw_trace` function.
+If a trace-capable alignment function is used, e.g., `sw_trace`, then the output will be to stdout by default.  You can optionally redirect to a file using the `-g` option.  You must select an output format from one of SAM, SAMH, EMBOSS, or SSW.  This is what the outputs look like using the single target and single query sequence shown below, using the default values for the aligner and the `sw_trace` function.
 
 Target:
 

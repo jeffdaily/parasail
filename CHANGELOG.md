@@ -26,6 +26,7 @@ The Unreleased section will be empty for tagged releases. Unreleased functionali
   array allowing for the alignment of longer sequences.
 - parasail_traceback_generic() now properly truncates local alignment
   output (see \#55)
+- parasail_aligner SAM output uses soft clipping only in local alignments
 
 ### Closed Issues
 - parasail_aligner need not show any residues beyond the aligned
@@ -40,6 +41,7 @@ The Unreleased section will be empty for tagged releases. Unreleased functionali
 - test_isa informs me that avx2 is not available, but it should be [\#50]
 - EMBOSS and SSW style tracebacks can put sequence and match lines
   out-of-register [\#49]
+- Read results in non-parseable SAM alignment [\#48]
 - Reliable segmentation fault with all traceback alignments [\#47]
 
 ## [2.1] - 2018-01-15
@@ -294,6 +296,15 @@ First stable, production-ready version of parasail.
 [1.0.1]: https://github.com/jeffdaily/parasail/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/jeffdaily/parasail/releases/tag/v1.0.0
 
+[\#55]: https://github.com/jeffdaily/parasail/issues/55
+[\#54]: https://github.com/jeffdaily/parasail/issues/54
+[\#53]: https://github.com/jeffdaily/parasail/issues/53
+[\#52]: https://github.com/jeffdaily/parasail/issues/52
+[\#51]: https://github.com/jeffdaily/parasail/issues/51
+[\#50]: https://github.com/jeffdaily/parasail/issues/50
+[\#49]: https://github.com/jeffdaily/parasail/issues/49
+[\#48]: https://github.com/jeffdaily/parasail/issues/48
+[\#47]: https://github.com/jeffdaily/parasail/issues/47
 [\#46]: https://github.com/jeffdaily/parasail/issues/46
 [\#45]: https://github.com/jeffdaily/parasail/pull/45
 [\#44]: https://github.com/jeffdaily/parasail/issues/44

@@ -2240,8 +2240,10 @@ inline static void output_sam(
             fprintf(fop, "0\t");
             fprintf(fop, "%s\t%d\t%d\t",
                     ref_seq.name.s, cigar->beg_ref + 1, mapq);
-            if (cigar->beg_query > 0) {
-                fprintf(fop, "%dS", cigar->beg_query);
+            if (parasail_result_is_sw(result)) {
+                if (cigar->beg_query > 0) {
+                    fprintf(fop, "%dS", cigar->beg_query);
+                }
             }
             for (c=0; c<cigar->len; ++c) {
                 char letter = parasail_cigar_decode_op(cigar->seq[c]);
@@ -2253,8 +2255,10 @@ inline static void output_sam(
             }
 
             length = read_seq.seq.l - result->end_query - 1;
-            if (length > 0) {
-                fprintf(fop, "%dS", length);
+            if (parasail_result_is_sw(result)) {
+                if (length > 0) {
+                    fprintf(fop, "%dS", length);
+                }
             }
             fprintf(fop, "\t*\t0\t0\t");
             fprintf(fop, "%s", read_seq.seq.s);

@@ -24,6 +24,7 @@ extern int32_t * parasail_memalign_int32_t(size_t alignment, size_t size);
 extern int64_t * parasail_memalign_int64_t(size_t alignment, size_t size);
 
 extern void parasail_free(void *ptr);
+extern void parasail_free_unaligned(void *ptr);
 
 extern void parasail_memset(void *b, int c, size_t len);
 extern void parasail_memset_int(int *b, int c, size_t len);

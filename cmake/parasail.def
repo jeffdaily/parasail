@@ -105,6 +105,7 @@ EXPORTS
     parasail_memalign_int32_t
     parasail_memalign_int64_t
     parasail_free
+    parasail_free_unaligned
     parasail_memset
     parasail_memset_int
     parasail_memset_int8_t

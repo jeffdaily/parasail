@@ -50,6 +50,11 @@ void parasail_free(void *ptr)
 #endif
 }
 
+void parasail_free_unaligned(void *ptr)
+{
+    free(ptr);
+}
+
 int * parasail_memalign_int(size_t alignment, size_t size)
 {
     return (int *) parasail_memalign(alignment, size*sizeof(int));

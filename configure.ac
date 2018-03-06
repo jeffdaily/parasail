@@ -44,10 +44,10 @@ AC_SUBST([PACKAGE_VERSION])
 # parasail version 2.0.5: 3:4:0 (ABI version 3)
 # parasail version 2.0.6: 3:5:0 (ABI version 3)
 # parasail version 2.1.0: 3:6:0 (ABI version 3)
-# parasail version 2.1.1: 3:6:0 (ABI version 3) no change
+# parasail version 2.1.1: 4:0:1 (ABI version 4) added functions
 #
 # libparasail -version-info current:revision:age
-LTVER="3:6:0"
+LTVER="4:0:1"
 AC_SUBST([LTVER])
 
 ###############################################################################

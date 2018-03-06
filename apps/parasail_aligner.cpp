@@ -1834,14 +1834,23 @@ inline static void output_edges(
         long j_beg = BEG[j];
         long j_end = END[j];
         long j_len = j_end-j_beg;
-        int score = parasail_result_get_score(result);
-        int matches = parasail_result_get_matches(result);
-        int length = parasail_result_get_length(result);
 
         if (has_query) {
             i = i - sid_crossover;
         }
 
+        if (parasail_result_is_saturated(result)) {
+            if (has_query) {
+                fprintf(stderr, "query %d and ref %d saturated\n", i, j);
+            } else {
+                fprintf(stderr, "seq %d and seq %d saturated\n", i, j);
+            }
+            continue;
+        }
+
+        int score = parasail_result_get_score(result);
+        int matches = parasail_result_get_matches(result);
+        int length = parasail_result_get_length(result);
         int self_score_ = 0;
         int max_len = 0;
         int i_self_score = self_score(
@@ -1901,10 +1910,15 @@ inline static void output_graph(
             long j_beg = BEG[j];
             long j_end = END[j];
             long j_len = j_end-j_beg;
+
+            if (parasail_result_is_saturated(result)) {
+                fprintf(stderr, "seq %d and seq %d saturated\n", i, j);
+                continue;
+            }
+
             int score = parasail_result_get_score(result);
             int matches = parasail_result_get_matches(result);
             int length = parasail_result_get_length(result);
-
             int self_score_ = 0;
             int max_len = 0;
             int i_self_score = self_score(
@@ -1985,6 +1999,15 @@ inline static void output_stats(
             i = i - sid_crossover;
         }
 
+        if (parasail_result_is_saturated(result)) {
+            if (has_query) {
+                fprintf(stderr, "query %d and ref %d saturated\n", i, j);
+            } else {
+                fprintf(stderr, "seq %d and seq %d saturated\n", i, j);
+            }
+            continue;
+        }
+
         eprintf(fop, "%d,%d,%ld,%ld,%d,%d,%d,%d,%d,%d\n",
                 i,
                 j,
@@ -2025,6 +2048,15 @@ inline static void output_basic(
             i = i - sid_crossover;
         }
 
+        if (parasail_result_is_saturated(result)) {
+            if (has_query) {
+                fprintf(stderr, "query %d and ref %d saturated\n", i, j);
+            } else {
+                fprintf(stderr, "seq %d and seq %d saturated\n", i, j);
+            }
+            continue;
+        }
+
         eprintf(fop, "%d,%d,%ld,%ld,%d,%d,%d\n",
                 i,
                 j,
@@ -2055,6 +2087,12 @@ inline static void output_emboss(
 
         if (has_query) {
             i = i - sid_crossover;
+            if (parasail_result_is_saturated(result)) {
+                fprintf(stderr, "query %d (%s) and ref %d (%s) saturated\n",
+                        i, queries->seqs[i].name.s,
+                        j, sequences->seqs[j].name.s);
+                continue;
+            }
             parasail_traceback_generic_extra(
                     queries->seqs[i].seq.s,
                     queries->seqs[i].seq.l,
@@ -2072,6 +2110,12 @@ inline static void output_emboss(
                     fop);
         }
         else {
+            if (parasail_result_is_saturated(result)) {
+                fprintf(stderr, "seq %d (%s) and seq %d (%s) saturated\n",
+                        i, sequences->seqs[i].name.s,
+                        j, sequences->seqs[j].name.s);
+                continue;
+            }
             parasail_traceback_generic_extra(
                     sequences->seqs[i].seq.s,
                     sequences->seqs[i].seq.l,
@@ -2111,6 +2155,12 @@ inline static void output_ssw(
 
         if (has_query) {
             i = i - sid_crossover;
+            if (parasail_result_is_saturated(result)) {
+                fprintf(stderr, "query %d (%s) and ref %d (%s) saturated\n",
+                        i, queries->seqs[i].name.s,
+                        j, sequences->seqs[j].name.s);
+                continue;
+            }
             fprintf(fop, "target_name: %s\n", sequences->seqs[j].name.s);
             fprintf(fop, "query_name: %s\n", queries->seqs[i].name.s);
             cigar = parasail_result_get_cigar(result,
@@ -2121,6 +2171,12 @@ inline static void output_ssw(
                     matrix);
         }
         else {
+            if (parasail_result_is_saturated(result)) {
+                fprintf(stderr, "seq %d (%s) and seq %d (%s) saturated\n",
+                        i, sequences->seqs[i].name.s,
+                        j, sequences->seqs[j].name.s);
+                continue;
+            }
             fprintf(fop, "target_name: %s\n", sequences->seqs[j].name.s);
             fprintf(fop, "query_name: %s\n", sequences->seqs[i].name.s);
             cigar = parasail_result_get_cigar(result,
@@ -2214,9 +2270,21 @@ inline static void output_sam(
         ref_seq = sequences->seqs[j];
         if (has_query) {
             i = i - sid_crossover;
+            if (parasail_result_is_saturated(result)) {
+                fprintf(stderr, "query %d (%s) and ref %d (%s) saturated\n",
+                        i, queries->seqs[i].name.s,
+                        j, sequences->seqs[j].name.s);
+                continue;
+            }
             read_seq = queries->seqs[i];
         }
         else {
+            if (parasail_result_is_saturated(result)) {
+                fprintf(stderr, "seq %d (%s) and seq %d (%s) saturated\n",
+                        i, sequences->seqs[i].name.s,
+                        j, sequences->seqs[j].name.s);
+                continue;
+            }
             read_seq = sequences->seqs[i];
         }
 
@@ -2306,6 +2374,15 @@ inline static void output_trace(
 
         if (has_query) {
             i = i - sid_crossover;
+        }
+
+        if (parasail_result_is_saturated(result)) {
+            if (has_query) {
+                fprintf(stderr, "query %d and ref %d saturated\n", i, j);
+            } else {
+                fprintf(stderr, "seq %d and seq %d saturated\n", i, j);
+            }
+            continue;
         }
 
         cigar = parasail_result_get_cigar(

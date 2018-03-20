@@ -7,6 +7,14 @@ This project follows the [Gitflow Workflow model](https://www.atlassian.com/git/
 ## [Unreleased]
 The Unreleased section will be empty for tagged releases. Unreleased functionality appears in the develop branch.
 
+## [2.1.2] - 2018-03-20
+### Fixed
+- `parasail_matrix_from_file()` was failing to read input file
+
+### Closed Issues
+- Read results in non-parseable SAM alignment [\#48]
+- DNA Substitution Matrices [\#24]
+
 ## [2.1.1] - 2018-03-05
 ### Added
 - `parasail_traceback_generic_extra()` to specify index width, FILE stream
@@ -277,7 +285,8 @@ The Unreleased section will be empty for tagged releases. Unreleased functionali
 ## [1.0.0] - 2015-09-16
 First stable, production-ready version of parasail.
 
-[Unreleased]: https://github.com/jeffdaily/parasail/compare/v2.1.1...develop
+[Unreleased]: https://github.com/jeffdaily/parasail/compare/v2.1.2...develop
+[2.1.2]: https://github.com/jeffdaily/parasail/compare/v2.1.1...v2.1.2
 [2.1.1]: https://github.com/jeffdaily/parasail/compare/v2.1...v2.1.1
 [2.1]:   https://github.com/jeffdaily/parasail/compare/v2.0.6...v2.1
 [2.0.6]: https://github.com/jeffdaily/parasail/compare/v2.0.5...v2.0.6

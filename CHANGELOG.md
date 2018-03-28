@@ -7,6 +7,24 @@ This project follows the [Gitflow Workflow model](https://www.atlassian.com/git/
 ## [Unreleased]
 The Unreleased section will be empty for tagged releases. Unreleased functionality appears in the develop branch.
 
+## [2.1.3] - 2018-03-28
+### Changed
+- Instruction sets can be selectively disabled during configure. The
+  default behavior is the same as before, automatically testing for
+  each. Using the --enable variant of the new configure options will
+  cause configure to fail if the proper C compiler flags cannot be found
+  for the compiler.
+```
+	  --disable-sse2          disable SSE2 support (default=auto)
+	  --disable-sse4_1        disable SSE4.1 support (default=auto)
+	  --disable-avx2          disable AVX2 support (default=auto)
+	  --disable-avx512        disable AVX512 support (default=auto)
+	  --disable-altivec       disable Altivec support (default=auto)
+```
+
+### Closed Pull Requests
+- Fix automagic detection of intrinsics [\#56] ([SoapZA])
+
 ## [2.1.2] - 2018-03-20
 ### Fixed
 - `parasail_matrix_from_file()` was failing to read input file
@@ -307,6 +325,7 @@ First stable, production-ready version of parasail.
 [1.0.1]: https://github.com/jeffdaily/parasail/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/jeffdaily/parasail/releases/tag/v1.0.0
 
+[\#56]: https://github.com/jeffdaily/parasail/pull/56
 [\#55]: https://github.com/jeffdaily/parasail/issues/55
 [\#54]: https://github.com/jeffdaily/parasail/issues/54
 [\#53]: https://github.com/jeffdaily/parasail/issues/53

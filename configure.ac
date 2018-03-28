@@ -150,6 +150,11 @@ AS_IF([test "x$enable_sse2" != "xno"], [
          CFLAGS="$save_CFLAGS"
          AS_IF([test "x$pt_cv_sse2" != xno], [break])
     done])
+
+    AS_IF([test "x$pt_cv_sse2" == xdefault], [SSE2_CFLAGS=],
+          [test "x$pt_cv_sse2" != xno],      [SSE2_CFLAGS="$pt_cv_sse2"],
+          [SSE2_CFLAGS="not supported"])
+
     AC_DEFINE_UNQUOTED([HAVE_SSE2], [$pt_cv_sse2_val],
         [define to 1 if the C compiler supports SSE2])
     AS_IF([test "x$pt_cv_sse2_val" != x1], [
@@ -210,10 +215,6 @@ AS_IF([test "x$enable_sse2" != "xno"], [
         [define to 1 if the C compiler supports SSE2 _mm_set_epi64x])
 ])
 
-AS_IF([test "x$pt_cv_sse2" == xdefault], [SSE2_CFLAGS=],
-      [test "x$pt_cv_sse2" != xno],      [SSE2_CFLAGS="$pt_cv_sse2"],
-      [SSE2_CFLAGS="not supported"])
-
 AM_CONDITIONAL([HAVE_SSE2], [test "x$pt_cv_sse2_val" = x1])
 AC_SUBST([SSE2_CFLAGS])
 
@@ -243,6 +244,11 @@ AS_IF([test "x$enable_sse4_1" != "xno"], [
          CFLAGS="$save_CFLAGS"
          AS_IF([test "x$pt_cv_sse41" != xno], [break])
     done])
+
+    AS_IF([test "x$pt_cv_sse41" == xdefault], [SSE41_CFLAGS=],
+          [test "x$pt_cv_sse41" != xno],      [SSE41_CFLAGS="$pt_cv_sse41"],
+          [SSE41_CFLAGS="not supported"])
+
     AC_DEFINE_UNQUOTED([HAVE_SSE41], [$pt_cv_sse41_val],
         [define to 1 if the C compiler supports SSE4.1])
     AS_IF([test "x$pt_cv_sse41_val" != x1], [
@@ -305,12 +311,8 @@ AS_IF([test "x$enable_sse4_1" != "xno"], [
 ])
 
 AM_CONDITIONAL([HAVE_SSE41], [test "x$pt_cv_sse41_val" = x1])
-AS_IF([test "x$pt_cv_sse41" == xdefault], [SSE41_CFLAGS=],
-      [test "x$pt_cv_sse41" != xno],      [SSE41_CFLAGS="$pt_cv_sse41"],
-      [SSE41_CFLAGS="not supported"])
-AC_SUBST([SSE41_CFLAGS])
-
 AM_CONDITIONAL([HAVE_SSE], [test "x$pt_cv_sse2_val" = x1 || test "x$pt_cv_sse41_val" = x1])
+AC_SUBST([SSE41_CFLAGS])
 
 ###############################################################################
 # AVX2
@@ -346,6 +348,11 @@ AS_IF([test "x$enable_avx2" != "xno"], [
          CFLAGS="$save_CFLAGS"
          AS_IF([test "x$pt_cv_avx2" != xno], [break])
     done])
+
+    AS_IF([test "x$pt_cv_avx2" == xdefault], [AVX2_CFLAGS=],
+          [test "x$pt_cv_avx2" != xno],      [AVX2_CFLAGS="$pt_cv_avx2"],
+          [AVX2_CFLAGS="not supported"])
+
     AC_DEFINE_UNQUOTED([HAVE_AVX2], [$pt_cv_avx2_val],
         [define to 1 if the C compiler supports AVX2])
     AS_IF([test "x$pt_cv_avx2_val" != x1], [
@@ -603,9 +610,6 @@ AS_IF([test "x$enable_avx2" != "xno"], [
 ])
 
 AM_CONDITIONAL([HAVE_AVX2], [test "x$pt_cv_avx2_val" = x1])
-AS_IF([test "x$pt_cv_avx2" == xdefault], [AVX2_CFLAGS=],
-      [test "x$pt_cv_avx2" != xno],      [AVX2_CFLAGS="$pt_cv_avx2"],
-      [AVX2_CFLAGS="not supported"])
 AC_SUBST([AVX2_CFLAGS])
 
 ###############################################################################
@@ -642,6 +646,11 @@ AS_IF([test "x$enable_avx512" != "xno"], [
          CFLAGS="$save_CFLAGS"
          AS_IF([test "x$pt_cv_avx512f" != xno], [break])
     done])
+
+    AS_IF([test "x$pt_cv_avx512f" == xdefault], [AVX512F_CFLAGS=],
+          [test "x$pt_cv_avx512f" != xno],      [AVX512F_CFLAGS="$pt_cv_avx512f"],
+          [AVX512F_CFLAGS="not supported"])
+
     AC_DEFINE_UNQUOTED([HAVE_AVX512F], [$pt_cv_avx512f_val],
         [define to 1 if the C compiler supports AVX512F])
     AS_IF([test "x$pt_cv_avx512f_val" != x1], [
@@ -683,6 +692,11 @@ AS_IF([test "x$enable_avx512" != "xno"], [
          CFLAGS="$save_CFLAGS"
          AS_IF([test "x$pt_cv_avx512bw" != xno], [break])
     done])
+
+    AS_IF([test "x$pt_cv_avx512bw" == xdefault], [AVX512BW_CFLAGS=],
+          [test "x$pt_cv_avx512bw" != xno],      [AVX512BW_CFLAGS="$pt_cv_avx512bw"],
+          [AVX512BW_CFLAGS="not supported"])
+
     AC_DEFINE_UNQUOTED([HAVE_AVX512BW], [$pt_cv_avx512bw_val],
         [define to 1 if the C compiler supports AVX512BW])
 
@@ -716,6 +730,11 @@ AS_IF([test "x$enable_avx512" != "xno"], [
          CFLAGS="$save_CFLAGS"
          AS_IF([test "x$pt_cv_avx512vbmi" != xno], [break])
     done])
+
+    AS_IF([test "x$pt_cv_avx512vbmi" == xdefault], [AVX512VBMI_CFLAGS=],
+          [test "x$pt_cv_avx512vbmi" != xno],      [AVX512VBMI_CFLAGS="$pt_cv_avx512vbmi"],
+          [AVX512VBMI_CFLAGS="not supported"])
+
     AC_DEFINE_UNQUOTED([HAVE_AVX512VBMI], [$pt_cv_avx512vbmi_val],
         [define to 1 if the C compiler supports AVX512VBMI])
 
@@ -741,21 +760,12 @@ AS_IF([test "x$enable_avx512" != "xno"], [
 ])
 
 AM_CONDITIONAL([HAVE_AVX512F], [test "x$pt_cv_avx512f_val" = x1])
-AS_IF([test "x$pt_cv_avx512f" == xdefault], [AVX512F_CFLAGS=],
-      [test "x$pt_cv_avx512f" != xno],      [AVX512F_CFLAGS="$pt_cv_avx512f"],
-      [AVX512F_CFLAGS="not supported"])
 AC_SUBST([AVX512F_CFLAGS])
 
-AM_CONDITIONAL([HAVE_AVX512bw], [test "x$pt_cv_avx512bw_val" = x1])
-AS_IF([test "x$pt_cv_avx512bw" == xdefault], [AVX512BW_CFLAGS=],
-      [test "x$pt_cv_avx512bw" != xno],      [AVX512BW_CFLAGS="$pt_cv_avx512bw"],
-      [AVX512BW_CFLAGS="not supported"])
+AM_CONDITIONAL([HAVE_AVX512BW], [test "x$pt_cv_avx512bw_val" = x1])
 AC_SUBST([AVX512BW_CFLAGS])
 
-AM_CONDITIONAL([HAVE_AVX512vbmi], [test "x$pt_cv_avx512vbmi_val" = x1])
-AS_IF([test "x$pt_cv_avx512vbmi" == xdefault], [AVX512VBMI_CFLAGS=],
-      [test "x$pt_cv_avx512vbmi" != xno],      [AVX512VBMI_CFLAGS="$pt_cv_avx512vbmi"],
-      [AVX512VBMI_CFLAGS="not supported"])
+AM_CONDITIONAL([HAVE_AVX512VBMI], [test "x$pt_cv_avx512vbmi_val" = x1])
 AC_SUBST([AVX512VBMI_CFLAGS])
 
 AM_CONDITIONAL([HAVE_XGETBV], [test "x$pt_cv_xgetbv" = xyes])

@@ -1002,9 +1002,9 @@ link_all_deplibs_CXX=yes
 m4_ifdef([PKG_INSTALLDIR], [PKG_INSTALLDIR],
     [AC_ARG_WITH([pkgconfigdir],
                  [AS_HELP_STRING([--with-pkgconfigdir],
-                                 [install directory for pkg-config file])],
+                                 [pkg-config installation directory @<:@'${libdir}/pkgconfig'@:>@])],
                  [],
-                 [with_pkgconfigdir='$(libdir)/pkgconfig'])
+                 [with_pkgconfigdir='${libdir}/pkgconfig'])
      AC_SUBST([pkgconfigdir], [${with_pkgconfigdir}])])
 
 AX_CREATE_PKGCONFIG_INFO([parasail-1.pc], [], [-lparasail], [Pairwise Sequence Alignment Library], [], [])

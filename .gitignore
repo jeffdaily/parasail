@@ -33,3 +33,7 @@ libtool
 stamp-h1
 apps/parasail_aligner
 apps/parasail_stats
+parasail-*-uninstalled.pc
+parasail-*-uninstalled.sh
+parasail-*.pc
+parasail-*.pc.in

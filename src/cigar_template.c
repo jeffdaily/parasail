@@ -152,7 +152,7 @@ static inline parasail_cigar_t* CONCAT(NAME, T) (
         }
         if (PARASAIL_DIAG == where) {
             if (HT[loc] & PARASAIL_DIAG) {
-                if (seqA[i] == seqB[j]) {
+                if (toupper(seqA[i]) == toupper(seqB[j])) {
                     if (0 == c_mat) {
                         WRITE_ANY;
                     }

@@ -75,6 +75,7 @@ using ::std::set;
 using ::std::size_t;
 using ::std::stack;
 using ::std::string;
+using ::std::toupper;
 using ::std::transform;
 using ::std::vector;
 
@@ -1108,6 +1109,9 @@ int main(int argc, char **argv) {
     sid = 0;
     BEG.push_back(0);
     if (use_filter) {
+        /* look for mixed case also */
+        char found_lower = 0;
+        char found_upper = 0;
         for (i=0; i<n; ++i) {
             SID[i] = sid;
             if (T[i] == sentinal) {
@@ -1118,6 +1122,14 @@ int main(int argc, char **argv) {
                     sid_crossover = sid;
                 }
                 ++sid;
+            }
+            found_lower = found_lower || (T[i] >= 'a' && T[i] <= 'z');
+            found_upper = found_upper || (T[i] >= 'A' && T[i] <= 'Z');
+        }
+        if (found_lower && found_upper) {
+            /* make the whole thing upper case */
+            for (i=0; i<n; ++i) {
+                T[i] = toupper(T[i]);
             }
         }
     }

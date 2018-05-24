@@ -69,7 +69,7 @@ static inline void CONCAT(NAME, T) (
     segLen = (lena + segWidth - 1) / segWidth;
 #endif
     /* how wide does our index label need to be? */
-    _int_width = snprintf(tmp, 32, "%llu", (uint64_t)lena+(uint64_t)lenb);
+    _int_width = snprintf(tmp, 32, "%llu", (unsigned long long)lena+(unsigned long long)lenb);
     /* if requested int width is too small, override it */
     if (int_width < _int_width) {
         int_width = _int_width;
@@ -224,13 +224,13 @@ static inline void CONCAT(NAME, T) (
             for (; j<name_width; ++j) {
                 fprintf(stream, " ");
             }
-            fprintf(stream, " %*lld ", int_width, d_pindex+1);
+            fprintf(stream, " %*lld ", int_width, (long long)d_pindex+1);
             for (j=0; j<len&&j<width&&di<len; ++j) {
                 if (dr[di] != '-') ++d_pindex;
                 fprintf(stream, "%c", dr[di]);
                 ++di;
             }
-            fprintf(stream, " %*lld\n", int_width, d_pindex);
+            fprintf(stream, " %*lld\n", int_width, (long long)d_pindex);
             for (j=0; j<name_width+1+int_width+1; ++j) {
                 fprintf(stream, " ");
             }
@@ -254,20 +254,20 @@ static inline void CONCAT(NAME, T) (
             for (; j<name_width; ++j) {
                 fprintf(stream, " ");
             }
-            fprintf(stream, " %*lld ", int_width, q_pindex+1);
+            fprintf(stream, " %*lld ", int_width, (long long)q_pindex+1);
             for (j=0; j<len&&j<width&&qi<len; ++j) {
                 if (qr[qi] != '-') ++q_pindex;
                 fprintf(stream, "%c", qr[qi]);
                 ++qi;
             }
-            fprintf(stream, " %*lld\n", int_width, q_pindex);
+            fprintf(stream, " %*lld\n", int_width, (long long)q_pindex);
         }
         if (use_stats) {
             fprintf(stream, "\n");
-            fprintf(stream, "Length: %lld\n", len);
-            fprintf(stream, "Identity:   %*lld/%lld (%4.1f%%)\n", int_width, mch, len, 100.0*mch/len);
-            fprintf(stream, "Similarity: %*lld/%lld (%4.1f%%)\n", int_width, sim, len, 100.0*sim/len);
-            fprintf(stream, "Gaps:       %*lld/%lld (%4.1f%%)\n", int_width, gap, len, 100.0*gap/len);
+            fprintf(stream, "Length: %lld\n", (long long)len);
+            fprintf(stream, "Identity:   %*lld/%lld (%4.1f%%)\n", int_width, (long long)mch, (long long)len, 100.0*mch/len);
+            fprintf(stream, "Similarity: %*lld/%lld (%4.1f%%)\n", int_width, (long long)sim, (long long)len, 100.0*sim/len);
+            fprintf(stream, "Gaps:       %*lld/%lld (%4.1f%%)\n", int_width, (long long)gap, (long long)len, 100.0*gap/len);
             fprintf(stream, "Score: %d\n", result->score);
         }
         free(qr);

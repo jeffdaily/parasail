@@ -1,6 +1,7 @@
 #include "config.h"
 
 #include <assert.h>
+#include <ctype.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -31,7 +32,7 @@ static inline char match_char(
         char pos,
         char neg)
 {
-    if (a == b) {
+    if (toupper(a) == toupper(b)) {
         return match;
     }
     else {

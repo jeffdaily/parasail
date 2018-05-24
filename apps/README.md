@@ -150,12 +150,14 @@ If a statistics-calculating function is used, for example 'sw_stats_striped_16',
 
 ### Generating a Homology Graph
 
-The parasail_aligner already can take a FASTA- or FASTQ-formatted set of sequences and all of the sequences in the file will be compared against themselves.  If the 'edge' parameter (`-E`) in combination with any of the statistics-calculating parasail routines is selected, this changes the output calculation.  The reason statistics must be calculated is that the output depends on them.  This application is used in a metagenomics workflow, creating a homology graph as output which is later processed by a community detection application.  The 'edges' in the graph consist of any highly similar pair of sequences such that their alignment meets certain criteria.
+The parasail_aligner already can take a FASTA- or FASTQ-formatted set of sequences and all of the sequences in the file will be compared against themselves.  If the 'edge' parameter (`-E`) or 'graph' parameter (`-G`) in combination with any of the statistics-calculating parasail routines is selected, this changes the output calculation.  The reason statistics must be calculated is that the output depends on them.  This application is used in a metagenomics workflow, creating a homology graph as output which is later processed by a community detection application.  The 'edges' in the graph consist of any highly similar pair of sequences such that their alignment meets certain criteria.  An 'edge' is only output if it meets the following criteria.
 
  * AOL = percent alignment length -- the alignment must cover at least XX percent of the longer sequence.
  * SIM = percent exact matches -- the alignment must contain at least XX percent exact character matches.
  * OS = percent optimal score -- the calculated score must be XX percent of the longer sequence's self score.
 
-The output is always comma-separated values (CSV).  An 'edge' is only output if it meets the criteria described above.
+The 'edge' (`-E`) output is comma-separated values (CSV).
 
 index1, index2, length/max_lengh, matches/length, score/self_score
+
+The 'graph' (`-G`) output is a METIS graph file.

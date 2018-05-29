@@ -7,6 +7,13 @@ This project follows the [Gitflow Workflow model](https://www.atlassian.com/git/
 ## [Unreleased]
 The Unreleased section will be empty for tagged releases. Unreleased functionality appears in the develop branch.
 
+## [2.1.4] - 2018-05-29
+### Fixed
+- Alignments were always case-insensitive. Now cigars and tracebacks are also case-insensitive.
+
+### Closed Issues
+- matches between uppercase and lowercase symbols are treated as mismatches [\#57]
+
 ## [2.1.3] - 2018-03-28
 ### Changed
 - Instruction sets can be selectively disabled during configure. The
@@ -303,7 +310,9 @@ The Unreleased section will be empty for tagged releases. Unreleased functionali
 ## [1.0.0] - 2015-09-16
 First stable, production-ready version of parasail.
 
-[Unreleased]: https://github.com/jeffdaily/parasail/compare/v2.1.2...develop
+[Unreleased]: https://github.com/jeffdaily/parasail/compare/v2.1.4...develop
+[2.1.4]: https://github.com/jeffdaily/parasail/compare/v2.1.3...v2.1.4
+[2.1.3]: https://github.com/jeffdaily/parasail/compare/v2.1.2...v2.1.3
 [2.1.2]: https://github.com/jeffdaily/parasail/compare/v2.1.1...v2.1.2
 [2.1.1]: https://github.com/jeffdaily/parasail/compare/v2.1...v2.1.1
 [2.1]:   https://github.com/jeffdaily/parasail/compare/v2.0.6...v2.1
@@ -325,6 +334,7 @@ First stable, production-ready version of parasail.
 [1.0.1]: https://github.com/jeffdaily/parasail/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/jeffdaily/parasail/releases/tag/v1.0.0
 
+[\#57]: https://github.com/jeffdaily/parasail/issues/57
 [\#56]: https://github.com/jeffdaily/parasail/pull/56
 [\#55]: https://github.com/jeffdaily/parasail/issues/55
 [\#54]: https://github.com/jeffdaily/parasail/issues/54

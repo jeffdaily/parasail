@@ -168,7 +168,11 @@ SRC_TRACE_ALTIVEC =
 SRC_CORE += src/cigar.c
 if IS_POWER_ISA
 SRC_CORE += src/cpuid_ppc.c
-else
+endif
+if IS_ARM_ISA
+SRC_CORE += src/cpuid_arm.c
+endif
+if IS_INTEL_ISA
 SRC_CORE += src/cpuid.c
 endif
 SRC_CORE += src/function_lookup.c

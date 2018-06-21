@@ -857,7 +857,15 @@ AS_CASE(["$ac_cv_search_sqrt"],
         [MATH_LIBS="$ac_cv_search_sqrt"])
 AC_SUBST([MATH_LIBS])
 
+# allow users to disable the search for zlib
+AC_ARG_WITH([zlib],
+            [AS_HELP_STRING([--with-zlib],
+                            [zlib installation directory (default=auto)])],
+            [],
+            [with_zlib=yes])
+
 zlib_okay_val=0
+AS_IF([test "x$with_zlib" = xno], [], [
 m4_ifdef([PKG_CHECK_MODULES],
          [PKG_CHECK_MODULES([Z], [zlib], [zlib_okay_val=1])],
          [
@@ -871,6 +879,7 @@ AS_CASE(["$ac_cv_search_gzopen"],
         [Z_LIBS="$ac_cv_search_gzopen"])
 AS_IF([test "x$ac_cv_search_gzopen" != xno && test "x$ac_cv_header_zlib_h" = xyes],
       [zlib_okay_val=1])
+])
 ])
 
 AM_CONDITIONAL([HAVE_ZLIB], [test "x$zlib_okay_val" = x1])

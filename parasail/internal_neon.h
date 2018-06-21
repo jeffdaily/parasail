@@ -77,7 +77,7 @@ simde_mm_max_epi64 (simde__m128i a, simde__m128i b) {
   simde__m128i r;
   SIMDE__VECTORIZE
   for (size_t i = 0 ; i < (sizeof(r.i64) / sizeof(r.i64[0])) ; i++) {
-    r.i64[i] = a.i64[i] > b.i64[i] ? a.i64[i] : b.i64[i];
+    r.i64[i] = (a.i64[i] > b.i64[i]) ? a.i64[i] : b.i64[i];
   }
   return r;
 }

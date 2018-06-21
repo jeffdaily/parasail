@@ -1057,6 +1057,8 @@ AC_DEFINE_UNQUOTED([HAVE_VARIADIC_MACROS], [$pt_cv_variadic_val],
 
 AC_LANG_POP([C++])
 
+AM_CONDITIONAL([CROSS_COMPILING], [test "x$cross_compiling" = "xyes"])
+
 ###############################################################################
 # Libtool setup -- no compiler/linker tests after this
 ###############################################################################

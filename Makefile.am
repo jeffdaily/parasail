@@ -1186,6 +1186,7 @@ tests_test_align_SOURCES += tests/timer.h
 tests_test_align_SOURCES += tests/timer_real.h
 
 tests_test_altivec_SOURCES = tests/test_altivec.c
+tests_test_altivec_CFLAGS = $(AM_CFLAGS) $(ALTIVEC_CFLAGS)
 
 tests_test_gcups_SOURCES = tests/test_gcups.c
 
@@ -1436,7 +1437,10 @@ EXTRA_DIST += util/templates/sw_striped.c
 EXTRA_DIST += util/templates/sw_striped_bias.c
 
 TESTS =
+if CROSS_COMPILING
+else
 TESTS += tests/test_isa
+endif
 
 # alias for 'make check' using 'make test'
 test: check

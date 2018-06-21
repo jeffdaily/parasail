@@ -41,7 +41,7 @@ static inline void print_64(vec128i v)
 {
     vec128i_64_t a;
     a.m = v;
-    printf( "%ld" ",%ld",
+    printf( "%lld" ",%lld",
            a.v[0], a.v[1]);
 }
 
@@ -217,8 +217,8 @@ int main(int argc, char **argv)
     printf("_mm_extract_epi32(vEnum, 2)=%d\n", _mm_extract_epi32(vEnum32, 2));
     printf("_mm_extract_epi32(vEnum, 3)=%d\n", _mm_extract_epi32(vEnum32, 3));
 
-    printf("_mm_extract_epi64(vEnum, 0)=%ld\n", _mm_extract_epi64(vEnum64, 0));
-    printf("_mm_extract_epi64(vEnum, 1)=%ld\n", _mm_extract_epi64(vEnum64, 1));
+    printf("_mm_extract_epi64(vEnum, 0)=%lld\n", _mm_extract_epi64(vEnum64, 0));
+    printf("_mm_extract_epi64(vEnum, 1)=%lld\n", _mm_extract_epi64(vEnum64, 1));
 
     printf("_mm_insert_epi8(vEnum, 99,  0)="); print_8(_mm_insert_epi8(vEnum8, 99,  0)); printf("\n");
     printf("_mm_insert_epi8(vEnum, 99,  1)="); print_8(_mm_insert_epi8(vEnum8, 99,  1)); printf("\n");
@@ -386,7 +386,7 @@ int main(int argc, char **argv)
     printf("hmax enum = %d\n", _mm_hmax_epi8(vEnum8));
     printf("hmax enum = %d\n", _mm_hmax_epi16(vEnum16));
     printf("hmax enum = %d\n", _mm_hmax_epi32(vEnum32));
-    printf("hmax enum = %ld\n", _mm_hmax_epi64(vEnum64));
+    printf("hmax enum = %lld\n", _mm_hmax_epi64(vEnum64));
 
     vMask8 = _mm_cmpeq_epi8(vZero8, vEnum8);
     vMask16 = _mm_cmpeq_epi16(vZero16, vEnum16);

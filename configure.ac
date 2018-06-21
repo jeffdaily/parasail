@@ -96,6 +96,9 @@ AC_ARG_ENABLE([avx512],
 AC_ARG_ENABLE([altivec],
     [AS_HELP_STRING([--disable-altivec], [disable Altivec support (default=auto)])], [], [enable_altivec="auto (yes)"])
 
+AC_ARG_ENABLE([neon],
+    [AS_HELP_STRING([--disable-neon], [disable ARM NEON support (default=auto)])], [], [enable_neon="auto (yes)"])
+
 ###############################################################################
 # C compiler
 ###############################################################################
@@ -830,6 +833,54 @@ AS_IF([test "x$pt_cv_altivec" == xdefault], [ALTIVEC_CFLAGS=],
 AC_SUBST([ALTIVEC_CFLAGS])
 
 ###############################################################################
+# ARM NEON
+###############################################################################
+AS_IF([test "x$enable_neon" != "xno"], [
+    AC_CACHE_CHECK([for ARM NEON support], [pt_cv_neon],
+    [pt_cv_neon=no; pt_cv_neon_val=0
+    for flag in default -mfpu=neon '-mfpu=neon -mfloat-abi=softfp'
+    do
+         save_CFLAGS="$CFLAGS"
+         AS_IF([test "x$flag" != xdefault], [CFLAGS="$CFLAGS $flag"])
+         psl_save_c_werror_flag=$ac_c_werror_flag
+         ac_c_werror_flag=yes
+         AC_LINK_IFELSE([AC_LANG_SOURCE([[
+	#include <arm_neon.h>
+	uint32x4_t double_elements(uint32x4_t input)
+	{
+	    return(vaddq_u32(input, input));
+	}
+    int main(void)
+    {
+        uint32x4_t one;
+        uint32x4_t two = double_elements(one);
+        return 0;
+    }
+    ]])],
+            [pt_cv_neon="$flag"; pt_cv_neon_val=1])
+         ac_c_werror_flag=$psl_save_c_werror_flag
+         CFLAGS="$save_CFLAGS"
+         AS_IF([test "x$pt_cv_neon" != xno], [break])
+    done])
+    AC_DEFINE_UNQUOTED([HAVE_NEON], [$pt_cv_neon_val],
+        [define to 1 if the C compiler supports NEON])
+    AS_IF([test "x$pt_cv_neon_val" != x1], [
+        AS_IF([test "x$enable_neon" = xyes], [
+            dnl explicitly passed --enable_neon, hence error out loud and clearly
+            AC_MSG_ERROR([You explicitly requested ARM NEON support, but ARM NEON CFLAGS could not be found!])
+        ], [
+            enable_neon="auto (no)"
+        ])
+    ])
+])
+
+AM_CONDITIONAL([HAVE_NEON], [test "x$pt_cv_neon_val" = x1])
+AS_IF([test "x$pt_cv_neon" == xdefault], [NEON_CFLAGS=],
+      [test "x$pt_cv_neon" != xno],      [NEON_CFLAGS="$pt_cv_neon"],
+      [NEON_CFLAGS="not supported"])
+AC_SUBST([NEON_CFLAGS])
+
+###############################################################################
 # Checks for library functions
 ###############################################################################
 AC_CHECK_FUNCS([_aligned_malloc])
@@ -1079,6 +1130,9 @@ AC_MSG_RESULT([
 
     Altivec : ............................. ${enable_altivec}
     ALTIVEC_CFLAGS : ...................... ${ALTIVEC_CFLAGS}
+
+    ARM NEON : ............................ ${enable_neon}
+    NEON_CFLAGS : ......................... ${NEON_CFLAGS}
 
   Dependencies :
 

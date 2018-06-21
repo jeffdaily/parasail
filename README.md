@@ -13,6 +13,8 @@ Author: Jeff Daily (jeff.daily@pnnl.gov)
   * [Compiling and Installing](#compiling-and-installing)
     * [autotools build](#autotools-build)
     * [CMake build](#cmake-build)
+    * [Meson build](#meson-build)
+    * [Cross-Compiling for ARM](#cross-compiling-for-arm)
   * [C Interface Example](#c-interface-example)
     * [Standard Function Naming Convention](#standard-function-naming-convention)
     * [Function Dispatchers](#function-dispatchers)
@@ -87,6 +89,49 @@ By default, CMake will build the parasail shared library.  In order to compile t
 
 Please follow http://mesonbuild.com/Quick-guide.html for how to use
 Meson. The Meson build files are maintained by @SoapZA.
+
+### Cross-Compiling for ARM
+
+Using Ubuntu 16.04 LTS (Xenial), you can compile for an ARM-based platform using an x86_64-based build platform.  First, you will need to install the necessary packages.  There are a few different ARM platforms you can compile for using Ubuntu packages; the details of the platforms are not covered here.
+
+#### Install Prerequisite Packages
+
+```bash
+sudo apt-get install \
+gcc-arm-linux-gnueabi \
+g++-arm-linux-gnueabi \
+gcc-arm-linux-gnueabihf \
+g++-arm-linux-gnueabihf \
+gcc-aarch64-linux-gnu \
+g++-aarch64-linux-gnu
+```
+
+#### Run configure for cross-compilation
+
+Cross-compilation is possible with both the autotools and CMake builds, however the autotools build is straightforward.  Set the `--host` and `--build` options and specify the cross-compilers instead of the standard compilers.  If you have zlib installed, you must explicitly disable its inclusion in parasail because the default ubuntu packages from above do not provide it.  You can replace the `--host` option in the following example with `--host arm-linux-gnueabi` or `--host arm-linux-gnueabihf` as needed.
+
+```bash
+# for aarch64
+./configure CC=aarch64-linux-gnu-gcc CXX=aarch64-linux-gnu-g++ --build x86_64-pc-linux-gnu --host aarch64-linux-gnu LDFLAGS=-static --without-zlib
+# for gnueabi
+./configure CC=arm-linux-gnueabi-gcc CXX=arm-linux-gnueabi-g++ --build x86_64-pc-linux-gnu --host arm-linux-gnueabi LDFLAGS=-static --without-zlib
+# for gnueabihf
+./configure CC=arm-linux-gnueabihf-gcc CXX=arm-linux-gnueabihf-g++ --build x86_64-pc-linux-gnu --host arm-linux-gnueabihf LDFLAGS=-static --without-zlib
+```
+Note that you don't really need to specifc `CC` and `CXX` above (the `--host` argument will be added as a prefix to `gcc` and `g++` automatically), but being explicit will report errors early in case you forgot to install one of the packages from the prerequisites step.
+
+#### Verifying Cross-Compiled ARM Executables using QEMU
+
+Install the QEMU (https://www.qemu.org/) package.  `sudo apt-get install qemu`.  After a successful `make` you should have `apps/parasail_aligner`.  QEMU will allow you to run the cross-compiled binaries on your x86_64 linux platform.  You must specify the QEMU_LD_PREFIX corresponding to the desired ARM platform you compiled for.  Use the `-L` option to the appropriate qemu launcher.
+
+```bash
+# for aarch64
+qemu-aarch64 -L /usr/aarch64-linux-gnu ./apps/parasail_aligner
+# for gnueabi
+qemu-arm -L /usr/arm-linux-gnueabi ./apps/parasail_aligner
+# for gnueabihf
+qemu-arm -L /usr/arm-linux-gnueabihf ./apps/parasail_aligner
+```
 
 ## C Interface Example
 

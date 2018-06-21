@@ -7,6 +7,10 @@ This project follows the [Gitflow Workflow model](https://www.atlassian.com/git/
 ## [Unreleased]
 The Unreleased section will be empty for tagged releases. Unreleased functionality appears in the develop branch.
 
+## [2.1.5] - 2018-06-21
+### Fixed
+- Compilation now works for arm platforms. Only non-vectorized functions at this time.
+
 ## [2.1.4] - 2018-05-29
 ### Fixed
 - Alignments were always case-insensitive. Now cigars and tracebacks are also case-insensitive.

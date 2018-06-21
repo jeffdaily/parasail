@@ -787,31 +787,43 @@ AM_CONDITIONAL([HAVE_XGETBV], [test "x$pt_cv_xgetbv" = xyes])
 AS_IF([test "x$enable_altivec" != "xno"], [
     AC_CACHE_CHECK([for AltiVec support], [pt_cv_altivec],
     [pt_cv_altivec=no; pt_cv_altivec_val=0
-    for flag in default -maltivec -faltivec
+    for flag in default -maltivec -faltivec '-maltivec -mpower8-vector'
     do
-         save_CFLAGS="$CFLAGS"
-         AS_IF([test "x$flag" != xdefault], [CFLAGS="$CFLAGS $flag"])
-         psl_save_c_werror_flag=$ac_c_werror_flag
-         ac_c_werror_flag=yes
-         AC_LINK_IFELSE([AC_LANG_SOURCE([[
-    #include <altivec.h>
-    vector signed int vec_2sComp (vector signed int x)
-    {
-        vector signed int one = (vector signed int) (1);
-        x = vec_nor (x, x);
-        x = vec_add (x, one);
-        return x;
-    }
-    int main(void)
-    {
-        vector signed int two = (vector signed int) (2);
-        vector signed int result = vec_2sComp(two);
-        return vec_extract(two,0);
-    }
-    ]])],
-            [pt_cv_altivec="$flag"; pt_cv_altivec_val=1])
-         ac_c_werror_flag=$psl_save_c_werror_flag
-         CFLAGS="$save_CFLAGS"
+         # some compilers want () instead of {} for assigning literals to vectors
+         for brace in paren curly
+         do
+             AS_IF([test "x$brace" = xparen],
+                   [B_OPEN='('; B_CLOSE=')'],
+                   [B_OPEN='{'; B_CLOSE='}'])
+             save_CFLAGS="$CFLAGS"
+             AS_IF([test "x$flag" != xdefault], [CFLAGS="$CFLAGS $flag"])
+             psl_save_c_werror_flag=$ac_c_werror_flag
+             ac_c_werror_flag=yes
+             AC_LINK_IFELSE([AC_LANG_SOURCE([[
+#include <altivec.h>
+vector signed int vec_2sComp (vector signed int x)
+{
+    vector signed int one = (vector signed int) ${B_OPEN}1${B_CLOSE};
+    x = vec_nor (x, x);
+    x = vec_add (x, one);
+    return x;
+}
+vector signed long long vec_mm_sub_epi64(vector signed long long a, vector signed long long b)
+{
+    return (vector signed long long) vec_sub(a, b);
+}
+int main(void)
+{
+    vector signed int two = (vector signed int) ${B_OPEN}2${B_CLOSE};
+    vector signed int result = vec_2sComp(two);
+    return vec_extract(two,0);
+}
+        ]])],
+                [pt_cv_altivec="$flag"; pt_cv_altivec_val=1])
+             ac_c_werror_flag=$psl_save_c_werror_flag
+             CFLAGS="$save_CFLAGS"
+             AS_IF([test "x$pt_cv_altivec" != xno], [break])
+         done
          AS_IF([test "x$pt_cv_altivec" != xno], [break])
     done])
     AC_DEFINE_UNQUOTED([HAVE_ALTIVEC], [$pt_cv_altivec_val],

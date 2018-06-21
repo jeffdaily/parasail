@@ -21,6 +21,7 @@ extern int parasail_can_use_avx2();
 extern int parasail_can_use_sse41();
 extern int parasail_can_use_sse2();
 extern int parasail_can_use_altivec();
+extern int parasail_can_use_neon();
 
 #ifdef __cplusplus
 }

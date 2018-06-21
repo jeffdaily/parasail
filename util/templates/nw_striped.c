@@ -75,7 +75,6 @@ parasail_result_t* PNAME(
     %(INDEX)s i = 0;
     %(INDEX)s j = 0;
     %(INDEX)s k = 0;
-    %(INDEX)s segNum = 0;
     const int s1Len = profile->s1Len;
     %(INDEX)s end_query = s1Len-1;
     %(INDEX)s end_ref = s2Len-1;
@@ -104,23 +103,7 @@ parasail_result_t* PNAME(
 #endif
 #endif
 
-    /* initialize H and E */
-    {
-        %(INDEX)s index = 0;
-        for (i=0; i<segLen; ++i) {
-            %(VTYPE)s_%(WIDTH)s_t h;
-            %(VTYPE)s_%(WIDTH)s_t e;
-            for (segNum=0; segNum<segWidth; ++segNum) {
-                int64_t tmp = -open-gap*(segNum*segLen+i);
-                h.v[segNum] = tmp < INT%(WIDTH)s_MIN ? INT%(WIDTH)s_MIN : tmp;
-                tmp = tmp - open;
-                e.v[segNum] = tmp < INT%(WIDTH)s_MIN ? INT%(WIDTH)s_MIN : tmp;
-            }
-            %(VSTORE)s(&pvHStore[index], h.m);
-            %(VSTORE)s(&pvE[index], e.m);
-            ++index;
-        }
-    }
+%(INIT_H_AND_E)s
 
     /* initialize uppder boundary */
     {

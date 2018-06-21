@@ -46,3 +46,12 @@ int parasail_can_use_altivec()
     return 0;
 }
 
+int parasail_can_use_neon()
+{
+#if HAVE_NEON
+    return 1;
+#else
+    return 0;
+#endif
+}
+

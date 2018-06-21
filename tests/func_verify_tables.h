@@ -91,6 +91,25 @@ static parasail_function_info_t parasail_nw_table_altivec_functions[] = {
 };
 static parasail_function_group_t parasail_nw_table_altivec = {"parasail_nw_table_altivec", parasail_nw_table_altivec_functions};
 #endif
+#if HAVE_NEON
+static parasail_function_info_t parasail_nw_table_neon_functions[] = {
+{parasail_nw_table,                   "parasail_nw_table",                   "nw",    "orig", "NA",     "32", "32",  1, 1, 0, 0, 0, 1},
+{parasail_nw_table_scan_neon_128_64,  "parasail_nw_table_scan_neon_128_64",  "nw",    "scan", "neon",  "128", "64",  2, 1, 0, 0, 0, 0},
+{parasail_nw_table_scan_neon_128_32,  "parasail_nw_table_scan_neon_128_32",  "nw",    "scan", "neon",  "128", "32",  4, 1, 0, 0, 0, 0},
+{parasail_nw_table_scan_neon_128_16,  "parasail_nw_table_scan_neon_128_16",  "nw",    "scan", "neon",  "128", "16",  8, 1, 0, 0, 0, 0},
+{parasail_nw_table_scan_neon_128_8,   "parasail_nw_table_scan_neon_128_8",   "nw",    "scan", "neon",  "128",  "8", 16, 1, 0, 0, 0, 0},
+{parasail_nw_table_striped_neon_128_64, "parasail_nw_table_striped_neon_128_64", "nw", "striped", "neon",  "128", "64",  2, 1, 0, 0, 0, 0},
+{parasail_nw_table_striped_neon_128_32, "parasail_nw_table_striped_neon_128_32", "nw", "striped", "neon",  "128", "32",  4, 1, 0, 0, 0, 0},
+{parasail_nw_table_striped_neon_128_16, "parasail_nw_table_striped_neon_128_16", "nw", "striped", "neon",  "128", "16",  8, 1, 0, 0, 0, 0},
+{parasail_nw_table_striped_neon_128_8, "parasail_nw_table_striped_neon_128_8", "nw", "striped", "neon",  "128",  "8", 16, 1, 0, 0, 0, 0},
+{parasail_nw_table_diag_neon_128_64,  "parasail_nw_table_diag_neon_128_64",  "nw",    "diag", "neon",  "128", "64",  2, 1, 0, 0, 0, 0},
+{parasail_nw_table_diag_neon_128_32,  "parasail_nw_table_diag_neon_128_32",  "nw",    "diag", "neon",  "128", "32",  4, 1, 0, 0, 0, 0},
+{parasail_nw_table_diag_neon_128_16,  "parasail_nw_table_diag_neon_128_16",  "nw",    "diag", "neon",  "128", "16",  8, 1, 0, 0, 0, 0},
+{parasail_nw_table_diag_neon_128_8,   "parasail_nw_table_diag_neon_128_8",   "nw",    "diag", "neon",  "128",  "8", 16, 1, 0, 0, 0, 0},
+{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
+};
+static parasail_function_group_t parasail_nw_table_neon = {"parasail_nw_table_neon", parasail_nw_table_neon_functions};
+#endif
 static parasail_function_info_t parasail_nw_table_disp_functions[] = {
 {parasail_nw_table,                   "parasail_nw_table",                   "nw",    "orig", "NA",     "32", "32",  1, 1, 0, 0, 0, 1},
 {parasail_nw_table_scan_64,           "parasail_nw_table_scan_64",           "nw",    "scan", "disp",   "NA", "64", -1, 1, 0, 0, 0, 0},
@@ -192,6 +211,25 @@ static parasail_function_info_t parasail_sg_table_altivec_functions[] = {
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
 };
 static parasail_function_group_t parasail_sg_table_altivec = {"parasail_sg_table_altivec", parasail_sg_table_altivec_functions};
+#endif
+#if HAVE_NEON
+static parasail_function_info_t parasail_sg_table_neon_functions[] = {
+{parasail_sg_table,                   "parasail_sg_table",                   "sg",    "orig", "NA",     "32", "32",  1, 1, 0, 0, 0, 1},
+{parasail_sg_table_scan_neon_128_64,  "parasail_sg_table_scan_neon_128_64",  "sg",    "scan", "neon",  "128", "64",  2, 1, 0, 0, 0, 0},
+{parasail_sg_table_scan_neon_128_32,  "parasail_sg_table_scan_neon_128_32",  "sg",    "scan", "neon",  "128", "32",  4, 1, 0, 0, 0, 0},
+{parasail_sg_table_scan_neon_128_16,  "parasail_sg_table_scan_neon_128_16",  "sg",    "scan", "neon",  "128", "16",  8, 1, 0, 0, 0, 0},
+{parasail_sg_table_scan_neon_128_8,   "parasail_sg_table_scan_neon_128_8",   "sg",    "scan", "neon",  "128",  "8", 16, 1, 0, 0, 0, 0},
+{parasail_sg_table_striped_neon_128_64, "parasail_sg_table_striped_neon_128_64", "sg", "striped", "neon",  "128", "64",  2, 1, 0, 0, 0, 0},
+{parasail_sg_table_striped_neon_128_32, "parasail_sg_table_striped_neon_128_32", "sg", "striped", "neon",  "128", "32",  4, 1, 0, 0, 0, 0},
+{parasail_sg_table_striped_neon_128_16, "parasail_sg_table_striped_neon_128_16", "sg", "striped", "neon",  "128", "16",  8, 1, 0, 0, 0, 0},
+{parasail_sg_table_striped_neon_128_8, "parasail_sg_table_striped_neon_128_8", "sg", "striped", "neon",  "128",  "8", 16, 1, 0, 0, 0, 0},
+{parasail_sg_table_diag_neon_128_64,  "parasail_sg_table_diag_neon_128_64",  "sg",    "diag", "neon",  "128", "64",  2, 1, 0, 0, 0, 0},
+{parasail_sg_table_diag_neon_128_32,  "parasail_sg_table_diag_neon_128_32",  "sg",    "diag", "neon",  "128", "32",  4, 1, 0, 0, 0, 0},
+{parasail_sg_table_diag_neon_128_16,  "parasail_sg_table_diag_neon_128_16",  "sg",    "diag", "neon",  "128", "16",  8, 1, 0, 0, 0, 0},
+{parasail_sg_table_diag_neon_128_8,   "parasail_sg_table_diag_neon_128_8",   "sg",    "diag", "neon",  "128",  "8", 16, 1, 0, 0, 0, 0},
+{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
+};
+static parasail_function_group_t parasail_sg_table_neon = {"parasail_sg_table_neon", parasail_sg_table_neon_functions};
 #endif
 static parasail_function_info_t parasail_sg_table_disp_functions[] = {
 {parasail_sg_table,                   "parasail_sg_table",                   "sg",    "orig", "NA",     "32", "32",  1, 1, 0, 0, 0, 1},
@@ -295,6 +333,25 @@ static parasail_function_info_t parasail_sw_table_altivec_functions[] = {
 };
 static parasail_function_group_t parasail_sw_table_altivec = {"parasail_sw_table_altivec", parasail_sw_table_altivec_functions};
 #endif
+#if HAVE_NEON
+static parasail_function_info_t parasail_sw_table_neon_functions[] = {
+{parasail_sw_table,                   "parasail_sw_table",                   "sw",    "orig", "NA",     "32", "32",  1, 1, 0, 0, 0, 1},
+{parasail_sw_table_scan_neon_128_64,  "parasail_sw_table_scan_neon_128_64",  "sw",    "scan", "neon",  "128", "64",  2, 1, 0, 0, 0, 0},
+{parasail_sw_table_scan_neon_128_32,  "parasail_sw_table_scan_neon_128_32",  "sw",    "scan", "neon",  "128", "32",  4, 1, 0, 0, 0, 0},
+{parasail_sw_table_scan_neon_128_16,  "parasail_sw_table_scan_neon_128_16",  "sw",    "scan", "neon",  "128", "16",  8, 1, 0, 0, 0, 0},
+{parasail_sw_table_scan_neon_128_8,   "parasail_sw_table_scan_neon_128_8",   "sw",    "scan", "neon",  "128",  "8", 16, 1, 0, 0, 0, 0},
+{parasail_sw_table_striped_neon_128_64, "parasail_sw_table_striped_neon_128_64", "sw", "striped", "neon",  "128", "64",  2, 1, 0, 0, 0, 0},
+{parasail_sw_table_striped_neon_128_32, "parasail_sw_table_striped_neon_128_32", "sw", "striped", "neon",  "128", "32",  4, 1, 0, 0, 0, 0},
+{parasail_sw_table_striped_neon_128_16, "parasail_sw_table_striped_neon_128_16", "sw", "striped", "neon",  "128", "16",  8, 1, 0, 0, 0, 0},
+{parasail_sw_table_striped_neon_128_8, "parasail_sw_table_striped_neon_128_8", "sw", "striped", "neon",  "128",  "8", 16, 1, 0, 0, 0, 0},
+{parasail_sw_table_diag_neon_128_64,  "parasail_sw_table_diag_neon_128_64",  "sw",    "diag", "neon",  "128", "64",  2, 1, 0, 0, 0, 0},
+{parasail_sw_table_diag_neon_128_32,  "parasail_sw_table_diag_neon_128_32",  "sw",    "diag", "neon",  "128", "32",  4, 1, 0, 0, 0, 0},
+{parasail_sw_table_diag_neon_128_16,  "parasail_sw_table_diag_neon_128_16",  "sw",    "diag", "neon",  "128", "16",  8, 1, 0, 0, 0, 0},
+{parasail_sw_table_diag_neon_128_8,   "parasail_sw_table_diag_neon_128_8",   "sw",    "diag", "neon",  "128",  "8", 16, 1, 0, 0, 0, 0},
+{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
+};
+static parasail_function_group_t parasail_sw_table_neon = {"parasail_sw_table_neon", parasail_sw_table_neon_functions};
+#endif
 static parasail_function_info_t parasail_sw_table_disp_functions[] = {
 {parasail_sw_table,                   "parasail_sw_table",                   "sw",    "orig", "NA",     "32", "32",  1, 1, 0, 0, 0, 1},
 {parasail_sw_table_scan_64,           "parasail_sw_table_scan_64",           "sw",    "scan", "disp",   "NA", "64", -1, 1, 0, 0, 0, 0},
@@ -396,6 +453,25 @@ static parasail_function_info_t parasail_nw_stats_table_altivec_functions[] = {
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
 };
 static parasail_function_group_t parasail_nw_stats_table_altivec = {"parasail_nw_stats_table_altivec", parasail_nw_stats_table_altivec_functions};
+#endif
+#if HAVE_NEON
+static parasail_function_info_t parasail_nw_stats_table_neon_functions[] = {
+{parasail_nw_stats_table,             "parasail_nw_stats_table",             "nw_stats",    "orig", "NA",     "32", "32",  1, 1, 0, 0, 1, 1},
+{parasail_nw_stats_table_scan_neon_128_64, "parasail_nw_stats_table_scan_neon_128_64", "nw_stats",    "scan", "neon",  "128", "64",  2, 1, 0, 0, 1, 0},
+{parasail_nw_stats_table_scan_neon_128_32, "parasail_nw_stats_table_scan_neon_128_32", "nw_stats",    "scan", "neon",  "128", "32",  4, 1, 0, 0, 1, 0},
+{parasail_nw_stats_table_scan_neon_128_16, "parasail_nw_stats_table_scan_neon_128_16", "nw_stats",    "scan", "neon",  "128", "16",  8, 1, 0, 0, 1, 0},
+{parasail_nw_stats_table_scan_neon_128_8, "parasail_nw_stats_table_scan_neon_128_8", "nw_stats",    "scan", "neon",  "128",  "8", 16, 1, 0, 0, 1, 0},
+{parasail_nw_stats_table_striped_neon_128_64, "parasail_nw_stats_table_striped_neon_128_64", "nw_stats", "striped", "neon",  "128", "64",  2, 1, 0, 0, 1, 0},
+{parasail_nw_stats_table_striped_neon_128_32, "parasail_nw_stats_table_striped_neon_128_32", "nw_stats", "striped", "neon",  "128", "32",  4, 1, 0, 0, 1, 0},
+{parasail_nw_stats_table_striped_neon_128_16, "parasail_nw_stats_table_striped_neon_128_16", "nw_stats", "striped", "neon",  "128", "16",  8, 1, 0, 0, 1, 0},
+{parasail_nw_stats_table_striped_neon_128_8, "parasail_nw_stats_table_striped_neon_128_8", "nw_stats", "striped", "neon",  "128",  "8", 16, 1, 0, 0, 1, 0},
+{parasail_nw_stats_table_diag_neon_128_64, "parasail_nw_stats_table_diag_neon_128_64", "nw_stats",    "diag", "neon",  "128", "64",  2, 1, 0, 0, 1, 0},
+{parasail_nw_stats_table_diag_neon_128_32, "parasail_nw_stats_table_diag_neon_128_32", "nw_stats",    "diag", "neon",  "128", "32",  4, 1, 0, 0, 1, 0},
+{parasail_nw_stats_table_diag_neon_128_16, "parasail_nw_stats_table_diag_neon_128_16", "nw_stats",    "diag", "neon",  "128", "16",  8, 1, 0, 0, 1, 0},
+{parasail_nw_stats_table_diag_neon_128_8, "parasail_nw_stats_table_diag_neon_128_8", "nw_stats",    "diag", "neon",  "128",  "8", 16, 1, 0, 0, 1, 0},
+{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
+};
+static parasail_function_group_t parasail_nw_stats_table_neon = {"parasail_nw_stats_table_neon", parasail_nw_stats_table_neon_functions};
 #endif
 static parasail_function_info_t parasail_nw_stats_table_disp_functions[] = {
 {parasail_nw_stats_table,             "parasail_nw_stats_table",             "nw_stats",    "orig", "NA",     "32", "32",  1, 1, 0, 0, 1, 1},
@@ -499,6 +575,25 @@ static parasail_function_info_t parasail_sg_stats_table_altivec_functions[] = {
 };
 static parasail_function_group_t parasail_sg_stats_table_altivec = {"parasail_sg_stats_table_altivec", parasail_sg_stats_table_altivec_functions};
 #endif
+#if HAVE_NEON
+static parasail_function_info_t parasail_sg_stats_table_neon_functions[] = {
+{parasail_sg_stats_table,             "parasail_sg_stats_table",             "sg_stats",    "orig", "NA",     "32", "32",  1, 1, 0, 0, 1, 1},
+{parasail_sg_stats_table_scan_neon_128_64, "parasail_sg_stats_table_scan_neon_128_64", "sg_stats",    "scan", "neon",  "128", "64",  2, 1, 0, 0, 1, 0},
+{parasail_sg_stats_table_scan_neon_128_32, "parasail_sg_stats_table_scan_neon_128_32", "sg_stats",    "scan", "neon",  "128", "32",  4, 1, 0, 0, 1, 0},
+{parasail_sg_stats_table_scan_neon_128_16, "parasail_sg_stats_table_scan_neon_128_16", "sg_stats",    "scan", "neon",  "128", "16",  8, 1, 0, 0, 1, 0},
+{parasail_sg_stats_table_scan_neon_128_8, "parasail_sg_stats_table_scan_neon_128_8", "sg_stats",    "scan", "neon",  "128",  "8", 16, 1, 0, 0, 1, 0},
+{parasail_sg_stats_table_striped_neon_128_64, "parasail_sg_stats_table_striped_neon_128_64", "sg_stats", "striped", "neon",  "128", "64",  2, 1, 0, 0, 1, 0},
+{parasail_sg_stats_table_striped_neon_128_32, "parasail_sg_stats_table_striped_neon_128_32", "sg_stats", "striped", "neon",  "128", "32",  4, 1, 0, 0, 1, 0},
+{parasail_sg_stats_table_striped_neon_128_16, "parasail_sg_stats_table_striped_neon_128_16", "sg_stats", "striped", "neon",  "128", "16",  8, 1, 0, 0, 1, 0},
+{parasail_sg_stats_table_striped_neon_128_8, "parasail_sg_stats_table_striped_neon_128_8", "sg_stats", "striped", "neon",  "128",  "8", 16, 1, 0, 0, 1, 0},
+{parasail_sg_stats_table_diag_neon_128_64, "parasail_sg_stats_table_diag_neon_128_64", "sg_stats",    "diag", "neon",  "128", "64",  2, 1, 0, 0, 1, 0},
+{parasail_sg_stats_table_diag_neon_128_32, "parasail_sg_stats_table_diag_neon_128_32", "sg_stats",    "diag", "neon",  "128", "32",  4, 1, 0, 0, 1, 0},
+{parasail_sg_stats_table_diag_neon_128_16, "parasail_sg_stats_table_diag_neon_128_16", "sg_stats",    "diag", "neon",  "128", "16",  8, 1, 0, 0, 1, 0},
+{parasail_sg_stats_table_diag_neon_128_8, "parasail_sg_stats_table_diag_neon_128_8", "sg_stats",    "diag", "neon",  "128",  "8", 16, 1, 0, 0, 1, 0},
+{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
+};
+static parasail_function_group_t parasail_sg_stats_table_neon = {"parasail_sg_stats_table_neon", parasail_sg_stats_table_neon_functions};
+#endif
 static parasail_function_info_t parasail_sg_stats_table_disp_functions[] = {
 {parasail_sg_stats_table,             "parasail_sg_stats_table",             "sg_stats",    "orig", "NA",     "32", "32",  1, 1, 0, 0, 1, 1},
 {parasail_sg_stats_table_scan_64,     "parasail_sg_stats_table_scan_64",     "sg_stats",    "scan", "disp",   "NA", "64", -1, 1, 0, 0, 1, 0},
@@ -600,6 +695,25 @@ static parasail_function_info_t parasail_sw_stats_table_altivec_functions[] = {
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
 };
 static parasail_function_group_t parasail_sw_stats_table_altivec = {"parasail_sw_stats_table_altivec", parasail_sw_stats_table_altivec_functions};
+#endif
+#if HAVE_NEON
+static parasail_function_info_t parasail_sw_stats_table_neon_functions[] = {
+{parasail_sw_stats_table,             "parasail_sw_stats_table",             "sw_stats",    "orig", "NA",     "32", "32",  1, 1, 0, 0, 1, 1},
+{parasail_sw_stats_table_scan_neon_128_64, "parasail_sw_stats_table_scan_neon_128_64", "sw_stats",    "scan", "neon",  "128", "64",  2, 1, 0, 0, 1, 0},
+{parasail_sw_stats_table_scan_neon_128_32, "parasail_sw_stats_table_scan_neon_128_32", "sw_stats",    "scan", "neon",  "128", "32",  4, 1, 0, 0, 1, 0},
+{parasail_sw_stats_table_scan_neon_128_16, "parasail_sw_stats_table_scan_neon_128_16", "sw_stats",    "scan", "neon",  "128", "16",  8, 1, 0, 0, 1, 0},
+{parasail_sw_stats_table_scan_neon_128_8, "parasail_sw_stats_table_scan_neon_128_8", "sw_stats",    "scan", "neon",  "128",  "8", 16, 1, 0, 0, 1, 0},
+{parasail_sw_stats_table_striped_neon_128_64, "parasail_sw_stats_table_striped_neon_128_64", "sw_stats", "striped", "neon",  "128", "64",  2, 1, 0, 0, 1, 0},
+{parasail_sw_stats_table_striped_neon_128_32, "parasail_sw_stats_table_striped_neon_128_32", "sw_stats", "striped", "neon",  "128", "32",  4, 1, 0, 0, 1, 0},
+{parasail_sw_stats_table_striped_neon_128_16, "parasail_sw_stats_table_striped_neon_128_16", "sw_stats", "striped", "neon",  "128", "16",  8, 1, 0, 0, 1, 0},
+{parasail_sw_stats_table_striped_neon_128_8, "parasail_sw_stats_table_striped_neon_128_8", "sw_stats", "striped", "neon",  "128",  "8", 16, 1, 0, 0, 1, 0},
+{parasail_sw_stats_table_diag_neon_128_64, "parasail_sw_stats_table_diag_neon_128_64", "sw_stats",    "diag", "neon",  "128", "64",  2, 1, 0, 0, 1, 0},
+{parasail_sw_stats_table_diag_neon_128_32, "parasail_sw_stats_table_diag_neon_128_32", "sw_stats",    "diag", "neon",  "128", "32",  4, 1, 0, 0, 1, 0},
+{parasail_sw_stats_table_diag_neon_128_16, "parasail_sw_stats_table_diag_neon_128_16", "sw_stats",    "diag", "neon",  "128", "16",  8, 1, 0, 0, 1, 0},
+{parasail_sw_stats_table_diag_neon_128_8, "parasail_sw_stats_table_diag_neon_128_8", "sw_stats",    "diag", "neon",  "128",  "8", 16, 1, 0, 0, 1, 0},
+{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
+};
+static parasail_function_group_t parasail_sw_stats_table_neon = {"parasail_sw_stats_table_neon", parasail_sw_stats_table_neon_functions};
 #endif
 static parasail_function_info_t parasail_sw_stats_table_disp_functions[] = {
 {parasail_sw_stats_table,             "parasail_sw_stats_table",             "sw_stats",    "orig", "NA",     "32", "32",  1, 1, 0, 0, 1, 1},

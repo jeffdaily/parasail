@@ -116,6 +116,9 @@ AM_CPPFLAGS += -I$(top_srcdir)/contrib
 AM_CPPFLAGS += -I$(top_srcdir)/contrib/sais-lite-lcp
 AM_CPPFLAGS += -I$(top_srcdir)/contrib/ssw
 AM_CPPFLAGS += -I$(top_srcdir)/src
+if HAVE_NEON
+AM_CPPFLAGS += -I$(top_srcdir)/contrib/simde/simde
+endif
 
 noinst_LTLIBRARIES += libparasail_novec.la
 noinst_LTLIBRARIES += libparasail_novec_table.la
@@ -145,21 +148,30 @@ noinst_LTLIBRARIES += libparasail_altivec.la
 noinst_LTLIBRARIES += libparasail_altivec_table.la
 noinst_LTLIBRARIES += libparasail_altivec_rowcol.la
 endif
+if HAVE_NEON
+noinst_LTLIBRARIES += libparasail_neon_memory.la
+noinst_LTLIBRARIES += libparasail_neon.la
+noinst_LTLIBRARIES += libparasail_neon_table.la
+noinst_LTLIBRARIES += libparasail_neon_rowcol.la
+endif
 
 SRC_CORE =
 MEM_SRC_SSE =
 MEM_SRC_AVX2 =
 MEM_SRC_ALTIVEC =
+MEM_SRC_NEON =
 SRC_NOVEC =
 SRC_SSE2 =
 SRC_SSE41 =
 SRC_AVX2 =
 SRC_ALTIVEC =
+SRC_NEON =
 SRC_TRACE_NOVEC =
 SRC_TRACE_SSE2 =
 SRC_TRACE_SSE41 =
 SRC_TRACE_AVX2 =
 SRC_TRACE_ALTIVEC =
+SRC_TRACE_NEON =
 
 #################
 # core sources
@@ -205,6 +217,9 @@ MEM_SRC_AVX2 += parasail/internal_avx.h
 
 MEM_SRC_ALTIVEC += src/memory_altivec.c
 MEM_SRC_ALTIVEC += parasail/internal_altivec.h
+
+MEM_SRC_NEON += src/memory_neon.c
+MEM_SRC_NEON += parasail/internal_neon.h
 
 #################
 # serial methods
@@ -306,6 +321,22 @@ SRC_ALTIVEC += src/nw_scan_altivec_128_8.c
 SRC_ALTIVEC += src/sg_scan_altivec_128_8.c
 SRC_ALTIVEC += src/sw_scan_altivec_128_8.c
 
+SRC_NEON += src/nw_scan_neon_128_64.c
+SRC_NEON += src/sg_scan_neon_128_64.c
+SRC_NEON += src/sw_scan_neon_128_64.c
+
+SRC_NEON += src/nw_scan_neon_128_32.c
+SRC_NEON += src/sg_scan_neon_128_32.c
+SRC_NEON += src/sw_scan_neon_128_32.c
+
+SRC_NEON += src/nw_scan_neon_128_16.c
+SRC_NEON += src/sg_scan_neon_128_16.c
+SRC_NEON += src/sw_scan_neon_128_16.c
+
+SRC_NEON += src/nw_scan_neon_128_8.c
+SRC_NEON += src/sg_scan_neon_128_8.c
+SRC_NEON += src/sw_scan_neon_128_8.c
+
 # parallel diag methods
 
 SRC_SSE2 += src/nw_diag_sse2_128_64.c
@@ -372,6 +403,22 @@ SRC_ALTIVEC += src/nw_diag_altivec_128_8.c
 SRC_ALTIVEC += src/sg_diag_altivec_128_8.c
 SRC_ALTIVEC += src/sw_diag_altivec_128_8.c
 
+SRC_NEON += src/nw_diag_neon_128_64.c
+SRC_NEON += src/sg_diag_neon_128_64.c
+SRC_NEON += src/sw_diag_neon_128_64.c
+
+SRC_NEON += src/nw_diag_neon_128_32.c
+SRC_NEON += src/sg_diag_neon_128_32.c
+SRC_NEON += src/sw_diag_neon_128_32.c
+
+SRC_NEON += src/nw_diag_neon_128_16.c
+SRC_NEON += src/sg_diag_neon_128_16.c
+SRC_NEON += src/sw_diag_neon_128_16.c
+
+SRC_NEON += src/nw_diag_neon_128_8.c
+SRC_NEON += src/sg_diag_neon_128_8.c
+SRC_NEON += src/sw_diag_neon_128_8.c
+
 # parallel striped methods
 
 SRC_SSE2 += src/nw_striped_sse2_128_64.c
@@ -437,6 +484,22 @@ SRC_ALTIVEC += src/sw_striped_altivec_128_16.c
 SRC_ALTIVEC += src/nw_striped_altivec_128_8.c
 SRC_ALTIVEC += src/sg_striped_altivec_128_8.c
 SRC_ALTIVEC += src/sw_striped_altivec_128_8.c
+
+SRC_NEON += src/nw_striped_neon_128_64.c
+SRC_NEON += src/sg_striped_neon_128_64.c
+SRC_NEON += src/sw_striped_neon_128_64.c
+
+SRC_NEON += src/nw_striped_neon_128_32.c
+SRC_NEON += src/sg_striped_neon_128_32.c
+SRC_NEON += src/sw_striped_neon_128_32.c
+
+SRC_NEON += src/nw_striped_neon_128_16.c
+SRC_NEON += src/sg_striped_neon_128_16.c
+SRC_NEON += src/sw_striped_neon_128_16.c
+
+SRC_NEON += src/nw_striped_neon_128_8.c
+SRC_NEON += src/sg_striped_neon_128_8.c
+SRC_NEON += src/sw_striped_neon_128_8.c
 
 # parallel blocked methods
 
@@ -513,6 +576,22 @@ SRC_ALTIVEC += src/nw_stats_scan_altivec_128_8.c
 SRC_ALTIVEC += src/sg_stats_scan_altivec_128_8.c
 SRC_ALTIVEC += src/sw_stats_scan_altivec_128_8.c
 
+SRC_NEON += src/nw_stats_scan_neon_128_64.c
+SRC_NEON += src/sg_stats_scan_neon_128_64.c
+SRC_NEON += src/sw_stats_scan_neon_128_64.c
+
+SRC_NEON += src/nw_stats_scan_neon_128_32.c
+SRC_NEON += src/sg_stats_scan_neon_128_32.c
+SRC_NEON += src/sw_stats_scan_neon_128_32.c
+
+SRC_NEON += src/nw_stats_scan_neon_128_16.c
+SRC_NEON += src/sg_stats_scan_neon_128_16.c
+SRC_NEON += src/sw_stats_scan_neon_128_16.c
+
+SRC_NEON += src/nw_stats_scan_neon_128_8.c
+SRC_NEON += src/sg_stats_scan_neon_128_8.c
+SRC_NEON += src/sw_stats_scan_neon_128_8.c
+
 # parallel diag methods
 
 SRC_SSE2 += src/nw_stats_diag_sse2_128_64.c
@@ -579,6 +658,22 @@ SRC_ALTIVEC += src/nw_stats_diag_altivec_128_8.c
 SRC_ALTIVEC += src/sg_stats_diag_altivec_128_8.c
 SRC_ALTIVEC += src/sw_stats_diag_altivec_128_8.c
 
+SRC_NEON += src/nw_stats_diag_neon_128_64.c
+SRC_NEON += src/sg_stats_diag_neon_128_64.c
+SRC_NEON += src/sw_stats_diag_neon_128_64.c
+
+SRC_NEON += src/nw_stats_diag_neon_128_32.c
+SRC_NEON += src/sg_stats_diag_neon_128_32.c
+SRC_NEON += src/sw_stats_diag_neon_128_32.c
+
+SRC_NEON += src/nw_stats_diag_neon_128_16.c
+SRC_NEON += src/sg_stats_diag_neon_128_16.c
+SRC_NEON += src/sw_stats_diag_neon_128_16.c
+
+SRC_NEON += src/nw_stats_diag_neon_128_8.c
+SRC_NEON += src/sg_stats_diag_neon_128_8.c
+SRC_NEON += src/sw_stats_diag_neon_128_8.c
+
 # parallel striped methods
 
 SRC_SSE2 += src/nw_stats_striped_sse2_128_64.c
@@ -644,6 +739,22 @@ SRC_ALTIVEC += src/sw_stats_striped_altivec_128_16.c
 SRC_ALTIVEC += src/nw_stats_striped_altivec_128_8.c
 SRC_ALTIVEC += src/sg_stats_striped_altivec_128_8.c
 SRC_ALTIVEC += src/sw_stats_striped_altivec_128_8.c
+
+SRC_NEON += src/nw_stats_striped_neon_128_64.c
+SRC_NEON += src/sg_stats_striped_neon_128_64.c
+SRC_NEON += src/sw_stats_striped_neon_128_64.c
+
+SRC_NEON += src/nw_stats_striped_neon_128_32.c
+SRC_NEON += src/sg_stats_striped_neon_128_32.c
+SRC_NEON += src/sw_stats_striped_neon_128_32.c
+
+SRC_NEON += src/nw_stats_striped_neon_128_16.c
+SRC_NEON += src/sg_stats_striped_neon_128_16.c
+SRC_NEON += src/sw_stats_striped_neon_128_16.c
+
+SRC_NEON += src/nw_stats_striped_neon_128_8.c
+SRC_NEON += src/sg_stats_striped_neon_128_8.c
+SRC_NEON += src/sw_stats_striped_neon_128_8.c
 
 #########################
 # parallel trace methods
@@ -715,6 +826,22 @@ SRC_TRACE_ALTIVEC += src/nw_trace_scan_altivec_128_8.c
 SRC_TRACE_ALTIVEC += src/sg_trace_scan_altivec_128_8.c
 SRC_TRACE_ALTIVEC += src/sw_trace_scan_altivec_128_8.c
 
+SRC_TRACE_NEON += src/nw_trace_scan_neon_128_64.c
+SRC_TRACE_NEON += src/sg_trace_scan_neon_128_64.c
+SRC_TRACE_NEON += src/sw_trace_scan_neon_128_64.c
+
+SRC_TRACE_NEON += src/nw_trace_scan_neon_128_32.c
+SRC_TRACE_NEON += src/sg_trace_scan_neon_128_32.c
+SRC_TRACE_NEON += src/sw_trace_scan_neon_128_32.c
+
+SRC_TRACE_NEON += src/nw_trace_scan_neon_128_16.c
+SRC_TRACE_NEON += src/sg_trace_scan_neon_128_16.c
+SRC_TRACE_NEON += src/sw_trace_scan_neon_128_16.c
+
+SRC_TRACE_NEON += src/nw_trace_scan_neon_128_8.c
+SRC_TRACE_NEON += src/sg_trace_scan_neon_128_8.c
+SRC_TRACE_NEON += src/sw_trace_scan_neon_128_8.c
+
 # parallel diag methods
 
 SRC_TRACE_SSE2 += src/nw_trace_diag_sse2_128_64.c
@@ -780,6 +907,22 @@ SRC_TRACE_ALTIVEC += src/sw_trace_diag_altivec_128_16.c
 SRC_TRACE_ALTIVEC += src/nw_trace_diag_altivec_128_8.c
 SRC_TRACE_ALTIVEC += src/sg_trace_diag_altivec_128_8.c
 SRC_TRACE_ALTIVEC += src/sw_trace_diag_altivec_128_8.c
+
+SRC_TRACE_NEON += src/nw_trace_diag_neon_128_64.c
+SRC_TRACE_NEON += src/sg_trace_diag_neon_128_64.c
+SRC_TRACE_NEON += src/sw_trace_diag_neon_128_64.c
+
+SRC_TRACE_NEON += src/nw_trace_diag_neon_128_32.c
+SRC_TRACE_NEON += src/sg_trace_diag_neon_128_32.c
+SRC_TRACE_NEON += src/sw_trace_diag_neon_128_32.c
+
+SRC_TRACE_NEON += src/nw_trace_diag_neon_128_16.c
+SRC_TRACE_NEON += src/sg_trace_diag_neon_128_16.c
+SRC_TRACE_NEON += src/sw_trace_diag_neon_128_16.c
+
+SRC_TRACE_NEON += src/nw_trace_diag_neon_128_8.c
+SRC_TRACE_NEON += src/sg_trace_diag_neon_128_8.c
+SRC_TRACE_NEON += src/sw_trace_diag_neon_128_8.c
 
 # parallel striped methods
 
@@ -847,6 +990,22 @@ SRC_TRACE_ALTIVEC += src/nw_trace_striped_altivec_128_8.c
 SRC_TRACE_ALTIVEC += src/sg_trace_striped_altivec_128_8.c
 SRC_TRACE_ALTIVEC += src/sw_trace_striped_altivec_128_8.c
 
+SRC_TRACE_NEON += src/nw_trace_striped_neon_128_64.c
+SRC_TRACE_NEON += src/sg_trace_striped_neon_128_64.c
+SRC_TRACE_NEON += src/sw_trace_striped_neon_128_64.c
+
+SRC_TRACE_NEON += src/nw_trace_striped_neon_128_32.c
+SRC_TRACE_NEON += src/sg_trace_striped_neon_128_32.c
+SRC_TRACE_NEON += src/sw_trace_striped_neon_128_32.c
+
+SRC_TRACE_NEON += src/nw_trace_striped_neon_128_16.c
+SRC_TRACE_NEON += src/sg_trace_striped_neon_128_16.c
+SRC_TRACE_NEON += src/sw_trace_striped_neon_128_16.c
+
+SRC_TRACE_NEON += src/nw_trace_striped_neon_128_8.c
+SRC_TRACE_NEON += src/sg_trace_striped_neon_128_8.c
+SRC_TRACE_NEON += src/sw_trace_striped_neon_128_8.c
+
 #########################
 # library magic
 #########################
@@ -858,52 +1017,61 @@ libparasail_sse2_la_SOURCES    = $(SRC_SSE2) $(SRC_TRACE_SSE2)
 libparasail_sse41_la_SOURCES   = $(SRC_SSE41) $(SRC_TRACE_SSE41)
 libparasail_avx2_la_SOURCES    = $(SRC_AVX2) $(SRC_TRACE_AVX2)
 libparasail_altivec_la_SOURCES = $(SRC_ALTIVEC) $(SRC_TRACE_ALTIVEC)
+libparasail_neon_la_SOURCES    = $(SRC_NEON) $(SRC_TRACE_NEON)
 
 libparasail_novec_la_CFLAGS   = $(AM_CFLAGS)
 libparasail_sse2_la_CFLAGS    = $(AM_CFLAGS) $(SSE2_CFLAGS)
 libparasail_sse41_la_CFLAGS   = $(AM_CFLAGS) $(SSE41_CFLAGS)
 libparasail_avx2_la_CFLAGS    = $(AM_CFLAGS) $(AVX2_CFLAGS)
 libparasail_altivec_la_CFLAGS = $(AM_CFLAGS) $(ALTIVEC_CFLAGS)
+libparasail_neon_la_CFLAGS    = $(AM_CFLAGS) $(NEON_CFLAGS)
 
 libparasail_novec_table_la_SOURCES   = $(SRC_NOVEC)
 libparasail_sse2_table_la_SOURCES    = $(SRC_SSE2)
 libparasail_sse41_table_la_SOURCES   = $(SRC_SSE41)
 libparasail_avx2_table_la_SOURCES    = $(SRC_AVX2)
 libparasail_altivec_table_la_SOURCES = $(SRC_ALTIVEC)
+libparasail_neon_table_la_SOURCES    = $(SRC_NEON)
 
 libparasail_novec_table_la_CFLAGS   = $(AM_CFLAGS)
 libparasail_sse2_table_la_CFLAGS    = $(AM_CFLAGS) $(SSE2_CFLAGS)
 libparasail_sse41_table_la_CFLAGS   = $(AM_CFLAGS) $(SSE41_CFLAGS)
 libparasail_avx2_table_la_CFLAGS    = $(AM_CFLAGS) $(AVX2_CFLAGS)
 libparasail_altivec_table_la_CFLAGS = $(AM_CFLAGS) $(ALTIVEC_CFLAGS)
+libparasail_neon_table_la_CFLAGS    = $(AM_CFLAGS) $(NEON_CFLAGS)
 
 libparasail_novec_table_la_CPPFLAGS   = $(AM_CPPFLAGS) -DPARASAIL_TABLE=1
 libparasail_sse2_table_la_CPPFLAGS    = $(AM_CPPFLAGS) -DPARASAIL_TABLE=1
 libparasail_sse41_table_la_CPPFLAGS   = $(AM_CPPFLAGS) -DPARASAIL_TABLE=1
 libparasail_avx2_table_la_CPPFLAGS    = $(AM_CPPFLAGS) -DPARASAIL_TABLE=1
 libparasail_altivec_table_la_CPPFLAGS = $(AM_CPPFLAGS) -DPARASAIL_TABLE=1
+libparasail_neon_table_la_CPPFLAGS    = $(AM_CPPFLAGS) -DPARASAIL_TABLE=1
 
 libparasail_novec_rowcol_la_SOURCES   = $(SRC_NOVEC)
 libparasail_sse2_rowcol_la_SOURCES    = $(SRC_SSE2)
 libparasail_sse41_rowcol_la_SOURCES   = $(SRC_SSE41)
 libparasail_avx2_rowcol_la_SOURCES    = $(SRC_AVX2)
 libparasail_altivec_rowcol_la_SOURCES = $(SRC_ALTIVEC)
+libparasail_neon_rowcol_la_SOURCES    = $(SRC_NEON)
 
 libparasail_novec_rowcol_la_CFLAGS   = $(AM_CFLAGS)
 libparasail_sse2_rowcol_la_CFLAGS    = $(AM_CFLAGS) $(SSE2_CFLAGS)
 libparasail_sse41_rowcol_la_CFLAGS   = $(AM_CFLAGS) $(SSE41_CFLAGS)
 libparasail_avx2_rowcol_la_CFLAGS    = $(AM_CFLAGS) $(AVX2_CFLAGS)
 libparasail_altivec_rowcol_la_CFLAGS = $(AM_CFLAGS) $(ALTIVEC_CFLAGS)
+libparasail_neon_rowcol_la_CFLAGS    = $(AM_CFLAGS) $(NEON_CFLAGS)
 
 libparasail_novec_rowcol_la_CPPFLAGS   = $(AM_CPPFLAGS) -DPARASAIL_ROWCOL=1
 libparasail_sse2_rowcol_la_CPPFLAGS    = $(AM_CPPFLAGS) -DPARASAIL_ROWCOL=1
 libparasail_sse41_rowcol_la_CPPFLAGS   = $(AM_CPPFLAGS) -DPARASAIL_ROWCOL=1
 libparasail_avx2_rowcol_la_CPPFLAGS    = $(AM_CPPFLAGS) -DPARASAIL_ROWCOL=1
 libparasail_altivec_rowcol_la_CPPFLAGS = $(AM_CPPFLAGS) -DPARASAIL_ROWCOL=1
+libparasail_neon_rowcol_la_CPPFLAGS    = $(AM_CPPFLAGS) -DPARASAIL_ROWCOL=1
 
 libparasail_sse_memory_la_SOURCES     = $(MEM_SRC_SSE)
 libparasail_avx2_memory_la_SOURCES    = $(MEM_SRC_AVX2)
 libparasail_altivec_memory_la_SOURCES = $(MEM_SRC_ALTIVEC)
+libparasail_neon_memory_la_SOURCES    = $(MEM_SRC_NEON)
 
 if HAVE_SSE2
 libparasail_sse_memory_la_CFLAGS  = $(AM_CFLAGS) $(SSE2_CFLAGS)
@@ -945,6 +1113,12 @@ libparasail_la_LIBADD += libparasail_altivec_memory.la
 libparasail_la_LIBADD += libparasail_altivec.la
 libparasail_la_LIBADD += libparasail_altivec_table.la
 libparasail_la_LIBADD += libparasail_altivec_rowcol.la
+endif
+if HAVE_NEON
+libparasail_la_LIBADD += libparasail_neon_memory.la
+libparasail_la_LIBADD += libparasail_neon.la
+libparasail_la_LIBADD += libparasail_neon_table.la
+libparasail_la_LIBADD += libparasail_neon_rowcol.la
 endif
 libparasail_la_LIBADD += $(CLOCK_LIBS)
 libparasail_la_LIBADD += $(MATH_LIBS)
@@ -1124,6 +1298,7 @@ EXTRA_DIST += cmake/Findxgetbv.cmake
 EXTRA_DIST += cmake/altivec_dummy.c
 EXTRA_DIST += cmake/avx2_dummy.c
 EXTRA_DIST += cmake/config.h.in
+EXTRA_DIST += cmake/neon_dummy.c
 EXTRA_DIST += cmake/parasail.def
 EXTRA_DIST += cmake/parasail.ico
 EXTRA_DIST += cmake/sse2_dummy.c

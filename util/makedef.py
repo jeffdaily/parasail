@@ -20,6 +20,7 @@ EXPORTS
     parasail_matrix_set_value
     parasail_nw_banded
     parasail_traceback_generic
+    parasail_traceback_generic_extra
     parasail_cigar_encode
     parasail_cigar_encode_string
     parasail_cigar_decode_op
@@ -98,6 +99,7 @@ EXPORTS
     parasail_can_use_sse41
     parasail_can_use_sse2
     parasail_can_use_altivec
+    parasail_can_use_neon
 ; from parasail/memory.h (mostly internal functions)
     parasail_memalign
     parasail_memalign_int
@@ -106,6 +108,7 @@ EXPORTS
     parasail_memalign_int32_t
     parasail_memalign_int64_t
     parasail_free
+    parasail_free_unaligned
     parasail_memset
     parasail_memset_int
     parasail_memset_int8_t
@@ -154,7 +157,8 @@ isa = [
     "_sse2_128_64", "_sse2_128_32", "_sse2_128_16", "_sse2_128_8", "_sse2_128_sat",
     "_sse41_128_64", "_sse41_128_32", "_sse41_128_16", "_sse41_128_8", "_sse41_128_sat",
     "_avx2_256_64", "_avx2_256_32", "_avx2_256_16", "_avx2_256_8", "_avx2_256_sat",
-    "_altivec_128_64", "_altivec_128_32", "_altivec_128_16", "_altivec_128_8", "_altivec_128_sat"
+    "_altivec_128_64", "_altivec_128_32", "_altivec_128_16", "_altivec_128_8", "_altivec_128_sat",
+    "_neon_128_64", "_neon_128_32", "_neon_128_16", "_neon_128_8", "_neon_128_sat"
     ]
 for a in alg:
     for s in stats:
@@ -173,7 +177,8 @@ isa = [
     "_sse2_128_64", "_sse2_128_32", "_sse2_128_16", "_sse2_128_8", "_sse2_128_sat",
     "_sse41_128_64", "_sse41_128_32", "_sse41_128_16", "_sse41_128_8", "_sse41_128_sat",
     "_avx2_256_64", "_avx2_256_32", "_avx2_256_16", "_avx2_256_8", "_avx2_256_sat",
-    "_altivec_128_64", "_altivec_128_32", "_altivec_128_16", "_altivec_128_8", "_altivec_128_sat"
+    "_altivec_128_64", "_altivec_128_32", "_altivec_128_16", "_altivec_128_8", "_altivec_128_sat",
+    "_neon_128_64", "_neon_128_32", "_neon_128_16", "_neon_128_8", "_neon_128_sat"
     ]
 for a in alg:
     for s in stats:
@@ -230,6 +235,7 @@ isa = [
     "_sse_128_64", "_sse_128_32", "_sse_128_16", "_sse_128_8", "_sse_128_sat",
     "_avx_256_64", "_avx_256_32", "_avx_256_16", "_avx_256_8", "_avx_256_sat",
     "_altivec_128_64", "_altivec_128_32", "_altivec_128_16", "_altivec_128_8", "_altivec_128_sat",
+    "_neon_128_64", "_neon_128_32", "_neon_128_16", "_neon_128_8", "_neon_128_sat",
     "_64", "_32", "_16", "_8", "_sat"
     ]
 for s in stats:

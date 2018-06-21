@@ -119,6 +119,12 @@ parasail_result_t* %(PREFIX)s_dispatcher(
     }
     else
 #endif
+#if HAVE_NEON
+    if (parasail_can_use_neon()) {
+        %(PREFIX)s_pointer = %(PREFIX2)s_neon_128_%(WIDTH)s;
+    }
+    else
+#endif
     {
         %(PREFIX)s_pointer = parasail_%(BASE)s;
     }
@@ -171,6 +177,12 @@ parasail_result_t* %(PREFIX)s_dispatcher(
 #if HAVE_ALTIVEC
     if (parasail_can_use_altivec()) {
         %(PREFIX)s_pointer = %(PREFIX2)s_altivec_128_%(WIDTH)s;
+    }
+    else
+#endif
+#if HAVE_NEON
+    if (parasail_can_use_neon()) {
+        %(PREFIX)s_pointer = %(PREFIX2)s_neon_128_%(WIDTH)s;
     }
     else
 #endif

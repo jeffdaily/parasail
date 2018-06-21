@@ -50,3 +50,8 @@ int parasail_can_use_altivec()
 #endif
 }
 
+int parasail_can_use_neon()
+{
+    return 0;
+}
+

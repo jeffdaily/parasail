@@ -150,20 +150,7 @@ parasail_result_t* PNAME(
         }
     }
 
-    /* initialize H */
-    {
-        %(INDEX)s index = 0;
-        for (i=0; i<segLen; ++i) {
-            %(INDEX)s segNum;
-            %(VTYPE)s_%(WIDTH)s_t h;
-            for (segNum=0; segNum<segWidth; ++segNum) {
-                int64_t tmp = -open-gap*(segNum*segLen+i);
-                h.v[segNum] = tmp < INT%(WIDTH)s_MIN ? INT%(WIDTH)s_MIN : tmp;
-            }
-            %(VSTORE)s(&pvH[index], h.m);
-            ++index;
-        }
-    }
+%(INIT_H)s
 
     /* initialize uppder boundary */
     {

@@ -68,6 +68,7 @@ isa_to_bits = {
     "sse41"   : 128,
     "avx2"    : 256,
     "altivec" : 128,
+    "neon"    : 128,
 }
 
 print "static const parasail_function_info_t functions[] = {"
@@ -91,7 +92,7 @@ for table in ["", "_table", "_rowcol", "_trace"]:
             pre = "parasail_"+alg+stats+table
             print_fmt(pre,         pre,         alg+stats, "orig", "NA", "32", "32", 1, is_table, is_rowcol, is_trace, is_stats, 1)
             print_fmt(pre+"_scan", pre+"_scan", alg+stats, "scan", "NA", "32", "32", 1, is_table, is_rowcol, is_trace, is_stats, 0)
-            for isa in ["sse2", "sse41", "avx2", "altivec"]:
+            for isa in ["sse2", "sse41", "avx2", "altivec", "neon"]:
                 print "#if HAVE_%s" % isa.upper()
                 bits = isa_to_bits[isa]
                 for par in ["scan", "striped", "diag"]:
@@ -141,7 +142,7 @@ for table in ["", "_table", "_rowcol", "_trace"]:
             if stats:
                 is_stats = 1
             pre = "parasail_"+alg+stats+table
-            for isa in ["sse2", "sse41", "avx2", "altivec"]:
+            for isa in ["sse2", "sse41", "avx2", "altivec", "neon"]:
                 print "#if HAVE_%s" % isa.upper()
                 bits = isa_to_bits[isa]
                 for par in ["scan_profile", "striped_profile"]:
@@ -153,6 +154,8 @@ for table in ["", "_table", "_rowcol", "_trace"]:
                             elem = bits/width
                         name = "%s_%s_%s_%s_%s" % (pre, par, isa, bits, width)
                         if 'altivec' in isa:
+                            creator = "parasail_profile_create%s_%s_%s_%s" % (stats, isa, bits, width)
+                        elif 'neon' in isa:
                             creator = "parasail_profile_create%s_%s_%s_%s" % (stats, isa, bits, width)
                         else:
                             creator = "parasail_profile_create%s_%s_%s_%s" % (stats, isa[:3], bits, width)

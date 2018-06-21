@@ -19,6 +19,7 @@ from isa import sse2
 from isa import sse41
 from isa import avx2
 from isa import altivec
+from isa import neon
 
 keys = sse2.keys()
 
@@ -74,6 +75,102 @@ bias_templates = [
 output_dir = "generated/"
 if not os.path.exists(output_dir):
         os.makedirs(output_dir)
+
+
+def generate_H(params):
+    text = ""
+    if "striped" in params["NAME"]:
+        params["PVH_VAR"] = "pvHStore"
+    else:
+        params["PVH_VAR"] = "pvH"
+    if "neon" in params["ISA"]:
+        text = """    /* initialize H */
+    {
+        %(INDEX)s index = 0;
+        for (i=0; i<segLen; ++i) {
+            %(INDEX)s segNum = 0;
+            %(VTYPE)s h;
+            for (segNum=0; segNum<segWidth; ++segNum) {
+                int64_t tmp = -open-gap*(segNum*segLen+i);
+                h.i%(WIDTH)s[segNum] = tmp < INT%(WIDTH)s_MIN ? INT%(WIDTH)s_MIN : tmp;
+            }
+            %(VSTORE)s(&%(PVH_VAR)s[index], h);
+            ++index;
+        }
+    }""" % params
+    else:
+       text = """    /* initialize H */
+    {
+        %(INDEX)s index = 0;
+        for (i=0; i<segLen; ++i) {
+            %(INDEX)s segNum = 0;
+            %(VTYPE)s_%(WIDTH)s_t h;
+            for (segNum=0; segNum<segWidth; ++segNum) {
+                int64_t tmp = -open-gap*(segNum*segLen+i);
+                h.v[segNum] = tmp < INT%(WIDTH)s_MIN ? INT%(WIDTH)s_MIN : tmp;
+            }
+            %(VSTORE)s(&%(PVH_VAR)s[index], h.m);
+            ++index;
+        }
+    }""" % params
+    params["INIT_H"] = text
+    return params
+
+
+def generate_H_and_E(params):
+    text = ""
+    if "striped" in params["NAME"]:
+        params["PVH_VAR"] = "pvHStore"
+    else:
+        params["PVH_VAR"] = "pvH"
+    params["PVEA_STORE"] = ""
+    if "striped" in params["NAME"] and "trace" in params["NAME"]:
+        if "neon" in params["ISA"]:
+            params["E_M_VAR"] = "e"
+        else:
+            params["E_M_VAR"] = "e.m"
+        params["PVEA_STORE"] = """
+            %(VSTORE)s(&pvEaStore[index], %(E_M_VAR)s);""" % params
+    if "neon" in params["ISA"]:
+        text = """    /* initialize H and E */
+    {
+        %(INDEX)s index = 0;
+        for (i=0; i<segLen; ++i) {
+            %(INDEX)s segNum = 0;
+            %(VTYPE)s h;
+            %(VTYPE)s e;
+            for (segNum=0; segNum<segWidth; ++segNum) {
+                int64_t tmp = -open-gap*(segNum*segLen+i);
+                h.i%(WIDTH)s[segNum] = tmp < INT%(WIDTH)s_MIN ? INT%(WIDTH)s_MIN : tmp;
+                tmp = tmp - open;
+                e.i%(WIDTH)s[segNum] = tmp < INT%(WIDTH)s_MIN ? INT%(WIDTH)s_MIN : tmp;
+            }
+            %(VSTORE)s(&%(PVH_VAR)s[index], h);
+            %(VSTORE)s(&pvE[index], e);%(PVEA_STORE)s
+            ++index;
+        }
+    }""" % params
+    else:
+       text = """    /* initialize H and E */
+    {
+        %(INDEX)s index = 0;
+        for (i=0; i<segLen; ++i) {
+            %(INDEX)s segNum = 0;
+            %(VTYPE)s_%(WIDTH)s_t h;
+            %(VTYPE)s_%(WIDTH)s_t e;
+            for (segNum=0; segNum<segWidth; ++segNum) {
+                int64_t tmp = -open-gap*(segNum*segLen+i);
+                h.v[segNum] = tmp < INT%(WIDTH)s_MIN ? INT%(WIDTH)s_MIN : tmp;
+                tmp = tmp - open;
+                e.v[segNum] = tmp < INT%(WIDTH)s_MIN ? INT%(WIDTH)s_MIN : tmp;
+            }
+            %(VSTORE)s(&%(PVH_VAR)s[index], h.m);
+            %(VSTORE)s(&pvE[index], e.m);%(PVEA_STORE)s
+            ++index;
+        }
+    }""" % params
+    params["INIT_H_AND_E"] = text
+    return params
 
 
 def generate_printer(params):
@@ -146,7 +243,7 @@ def generate_printer(params):
 def generate_saturation_check_old(params):
     width = params["WIDTH"]
     if width == 8:
-        
+
         params["SATURATION_CHECK_INIT"] = """
     %(VTYPE)s vSaturationCheck = %(VSET0)s();
     %(VTYPE)s vNegLimit = %(VSET1)s(INT8_MIN);
@@ -160,7 +257,7 @@ def generate_saturation_check_old(params):
                             %(VCMPEQ)s(vH, vNegLimit),
                             %(VCMPEQ)s(vH, vPosLimit)));
             }""".strip() % params
-            
+
         params["SATURATION_CHECK_FINAL"] = """
     if (%(VMOVEMASK)s(vSaturationCheck)) {
         result->flag |= PARASAIL_FLAG_SATURATED;
@@ -445,13 +542,15 @@ def generated_params(template, params):
     params["FIXES"] = fixes
     params = generate_printer(params)
     params = generate_saturation_check(params)
+    params = generate_H(params)
+    params = generate_H_and_E(params)
     return params
 
 
 for template_filename in template_filenames:
     template = open(template_dir+template_filename).read()
     for width in [64,32,16,8]:
-        for isa in [sse2,sse41,avx2,altivec]:
+        for isa in [sse2,sse41,avx2,altivec,neon]:
             params = copy.deepcopy(isa)
             params["WIDTH"] = width
             prefix = template_filename[:-2]
@@ -525,7 +624,7 @@ for template_filename in special_templates:
         table_prefix = "%s_%s_table_%s" % (parts[0], parts[1], parts[2])
         rowcol_prefix = "%s_%s_rowcol_%s" % (parts[0], parts[1], parts[2])
         trace_prefix = "%s_%s_%s" % (parts[0], parts[1], parts[2])
-    for isa in [sse2,sse41,avx2,altivec]:
+    for isa in [sse2,sse41,avx2,altivec,neon]:
         params = copy.deepcopy(isa)
         params["WIDTH"] = width
         function_name = "%s_%s%s_%s_%s" % (prefix,
@@ -571,7 +670,7 @@ for template_filename in bias_templates:
     rowcol_prefix_prof = rowcol_prefix + "_profile"
     trace_prefix_prof = trace_prefix + "_profile"
     for width in [16,8]:
-        for isa in [sse2,sse41,avx2,altivec]:
+        for isa in [sse2,sse41,avx2,altivec,neon]:
             params = copy.deepcopy(isa)
             params["WIDTH"] = width
             function_name = "%s_%s%s_%s_%s" % (prefix,

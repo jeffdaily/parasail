@@ -115,24 +115,7 @@ parasail_result_t* PNAME(
     vSegLenXgap = %(VADD)s(vNegInfFront,
             %(VSHIFT)s(%(VSET1)s(-segLen*gap), %(BYTES)s));
 
-    /* initialize H and E */
-    {
-        %(INDEX)s index = 0;
-        for (i=0; i<segLen; ++i) {
-            %(INDEX)s segNum = 0;
-            %(VTYPE)s_%(WIDTH)s_t h;
-            %(VTYPE)s_%(WIDTH)s_t e;
-            for (segNum=0; segNum<segWidth; ++segNum) {
-                int64_t tmp = -open-gap*(segNum*segLen+i);
-                h.v[segNum] = tmp < INT%(WIDTH)s_MIN ? INT%(WIDTH)s_MIN : tmp;
-                tmp = tmp - open;
-                e.v[segNum] = tmp < INT%(WIDTH)s_MIN ? INT%(WIDTH)s_MIN : tmp;
-            }
-            %(VSTORE)s(&pvH[index], h.m);
-            %(VSTORE)s(&pvE[index], e.m);
-            ++index;
-        }
-    }
+%(INIT_H_AND_E)s
 
     /* initialize uppder boundary */
     {

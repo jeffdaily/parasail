@@ -241,7 +241,7 @@ parasail_result_t* PNAME(
     {
         int32_t index = 0;
         for (i=0; i<segLen; ++i) {
-            int32_t segNum;
+            int32_t segNum = 0;
             __m256i_8_t h;
             for (segNum=0; segNum<segWidth; ++segNum) {
                 int64_t tmp = -open-gap*(segNum*segLen+i);

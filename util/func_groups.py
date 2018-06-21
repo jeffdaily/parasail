@@ -46,6 +46,7 @@ isa_to_bits = {
     "sse41"   : 128,
     "avx2"    : 256,
     "altivec" : 128,
+    "neon"    : 128,
 }
 
 for table in [""]:
@@ -58,7 +59,7 @@ for table in [""]:
             if stats:
                 is_stats = 1
             pre = "parasail_"+alg+stats+table
-            for isa in ["sse2", "sse41", "avx2", "altivec"]:
+            for isa in ["sse2", "sse41", "avx2", "altivec", "neon"]:
                 print "#if HAVE_%s" % isa.upper()
                 print "static parasail_function_info_t %s_%s_functions[] = {" % (pre, isa)
                 print_fmt(pre,         pre,         alg+stats, "orig", "NA", "32", "32", 1, is_table, is_rowcol, is_trace, is_stats, 1)

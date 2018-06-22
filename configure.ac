@@ -884,6 +884,9 @@ AS_IF([test "x$enable_neon" != "xno"], [
             enable_neon="auto (no)"
         ])
     ])
+    # flags to optimize contrib/simde
+    AX_CHECK_COMPILE_FLAG([-fopenmp-simd], [EXTRA_NEON_CFLAGS="-fopenmp-simd -DSIMDE_ENABLE_OPENMP"],
+        [AX_CHECK_COMPILE_FLAG([-openmp-simd], [EXTRA_NEON_CFLAGS="-openmp-simd -DSIMDE_ENABLE_OPENMP"])])
 ])
 
 AM_CONDITIONAL([HAVE_NEON], [test "x$pt_cv_neon_val" = x1])
@@ -1147,6 +1150,7 @@ AC_MSG_RESULT([
 
     ARM NEON : ............................ ${enable_neon}
     NEON_CFLAGS : ......................... ${NEON_CFLAGS}
+    EXTRA_NEON_CFLAGS : ................... ${EXTRA_NEON_CFLAGS}
 
   Dependencies :
 

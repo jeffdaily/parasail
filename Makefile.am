@@ -1024,7 +1024,7 @@ libparasail_sse2_la_CFLAGS    = $(AM_CFLAGS) $(SSE2_CFLAGS)
 libparasail_sse41_la_CFLAGS   = $(AM_CFLAGS) $(SSE41_CFLAGS)
 libparasail_avx2_la_CFLAGS    = $(AM_CFLAGS) $(AVX2_CFLAGS)
 libparasail_altivec_la_CFLAGS = $(AM_CFLAGS) $(ALTIVEC_CFLAGS)
-libparasail_neon_la_CFLAGS    = $(AM_CFLAGS) $(NEON_CFLAGS)
+libparasail_neon_la_CFLAGS    = $(AM_CFLAGS) $(NEON_CFLAGS) $(EXTRA_NEON_CFLAGS)
 
 libparasail_novec_table_la_SOURCES   = $(SRC_NOVEC)
 libparasail_sse2_table_la_SOURCES    = $(SRC_SSE2)
@@ -1038,7 +1038,7 @@ libparasail_sse2_table_la_CFLAGS    = $(AM_CFLAGS) $(SSE2_CFLAGS)
 libparasail_sse41_table_la_CFLAGS   = $(AM_CFLAGS) $(SSE41_CFLAGS)
 libparasail_avx2_table_la_CFLAGS    = $(AM_CFLAGS) $(AVX2_CFLAGS)
 libparasail_altivec_table_la_CFLAGS = $(AM_CFLAGS) $(ALTIVEC_CFLAGS)
-libparasail_neon_table_la_CFLAGS    = $(AM_CFLAGS) $(NEON_CFLAGS)
+libparasail_neon_table_la_CFLAGS    = $(AM_CFLAGS) $(NEON_CFLAGS) $(EXTRA_NEON_CFLAGS)
 
 libparasail_novec_table_la_CPPFLAGS   = $(AM_CPPFLAGS) -DPARASAIL_TABLE=1
 libparasail_sse2_table_la_CPPFLAGS    = $(AM_CPPFLAGS) -DPARASAIL_TABLE=1
@@ -1059,7 +1059,7 @@ libparasail_sse2_rowcol_la_CFLAGS    = $(AM_CFLAGS) $(SSE2_CFLAGS)
 libparasail_sse41_rowcol_la_CFLAGS   = $(AM_CFLAGS) $(SSE41_CFLAGS)
 libparasail_avx2_rowcol_la_CFLAGS    = $(AM_CFLAGS) $(AVX2_CFLAGS)
 libparasail_altivec_rowcol_la_CFLAGS = $(AM_CFLAGS) $(ALTIVEC_CFLAGS)
-libparasail_neon_rowcol_la_CFLAGS    = $(AM_CFLAGS) $(NEON_CFLAGS)
+libparasail_neon_rowcol_la_CFLAGS    = $(AM_CFLAGS) $(NEON_CFLAGS) $(EXTRA_NEON_CFLAGS)
 
 libparasail_novec_rowcol_la_CPPFLAGS   = $(AM_CPPFLAGS) -DPARASAIL_ROWCOL=1
 libparasail_sse2_rowcol_la_CPPFLAGS    = $(AM_CPPFLAGS) -DPARASAIL_ROWCOL=1

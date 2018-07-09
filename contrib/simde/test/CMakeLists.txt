@@ -88,6 +88,10 @@ list(APPEND TEST_SOURCES
   simd-js/int32x4-compare.c
   simd-js/float32x4.c)
 
+list(APPEND TEST_SOURCES
+  arm/neon/vadd.c
+  arm/neon/vdup_n.c)
+
 foreach(src ${TEST_SOURCES})
   get_filename_component(bn "${src}" NAME_WE)
   if (NOT "${bn}" MATCHES "compare")
@@ -110,8 +114,12 @@ list(APPEND TEST_SOURCES
 
 set_compiler_specific_flags(
   VARIABLE extra_cflags
-  INTEL -wd3179
-  GCCISH -march=native)
+  INTEL -wd3179)
+
+check_c_compiler_flag("-march=native" CFLAG__march_native)
+if(CFLAG__march_native)
+  set(extra_cflags "${extra_cflags} -march=native")
+endif()
 
 check_c_compiler_flag("-fopenmp-simd" CFLAG__fopenmp_simd)
 check_c_compiler_flag("-qopenmp-simd" CFLAG__qopenmp_simd)
@@ -120,6 +128,13 @@ if(CFLAG__fopenmp_simd)
 elseif(CFLAG__qopenmp_simd)
   set(extra_cflags "${extra_cflags} -qopenmp-simd -DSIMDE_ENABLE_OPENMP")
 endif()
+
+check_c_compiler_flag("-mfpu=neon" CFLAG__mfpu_neon)
+if(CFLAG__mfpu_neon)
+  set(extra_cflags "${extra_cflags} -mfpu=neon")
+endif()
+
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${extra_cflags}")
 
 add_executable(run-tests ${TEST_SOURCES})
 target_link_libraries(run-tests munit)
@@ -134,4 +149,8 @@ endif()
 add_test(NAME "/simd-js" COMMAND ${CMAKE_CROSSCOMPILING_EMULATOR} $<TARGET_FILE:run-tests> "/simd-js")
 target_add_extra_warning_flags(run-tests)
 set_property (TARGET run-tests PROPERTY C_STANDARD "99")
-target_add_compiler_flags(run-tests ${extra_cflags})
+if("${CMAKE_C_COMPILER}" MATCHES "arm-linux-gnueabihf-gcc")
+  target_link_libraries(run-tests -static)
+elseif("${CMAKE_C_COMPILER}" MATCHES "aarch64-linux-gnu-gcc")
+  target_link_libraries(run-tests -static)
+endif()

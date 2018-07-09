@@ -1576,7 +1576,7 @@ int main(int argc, char **argv) {
         vector<long long> batches = calc_batches(
                 batch_size,
                 verbose && verbose_memory,
-                memory_budget-bytes_used, function_info,
+                memory_budget-bytes_used, pfunction_info,
                 vpairs, BEG, END,
                 memory_estimate);
         bytes_used += memory_estimate;

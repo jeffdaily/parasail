@@ -10,34 +10,11 @@
 
 #include <stdint.h>
 
+/* we use simde neon equivalents up to sse4.1 */
 #include "x86/sse4.1.h"
 
 #ifdef __cplusplus
 extern "C" {
-#endif
-
-#if 0
-#define ALIGNED16 SIMDE__ALIGN(16)
-
-typedef ALIGNED16 union simde__m128_8 {
-    simde__m128i m;
-    int8_t v[16];
-} simde__m128_8_t;
-
-typedef ALIGNED16 union simde__m128_16 {
-    simde__m128i m;
-    int16_t v[8];
-} simde__m128_16_t;
-
-typedef ALIGNED16 union simde__m128_32 {
-    simde__m128i m;
-    int32_t v[4];
-} simde__m128_32_t;
-
-typedef ALIGNED16 union simde__m128_64 {
-    simde__m128i m;
-    int64_t v[2];
-} simde__m128_64_t;
 #endif
 
 extern simde__m128i * parasail_memalign_simde__m128i(size_t alignment, size_t size);

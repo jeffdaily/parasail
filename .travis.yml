@@ -80,9 +80,21 @@ matrix:
            MY_CXX=powerpc64-linux-gnu-g++
       addons:
         apt:
+          update: true
           packages:
           - gcc-powerpc64-linux-gnu
           - g++-powerpc64-linux-gnu
+  allow_failures:
+    - env: BUILD_TYPE=make
+           MAYBE_CROSS="--host=powerpc-linux-gnu --enable-static --disable-shared --without-zlib"
+           MY_CFLAGS=-O2
+           MY_CC=powerpc-linux-gnu-gcc
+           MY_CXX=powerpc-linux-gnu-g++
+    - env: BUILD_TYPE=make
+           MAYBE_CROSS="--host=powerpc64-linux-gnu --enable-static --disable-shared --without-zlib"
+           MY_CFLAGS=-O2
+           MY_CC=powerpc64-linux-gnu-gcc
+           MY_CXX=powerpc64-linux-gnu-g++
 
 ###
 ## If we use the matrix to set CC/CXX Travis overwrites the values,

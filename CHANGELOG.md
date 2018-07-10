@@ -7,6 +7,13 @@ This project follows the [Gitflow Workflow model](https://www.atlassian.com/git/
 ## [Unreleased]
 The Unreleased section will be empty for tagged releases. Unreleased functionality appears in the develop branch.
 
+## [2.2] - 2018-07-10
+### Added
+- ARM NEON vectorized functions.
+
+### Fixed
+- parasail_aligner works again with profile-based functions
+
 ## [2.1.5] - 2018-06-21
 ### Fixed
 - Compilation now works for arm platforms. Only non-vectorized functions at this time.
@@ -314,7 +321,9 @@ The Unreleased section will be empty for tagged releases. Unreleased functionali
 ## [1.0.0] - 2015-09-16
 First stable, production-ready version of parasail.
 
-[Unreleased]: https://github.com/jeffdaily/parasail/compare/v2.1.4...develop
+[Unreleased]: https://github.com/jeffdaily/parasail/compare/v2.2...develop
+[2.2]:   https://github.com/jeffdaily/parasail/compare/v2.1.5...v2.2
+[2.1.5]: https://github.com/jeffdaily/parasail/compare/v2.1.4...v2.1.5
 [2.1.4]: https://github.com/jeffdaily/parasail/compare/v2.1.3...v2.1.4
 [2.1.3]: https://github.com/jeffdaily/parasail/compare/v2.1.2...v2.1.3
 [2.1.2]: https://github.com/jeffdaily/parasail/compare/v2.1.1...v2.1.2
@@ -338,6 +347,8 @@ First stable, production-ready version of parasail.
 [1.0.1]: https://github.com/jeffdaily/parasail/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/jeffdaily/parasail/releases/tag/v1.0.0
 
+[\#59]: https://github.com/jeffdaily/parasail/issues/59
+[\#58]: https://github.com/jeffdaily/parasail/issues/58
 [\#57]: https://github.com/jeffdaily/parasail/issues/57
 [\#56]: https://github.com/jeffdaily/parasail/pull/56
 [\#55]: https://github.com/jeffdaily/parasail/issues/55

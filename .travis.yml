@@ -41,7 +41,8 @@ matrix:
            MAYBE_ARCH=-DCMAKE_OSX_ARCHITECTURES="i386;x86_64"
     - os: linux
       env: BUILD_TYPE=make
-           MAYBE_CROSS=--host=arm-linux-gnueabihf
+           MAYBE_CROSS="--host=arm-linux-gnueabihf --enable-static --disable-shared"
+           CFLAGS=-O2
       addons:
         apt:
           packages:
@@ -50,12 +51,13 @@ matrix:
           - qemu
     - os: linux
       env: BUILD_TYPE=make
-           MAYBE_CROSS=--host=aarch64-linux-gnu
+           MAYBE_CROSS="--host=aarch64-linux-gnu --enable-static --disable-shared"
+           CFLAGS=-O2
       addons:
         apt:
           packages:
-          - gcc-arm-linux-gnueabihf
-          - g++-arm-linux-gnueabihf
+          - gcc-aarch64-linux-gnu
+          - g++-aarch64-linux-gnu
           - qemu
 
 before_install:
@@ -69,7 +71,7 @@ install:
 script:
   - if [[ "$BUILD_TYPE" == "docker" ]]; then docker run --rm -v `pwd`:/io $DOCKER_IMAGE $PRE_CMD /io/travis/build-docker.sh $SUFFIX; fi
   - if [[ "$BUILD_TYPE" == "make" ]]; then autoreconf -fi; fi
-  - if [[ "$BUILD_TYPE" == "make" ]]; then ./configure $MAYBE_CROSS; fi
+  - if [[ "$BUILD_TYPE" == "make" ]]; then ./configure $MAYBE_CROSS || cat config.log; fi
   - if [[ "$BUILD_TYPE" == "make" ]]; then make -j 4; fi
   - if [[ "$BUILD_TYPE" == "make" ]]; then make check -j 4; fi
   - if [[ "$BUILD_TYPE" == "make" ]]; then make dist; fi

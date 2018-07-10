@@ -31,6 +31,7 @@ INCLUDE( FindSSE41 )
 INCLUDE( FindAVX2 )
 INCLUDE( Findxgetbv )
 INCLUDE( FindAltiVec )
+INCLUDE( FindNEON )
 INCLUDE( FindZLIB )
 INCLUDE( TestBigEndian )
 
@@ -130,6 +131,9 @@ INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_LIST_DIR}/contrib/sais-lite-lcp )
 INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_LIST_DIR}/contrib/ssw )
 INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_LIST_DIR}/src )
 INCLUDE_DIRECTORIES( ${CMAKE_BINARY_DIR} )
+IF( NEON_FOUND )
+INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_LIST_DIR}/contrib/simde/simde )
+ENDIF( )
 
 #CHECK_FUNCTION_EXISTS( _aligned_malloc HAVE__ALIGNED_MALLOC )
 #CHECK_FUNCTION_EXISTS( posix_memalign HAVE_POSIX_MEMALIGN )
@@ -657,6 +661,120 @@ SET( SRC_TRACE_ALTIVEC
     src/sw_trace_striped_altivec_128_8.c
 )
 
+SET( SRC_NEON
+    src/nw_scan_neon_128_64.c
+    src/sg_scan_neon_128_64.c
+    src/sw_scan_neon_128_64.c
+    src/nw_scan_neon_128_32.c
+    src/sg_scan_neon_128_32.c
+    src/sw_scan_neon_128_32.c
+    src/nw_scan_neon_128_16.c
+    src/sg_scan_neon_128_16.c
+    src/sw_scan_neon_128_16.c
+    src/nw_scan_neon_128_8.c
+    src/sg_scan_neon_128_8.c
+    src/sw_scan_neon_128_8.c
+    src/nw_diag_neon_128_64.c
+    src/sg_diag_neon_128_64.c
+    src/sw_diag_neon_128_64.c
+    src/nw_diag_neon_128_32.c
+    src/sg_diag_neon_128_32.c
+    src/sw_diag_neon_128_32.c
+    src/nw_diag_neon_128_16.c
+    src/sg_diag_neon_128_16.c
+    src/sw_diag_neon_128_16.c
+    src/nw_diag_neon_128_8.c
+    src/sg_diag_neon_128_8.c
+    src/sw_diag_neon_128_8.c
+    src/nw_striped_neon_128_64.c
+    src/sg_striped_neon_128_64.c
+    src/sw_striped_neon_128_64.c
+    src/nw_striped_neon_128_32.c
+    src/sg_striped_neon_128_32.c
+    src/sw_striped_neon_128_32.c
+    src/nw_striped_neon_128_16.c
+    src/sg_striped_neon_128_16.c
+    src/sw_striped_neon_128_16.c
+    src/nw_striped_neon_128_8.c
+    src/sg_striped_neon_128_8.c
+    src/sw_striped_neon_128_8.c
+    src/nw_stats_scan_neon_128_64.c
+    src/sg_stats_scan_neon_128_64.c
+    src/sw_stats_scan_neon_128_64.c
+    src/nw_stats_scan_neon_128_32.c
+    src/sg_stats_scan_neon_128_32.c
+    src/sw_stats_scan_neon_128_32.c
+    src/nw_stats_scan_neon_128_16.c
+    src/sg_stats_scan_neon_128_16.c
+    src/sw_stats_scan_neon_128_16.c
+    src/nw_stats_scan_neon_128_8.c
+    src/sg_stats_scan_neon_128_8.c
+    src/sw_stats_scan_neon_128_8.c
+    src/nw_stats_diag_neon_128_64.c
+    src/sg_stats_diag_neon_128_64.c
+    src/sw_stats_diag_neon_128_64.c
+    src/nw_stats_diag_neon_128_32.c
+    src/sg_stats_diag_neon_128_32.c
+    src/sw_stats_diag_neon_128_32.c
+    src/nw_stats_diag_neon_128_16.c
+    src/sg_stats_diag_neon_128_16.c
+    src/sw_stats_diag_neon_128_16.c
+    src/nw_stats_diag_neon_128_8.c
+    src/sg_stats_diag_neon_128_8.c
+    src/sw_stats_diag_neon_128_8.c
+    src/nw_stats_striped_neon_128_64.c
+    src/sg_stats_striped_neon_128_64.c
+    src/sw_stats_striped_neon_128_64.c
+    src/nw_stats_striped_neon_128_32.c
+    src/sg_stats_striped_neon_128_32.c
+    src/sw_stats_striped_neon_128_32.c
+    src/nw_stats_striped_neon_128_16.c
+    src/sg_stats_striped_neon_128_16.c
+    src/sw_stats_striped_neon_128_16.c
+    src/nw_stats_striped_neon_128_8.c
+    src/sg_stats_striped_neon_128_8.c
+    src/sw_stats_striped_neon_128_8.c
+)
+
+SET( SRC_TRACE_NEON
+    src/nw_trace_scan_neon_128_64.c
+    src/sg_trace_scan_neon_128_64.c
+    src/sw_trace_scan_neon_128_64.c
+    src/nw_trace_scan_neon_128_32.c
+    src/sg_trace_scan_neon_128_32.c
+    src/sw_trace_scan_neon_128_32.c
+    src/nw_trace_scan_neon_128_16.c
+    src/sg_trace_scan_neon_128_16.c
+    src/sw_trace_scan_neon_128_16.c
+    src/nw_trace_scan_neon_128_8.c
+    src/sg_trace_scan_neon_128_8.c
+    src/sw_trace_scan_neon_128_8.c
+    src/nw_trace_diag_neon_128_64.c
+    src/sg_trace_diag_neon_128_64.c
+    src/sw_trace_diag_neon_128_64.c
+    src/nw_trace_diag_neon_128_32.c
+    src/sg_trace_diag_neon_128_32.c
+    src/sw_trace_diag_neon_128_32.c
+    src/nw_trace_diag_neon_128_16.c
+    src/sg_trace_diag_neon_128_16.c
+    src/sw_trace_diag_neon_128_16.c
+    src/nw_trace_diag_neon_128_8.c
+    src/sg_trace_diag_neon_128_8.c
+    src/sw_trace_diag_neon_128_8.c
+    src/nw_trace_striped_neon_128_64.c
+    src/sg_trace_striped_neon_128_64.c
+    src/sw_trace_striped_neon_128_64.c
+    src/nw_trace_striped_neon_128_32.c
+    src/sg_trace_striped_neon_128_32.c
+    src/sw_trace_striped_neon_128_32.c
+    src/nw_trace_striped_neon_128_16.c
+    src/sg_trace_striped_neon_128_16.c
+    src/sw_trace_striped_neon_128_16.c
+    src/nw_trace_striped_neon_128_8.c
+    src/sg_trace_striped_neon_128_8.c
+    src/sw_trace_striped_neon_128_8.c
+)
+
 ADD_LIBRARY( parasail_core OBJECT ${SRC_CORE} )
 
 ADD_LIBRARY( parasail_novec OBJECT ${SRC_NOVEC} )
@@ -742,6 +860,25 @@ SET_TARGET_PROPERTIES( parasail_altivec_table PROPERTIES COMPILE_DEFINITIONS PAR
 SET_TARGET_PROPERTIES( parasail_altivec_rowcol PROPERTIES COMPILE_DEFINITIONS PARASAIL_ROWCOL )
 SET_TARGET_PROPERTIES( parasail_altivec_trace PROPERTIES COMPILE_DEFINITIONS PARASAIL_TRACE )
 
+IF( NEON_FOUND )
+    ADD_LIBRARY( parasail_neon OBJECT ${SRC_NEON} src/memory_neon.c )
+    ADD_LIBRARY( parasail_neon_table OBJECT ${SRC_NEON} )
+    ADD_LIBRARY( parasail_neon_rowcol OBJECT ${SRC_NEON} )
+    ADD_LIBRARY( parasail_neon_trace OBJECT ${SRC_TRACE_NEON} )
+    SET_TARGET_PROPERTIES( parasail_neon PROPERTIES COMPILE_FLAGS ${NEON_C_FLAGS} )
+    SET_TARGET_PROPERTIES( parasail_neon_table PROPERTIES COMPILE_FLAGS ${NEON_C_FLAGS} )
+    SET_TARGET_PROPERTIES( parasail_neon_rowcol PROPERTIES COMPILE_FLAGS ${NEON_C_FLAGS} )
+    SET_TARGET_PROPERTIES( parasail_neon_trace PROPERTIES COMPILE_FLAGS ${NEON_C_FLAGS} )
+ELSE( )
+    ADD_LIBRARY( parasail_neon OBJECT cmake/neon_dummy.c )
+    ADD_LIBRARY( parasail_neon_table OBJECT cmake/neon_dummy.c )
+    ADD_LIBRARY( parasail_neon_rowcol OBJECT cmake/neon_dummy.c )
+    ADD_LIBRARY( parasail_neon_trace OBJECT cmake/neon_dummy.c )
+ENDIF( )
+SET_TARGET_PROPERTIES( parasail_neon_table PROPERTIES COMPILE_DEFINITIONS PARASAIL_TABLE )
+SET_TARGET_PROPERTIES( parasail_neon_rowcol PROPERTIES COMPILE_DEFINITIONS PARASAIL_ROWCOL )
+SET_TARGET_PROPERTIES( parasail_neon_trace PROPERTIES COMPILE_DEFINITIONS PARASAIL_TRACE )
+
 ADD_LIBRARY( sais OBJECT contrib/sais-lite-lcp/sais.c )
 
 IF( SSE2_FOUND )
@@ -784,6 +921,10 @@ ADD_LIBRARY( parasail ${LIB_TYPE}
     $<TARGET_OBJECTS:parasail_altivec_table>
     $<TARGET_OBJECTS:parasail_altivec_rowcol>
     $<TARGET_OBJECTS:parasail_altivec_trace>
+    $<TARGET_OBJECTS:parasail_neon>
+    $<TARGET_OBJECTS:parasail_neon_table>
+    $<TARGET_OBJECTS:parasail_neon_rowcol>
+    $<TARGET_OBJECTS:parasail_neon_trace>
     ${maybe_def}
 )
 

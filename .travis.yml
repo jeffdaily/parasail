@@ -41,7 +41,7 @@ matrix:
            MAYBE_ARCH=-DCMAKE_OSX_ARCHITECTURES="i386;x86_64"
     - os: linux
       env: BUILD_TYPE=make
-           MAYBE_CROSS="--host=arm-linux-gnueabihf --enable-static --disable-shared cross_compiling=yes"
+           MAYBE_CROSS="--host=arm-linux-gnueabihf --enable-static --disable-shared --without-zlib"
            MY_CFLAGS=-O2
            MY_CC=arm-linux-gnueabihf-gcc
            MY_CXX=arm-linux-gnueabihf-g++
@@ -53,7 +53,7 @@ matrix:
           - qemu
     - os: linux
       env: BUILD_TYPE=make
-           MAYBE_CROSS="--host=aarch64-linux-gnu --enable-static --disable-shared cross_compiling=yes"
+           MAYBE_CROSS="--host=aarch64-linux-gnu --enable-static --disable-shared --without-zlib"
            MY_CFLAGS=-O2
            MY_CC=aarch64-linux-gnu-gcc
            MY_CXX=aarch64-linux-gnu-g++

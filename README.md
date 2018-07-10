@@ -49,7 +49,7 @@ Note: When any of the algorithms open a gap, only the gap open penalty alone is 
 
 [back to top]
 
-parasail supports the SSE2, SSE4.1, AVX2, and AltiVec instruction sets.  In many cases, your compiler can compile source code for an instruction set which is not supported by your host CPU.  The code is still compiled, however, parasail uses CPU dispatching at runtime to correctly select the appropriate implementation for the highest level of instruction set supported.  This allows parasail to be compiled and distributed by a maintainer for the best available system while still allowing the distribution to run with a lesser CPU.
+parasail supports the SSE2, SSE4.1, AVX2, AltiVec, and NEON instruction sets.  In many cases, your compiler can compile source code for an instruction set which is not supported by your host CPU.  The code is still compiled, however, parasail uses CPU dispatching at runtime to correctly select the appropriate implementation for the highest level of instruction set supported.  This allows parasail to be compiled and distributed by a maintainer for the best available system while still allowing the distribution to run with a lesser CPU.
 
 ## Compiling and Installing
 
@@ -89,6 +89,7 @@ By default, CMake will build the parasail shared library.  In order to compile t
 
 Please follow http://mesonbuild.com/Quick-guide.html for how to use
 Meson. The Meson build files are maintained by @SoapZA.
+This build currently only supports the SSE and AVX ISAs.
 
 ### Cross-Compiling for ARM
 
@@ -230,13 +231,13 @@ There are over 1,000 functions within the parasail library.  To make it easier t
   - Required, select vectorization strategy -- striped is a good place to start, but scan is often faster for global alignment.
   - Optional, select vector instruction set. Otherwise, best will be chosen for you.
   - Required, select solution width. 'sat' will attempt 8-bit solution but if overflow is detected it will then perform the 16-bit operation. Can be faster in some cases, though 16-bit is often sufficient.
-  - `parasail_ {nw,sg,sw} [_stats] [{_table,_rowcol}] {_striped,_scan,_diag} [{_sse2_128,_sse41_128,_avx2_256,_altivec_128}] {_8,_16,_32,_64,_sat}`
+  - `parasail_ {nw,sg,sw} [_stats] [{_table,_rowcol}] {_striped,_scan,_diag} [{_sse2_128,_sse41_128,_avx2_256,_altivec_128,_neon_128}] {_8,_16,_32,_64,_sat}`
 - Vectorized, traceback-capable.
   - Required, select one of global (nw), semi-global (sg), or local (sw) alignment.
   - Required, select vectorization strategy -- striped is a good place to start, but scan is often faster for global alignment.
   - Optional, select vector instruction set. Otherwise, best will be chosen for you.
   - Required, select solution width. 'sat' will attempt 8-bit solution but if overflow is detected it will then perform the 16-bit operation. Can be faster in some cases, though 16-bit is often sufficient.
-  - `parasail_ {nw,sg,sw} _trace {_striped,_scan,_diag} [{_sse2_128,_sse41_128,_avx2_256,_altivec_128}] {_8,_16,_32,_64,_sat}`
+  - `parasail_ {nw,sg,sw} _trace {_striped,_scan,_diag} [{_sse2_128,_sse41_128,_avx2_256,_altivec_128,_neon_128}] {_8,_16,_32,_64,_sat}`
 
 For example:
 
@@ -264,7 +265,7 @@ It has been noted in literature that some performance can be gained by reusing t
 - Optional, prepare query profile for a function that returns statistics.  Stats require additional data structures to be allocated.
 - Optional, select vector instruction set. Otherwise, best will be chosen for you.
 - Required, select solution width. 'sat' will allocate profiles for both 8- and 16-bit solutions.
-- `parasail_profile_create [_stats] [{_sse_128,_avx_256,_altivec_128}] {_8,_16,_32,_64,_sat}`
+- `parasail_profile_create [_stats] [{_sse_128,_avx_256,_altivec_128,_neon_128}] {_8,_16,_32,_64,_sat}`
 
 This is a sample function signature of one of the profile creation functions.
 ```C

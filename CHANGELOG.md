@@ -9,10 +9,13 @@ The Unreleased section will be empty for tagged releases. Unreleased functionali
 
 ## [2.2] - 2018-07-10
 ### Added
-- ARM NEON vectorized functions.
+- ARM NEON vectorized functions via the [simde] project. Also thanks to [philres] for the hardware donation. 
 
 ### Fixed
 - parasail_aligner works again with profile-based functions
+
+### Closed Issues
+- Support for ARM64? [\#59]
 
 ## [2.1.5] - 2018-06-21
 ### Fixed
@@ -407,6 +410,8 @@ First stable, production-ready version of parasail.
 [\#2]: https://github.com/jeffdaily/parasail/issues/2
 [\#1]: https://github.com/jeffdaily/parasail/issues/1
 
+[philres]: https://github.com/philres
+[simde]: https://github.com/nemequ/simde
 [manylinux]: https://github.com/pypa/manylinux
 [parasail-python]: https://github.com/jeffdaily/parasail-python
 [huxihao]: https://github.com/huxihao

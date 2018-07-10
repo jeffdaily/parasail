@@ -41,8 +41,10 @@ matrix:
            MAYBE_ARCH=-DCMAKE_OSX_ARCHITECTURES="i386;x86_64"
     - os: linux
       env: BUILD_TYPE=make
-           MAYBE_CROSS="--host=arm-linux-gnueabihf --enable-static --disable-shared"
+           MAYBE_CROSS="--host=arm-linux-gnueabihf --enable-static --disable-shared cross_compiling=yes"
            CFLAGS=-O2
+           CC=arm-linux-gnueabihf-gcc
+           CXX=arm-linux-gnueabihf-g++
       addons:
         apt:
           packages:
@@ -51,8 +53,10 @@ matrix:
           - qemu
     - os: linux
       env: BUILD_TYPE=make
-           MAYBE_CROSS="--host=aarch64-linux-gnu --enable-static --disable-shared"
+           MAYBE_CROSS="--host=aarch64-linux-gnu --enable-static --disable-shared cross_compiling=yes"
            CFLAGS=-O2
+           CC=aarch64-linux-gnu-gcc
+           CXX=aarch64-linux-gnu-g++
       addons:
         apt:
           packages:

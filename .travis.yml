@@ -42,9 +42,9 @@ matrix:
     - os: linux
       env: BUILD_TYPE=make
            MAYBE_CROSS="--host=arm-linux-gnueabihf --enable-static --disable-shared cross_compiling=yes"
-           CFLAGS=-O2
-           CC=arm-linux-gnueabihf-gcc
-           CXX=arm-linux-gnueabihf-g++
+           MY_CFLAGS=-O2
+           MY_CC=arm-linux-gnueabihf-gcc
+           MY_CXX=arm-linux-gnueabihf-g++
       addons:
         apt:
           packages:
@@ -54,9 +54,9 @@ matrix:
     - os: linux
       env: BUILD_TYPE=make
            MAYBE_CROSS="--host=aarch64-linux-gnu --enable-static --disable-shared cross_compiling=yes"
-           CFLAGS=-O2
-           CC=aarch64-linux-gnu-gcc
-           CXX=aarch64-linux-gnu-g++
+           MY_CFLAGS=-O2
+           MY_CC=aarch64-linux-gnu-gcc
+           MY_CXX=aarch64-linux-gnu-g++
       addons:
         apt:
           packages:
@@ -64,7 +64,15 @@ matrix:
           - g++-aarch64-linux-gnu
           - qemu
 
+###
+## If we use the matrix to set CC/CXX Travis overwrites the values,
+## so instead we use MY_CC/CXX, then copy the values to CC/CXX
+## here (after Travis has set CC/CXX).
+###
 before_install:
+  - if [[ -n "${MY_CC}" ]]; then export CC="${MY_CC}"; fi
+  - if [[ -n "${MY_CXX}" ]]; then export CXX="${MY_CXX}"; fi
+  - if [[ -n "${MY_CFLAGS}" ]]; then export CFLAGS="${MY_CFLAGS}"; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then rvm get stable || true; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew update || true; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew install cmake || brew upgrade cmake || true; fi
@@ -73,6 +81,9 @@ install:
   - if [[ "$BUILD_TYPE" == "docker" ]]; then docker pull $DOCKER_IMAGE; fi
 
 script:
+  - if [[ -n "${MY_CC}" ]]; then export CC="${MY_CC}"; fi
+  - if [[ -n "${MY_CXX}" ]]; then export CXX="${MY_CXX}"; fi
+  - if [[ -n "${MY_CFLAGS}" ]]; then export CFLAGS="${MY_CFLAGS}"; fi
   - if [[ "$BUILD_TYPE" == "docker" ]]; then docker run --rm -v `pwd`:/io $DOCKER_IMAGE $PRE_CMD /io/travis/build-docker.sh $SUFFIX; fi
   - if [[ "$BUILD_TYPE" == "make" ]]; then autoreconf -fi; fi
   - if [[ "$BUILD_TYPE" == "make" ]]; then ./configure $MAYBE_CROSS || cat config.log; fi

@@ -11,8 +11,8 @@
 
 #include "parasail.h"
 
-#ifdef _MSC_VER
-#include <Windows.h>
+#ifdef HAVE_WINDOWS_H
+#include <windows.h>
 #else
 #ifdef __MACH__
 #include <mach/clock.h>
@@ -30,7 +30,7 @@
 
 double parasail_time(void)
 {
-#ifdef _MSC_VER
+#ifdef HAVE_WINDOWS_H
     __int64 wintime;
     double sec;
     double nsec;

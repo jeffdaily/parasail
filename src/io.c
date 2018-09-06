@@ -14,11 +14,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/stat.h>
 #include <sys/types.h>
-#if defined(_MSC_VER)
-#else
+#include <sys/stat.h>
+#ifdef HAVE_SYS_MMAN_H
 #include <sys/mman.h>
+#endif
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif
 
@@ -38,47 +39,25 @@
 # define UNUSED(x) x
 #endif
 
+/* special functions may exist for windows, msys, mingw */
+#if defined(HAVE_STRUCT___STAT64) && defined(HAVE__STAT64) && defined(HAVE__FSTAT64)
+#define STATBUF struct __stat64
+#define STATFUNC _stat64
+#define FSTATFUNC _fstat64
+#else
+#define STATBUF struct stat
+#define STATFUNC stat
+#define FSTATFUNC fstat
+#endif
+
 parasail_file_t* parasail_open(const char *fname)
 {
-	parasail_file_t *pf = NULL;
+    parasail_file_t *pf = NULL;
     char *buf = NULL;
 
-#if defined(_MSC_VER)
-	FILE *fd = NULL;
-	struct _stat64 fs;
-
-	fd = fopen(fname, "rb");
-	if (NULL == fd) {
-		fprintf(stderr, "Cannot open input file `%s': ", fname);
-		perror("fopen");
-		exit(EXIT_FAILURE);
-	}
-
-	if (0 != _stat64(fname, &fs)) {
-		fprintf(stderr, "Cannont stat input file `%s': ", fname);
-		perror("_stat");
-		exit(EXIT_FAILURE);
-	}
-
-	/* Allocate a buffer to hold the whole file */
-	buf = (char*)malloc(fs.st_size + 1);
-	if (NULL == buf) {
-		fprintf(stderr, "Cannont malloc buffer for input file `%s': ", fname);
-		perror("malloc");
-		exit(EXIT_FAILURE);
-	}
-	/* Slurp file into buffer */
-	if (fs.st_size != fread(buf, 1, fs.st_size, fd)) {
-		fprintf(stderr, "Cannont read input file `%s': ", fname);
-		free(buf);
-		perror("fread");
-		exit(EXIT_FAILURE);
-	}
-	/* Close the file early */
-	fclose(fd);
-#else
-	int fd = -1;
-	struct stat fs;
+#if defined(HAVE_SYS_MMAN_H)
+    int fd = -1;
+    STATBUF fs;
 
     fd = open(fname, O_RDONLY);
     if (fd == -1) {
@@ -87,18 +66,51 @@ parasail_file_t* parasail_open(const char *fname)
         exit(EXIT_FAILURE);
     }
 
-    if (-1 == fstat(fd, &fs)) {
+    if (-1 == FSTATFUNC(fd, &fs)) {
         fprintf(stderr, "Cannont stat input file `%s': ", fname);
         perror("fstat");
         exit(EXIT_FAILURE);
     }
 
-	buf = (char*)mmap(NULL, fs.st_size, PROT_READ, MAP_SHARED, fd, 0);
+    buf = (char*)mmap(NULL, fs.st_size, PROT_READ, MAP_SHARED, fd, 0);
     if (MAP_FAILED == buf) {
         fprintf(stderr, "Cannont mmap input file `%s': ", fname);
         perror("mmap");
         exit(EXIT_FAILURE);
     }
+#else
+    FILE *fd = NULL;
+    STATBUF fs;
+
+    fd = fopen(fname, "rb");
+    if (NULL == fd) {
+        fprintf(stderr, "Cannot open input file `%s': ", fname);
+        perror("fopen");
+        exit(EXIT_FAILURE);
+    }
+
+    if (0 != STATFUNC(fname, &fs)) {
+        fprintf(stderr, "Cannont stat input file `%s': ", fname);
+        perror("_stat");
+        exit(EXIT_FAILURE);
+    }
+
+    /* Allocate a buffer to hold the whole file */
+    buf = (char*)malloc(fs.st_size + 1);
+    if (NULL == buf) {
+        fprintf(stderr, "Cannont malloc buffer for input file `%s': ", fname);
+        perror("malloc");
+        exit(EXIT_FAILURE);
+    }
+    /* Slurp file into buffer */
+    if (fs.st_size != fread(buf, 1, fs.st_size, fd)) {
+        fprintf(stderr, "Cannont read input file `%s': ", fname);
+        free(buf);
+        perror("fread");
+        exit(EXIT_FAILURE);
+    }
+    /* Close the file early */
+    fclose(fd);
 #endif
 
     pf = (parasail_file_t*)malloc(sizeof(parasail_file_t));
@@ -108,10 +120,10 @@ parasail_file_t* parasail_open(const char *fname)
         exit(EXIT_FAILURE);
     }
 
-#ifdef _MSC_VER
-	pf->fd = 0;
-#else
+#if defined(HAVE_SYS_MMAN_H)
     pf->fd = fd;
+#else
+    pf->fd = 0;
 #endif
     pf->size = fs.st_size;
     pf->buf = buf;
@@ -120,12 +132,12 @@ parasail_file_t* parasail_open(const char *fname)
 
 void parasail_close(parasail_file_t *pf)
 {
-#if defined(_MSC_VER)
-	free((void*)pf->buf);
-	/* file was already closed */
-#else
+#if defined(HAVE_SYS_MMAN_H)
     munmap((void*)pf->buf, pf->size);
-	close(pf->fd);
+    close(pf->fd);
+#else
+    free((void*)pf->buf);
+    /* file was already closed */
 #endif
     free(pf);
 }
@@ -445,11 +457,11 @@ parasail_file_stat_t* parasail_stat_fastq_buffer(const char *T, off_t size)
 char * parasail_read(const parasail_file_t *pf, long * size)
 {
     char * buffer = (char*)malloc(sizeof(char) * (pf->size+1));
-	if (NULL == buffer) {
-		fprintf(stderr, "Cannont malloc buffer for input file");
-		perror("malloc");
-		exit(EXIT_FAILURE);
-	}
+    if (NULL == buffer) {
+        fprintf(stderr, "Cannont malloc buffer for input file");
+        perror("malloc");
+        exit(EXIT_FAILURE);
+    }
     (void)memcpy(buffer, pf->buf, pf->size);
     buffer[pf->size] = '\0';
     *size = pf->size;
@@ -703,7 +715,7 @@ inline static off_t get_num(const char *T, off_t i, int *result)
         token[0] = T[i];
     }
     else {
-		fprintf(stderr, "poorly formed matrix file\n");
+        fprintf(stderr, "poorly formed matrix file\n");
         exit(EXIT_FAILURE);
     }
 
@@ -718,14 +730,14 @@ inline static off_t get_num(const char *T, off_t i, int *result)
         }
     }
     if (TOKEN_MAX == p) {
-		fprintf(stderr, "poorly formed matrix file\n");
+        fprintf(stderr, "poorly formed matrix file\n");
         exit(EXIT_FAILURE);
     }
     token[p] = '\0';
 
     retval = sscanf(token, "%d", result);
     if (1 != retval) {
-		fprintf(stderr, "poorly formed matrix file\n");
+        fprintf(stderr, "poorly formed matrix file\n");
         exit(EXIT_FAILURE);
     }
 
@@ -764,9 +776,9 @@ inline static char*  get_alphabet(const char *T, off_t i, off_t size)
 
     alphabet = (char*)malloc(sizeof(char)*(count+1));
     if (NULL == alphabet) {
-		fprintf(stderr, "Cannont malloc buffer for matrix alphabet\n");
-		perror("malloc");
-		exit(EXIT_FAILURE);
+        fprintf(stderr, "Cannont malloc buffer for matrix alphabet\n");
+        perror("malloc");
+        exit(EXIT_FAILURE);
     }
 
     i = _i;
@@ -915,11 +927,11 @@ parasail_matrix_t* parasail_matrix_from_file(const char *filename)
     free(alphabet);
 
     retval = (parasail_matrix_t*)malloc(sizeof(parasail_matrix_t));
-	if (NULL == retval) {
-		fprintf(stderr, "Cannont malloc buffer for matrix file `%s': ", filename);
-		perror("malloc");
-		exit(EXIT_FAILURE);
-	}
+    if (NULL == retval) {
+        fprintf(stderr, "Cannont malloc buffer for matrix file `%s': ", filename);
+        perror("malloc");
+        exit(EXIT_FAILURE);
+    }
 
     retval->name = filename;
     retval->matrix = matrix;

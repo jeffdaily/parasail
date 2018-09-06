@@ -113,6 +113,9 @@ AX_COMPILER_VERSION
 
 # Checks for header files.
 AC_CHECK_HEADERS([malloc.h])
+AC_CHECK_HEADERS([unistd.h])
+AC_CHECK_HEADERS([windows.h])
+AC_CHECK_HEADERS([sys/mman.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_BIGENDIAN
@@ -120,6 +123,7 @@ AC_C_CONST
 AC_C_INLINE
 AC_C_RESTRICT
 AC_CHECK_SIZEOF([int])
+AC_CHECK_TYPES([struct __stat64])
 AC_SYS_LARGEFILE
 AC_TYPE_INT8_T
 AC_TYPE_INT16_T
@@ -901,9 +905,12 @@ AC_SUBST([NEON_CFLAGS])
 ###############################################################################
 AC_CHECK_FUNCS([_aligned_malloc])
 AC_CHECK_FUNCS([aligned_alloc])
+AC_CHECK_FUNCS([filelength])
 AC_CHECK_FUNCS([memalign])
 AC_CHECK_FUNCS([memset])
 AC_CHECK_FUNCS([posix_memalign])
+AC_CHECK_FUNCS([_fstat64])
+AC_CHECK_FUNCS([_stat64])
 
 # clock_gettime is in librt on linux, libpthread on windows
 parasail_save_LIBS="$LIBS"

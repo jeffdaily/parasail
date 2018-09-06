@@ -18,7 +18,8 @@
 
 #include <errno.h>
 #include <sys/types.h>
-#if defined(_MSC_VER)
+#include <sys/stat.h>
+#ifdef HAVE_WINDOWS_H
 #include <windows.h>
 #include <io.h>
 #include "wingetopt/src/getopt.h"
@@ -333,23 +334,41 @@ THREAD_DOC
     exit(status);
 }
 
-#if defined(_MSC_VER)
+#ifdef HAVE_WINDOWS_H
+#ifndef HAVE_FILELENGTH
+#if defined(HAVE_STRUCT___STAT64) && defined(HAVE__FSTAT64)
+#define STATBUF struct __stat64
+#define FSTATFUNC _fstat64
+#else
+#define STATBUF struct stat
+#define FSTATFUNC fstat
+#endif
+static long filelength(int fd) {
+    int status;
+    struct stat buffer;
+    status = fstat(fd, &buffer);
+    if (0 == status) {
+        return buffer.st_size;
+    }
+    return -1;
+}
+#endif
 static int stdin_has_data() {
-	int stdinHandle = fileno(stdin);
-	long stdinFileLength = filelength(stdinHandle);
-	if (stdinFileLength < 0) {
-		return 0;
-	}
-	else if (stdinFileLength == 0) {
-		int retval = fseek(stdin, 0, 0);
-		if (retval < 0) {
-			return 0;
-		}
-		else {
-			return 1;
-		}
-	}
-	return 1;
+    int stdinHandle = fileno(stdin);
+    long stdinFileLength = filelength(stdinHandle);
+    if (stdinFileLength < 0) {
+        return 0;
+    }
+    else if (stdinFileLength == 0) {
+        int retval = fseek(stdin, 0, 0);
+        if (retval < 0) {
+            return 0;
+        }
+        else {
+            return 1;
+        }
+    }
+    return 1;
 }
 #else
 static int stdin_has_data() {
@@ -2561,7 +2580,7 @@ inline static size_t parse_bytes(const char *value)
     return static_cast<size_t>(multiplier*base);
 }
 
-#if defined(_MSC_VER)
+#ifdef HAVE_WINDOWS_H
 LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS * ExceptionInfo)
 {
     switch (ExceptionInfo->ExceptionRecord->ExceptionCode)

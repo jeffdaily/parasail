@@ -35,10 +35,6 @@ matrix:
       osx_image: xcode7.3
       env: BUILD_TYPE=cmake
            MAYBE_ARCH=-DCMAKE_OSX_ARCHITECTURES="i386;x86_64"
-    - os: osx
-      osx_image: xcode6.4
-      env: BUILD_TYPE=cmake
-           MAYBE_ARCH=-DCMAKE_OSX_ARCHITECTURES="i386;x86_64"
     - os: linux
       env: BUILD_TYPE=make
            MAYBE_CROSS="--host=arm-linux-gnueabihf --enable-static --disable-shared --without-zlib"

@@ -146,8 +146,8 @@ char* parasail_cigar_decode(parasail_cigar_t *cigar)
 
 void parasail_cigar_free(parasail_cigar_t *cigar)
 {
-	free(cigar->seq);
-	free(cigar);
+    free(cigar->seq);
+    free(cigar);
 }
 
 #define CONCAT_(X, Y) X##Y

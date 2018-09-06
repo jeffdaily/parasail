@@ -203,12 +203,12 @@ parasail_result_t* PNAME(
             /* Update vF value. */
             vF_ext = simde_mm_sub_epi32(vF, vGapE);
             vF = simde_mm_max_epi32(vEF_opn, vF_ext);
-			if (i+1<segLen) {
+            if (i+1<segLen) {
                 simde__m128i vTAll = arr_load(result->trace->trace_table, i+1, segLen, j);
                 simde__m128i cond = simde_mm_cmpgt_epi32(vEF_opn, vF_ext);
                 simde__m128i vT = simde_mm_blendv_epi8(vTDelF, vTDiagF, cond);
                 vT = simde_mm_or_si128(vT, vTAll);
-				arr_store(result->trace->trace_table, vT, i+1, segLen, j);
+                arr_store(result->trace->trace_table, vT, i+1, segLen, j);
             }
 
             /* Load the next vH. */
@@ -276,8 +276,8 @@ parasail_result_t* PNAME(
                     vEa = simde_mm_max_epi32(vEF_opn, vEa_ext);
                     simde_mm_store_si128(pvEaStore + i, vEa);
                     if (j+1<s2Len) {
-						simde__m128i cond = simde_mm_cmpgt_epi32(vEF_opn, vEa_ext);
-						simde__m128i vT = simde_mm_blendv_epi8(vTInsE, vTDiagE, cond);
+                        simde__m128i cond = simde_mm_cmpgt_epi32(vEF_opn, vEa_ext);
+                        simde__m128i vT = simde_mm_blendv_epi8(vTInsE, vTDiagE, cond);
                         arr_store(result->trace->trace_table, vT, i, segLen, j+1);
                     }
                 }

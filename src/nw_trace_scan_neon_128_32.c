@@ -217,8 +217,8 @@ parasail_result_t* PNAME(
             vT = simde_mm_blendv_epi8(
                     simde_mm_blendv_epi8(vTIns, vTDel, case2),
                     vTDiag, case1);
-			vT = simde_mm_or_si128(vT, vET);
-			vT = simde_mm_or_si128(vT, vFT);
+            vT = simde_mm_or_si128(vT, vET);
+            vT = simde_mm_or_si128(vT, vFT);
             arr_store(result->trace->trace_table, vT, i, segLen, j);
             simde_mm_store_si128(pvH+i, vH);
             vSaturationCheckMin = simde_mm_min_epi32(vSaturationCheckMin, vH);

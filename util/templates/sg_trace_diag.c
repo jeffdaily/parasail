@@ -73,10 +73,10 @@ parasail_result_t* FNAME(
     %(VTYPE)s vTDiag = %(VSET1)s(PARASAIL_DIAG);
     %(VTYPE)s vTIns = %(VSET1)s(PARASAIL_INS);
     %(VTYPE)s vTDel = %(VSET1)s(PARASAIL_DEL);
-	%(VTYPE)s vTDiagE = %(VSET1)s(PARASAIL_DIAG_E);
-	%(VTYPE)s vTInsE = %(VSET1)s(PARASAIL_INS_E);
-	%(VTYPE)s vTDiagF = %(VSET1)s(PARASAIL_DIAG_F);
-	%(VTYPE)s vTDelF = %(VSET1)s(PARASAIL_DEL_F);
+    %(VTYPE)s vTDiagE = %(VSET1)s(PARASAIL_DIAG_E);
+    %(VTYPE)s vTInsE = %(VSET1)s(PARASAIL_INS_E);
+    %(VTYPE)s vTDiagF = %(VSET1)s(PARASAIL_DIAG_F);
+    %(VTYPE)s vTDelF = %(VSET1)s(PARASAIL_DEL_F);
     %(SATURATION_CHECK_INIT)s
 
     /* convert _s1 from char to int in range 0-23 */

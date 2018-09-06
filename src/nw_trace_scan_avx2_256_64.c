@@ -279,8 +279,8 @@ parasail_result_t* PNAME(
             vT = _mm256_blendv_epi8(
                     _mm256_blendv_epi8(vTIns, vTDel, case2),
                     vTDiag, case1);
-			vT = _mm256_or_si256(vT, vET);
-			vT = _mm256_or_si256(vT, vFT);
+            vT = _mm256_or_si256(vT, vET);
+            vT = _mm256_or_si256(vT, vFT);
             arr_store(result->trace->trace_table, vT, i, segLen, j);
             _mm256_store_si256(pvH+i, vH);
             vSaturationCheckMin = _mm256_min_epi64_rpl(vSaturationCheckMin, vH);

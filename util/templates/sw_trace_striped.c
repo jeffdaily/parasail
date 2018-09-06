@@ -187,12 +187,12 @@ parasail_result_t* PNAME(
             /* Update vF value. */
             vF_ext = %(VSUB)s(vF, vGapE);
             vF = %(VMAX)s(vEF_opn, vF_ext);
-			if (i+1<segLen) {
+            if (i+1<segLen) {
                 %(VTYPE)s vTAll = arr_load(result->trace->trace_table, i+1, segLen, j);
                 %(VTYPE)s cond = %(VCMPGT)s(vEF_opn, vF_ext);
                 %(VTYPE)s vT = %(VBLEND)s(vTDelF, vTDiagF, cond);
                 vT = %(VOR)s(vT, vTAll);
-				arr_store(result->trace->trace_table, vT, i+1, segLen, j);
+                arr_store(result->trace->trace_table, vT, i+1, segLen, j);
             }
 
             /* Load the next vH. */
@@ -257,8 +257,8 @@ parasail_result_t* PNAME(
                     vEa = %(VMAX)s(vEF_opn, vEa_ext);
                     %(VSTORE)s(pvEaStore + i, vEa);
                     if (j+1<s2Len) {
-						%(VTYPE)s cond = %(VCMPGT)s(vEF_opn, vEa_ext);
-						%(VTYPE)s vT = %(VBLEND)s(vTInsE, vTDiagE, cond);
+                        %(VTYPE)s cond = %(VCMPGT)s(vEF_opn, vEa_ext);
+                        %(VTYPE)s vT = %(VBLEND)s(vTInsE, vTDiagE, cond);
                         arr_store(result->trace->trace_table, vT, i, segLen, j+1);
                     }
                 }

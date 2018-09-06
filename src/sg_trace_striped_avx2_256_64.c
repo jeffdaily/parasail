@@ -245,12 +245,12 @@ parasail_result_t* PNAME(
             /* Update vF value. */
             vF_ext = _mm256_sub_epi64(vF, vGapE);
             vF = _mm256_max_epi64_rpl(vEF_opn, vF_ext);
-			if (i+1<segLen) {
+            if (i+1<segLen) {
                 __m256i vTAll = arr_load(result->trace->trace_table, i+1, segLen, j);
                 __m256i cond = _mm256_cmpgt_epi64(vEF_opn, vF_ext);
                 __m256i vT = _mm256_blendv_epi8(vTDelF, vTDiagF, cond);
                 vT = _mm256_or_si256(vT, vTAll);
-				arr_store(result->trace->trace_table, vT, i+1, segLen, j);
+                arr_store(result->trace->trace_table, vT, i+1, segLen, j);
             }
 
             /* Load the next vH. */
@@ -314,8 +314,8 @@ parasail_result_t* PNAME(
                     vEa = _mm256_max_epi64_rpl(vEF_opn, vEa_ext);
                     _mm256_store_si256(pvEaStore + i, vEa);
                     if (j+1<s2Len) {
-						__m256i cond = _mm256_cmpgt_epi64(vEF_opn, vEa_ext);
-						__m256i vT = _mm256_blendv_epi8(vTInsE, vTDiagE, cond);
+                        __m256i cond = _mm256_cmpgt_epi64(vEF_opn, vEa_ext);
+                        __m256i vT = _mm256_blendv_epi8(vTInsE, vTDiagE, cond);
                         arr_store(result->trace->trace_table, vT, i, segLen, j+1);
                     }
                 }

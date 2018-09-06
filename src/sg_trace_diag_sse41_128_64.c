@@ -156,10 +156,10 @@ parasail_result_t* FNAME(
     __m128i vTDiag = _mm_set1_epi64x_rpl(PARASAIL_DIAG);
     __m128i vTIns = _mm_set1_epi64x_rpl(PARASAIL_INS);
     __m128i vTDel = _mm_set1_epi64x_rpl(PARASAIL_DEL);
-	__m128i vTDiagE = _mm_set1_epi64x_rpl(PARASAIL_DIAG_E);
-	__m128i vTInsE = _mm_set1_epi64x_rpl(PARASAIL_INS_E);
-	__m128i vTDiagF = _mm_set1_epi64x_rpl(PARASAIL_DIAG_F);
-	__m128i vTDelF = _mm_set1_epi64x_rpl(PARASAIL_DEL_F);
+    __m128i vTDiagE = _mm_set1_epi64x_rpl(PARASAIL_DIAG_E);
+    __m128i vTInsE = _mm_set1_epi64x_rpl(PARASAIL_INS_E);
+    __m128i vTDiagF = _mm_set1_epi64x_rpl(PARASAIL_DIAG_F);
+    __m128i vTDelF = _mm_set1_epi64x_rpl(PARASAIL_DEL_F);
     
 
     /* convert _s1 from char to int in range 0-23 */

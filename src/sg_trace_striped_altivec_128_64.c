@@ -178,12 +178,12 @@ parasail_result_t* PNAME(
             /* Update vF value. */
             vF_ext = _mm_sub_epi64(vF, vGapE);
             vF = _mm_max_epi64(vEF_opn, vF_ext);
-			if (i+1<segLen) {
+            if (i+1<segLen) {
                 vec128i vTAll = arr_load(result->trace->trace_table, i+1, segLen, j);
                 vec128i cond = _mm_cmpgt_epi64(vEF_opn, vF_ext);
                 vec128i vT = _mm_blendv_epi8(vTDelF, vTDiagF, cond);
                 vT = _mm_or_si128(vT, vTAll);
-				arr_store(result->trace->trace_table, vT, i+1, segLen, j);
+                arr_store(result->trace->trace_table, vT, i+1, segLen, j);
             }
 
             /* Load the next vH. */
@@ -247,8 +247,8 @@ parasail_result_t* PNAME(
                     vEa = _mm_max_epi64(vEF_opn, vEa_ext);
                     _mm_store_si128(pvEaStore + i, vEa);
                     if (j+1<s2Len) {
-						vec128i cond = _mm_cmpgt_epi64(vEF_opn, vEa_ext);
-						vec128i vT = _mm_blendv_epi8(vTInsE, vTDiagE, cond);
+                        vec128i cond = _mm_cmpgt_epi64(vEF_opn, vEa_ext);
+                        vec128i vT = _mm_blendv_epi8(vTInsE, vTDiagE, cond);
                         arr_store(result->trace->trace_table, vT, i, segLen, j+1);
                     }
                 }

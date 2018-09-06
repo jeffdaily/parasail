@@ -200,8 +200,8 @@ parasail_result_t* PNAME(
             vT = %(VBLEND)s(
                     %(VBLEND)s(vTIns, vTDel, case2),
                     vTDiag, case1);
-			vT = %(VOR)s(vT, vET);
-			vT = %(VOR)s(vT, vFT);
+            vT = %(VOR)s(vT, vET);
+            vT = %(VOR)s(vT, vFT);
             arr_store(result->trace->trace_table, vT, i, segLen, j);
             %(VSTORE)s(pvH+i, vH);
             vSaturationCheckMin = %(VMIN)s(vSaturationCheckMin, vH);

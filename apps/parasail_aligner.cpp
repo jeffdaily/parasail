@@ -19,17 +19,19 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#ifdef HAVE_WINDOWS_H
-#include <windows.h>
-#include <io.h>
+#if defined(HAVE_GETOPT) && defined(HAVE_UNISTD_H)
+#include <unistd.h>
+#elif defined(HAVE_WINDOWS_H)
 #include "wingetopt/src/getopt.h"
-#else
+#endif
+#if defined(HAVE_POLL)
 #include <err.h>
-#include <execinfo.h>
 #include <poll.h>
 #include <pwd.h>
 #include <signal.h>
-#include <unistd.h>
+#endif
+#if defined(HAVE_WINDOWS_H)
+#include <windows.h>
 #endif
 
 #include <algorithm>
@@ -334,7 +336,17 @@ THREAD_DOC
     exit(status);
 }
 
-#ifdef HAVE_WINDOWS_H
+#ifdef HAVE_POLL
+static int stdin_has_data() {
+    int timeout = 100; /* wait 100ms */
+    struct pollfd fd;
+    fd.fd = 0;
+    fd.events = POLLIN;
+    fd.revents = 0;
+    int ret = poll(&fd, 1, timeout);
+    return (ret > 0 && (fd.revents & POLLIN));
+}
+#elif defined(HAVE_WINDOWS_H)
 #ifndef HAVE_FILELENGTH
 #if defined(HAVE_STRUCT___STAT64) && defined(HAVE__FSTAT64)
 #define STATBUF struct __stat64
@@ -345,8 +357,8 @@ THREAD_DOC
 #endif
 static long filelength(int fd) {
     int status;
-    struct stat buffer;
-    status = fstat(fd, &buffer);
+    STATBUF buffer;
+    status = FSTATFUNC(fd, &buffer);
     if (0 == status) {
         return buffer.st_size;
     }
@@ -369,16 +381,6 @@ static int stdin_has_data() {
         }
     }
     return 1;
-}
-#else
-static int stdin_has_data() {
-    int timeout = 100; /* wait 100ms */
-    struct pollfd fd;
-    fd.fd = 0;
-    fd.events = POLLIN;
-    fd.revents = 0;
-    int ret = poll(&fd, 1, timeout);
-    return (ret > 0 && (fd.revents & POLLIN));
 }
 #endif
 
@@ -2580,7 +2582,7 @@ inline static size_t parse_bytes(const char *value)
     return static_cast<size_t>(multiplier*base);
 }
 
-#ifdef HAVE_WINDOWS_H
+#ifdef HAVE_SETUNHANDLEDEXCEPTIONFILTER
 LONG WINAPI windows_exception_handler(EXCEPTION_POINTERS * ExceptionInfo)
 {
     switch (ExceptionInfo->ExceptionRecord->ExceptionCode)

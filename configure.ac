@@ -113,6 +113,7 @@ AX_COMPILER_VERSION
 
 # Checks for header files.
 AC_CHECK_HEADERS([malloc.h])
+AC_CHECK_HEADERS([poll.h])
 AC_CHECK_HEADERS([unistd.h])
 AC_CHECK_HEADERS([windows.h])
 AC_CHECK_HEADERS([sys/mman.h])
@@ -908,7 +909,10 @@ AC_CHECK_FUNCS([aligned_alloc])
 AC_CHECK_FUNCS([filelength])
 AC_CHECK_FUNCS([memalign])
 AC_CHECK_FUNCS([memset])
+AC_CHECK_FUNCS([poll])
 AC_CHECK_FUNCS([posix_memalign])
+AC_CHECK_FUNCS([getopt])
+AC_CHECK_FUNCS([SetUnhandledExceptionFilter])
 AC_CHECK_FUNCS([_fstat64])
 AC_CHECK_FUNCS([_stat64])
 
@@ -1113,6 +1117,8 @@ AC_CANONICAL_HOST
 
 # OS-specific tests
 psl_on_mingw32="no"
+psl_on_cygwin="no"
+psl_on_msys="no"
 psl_dso_visibility="yes"
 case "${host_os}" in
     *mingw32*)
@@ -1122,7 +1128,11 @@ case "${host_os}" in
             AC_MSG_ERROR([Building static libraries is not supported under MinGW32])
         fi
         ;;
+    *msys*)
+        psl_on_msys="yes"
+        ;;
     *cygwin*)
+        psl_on_cygwin="yes"
         if test "x$enable_static" = "xyes"; then
             AC_MSG_ERROR([Building static libraries is not supported under Cygwin])
         fi
@@ -1130,6 +1140,8 @@ case "${host_os}" in
 esac
 
 AM_CONDITIONAL([ON_MINGW], [test "x$psl_on_mingw32" = "xyes"])
+AM_CONDITIONAL([ON_MSYS], [test "x$psl_on_msys" = "xyes"])
+AM_CONDITIONAL([ON_CYGWIN], [test "x$psl_on_mingw32" = "xyes"])
 
 #
 # Check if the compiler supports -fvisibility=hidden flag.

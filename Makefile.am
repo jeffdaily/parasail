@@ -33,7 +33,11 @@ AM_CFLAGS += $(VISIBILITY_FLAGS)
 if ON_MINGW
 libparasail_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined -avoid-version -version-info @LTVER@
 else
+if ON_MSYS
+libparasail_la_LDFLAGS = $(AM_LDFLAGS) -no-undefined -avoid-version -version-info @LTVER@
+else
 libparasail_la_LDFLAGS = $(AM_LDFLAGS) -version-info @LTVER@
+endif
 endif
 
 nobase_include_HEADERS += parasail/cpuid.h

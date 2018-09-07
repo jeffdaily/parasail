@@ -912,6 +912,97 @@ AC_CHECK_FUNCS([posix_memalign])
 AC_CHECK_FUNCS([_fstat64])
 AC_CHECK_FUNCS([_stat64])
 
+# which parasail_time approach works on this platform
+
+AC_CACHE_CHECK([for int64_t literal suffix], [pt_cv_int64_suffix],
+[pt_cv_int64_suffix=unknown
+for flag in i64 LL
+do
+     psl_save_c_werror_flag=$ac_c_werror_flag
+     ac_c_werror_flag=yes
+     AC_LINK_IFELSE([AC_LANG_SOURCE([[
+int main(void) {
+    long long val = 116444736000000000$flag;
+    return 0;
+}
+]])],
+        [pt_cv_int64_suffix="$flag"])
+     ac_c_werror_flag=$psl_save_c_werror_flag
+     CFLAGS="$save_CFLAGS"
+     AS_IF([test "x$pt_cv_int64_suffix" != xunknown], [break])
+done])
+AS_IF([test "x$pt_cv_int64_suffix" = xunknown], 
+    [AC_DEFINE([INT64_LITERAL_SUFFIX_UNKNOWN],
+        [1], [int64_t suffix is unknown])],
+    [test "x$pt_cv_int64_suffix" = xi64],
+    [AC_DEFINE([INT64_LITERAL_SUFFIX_I64],
+        [1], [int64_t suffix is i64])],
+    [test "x$pt_cv_int64_suffix" = xLL],
+    [AC_DEFINE([INT64_LITERAL_SUFFIX_LL],
+        [1], [int64_t suffix is LL])],
+    [AC_MSG_ERROR([No clock function found])])
+
+AC_CACHE_CHECK([for GetSystemTimeAsFileTime], [pt_cv_wintime], [
+pt_cv_wintime=no
+pt_cv_wintime_val=0
+psl_save_c_werror_flag=$ac_c_werror_flag
+ac_c_werror_flag=yes
+AC_LINK_IFELSE([AC_LANG_SOURCE([[
+#include <windows.h>
+double parasail_time(void) {
+    __int64 wintime;
+    double sec;
+    double nsec;
+    GetSystemTimeAsFileTime((FILETIME*)&wintime);
+#if defined(INT64_LITERAL_SUFFIX_I64)
+    wintime -=116444736000000000i64;   /*1jan1601 to 1jan1970*/
+    sec  = wintime / 10000000i64;      /*seconds*/
+    nsec = wintime % 10000000i64 *100; /*nano-seconds*/
+#elif defined(INT64_LITERAL_SUFFIX_LL)
+    wintime -=116444736000000000LL;   /*1jan1601 to 1jan1970*/
+    sec  = wintime / 10000000LL;      /*seconds*/
+    nsec = wintime % 10000000LL *100; /*nano-seconds*/
+#endif
+    return sec + nsec/1000000000.0;
+}
+int main(void) {
+    double t = parasail_time();
+    return 0;
+}
+]])], [pt_cv_wintime="yes"; pt_cv_wintime_val=1])
+ac_c_werror_flag=$psl_save_c_werror_flag
+])
+AC_DEFINE_UNQUOTED([HAVE_GETSYSTEMTIMEASFILETIME],
+    [$pt_cv_wintime_val],
+    [define to 1 if using windows GetSystemTimeAsFileTime])
+
+AC_CACHE_CHECK([for clock_get_time], [pt_cv_machtime], [
+pt_cv_machtime=no
+pt_cv_machtime_val=0
+psl_save_c_werror_flag=$ac_c_werror_flag
+ac_c_werror_flag=yes
+AC_LINK_IFELSE([AC_LANG_SOURCE([[
+#include <mach/clock.h>
+#include <mach/mach.h>
+double parasail_time(void) {
+    clock_serv_t cclock;
+    mach_timespec_t mts;
+    host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
+    clock_get_time(cclock, &mts);
+    mach_port_deallocate(mach_task_self(), cclock);
+    return (double)(mts.tv_sec) + (double)(mts.tv_nsec)/1000000000.0;
+}
+int main(void) {
+    double t = parasail_time();
+    return 0;
+}
+]])], [pt_cv_machtime="yes"; pt_cv_machtime_val=1])
+ac_c_werror_flag=$psl_save_c_werror_flag
+])
+AC_DEFINE_UNQUOTED([HAVE_CLOCK_GET_TIME],
+    [$pt_cv_machtime_val],
+    [define to 1 if using clock_get_time])
+
 # clock_gettime is in librt on linux, libpthread on windows
 parasail_save_LIBS="$LIBS"
 AC_SEARCH_LIBS([clock_gettime], [rt pthread])
@@ -921,6 +1012,62 @@ AS_CASE(["$ac_cv_search_clock_gettime"],
         [*no*], [],
         [CLOCK_LIBS="$ac_cv_search_clock_gettime"])
 AC_SUBST([CLOCK_LIBS])
+
+AC_CACHE_CHECK([for clock_gettime CLOCK_MONOTONIC], [pt_cv_clock_monotonic], [
+pt_cv_clock_monotonic=no
+pt_cv_clock_monotonic_val=0
+psl_save_c_werror_flag=$ac_c_werror_flag
+ac_c_werror_flag=yes
+parasail_save_LIBS="$LIBS"
+LIBS="$LIBS $CLOCK_LIBS"
+AC_LINK_IFELSE([AC_LANG_SOURCE([[
+#define _POSIX_C_SOURCE 199309L
+#include <time.h>
+double parasail_time(void) {
+    struct timespec ts;
+    /* Works on FreeBSD */
+    long retval = clock_gettime(CLOCK_MONOTONIC, &ts);
+    return (double)(ts.tv_sec) + (double)(ts.tv_nsec)/1000000000.0;
+}
+int main(void) {
+    double t = parasail_time();
+    return 0;
+}
+]])], [pt_cv_clock_monotonic="yes"; pt_cv_clock_monotonic_val=1])
+ac_c_werror_flag=$psl_save_c_werror_flag
+])
+LIBS="$parasail_save_LIBS"
+AC_DEFINE_UNQUOTED([HAVE_CLOCK_GETTIME_MONOTONIC],
+    [$pt_cv_clock_monotonic_val],
+    [define to 1 if using clock_gettime CLOCK_MONOTONIC])
+
+AC_CACHE_CHECK([for clock_gettime CLOCK_REALTIME], [pt_cv_clock_realtime], [
+pt_cv_clock_realtime=no
+pt_cv_clock_realtime_val=0
+psl_save_c_werror_flag=$ac_c_werror_flag
+ac_c_werror_flag=yes
+parasail_save_LIBS="$LIBS"
+LIBS="$LIBS $CLOCK_LIBS"
+AC_LINK_IFELSE([AC_LANG_SOURCE([[
+#define _POSIX_C_SOURCE 199309L
+#include <time.h>
+double parasail_time(void) {
+    struct timespec ts;
+    /* Works on FreeBSD */
+    long retval = clock_gettime(CLOCK_REALTIME, &ts);
+    return (double)(ts.tv_sec) + (double)(ts.tv_nsec)/1000000000.0;
+}
+int main(void) {
+    double t = parasail_time();
+    return 0;
+}
+]])], [pt_cv_clock_realtime="yes"; pt_cv_clock_realtime_val=1])
+ac_c_werror_flag=$psl_save_c_werror_flag
+])
+LIBS="$parasail_save_LIBS"
+AC_DEFINE_UNQUOTED([HAVE_CLOCK_GETTIME_REALTIME],
+    [$pt_cv_clock_realtime_val],
+    [define to 1 if using clock_gettime CLOCK_REALTIME])
 
 parasail_save_LIBS="$LIBS"
 AC_SEARCH_LIBS([sqrt], [m])

@@ -11,12 +11,12 @@
 
 #include "parasail.h"
 
-#if defined(HAVE_GETSYSTEMTIMEASFILETIME)
+#if HAVE_GETSYSTEMTIMEASFILETIME && !defined(INT64_LITERAL_SUFFIX_UNKNOWN)
 #include <windows.h>
-#elif defined(HAVE_CLOCK_GET_TIME)
+#elif HAVE_CLOCK_GET_TIME
 #include <mach/clock.h>
 #include <mach/mach.h>
-#elif defined(HAVE_CLOCK_GETTIME_MONOTONIC || defined(HAVE_CLOCK_GETTIME_REALTIME)
+#elif HAVE_CLOCK_GETTIME_MONOTONIC || HAVE_CLOCK_GETTIME_REALTIME
 #define _POSIX_C_SOURCE 199309L
 #include <time.h>
 #endif
@@ -25,7 +25,7 @@
 
 double parasail_time(void)
 {
-#if defined(HAVE_GETSYSTEMTIMEASFILETIME) && !defined(INT64_LITERAL_SUFFIX_UNKNOWN)
+#if HAVE_GETSYSTEMTIMEASFILETIME && !defined(INT64_LITERAL_SUFFIX_UNKNOWN)
     __int64 wintime;
     double sec;
     double nsec;
@@ -40,20 +40,20 @@ double parasail_time(void)
     nsec = wintime % 10000000LL *100; /*nano-seconds*/
 #endif
     return sec + nsec/1000000000.0;
-#elif defined(HAVE_CLOCK_GET_TIME)
+#elif HAVE_CLOCK_GET_TIME
     clock_serv_t cclock;
     mach_timespec_t mts;
     host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
     clock_get_time(cclock, &mts);
     mach_port_deallocate(mach_task_self(), cclock);
     return (double)(mts.tv_sec) + (double)(mts.tv_nsec)/1000000000.0;
-#elif defined(HAVE_CLOCK_GETTIME_MONOTONIC)
+#elif HAVE_CLOCK_GETTIME_MONOTONIC
     struct timespec ts;
     /* Works on FreeBSD */
     long retval = clock_gettime(CLOCK_MONOTONIC, &ts);
     assert(0 == retval);
     return (double)(ts.tv_sec) + (double)(ts.tv_nsec)/1000000000.0;
-#elif defined(HAVE_CLOCK_GETTIME_REALTIME)
+#elif HAVE_CLOCK_GETTIME_REALTIME
     struct timespec ts;
     /* Works on Linux */
     long retval = clock_gettime(CLOCK_REALTIME, &ts);

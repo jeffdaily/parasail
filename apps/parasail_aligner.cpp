@@ -33,6 +33,9 @@
 #if defined(HAVE_WINDOWS_H)
 #include <windows.h>
 #endif
+#if defined(HAVE_FILELENGTH)
+#include <io.h>
+#endif
 
 #include <algorithm>
 #include <cctype>
@@ -347,7 +350,7 @@ static int stdin_has_data() {
     return (ret > 0 && (fd.revents & POLLIN));
 }
 #elif defined(HAVE_WINDOWS_H)
-#ifndef HAVE_FILELENGTH
+#if !defined(HAVE_FILELENGTH)
 #if defined(HAVE_STRUCT___STAT64) && defined(HAVE__FSTAT64)
 #define STATBUF struct __stat64
 #define FSTATFUNC _fstat64
@@ -364,7 +367,7 @@ static long filelength(int fd) {
     }
     return -1;
 }
-#endif
+#endif /* HAVE_FILELENGTH */
 static int stdin_has_data() {
     int stdinHandle = fileno(stdin);
     long stdinFileLength = filelength(stdinHandle);

@@ -21,6 +21,7 @@ IF( BUILD_SHARED_LIBS )
 ENDIF( )
 
 INCLUDE( CheckFunctionExists )
+INCLUDE( CheckIncludeFile )
 INCLUDE( CheckLibraryExists )
 INCLUDE( CheckSymbolExists )
 INCLUDE( CheckTypeSize )
@@ -135,6 +136,10 @@ IF( NEON_FOUND )
 INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_LIST_DIR}/contrib/simde/simde )
 ENDIF( )
 
+CHECK_INCLUDE_FILE( sys/mman.h HAVE_SYS_MMAN_H )
+CHECK_INCLUDE_FILE( unistd.h HAVE_UNISTD_H )
+CHECK_INCLUDE_FILE( windows.h HAVE_WINDOWS_H )
+
 #CHECK_FUNCTION_EXISTS( _aligned_malloc HAVE__ALIGNED_MALLOC )
 #CHECK_FUNCTION_EXISTS( posix_memalign HAVE_POSIX_MEMALIGN )
 #CHECK_FUNCTION_EXISTS( aligned_alloc HAVE_ALIGNED_ALLOC )
@@ -143,6 +148,15 @@ CHECK_SYMBOL_EXISTS( _aligned_malloc malloc.h HAVE__ALIGNED_MALLOC )
 CHECK_SYMBOL_EXISTS( posix_memalign stdlib.h HAVE_POSIX_MEMALIGN )
 CHECK_SYMBOL_EXISTS( aligned_alloc stdlib.h HAVE_ALIGNED_ALLOC )
 CHECK_SYMBOL_EXISTS( memalign malloc.h HAVE_MEMALIGN )
+CHECK_FUNCTION_EXISTS( getopt HAVE_GETOPT )
+CHECK_FUNCTION_EXISTS( poll HAVE_POLL )
+#CHECK_FUNCTION_EXISTS( filelength HAVE_FILELENGTH )
+#CHECK_FUNCTION_EXISTS( GetSystemTimeAsFileTime HAVE_GETSYSTEMTIMEASFILETIME )
+#CHECK_FUNCTION_EXISTS( SetUnhandledExceptionFilter HAVE_SETUNHANDLEDEXCEPTIONFILTER )
+CHECK_SYMBOL_EXISTS( filelength io.h HAVE_FILELENGTH )
+CHECK_SYMBOL_EXISTS( GetSystemTimeAsFileTime windows.h HAVE_GETSYSTEMTIMEASFILETIME )
+CHECK_SYMBOL_EXISTS( SetUnhandledExceptionFilter windows.h HAVE_SETUNHANDLEDEXCEPTIONFILTER )
+CHECK_FUNCTION_EXISTS( clock_get_time HAVE_CLOCK_GET_TIME_NATIVE )
 CHECK_FUNCTION_EXISTS( clock_gettime HAVE_CLOCK_GETTIME_NATIVE )
 CHECK_LIBRARY_EXISTS( rt clock_gettime "" HAVE_CLOCK_GETTIME_RT )
 CHECK_LIBRARY_EXISTS( pthread clock_gettime "" HAVE_CLOCK_GETTIME_PTHREAD )
@@ -944,14 +958,64 @@ ELSEIF( HAVE_CLOCK_GETTIME_RT )
 ELSEIF( HAVE_CLOCK_GETTIME_PTHREAD )
     TARGET_LINK_LIBRARIES( parasail pthread )
 ENDIF( )
+IF( HAVE_CLOCK_GETTIME_NATIVE OR HAVE_CLOCK_GETTIME_RT OR HAVE_CLOCK_GETTIME_PTHREAD )
+    # check for monotonic
+    MESSAGE( STATUS "Check for CLOCK_MONOTONIC" )
+    CHECK_C_SOURCE_COMPILES(
+"
+#define _POSIX_C_SOURCE 199309L
+#include <time.h>
+double parasail_time(void) {
+    struct timespec ts;
+    /* Works on FreeBSD */
+    long retval = clock_gettime(CLOCK_MONOTONIC, &ts);
+    return (double)(ts.tv_sec) + (double)(ts.tv_nsec)/1000000000.0;
+}
+int main(void) {
+    double t = parasail_time();
+    return 0;
+}
+"
+        HAVE_CLOCK_GETTIME_MONOTONIC )
+    IF( HAVE_CLOCK_GETTIME_MONOTONIC )
+        MESSAGE( STATUS "Check for CLOCK_MONOTONIC - TRUE" )
+    ELSE( )
+        MESSAGE( STATUS "Check for CLOCK_MONOTONIC - FALSE" )
+    ENDIF( )
+    # check for realtime
+    MESSAGE( STATUS "Check for CLOCK_REALTIME" )
+    CHECK_C_SOURCE_COMPILES(
+"
+#define _POSIX_C_SOURCE 199309L
+#include <time.h>
+double parasail_time(void) {
+    struct timespec ts;
+    /* Works on FreeBSD */
+    long retval = clock_gettime(CLOCK_REALTIME, &ts);
+    return (double)(ts.tv_sec) + (double)(ts.tv_nsec)/1000000000.0;
+}
+int main(void) {
+    double t = parasail_time();
+    return 0;
+}
+"
+        HAVE_CLOCK_GETTIME_REALTIME )
+    IF( HAVE_CLOCK_GETTIME_REALTIME )
+        MESSAGE( STATUS "Check for CLOCK_REALTIME - TRUE" )
+    ELSE( )
+        MESSAGE( STATUS "Check for CLOCK_REALTIME - FALSE" )
+    ENDIF( )
+ENDIF( )
+
 IF( HAVE_SQRT_NATIVE )
 ELSEIF( HAVE_SQRT_M )
     TARGET_LINK_LIBRARIES( parasail m )
 ENDIF( )
 
 SET( maybe_getopt )
-IF( WIN32 )
+IF( NOT HAVE_GETOPT AND HAVE_WINDOWS_H )
     LIST( APPEND maybe_getopt contrib/wingetopt/src/getopt.c )
+    MESSAGE( STATUS "Using contrib getopt" )
 ENDIF( )
 
 ADD_EXECUTABLE( parasail_aligner apps/parasail_aligner.cpp contrib/getMemorySize.c $<TARGET_OBJECTS:sais> ${maybe_getopt} )

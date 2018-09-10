@@ -936,7 +936,10 @@ int main(int argc, char **argv) {
 
     /* print the parameters for reference */
     if (verbose) {
+        int major, minor, patch;
+        parasail_version(&major, &minor, &patch);
         eprintf(stdout,
+                "%20s: %d.%d.%d\n"
                 "%20s: %s\n"
                 "%20s: %d\n"
                 "%20s: %s\n"
@@ -951,6 +954,7 @@ int main(int argc, char **argv) {
                 "%20s: %s\n"
                 "%20s: %lld\n"
                 "%20s: %.4f GB\n",
+                "parasail version", major, minor, patch,
                 "funcname", funcname,
                 "cutoff", cutoff,
                 "use filter", use_filter ? "yes" : "no",

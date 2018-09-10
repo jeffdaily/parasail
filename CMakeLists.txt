@@ -958,10 +958,8 @@ ELSEIF( HAVE_CLOCK_GETTIME_RT )
 ELSEIF( HAVE_CLOCK_GETTIME_PTHREAD )
     TARGET_LINK_LIBRARIES( parasail pthread )
 ENDIF( )
-IF( HAVE_CLOCK_GETTIME_NATIVE OR HAVE_CLOCK_GETTIME_RT OR HAVE_CLOCK_GETTIME_PTHREAD )
-    # check for monotonic
-    MESSAGE( STATUS "Check for CLOCK_MONOTONIC" )
-    CHECK_C_SOURCE_COMPILES(
+# check for monotonic
+CHECK_C_SOURCE_COMPILES(
 "
 #define _POSIX_C_SOURCE 199309L
 #include <time.h>
@@ -976,15 +974,9 @@ int main(void) {
     return 0;
 }
 "
-        HAVE_CLOCK_GETTIME_MONOTONIC )
-    IF( HAVE_CLOCK_GETTIME_MONOTONIC )
-        MESSAGE( STATUS "Check for CLOCK_MONOTONIC - TRUE" )
-    ELSE( )
-        MESSAGE( STATUS "Check for CLOCK_MONOTONIC - FALSE" )
-    ENDIF( )
-    # check for realtime
-    MESSAGE( STATUS "Check for CLOCK_REALTIME" )
-    CHECK_C_SOURCE_COMPILES(
+    HAVE_CLOCK_GETTIME_MONOTONIC )
+# check for realtime
+CHECK_C_SOURCE_COMPILES(
 "
 #define _POSIX_C_SOURCE 199309L
 #include <time.h>
@@ -999,13 +991,7 @@ int main(void) {
     return 0;
 }
 "
-        HAVE_CLOCK_GETTIME_REALTIME )
-    IF( HAVE_CLOCK_GETTIME_REALTIME )
-        MESSAGE( STATUS "Check for CLOCK_REALTIME - TRUE" )
-    ELSE( )
-        MESSAGE( STATUS "Check for CLOCK_REALTIME - FALSE" )
-    ENDIF( )
-ENDIF( )
+    HAVE_CLOCK_GETTIME_REALTIME )
 
 IF( HAVE_SQRT_NATIVE )
 ELSEIF( HAVE_SQRT_M )

@@ -68,12 +68,28 @@ matrix:
           packages:
           - gcc-powerpc-linux-gnu
           - g++-powerpc-linux-gnu
+    - os: linux
+      env: BUILD_TYPE=make
+           MAYBE_CROSS="--host=arm-linux-gnueabi --enable-static --disable-shared --without-zlib"
+           MY_CFLAGS=-O2
+           MY_CC=arm-linux-gnueabi-gcc
+           MY_CXX=arm-linux-gnueabi-g++
+      addons:
+        apt:
+          packages:
+          - gcc-arm-linux-gnueabi
+          - g++-arm-linux-gnueabi
   allow_failures:
     - env: BUILD_TYPE=make
            MAYBE_CROSS="--host=powerpc-linux-gnu --enable-static --disable-shared --without-zlib"
            MY_CFLAGS=-O2
            MY_CC=powerpc-linux-gnu-gcc
            MY_CXX=powerpc-linux-gnu-g++
+    - env: BUILD_TYPE=make
+           MAYBE_CROSS="--host=arm-linux-gnueabi --enable-static --disable-shared --without-zlib"
+           MY_CFLAGS=-O2
+           MY_CC=arm-linux-gnueabi-gcc
+           MY_CXX=arm-linux-gnueabi-g++
 
 ###
 ## If we use the matrix to set CC/CXX Travis overwrites the values,

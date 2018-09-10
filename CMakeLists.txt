@@ -952,6 +952,24 @@ ELSE( )
     SET( HAVE_ZLIB FALSE CACHE INTERNAL "" )
 ENDIF( )
 
+
+CHECK_C_SOURCE_COMPILES(
+"
+int main(void) {
+    long long val = 116444736000000000i64;
+    return 0;
+}
+"
+    INT64_LITERAL_SUFFIX_I64 )
+CHECK_C_SOURCE_COMPILES(
+"
+int main(void) {
+    long long val = 116444736000000000LL;
+    return 0;
+}
+"
+    INT64_LITERAL_SUFFIX_LL )
+
 IF( HAVE_CLOCK_GETTIME_NATIVE )
 ELSEIF( HAVE_CLOCK_GETTIME_RT )
     TARGET_LINK_LIBRARIES( parasail rt )

@@ -95,6 +95,57 @@ static inline char match_char(
 #undef T
 #undef STRIPED
 
+parasail_traceback_t* parasail_result_get_traceback(
+        parasail_result_t *result,
+        const char *seqA,
+        int lena,
+        const char *seqB,
+        int lenb,
+        const parasail_matrix_t *matrix,
+        char match, char pos, char neg)
+{
+    assert(parasail_result_is_trace(result));
+
+    if (result->flag & PARASAIL_FLAG_STRIPED
+            || result->flag & PARASAIL_FLAG_SCAN) {
+        if (result->flag & PARASAIL_FLAG_BITS_8) {
+            return parasail_result_get_traceback_striped_8(
+                    result, seqA, lena, seqB, lenb,
+                    matrix, match, pos, neg);
+        }
+        else if (result->flag & PARASAIL_FLAG_BITS_16) {
+            return parasail_result_get_traceback_striped_16(
+                    result, seqA, lena, seqB, lenb,
+                    matrix, match, pos, neg);
+        }
+        else if (result->flag & PARASAIL_FLAG_BITS_32) {
+            return parasail_result_get_traceback_striped_32(
+                    result, seqA, lena, seqB, lenb,
+                    matrix, match, pos, neg);
+        }
+        else if (result->flag & PARASAIL_FLAG_BITS_64) {
+            return parasail_result_get_traceback_striped_64(
+                    result, seqA, lena, seqB, lenb,
+                    matrix, match, pos, neg);
+        }
+    }
+    else {
+        return parasail_result_get_traceback_8(
+                result, seqA, lena, seqB, lenb,
+                matrix, match, pos, neg);
+    }
+
+    return NULL; /* unreachable */
+}
+
+void parasail_traceback_free(parasail_traceback_t *traceback)
+{
+    free(traceback->query);
+    free(traceback->comp);
+    free(traceback->ref);
+    free(traceback);
+}
+
 void parasail_traceback_generic_extra(
         const char *seqA,
         int lena,

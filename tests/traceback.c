@@ -58,6 +58,7 @@ int main(int argc, char **argv)
     parasail_cigar_t *cigar = NULL;
     parasail_cigar_t *cigar2 = NULL;
     char *cigar_string = NULL;
+    parasail_traceback_t *traceback = NULL;
 
     while ((c = getopt(argc, argv, "a:x:y:f:m:o:e:dX:Y:")) != -1) {
         switch (c) {
@@ -261,6 +262,15 @@ int main(int argc, char **argv)
     printf("end_query:      %d\n", result->end_query);
     printf("end_ref:        %d\n", result->end_ref);
 
+    /* test new traceback string functions */
+    traceback = parasail_result_get_traceback(result, seqA, lena, seqB, lenb, matrix, '|', ':', '.');
+    printf("\nTraceback string function\n");
+    printf("%s\n", traceback->query);
+    printf("%s\n", traceback->comp);
+    printf("%s\n", traceback->ref);
+    printf("\n");
+    parasail_traceback_free(traceback);
+
     /* do the cigar */
     cigar = parasail_result_get_cigar(result, seqA, lena, seqB, lenb, matrix);
     printf("cigar uint32_t: '");
@@ -307,12 +317,12 @@ int main(int argc, char **argv)
                     *(b++) = sequences->seqs[seqB_index].seq.s[bo++];
                     *(x++) = '*';
                 }
-                else if ('D' == op) {
+                else if ('I' == op) {
                     *(a++) = sequences->seqs[seqA_index].seq.s[ao++];
                     *(b++) = '-';
                     *(x++) = ' ';
                 }
-                else if ('I' == op) {
+                else if ('D' == op) {
                     *(a++) = '-';
                     *(b++) = sequences->seqs[seqB_index].seq.s[bo++];
                     *(x++) = ' ';
@@ -404,8 +414,8 @@ int main(int argc, char **argv)
 
         free(dup);
     }
-    /* cleanup parsed sequences */
 
+    /* cleanup parsed sequences */
     parasail_sequences_free(sequences);
 
     return 0;

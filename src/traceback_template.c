@@ -3,6 +3,183 @@
 #define D CONCAT3(int, T, _t)
 
 #if defined(STRIPED)
+#define NAME parasail_result_get_traceback_striped_
+#define LOC LOC_STRIPED
+#else
+#define NAME parasail_result_get_traceback_
+#define LOC LOC_NOVEC
+#endif
+
+static inline parasail_traceback_t* CONCAT(NAME, T) (
+        parasail_result_t *result,
+        const char *seqA,
+        int lena,
+        const char *seqB,
+        int lenb,
+        const parasail_matrix_t *matrix,
+        char match, char pos, char neg)
+{
+    parasail_traceback_t *traceback = NULL;
+    char *q = malloc(sizeof(char)*(lena+lenb));
+    char *d = malloc(sizeof(char)*(lena+lenb));
+    char *a = malloc(sizeof(char)*(lena+lenb));
+    char *qc = q;
+    char *dc = d;
+    char *ac = a;
+    int64_t i = result->end_query;
+    int64_t j = result->end_ref;
+    int where = PARASAIL_DIAG;
+    D *HT = (D*)result->trace->trace_table;
+#if defined(STRIPED)
+    int64_t segWidth = 0;
+    int64_t segLen = 0;
+    if (result->flag & PARASAIL_FLAG_LANES_1) {
+        segWidth = 1;
+    }
+    if (result->flag & PARASAIL_FLAG_LANES_2) {
+        segWidth = 2;
+    }
+    if (result->flag & PARASAIL_FLAG_LANES_4) {
+        segWidth = 4;
+    }
+    if (result->flag & PARASAIL_FLAG_LANES_8) {
+        segWidth = 8;
+    }
+    if (result->flag & PARASAIL_FLAG_LANES_16) {
+        segWidth = 16;
+    }
+    if (result->flag & PARASAIL_FLAG_LANES_32) {
+        segWidth = 32;
+    }
+    if (result->flag & PARASAIL_FLAG_LANES_64) {
+        segWidth = 64;
+    }
+    segLen = (lena + segWidth - 1) / segWidth;
+#endif
+    /* semi-global alignment includes the end gaps */
+    if (result->flag & PARASAIL_FLAG_SG) {
+        int k;
+        if (result->end_query+1 == lena) {
+            k = lenb-1;
+            while (k > j) {
+                *(qc++) = '-';
+                *(dc++) = seqB[k];
+                *(ac++) = ' ';
+                --k;
+            }
+        }
+        else if (result->end_ref+1 == lenb) {
+            k = lena-1;
+            while (k > i) {
+                *(qc++) = seqA[k];
+                *(dc++) = '-';
+                *(ac++) = ' ';
+                --k;
+            }
+        }
+        else {
+            assert(0);
+        }
+    }
+    while (i >= 0 || j >= 0) {
+        LOC
+        if (i < 0) {
+            if (!(result->flag & PARASAIL_FLAG_SW)) {
+                while (j >= 0) {
+                    *(qc++) = '-';
+                    *(dc++) = seqB[j];
+                    *(ac++) = ' ';
+                    --j;
+                }
+            }
+            break;
+        }
+        if (j < 0) {
+            if (!(result->flag & PARASAIL_FLAG_SW)) {
+                while (i >= 0) {
+                    *(qc++) = seqA[i];
+                    *(dc++) = '-';
+                    *(ac++) = ' ';
+                    --i;
+                }
+            }
+            break;
+        }
+        if (PARASAIL_DIAG == where) {
+            if (HT[loc] & PARASAIL_DIAG) {
+                *(qc++) = seqA[i];
+                *(dc++) = seqB[j];
+                *(ac++) = match_char(seqA[i], seqB[j], matrix, match, pos, neg);
+                --i;
+                --j;
+            }
+            else if (HT[loc] & PARASAIL_INS) {
+                where = PARASAIL_INS;
+            }
+            else if (HT[loc] & PARASAIL_DEL) {
+                where = PARASAIL_DEL;
+            }
+            else {
+                break;
+            }
+        }
+        else if (PARASAIL_INS == where) {
+            *(qc++) = '-';
+            *(dc++) = seqB[j];
+            *(ac++) = ' ';
+            --j;
+            if (HT[loc] & PARASAIL_DIAG_E) {
+                where = PARASAIL_DIAG;
+            }
+            else if (HT[loc] & PARASAIL_INS_E) {
+                where = PARASAIL_INS;
+            }
+            else {
+                assert(0);
+            }
+        }
+        else if (PARASAIL_DEL == where) {
+            *(qc++) = seqA[i];
+            *(dc++) = '-';
+            *(ac++) = ' ';
+            --i;
+            if (HT[loc] & PARASAIL_DIAG_F) {
+                where = PARASAIL_DIAG;
+            }
+            else if (HT[loc] & PARASAIL_DEL_F) {
+                where = PARASAIL_DEL;
+            }
+            else {
+                assert(0);
+            }
+        }
+        else if (PARASAIL_ZERO == where) {
+            break;
+        }
+        else {
+            assert(0);
+        }
+    }
+    *(qc++) = '\0';
+    *(dc++) = '\0';
+    *(ac++) = '\0';
+
+    traceback = malloc(sizeof(parasail_traceback_t));
+    traceback->query = parasail_reverse(q, strlen(q));
+    traceback->comp = parasail_reverse(a, strlen(a));
+    traceback->ref = parasail_reverse(d, strlen(d));
+
+    free(q);
+    free(d);
+    free(a);
+
+    return traceback;
+}
+
+#undef NAME
+#undef LOC
+
+#if defined(STRIPED)
 #define NAME parasail_traceback_striped_
 #define LOC LOC_STRIPED
 #else
@@ -101,10 +278,8 @@ static inline void CONCAT(NAME, T) (
             assert(0);
         }
     }
-    //while (i >= 0 && j >= 0) {
     while (i >= 0 || j >= 0) {
         LOC
-        //assert(i >= 0 && j >= 0);
         if (i < 0) {
             if (!(result->flag & PARASAIL_FLAG_SW)) {
                 while (j >= 0) {
@@ -285,7 +460,7 @@ static inline void CONCAT(NAME, T) (
     free(a);
 }
 
-#undef D
 #undef NAME
 #undef LOC
+#undef D
 

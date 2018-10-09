@@ -267,6 +267,23 @@ extern parasail_result_t* parasail_nw_banded(
         const int open, const int gap, const int k,
         const parasail_matrix_t* matrix);
 
+typedef struct parasail_traceback_{
+    char *query;
+    char *comp;
+    char *ref;
+} parasail_traceback_t;
+
+extern parasail_traceback_t* parasail_result_get_traceback(
+        parasail_result_t *result,
+        const char *seqA,
+        int lena,
+        const char *seqB,
+        int lenb,
+        const parasail_matrix_t *matrix,
+        char match, char pos, char neg);
+
+extern void parasail_traceback_free(parasail_traceback_t *traceback);
+
 extern void parasail_traceback_generic(
         const char *seqA,
         int lena,

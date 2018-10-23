@@ -483,7 +483,7 @@ void parasail_sequences_free(parasail_sequences_t *sequences);
 
 [back to top]
 
-Parasail supports both printing a traceback to stdout as well as accessing a SAM CIGAR string from a result.  You must use a traceback-capable alignment function.  Refer to the C interface description above for details on how to use a traceback-capable alignment function.
+Parasail supports printing a traceback to stdout, accessing a SAM CIGAR string from a result, as well as returning the three alignment strings.  You must use a traceback-capable alignment function.  Refer to the C interface description above for details on how to use a traceback-capable alignment function.
 
 #### Printing Tracebacks
 
@@ -503,6 +503,22 @@ void parasail_traceback_generic(
         int width,  /* width of traceback to display before wrapping */
         int name_width,
         int use_stats); /* if 0, don't display stats, if non-zero, summary stats displayed */
+
+void parasail_traceback_generic_extra(
+        const char *seqA, int lena,
+        const char *seqB, int lenb,
+        const char *nameA,
+        const char *nameB,
+        const parasail_matrix_t *matrix,
+        parasail_result_t *result,
+        char match, /* character to use for a match */
+        char pos,   /* character to use for a positive-value mismatch */
+        char neg,   /* character to use for a negative-value mismatch */
+        int width,  /* width of traceback to display before wrapping */
+        int name_width,
+        int use_stats, /* if 0, don't display stats, if non-zero, summary stats displayed */
+        int int_width, /* width used for reference and query indexes */
+        FILE *stream); /* to print to custom file stream */
 ```
 
 For example, `parasail_traceback_generic(seqA, strlen(seqA), seqB, strlen(seqB), "Query:", "Target:", matrix, result, '|', '*', '*', 60, 7, 1)` might produce the following:
@@ -552,6 +568,32 @@ char parasail_cigar_decode_op(uint32_t cigar_int);
 uint32_t parasail_cigar_decode_len(uint32_t cigar_int);
 
 char* parasail_cigar_decode(parasail_cigar_t *cigar);
+```
+
+#### Traceback strings
+
+[back to top]
+
+The traceback can be returned as a set of three strings, all of equal length, representing the traceback.  Indels in the `query` or `ref` strings are represented by a dash `-`.  The `comp` string represents the comparison between the `query` and `ref` strings and can use custom characters for the `match` (exact match), `pos` (positive-valued inexact match), and `neg` (negative-valued non-match).
+
+```C
+typedef struct parasail_traceback_{
+    char *query;
+    char *comp;
+    char *ref;
+} parasail_traceback_t;
+
+extern parasail_traceback_t* parasail_result_get_traceback(
+        parasail_result_t *result,
+        const char *seqA,
+        int lena,
+        const char *seqB,
+        int lenb,
+        const parasail_matrix_t *matrix,
+        char match, char pos, char neg);
+
+extern void parasail_traceback_free(parasail_traceback_t *traceback);
+
 ```
 
 ## Language Bindings

@@ -7,6 +7,12 @@ This project follows the [Gitflow Workflow model](https://www.atlassian.com/git/
 ## [Unreleased]
 The Unreleased section will be empty for tagged releases. Unreleased functionality appears in the develop branch.
 
+## [2.3] - 2018-10-23
+### Added
+- Support for MSYS and mingw builds.
+- parasail_aligner outputs version information in verbose mode.
+- Functions `parasail_result_get_traceback` and `parasail_traceback_free` to retrieve traceback C strings. See [README.md] for details.
+
 ## [2.2] - 2018-07-10
 ### Added
 - ARM NEON vectorized functions via the [simde] project. Also thanks to [philres] for the hardware donation. 
@@ -324,7 +330,8 @@ The Unreleased section will be empty for tagged releases. Unreleased functionali
 ## [1.0.0] - 2015-09-16
 First stable, production-ready version of parasail.
 
-[Unreleased]: https://github.com/jeffdaily/parasail/compare/v2.2...develop
+[Unreleased]: https://github.com/jeffdaily/parasail/compare/v2.3...develop
+[2.3]:   https://github.com/jeffdaily/parasail/compare/v2.2...v2.3
 [2.2]:   https://github.com/jeffdaily/parasail/compare/v2.1.5...v2.2
 [2.1.5]: https://github.com/jeffdaily/parasail/compare/v2.1.4...v2.1.5
 [2.1.4]: https://github.com/jeffdaily/parasail/compare/v2.1.3...v2.1.4
@@ -350,6 +357,10 @@ First stable, production-ready version of parasail.
 [1.0.1]: https://github.com/jeffdaily/parasail/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/jeffdaily/parasail/releases/tag/v1.0.0
 
+[\#63]: https://github.com/jeffdaily/parasail/issues/63
+[\#62]: https://github.com/jeffdaily/parasail/issues/62
+[\#61]: https://github.com/jeffdaily/parasail/issues/61
+[\#60]: https://github.com/jeffdaily/parasail/issues/60
 [\#59]: https://github.com/jeffdaily/parasail/issues/59
 [\#58]: https://github.com/jeffdaily/parasail/issues/58
 [\#57]: https://github.com/jeffdaily/parasail/issues/57
@@ -410,6 +421,7 @@ First stable, production-ready version of parasail.
 [\#2]: https://github.com/jeffdaily/parasail/issues/2
 [\#1]: https://github.com/jeffdaily/parasail/issues/1
 
+[README.md]: README.md
 [philres]: https://github.com/philres
 [simde]: https://github.com/nemequ/simde
 [manylinux]: https://github.com/pypa/manylinux

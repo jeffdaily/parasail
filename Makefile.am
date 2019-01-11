@@ -1160,6 +1160,8 @@ check_PROGRAMS += tests/test_verify_rowcols
 check_PROGRAMS += tests/test_verify_traces
 check_PROGRAMS += tests/test_verify_cigars
 check_PROGRAMS += tests/test_12
+check_PROGRAMS += tests/test_64
+check_PROGRAMS += tests/test_p29
 if HAVE_SSE2
 check_PROGRAMS += tests/test_ssw
 check_PROGRAMS += tests/ssw_vs_pssw
@@ -1284,6 +1286,10 @@ tests_test_verify_cigars_CFLAGS  = $(AM_CFLAGS) $(OPENMP_CFLAGS)
 tests_test_verify_cigars_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
 
 tests_test_12_SOURCES = tests/test_12.c
+
+tests_test_64_SOURCES = tests/test_64.c
+
+tests_test_p29_SOURCES = tests/test_p29.c
 
 EXTRA_DIST += .gitignore
 EXTRA_DIST += .travis.yml

@@ -16,6 +16,11 @@
 #include "parasail/memory.h"
 #include "parasail/internal_avx.h"
 
+#define SG_STATS
+#define SG_SUFFIX _scan_avx2_256_16
+#define SG_SUFFIX_PROF _scan_profile_avx2_256_16
+#include "sg_helper.h"
+
 
 #define _mm256_cmplt_epi16_rpl(a,b) _mm256_cmpgt_epi16(b,a)
 
@@ -106,25 +111,26 @@ static inline void arr_store_col(
 #endif
 
 #ifdef PARASAIL_TABLE
-#define FNAME parasail_sg_stats_table_scan_avx2_256_16
-#define PNAME parasail_sg_stats_table_scan_profile_avx2_256_16
+#define FNAME parasail_sg_flags_stats_table_scan_avx2_256_16
+#define PNAME parasail_sg_flags_stats_table_scan_profile_avx2_256_16
 #else
 #ifdef PARASAIL_ROWCOL
-#define FNAME parasail_sg_stats_rowcol_scan_avx2_256_16
-#define PNAME parasail_sg_stats_rowcol_scan_profile_avx2_256_16
+#define FNAME parasail_sg_flags_stats_rowcol_scan_avx2_256_16
+#define PNAME parasail_sg_flags_stats_rowcol_scan_profile_avx2_256_16
 #else
-#define FNAME parasail_sg_stats_scan_avx2_256_16
-#define PNAME parasail_sg_stats_scan_profile_avx2_256_16
+#define FNAME parasail_sg_flags_stats_scan_avx2_256_16
+#define PNAME parasail_sg_flags_stats_scan_profile_avx2_256_16
 #endif
 #endif
 
 parasail_result_t* FNAME(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const parasail_matrix_t *matrix)
+        const int open, const int gap, const parasail_matrix_t *matrix,
+        int s1_beg, int s1_end, int s2_beg, int s2_end)
 {
     parasail_profile_t *profile = parasail_profile_create_stats_avx_256_16(s1, s1Len, matrix);
-    parasail_result_t *result = PNAME(profile, s2, s2Len, open, gap);
+    parasail_result_t *result = PNAME(profile, s2, s2Len, open, gap, s1_beg, s1_end, s2_beg, s2_end);
     parasail_profile_free(profile);
     return result;
 }
@@ -132,7 +138,8 @@ parasail_result_t* FNAME(
 parasail_result_t* PNAME(
         const parasail_profile_t * const restrict profile,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
+        const int open, const int gap,
+        int s1_beg, int s1_end, int s2_beg, int s2_end)
 {
     int32_t i = 0;
     int32_t j = 0;
@@ -560,5 +567,8 @@ parasail_result_t* PNAME(
 
     return result;
 }
+
+SG_IMPL_ALL
+SG_IMPL_PROF_ALL
 
 

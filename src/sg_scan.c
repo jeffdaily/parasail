@@ -13,23 +13,27 @@
 #include "parasail.h"
 #include "parasail/memory.h"
 
+#define SG_SUFFIX _scan
+#include "sg_helper.h"
+
 #define NEG_INF_32 (INT32_MIN/2)
 #define MAX(a,b) ((a)>(b)?(a):(b))
 
 #ifdef PARASAIL_TABLE
-#define ENAME parasail_sg_table_scan
+#define FNAME parasail_sg_flags_table_scan
 #else
 #ifdef PARASAIL_ROWCOL
-#define ENAME parasail_sg_rowcol_scan
+#define FNAME parasail_sg_flags_rowcol_scan
 #else
-#define ENAME parasail_sg_scan
+#define FNAME parasail_sg_flags_scan
 #endif
 #endif
 
-parasail_result_t* ENAME(
+parasail_result_t* FNAME(
         const char * const restrict _s1, const int s1Len,
         const char * const restrict _s2, const int s2Len,
-        const int open, const int gap, const parasail_matrix_t *matrix)
+        const int open, const int gap, const parasail_matrix_t *matrix,
+        int s1_beg, int s1_end, int s2_beg, int s2_end)
 {
 #ifdef PARASAIL_TABLE
     parasail_result_t *result = parasail_result_new_table1(s1Len, s2Len);
@@ -173,3 +177,6 @@ parasail_result_t* ENAME(
 
     return result;
 }
+
+SG_IMPL_ALL
+

@@ -254,7 +254,7 @@ output_dir = "generated/"
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
 
-for alg in ["nw", "sg", "sw"]:
+for alg in ["nw", "sg", "sw", "sg_qb", "sg_qe", "sg_qx", "sg_db", "sg_de", "sg_dx", "sg_qb_de", "sg_qe_db"]:
     output_filename = "%s%s_dispatch.c" % (output_dir, alg)
     writer = open(output_filename, "w")
     writer.write(codegen(alg))

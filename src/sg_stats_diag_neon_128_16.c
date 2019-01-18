@@ -15,6 +15,10 @@
 #include "parasail/memory.h"
 #include "parasail/internal_neon.h"
 
+#define SG_STATS
+#define SG_SUFFIX _diag_neon_128_16
+#include "sg_helper.h"
+
 
 
 #ifdef PARASAIL_TABLE
@@ -115,19 +119,20 @@ static inline void arr_store_rowcol(
 #endif
 
 #ifdef PARASAIL_TABLE
-#define FNAME parasail_sg_stats_table_diag_neon_128_16
+#define FNAME parasail_sg_flags_stats_table_diag_neon_128_16
 #else
 #ifdef PARASAIL_ROWCOL
-#define FNAME parasail_sg_stats_rowcol_diag_neon_128_16
+#define FNAME parasail_sg_flags_stats_rowcol_diag_neon_128_16
 #else
-#define FNAME parasail_sg_stats_diag_neon_128_16
+#define FNAME parasail_sg_flags_stats_diag_neon_128_16
 #endif
 #endif
 
 parasail_result_t* FNAME(
         const char * const restrict _s1, const int s1Len,
         const char * const restrict _s2, const int s2Len,
-        const int open, const int gap, const parasail_matrix_t *matrix)
+        const int open, const int gap, const parasail_matrix_t *matrix,
+        int s1_beg, int s1_end, int s2_beg, int s2_end)
 {
     const int32_t N = 8; /* number of values in vector */
     const int32_t PAD = N-1;
@@ -525,5 +530,7 @@ parasail_result_t* FNAME(
 
     return result;
 }
+
+SG_IMPL_ALL
 
 

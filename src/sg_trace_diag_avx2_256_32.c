@@ -15,6 +15,10 @@
 #include "parasail/memory.h"
 #include "parasail/internal_avx.h"
 
+#define SG_TRACE
+#define SG_SUFFIX _diag_avx2_256_32
+#include "sg_helper.h"
+
 #define NEG_INF (INT32_MIN/(int32_t)(2))
 
 #if HAVE_AVX2_MM256_INSERT_EPI32
@@ -77,12 +81,13 @@ static inline void arr_store_si256(
     }
 }
 
-#define FNAME parasail_sg_trace_diag_avx2_256_32
+#define FNAME parasail_sg_flags_trace_diag_avx2_256_32
 
 parasail_result_t* FNAME(
         const char * const restrict _s1, const int s1Len,
         const char * const restrict _s2, const int s2Len,
-        const int open, const int gap, const parasail_matrix_t *matrix)
+        const int open, const int gap, const parasail_matrix_t *matrix,
+        int s1_beg, int s1_end, int s2_beg, int s2_end)
 {
     const int32_t N = 8; /* number of values in vector */
     const int32_t PAD = N-1;
@@ -308,5 +313,7 @@ parasail_result_t* FNAME(
 
     return result;
 }
+
+SG_IMPL_ALL
 
 

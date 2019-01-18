@@ -12,6 +12,11 @@
 
 #include <immintrin.h>
 
+#define SG_TRACE
+#define SG_SUFFIX _striped_avx2_256_16
+#define SG_SUFFIX_PROF _striped_profile_avx2_256_16
+#include "sg_helper.h"
+
 #include "parasail.h"
 #include "parasail/memory.h"
 #include "parasail/internal_avx.h"
@@ -71,16 +76,17 @@ static inline __m256i arr_load(
     return _mm256_load_si256(array + (1LL*d*seglen+t));
 }
 
-#define FNAME parasail_sg_trace_striped_avx2_256_16
-#define PNAME parasail_sg_trace_striped_profile_avx2_256_16
+#define FNAME parasail_sg_flags_trace_striped_avx2_256_16
+#define PNAME parasail_sg_flags_trace_striped_profile_avx2_256_16
 
 parasail_result_t* FNAME(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const parasail_matrix_t *matrix)
+        const int open, const int gap, const parasail_matrix_t *matrix,
+        int s1_beg, int s1_end, int s2_beg, int s2_end)
 {
     parasail_profile_t *profile = parasail_profile_create_avx_256_16(s1, s1Len, matrix);
-    parasail_result_t *result = PNAME(profile, s2, s2Len, open, gap);
+    parasail_result_t *result = PNAME(profile, s2, s2Len, open, gap, s1_beg, s1_end, s2_beg, s2_end);
     parasail_profile_free(profile);
     return result;
 }
@@ -88,7 +94,8 @@ parasail_result_t* FNAME(
 parasail_result_t* PNAME(
         const parasail_profile_t * const restrict profile,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
+        const int open, const int gap,
+        int s1_beg, int s1_end, int s2_beg, int s2_end)
 {
     int32_t i = 0;
     int32_t j = 0;
@@ -367,4 +374,8 @@ end:
 
     return result;
 }
+
+SG_IMPL_ALL
+SG_IMPL_PROF_ALL
+
 

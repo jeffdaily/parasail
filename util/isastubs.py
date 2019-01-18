@@ -92,8 +92,8 @@ def body3():
 }
 #endif"""
 
-# vectorized implementations (3x2x3x3x13 = 702 impl)
-alg = ["nw", "sg", "sw"]
+# vectorized implementations
+alg = ["nw", "sg", "sw", "sg_qb", "sg_qe", "sg_qx", "sg_db", "sg_de", "sg_dx", "sg_qb_de", "sg_qe_db"]
 stats = ["", "_stats"]
 table = ["", "_table", "_rowcol", "_trace"]
 par = ["_scan", "_striped", "_diag"]
@@ -120,8 +120,8 @@ for a in alg:
                     print " "*8+"const parasail_matrix_t* matrix)"
                     body1()
 
-# vectorized profile implementations (3x2x3x2x13 = 468 impl)
-alg = ["nw", "sg", "sw"]
+# vectorized profile implementations
+alg = ["nw", "sg", "sw", "sg_qb", "sg_qe", "sg_qx", "sg_db", "sg_de", "sg_dx", "sg_qb_de", "sg_qe_db"]
 stats = ["", "_stats"]
 table = ["", "_table", "_rowcol", "_trace"]
 par = ["_scan_profile", "_striped_profile"]

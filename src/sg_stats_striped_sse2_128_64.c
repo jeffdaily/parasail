@@ -10,6 +10,11 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#define SG_STATS
+#define SG_SUFFIX _striped_sse2_128_64
+#define SG_SUFFIX_PROF _striped_profile_sse2_128_64
+#include "sg_helper.h"
+
 #if defined(_MSC_VER)
 #include <intrin.h>
 #else
@@ -24,6 +29,16 @@
 
 #define SWAP(A,B) { __m128i* tmp = A; A = B; B = tmp; }
 
+
+static inline __m128i _mm_cmpeq_epi64_rpl(__m128i a, __m128i b) {
+    __m128i_64_t A;
+    __m128i_64_t B;
+    A.m = a;
+    B.m = b;
+    A.v[0] = (A.v[0]==B.v[0]) ? 0xFFFFFFFFFFFFFFFF : 0;
+    A.v[1] = (A.v[1]==B.v[1]) ? 0xFFFFFFFFFFFFFFFF : 0;
+    return A.m;
+}
 
 static inline __m128i _mm_blendv_epi8_rpl(__m128i a, __m128i b, __m128i mask) {
     a = _mm_andnot_si128(mask, a);
@@ -45,16 +60,6 @@ static inline __m128i _mm_insert_epi64_rpl(__m128i a, int64_t i, const int imm) 
     __m128i_64_t A;
     A.m = a;
     A.v[imm] = i;
-    return A.m;
-}
-
-static inline __m128i _mm_cmpeq_epi64_rpl(__m128i a, __m128i b) {
-    __m128i_64_t A;
-    __m128i_64_t B;
-    A.m = a;
-    B.m = b;
-    A.v[0] = (A.v[0]==B.v[0]) ? 0xFFFFFFFFFFFFFFFF : 0;
-    A.v[1] = (A.v[1]==B.v[1]) ? 0xFFFFFFFFFFFFFFFF : 0;
     return A.m;
 }
 
@@ -149,45 +154,40 @@ static inline void arr_store_col(
 #endif
 
 #ifdef PARASAIL_TABLE
-#define FNAME parasail_sg_stats_table_striped_sse2_128_64
-#define PNAME parasail_sg_stats_table_striped_profile_sse2_128_64
-#define INAME PNAME
-#define STATIC
+#define FNAME parasail_sg_flags_stats_table_striped_sse2_128_64
+#define PNAME parasail_sg_flags_stats_table_striped_profile_sse2_128_64
 #else
 #ifdef PARASAIL_ROWCOL
-#define FNAME parasail_sg_stats_rowcol_striped_sse2_128_64
-#define PNAME parasail_sg_stats_rowcol_striped_profile_sse2_128_64
-#define INAME PNAME
-#define STATIC
+#define FNAME parasail_sg_flags_stats_rowcol_striped_sse2_128_64
+#define PNAME parasail_sg_flags_stats_rowcol_striped_profile_sse2_128_64
 #else
-#define FNAME parasail_sg_stats_striped_sse2_128_64
-#ifdef FASTSTATS
-#define PNAME parasail_sg_stats_striped_profile_sse2_128_64_internal
-#define INAME parasail_sg_stats_striped_profile_sse2_128_64
-#define STATIC static
-#else
-#define PNAME parasail_sg_stats_striped_profile_sse2_128_64
-#define INAME PNAME
-#define STATIC
-#endif
+#define FNAME parasail_sg_flags_stats_striped_sse2_128_64
+#define PNAME parasail_sg_flags_stats_striped_profile_sse2_128_64
+#define INAME parasail_sg_flags_stats_striped_profile_sse2_128_64_internal
 #endif
 #endif
 
 parasail_result_t* FNAME(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const parasail_matrix_t *matrix)
+        const int open, const int gap, const parasail_matrix_t *matrix,
+        int s1_beg, int s1_end, int s2_beg, int s2_end)
 {
     parasail_profile_t *profile = parasail_profile_create_stats_sse_128_64(s1, s1Len, matrix);
-    parasail_result_t *result = INAME(profile, s2, s2Len, open, gap);
+    parasail_result_t *result = PNAME(profile, s2, s2Len, open, gap, s1_beg, s1_end, s2_beg, s2_end);
     parasail_profile_free(profile);
     return result;
 }
 
-STATIC parasail_result_t* PNAME(
-        const parasail_profile_t * const restrict profile,
+#if !defined(PARASAIL_TABLE) && !defined(PARASAIL_ROWCOL) && defined(FASTSTATS)
+static parasail_result_t* INAME
+#else
+parasail_result_t* PNAME
+#endif
+        (const parasail_profile_t * const restrict profile,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
+        const int open, const int gap,
+        int s1_beg, int s1_end, int s2_beg, int s2_end)
 {
     int32_t i = 0;
     int32_t j = 0;
@@ -614,22 +614,18 @@ end:
     return result;
 }
 
-#ifdef FASTSTATS
-#ifdef PARASAIL_TABLE
-#else
-#ifdef PARASAIL_ROWCOL
-#else
-#include <assert.h>
-parasail_result_t* INAME(
+#if !defined(PARASAIL_TABLE) && !defined(PARASAIL_ROWCOL) && defined(FASTSTATS)
+parasail_result_t* PNAME(
         const parasail_profile_t * const restrict profile,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
+        const int open, const int gap,
+        int s1_beg, int s1_end, int s2_beg, int s2_end)
 {
     const char *s1 = profile->s1;
     const parasail_matrix_t *matrix = profile->matrix;
 
     /* find the end loc first with the faster implementation */
-    parasail_result_t *result = parasail_sg_striped_profile_sse2_128_64(profile, s2, s2Len, open, gap);
+    parasail_result_t *result = parasail_sg_flags_striped_profile_sse2_128_64(profile, s2, s2Len, open, gap, s1_beg, s1_end, s2_beg, s2_end);
     if (!parasail_result_is_saturated(result)) {
         int s1Len_new = 0;
         int s2Len_new = 0;
@@ -644,8 +640,8 @@ parasail_result_t* INAME(
              * consider last column results */
             int stop_save = profile->stop;
             ((parasail_profile_t*)profile)->stop = 1;
-            result_final = PNAME(
-                    profile, s2, s2Len_new, open, gap);
+            result_final = INAME(
+                    profile, s2, s2Len_new, open, gap, s1_beg, s1_end, s2_beg, s2_end);
             ((parasail_profile_t*)profile)->stop = stop_save;
         }
         else {
@@ -655,8 +651,8 @@ parasail_result_t* INAME(
             /* special 'stop' value tells stats function not to
              * consider last row results */
             profile_final->stop = 0;
-            result_final = PNAME(
-                    profile_final, s2, s2Len_new, open, gap);
+            result_final = INAME(
+                    profile_final, s2, s2Len_new, open, gap, s1_beg, s1_end, s2_beg, s2_end);
 
             parasail_profile_free(profile_final);
         }
@@ -673,7 +669,8 @@ parasail_result_t* INAME(
     }
 }
 #endif
-#endif
-#endif
+
+SG_IMPL_ALL
+SG_IMPL_PROF_ALL
 
 

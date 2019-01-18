@@ -19,7 +19,21 @@
 #include "parasail/memory.h"
 #include "parasail/internal_sse.h"
 
+#define SG_TRACE
+#define SG_SUFFIX _diag_sse2_128_64
+#include "sg_helper.h"
+
 #define NEG_INF (INT64_MIN/(int64_t)(2))
+
+static inline __m128i _mm_cmpeq_epi64_rpl(__m128i a, __m128i b) {
+    __m128i_64_t A;
+    __m128i_64_t B;
+    A.m = a;
+    B.m = b;
+    A.v[0] = (A.v[0]==B.v[0]) ? 0xFFFFFFFFFFFFFFFF : 0;
+    A.v[1] = (A.v[1]==B.v[1]) ? 0xFFFFFFFFFFFFFFFF : 0;
+    return A.m;
+}
 
 static inline __m128i _mm_blendv_epi8_rpl(__m128i a, __m128i b, __m128i mask) {
     a = _mm_andnot_si128(mask, a);
@@ -41,16 +55,6 @@ static inline __m128i _mm_insert_epi64_rpl(__m128i a, int64_t i, const int imm) 
     __m128i_64_t A;
     A.m = a;
     A.v[imm] = i;
-    return A.m;
-}
-
-static inline __m128i _mm_cmpeq_epi64_rpl(__m128i a, __m128i b) {
-    __m128i_64_t A;
-    __m128i_64_t B;
-    A.m = a;
-    B.m = b;
-    A.v[0] = (A.v[0]==B.v[0]) ? 0xFFFFFFFFFFFFFFFF : 0;
-    A.v[1] = (A.v[1]==B.v[1]) ? 0xFFFFFFFFFFFFFFFF : 0;
     return A.m;
 }
 
@@ -119,12 +123,13 @@ static inline void arr_store_si128(
     }
 }
 
-#define FNAME parasail_sg_trace_diag_sse2_128_64
+#define FNAME parasail_sg_flags_trace_diag_sse2_128_64
 
 parasail_result_t* FNAME(
         const char * const restrict _s1, const int s1Len,
         const char * const restrict _s2, const int s2Len,
-        const int open, const int gap, const parasail_matrix_t *matrix)
+        const int open, const int gap, const parasail_matrix_t *matrix,
+        int s1_beg, int s1_end, int s2_beg, int s2_end)
 {
     const int32_t N = 2; /* number of values in vector */
     const int32_t PAD = N-1;
@@ -338,5 +343,7 @@ parasail_result_t* FNAME(
 
     return result;
 }
+
+SG_IMPL_ALL
 
 

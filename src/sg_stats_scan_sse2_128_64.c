@@ -20,6 +20,21 @@
 #include "parasail/memory.h"
 #include "parasail/internal_sse.h"
 
+#define SG_STATS
+#define SG_SUFFIX _scan_sse2_128_64
+#define SG_SUFFIX_PROF _scan_profile_sse2_128_64
+#include "sg_helper.h"
+
+
+static inline __m128i _mm_cmpeq_epi64_rpl(__m128i a, __m128i b) {
+    __m128i_64_t A;
+    __m128i_64_t B;
+    A.m = a;
+    B.m = b;
+    A.v[0] = (A.v[0]==B.v[0]) ? 0xFFFFFFFFFFFFFFFF : 0;
+    A.v[1] = (A.v[1]==B.v[1]) ? 0xFFFFFFFFFFFFFFFF : 0;
+    return A.m;
+}
 
 static inline __m128i _mm_blendv_epi8_rpl(__m128i a, __m128i b, __m128i mask) {
     a = _mm_andnot_si128(mask, a);
@@ -41,16 +56,6 @@ static inline __m128i _mm_insert_epi64_rpl(__m128i a, int64_t i, const int imm) 
     __m128i_64_t A;
     A.m = a;
     A.v[imm] = i;
-    return A.m;
-}
-
-static inline __m128i _mm_cmpeq_epi64_rpl(__m128i a, __m128i b) {
-    __m128i_64_t A;
-    __m128i_64_t B;
-    A.m = a;
-    B.m = b;
-    A.v[0] = (A.v[0]==B.v[0]) ? 0xFFFFFFFFFFFFFFFF : 0;
-    A.v[1] = (A.v[1]==B.v[1]) ? 0xFFFFFFFFFFFFFFFF : 0;
     return A.m;
 }
 
@@ -145,25 +150,26 @@ static inline void arr_store_col(
 #endif
 
 #ifdef PARASAIL_TABLE
-#define FNAME parasail_sg_stats_table_scan_sse2_128_64
-#define PNAME parasail_sg_stats_table_scan_profile_sse2_128_64
+#define FNAME parasail_sg_flags_stats_table_scan_sse2_128_64
+#define PNAME parasail_sg_flags_stats_table_scan_profile_sse2_128_64
 #else
 #ifdef PARASAIL_ROWCOL
-#define FNAME parasail_sg_stats_rowcol_scan_sse2_128_64
-#define PNAME parasail_sg_stats_rowcol_scan_profile_sse2_128_64
+#define FNAME parasail_sg_flags_stats_rowcol_scan_sse2_128_64
+#define PNAME parasail_sg_flags_stats_rowcol_scan_profile_sse2_128_64
 #else
-#define FNAME parasail_sg_stats_scan_sse2_128_64
-#define PNAME parasail_sg_stats_scan_profile_sse2_128_64
+#define FNAME parasail_sg_flags_stats_scan_sse2_128_64
+#define PNAME parasail_sg_flags_stats_scan_profile_sse2_128_64
 #endif
 #endif
 
 parasail_result_t* FNAME(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const parasail_matrix_t *matrix)
+        const int open, const int gap, const parasail_matrix_t *matrix,
+        int s1_beg, int s1_end, int s2_beg, int s2_end)
 {
     parasail_profile_t *profile = parasail_profile_create_stats_sse_128_64(s1, s1Len, matrix);
-    parasail_result_t *result = PNAME(profile, s2, s2Len, open, gap);
+    parasail_result_t *result = PNAME(profile, s2, s2Len, open, gap, s1_beg, s1_end, s2_beg, s2_end);
     parasail_profile_free(profile);
     return result;
 }
@@ -171,7 +177,8 @@ parasail_result_t* FNAME(
 parasail_result_t* PNAME(
         const parasail_profile_t * const restrict profile,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
+        const int open, const int gap,
+        int s1_beg, int s1_end, int s2_beg, int s2_end)
 {
     int32_t i = 0;
     int32_t j = 0;
@@ -599,5 +606,8 @@ parasail_result_t* PNAME(
 
     return result;
 }
+
+SG_IMPL_ALL
+SG_IMPL_PROF_ALL
 
 

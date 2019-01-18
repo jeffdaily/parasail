@@ -559,17 +559,30 @@ for template_filename in template_filenames:
             table_prefix = ""
             rowcol_prefix = ""
             trace_prefix = ""
+            suffix_prefix = ""
+            suffix_prefix_prof = ""
+            if 'sg' in parts[0]:
+                parts[0] = string.replace(parts[0], 'sg', 'sg_flags')
+                prefix = string.replace(prefix, 'sg', 'sg_flags')
+                prefix_prof = string.replace(prefix_prof, 'sg', 'sg_flags')
             if len(parts) == 2:
                 table_prefix = "%s_table_%s" % (parts[0], parts[1])
                 rowcol_prefix = "%s_rowcol_%s" % (parts[0], parts[1])
                 trace_prefix = "%s_trace_%s" % (parts[0], parts[1])
+                suffix_prefix = parts[1]
             if len(parts) == 3:
                 table_prefix = "%s_%s_table_%s" % (parts[0], parts[1], parts[2])
                 rowcol_prefix = "%s_%s_rowcol_%s" % (parts[0], parts[1], parts[2])
                 trace_prefix = "%s_trace_%s" % (parts[0], parts[2])
+                suffix_prefix = parts[2]
             table_prefix_prof = table_prefix + "_profile"
             rowcol_prefix_prof = rowcol_prefix + "_profile"
             trace_prefix_prof = trace_prefix + "_profile"
+            suffix_prefix_prof = suffix_prefix + "_profile"
+            suffix = "_%s_%s%s_%s_%s" % (suffix_prefix,
+                    isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
+            suffix_prof = "_%s_%s%s_%s_%s" % (suffix_prefix_prof,
+                    isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
             function_name = "%s_%s%s_%s_%s" % (prefix,
                     isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
             function_table_name = "%s_%s%s_%s_%s" % (table_prefix,
@@ -586,6 +599,8 @@ for template_filename in template_filenames:
                     isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
             function_trace_pname = "%s_%s%s_%s_%s" % (trace_prefix_prof,
                     isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
+            params["SUFFIX"] = suffix
+            params["SUFFIX_PROF"] = suffix_prof
             params["NAME"] = "parasail_"+function_name
             params["NAME_BASE"] = string.replace(params["NAME"], "_stats", "")
             params["NAME_TABLE"] = "parasail_"+function_table_name
@@ -597,6 +612,8 @@ for template_filename in template_filenames:
             params["PNAME_ROWCOL"] = "parasail_"+function_rowcol_pname
             params["PNAME_TRACE"] = "parasail_"+function_trace_pname
             params = generated_params(template, params)
+            if 'flags' in function_name:
+                function_name = string.replace(function_name, '_flags', '')
             output_filename = "%s%s.c" % (output_dir, function_name)
             result = template % params
             writer = open(output_filename, "w")
@@ -612,21 +629,28 @@ for template_filename in special_templates:
     parts = prefix.split('_')
     width = int(parts[-1])
     parts = parts[:-1]
+    if 'sg' in parts[0]:
+        parts[0] = string.replace(parts[0], 'sg', 'sg_flags')
     prefix = "_".join(parts)
     table_prefix = ""
     rowcol_prefix = ""
     trace_prefix = ""
+    suffix_prefix = ""
     if len(parts) == 2:
         table_prefix = "%s_table_%s" % (parts[0], parts[1])
         rowcol_prefix = "%s_rowcol_%s" % (parts[0], parts[1])
         trace_prefix = "%s_trace_%s" % (parts[0], parts[1])
+        suffix_prefix = parts[1]
     if len(parts) == 3:
         table_prefix = "%s_%s_table_%s" % (parts[0], parts[1], parts[2])
         rowcol_prefix = "%s_%s_rowcol_%s" % (parts[0], parts[1], parts[2])
         trace_prefix = "%s_%s_%s" % (parts[0], parts[1], parts[2])
+        suffix_prefix = parts[2]
     for isa in [sse2,sse41,avx2,altivec,neon]:
         params = copy.deepcopy(isa)
         params["WIDTH"] = width
+        suffix = "_%s_%s%s_%s_%s" % (suffix_prefix,
+                isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
         function_name = "%s_%s%s_%s_%s" % (prefix,
                 isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
         function_table_name = "%s_%s%s_%s_%s" % (table_prefix,
@@ -635,11 +659,14 @@ for template_filename in special_templates:
                 isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
         function_trace_name = "%s_%s%s_%s_%s" % (trace_prefix,
                 isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
+        params["SUFFIX"] = suffix
         params["NAME"] = "parasail_"+function_name
         params["NAME_TABLE"] = "parasail_"+function_table_name
         params["NAME_ROWCOL"] = "parasail_"+function_rowcol_name
         params["NAME_TRACE"] = "parasail_"+function_trace_name
         params = generated_params(template, params)
+        if 'flags' in function_name:
+            function_name = string.replace(function_name, '_flags', '')
         output_filename = "%s%s.c" % (output_dir, function_name)
         result = template % params
         writer = open(output_filename, "w")
@@ -653,26 +680,36 @@ for template_filename in bias_templates:
     prefix = template_filename[:-2]
     parts = prefix.split('_')
     parts = parts[:-1]
+    if 'sg' in parts[0]:
+        parts[0] = string.replace(parts[0], 'sg', 'sg_flags')
     prefix = "_".join(parts)
     prefix_prof = prefix + "_profile"
     table_prefix = ""
     rowcol_prefix = ""
     trace_prefix = ""
+    suffix_prefix = ""
     if len(parts) == 2:
         table_prefix = "%s_table_%s" % (parts[0], parts[1])
         rowcol_prefix = "%s_rowcol_%s" % (parts[0], parts[1])
         trace_prefix = "%s_trace_%s" % (parts[0], parts[1])
+        suffix_prefix = parts[1]
     if len(parts) == 3:
         table_prefix = "%s_%s_table_%s" % (parts[0], parts[1], parts[2])
         rowcol_prefix = "%s_%s_rowcol_%s" % (parts[0], parts[1], parts[2])
         trace_prefix = "%s_%s_trace_%s" % (parts[0], parts[1], parts[2])
+        suffix_prefix = parts[2]
     table_prefix_prof = table_prefix + "_profile"
     rowcol_prefix_prof = rowcol_prefix + "_profile"
     trace_prefix_prof = trace_prefix + "_profile"
+    suffix_prefix_prof = suffix_prefix + "_profile"
     for width in [16,8]:
         for isa in [sse2,sse41,avx2,altivec,neon]:
             params = copy.deepcopy(isa)
             params["WIDTH"] = width
+            suffix = "_%s_%s%s_%s_%s" % (suffix_prefix,
+                    isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
+            suffix_prof = "_%s_%s%s_%s_%s" % (suffix_prefix_prof,
+                    isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
             function_name = "%s_%s%s_%s_%s" % (prefix,
                     isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
             function_table_name = "%s_%s%s_%s_%s" % (table_prefix,
@@ -689,6 +726,8 @@ for template_filename in bias_templates:
                     isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
             function_trace_pname = "%s_%s%s_%s_%s" % (trace_prefix_prof,
                     isa["ISA"], isa["ISA_VERSION"], isa["BITS"], width)
+            params["SUFFIX"] = suffix
+            params["SUFFIX_PROF"] = suffix_prof
             params["NAME"] = "parasail_"+function_name
             params["NAME_BASE"] = string.replace(params["NAME"], "_stats", "")
             params["NAME_TABLE"] = "parasail_"+function_table_name

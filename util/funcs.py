@@ -76,7 +76,7 @@ print "static const parasail_function_info_t functions[] = {"
 for table in ["", "_table", "_rowcol", "_trace"]:
     for stats in ["", "_stats"]:
         if 'stats' in stats and 'trace' in table: continue
-        for alg in ["nw", "sg", "sw"]:
+        for alg in ["nw", "sg", "sw", "sg_qb", "sg_qe", "sg_qx", "sg_db", "sg_de", "sg_dx", "sg_qb_de", "sg_qe_db"]:
             is_table = 0
             is_rowcol = 0
             is_trace = 0
@@ -128,7 +128,7 @@ print "static const parasail_pfunction_info_t pfunctions[] = {"
 for table in ["", "_table", "_rowcol", "_trace"]:
     for stats in ["", "_stats"]:
         if 'stats' in stats and 'trace' in table: continue
-        for alg in ["nw", "sg", "sw"]:
+        for alg in ["nw", "sg", "sw", "sg_qb", "sg_qe", "sg_qx", "sg_db", "sg_de", "sg_dx", "sg_qb_de", "sg_qe_db"]:
             is_table = 0
             is_rowcol = 0
             is_trace = 0

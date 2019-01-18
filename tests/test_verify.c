@@ -400,11 +400,27 @@ int main(int argc, char **argv)
         if (test_scores) {
             if (do_nw) check_functions(parasail_nw_sse2, sequences, limit, matrix, gap);
             if (do_sg) check_functions(parasail_sg_sse2, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qb_sse2, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qe_sse2, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qx_sse2, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_db_sse2, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_de_sse2, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_dx_sse2, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qb_de_sse2, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qe_db_sse2, sequences, limit, matrix, gap);
             if (do_sw) check_functions(parasail_sw_sse2, sequences, limit, matrix, gap);
         }
         if (test_stats) {
             if (do_nw) check_functions(parasail_nw_stats_sse2, sequences, limit, matrix, gap);
             if (do_sg) check_functions(parasail_sg_stats_sse2, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qb_stats_sse2, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qe_stats_sse2, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qx_stats_sse2, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_db_stats_sse2, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_de_stats_sse2, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_dx_stats_sse2, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qb_de_stats_sse2, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qe_db_stats_sse2, sequences, limit, matrix, gap);
             if (do_sw) check_functions(parasail_sw_stats_sse2, sequences, limit, matrix, gap);
         }
     }
@@ -415,11 +431,27 @@ int main(int argc, char **argv)
         if (test_scores) {
             if (do_nw) check_functions(parasail_nw_sse41, sequences, limit, matrix, gap);
             if (do_sg) check_functions(parasail_sg_sse41, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qb_sse41, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qe_sse41, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qx_sse41, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_db_sse41, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_de_sse41, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_dx_sse41, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qb_de_sse41, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qe_db_sse41, sequences, limit, matrix, gap);
             if (do_sw) check_functions(parasail_sw_sse41, sequences, limit, matrix, gap);
         }
         if (test_stats) {
             if (do_nw) check_functions(parasail_nw_stats_sse41, sequences, limit, matrix, gap);
             if (do_sg) check_functions(parasail_sg_stats_sse41, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qb_stats_sse41, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qe_stats_sse41, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qx_stats_sse41, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_db_stats_sse41, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_de_stats_sse41, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_dx_stats_sse41, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qb_de_stats_sse41, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qe_db_stats_sse41, sequences, limit, matrix, gap);
             if (do_sw) check_functions(parasail_sw_stats_sse41, sequences, limit, matrix, gap);
         }
     }
@@ -430,11 +462,27 @@ int main(int argc, char **argv)
         if (test_scores) {
             if (do_nw) check_functions(parasail_nw_avx2, sequences, limit, matrix, gap);
             if (do_sg) check_functions(parasail_sg_avx2, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qb_avx2, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qe_avx2, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qx_avx2, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_db_avx2, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_de_avx2, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_dx_avx2, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qb_de_avx2, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qe_db_avx2, sequences, limit, matrix, gap);
             if (do_sw) check_functions(parasail_sw_avx2, sequences, limit, matrix, gap);
         }
         if (test_stats) {
             if (do_nw) check_functions(parasail_nw_stats_avx2, sequences, limit, matrix, gap);
             if (do_sg) check_functions(parasail_sg_stats_avx2, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qb_stats_avx2, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qe_stats_avx2, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qx_stats_avx2, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_db_stats_avx2, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_de_stats_avx2, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_dx_stats_avx2, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qb_de_stats_avx2, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qe_db_stats_avx2, sequences, limit, matrix, gap);
             if (do_sw) check_functions(parasail_sw_stats_avx2, sequences, limit, matrix, gap);
         }
     }
@@ -445,11 +493,27 @@ int main(int argc, char **argv)
         if (test_scores) {
             if (do_nw) check_functions(parasail_nw_altivec, sequences, limit, matrix, gap);
             if (do_sg) check_functions(parasail_sg_altivec, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qb_altivec, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qe_altivec, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qx_altivec, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_db_altivec, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_de_altivec, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_dx_altivec, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qb_de_altivec, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qe_db_altivec, sequences, limit, matrix, gap);
             if (do_sw) check_functions(parasail_sw_altivec, sequences, limit, matrix, gap);
         }
         if (test_stats) {
             if (do_nw) check_functions(parasail_nw_stats_altivec, sequences, limit, matrix, gap);
             if (do_sg) check_functions(parasail_sg_stats_altivec, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qb_stats_altivec, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qe_stats_altivec, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qx_stats_altivec, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_db_stats_altivec, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_de_stats_altivec, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_dx_stats_altivec, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qb_de_stats_altivec, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qe_db_stats_altivec, sequences, limit, matrix, gap);
             if (do_sw) check_functions(parasail_sw_stats_altivec, sequences, limit, matrix, gap);
         }
     }
@@ -460,11 +524,27 @@ int main(int argc, char **argv)
         if (test_scores) {
             if (do_nw) check_functions(parasail_nw_neon, sequences, limit, matrix, gap);
             if (do_sg) check_functions(parasail_sg_neon, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qb_neon, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qe_neon, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qx_neon, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_db_neon, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_de_neon, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_dx_neon, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qb_de_neon, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qe_db_neon, sequences, limit, matrix, gap);
             if (do_sw) check_functions(parasail_sw_neon, sequences, limit, matrix, gap);
         }
         if (test_stats) {
             if (do_nw) check_functions(parasail_nw_stats_neon, sequences, limit, matrix, gap);
             if (do_sg) check_functions(parasail_sg_stats_neon, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qb_stats_neon, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qe_stats_neon, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qx_stats_neon, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_db_stats_neon, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_de_stats_neon, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_dx_stats_neon, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qb_de_stats_neon, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qe_db_stats_neon, sequences, limit, matrix, gap);
             if (do_sw) check_functions(parasail_sw_stats_neon, sequences, limit, matrix, gap);
         }
     }
@@ -474,11 +554,27 @@ int main(int argc, char **argv)
         if (test_scores) {
             if (do_nw) check_functions(parasail_nw_disp, sequences, limit, matrix, gap);
             if (do_sg) check_functions(parasail_sg_disp, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qb_disp, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qe_disp, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qx_disp, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_db_disp, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_de_disp, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_dx_disp, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qb_de_disp, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qe_db_disp, sequences, limit, matrix, gap);
             if (do_sw) check_functions(parasail_sw_disp, sequences, limit, matrix, gap);
         }
         if (test_stats) {
             if (do_nw) check_functions(parasail_nw_stats_disp, sequences, limit, matrix, gap);
             if (do_sg) check_functions(parasail_sg_stats_disp, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qb_stats_disp, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qe_stats_disp, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qx_stats_disp, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_db_stats_disp, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_de_stats_disp, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_dx_stats_disp, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qb_de_stats_disp, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qe_db_stats_disp, sequences, limit, matrix, gap);
             if (do_sw) check_functions(parasail_sw_stats_disp, sequences, limit, matrix, gap);
         }
     }

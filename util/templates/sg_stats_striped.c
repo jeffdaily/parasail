@@ -10,6 +10,11 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#define SG_STATS
+#define SG_SUFFIX %(SUFFIX)s
+#define SG_SUFFIX_PROF %(SUFFIX_PROF)s
+#include "sg_helper.h"
+
 %(HEADER)s
 
 #include "parasail.h"
@@ -49,43 +54,38 @@ static inline void arr_store_col(
 #ifdef PARASAIL_TABLE
 #define FNAME %(NAME_TABLE)s
 #define PNAME %(PNAME_TABLE)s
-#define INAME PNAME
-#define STATIC
 #else
 #ifdef PARASAIL_ROWCOL
 #define FNAME %(NAME_ROWCOL)s
 #define PNAME %(PNAME_ROWCOL)s
-#define INAME PNAME
-#define STATIC
 #else
 #define FNAME %(NAME)s
-#ifdef FASTSTATS
-#define PNAME %(PNAME)s_internal
-#define INAME %(PNAME)s
-#define STATIC static
-#else
 #define PNAME %(PNAME)s
-#define INAME PNAME
-#define STATIC
-#endif
+#define INAME %(PNAME)s_internal
 #endif
 #endif
 
 parasail_result_t* FNAME(
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap, const parasail_matrix_t *matrix)
+        const int open, const int gap, const parasail_matrix_t *matrix,
+        int s1_beg, int s1_end, int s2_beg, int s2_end)
 {
     parasail_profile_t *profile = parasail_profile_create_stats_%(ISA)s_%(BITS)s_%(WIDTH)s(s1, s1Len, matrix);
-    parasail_result_t *result = INAME(profile, s2, s2Len, open, gap);
+    parasail_result_t *result = PNAME(profile, s2, s2Len, open, gap, s1_beg, s1_end, s2_beg, s2_end);
     parasail_profile_free(profile);
     return result;
 }
 
-STATIC parasail_result_t* PNAME(
-        const parasail_profile_t * const restrict profile,
+#if !defined(PARASAIL_TABLE) && !defined(PARASAIL_ROWCOL) && defined(FASTSTATS)
+static parasail_result_t* INAME
+#else
+parasail_result_t* PNAME
+#endif
+        (const parasail_profile_t * const restrict profile,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
+        const int open, const int gap,
+        int s1_beg, int s1_end, int s2_beg, int s2_end)
 {
     %(INDEX)s i = 0;
     %(INDEX)s j = 0;
@@ -512,22 +512,18 @@ end:
     return result;
 }
 
-#ifdef FASTSTATS
-#ifdef PARASAIL_TABLE
-#else
-#ifdef PARASAIL_ROWCOL
-#else
-#include <assert.h>
-parasail_result_t* INAME(
+#if !defined(PARASAIL_TABLE) && !defined(PARASAIL_ROWCOL) && defined(FASTSTATS)
+parasail_result_t* PNAME(
         const parasail_profile_t * const restrict profile,
         const char * const restrict s2, const int s2Len,
-        const int open, const int gap)
+        const int open, const int gap,
+        int s1_beg, int s1_end, int s2_beg, int s2_end)
 {
     const char *s1 = profile->s1;
     const parasail_matrix_t *matrix = profile->matrix;
 
     /* find the end loc first with the faster implementation */
-    parasail_result_t *result = %(PNAME_BASE)s(profile, s2, s2Len, open, gap);
+    parasail_result_t *result = %(PNAME_BASE)s(profile, s2, s2Len, open, gap, s1_beg, s1_end, s2_beg, s2_end);
     if (!parasail_result_is_saturated(result)) {
         int s1Len_new = 0;
         int s2Len_new = 0;
@@ -542,8 +538,8 @@ parasail_result_t* INAME(
              * consider last column results */
             int stop_save = profile->stop;
             ((parasail_profile_t*)profile)->stop = 1;
-            result_final = PNAME(
-                    profile, s2, s2Len_new, open, gap);
+            result_final = INAME(
+                    profile, s2, s2Len_new, open, gap, s1_beg, s1_end, s2_beg, s2_end);
             ((parasail_profile_t*)profile)->stop = stop_save;
         }
         else {
@@ -553,8 +549,8 @@ parasail_result_t* INAME(
             /* special 'stop' value tells stats function not to
              * consider last row results */
             profile_final->stop = 0;
-            result_final = PNAME(
-                    profile_final, s2, s2Len_new, open, gap);
+            result_final = INAME(
+                    profile_final, s2, s2Len_new, open, gap, s1_beg, s1_end, s2_beg, s2_end);
 
             parasail_profile_free(profile_final);
         }
@@ -571,6 +567,7 @@ parasail_result_t* INAME(
     }
 }
 #endif
-#endif
-#endif
+
+SG_IMPL_ALL
+SG_IMPL_PROF_ALL
 

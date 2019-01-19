@@ -74,7 +74,6 @@ parasail_result_t* ENAME(
         H[0] = WH;
         for (j=1; j<=s2Len; ++j) {
             int H_dag;
-            int H_new;
             int E_opn;
             int E_ext;
             int F_opn;
@@ -88,9 +87,8 @@ parasail_result_t* ENAME(
             E_ext = E    - gap;
             E    = MAX(E_opn, E_ext);
             H_dag = NWH + matrow[s2[j-1]];
-            H_new = MAX(H_dag, E);
-            H_new = MAX(H_new, F[j]);
-            WH = H_new;
+            WH = MAX(H_dag, E);
+            WH = MAX(WH, F[j]);
             H[j] = WH;
 #ifdef PARASAIL_TABLE
             result->tables->score_table[1LL*(i-1)*s2Len + (j-1)] = WH;
@@ -122,7 +120,7 @@ parasail_result_t* ENAME(
     parasail_free(H);
     parasail_free(s2);
     parasail_free(s1);
-    
+
     return result;
 }
 

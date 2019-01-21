@@ -302,6 +302,7 @@ int main(int argc, char **argv)
     char *matrixname = NULL;
     const parasail_matrix_t *matrix = NULL;
     gap_score_t gap = {INT_MIN,INT_MIN};
+    int do_serial = 1;
     int do_sse2 = 1;
     int do_sse41 = 1;
     int do_avx2 = 1;
@@ -357,6 +358,7 @@ int main(int argc, char **argv)
                 test_scores = 0;
                 break;
             case 'i':
+                do_serial = (NULL == strstr(optarg, "serial"));
                 do_sse2 = (NULL == strstr(optarg, "sse2"));
                 do_sse41 = (NULL == strstr(optarg, "sse41"));
                 do_avx2 = (NULL == strstr(optarg, "avx2"));
@@ -412,31 +414,33 @@ int main(int argc, char **argv)
     limit = binomial_coefficient(seq_count, 2);
     printf("%lu choose 2 is %lu\n", seq_count, limit);
 
-    if (test_scores) {
-        if (do_nw) check_functions(parasail_nw_serial, sequences, limit, matrix, gap);
-        if (do_sg) check_functions(parasail_sg_serial, sequences, limit, matrix, gap);
-        if (do_sg) check_functions(parasail_sg_qb_serial, sequences, limit, matrix, gap);
-        if (do_sg) check_functions(parasail_sg_qe_serial, sequences, limit, matrix, gap);
-        if (do_sg) check_functions(parasail_sg_qx_serial, sequences, limit, matrix, gap);
-        if (do_sg) check_functions(parasail_sg_db_serial, sequences, limit, matrix, gap);
-        if (do_sg) check_functions(parasail_sg_de_serial, sequences, limit, matrix, gap);
-        if (do_sg) check_functions(parasail_sg_dx_serial, sequences, limit, matrix, gap);
-        if (do_sg) check_functions(parasail_sg_qb_de_serial, sequences, limit, matrix, gap);
-        if (do_sg) check_functions(parasail_sg_qe_db_serial, sequences, limit, matrix, gap);
-        if (do_sw) check_functions(parasail_sw_serial, sequences, limit, matrix, gap);
-    }
-    if (test_stats) {
-        if (do_nw) check_functions(parasail_nw_stats_serial, sequences, limit, matrix, gap);
-        if (do_sg) check_functions(parasail_sg_stats_serial, sequences, limit, matrix, gap);
-        if (do_sg) check_functions(parasail_sg_qb_stats_serial, sequences, limit, matrix, gap);
-        if (do_sg) check_functions(parasail_sg_qe_stats_serial, sequences, limit, matrix, gap);
-        if (do_sg) check_functions(parasail_sg_qx_stats_serial, sequences, limit, matrix, gap);
-        if (do_sg) check_functions(parasail_sg_db_stats_serial, sequences, limit, matrix, gap);
-        if (do_sg) check_functions(parasail_sg_de_stats_serial, sequences, limit, matrix, gap);
-        if (do_sg) check_functions(parasail_sg_dx_stats_serial, sequences, limit, matrix, gap);
-        if (do_sg) check_functions(parasail_sg_qb_de_stats_serial, sequences, limit, matrix, gap);
-        if (do_sg) check_functions(parasail_sg_qe_db_stats_serial, sequences, limit, matrix, gap);
-        if (do_sw) check_functions(parasail_sw_stats_serial, sequences, limit, matrix, gap);
+    if (do_serial) {
+        if (test_scores) {
+            if (do_nw) check_functions(parasail_nw_serial, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_serial, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qb_serial, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qe_serial, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qx_serial, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_db_serial, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_de_serial, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_dx_serial, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qb_de_serial, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qe_db_serial, sequences, limit, matrix, gap);
+            if (do_sw) check_functions(parasail_sw_serial, sequences, limit, matrix, gap);
+        }
+        if (test_stats) {
+            if (do_nw) check_functions(parasail_nw_stats_serial, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_stats_serial, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qb_stats_serial, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qe_stats_serial, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qx_stats_serial, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_db_stats_serial, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_de_stats_serial, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_dx_stats_serial, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qb_de_stats_serial, sequences, limit, matrix, gap);
+            if (do_sg) check_functions(parasail_sg_qe_db_stats_serial, sequences, limit, matrix, gap);
+            if (do_sw) check_functions(parasail_sw_stats_serial, sequences, limit, matrix, gap);
+        }
     }
 
 #if HAVE_SSE2

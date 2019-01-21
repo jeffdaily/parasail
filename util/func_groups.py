@@ -92,6 +92,14 @@ for table in [""]:
             print_null()
             print "};"
             print 'static parasail_function_group_t %s_%s = {"%s_%s", %s_%s_functions};' % ((pre, isa)*3)
+            # non-vectorized functions
+            isa = "serial"
+            print "static parasail_function_info_t %s_%s_functions[] = {" % (pre, isa)
+            print_fmt(pre,         pre,         alg+stats, "orig", "NA", "32", "32", 1, is_table, is_rowcol, is_trace, is_stats, 1)
+            print_fmt(pre+"_scan", pre+"_scan", alg+stats, "scan", "NA", "32", "32", 1, is_table, is_rowcol, is_trace, is_stats, 0)
+            print_null()
+            print "};"
+            print 'static parasail_function_group_t %s_%s = {"%s_%s", %s_%s_functions};' % ((pre, isa)*3)
 
 
 print """

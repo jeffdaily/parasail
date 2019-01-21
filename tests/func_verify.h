@@ -136,6 +136,12 @@ static parasail_function_info_t parasail_nw_disp_functions[] = {
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
 };
 static parasail_function_group_t parasail_nw_disp = {"parasail_nw_disp", parasail_nw_disp_functions};
+static parasail_function_info_t parasail_nw_serial_functions[] = {
+{parasail_nw,                         "parasail_nw",                         "nw",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 0, 1},
+{parasail_nw_scan,                    "parasail_nw_scan",                    "nw",    "scan", "NA",     "32", "32",  1, 0, 0, 0, 0, 0},
+{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
+};
+static parasail_function_group_t parasail_nw_serial = {"parasail_nw_serial", parasail_nw_serial_functions};
 #if HAVE_SSE2
 static parasail_function_info_t parasail_sg_sse2_functions[] = {
 {parasail_sg,                         "parasail_sg",                         "sg",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 0, 1},
@@ -257,6 +263,12 @@ static parasail_function_info_t parasail_sg_disp_functions[] = {
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
 };
 static parasail_function_group_t parasail_sg_disp = {"parasail_sg_disp", parasail_sg_disp_functions};
+static parasail_function_info_t parasail_sg_serial_functions[] = {
+{parasail_sg,                         "parasail_sg",                         "sg",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 0, 1},
+{parasail_sg_scan,                    "parasail_sg_scan",                    "sg",    "scan", "NA",     "32", "32",  1, 0, 0, 0, 0, 0},
+{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
+};
+static parasail_function_group_t parasail_sg_serial = {"parasail_sg_serial", parasail_sg_serial_functions};
 #if HAVE_SSE2
 static parasail_function_info_t parasail_sw_sse2_functions[] = {
 {parasail_sw,                         "parasail_sw",                         "sw",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 0, 1},
@@ -378,6 +390,12 @@ static parasail_function_info_t parasail_sw_disp_functions[] = {
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
 };
 static parasail_function_group_t parasail_sw_disp = {"parasail_sw_disp", parasail_sw_disp_functions};
+static parasail_function_info_t parasail_sw_serial_functions[] = {
+{parasail_sw,                         "parasail_sw",                         "sw",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 0, 1},
+{parasail_sw_scan,                    "parasail_sw_scan",                    "sw",    "scan", "NA",     "32", "32",  1, 0, 0, 0, 0, 0},
+{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
+};
+static parasail_function_group_t parasail_sw_serial = {"parasail_sw_serial", parasail_sw_serial_functions};
 #if HAVE_SSE2
 static parasail_function_info_t parasail_sg_qb_sse2_functions[] = {
 {parasail_sg_qb,                      "parasail_sg_qb",                      "sg_qb",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 0, 1},
@@ -499,6 +517,12 @@ static parasail_function_info_t parasail_sg_qb_disp_functions[] = {
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
 };
 static parasail_function_group_t parasail_sg_qb_disp = {"parasail_sg_qb_disp", parasail_sg_qb_disp_functions};
+static parasail_function_info_t parasail_sg_qb_serial_functions[] = {
+{parasail_sg_qb,                      "parasail_sg_qb",                      "sg_qb",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 0, 1},
+{parasail_sg_qb_scan,                 "parasail_sg_qb_scan",                 "sg_qb",    "scan", "NA",     "32", "32",  1, 0, 0, 0, 0, 0},
+{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
+};
+static parasail_function_group_t parasail_sg_qb_serial = {"parasail_sg_qb_serial", parasail_sg_qb_serial_functions};
 #if HAVE_SSE2
 static parasail_function_info_t parasail_sg_qe_sse2_functions[] = {
 {parasail_sg_qe,                      "parasail_sg_qe",                      "sg_qe",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 0, 1},
@@ -620,6 +644,12 @@ static parasail_function_info_t parasail_sg_qe_disp_functions[] = {
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
 };
 static parasail_function_group_t parasail_sg_qe_disp = {"parasail_sg_qe_disp", parasail_sg_qe_disp_functions};
+static parasail_function_info_t parasail_sg_qe_serial_functions[] = {
+{parasail_sg_qe,                      "parasail_sg_qe",                      "sg_qe",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 0, 1},
+{parasail_sg_qe_scan,                 "parasail_sg_qe_scan",                 "sg_qe",    "scan", "NA",     "32", "32",  1, 0, 0, 0, 0, 0},
+{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
+};
+static parasail_function_group_t parasail_sg_qe_serial = {"parasail_sg_qe_serial", parasail_sg_qe_serial_functions};
 #if HAVE_SSE2
 static parasail_function_info_t parasail_sg_qx_sse2_functions[] = {
 {parasail_sg_qx,                      "parasail_sg_qx",                      "sg_qx",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 0, 1},
@@ -741,6 +771,12 @@ static parasail_function_info_t parasail_sg_qx_disp_functions[] = {
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
 };
 static parasail_function_group_t parasail_sg_qx_disp = {"parasail_sg_qx_disp", parasail_sg_qx_disp_functions};
+static parasail_function_info_t parasail_sg_qx_serial_functions[] = {
+{parasail_sg_qx,                      "parasail_sg_qx",                      "sg_qx",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 0, 1},
+{parasail_sg_qx_scan,                 "parasail_sg_qx_scan",                 "sg_qx",    "scan", "NA",     "32", "32",  1, 0, 0, 0, 0, 0},
+{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
+};
+static parasail_function_group_t parasail_sg_qx_serial = {"parasail_sg_qx_serial", parasail_sg_qx_serial_functions};
 #if HAVE_SSE2
 static parasail_function_info_t parasail_sg_db_sse2_functions[] = {
 {parasail_sg_db,                      "parasail_sg_db",                      "sg_db",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 0, 1},
@@ -862,6 +898,12 @@ static parasail_function_info_t parasail_sg_db_disp_functions[] = {
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
 };
 static parasail_function_group_t parasail_sg_db_disp = {"parasail_sg_db_disp", parasail_sg_db_disp_functions};
+static parasail_function_info_t parasail_sg_db_serial_functions[] = {
+{parasail_sg_db,                      "parasail_sg_db",                      "sg_db",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 0, 1},
+{parasail_sg_db_scan,                 "parasail_sg_db_scan",                 "sg_db",    "scan", "NA",     "32", "32",  1, 0, 0, 0, 0, 0},
+{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
+};
+static parasail_function_group_t parasail_sg_db_serial = {"parasail_sg_db_serial", parasail_sg_db_serial_functions};
 #if HAVE_SSE2
 static parasail_function_info_t parasail_sg_de_sse2_functions[] = {
 {parasail_sg_de,                      "parasail_sg_de",                      "sg_de",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 0, 1},
@@ -983,6 +1025,12 @@ static parasail_function_info_t parasail_sg_de_disp_functions[] = {
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
 };
 static parasail_function_group_t parasail_sg_de_disp = {"parasail_sg_de_disp", parasail_sg_de_disp_functions};
+static parasail_function_info_t parasail_sg_de_serial_functions[] = {
+{parasail_sg_de,                      "parasail_sg_de",                      "sg_de",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 0, 1},
+{parasail_sg_de_scan,                 "parasail_sg_de_scan",                 "sg_de",    "scan", "NA",     "32", "32",  1, 0, 0, 0, 0, 0},
+{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
+};
+static parasail_function_group_t parasail_sg_de_serial = {"parasail_sg_de_serial", parasail_sg_de_serial_functions};
 #if HAVE_SSE2
 static parasail_function_info_t parasail_sg_dx_sse2_functions[] = {
 {parasail_sg_dx,                      "parasail_sg_dx",                      "sg_dx",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 0, 1},
@@ -1104,6 +1152,12 @@ static parasail_function_info_t parasail_sg_dx_disp_functions[] = {
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
 };
 static parasail_function_group_t parasail_sg_dx_disp = {"parasail_sg_dx_disp", parasail_sg_dx_disp_functions};
+static parasail_function_info_t parasail_sg_dx_serial_functions[] = {
+{parasail_sg_dx,                      "parasail_sg_dx",                      "sg_dx",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 0, 1},
+{parasail_sg_dx_scan,                 "parasail_sg_dx_scan",                 "sg_dx",    "scan", "NA",     "32", "32",  1, 0, 0, 0, 0, 0},
+{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
+};
+static parasail_function_group_t parasail_sg_dx_serial = {"parasail_sg_dx_serial", parasail_sg_dx_serial_functions};
 #if HAVE_SSE2
 static parasail_function_info_t parasail_sg_qb_de_sse2_functions[] = {
 {parasail_sg_qb_de,                   "parasail_sg_qb_de",                   "sg_qb_de",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 0, 1},
@@ -1225,6 +1279,12 @@ static parasail_function_info_t parasail_sg_qb_de_disp_functions[] = {
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
 };
 static parasail_function_group_t parasail_sg_qb_de_disp = {"parasail_sg_qb_de_disp", parasail_sg_qb_de_disp_functions};
+static parasail_function_info_t parasail_sg_qb_de_serial_functions[] = {
+{parasail_sg_qb_de,                   "parasail_sg_qb_de",                   "sg_qb_de",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 0, 1},
+{parasail_sg_qb_de_scan,              "parasail_sg_qb_de_scan",              "sg_qb_de",    "scan", "NA",     "32", "32",  1, 0, 0, 0, 0, 0},
+{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
+};
+static parasail_function_group_t parasail_sg_qb_de_serial = {"parasail_sg_qb_de_serial", parasail_sg_qb_de_serial_functions};
 #if HAVE_SSE2
 static parasail_function_info_t parasail_sg_qe_db_sse2_functions[] = {
 {parasail_sg_qe_db,                   "parasail_sg_qe_db",                   "sg_qe_db",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 0, 1},
@@ -1346,6 +1406,12 @@ static parasail_function_info_t parasail_sg_qe_db_disp_functions[] = {
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
 };
 static parasail_function_group_t parasail_sg_qe_db_disp = {"parasail_sg_qe_db_disp", parasail_sg_qe_db_disp_functions};
+static parasail_function_info_t parasail_sg_qe_db_serial_functions[] = {
+{parasail_sg_qe_db,                   "parasail_sg_qe_db",                   "sg_qe_db",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 0, 1},
+{parasail_sg_qe_db_scan,              "parasail_sg_qe_db_scan",              "sg_qe_db",    "scan", "NA",     "32", "32",  1, 0, 0, 0, 0, 0},
+{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
+};
+static parasail_function_group_t parasail_sg_qe_db_serial = {"parasail_sg_qe_db_serial", parasail_sg_qe_db_serial_functions};
 #if HAVE_SSE2
 static parasail_function_info_t parasail_nw_stats_sse2_functions[] = {
 {parasail_nw_stats,                   "parasail_nw_stats",                   "nw_stats",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 1, 1},
@@ -1467,6 +1533,12 @@ static parasail_function_info_t parasail_nw_stats_disp_functions[] = {
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
 };
 static parasail_function_group_t parasail_nw_stats_disp = {"parasail_nw_stats_disp", parasail_nw_stats_disp_functions};
+static parasail_function_info_t parasail_nw_stats_serial_functions[] = {
+{parasail_nw_stats,                   "parasail_nw_stats",                   "nw_stats",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 1, 1},
+{parasail_nw_stats_scan,              "parasail_nw_stats_scan",              "nw_stats",    "scan", "NA",     "32", "32",  1, 0, 0, 0, 1, 0},
+{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
+};
+static parasail_function_group_t parasail_nw_stats_serial = {"parasail_nw_stats_serial", parasail_nw_stats_serial_functions};
 #if HAVE_SSE2
 static parasail_function_info_t parasail_sg_stats_sse2_functions[] = {
 {parasail_sg_stats,                   "parasail_sg_stats",                   "sg_stats",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 1, 1},
@@ -1588,6 +1660,12 @@ static parasail_function_info_t parasail_sg_stats_disp_functions[] = {
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
 };
 static parasail_function_group_t parasail_sg_stats_disp = {"parasail_sg_stats_disp", parasail_sg_stats_disp_functions};
+static parasail_function_info_t parasail_sg_stats_serial_functions[] = {
+{parasail_sg_stats,                   "parasail_sg_stats",                   "sg_stats",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 1, 1},
+{parasail_sg_stats_scan,              "parasail_sg_stats_scan",              "sg_stats",    "scan", "NA",     "32", "32",  1, 0, 0, 0, 1, 0},
+{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
+};
+static parasail_function_group_t parasail_sg_stats_serial = {"parasail_sg_stats_serial", parasail_sg_stats_serial_functions};
 #if HAVE_SSE2
 static parasail_function_info_t parasail_sw_stats_sse2_functions[] = {
 {parasail_sw_stats,                   "parasail_sw_stats",                   "sw_stats",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 1, 1},
@@ -1709,6 +1787,12 @@ static parasail_function_info_t parasail_sw_stats_disp_functions[] = {
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
 };
 static parasail_function_group_t parasail_sw_stats_disp = {"parasail_sw_stats_disp", parasail_sw_stats_disp_functions};
+static parasail_function_info_t parasail_sw_stats_serial_functions[] = {
+{parasail_sw_stats,                   "parasail_sw_stats",                   "sw_stats",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 1, 1},
+{parasail_sw_stats_scan,              "parasail_sw_stats_scan",              "sw_stats",    "scan", "NA",     "32", "32",  1, 0, 0, 0, 1, 0},
+{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
+};
+static parasail_function_group_t parasail_sw_stats_serial = {"parasail_sw_stats_serial", parasail_sw_stats_serial_functions};
 #if HAVE_SSE2
 static parasail_function_info_t parasail_sg_qb_stats_sse2_functions[] = {
 {parasail_sg_qb_stats,                "parasail_sg_qb_stats",                "sg_qb_stats",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 1, 1},
@@ -1830,6 +1914,12 @@ static parasail_function_info_t parasail_sg_qb_stats_disp_functions[] = {
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
 };
 static parasail_function_group_t parasail_sg_qb_stats_disp = {"parasail_sg_qb_stats_disp", parasail_sg_qb_stats_disp_functions};
+static parasail_function_info_t parasail_sg_qb_stats_serial_functions[] = {
+{parasail_sg_qb_stats,                "parasail_sg_qb_stats",                "sg_qb_stats",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 1, 1},
+{parasail_sg_qb_stats_scan,           "parasail_sg_qb_stats_scan",           "sg_qb_stats",    "scan", "NA",     "32", "32",  1, 0, 0, 0, 1, 0},
+{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
+};
+static parasail_function_group_t parasail_sg_qb_stats_serial = {"parasail_sg_qb_stats_serial", parasail_sg_qb_stats_serial_functions};
 #if HAVE_SSE2
 static parasail_function_info_t parasail_sg_qe_stats_sse2_functions[] = {
 {parasail_sg_qe_stats,                "parasail_sg_qe_stats",                "sg_qe_stats",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 1, 1},
@@ -1951,6 +2041,12 @@ static parasail_function_info_t parasail_sg_qe_stats_disp_functions[] = {
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
 };
 static parasail_function_group_t parasail_sg_qe_stats_disp = {"parasail_sg_qe_stats_disp", parasail_sg_qe_stats_disp_functions};
+static parasail_function_info_t parasail_sg_qe_stats_serial_functions[] = {
+{parasail_sg_qe_stats,                "parasail_sg_qe_stats",                "sg_qe_stats",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 1, 1},
+{parasail_sg_qe_stats_scan,           "parasail_sg_qe_stats_scan",           "sg_qe_stats",    "scan", "NA",     "32", "32",  1, 0, 0, 0, 1, 0},
+{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
+};
+static parasail_function_group_t parasail_sg_qe_stats_serial = {"parasail_sg_qe_stats_serial", parasail_sg_qe_stats_serial_functions};
 #if HAVE_SSE2
 static parasail_function_info_t parasail_sg_qx_stats_sse2_functions[] = {
 {parasail_sg_qx_stats,                "parasail_sg_qx_stats",                "sg_qx_stats",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 1, 1},
@@ -2072,6 +2168,12 @@ static parasail_function_info_t parasail_sg_qx_stats_disp_functions[] = {
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
 };
 static parasail_function_group_t parasail_sg_qx_stats_disp = {"parasail_sg_qx_stats_disp", parasail_sg_qx_stats_disp_functions};
+static parasail_function_info_t parasail_sg_qx_stats_serial_functions[] = {
+{parasail_sg_qx_stats,                "parasail_sg_qx_stats",                "sg_qx_stats",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 1, 1},
+{parasail_sg_qx_stats_scan,           "parasail_sg_qx_stats_scan",           "sg_qx_stats",    "scan", "NA",     "32", "32",  1, 0, 0, 0, 1, 0},
+{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
+};
+static parasail_function_group_t parasail_sg_qx_stats_serial = {"parasail_sg_qx_stats_serial", parasail_sg_qx_stats_serial_functions};
 #if HAVE_SSE2
 static parasail_function_info_t parasail_sg_db_stats_sse2_functions[] = {
 {parasail_sg_db_stats,                "parasail_sg_db_stats",                "sg_db_stats",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 1, 1},
@@ -2193,6 +2295,12 @@ static parasail_function_info_t parasail_sg_db_stats_disp_functions[] = {
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
 };
 static parasail_function_group_t parasail_sg_db_stats_disp = {"parasail_sg_db_stats_disp", parasail_sg_db_stats_disp_functions};
+static parasail_function_info_t parasail_sg_db_stats_serial_functions[] = {
+{parasail_sg_db_stats,                "parasail_sg_db_stats",                "sg_db_stats",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 1, 1},
+{parasail_sg_db_stats_scan,           "parasail_sg_db_stats_scan",           "sg_db_stats",    "scan", "NA",     "32", "32",  1, 0, 0, 0, 1, 0},
+{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
+};
+static parasail_function_group_t parasail_sg_db_stats_serial = {"parasail_sg_db_stats_serial", parasail_sg_db_stats_serial_functions};
 #if HAVE_SSE2
 static parasail_function_info_t parasail_sg_de_stats_sse2_functions[] = {
 {parasail_sg_de_stats,                "parasail_sg_de_stats",                "sg_de_stats",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 1, 1},
@@ -2314,6 +2422,12 @@ static parasail_function_info_t parasail_sg_de_stats_disp_functions[] = {
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
 };
 static parasail_function_group_t parasail_sg_de_stats_disp = {"parasail_sg_de_stats_disp", parasail_sg_de_stats_disp_functions};
+static parasail_function_info_t parasail_sg_de_stats_serial_functions[] = {
+{parasail_sg_de_stats,                "parasail_sg_de_stats",                "sg_de_stats",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 1, 1},
+{parasail_sg_de_stats_scan,           "parasail_sg_de_stats_scan",           "sg_de_stats",    "scan", "NA",     "32", "32",  1, 0, 0, 0, 1, 0},
+{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
+};
+static parasail_function_group_t parasail_sg_de_stats_serial = {"parasail_sg_de_stats_serial", parasail_sg_de_stats_serial_functions};
 #if HAVE_SSE2
 static parasail_function_info_t parasail_sg_dx_stats_sse2_functions[] = {
 {parasail_sg_dx_stats,                "parasail_sg_dx_stats",                "sg_dx_stats",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 1, 1},
@@ -2435,6 +2549,12 @@ static parasail_function_info_t parasail_sg_dx_stats_disp_functions[] = {
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
 };
 static parasail_function_group_t parasail_sg_dx_stats_disp = {"parasail_sg_dx_stats_disp", parasail_sg_dx_stats_disp_functions};
+static parasail_function_info_t parasail_sg_dx_stats_serial_functions[] = {
+{parasail_sg_dx_stats,                "parasail_sg_dx_stats",                "sg_dx_stats",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 1, 1},
+{parasail_sg_dx_stats_scan,           "parasail_sg_dx_stats_scan",           "sg_dx_stats",    "scan", "NA",     "32", "32",  1, 0, 0, 0, 1, 0},
+{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
+};
+static parasail_function_group_t parasail_sg_dx_stats_serial = {"parasail_sg_dx_stats_serial", parasail_sg_dx_stats_serial_functions};
 #if HAVE_SSE2
 static parasail_function_info_t parasail_sg_qb_de_stats_sse2_functions[] = {
 {parasail_sg_qb_de_stats,             "parasail_sg_qb_de_stats",             "sg_qb_de_stats",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 1, 1},
@@ -2556,6 +2676,12 @@ static parasail_function_info_t parasail_sg_qb_de_stats_disp_functions[] = {
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
 };
 static parasail_function_group_t parasail_sg_qb_de_stats_disp = {"parasail_sg_qb_de_stats_disp", parasail_sg_qb_de_stats_disp_functions};
+static parasail_function_info_t parasail_sg_qb_de_stats_serial_functions[] = {
+{parasail_sg_qb_de_stats,             "parasail_sg_qb_de_stats",             "sg_qb_de_stats",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 1, 1},
+{parasail_sg_qb_de_stats_scan,        "parasail_sg_qb_de_stats_scan",        "sg_qb_de_stats",    "scan", "NA",     "32", "32",  1, 0, 0, 0, 1, 0},
+{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
+};
+static parasail_function_group_t parasail_sg_qb_de_stats_serial = {"parasail_sg_qb_de_stats_serial", parasail_sg_qb_de_stats_serial_functions};
 #if HAVE_SSE2
 static parasail_function_info_t parasail_sg_qe_db_stats_sse2_functions[] = {
 {parasail_sg_qe_db_stats,             "parasail_sg_qe_db_stats",             "sg_qe_db_stats",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 1, 1},
@@ -2677,6 +2803,12 @@ static parasail_function_info_t parasail_sg_qe_db_stats_disp_functions[] = {
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
 };
 static parasail_function_group_t parasail_sg_qe_db_stats_disp = {"parasail_sg_qe_db_stats_disp", parasail_sg_qe_db_stats_disp_functions};
+static parasail_function_info_t parasail_sg_qe_db_stats_serial_functions[] = {
+{parasail_sg_qe_db_stats,             "parasail_sg_qe_db_stats",             "sg_qe_db_stats",    "orig", "NA",     "32", "32",  1, 0, 0, 0, 1, 1},
+{parasail_sg_qe_db_stats_scan,        "parasail_sg_qe_db_stats_scan",        "sg_qe_db_stats",    "scan", "NA",     "32", "32",  1, 0, 0, 0, 1, 0},
+{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 0, 0, 0}
+};
+static parasail_function_group_t parasail_sg_qe_db_stats_serial = {"parasail_sg_qe_db_stats_serial", parasail_sg_qe_db_stats_serial_functions};
 
 #endif /* _PARASAIL_FUNCTION_GROUP_H_ */
 

@@ -27,6 +27,7 @@
 #include "func_verify.h"
 
 static int verbose = 0;
+static int exit_on_mismatch = 0;
 
 typedef struct gap_score {
     int open;
@@ -138,16 +139,20 @@ static void check_functions(
                     parasail_result_t *result = NULL;
                     unsigned long a = 0;
                     unsigned long b = 1;
+                    size_t size_a = 0;
+                    size_t size_b = 0;
                     k_combination2(pair_index, &a, &b);
                     if (verbose ) printf("\t\t\t\tpair=%lld (%lu,%lu)\n", pair_index, a, b);
+                    size_a = sequences->seqs[a].seq.l;
+                    size_b = sequences->seqs[b].seq.l;
                     reference_result = reference_function(
-                            sequences->seqs[a].seq.s, sequences->seqs[a].seq.l,
-                            sequences->seqs[b].seq.s, sequences->seqs[b].seq.l,
+                            sequences->seqs[a].seq.s, size_a,
+                            sequences->seqs[b].seq.s, size_b,
                             open, extend,
                             matrix);
                     result = functions[function_index].pointer(
-                            sequences->seqs[a].seq.s, sequences->seqs[a].seq.l,
-                            sequences->seqs[b].seq.s, sequences->seqs[b].seq.l,
+                            sequences->seqs[a].seq.s, size_a,
+                            sequences->seqs[b].seq.s, size_b,
                             open, extend,
                             matrix);
                     if (PARASAIL_FLAG_INVALID & reference_result->flag) {
@@ -158,6 +163,7 @@ static void check_functions(
                                     a, b, open, extend,
                                     matrixname,
                                     reference_result->flag, PARASAIL_FLAG_INVALID);
+                            if (exit_on_mismatch) exit(EXIT_FAILURE);
                         }
                     }
                     if (PARASAIL_FLAG_INVALID & result->flag) {
@@ -168,6 +174,7 @@ static void check_functions(
                                     a, b, open, extend,
                                     matrixname,
                                     result->flag, PARASAIL_FLAG_INVALID);
+                            if (exit_on_mismatch) exit(EXIT_FAILURE);
                         }
                     }
                     if (!check_flags(reference_result->flag, result->flag)) {
@@ -178,6 +185,7 @@ static void check_functions(
                                     a, b, open, extend,
                                     matrixname,
                                     reference_result->flag, result->flag);
+                            if (exit_on_mismatch) exit(EXIT_FAILURE);
                         }
                     }
                     if (parasail_result_is_saturated(result)) {
@@ -196,6 +204,7 @@ static void check_functions(
                                     a, b, open, extend,
                                     matrixname,
                                     reference_result->score, result->score);
+                            if (exit_on_mismatch) exit(EXIT_FAILURE);
                         }
                     }
                     if (reference_result->end_query != result->end_query) {
@@ -206,6 +215,7 @@ static void check_functions(
                                     a, b, open, extend,
                                     matrixname,
                                     reference_result->end_query, result->end_query);
+                            if (exit_on_mismatch) exit(EXIT_FAILURE);
                         }
                     }
                     if (reference_result->end_ref != result->end_ref) {
@@ -216,6 +226,7 @@ static void check_functions(
                                     a, b, open, extend,
                                     matrixname,
                                     reference_result->end_ref, result->end_ref);
+                            if (exit_on_mismatch) exit(EXIT_FAILURE);
                         }
                     }
                     if (parasail_result_is_stats(result)) {
@@ -233,6 +244,7 @@ static void check_functions(
                                         a, b, open, extend,
                                         matrixname,
                                         ref_matches, matches);
+                                if (exit_on_mismatch) exit(EXIT_FAILURE);
                             }
                         }
                         if (ref_similar != similar) {
@@ -243,6 +255,7 @@ static void check_functions(
                                         a, b, open, extend,
                                         matrixname,
                                         ref_similar, similar);
+                                if (exit_on_mismatch) exit(EXIT_FAILURE);
                             }
                         }
                         if (ref_length != length) {
@@ -253,6 +266,7 @@ static void check_functions(
                                         a, b, open, extend,
                                         matrixname,
                                         ref_length, length);
+                                if (exit_on_mismatch) exit(EXIT_FAILURE);
                             }
                         }
                     }
@@ -298,7 +312,7 @@ int main(int argc, char **argv)
     int do_sg = 1;
     int do_sw = 1;
 
-    while ((c = getopt(argc, argv, "f:m:n:o:e:vsSi:")) != -1) {
+    while ((c = getopt(argc, argv, "f:m:n:o:e:vsSi:E")) != -1) {
         switch (c) {
             case 'f':
                 filename = optarg;
@@ -332,6 +346,9 @@ int main(int argc, char **argv)
                 break;
             case 'v':
                 verbose = 1;
+                break;
+            case 'E':
+                exit_on_mismatch = 1;
                 break;
             case 's':
                 test_stats = 1;
@@ -394,6 +411,33 @@ int main(int argc, char **argv)
 
     limit = binomial_coefficient(seq_count, 2);
     printf("%lu choose 2 is %lu\n", seq_count, limit);
+
+    if (test_scores) {
+        if (do_nw) check_functions(parasail_nw_serial, sequences, limit, matrix, gap);
+        if (do_sg) check_functions(parasail_sg_serial, sequences, limit, matrix, gap);
+        if (do_sg) check_functions(parasail_sg_qb_serial, sequences, limit, matrix, gap);
+        if (do_sg) check_functions(parasail_sg_qe_serial, sequences, limit, matrix, gap);
+        if (do_sg) check_functions(parasail_sg_qx_serial, sequences, limit, matrix, gap);
+        if (do_sg) check_functions(parasail_sg_db_serial, sequences, limit, matrix, gap);
+        if (do_sg) check_functions(parasail_sg_de_serial, sequences, limit, matrix, gap);
+        if (do_sg) check_functions(parasail_sg_dx_serial, sequences, limit, matrix, gap);
+        if (do_sg) check_functions(parasail_sg_qb_de_serial, sequences, limit, matrix, gap);
+        if (do_sg) check_functions(parasail_sg_qe_db_serial, sequences, limit, matrix, gap);
+        if (do_sw) check_functions(parasail_sw_serial, sequences, limit, matrix, gap);
+    }
+    if (test_stats) {
+        if (do_nw) check_functions(parasail_nw_stats_serial, sequences, limit, matrix, gap);
+        if (do_sg) check_functions(parasail_sg_stats_serial, sequences, limit, matrix, gap);
+        if (do_sg) check_functions(parasail_sg_qb_stats_serial, sequences, limit, matrix, gap);
+        if (do_sg) check_functions(parasail_sg_qe_stats_serial, sequences, limit, matrix, gap);
+        if (do_sg) check_functions(parasail_sg_qx_stats_serial, sequences, limit, matrix, gap);
+        if (do_sg) check_functions(parasail_sg_db_stats_serial, sequences, limit, matrix, gap);
+        if (do_sg) check_functions(parasail_sg_de_stats_serial, sequences, limit, matrix, gap);
+        if (do_sg) check_functions(parasail_sg_dx_stats_serial, sequences, limit, matrix, gap);
+        if (do_sg) check_functions(parasail_sg_qb_de_stats_serial, sequences, limit, matrix, gap);
+        if (do_sg) check_functions(parasail_sg_qe_db_stats_serial, sequences, limit, matrix, gap);
+        if (do_sw) check_functions(parasail_sw_stats_serial, sequences, limit, matrix, gap);
+    }
 
 #if HAVE_SSE2
     if (do_sse2 && parasail_can_use_sse2()) {

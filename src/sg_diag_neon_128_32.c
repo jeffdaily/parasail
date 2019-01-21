@@ -125,21 +125,29 @@ parasail_result_t* FNAME(
     int32_t end_ref = 0;
     int32_t score = NEG_INF;
     simde__m128i vNegInf = simde_mm_set1_epi32(NEG_INF);
-    simde__m128i vNegInf0 = simde_mm_srli_si128(vNegInf, 4); /* shift in a 0 */
     simde__m128i vOpen = simde_mm_set1_epi32(open);
     simde__m128i vGap  = simde_mm_set1_epi32(gap);
     simde__m128i vOne = simde_mm_set1_epi32(1);
     simde__m128i vN = simde_mm_set1_epi32(N);
+    simde__m128i vGapN = s1_beg ? simde_mm_set1_epi32(0) : simde_mm_set1_epi32(gap*N);
     simde__m128i vNegOne = simde_mm_set1_epi32(-1);
     simde__m128i vI = simde_mm_set_epi32(0,1,2,3);
     simde__m128i vJreset = simde_mm_set_epi32(0,-1,-2,-3);
-    simde__m128i vMaxH = vNegInf;
+    simde__m128i vMaxHRow = vNegInf;
+    simde__m128i vMaxHCol = vNegInf;
+    simde__m128i vLastVal = vNegInf;
     simde__m128i vEndI = vNegInf;
     simde__m128i vEndJ = vNegInf;
     simde__m128i vILimit = simde_mm_set1_epi32(s1Len);
     simde__m128i vILimit1 = simde_mm_sub_epi32(vILimit, vOne);
     simde__m128i vJLimit = simde_mm_set1_epi32(s2Len);
     simde__m128i vJLimit1 = simde_mm_sub_epi32(vJLimit, vOne);
+    simde__m128i vIBoundary = s1_beg ? simde_mm_set1_epi32(0) : simde_mm_set_epi32(
+            -open-0*gap,
+            -open-1*gap,
+            -open-2*gap,
+            -open-3*gap
+            );
     
 
     /* convert _s1 from char to int in range 0-23 */
@@ -165,9 +173,17 @@ parasail_result_t* FNAME(
     }
 
     /* set initial values for stored row */
-    for (j=0; j<s2Len; ++j) {
-        H_pr[j] = 0;
-        F_pr[j] = NEG_INF;
+    if (s2_beg) {
+        for (j=0; j<s2Len; ++j) {
+            H_pr[j] = 0;
+            F_pr[j] = NEG_INF;
+        }
+    }
+    else {
+        for (j=0; j<s2Len; ++j) {
+            H_pr[j] = -open - j*gap;
+            F_pr[j] = NEG_INF;
+        }
     }
     /* pad front of stored row values */
     for (j=-PAD; j<0; ++j) {
@@ -179,11 +195,12 @@ parasail_result_t* FNAME(
         H_pr[j] = NEG_INF;
         F_pr[j] = NEG_INF;
     }
+    H_pr[-1] = 0; /* upper left corner */
 
     /* iterate over query sequence */
     for (i=0; i<s1Len; i+=N) {
-        simde__m128i vNH = vNegInf0;
-        simde__m128i vWH = vNegInf0;
+        simde__m128i vNH = vNegInf;
+        simde__m128i vWH = vNegInf;
         simde__m128i vE = vNegInf;
         simde__m128i vF = vNegInf;
         simde__m128i vJ = vJreset;
@@ -193,6 +210,11 @@ parasail_result_t* FNAME(
         const int * const restrict matrow3 = &matrix->matrix[matrix->size*s1[i+3]];
         simde__m128i vIltLimit = simde_mm_cmplt_epi32(vI, vILimit);
         simde__m128i vIeqLimit1 = simde_mm_cmpeq_epi32(vI, vILimit1);
+        vNH = simde_mm_srli_si128(vNH, 4);
+        vNH = simde_mm_insert_epi32(vNH, H_pr[-1], 3);
+        vWH = simde_mm_srli_si128(vWH, 4);
+        vWH = simde_mm_insert_epi32(vWH, s1_beg ? 0 : (-open - i*gap), 3);
+        H_pr[-1] = -open - (i+N)*gap;
         /* iterate over database sequence */
         for (j=0; j<s2Len+PAD; ++j) {
             simde__m128i vMat;
@@ -220,7 +242,7 @@ parasail_result_t* FNAME(
              * assign the appropriate boundary conditions */
             {
                 simde__m128i cond = simde_mm_cmpeq_epi32(vJ,vNegOne);
-                vWH = simde_mm_andnot_si128(cond, vWH);
+                vWH = simde_mm_blendv_epi8(vWH, vIBoundary, cond);
                 vF = simde_mm_blendv_epi8(vF, vNegInf, cond);
                 vE = simde_mm_blendv_epi8(vE, vNegInf, cond);
             }
@@ -242,46 +264,69 @@ parasail_result_t* FNAME(
                 simde__m128i cond_j = simde_mm_and_si128(vIltLimit, vJeqLimit1);
                 simde__m128i cond_i = simde_mm_and_si128(vIeqLimit1,
                         simde_mm_and_si128(vJgtNegOne, vJltLimit));
-                simde__m128i cond_valid_IJ = simde_mm_or_si128(cond_i, cond_j);
-                simde__m128i cond_eq = simde_mm_cmpeq_epi32(vWH, vMaxH);
-                simde__m128i cond_max = simde_mm_cmpgt_epi32(vWH, vMaxH);
-                simde__m128i cond_all = simde_mm_and_si128(cond_max, cond_valid_IJ);
-                simde__m128i cond_Jlt = simde_mm_cmplt_epi32(vJ, vEndJ);
-                vMaxH = simde_mm_blendv_epi8(vMaxH, vWH, cond_all);
-                vEndI = simde_mm_blendv_epi8(vEndI, vI, cond_all);
-                vEndJ = simde_mm_blendv_epi8(vEndJ, vJ, cond_all);
-                cond_all = simde_mm_and_si128(cond_Jlt, cond_eq);
-                cond_all = simde_mm_and_si128(cond_all, cond_valid_IJ);
-                vEndI = simde_mm_blendv_epi8(vEndI, vI, cond_all);
-                vEndJ = simde_mm_blendv_epi8(vEndJ, vJ, cond_all);
+                simde__m128i cond_max_row = simde_mm_cmpgt_epi32(vWH, vMaxHRow);
+                simde__m128i cond_max_col = simde_mm_cmpgt_epi32(vWH, vMaxHCol);
+                simde__m128i cond_last_val = simde_mm_and_si128(vIeqLimit1, vJeqLimit1);
+                simde__m128i cond_all_row = simde_mm_and_si128(cond_max_row, cond_i);
+                simde__m128i cond_all_col = simde_mm_and_si128(cond_max_col, cond_j);
+                vMaxHRow = simde_mm_blendv_epi8(vMaxHRow, vWH, cond_all_row);
+                vMaxHCol = simde_mm_blendv_epi8(vMaxHCol, vWH, cond_all_col);
+                vLastVal = simde_mm_blendv_epi8(vLastVal, vWH, cond_last_val);
+                vEndI = simde_mm_blendv_epi8(vEndI, vI, cond_all_col);
+                vEndJ = simde_mm_blendv_epi8(vEndJ, vJ, cond_all_row);
             }
             vJ = simde_mm_add_epi32(vJ, vOne);
         }
         vI = simde_mm_add_epi32(vI, vN);
+        vIBoundary = simde_mm_sub_epi32(vIBoundary, vGapN);
     }
 
     /* alignment ending position */
     {
-        int32_t *t = (int32_t*)&vMaxH;
+        int32_t max_row = NEG_INF;
+        int32_t max_col = NEG_INF;
+        int32_t last_val = NEG_INF;
+        int32_t *s = (int32_t*)&vMaxHRow;
+        int32_t *t = (int32_t*)&vMaxHCol;
+        int32_t *u = (int32_t*)&vLastVal;
         int32_t *i = (int32_t*)&vEndI;
         int32_t *j = (int32_t*)&vEndJ;
         int32_t k;
-        for (k=0; k<N; ++k, ++t, ++i, ++j) {
-            if (*t > score) {
-                score = *t;
+        for (k=0; k<N; ++k, ++s, ++t, ++u, ++i, ++j) {
+            if (*t > max_col || (*t == max_col && *i < end_query)) {
+                max_col = *t;
                 end_query = *i;
+            }
+            if (*s > max_row) {
+                max_row = *s;
                 end_ref = *j;
             }
-            else if (*t == score) {
-                if (*j < end_ref) {
-                    end_query = *i;
-                    end_ref = *j;
-                }
-                else if (*j == end_ref && *i < end_query) {
-                    end_query = *i;
-                    end_ref = *j;
-                }
+            if (*u > last_val) {
+                last_val = *u;
             }
+        }
+        if (s1_end && s2_end) {
+            if (max_col >= max_row) {
+                score = max_col;
+                end_ref = s2Len-1;
+            }
+            else {
+                score = max_row;
+                end_query = s1Len-1;
+            }
+        }
+        else if (s1_end) {
+            score = max_col;
+            end_ref = s2Len-1;
+        }
+        else if (s2_end) {
+            score = max_row;
+            end_query = s1Len-1;
+        }
+        else {
+            score = last_val;
+            end_query = s1Len-1;
+            end_ref = s2Len-1;
         }
     }
 
@@ -292,6 +337,10 @@ parasail_result_t* FNAME(
     result->end_ref = end_ref;
     result->flag |= PARASAIL_FLAG_SG | PARASAIL_FLAG_DIAG
         | PARASAIL_FLAG_BITS_32 | PARASAIL_FLAG_LANES_4;
+    result->flag |= s1_beg ? PARASAIL_FLAG_SG_S1_BEG : 0;
+    result->flag |= s1_end ? PARASAIL_FLAG_SG_S1_END : 0;
+    result->flag |= s2_beg ? PARASAIL_FLAG_SG_S2_BEG : 0;
+    result->flag |= s2_end ? PARASAIL_FLAG_SG_S2_END : 0;
 #ifdef PARASAIL_TABLE
     result->flag |= PARASAIL_FLAG_TABLE;
 #endif

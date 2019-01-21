@@ -125,21 +125,29 @@ parasail_result_t* FNAME(
     int32_t end_ref = 0;
     int32_t score = NEG_INF;
     vec128i vNegInf = _mm_set1_epi32(NEG_INF);
-    vec128i vNegInf0 = _mm_srli_si128(vNegInf, 4); /* shift in a 0 */
     vec128i vOpen = _mm_set1_epi32(open);
     vec128i vGap  = _mm_set1_epi32(gap);
     vec128i vOne = _mm_set1_epi32(1);
     vec128i vN = _mm_set1_epi32(N);
+    vec128i vGapN = s1_beg ? _mm_set1_epi32(0) : _mm_set1_epi32(gap*N);
     vec128i vNegOne = _mm_set1_epi32(-1);
     vec128i vI = _mm_set_epi32(0,1,2,3);
     vec128i vJreset = _mm_set_epi32(0,-1,-2,-3);
-    vec128i vMaxH = vNegInf;
+    vec128i vMaxHRow = vNegInf;
+    vec128i vMaxHCol = vNegInf;
+    vec128i vLastVal = vNegInf;
     vec128i vEndI = vNegInf;
     vec128i vEndJ = vNegInf;
     vec128i vILimit = _mm_set1_epi32(s1Len);
     vec128i vILimit1 = _mm_sub_epi32(vILimit, vOne);
     vec128i vJLimit = _mm_set1_epi32(s2Len);
     vec128i vJLimit1 = _mm_sub_epi32(vJLimit, vOne);
+    vec128i vIBoundary = s1_beg ? _mm_set1_epi32(0) : _mm_set_epi32(
+            -open-0*gap,
+            -open-1*gap,
+            -open-2*gap,
+            -open-3*gap
+            );
     
 
     /* convert _s1 from char to int in range 0-23 */
@@ -165,9 +173,17 @@ parasail_result_t* FNAME(
     }
 
     /* set initial values for stored row */
-    for (j=0; j<s2Len; ++j) {
-        H_pr[j] = 0;
-        F_pr[j] = NEG_INF;
+    if (s2_beg) {
+        for (j=0; j<s2Len; ++j) {
+            H_pr[j] = 0;
+            F_pr[j] = NEG_INF;
+        }
+    }
+    else {
+        for (j=0; j<s2Len; ++j) {
+            H_pr[j] = -open - j*gap;
+            F_pr[j] = NEG_INF;
+        }
     }
     /* pad front of stored row values */
     for (j=-PAD; j<0; ++j) {
@@ -179,11 +195,12 @@ parasail_result_t* FNAME(
         H_pr[j] = NEG_INF;
         F_pr[j] = NEG_INF;
     }
+    H_pr[-1] = 0; /* upper left corner */
 
     /* iterate over query sequence */
     for (i=0; i<s1Len; i+=N) {
-        vec128i vNH = vNegInf0;
-        vec128i vWH = vNegInf0;
+        vec128i vNH = vNegInf;
+        vec128i vWH = vNegInf;
         vec128i vE = vNegInf;
         vec128i vF = vNegInf;
         vec128i vJ = vJreset;
@@ -193,6 +210,11 @@ parasail_result_t* FNAME(
         const int * const restrict matrow3 = &matrix->matrix[matrix->size*s1[i+3]];
         vec128i vIltLimit = _mm_cmplt_epi32(vI, vILimit);
         vec128i vIeqLimit1 = _mm_cmpeq_epi32(vI, vILimit1);
+        vNH = _mm_srli_si128(vNH, 4);
+        vNH = _mm_insert_epi32(vNH, H_pr[-1], 3);
+        vWH = _mm_srli_si128(vWH, 4);
+        vWH = _mm_insert_epi32(vWH, s1_beg ? 0 : (-open - i*gap), 3);
+        H_pr[-1] = -open - (i+N)*gap;
         /* iterate over database sequence */
         for (j=0; j<s2Len+PAD; ++j) {
             vec128i vMat;
@@ -220,7 +242,7 @@ parasail_result_t* FNAME(
              * assign the appropriate boundary conditions */
             {
                 vec128i cond = _mm_cmpeq_epi32(vJ,vNegOne);
-                vWH = _mm_andnot_si128(cond, vWH);
+                vWH = _mm_blendv_epi8(vWH, vIBoundary, cond);
                 vF = _mm_blendv_epi8(vF, vNegInf, cond);
                 vE = _mm_blendv_epi8(vE, vNegInf, cond);
             }
@@ -242,46 +264,69 @@ parasail_result_t* FNAME(
                 vec128i cond_j = _mm_and_si128(vIltLimit, vJeqLimit1);
                 vec128i cond_i = _mm_and_si128(vIeqLimit1,
                         _mm_and_si128(vJgtNegOne, vJltLimit));
-                vec128i cond_valid_IJ = _mm_or_si128(cond_i, cond_j);
-                vec128i cond_eq = _mm_cmpeq_epi32(vWH, vMaxH);
-                vec128i cond_max = _mm_cmpgt_epi32(vWH, vMaxH);
-                vec128i cond_all = _mm_and_si128(cond_max, cond_valid_IJ);
-                vec128i cond_Jlt = _mm_cmplt_epi32(vJ, vEndJ);
-                vMaxH = _mm_blendv_epi8(vMaxH, vWH, cond_all);
-                vEndI = _mm_blendv_epi8(vEndI, vI, cond_all);
-                vEndJ = _mm_blendv_epi8(vEndJ, vJ, cond_all);
-                cond_all = _mm_and_si128(cond_Jlt, cond_eq);
-                cond_all = _mm_and_si128(cond_all, cond_valid_IJ);
-                vEndI = _mm_blendv_epi8(vEndI, vI, cond_all);
-                vEndJ = _mm_blendv_epi8(vEndJ, vJ, cond_all);
+                vec128i cond_max_row = _mm_cmpgt_epi32(vWH, vMaxHRow);
+                vec128i cond_max_col = _mm_cmpgt_epi32(vWH, vMaxHCol);
+                vec128i cond_last_val = _mm_and_si128(vIeqLimit1, vJeqLimit1);
+                vec128i cond_all_row = _mm_and_si128(cond_max_row, cond_i);
+                vec128i cond_all_col = _mm_and_si128(cond_max_col, cond_j);
+                vMaxHRow = _mm_blendv_epi8(vMaxHRow, vWH, cond_all_row);
+                vMaxHCol = _mm_blendv_epi8(vMaxHCol, vWH, cond_all_col);
+                vLastVal = _mm_blendv_epi8(vLastVal, vWH, cond_last_val);
+                vEndI = _mm_blendv_epi8(vEndI, vI, cond_all_col);
+                vEndJ = _mm_blendv_epi8(vEndJ, vJ, cond_all_row);
             }
             vJ = _mm_add_epi32(vJ, vOne);
         }
         vI = _mm_add_epi32(vI, vN);
+        vIBoundary = _mm_sub_epi32(vIBoundary, vGapN);
     }
 
     /* alignment ending position */
     {
-        int32_t *t = (int32_t*)&vMaxH;
+        int32_t max_row = NEG_INF;
+        int32_t max_col = NEG_INF;
+        int32_t last_val = NEG_INF;
+        int32_t *s = (int32_t*)&vMaxHRow;
+        int32_t *t = (int32_t*)&vMaxHCol;
+        int32_t *u = (int32_t*)&vLastVal;
         int32_t *i = (int32_t*)&vEndI;
         int32_t *j = (int32_t*)&vEndJ;
         int32_t k;
-        for (k=0; k<N; ++k, ++t, ++i, ++j) {
-            if (*t > score) {
-                score = *t;
+        for (k=0; k<N; ++k, ++s, ++t, ++u, ++i, ++j) {
+            if (*t > max_col || (*t == max_col && *i < end_query)) {
+                max_col = *t;
                 end_query = *i;
+            }
+            if (*s > max_row) {
+                max_row = *s;
                 end_ref = *j;
             }
-            else if (*t == score) {
-                if (*j < end_ref) {
-                    end_query = *i;
-                    end_ref = *j;
-                }
-                else if (*j == end_ref && *i < end_query) {
-                    end_query = *i;
-                    end_ref = *j;
-                }
+            if (*u > last_val) {
+                last_val = *u;
             }
+        }
+        if (s1_end && s2_end) {
+            if (max_col >= max_row) {
+                score = max_col;
+                end_ref = s2Len-1;
+            }
+            else {
+                score = max_row;
+                end_query = s1Len-1;
+            }
+        }
+        else if (s1_end) {
+            score = max_col;
+            end_ref = s2Len-1;
+        }
+        else if (s2_end) {
+            score = max_row;
+            end_query = s1Len-1;
+        }
+        else {
+            score = last_val;
+            end_query = s1Len-1;
+            end_ref = s2Len-1;
         }
     }
 
@@ -292,6 +337,10 @@ parasail_result_t* FNAME(
     result->end_ref = end_ref;
     result->flag |= PARASAIL_FLAG_SG | PARASAIL_FLAG_DIAG
         | PARASAIL_FLAG_BITS_32 | PARASAIL_FLAG_LANES_4;
+    result->flag |= s1_beg ? PARASAIL_FLAG_SG_S1_BEG : 0;
+    result->flag |= s1_end ? PARASAIL_FLAG_SG_S1_END : 0;
+    result->flag |= s2_beg ? PARASAIL_FLAG_SG_S2_BEG : 0;
+    result->flag |= s2_end ? PARASAIL_FLAG_SG_S2_END : 0;
 #ifdef PARASAIL_TABLE
     result->flag |= PARASAIL_FLAG_TABLE;
 #endif

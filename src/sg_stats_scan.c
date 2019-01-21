@@ -90,11 +90,21 @@ parasail_result_t* FNAME(
     HS[-1] = 0;
     HL[-1] = 0;
     Ht[-1] = 0;
-    for (i=0; i<s1Len; ++i) {
-        H[i] = 0;
-        HM[i] = 0;
-        HS[i] = 0;
-        HL[i] = 0;
+    if (s1_beg) {
+        for (i=0; i<s1Len; ++i) {
+            H[i] = 0;
+            HM[i] = 0;
+            HS[i] = 0;
+            HL[i] = 0;
+        }
+    }
+    else {
+        for (i=0; i<s1Len; ++i) {
+            H[i] = -open -i*gap;
+            HM[i] = 0;
+            HS[i] = 0;
+            HL[i] = 0;
+        }
     }
 
     /* initialize E */
@@ -128,7 +138,7 @@ parasail_result_t* FNAME(
             EL[i] += 1;
         }
         /* calculate Ht */
-        Ht[-1] = 0;
+        Ht[-1] = s2_beg ? 0 : (-open -j*gap);
         for (i=0; i<s1Len; ++i) {
             int H_dag = H[i-1]+matcol[s1[i]];
             Ex[i] = (E[i] > H_dag);
@@ -197,7 +207,7 @@ parasail_result_t* FNAME(
             result->stats->tables->length_table[1LL*i*s2Len + j] = HL[i];
 #endif
         }
-        H[-1] = 0;
+        H[-1] = s2_beg ? 0 : (-open - j*gap);
 #ifdef PARASAIL_ROWCOL
         if (j == s2Len-1) {
             for (i=0; i<s1Len; ++i) {
@@ -213,7 +223,7 @@ parasail_result_t* FNAME(
         result->stats->rowcols->length_row[j] = HL[s1Len-1];
 #endif
         /* last value from column */
-        if (H[s1Len-1] > score) {
+        if (s2_end && H[s1Len-1] > score) {
             score = H[s1Len-1];
             matches = HM[s1Len-1];
             similar = HS[s1Len-1];
@@ -223,22 +233,44 @@ parasail_result_t* FNAME(
         }
     }
     /* max of last column */
-    for (i=0; i<s1Len; ++i) {
-        if (H[i] > score) {
-            score = H[i];
-            matches = HM[i];
-            similar = HS[i];
-            length = HL[i];
-            end_query = i;
-            end_ref = s2Len-1;
+    if (s1_end && s2_end) {
+        for (i=0; i<s1Len; ++i) {
+            if (H[i] > score) {
+                score = H[i];
+                matches = HM[i];
+                similar = HS[i];
+                length = HL[i];
+                end_query = i;
+                end_ref = s2Len-1;
+            }
+            else if (H[i] == score && end_ref == s2Len-1 && i < end_query) {
+                matches = HM[i];
+                similar = HS[i];
+                length = HL[i];
+                end_query = i;
+                end_ref = s2Len-1;
+            }
         }
-        else if (H[i] == score && end_ref == s2Len-1 && i < end_query) {
-            matches = HM[i];
-            similar = HS[i];
-            length = HL[i];
-            end_query = i;
-            end_ref = s2Len-1;
+    }
+    else if (s1_end) {
+        for (i=0; i<s1Len; ++i) {
+            if (H[i] > score) {
+                score = H[i];
+                matches = HM[i];
+                similar = HS[i];
+                length = HL[i];
+                end_query = i;
+                end_ref = s2Len-1;
+            }
         }
+    }
+    if (!s1_end && !s2_end) {
+        score = H[s1Len-1];
+        matches = HM[s1Len-1];
+        similar = HS[s1Len-1];
+        length = HL[s1Len-1];
+        end_query = s1Len-1;
+        end_ref = s2Len-1;
     }
 
     result->score = score;
@@ -250,6 +282,10 @@ parasail_result_t* FNAME(
     result->flag |= PARASAIL_FLAG_SG | PARASAIL_FLAG_NOVEC_SCAN
         | PARASAIL_FLAG_STATS
         | PARASAIL_FLAG_BITS_INT | PARASAIL_FLAG_LANES_1;
+    result->flag |= s1_beg ? PARASAIL_FLAG_SG_S1_BEG : 0;
+    result->flag |= s1_end ? PARASAIL_FLAG_SG_S1_END : 0;
+    result->flag |= s2_beg ? PARASAIL_FLAG_SG_S2_BEG : 0;
+    result->flag |= s2_end ? PARASAIL_FLAG_SG_S2_END : 0;
 #ifdef PARASAIL_TABLE
     result->flag |= PARASAIL_FLAG_TABLE;
 #endif

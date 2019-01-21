@@ -67,8 +67,15 @@ parasail_result_t* FNAME(
     /* initialize H */
     H[-1] = 0;
     Ht[-1] = 0;
-    for (i=0; i<s1Len; ++i) {
-        H[i] = 0;
+    if (s1_beg) {
+        for (i=0; i<s1Len; ++i) {
+            H[i] = 0;
+        }
+    }
+    else {
+        for (i=0; i<s1Len; ++i) {
+            H[i] = -open -i*gap;
+        }
     }
 
     /* initialize E */
@@ -88,6 +95,7 @@ parasail_result_t* FNAME(
         for (i=0; i<s1Len; ++i) {
             Ht[i] = MAX(H[i-1]+matcol[s1[i]], E[i]);
         }
+        Ht[-1] = s2_beg ? 0 : (-open -j*gap);
         /* calculate H */
         for (i=0; i<s1Len; ++i) {
             int Ft_opn;
@@ -105,11 +113,11 @@ parasail_result_t* FNAME(
             result->tables->score_table[i*s2Len + j] = H[i];
 #endif
         }
-        H[-1] = 0;
+        H[-1] = s2_beg ? 0 : (-open - j*gap);
 #ifdef PARASAIL_ROWCOL
         result->rowcols->score_row[j] = H[s1Len-1];
 #endif
-        if (H[s1Len-1] > score) {
+        if (s2_end && H[s1Len-1] > score) {
             score = H[s1Len-1];
             end_query = s1Len-1;
             end_ref = j;
@@ -127,6 +135,7 @@ parasail_result_t* FNAME(
         for (i=0; i<s1Len; ++i) {
             Ht[i] = MAX(H[i-1]+matcol[s1[i]], E[i]);
         }
+        Ht[-1] = s2_beg ? 0 : (-open -j*gap);
         /* calculate H */
         for (i=0; i<s1Len; ++i) {
             int Ft_opn;
@@ -146,7 +155,7 @@ parasail_result_t* FNAME(
 #ifdef PARASAIL_ROWCOL
             result->rowcols->score_col[i] = H[i];
 #endif
-            if (H[i] > score) {
+            if (s1_end && H[i] > score) {
                 score = H[i];
                 end_query = i;
                 end_ref = j;
@@ -156,12 +165,26 @@ parasail_result_t* FNAME(
         result->rowcols->score_row[j] = H[s1Len-1];
 #endif
     }
+    if (s2_end && H[s1Len-1] > score) {
+        score = H[s1Len-1];
+        end_query = s1Len-1;
+        end_ref = s2Len-1;
+    }
+    if (!s1_end && !s2_end) {
+        score = H[s1Len-1];
+        end_query = s1Len-1;
+        end_ref = s2Len-1;
+    }
 
     result->score = score;
     result->end_query = end_query;
     result->end_ref = end_ref;
     result->flag |= PARASAIL_FLAG_SG | PARASAIL_FLAG_NOVEC_SCAN
         | PARASAIL_FLAG_BITS_INT | PARASAIL_FLAG_LANES_1;
+    result->flag |= s1_beg ? PARASAIL_FLAG_SG_S1_BEG : 0;
+    result->flag |= s1_end ? PARASAIL_FLAG_SG_S1_END : 0;
+    result->flag |= s2_beg ? PARASAIL_FLAG_SG_S2_BEG : 0;
+    result->flag |= s2_end ? PARASAIL_FLAG_SG_S2_END : 0;
 #ifdef PARASAIL_TABLE
     result->flag |= PARASAIL_FLAG_TABLE;
 #endif

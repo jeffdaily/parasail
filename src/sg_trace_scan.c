@@ -54,8 +54,15 @@ parasail_result_t* FNAME(
     /* initialize H */
     H[-1] = 0;
     Ht[-1] = 0;
-    for (i=0; i<s1Len; ++i) {
-        H[i] = 0;
+    if (s1_beg) {
+        for (i=0; i<s1Len; ++i) {
+            H[i] = 0;
+        }
+    }
+    else {
+        for (i=0; i<s1Len; ++i) {
+            H[i] = -open -i*gap;
+        }
     }
 
     /* initialize E */
@@ -76,7 +83,7 @@ parasail_result_t* FNAME(
                                                   : PARASAIL_INS_E;
         }
         /* calculate Ht */
-        Ht[-1] = 0;
+        Ht[-1] = s2_beg ? 0 : (-open -j*gap);
         for (i=0; i<s1Len; ++i) {
             int H_dag = H[i-1]+matcol[s1[i]];
             Ht[i] = MAX(H_dag, E[i]);
@@ -119,7 +126,8 @@ parasail_result_t* FNAME(
                 }
             }
         }
-        if (H[s1Len-1] > score) {
+        H[-1] = s2_beg ? 0 : (-open - j*gap);
+        if (s2_end && H[s1Len-1] > score) {
             score = H[s1Len-1];
             end_query = s1Len-1;
             end_ref = j;
@@ -138,7 +146,7 @@ parasail_result_t* FNAME(
                                                   : PARASAIL_INS_E;
         }
         /* calculate Ht */
-        Ht[-1] = 0;
+        Ht[-1] = s2_beg ? 0 : (-open -j*gap);
         for (i=0; i<s1Len; ++i) {
             int H_dag = H[i-1]+matcol[s1[i]];
             Ht[i] = MAX(H_dag, E[i]);
@@ -180,12 +188,22 @@ parasail_result_t* FNAME(
                     HT[1LL*i*s2Len + j] |= PARASAIL_DEL;
                 }
             }
-            if (H[i] > score) {
+            if (s1_end && H[i] > score) {
                 score = H[i];
                 end_query = i;
                 end_ref = j;
             }
         }
+    }
+    if (s2_end && H[s1Len-1] > score) {
+        score = H[s1Len-1];
+        end_query = s1Len-1;
+        end_ref = s2Len-1;
+    }
+    if (!s1_end && !s2_end) {
+        score = H[s1Len-1];
+        end_query = s1Len-1;
+        end_ref = s2Len-1;
     }
 
     result->score = score;
@@ -194,6 +212,10 @@ parasail_result_t* FNAME(
     result->flag |= PARASAIL_FLAG_SG | PARASAIL_FLAG_NOVEC_SCAN
         | PARASAIL_FLAG_TRACE
         | PARASAIL_FLAG_BITS_INT | PARASAIL_FLAG_LANES_1;
+    result->flag |= s1_beg ? PARASAIL_FLAG_SG_S1_BEG : 0;
+    result->flag |= s1_end ? PARASAIL_FLAG_SG_S1_END : 0;
+    result->flag |= s2_beg ? PARASAIL_FLAG_SG_S2_BEG : 0;
+    result->flag |= s2_end ? PARASAIL_FLAG_SG_S2_END : 0;
 
     parasail_free(Ex);
     parasail_free(HtB);

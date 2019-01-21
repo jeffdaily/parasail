@@ -27,6 +27,7 @@
 #include "func_verify_tables.h"
 
 static int verbose = 0;
+static int exit_on_mismatch = 0;
 
 typedef struct gap_score {
     int open;
@@ -176,6 +177,7 @@ static void check_functions(
                                     a, b, open, extend,
                                     matrixname,
                                     reference_result->score, result->score);
+                            if (exit_on_mismatch) exit(EXIT_FAILURE);
                         }
                     }
                     if (reference_result->end_query != result->end_query) {
@@ -186,6 +188,7 @@ static void check_functions(
                                     a, b, open, extend,
                                     matrixname,
                                     reference_result->end_query, result->end_query);
+                            if (exit_on_mismatch) exit(EXIT_FAILURE);
                         }
                     }
                     if (reference_result->end_ref != result->end_ref) {
@@ -196,6 +199,7 @@ static void check_functions(
                                     a, b, open, extend,
                                     matrixname,
                                     reference_result->end_ref, result->end_ref);
+                            if (exit_on_mismatch) exit(EXIT_FAILURE);
                         }
                     }
                     if (diff_array(size_a, size_b, ref_score_table, score_table)) {
@@ -205,6 +209,7 @@ static void check_functions(
                                     functions[function_index].name,
                                     a, b, open, extend,
                                     matrixname);
+                            if (exit_on_mismatch) exit(EXIT_FAILURE);
                         }
                     }
                     if (parasail_result_is_stats(result)) {
@@ -227,6 +232,7 @@ static void check_functions(
                                         functions[function_index].name,
                                         a, b, open, extend,
                                         matrixname);
+                                if (exit_on_mismatch) exit(EXIT_FAILURE);
                             }
                         }
                         if (ref_matches != matches) {
@@ -237,6 +243,7 @@ static void check_functions(
                                         a, b, open, extend,
                                         matrixname,
                                         ref_matches, matches);
+                                if (exit_on_mismatch) exit(EXIT_FAILURE);
                             }
                         }
                         if (diff_array(size_a, size_b, ref_similar_table, similar_table)) {
@@ -246,6 +253,7 @@ static void check_functions(
                                         functions[function_index].name,
                                         a, b, open, extend,
                                         matrixname);
+                                if (exit_on_mismatch) exit(EXIT_FAILURE);
                             }
                         }
                         if (ref_similar != similar) {
@@ -256,6 +264,7 @@ static void check_functions(
                                         a, b, open, extend,
                                         matrixname,
                                         ref_similar, similar);
+                                if (exit_on_mismatch) exit(EXIT_FAILURE);
                             }
                         }
                         if (diff_array(size_a, size_b, ref_length_table, length_table)) {
@@ -265,6 +274,7 @@ static void check_functions(
                                         functions[function_index].name,
                                         a, b, open, extend,
                                         matrixname);
+                                if (exit_on_mismatch) exit(EXIT_FAILURE);
                             }
                         }
                         if (ref_length != length) {
@@ -275,6 +285,7 @@ static void check_functions(
                                         a, b, open, extend,
                                         matrixname,
                                         ref_length, length);
+                                if (exit_on_mismatch) exit(EXIT_FAILURE);
                             }
                         }
                     }
@@ -320,7 +331,7 @@ int main(int argc, char **argv)
     int do_sg = 1;
     int do_sw = 1;
 
-    while ((c = getopt(argc, argv, "f:m:n:o:e:vsSi:")) != -1) {
+    while ((c = getopt(argc, argv, "f:m:n:o:e:vsSi:E")) != -1) {
         switch (c) {
             case 'f':
                 filename = optarg;
@@ -354,6 +365,9 @@ int main(int argc, char **argv)
                 break;
             case 'v':
                 verbose = 1;
+                break;
+            case 'E':
+                exit_on_mismatch = 1;
                 break;
             case 's':
                 test_stats = 1;

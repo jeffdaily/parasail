@@ -19,6 +19,7 @@
 #define SG_SUFFIX _diag_altivec_128_8
 #include "sg_helper.h"
 
+#define NEG_INF INT8_MIN
 
 
 #ifdef PARASAIL_TABLE
@@ -241,8 +242,8 @@ parasail_result_t* FNAME(
 #endif
     int32_t i = 0;
     int32_t j = 0;
-    int32_t end_query = 0;
-    int32_t end_ref = 0;
+    int32_t end_query = s1Len-1;
+    int32_t end_ref = s2Len-1;
     const int8_t NEG_LIMIT = (-open < matrix->min ?
         INT8_MIN + open : INT8_MIN - matrix->min) + 1;
     const int8_t POS_LIMIT = INT8_MAX - matrix->max - 1;
@@ -258,22 +259,47 @@ parasail_result_t* FNAME(
     vec128i vOpen = _mm_set1_epi8(open);
     vec128i vGap  = _mm_set1_epi8(gap);
     vec128i vZero = _mm_set1_epi8(0);
-    vec128i vNegInf0 = _mm_insert_epi8(vZero, NEG_LIMIT, 15);
     vec128i vOne = _mm_set1_epi8(1);
     vec128i vN = _mm_set1_epi8(N);
+    vec128i vGapN = s1_beg ? _mm_set1_epi8(0) : _mm_set1_epi8(gap*N);
     vec128i vNegOne = _mm_set1_epi8(-1);
     vec128i vI = _mm_set_epi8(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15);
     vec128i vJreset = _mm_set_epi8(0,-1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11,-12,-13,-14,-15);
-    vec128i vMaxH = vNegInf;
-    vec128i vMaxM = vNegInf;
-    vec128i vMaxS = vNegInf;
-    vec128i vMaxL = vNegInf;
+    vec128i vMaxHRow = vNegInf;
+    vec128i vMaxMRow = vNegInf;
+    vec128i vMaxSRow = vNegInf;
+    vec128i vMaxLRow = vNegInf;
+    vec128i vMaxHCol = vNegInf;
+    vec128i vMaxMCol = vNegInf;
+    vec128i vMaxSCol = vNegInf;
+    vec128i vMaxLCol = vNegInf;
+    vec128i vLastValH = vNegInf;
+    vec128i vLastValM = vNegInf;
+    vec128i vLastValS = vNegInf;
+    vec128i vLastValL = vNegInf;
     vec128i vEndI = vNegInf;
     vec128i vEndJ = vNegInf;
     vec128i vILimit = _mm_set1_epi8(s1Len);
     vec128i vILimit1 = _mm_subs_epi8(vILimit, vOne);
     vec128i vJLimit = _mm_set1_epi8(s2Len);
     vec128i vJLimit1 = _mm_subs_epi8(vJLimit, vOne);
+    vec128i vIBoundary = s1_beg ? _mm_set1_epi8(0) : _mm_set_epi8(
+            -open-0*gap,
+            -open-1*gap,
+            -open-2*gap,
+            -open-3*gap,
+            -open-4*gap,
+            -open-5*gap,
+            -open-6*gap,
+            -open-7*gap,
+            -open-8*gap,
+            -open-9*gap,
+            -open-10*gap,
+            -open-11*gap,
+            -open-12*gap,
+            -open-13*gap,
+            -open-14*gap,
+            -open-15*gap);
 
     /* convert _s1 from char to int in range 0-23 */
     for (i=0; i<s1Len; ++i) {
@@ -298,15 +324,29 @@ parasail_result_t* FNAME(
     }
 
     /* set initial values for stored row */
-    for (j=0; j<s2Len; ++j) {
-        H_pr[j] = 0;
-        HM_pr[j] = 0;
-        HS_pr[j] = 0;
-        HL_pr[j] = 0;
-        F_pr[j] = NEG_LIMIT;
-        FM_pr[j] = 0;
-        FS_pr[j] = 0;
-        FL_pr[j] = 0;
+    if (s2_beg) {
+        for (j=0; j<s2Len; ++j) {
+            H_pr[j] = 0;
+            HM_pr[j] = 0;
+            HS_pr[j] = 0;
+            HL_pr[j] = 0;
+            F_pr[j] = NEG_INF;
+            FM_pr[j] = 0;
+            FS_pr[j] = 0;
+            FL_pr[j] = 0;
+        }
+    }
+    else {
+        for (j=0; j<s2Len; ++j) {
+            H_pr[j] = -open - j*gap;
+            HM_pr[j] = 0;
+            HS_pr[j] = 0;
+            HL_pr[j] = 0;
+            F_pr[j] = NEG_INF;
+            FM_pr[j] = 0;
+            FS_pr[j] = 0;
+            FL_pr[j] = 0;
+        }
     }
     /* pad front of stored row values */
     for (j=-PAD; j<0; ++j) {
@@ -336,21 +376,21 @@ parasail_result_t* FNAME(
     for (i=0; i<s1Len; i+=N) {
         vec128i case1 = vZero;
         vec128i case2 = vZero;
-        vec128i vNH = vZero;
+        vec128i vNH = vNegInf;
         vec128i vNM = vZero;
         vec128i vNS = vZero;
         vec128i vNL = vZero;
-        vec128i vWH = vZero;
+        vec128i vWH = vNegInf;
         vec128i vWM = vZero;
         vec128i vWS = vZero;
         vec128i vWL = vZero;
-        vec128i vE = vNegInf0;
+        vec128i vE = vNegInf;
         vec128i vE_opn = vNegInf;
         vec128i vE_ext = vNegInf;
         vec128i vEM = vZero;
         vec128i vES = vZero;
         vec128i vEL = vZero;
-        vec128i vF = vNegInf0;
+        vec128i vF = vNegInf;
         vec128i vF_opn = vNegInf;
         vec128i vF_ext = vNegInf;
         vec128i vFM = vZero;
@@ -393,6 +433,11 @@ parasail_result_t* FNAME(
         const int * const restrict matrow15 = &matrix->matrix[matrix->size*s1[i+15]];
         vec128i vIltLimit = _mm_cmplt_epi8(vI, vILimit);
         vec128i vIeqLimit1 = _mm_cmpeq_epi8(vI, vILimit1);
+        vNH = _mm_srli_si128(vNH, 1);
+        vNH = _mm_insert_epi8(vNH, H_pr[-1], 15);
+        vWH = _mm_srli_si128(vWH, 1);
+        vWH = _mm_insert_epi8(vWH, s1_beg ? 0 : (-open - i*gap), 15);
+        H_pr[-1] = -open - (i+N)*gap;
         /* iterate over database sequence */
         for (j=0; j<s2Len+PAD; ++j) {
             vec128i vMat;
@@ -478,7 +523,7 @@ parasail_result_t* FNAME(
              * assign the appropriate boundary conditions */
             {
                 vec128i cond = _mm_cmpeq_epi8(vJ,vNegOne);
-                vWH = _mm_andnot_si128(cond, vWH);
+                vWH = _mm_blendv_epi8(vWH, vIBoundary, cond);
                 vWM = _mm_andnot_si128(cond, vWM);
                 vWS = _mm_andnot_si128(cond, vWS);
                 vWL = _mm_andnot_si128(cond, vWL);
@@ -523,65 +568,121 @@ parasail_result_t* FNAME(
                 vec128i cond_j = _mm_and_si128(vIltLimit, vJeqLimit1);
                 vec128i cond_i = _mm_and_si128(vIeqLimit1,
                         _mm_and_si128(vJgtNegOne, vJltLimit));
-                vec128i cond_valid_IJ = _mm_or_si128(cond_i, cond_j);
-                vec128i cond_eq = _mm_cmpeq_epi8(vWH, vMaxH);
-                vec128i cond_max = _mm_cmpgt_epi8(vWH, vMaxH);
-                vec128i cond_all = _mm_and_si128(cond_max, cond_valid_IJ);
-                vec128i cond_Jlt = _mm_cmplt_epi8(vJ, vEndJ);
-                vMaxH = _mm_blendv_epi8(vMaxH, vWH, cond_all);
-                vMaxM = _mm_blendv_epi8(vMaxM, vWM, cond_all);
-                vMaxS = _mm_blendv_epi8(vMaxS, vWS, cond_all);
-                vMaxL = _mm_blendv_epi8(vMaxL, vWL, cond_all);
-                vEndI = _mm_blendv_epi8(vEndI, vI, cond_all);
-                vEndJ = _mm_blendv_epi8(vEndJ, vJ, cond_all);
-                cond_all = _mm_and_si128(cond_Jlt, cond_eq);
-                cond_all = _mm_and_si128(cond_all, cond_valid_IJ);
-                vMaxM = _mm_blendv_epi8(vMaxM, vWM, cond_all);
-                vMaxS = _mm_blendv_epi8(vMaxS, vWS, cond_all);
-                vMaxL = _mm_blendv_epi8(vMaxL, vWL, cond_all);
-                vEndI = _mm_blendv_epi8(vEndI, vI, cond_all);
-                vEndJ = _mm_blendv_epi8(vEndJ, vJ, cond_all);
+                vec128i cond_max_row = _mm_cmpgt_epi8(vWH, vMaxHRow);
+                vec128i cond_max_col = _mm_cmpgt_epi8(vWH, vMaxHCol);
+                vec128i cond_last_val = _mm_and_si128(vIeqLimit1, vJeqLimit1);
+                vec128i cond_all_row = _mm_and_si128(cond_max_row, cond_i);
+                vec128i cond_all_col = _mm_and_si128(cond_max_col, cond_j);
+                vMaxHRow = _mm_blendv_epi8(vMaxHRow, vWH, cond_all_row);
+                vMaxMRow = _mm_blendv_epi8(vMaxMRow, vWM, cond_all_row);
+                vMaxSRow = _mm_blendv_epi8(vMaxSRow, vWS, cond_all_row);
+                vMaxLRow = _mm_blendv_epi8(vMaxLRow, vWL, cond_all_row);
+                vMaxHCol = _mm_blendv_epi8(vMaxHCol, vWH, cond_all_col);
+                vMaxMCol = _mm_blendv_epi8(vMaxMCol, vWM, cond_all_col);
+                vMaxSCol = _mm_blendv_epi8(vMaxSCol, vWS, cond_all_col);
+                vMaxLCol = _mm_blendv_epi8(vMaxLCol, vWL, cond_all_col);
+                vLastValH = _mm_blendv_epi8(vLastValH, vWH, cond_last_val);
+                vLastValM = _mm_blendv_epi8(vLastValM, vWM, cond_last_val);
+                vLastValS = _mm_blendv_epi8(vLastValS, vWS, cond_last_val);
+                vLastValL = _mm_blendv_epi8(vLastValL, vWL, cond_last_val);
+                vEndI = _mm_blendv_epi8(vEndI, vI, cond_all_col);
+                vEndJ = _mm_blendv_epi8(vEndJ, vJ, cond_all_row);
             }
             vJ = _mm_adds_epi8(vJ, vOne);
         }
         vI = _mm_adds_epi8(vI, vN);
+        vIBoundary = _mm_subs_epi8(vIBoundary, vGapN);
         vSaturationCheckMax = _mm_max_epi8(vSaturationCheckMax, vI);
     }
 
     /* alignment ending position */
     {
-        int8_t *t = (int8_t*)&vMaxH;
-        int8_t *m = (int8_t*)&vMaxM;
-        int8_t *s = (int8_t*)&vMaxS;
-        int8_t *l = (int8_t*)&vMaxL;
+        int8_t max_rowh = NEG_INF;
+        int8_t max_rowm = NEG_INF;
+        int8_t max_rows = NEG_INF;
+        int8_t max_rowl = NEG_INF;
+        int8_t max_colh = NEG_INF;
+        int8_t max_colm = NEG_INF;
+        int8_t max_cols = NEG_INF;
+        int8_t max_coll = NEG_INF;
+        int8_t last_valh = NEG_INF;
+        int8_t last_valm = NEG_INF;
+        int8_t last_vals = NEG_INF;
+        int8_t last_vall = NEG_INF;
+        int8_t *rh = (int8_t*)&vMaxHRow;
+        int8_t *rm = (int8_t*)&vMaxMRow;
+        int8_t *rs = (int8_t*)&vMaxSRow;
+        int8_t *rl = (int8_t*)&vMaxLRow;
+        int8_t *ch = (int8_t*)&vMaxHCol;
+        int8_t *cm = (int8_t*)&vMaxMCol;
+        int8_t *cs = (int8_t*)&vMaxSCol;
+        int8_t *cl = (int8_t*)&vMaxLCol;
+        int8_t *lh = (int8_t*)&vLastValH;
+        int8_t *lm = (int8_t*)&vLastValM;
+        int8_t *ls = (int8_t*)&vLastValS;
+        int8_t *ll = (int8_t*)&vLastValL;
         int8_t *i = (int8_t*)&vEndI;
         int8_t *j = (int8_t*)&vEndJ;
         int32_t k;
-        for (k=0; k<N; ++k, ++t, ++m, ++s, ++l, ++i, ++j) {
-            if (*t > score) {
-                score = *t;
-                matches = *m;
-                similar = *s;
-                length = *l;
+        for (k=0; k<N; ++k, ++rh, ++rm, ++rs, ++rl, ++ch, ++cm, ++cs, ++cl, ++lh, ++lm, ++ls, ++ll, ++i, ++j) {
+            if (*ch > max_colh || (*ch == max_colh && *i < end_query)) {
+                max_colh = *ch;
                 end_query = *i;
+                max_colm = *cm;
+                max_cols = *cs;
+                max_coll = *cl;
+            }
+            if (*rh > max_rowh) {
+                max_rowh = *rh;
                 end_ref = *j;
+                max_rowm = *rm;
+                max_rows = *rs;
+                max_rowl = *rl;
             }
-            else if (*t == score) {
-                if (*j < end_ref) {
-                    matches = *m;
-                    similar = *s;
-                    length = *l;
-                    end_query = *i;
-                    end_ref = *j;
-                }
-                else if (*j == end_ref && *i < end_query) {
-                    matches = *m;
-                    similar = *s;
-                    length = *l;
-                    end_query = *i;
-                    end_ref = *j;
-                }
+            if (*lh > last_valh) {
+                last_valh = *lh;
+                last_valm = *lm;
+                last_vals = *ls;
+                last_vall = *ll;
             }
+        }
+        if (s1_end && s2_end) {
+            if (max_rowh >= max_colh) {
+                score = max_rowh;
+                end_query = s1Len-1;
+                matches = max_rowm;
+                similar = max_rows;
+                length = max_rowl;
+            }
+            else {
+                score = max_colh;
+                end_ref = s2Len-1;
+                matches = max_colm;
+                similar = max_cols;
+                length = max_coll;
+            }
+        }
+        else if (s1_end) {
+            score = max_colh;
+            end_ref = s2Len-1;
+            matches = max_colm;
+            similar = max_cols;
+            length = max_coll;
+        }
+        else if (s2_end) {
+            score = max_rowh;
+            end_query = s1Len-1;
+            matches = max_rowm;
+            similar = max_rows;
+            length = max_rowl;
+        }
+        else {
+            score = last_valh;
+            end_query = s1Len-1;
+            end_ref = s2Len-1;
+            matches = last_valm;
+            similar = last_vals;
+            length = last_vall;
         }
     }
 
@@ -606,6 +707,10 @@ parasail_result_t* FNAME(
     result->flag |= PARASAIL_FLAG_SG | PARASAIL_FLAG_DIAG
         | PARASAIL_FLAG_STATS
         | PARASAIL_FLAG_BITS_8 | PARASAIL_FLAG_LANES_16;
+    result->flag |= s1_beg ? PARASAIL_FLAG_SG_S1_BEG : 0;
+    result->flag |= s1_end ? PARASAIL_FLAG_SG_S1_END : 0;
+    result->flag |= s2_beg ? PARASAIL_FLAG_SG_S2_BEG : 0;
+    result->flag |= s2_end ? PARASAIL_FLAG_SG_S2_END : 0;
 #ifdef PARASAIL_TABLE
     result->flag |= PARASAIL_FLAG_TABLE;
 #endif

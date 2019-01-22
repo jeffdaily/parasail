@@ -47,15 +47,6 @@ static inline int8_t _mm256_extract_epi8_rpl(__m256i a, int imm) {
 
 #define _mm256_slli_si256_rpl(a,imm) _mm256_alignr_epi8(a, _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,3,0)), 16-imm)
 
-static inline int8_t _mm256_hmax_epi8_rpl(__m256i a) {
-    a = _mm256_max_epi8(a, _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,0,0)));
-    a = _mm256_max_epi8(a, _mm256_slli_si256(a, 8));
-    a = _mm256_max_epi8(a, _mm256_slli_si256(a, 4));
-    a = _mm256_max_epi8(a, _mm256_slli_si256(a, 2));
-    a = _mm256_max_epi8(a, _mm256_slli_si256(a, 1));
-    return _mm256_extract_epi8_rpl(a, 31);
-}
-
 
 #ifdef PARASAIL_TABLE
 static inline void arr_store_si256(
@@ -177,9 +168,9 @@ parasail_result_t* PNAME(
     int32_t i = 0;
     int32_t j = 0;
     int32_t k = 0;
-    int32_t end_query = 0;
-    int32_t end_ref = 0;
     const int s1Len = profile->s1Len;
+    int32_t end_query = s1Len-1;
+    int32_t end_ref = s2Len-1;
     const parasail_matrix_t *matrix = profile->matrix;
     const int32_t segWidth = 32; /* number of values in vector unit */
     const int32_t segLen = (s1Len + segWidth - 1) / segWidth;
@@ -202,6 +193,7 @@ parasail_result_t* PNAME(
     __m256i* const restrict pvHLMax = parasail_memalign___m256i(32, segLen);
     __m256i* const restrict pvGapper = parasail_memalign___m256i(32, segLen);
     __m256i* const restrict pvGapperL = parasail_memalign___m256i(32, segLen);
+    int8_t* const restrict boundary = parasail_memalign_int8_t(32, s2Len+1);
     __m256i vGapO = _mm256_set1_epi8(open);
     __m256i vGapE = _mm256_set1_epi8(gap);
     const int8_t NEG_LIMIT = (-open < matrix->min ?
@@ -240,7 +232,6 @@ parasail_result_t* PNAME(
     vSegLenXgap = _mm256_adds_epi8(vNegInfFront,
             _mm256_slli_si256_rpl(_mm256_set1_epi8(-segLen*gap), 1));
 
-    parasail_memset___m256i(pvH, vZero, segLen);
     parasail_memset___m256i(pvHM, vZero, segLen);
     parasail_memset___m256i(pvHS, vZero, segLen);
     parasail_memset___m256i(pvHL, vZero, segLen);
@@ -256,6 +247,36 @@ parasail_result_t* PNAME(
             _mm256_store_si256(pvGapperL+i, vGapperL);
             vGapper = _mm256_subs_epi8(vGapper, vGapE);
             vGapperL = _mm256_adds_epi8(vGapperL, vOne);
+        }
+    }
+
+    /* initialize H */
+    if (!s1_beg) {
+    /* initialize H */
+    {
+        int32_t index = 0;
+        for (i=0; i<segLen; ++i) {
+            int32_t segNum = 0;
+            __m256i_8_t h;
+            for (segNum=0; segNum<segWidth; ++segNum) {
+                int64_t tmp = -open-gap*(segNum*segLen+i);
+                h.v[segNum] = tmp < INT8_MIN ? INT8_MIN : tmp;
+            }
+            _mm256_store_si256(&pvH[index], h.m);
+            ++index;
+        }
+    }
+    }
+    else {
+        parasail_memset___m256i(pvH, vZero, segLen);
+    }
+
+    /* initialize uppder boundary */
+    {
+        boundary[0] = 0;
+        for (i=1; i<=s2Len; ++i) {
+            int64_t tmp = s2_beg ? 0 : (-open-gap*(i-1));
+            boundary[i] = tmp < INT8_MIN ? INT8_MIN : tmp;
         }
     }
 
@@ -307,6 +328,7 @@ parasail_result_t* PNAME(
         vHpM = _mm256_slli_si256_rpl(vHpM, 1);
         vHpS = _mm256_slli_si256_rpl(vHpS, 1);
         vHpL = _mm256_slli_si256_rpl(vHpL, 1);
+        vHp = _mm256_insert_epi8_rpl(vHp, boundary[j], 0);
         pvW = pvP + matrix->mapper[(unsigned char)s2[j]]*segLen;
         pvWM= pvPm+ matrix->mapper[(unsigned char)s2[j]]*segLen;
         pvWS= pvPs+ matrix->mapper[(unsigned char)s2[j]]*segLen;
@@ -375,6 +397,7 @@ parasail_result_t* PNAME(
         vHtM = _mm256_slli_si256_rpl(vHtM, 1);
         vHtS = _mm256_slli_si256_rpl(vHtS, 1);
         vHtL = _mm256_slli_si256_rpl(vHtL, 1);
+        vHt = _mm256_insert_epi8_rpl(vHt, boundary[j+1], 0);
         vGapper = _mm256_load_si256(pvGapper);
         vGapperL = _mm256_load_si256(pvGapperL);
         vGapper = _mm256_adds_epi8(vHt, vGapper);
@@ -477,7 +500,6 @@ parasail_result_t* PNAME(
             vMaxL = _mm256_blendv_epi8(vMaxL, vHL, cond_max);
             if (_mm256_movemask_epi8(_mm256_and_si256(vPosMask, cond_max))) {
                 end_ref = j;
-                end_query = s1Len - 1;
             }
 #ifdef PARASAIL_ROWCOL
             for (k=0; k<position; ++k) {
@@ -494,7 +516,21 @@ parasail_result_t* PNAME(
         }
     }
 
+#ifdef PARASAIL_ROWCOL
+    for (i=0; i<segLen; ++i) {
+        __m256i vH = _mm256_load_si256(pvH+i);
+        __m256i vHM = _mm256_load_si256(pvHM+i);
+        __m256i vHS = _mm256_load_si256(pvHS+i);
+        __m256i vHL = _mm256_load_si256(pvHL+i);
+        arr_store_col(result->stats->rowcols->score_col, vH, i, segLen);
+        arr_store_col(result->stats->rowcols->matches_col, vHM, i, segLen);
+        arr_store_col(result->stats->rowcols->similar_col, vHS, i, segLen);
+        arr_store_col(result->stats->rowcols->length_col, vHL, i, segLen);
+    }
+#endif
+
     /* max last value from all columns */
+    if (s2_end)
     {
         for (k=0; k<position; ++k) {
             vMaxH = _mm256_slli_si256_rpl(vMaxH, 1);
@@ -502,6 +538,7 @@ parasail_result_t* PNAME(
             vMaxS = _mm256_slli_si256_rpl(vMaxS, 1);
             vMaxL = _mm256_slli_si256_rpl(vMaxL, 1);
         }
+        end_query = s1Len-1;
         score = (int8_t) _mm256_extract_epi8_rpl(vMaxH, 31);
         matches = (int8_t) _mm256_extract_epi8_rpl(vMaxM, 31);
         similar = (int8_t) _mm256_extract_epi8_rpl(vMaxS, 31);
@@ -509,50 +546,53 @@ parasail_result_t* PNAME(
     }
 
     /* max of last column */
+    if (s1_end)
     {
-        int8_t score_last;
-        vMaxH = vNegLimit;
-
-        for (i=0; i<segLen; ++i) {
-            __m256i vH = _mm256_load_si256(pvH + i);
-#ifdef PARASAIL_ROWCOL
-            __m256i vHM = _mm256_load_si256(pvHM + i);
-            __m256i vHS = _mm256_load_si256(pvHS + i);
-            __m256i vHL = _mm256_load_si256(pvHL + i);
-            arr_store_col(result->stats->rowcols->score_col, vH, i, segLen);
-            arr_store_col(result->stats->rowcols->matches_col, vHM, i, segLen);
-            arr_store_col(result->stats->rowcols->similar_col, vHS, i, segLen);
-            arr_store_col(result->stats->rowcols->length_col, vHL, i, segLen);
-#endif
-            vMaxH = _mm256_max_epi8(vH, vMaxH);
-        }
-
-        /* max in vec */
-        score_last = _mm256_hmax_epi8_rpl(vMaxH);
-        if (score_last > score || (score_last == score && end_ref == s2Len - 1)) {
-            score = score_last;
-            end_ref = s2Len - 1;
-            end_query = s1Len;
-            /* Trace the alignment ending position on read. */
-            {
-                int8_t *t = (int8_t*)pvH;
-                int8_t *m = (int8_t*)pvHM;
-                int8_t *s = (int8_t*)pvHS;
-                int8_t *l = (int8_t*)pvHL;
-                int32_t column_len = segLen * segWidth;
-                for (i = 0; i<column_len; ++i, ++t, ++m, ++s, ++l) {
-                    if (*t == score) {
-                        int32_t temp = i / segWidth + i % segWidth * segLen;
-                        if (temp < end_query) {
-                            end_query = temp;
-                            matches = *m;
-                            similar = *s;
-                            length = *l;
-                        }
-                    }
-                }
+        /* Trace the alignment ending position on read. */
+        int8_t *t = (int8_t*)pvH;
+        int8_t *m = (int8_t*)pvHM;
+        int8_t *s = (int8_t*)pvHS;
+        int8_t *l = (int8_t*)pvHL;
+        int32_t column_len = segLen * segWidth;
+        for (i = 0; i<column_len; ++i, ++t, ++m, ++s, ++l) {
+            int32_t temp = i / segWidth + i % segWidth * segLen;
+            if (temp >= s1Len) continue;
+            if (*t > score) {
+                score = *t;
+                end_query = temp;
+                end_ref = s2Len-1;
+                matches = *m;
+                similar = *s;
+                length = *l;
+            }
+            else if (*t == score && end_ref == s2Len-1 && temp < end_query) {
+                end_query = temp;
+                matches = *m;
+                similar = *s;
+                length = *l;
             }
         }
+    }
+
+    /* extract last value from the last column */
+    if (!s1_end && !s2_end)
+    {
+        __m256i vH = _mm256_load_si256(pvH + offset);
+        __m256i vHM = _mm256_load_si256(pvHM + offset);
+        __m256i vHS = _mm256_load_si256(pvHS + offset);
+        __m256i vHL = _mm256_load_si256(pvHL + offset);
+        for (k=0; k<position; ++k) {
+            vH = _mm256_slli_si256_rpl(vH, 1);
+            vHM = _mm256_slli_si256_rpl(vHM, 1);
+            vHS = _mm256_slli_si256_rpl(vHS, 1);
+            vHL = _mm256_slli_si256_rpl(vHL, 1);
+        }
+        end_ref = s2Len - 1;
+        end_query = s1Len - 1;
+        score = (int8_t) _mm256_extract_epi8_rpl (vH, 31);
+        matches = (int8_t) _mm256_extract_epi8_rpl (vHM, 31);
+        similar = (int8_t) _mm256_extract_epi8_rpl (vHS, 31);
+        length = (int8_t) _mm256_extract_epi8_rpl (vHL, 31);
     }
 
     if (_mm256_movemask_epi8(_mm256_or_si256(
@@ -576,6 +616,10 @@ parasail_result_t* PNAME(
     result->flag |= PARASAIL_FLAG_SG | PARASAIL_FLAG_SCAN
         | PARASAIL_FLAG_STATS
         | PARASAIL_FLAG_BITS_8 | PARASAIL_FLAG_LANES_32;
+    result->flag |= s1_beg ? PARASAIL_FLAG_SG_S1_BEG : 0;
+    result->flag |= s1_end ? PARASAIL_FLAG_SG_S1_END : 0;
+    result->flag |= s2_beg ? PARASAIL_FLAG_SG_S2_BEG : 0;
+    result->flag |= s2_end ? PARASAIL_FLAG_SG_S2_END : 0;
 #ifdef PARASAIL_TABLE
     result->flag |= PARASAIL_FLAG_TABLE;
 #endif
@@ -583,6 +627,7 @@ parasail_result_t* PNAME(
     result->flag |= PARASAIL_FLAG_ROWCOL;
 #endif
 
+    parasail_free(boundary);
     parasail_free(pvGapperL);
     parasail_free(pvGapper);
     parasail_free(pvHLMax);

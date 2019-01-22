@@ -87,9 +87,9 @@ parasail_result_t* PNAME(
     int32_t i = 0;
     int32_t j = 0;
     int32_t k = 0;
-    int32_t end_query = 0;
-    int32_t end_ref = 0;
     const int s1Len = profile->s1Len;
+    int32_t end_query = s1Len-1;
+    int32_t end_ref = s2Len-1;
     const parasail_matrix_t *matrix = profile->matrix;
     const int32_t segWidth = 4; /* number of values in vector unit */
     const int32_t segLen = (s1Len + segWidth - 1) / segWidth;
@@ -112,6 +112,7 @@ parasail_result_t* PNAME(
     simde__m128i* const restrict pvHLMax = parasail_memalign_simde__m128i(16, segLen);
     simde__m128i* const restrict pvGapper = parasail_memalign_simde__m128i(16, segLen);
     simde__m128i* const restrict pvGapperL = parasail_memalign_simde__m128i(16, segLen);
+    int32_t* const restrict boundary = parasail_memalign_int32_t(16, s2Len+1);
     simde__m128i vGapO = simde_mm_set1_epi32(open);
     simde__m128i vGapE = simde_mm_set1_epi32(gap);
     const int32_t NEG_LIMIT = (-open < matrix->min ?
@@ -150,7 +151,6 @@ parasail_result_t* PNAME(
     vSegLenXgap = simde_mm_add_epi32(vNegInfFront,
             simde_mm_slli_si128(simde_mm_set1_epi32(-segLen*gap), 4));
 
-    parasail_memset_simde__m128i(pvH, vZero, segLen);
     parasail_memset_simde__m128i(pvHM, vZero, segLen);
     parasail_memset_simde__m128i(pvHS, vZero, segLen);
     parasail_memset_simde__m128i(pvHL, vZero, segLen);
@@ -166,6 +166,36 @@ parasail_result_t* PNAME(
             simde_mm_store_si128(pvGapperL+i, vGapperL);
             vGapper = simde_mm_sub_epi32(vGapper, vGapE);
             vGapperL = simde_mm_add_epi32(vGapperL, vOne);
+        }
+    }
+
+    /* initialize H */
+    if (!s1_beg) {
+    /* initialize H */
+    {
+        int32_t index = 0;
+        for (i=0; i<segLen; ++i) {
+            int32_t segNum = 0;
+            simde__m128i h;
+            for (segNum=0; segNum<segWidth; ++segNum) {
+                int64_t tmp = -open-gap*(segNum*segLen+i);
+                h.i32[segNum] = tmp < INT32_MIN ? INT32_MIN : tmp;
+            }
+            simde_mm_store_si128(&pvH[index], h);
+            ++index;
+        }
+    }
+    }
+    else {
+        parasail_memset_simde__m128i(pvH, vZero, segLen);
+    }
+
+    /* initialize uppder boundary */
+    {
+        boundary[0] = 0;
+        for (i=1; i<=s2Len; ++i) {
+            int64_t tmp = s2_beg ? 0 : (-open-gap*(i-1));
+            boundary[i] = tmp < INT32_MIN ? INT32_MIN : tmp;
         }
     }
 
@@ -217,6 +247,7 @@ parasail_result_t* PNAME(
         vHpM = simde_mm_slli_si128(vHpM, 4);
         vHpS = simde_mm_slli_si128(vHpS, 4);
         vHpL = simde_mm_slli_si128(vHpL, 4);
+        vHp = simde_mm_insert_epi32(vHp, boundary[j], 0);
         pvW = pvP + matrix->mapper[(unsigned char)s2[j]]*segLen;
         pvWM= pvPm+ matrix->mapper[(unsigned char)s2[j]]*segLen;
         pvWS= pvPs+ matrix->mapper[(unsigned char)s2[j]]*segLen;
@@ -285,6 +316,7 @@ parasail_result_t* PNAME(
         vHtM = simde_mm_slli_si128(vHtM, 4);
         vHtS = simde_mm_slli_si128(vHtS, 4);
         vHtL = simde_mm_slli_si128(vHtL, 4);
+        vHt = simde_mm_insert_epi32(vHt, boundary[j+1], 0);
         vGapper = simde_mm_load_si128(pvGapper);
         vGapperL = simde_mm_load_si128(pvGapperL);
         vGapper = simde_mm_add_epi32(vHt, vGapper);
@@ -387,7 +419,6 @@ parasail_result_t* PNAME(
             vMaxL = simde_mm_blendv_epi8(vMaxL, vHL, cond_max);
             if (simde_mm_movemask_epi8(simde_mm_and_si128(vPosMask, cond_max))) {
                 end_ref = j;
-                end_query = s1Len - 1;
             }
 #ifdef PARASAIL_ROWCOL
             for (k=0; k<position; ++k) {
@@ -404,7 +435,21 @@ parasail_result_t* PNAME(
         }
     }
 
+#ifdef PARASAIL_ROWCOL
+    for (i=0; i<segLen; ++i) {
+        simde__m128i vH = simde_mm_load_si128(pvH+i);
+        simde__m128i vHM = simde_mm_load_si128(pvHM+i);
+        simde__m128i vHS = simde_mm_load_si128(pvHS+i);
+        simde__m128i vHL = simde_mm_load_si128(pvHL+i);
+        arr_store_col(result->stats->rowcols->score_col, vH, i, segLen);
+        arr_store_col(result->stats->rowcols->matches_col, vHM, i, segLen);
+        arr_store_col(result->stats->rowcols->similar_col, vHS, i, segLen);
+        arr_store_col(result->stats->rowcols->length_col, vHL, i, segLen);
+    }
+#endif
+
     /* max last value from all columns */
+    if (s2_end)
     {
         for (k=0; k<position; ++k) {
             vMaxH = simde_mm_slli_si128(vMaxH, 4);
@@ -412,6 +457,7 @@ parasail_result_t* PNAME(
             vMaxS = simde_mm_slli_si128(vMaxS, 4);
             vMaxL = simde_mm_slli_si128(vMaxL, 4);
         }
+        end_query = s1Len-1;
         score = (int32_t) simde_mm_extract_epi32(vMaxH, 3);
         matches = (int32_t) simde_mm_extract_epi32(vMaxM, 3);
         similar = (int32_t) simde_mm_extract_epi32(vMaxS, 3);
@@ -419,50 +465,53 @@ parasail_result_t* PNAME(
     }
 
     /* max of last column */
+    if (s1_end)
     {
-        int32_t score_last;
-        vMaxH = vNegLimit;
-
-        for (i=0; i<segLen; ++i) {
-            simde__m128i vH = simde_mm_load_si128(pvH + i);
-#ifdef PARASAIL_ROWCOL
-            simde__m128i vHM = simde_mm_load_si128(pvHM + i);
-            simde__m128i vHS = simde_mm_load_si128(pvHS + i);
-            simde__m128i vHL = simde_mm_load_si128(pvHL + i);
-            arr_store_col(result->stats->rowcols->score_col, vH, i, segLen);
-            arr_store_col(result->stats->rowcols->matches_col, vHM, i, segLen);
-            arr_store_col(result->stats->rowcols->similar_col, vHS, i, segLen);
-            arr_store_col(result->stats->rowcols->length_col, vHL, i, segLen);
-#endif
-            vMaxH = simde_mm_max_epi32(vH, vMaxH);
-        }
-
-        /* max in vec */
-        score_last = simde_mm_hmax_epi32(vMaxH);
-        if (score_last > score || (score_last == score && end_ref == s2Len - 1)) {
-            score = score_last;
-            end_ref = s2Len - 1;
-            end_query = s1Len;
-            /* Trace the alignment ending position on read. */
-            {
-                int32_t *t = (int32_t*)pvH;
-                int32_t *m = (int32_t*)pvHM;
-                int32_t *s = (int32_t*)pvHS;
-                int32_t *l = (int32_t*)pvHL;
-                int32_t column_len = segLen * segWidth;
-                for (i = 0; i<column_len; ++i, ++t, ++m, ++s, ++l) {
-                    if (*t == score) {
-                        int32_t temp = i / segWidth + i % segWidth * segLen;
-                        if (temp < end_query) {
-                            end_query = temp;
-                            matches = *m;
-                            similar = *s;
-                            length = *l;
-                        }
-                    }
-                }
+        /* Trace the alignment ending position on read. */
+        int32_t *t = (int32_t*)pvH;
+        int32_t *m = (int32_t*)pvHM;
+        int32_t *s = (int32_t*)pvHS;
+        int32_t *l = (int32_t*)pvHL;
+        int32_t column_len = segLen * segWidth;
+        for (i = 0; i<column_len; ++i, ++t, ++m, ++s, ++l) {
+            int32_t temp = i / segWidth + i % segWidth * segLen;
+            if (temp >= s1Len) continue;
+            if (*t > score) {
+                score = *t;
+                end_query = temp;
+                end_ref = s2Len-1;
+                matches = *m;
+                similar = *s;
+                length = *l;
+            }
+            else if (*t == score && end_ref == s2Len-1 && temp < end_query) {
+                end_query = temp;
+                matches = *m;
+                similar = *s;
+                length = *l;
             }
         }
+    }
+
+    /* extract last value from the last column */
+    if (!s1_end && !s2_end)
+    {
+        simde__m128i vH = simde_mm_load_si128(pvH + offset);
+        simde__m128i vHM = simde_mm_load_si128(pvHM + offset);
+        simde__m128i vHS = simde_mm_load_si128(pvHS + offset);
+        simde__m128i vHL = simde_mm_load_si128(pvHL + offset);
+        for (k=0; k<position; ++k) {
+            vH = simde_mm_slli_si128(vH, 4);
+            vHM = simde_mm_slli_si128(vHM, 4);
+            vHS = simde_mm_slli_si128(vHS, 4);
+            vHL = simde_mm_slli_si128(vHL, 4);
+        }
+        end_ref = s2Len - 1;
+        end_query = s1Len - 1;
+        score = (int32_t) simde_mm_extract_epi32 (vH, 3);
+        matches = (int32_t) simde_mm_extract_epi32 (vHM, 3);
+        similar = (int32_t) simde_mm_extract_epi32 (vHS, 3);
+        length = (int32_t) simde_mm_extract_epi32 (vHL, 3);
     }
 
     if (simde_mm_movemask_epi8(simde_mm_or_si128(
@@ -486,6 +535,10 @@ parasail_result_t* PNAME(
     result->flag |= PARASAIL_FLAG_SG | PARASAIL_FLAG_SCAN
         | PARASAIL_FLAG_STATS
         | PARASAIL_FLAG_BITS_32 | PARASAIL_FLAG_LANES_4;
+    result->flag |= s1_beg ? PARASAIL_FLAG_SG_S1_BEG : 0;
+    result->flag |= s1_end ? PARASAIL_FLAG_SG_S1_END : 0;
+    result->flag |= s2_beg ? PARASAIL_FLAG_SG_S2_BEG : 0;
+    result->flag |= s2_end ? PARASAIL_FLAG_SG_S2_END : 0;
 #ifdef PARASAIL_TABLE
     result->flag |= PARASAIL_FLAG_TABLE;
 #endif
@@ -493,6 +546,7 @@ parasail_result_t* PNAME(
     result->flag |= PARASAIL_FLAG_ROWCOL;
 #endif
 
+    parasail_free(boundary);
     parasail_free(pvGapperL);
     parasail_free(pvGapper);
     parasail_free(pvHLMax);

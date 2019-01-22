@@ -275,10 +275,13 @@ end:
         for (i = 0; i<column_len; ++i, ++t) {
             int32_t temp = i / segWidth + i % segWidth * segLen;
             if (temp >= s1Len) continue;
-            if ((*t > score) || (*t == score && temp < end_query)) {
+            if (*t > score) {
                 score = *t;
                 end_query = temp;
                 end_ref = s2Len-1;
+            }
+            else if (*t == score && end_ref == s2Len-1 && temp < end_query) {
+                end_query = temp;
             }
         }
     }

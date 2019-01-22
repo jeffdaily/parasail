@@ -24,6 +24,7 @@
 #include "func_verify_traces.h"
 
 static int verbose = 0;
+static int exit_on_mismatch = 0;
 
 typedef struct gap_score {
     int open;
@@ -142,7 +143,7 @@ static void check_functions(
             for (function_index=1;
                     NULL!=functions[function_index].pointer;
                     ++function_index) {
-				unsigned long saturated = 0;
+                unsigned long saturated = 0;
                 if (verbose) printf("\t\t\t%s\n", functions[function_index].name);
 #pragma omp parallel for
                 for (pair_index=0; pair_index<pair_limit; ++pair_index) {
@@ -186,6 +187,7 @@ static void check_functions(
                                     a, b, open, extend,
                                     matrixname,
                                     reference_result->score, result->score);
+                            if (exit_on_mismatch) exit(EXIT_FAILURE);
                         }
                     }
                     if (diff_array(size_a, size_b, ref_trace_table, trace_table, result)) {
@@ -195,6 +197,7 @@ static void check_functions(
                                     functions[function_index].name,
                                     a, b, open, extend,
                                     matrixname);
+                            if (exit_on_mismatch) exit(EXIT_FAILURE);
                         }
                     }
                     parasail_result_free(reference_result);
@@ -206,6 +209,7 @@ static void check_functions(
                             open, extend,
                             matrixname,
                             saturated);
+                    if (exit_on_mismatch) exit(EXIT_FAILURE);
                 }
             }
             if (gap.open != INT_MIN && gap.extend != INT_MIN) {
@@ -238,7 +242,7 @@ int main(int argc, char **argv)
     int do_sg = 1;
     int do_sw = 1;
 
-    while ((c = getopt(argc, argv, "f:m:n:o:e:vSi:")) != -1) {
+    while ((c = getopt(argc, argv, "f:m:n:o:e:vSi:E")) != -1) {
         switch (c) {
             case 'f':
                 filename = optarg;
@@ -272,6 +276,9 @@ int main(int argc, char **argv)
                 break;
             case 'v':
                 verbose = 1;
+                break;
+            case 'E':
+                exit_on_mismatch = 1;
                 break;
             case 'S':
                 test_scores = 0;
@@ -331,7 +338,6 @@ int main(int argc, char **argv)
 
     limit = binomial_coefficient(seq_count, 2);
     printf("%lu choose 2 is %lu\n", seq_count, limit);
-
 
 #if HAVE_SSE2
     if (do_sse2 && parasail_can_use_sse2()) {
@@ -438,7 +444,7 @@ int main(int argc, char **argv)
             if (do_sw) check_functions(parasail_sw_trace_disp, sequences, limit, matrix, gap);
         }
     }
-    
+
     parasail_sequences_free(sequences);
 
     return 0;

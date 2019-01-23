@@ -140,6 +140,8 @@ parasail_result_t* PNAME(
         for (i=segLen-1; i>=0; --i) {
             %(VSTORE)s(pvGapper+i, vGapper);
             vGapper = %(VSUB)s(vGapper, vGapE);
+            /* long queries and/or large penalties will break the pseudo prefix scan */
+            vSaturationCheckMin = %(VMIN)s(vSaturationCheckMin, vGapper);
         }
     }
 

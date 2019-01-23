@@ -171,6 +171,8 @@ parasail_result_t* PNAME(
         for (i=segLen-1; i>=0; --i) {
             simde_mm_store_si128(pvGapper+i, vGapper);
             vGapper = simde_mm_sub_epi16(vGapper, vGapE);
+            /* long queries and/or large penalties will break the pseudo prefix scan */
+            vSaturationCheckMin = simde_mm_min_epi16(vSaturationCheckMin, vGapper);
         }
     }
 

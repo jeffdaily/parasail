@@ -244,6 +244,8 @@ parasail_result_t* PNAME(
         for (i=segLen-1; i>=0; --i) {
             _mm256_store_si256(pvGapper+i, vGapper);
             vGapper = _mm256_subs_epi8(vGapper, vGapE);
+            /* long queries and/or large penalties will break the pseudo prefix scan */
+            vSaturationCheckMin = _mm256_min_epi8(vSaturationCheckMin, vGapper);
         }
     }
 

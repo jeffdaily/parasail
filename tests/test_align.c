@@ -31,27 +31,17 @@ static double pctf(double orig, double new)
     return orig / new;
 }
 
-static void print_array(
-        const char * filename_,
-        int * array_,
+static void print_array_int8_t(
+        const char * filename,
+        int8_t * array,
         const char * const restrict s1, const int s1Len,
         const char * const restrict s2, const int s2Len,
         parasail_result_t *result)
 {
-    int * array = NULL;
     int i;
     int j;
     FILE *f = NULL;
-    const char *filename = filename_;
 
-    if ((result->flag & PARASAIL_FLAG_TRACE)
-            && ((result->flag & PARASAIL_FLAG_STRIPED)
-                || (result->flag & PARASAIL_FLAG_SCAN))) {
-        array = parasail_striped_unwind(s1Len, s2Len, result, array_);
-    }
-    else {
-        array = array_;
-    }
     f = fopen(filename, "w");
     if (NULL == f) {
         printf("fopen(\"%s\") error: %s\n", filename, strerror(errno));
@@ -70,15 +60,63 @@ static void print_array(
         fprintf(f, "\n");
     }
     fclose(f);
+}
+
+static void print_array_int(
+        const char * filename,
+        int * array,
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        parasail_result_t *result)
+{
+    int i;
+    int j;
+    FILE *f = NULL;
+
+    f = fopen(filename, "w");
+    if (NULL == f) {
+        printf("fopen(\"%s\") error: %s\n", filename, strerror(errno));
+        exit(-1);
+    }
+    fprintf(f, " ");
+    for (j=0; j<s2Len; ++j) {
+        fprintf(f, "%4c", s2[j]);
+    }
+    fprintf(f, "\n");
+    for (i=0; i<s1Len; ++i) {
+        fprintf(f, "%c", s1[i]);
+        for (j=0; j<s2Len; ++j) {
+            fprintf(f, "%4d", array[i*s2Len + j]);
+        }
+        fprintf(f, "\n");
+    }
+    fclose(f);
+}
+
+static void print_array(
+        const char * filename,
+        int * array,
+        const char * const restrict s1, const int s1Len,
+        const char * const restrict s2, const int s2Len,
+        parasail_result_t *result)
+{
     if ((result->flag & PARASAIL_FLAG_TRACE)
             && ((result->flag & PARASAIL_FLAG_STRIPED)
                 || (result->flag & PARASAIL_FLAG_SCAN))) {
-        free(array);
+        int *array_ = parasail_striped_unwind(s1Len, s2Len, result, array);
+        print_array_int(filename, array_, s1, s1Len, s2, s2Len, result);
+        free(array_);
+    }
+    else if (result->flag & PARASAIL_FLAG_TRACE) {
+        print_array_int8_t(filename, (int8_t*)array, s1, s1Len, s2, s2Len, result);
+    }
+    else {
+        print_array_int(filename, array, s1, s1Len, s2, s2Len, result);
     }
 }
 
 static void print_rowcol(
-        const char * filename_,
+        const char * filename,
         const int * const restrict row,
         const int * const restrict col,
         const char * const restrict s1, const int s1Len,
@@ -87,7 +125,6 @@ static void print_rowcol(
     int i;
     int j;
     FILE *f = NULL;
-    const char *filename = filename_;
 
     f = fopen(filename, "w");
     if (NULL == f) {
@@ -629,6 +666,7 @@ int main(int argc, char **argv)
                 strcat(filename, suffix);
                 print_array(filename, table, seqA, lena, seqB, lenb, result);
             }
+#if 0
             {
                 int *table = parasail_result_get_trace_ins_table(result);
                 char filename[256] = {'\0'};
@@ -645,6 +683,7 @@ int main(int argc, char **argv)
                 strcat(filename, suffix);
                 print_array(filename, table, seqA, lena, seqB, lenb, result);
             }
+#endif
             parasail_result_free(result);
         }
         if (use_rdtsc) {

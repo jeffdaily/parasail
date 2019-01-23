@@ -124,6 +124,9 @@ def generate_H_and_E(params):
     else:
         params["PVH_VAR"] = "pvH"
     params["PVEA_STORE"] = ""
+    params["SG_TMP"] = "-open-gap*(segNum*segLen+i)"
+    if "sg" in params["NAME"]:
+        params["SG_TMP"] = "s1_beg ? 0 : (-open-gap*(segNum*segLen+i))"
     if "striped" in params["NAME"] and "trace" in params["NAME"]:
         if "neon" in params["ISA"]:
             params["E_M_VAR"] = "e"
@@ -140,7 +143,7 @@ def generate_H_and_E(params):
             %(VTYPE)s h;
             %(VTYPE)s e;
             for (segNum=0; segNum<segWidth; ++segNum) {
-                int64_t tmp = -open-gap*(segNum*segLen+i);
+                int64_t tmp = %(SG_TMP)s;
                 h.i%(WIDTH)s[segNum] = tmp < INT%(WIDTH)s_MIN ? INT%(WIDTH)s_MIN : tmp;
                 tmp = tmp - open;
                 e.i%(WIDTH)s[segNum] = tmp < INT%(WIDTH)s_MIN ? INT%(WIDTH)s_MIN : tmp;
@@ -159,7 +162,7 @@ def generate_H_and_E(params):
             %(VTYPE)s_%(WIDTH)s_t h;
             %(VTYPE)s_%(WIDTH)s_t e;
             for (segNum=0; segNum<segWidth; ++segNum) {
-                int64_t tmp = -open-gap*(segNum*segLen+i);
+                int64_t tmp = %(SG_TMP)s;
                 h.v[segNum] = tmp < INT%(WIDTH)s_MIN ? INT%(WIDTH)s_MIN : tmp;
                 tmp = tmp - open;
                 e.v[segNum] = tmp < INT%(WIDTH)s_MIN ? INT%(WIDTH)s_MIN : tmp;

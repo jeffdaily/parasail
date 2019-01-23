@@ -119,7 +119,7 @@ Cross-compilation is possible with both the autotools and CMake builds, however 
 # for gnueabihf
 ./configure CC=arm-linux-gnueabihf-gcc CXX=arm-linux-gnueabihf-g++ --build x86_64-pc-linux-gnu --host arm-linux-gnueabihf LDFLAGS=-static --without-zlib
 ```
-Note that you don't really need to specifc `CC` and `CXX` above (the `--host` argument will be added as a prefix to `gcc` and `g++` automatically), but being explicit will report errors early in case you forgot to install one of the packages from the prerequisites step.
+Note that you don't really need to specify `CC` and `CXX` above (the `--host` argument will be added as a prefix to `gcc` and `g++` automatically), but being explicit will report errors early in case you forgot to install one of the packages from the prerequisites step.
 
 #### Verifying Cross-Compiled ARM Executables using QEMU
 

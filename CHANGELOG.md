@@ -7,6 +7,21 @@ This project follows the [Gitflow Workflow model](https://www.atlassian.com/git/
 ## [Unreleased]
 The Unreleased section will be empty for tagged releases. Unreleased functionality appears in the develop branch.
 
+### Added
+- Specific semi-global routines for various beginning and end gap penalty combinations.
+  
+| Gaps are penalty-free at | Function Name |
+| --- | --- |
+| beginning of s1/query | sg_qb |
+| end of s1/query | sg_qe |
+| beginning and end of s1/query | sg_qx |
+| beginning of s2/database | sg_db |
+| end of s2/database | sg_de |
+| beginning and end of s2/database | sg_dx |
+| beginning of s1/query and end of s2/database | sg_qb_de |
+| beginning of s2/database and end of s1/query | sg_qe_db |
+| beginning and end of both sequences | sg (original, unchanged for backwards compatibility) |
+
 ## [2.3] - 2018-10-23
 ### Added
 - Support for MSYS and mingw builds.

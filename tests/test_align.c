@@ -405,7 +405,7 @@ int main(int argc, char **argv)
     index = 0;
     f = functions[index++];
     while (f.pointer) {
-        char name[16] = {'\0'};
+        char name[256] = {'\0'};
         int new_limit = f.is_table || f.is_rowcol || f.is_trace ? 1 : limit;
         int saturated = 0;
         if ((0 == strncmp(f.isa, "sse2",  4) && 0 == parasail_can_use_sse2()) 

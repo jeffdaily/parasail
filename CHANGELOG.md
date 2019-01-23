@@ -22,6 +22,9 @@ The Unreleased section will be empty for tagged releases. Unreleased functionali
 | beginning of s2/database and end of s1/query | sg_qe_db |
 | beginning and end of both sequences | sg (original, unchanged for backwards compatibility) |
 
+### Fixed
+- Bug in ARM NEON 64-bit comparison functions causing incorrect results.
+
 ## [2.3] - 2018-10-23
 ### Added
 - Support for MSYS and mingw builds.

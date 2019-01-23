@@ -30,7 +30,7 @@ simde_mm_cmpgt_epi64 (simde__m128i a, simde__m128i b) {
   simde__m128i r;
   SIMDE__VECTORIZE
   for (size_t i = 0 ; i < (sizeof(r.i64) / sizeof(r.i64[0])) ; i++) {
-    r.i64[i] = (a.i64[i] > b.i64[i]) ? 0xff : 0x00;
+    r.i64[i] = (a.i64[i] > b.i64[i]) ? 0xffffffffffffffff : 0x0000000000000000;
   }
   return r;
 }
@@ -42,7 +42,7 @@ simde_mm_cmplt_epi64 (simde__m128i a, simde__m128i b) {
   simde__m128i r;
   SIMDE__VECTORIZE
   for (size_t i = 0 ; i < (sizeof(r.i64) / sizeof(r.i64[0])) ; i++) {
-    r.i64[i] = (a.i64[i] < b.i64[i]) ? 0xff : 0x00;
+    r.i64[i] = (a.i64[i] < b.i64[i]) ? 0xffffffffffffffff : 0x0000000000000000;
   }
   return r;
 }

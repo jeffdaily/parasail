@@ -116,14 +116,7 @@ parasail_result_t* PNAME(
 #endif
 #endif
 
-    /* initialize H and E */
-    if (!s1_beg) {
 %(INIT_H_AND_E)s
-    }
-    else {
-        parasail_memset_%(VTYPE)s(pvHStore, %(VSET1)s(0), segLen);
-        parasail_memset_%(VTYPE)s(pvE, %(VSET1)s(-open), segLen);
-    }
 
     /* initialize uppder boundary */
     {

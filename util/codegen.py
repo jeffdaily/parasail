@@ -83,6 +83,9 @@ def generate_H(params):
         params["PVH_VAR"] = "pvHStore"
     else:
         params["PVH_VAR"] = "pvH"
+    params["SG_TMP"] = "-open-gap*(segNum*segLen+i)"
+    if "sg" in params["NAME"]:
+        params["SG_TMP"] = "s1_beg ? 0 : (-open-gap*(segNum*segLen+i))"
     if "neon" in params["ISA"]:
         text = """    /* initialize H */
     {
@@ -91,7 +94,7 @@ def generate_H(params):
             %(INDEX)s segNum = 0;
             %(VTYPE)s h;
             for (segNum=0; segNum<segWidth; ++segNum) {
-                int64_t tmp = -open-gap*(segNum*segLen+i);
+                int64_t tmp = %(SG_TMP)s;
                 h.i%(WIDTH)s[segNum] = tmp < INT%(WIDTH)s_MIN ? INT%(WIDTH)s_MIN : tmp;
             }
             %(VSTORE)s(&%(PVH_VAR)s[index], h);
@@ -106,7 +109,7 @@ def generate_H(params):
             %(INDEX)s segNum = 0;
             %(VTYPE)s_%(WIDTH)s_t h;
             for (segNum=0; segNum<segWidth; ++segNum) {
-                int64_t tmp = -open-gap*(segNum*segLen+i);
+                int64_t tmp = %(SG_TMP)s;
                 h.v[segNum] = tmp < INT%(WIDTH)s_MIN ? INT%(WIDTH)s_MIN : tmp;
             }
             %(VSTORE)s(&%(PVH_VAR)s[index], h.m);

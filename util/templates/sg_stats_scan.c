@@ -163,13 +163,7 @@ parasail_result_t* PNAME(
         }
     }
 
-    /* initialize H */
-    if (!s1_beg) {
 %(INIT_H)s
-    }
-    else {
-        parasail_memset_%(VTYPE)s(pvH, vZero, segLen);
-    }
 
     /* initialize uppder boundary */
     {

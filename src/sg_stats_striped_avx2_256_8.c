@@ -233,8 +233,6 @@ parasail_result_t* PNAME(
     parasail_memset___m256i(pvEL, vOne, segLen);
 
     /* initialize H and E */
-    if (!s1_beg) {
-    /* initialize H and E */
     {
         int32_t index = 0;
         for (i=0; i<segLen; ++i) {
@@ -242,7 +240,7 @@ parasail_result_t* PNAME(
             __m256i_8_t h;
             __m256i_8_t e;
             for (segNum=0; segNum<segWidth; ++segNum) {
-                int64_t tmp = -open-gap*(segNum*segLen+i);
+                int64_t tmp = s1_beg ? 0 : (-open-gap*(segNum*segLen+i));
                 h.v[segNum] = tmp < INT8_MIN ? INT8_MIN : tmp;
                 tmp = tmp - open;
                 e.v[segNum] = tmp < INT8_MIN ? INT8_MIN : tmp;
@@ -251,11 +249,6 @@ parasail_result_t* PNAME(
             _mm256_store_si256(&pvE[index], e.m);
             ++index;
         }
-    }
-    }
-    else {
-        parasail_memset___m256i(pvHStore, vZero, segLen);
-        parasail_memset___m256i(pvE, _mm256_set1_epi8(-open), segLen);
     }
 
     /* initialize uppder boundary */

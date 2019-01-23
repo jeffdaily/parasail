@@ -194,24 +194,18 @@ parasail_result_t* PNAME(
     }
 
     /* initialize H */
-    if (!s1_beg) {
-    /* initialize H */
     {
         int32_t index = 0;
         for (i=0; i<segLen; ++i) {
             int32_t segNum = 0;
             simde__m128i h;
             for (segNum=0; segNum<segWidth; ++segNum) {
-                int64_t tmp = -open-gap*(segNum*segLen+i);
+                int64_t tmp = s1_beg ? 0 : (-open-gap*(segNum*segLen+i));
                 h.i8[segNum] = tmp < INT8_MIN ? INT8_MIN : tmp;
             }
             simde_mm_store_si128(&pvH[index], h);
             ++index;
         }
-    }
-    }
-    else {
-        parasail_memset_simde__m128i(pvH, vZero, segLen);
     }
 
     /* initialize uppder boundary */

@@ -131,8 +131,6 @@ parasail_result_t* PNAME(
 #endif
 
     /* initialize H and E */
-    if (!s1_beg) {
-    /* initialize H and E */
     {
         int32_t index = 0;
         for (i=0; i<segLen; ++i) {
@@ -140,7 +138,7 @@ parasail_result_t* PNAME(
             vec128i_16_t h;
             vec128i_16_t e;
             for (segNum=0; segNum<segWidth; ++segNum) {
-                int64_t tmp = -open-gap*(segNum*segLen+i);
+                int64_t tmp = s1_beg ? 0 : (-open-gap*(segNum*segLen+i));
                 h.v[segNum] = tmp < INT16_MIN ? INT16_MIN : tmp;
                 tmp = tmp - open;
                 e.v[segNum] = tmp < INT16_MIN ? INT16_MIN : tmp;
@@ -149,11 +147,6 @@ parasail_result_t* PNAME(
             _mm_store_si128(&pvE[index], e.m);
             ++index;
         }
-    }
-    }
-    else {
-        parasail_memset_vec128i(pvHStore, _mm_set1_epi16(0), segLen);
-        parasail_memset_vec128i(pvE, _mm_set1_epi16(-open), segLen);
     }
 
     /* initialize uppder boundary */

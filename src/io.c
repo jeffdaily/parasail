@@ -821,7 +821,7 @@ inline static char*  get_alphabet(const char *T, off_t i, off_t size)
  * N  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1 -30
  * X -30 -30 -30 -30 -30 -30 -30 -30 -30 -30 -30 -30
  */
-parasail_matrix_t* parasail_matrix_from_file(const char *filename)
+parasail_matrix_t* parasail_matrix_from_file_internal(const char *filename, int case_sensitive)
 {
     parasail_matrix_t *retval = NULL;
     int *matrix = NULL;
@@ -919,9 +919,16 @@ parasail_matrix_t* parasail_matrix_from_file(const char *filename)
         exit(EXIT_FAILURE);
     }
     parasail_memset_int(mapper, size-1, 256);
-    for (c=0; c<asize; ++c) {
-        mapper[toupper((unsigned char)alphabet[c])] = (int)c;
-        mapper[tolower((unsigned char)alphabet[c])] = (int)c;
+    if (case_sensitive) {
+        for (c=0; c<asize; ++c) {
+            mapper[(unsigned char)alphabet[c]] = (int)c;
+        }
+    }
+    else {
+        for (c=0; c<asize; ++c) {
+            mapper[toupper((unsigned char)alphabet[c])] = (int)c;
+            mapper[tolower((unsigned char)alphabet[c])] = (int)c;
+        }
     }
 
     free(alphabet);
@@ -941,5 +948,15 @@ parasail_matrix_t* parasail_matrix_from_file(const char *filename)
     retval->min = min;
     retval->user_matrix = matrix;
     return retval;
+}
+
+parasail_matrix_t* parasail_matrix_from_file(const char *filename)
+{
+    return parasail_matrix_from_file_internal(filename, 0);
+}
+
+parasail_matrix_t* parasail_matrix_from_file_case_sensitive(const char *filename)
+{
+    return parasail_matrix_from_file_internal(filename, 1);
 }
 

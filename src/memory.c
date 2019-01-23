@@ -354,8 +354,8 @@ void parasail_version(int *major, int *minor, int *patch)
     *patch = PARASAIL_VERSION_PATCH;
 }
 
-parasail_matrix_t* parasail_matrix_create(
-        const char *alphabet, const int match, const int mismatch)
+static parasail_matrix_t* parasail_matrix_create_internal(
+        const char *alphabet, const int match, const int mismatch, int case_sensitive)
 {
     parasail_matrix_t *retval = NULL;
     int *matrix = NULL;
@@ -390,9 +390,16 @@ parasail_matrix_t* parasail_matrix_create(
     mapper = (int*)malloc(sizeof(int)*256);
     assert(mapper);
     parasail_memset_int(mapper, (int)size, 256);
-    for (i=0; i<size; ++i) {
-        mapper[toupper((unsigned char)alphabet[i])] = (int)i;
-        mapper[tolower((unsigned char)alphabet[i])] = (int)i;
+    if (case_sensitive) {
+        for (i=0; i<size; ++i) {
+            mapper[(unsigned char)alphabet[i]] = (int)i;
+        }
+    }
+    else {
+        for (i=0; i<size; ++i) {
+            mapper[toupper((unsigned char)alphabet[i])] = (int)i;
+            mapper[tolower((unsigned char)alphabet[i])] = (int)i;
+        }
     }
 
     retval = (parasail_matrix_t*)malloc(sizeof(parasail_matrix_t));
@@ -405,6 +412,18 @@ parasail_matrix_t* parasail_matrix_create(
     retval->min = match > mismatch ? mismatch : match;
     retval->user_matrix = matrix;
     return retval;
+}
+
+parasail_matrix_t* parasail_matrix_create(
+        const char *alphabet, const int match, const int mismatch)
+{
+    return parasail_matrix_create_internal(alphabet, match, mismatch, 0);
+}
+
+parasail_matrix_t* parasail_matrix_create_case_sensitive(
+        const char *alphabet, const int match, const int mismatch)
+{
+    return parasail_matrix_create_internal(alphabet, match, mismatch, 1);
 }
 
 parasail_matrix_t* parasail_matrix_copy(const parasail_matrix_t *original)

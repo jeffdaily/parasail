@@ -155,8 +155,6 @@ parasail_result_t* PNAME(
             simde_mm_slli_si128(simde_mm_set1_epi8(-segLen*gap), 1));
 
     /* initialize H and E */
-    if (!s1_beg) {
-    /* initialize H and E */
     {
         int32_t index = 0;
         for (i=0; i<segLen; ++i) {
@@ -164,7 +162,7 @@ parasail_result_t* PNAME(
             simde__m128i h;
             simde__m128i e;
             for (segNum=0; segNum<segWidth; ++segNum) {
-                int64_t tmp = -open-gap*(segNum*segLen+i);
+                int64_t tmp = s1_beg ? 0 : (-open-gap*(segNum*segLen+i));
                 h.i8[segNum] = tmp < INT8_MIN ? INT8_MIN : tmp;
                 tmp = tmp - open;
                 e.i8[segNum] = tmp < INT8_MIN ? INT8_MIN : tmp;
@@ -173,11 +171,6 @@ parasail_result_t* PNAME(
             simde_mm_store_si128(&pvE[index], e);
             ++index;
         }
-    }
-    }
-    else {
-        parasail_memset_simde__m128i(pvH, vZero, segLen);
-        parasail_memset_simde__m128i(pvE, vNegLimit, segLen);
     }
 
     /* initialize uppder boundary */

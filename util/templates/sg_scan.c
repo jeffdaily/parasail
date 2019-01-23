@@ -124,14 +124,7 @@ parasail_result_t* PNAME(
     vSegLenXgap = %(VADD)s(vNegInfFront,
             %(VSHIFT)s(%(VSET1)s(-segLen*gap), %(BYTES)s));
 
-    /* initialize H and E */
-    if (!s1_beg) {
 %(INIT_H_AND_E)s
-    }
-    else {
-        parasail_memset_%(VTYPE)s(pvH, vZero, segLen);
-        parasail_memset_%(VTYPE)s(pvE, vNegLimit, segLen);
-    }
 
     /* initialize uppder boundary */
     {

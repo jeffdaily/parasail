@@ -39,7 +39,7 @@ Author: Jeff Daily (jeff.daily@pnnl.gov)
 
 [back to top]
 
-parasail is a SIMD C (C99) library containing implementations of the Smith-Waterman (local), Needleman-Wunsch (global), and semi-global pairwise sequence alignment algorithms.  Here, semi-global means insertions before the start or after the end of either the query or target sequence are not penalized.  parasail implements most known algorithms for vectorized pairwise sequence alignment, including diagonal [Wozniak, 1997], blocked [Rognes and Seeberg, 2000], striped [Farrar, 2007], and prefix scan [Daily, 2015].  Therefore, parasail is a reference implementation for these algorithms in addition to providing an implementation of the best-performing algorithm(s) to date on today's most advanced CPUs.
+parasail is a SIMD C (C99) library containing implementations of the Smith-Waterman (local), Needleman-Wunsch (global), and various semi-global pairwise sequence alignment algorithms.  Here, semi-global means insertions before the start or after the end of either the query or target sequence are optionally not penalized.  parasail implements most known algorithms for vectorized pairwise sequence alignment, including diagonal [Wozniak, 1997], blocked [Rognes and Seeberg, 2000], striped [Farrar, 2007], and prefix scan [Daily, 2015].  Therefore, parasail is a reference implementation for these algorithms in addition to providing an implementation of the best-performing algorithm(s) to date on today's most advanced CPUs.
 
 parasail implements the above algorithms currently in three variants, 1) returning the alignment score and ending locations, 2) additionally returning alignment statistics (number of exact matches, number of similarities, and alignment length), and 3) functions that store a traceback for later retrieval as a SAM CIGAR string.  The three variants exist because parasail is intended to be high-performing; calculating additional statistics or the traceback will perform slower than simply calculating the alignment score. Select the appropriate implementation for your needs.
 
@@ -212,41 +212,58 @@ You must free the returned parasail result using `void parasail_result_free(para
 
 [back to top]
 
-There are over 1,000 functions within the parasail library.  To make it easier to find the function you're looking for, the function names follow a naming convention.  The following will use set notation {} to indicate a selection must be made and brackets [] to indicate an optional part of the name.
+There are over 1,000 functions within the parasail library, but most are variations of the familiar main algorithms.  The following table describes the main algorithms and the shorthand name used for the function.
 
+| Algorithm | Function Name |
+| --- | --- |
+| Smith-Waterman local alignment | sw |
+| Needleman-Wunsch global alignment | nw |
+| Semi-Global, do not penalize gaps at beginning of s1/query | sg_qb |
+| Semi-Global, do not penalize gaps at end of s1/query | sg_qe |
+| Semi-Global, do not penalize gaps at beginning and end of s1/query | sg_qx |
+| Semi-Global, do not penalize gaps at beginning of s2/database | sg_db |
+| Semi-Global, do not penalize gaps at end of s2/database | sg_de |
+| Semi-Global, do not penalize gaps at beginning and end of s2/database | sg_dx |
+| Semi-Global, do not penalize gaps at beginning of s1/query and end of s2/database | sg_qb_de |
+| Semi-Global, do not penalize gaps at beginning of s2/database and end of s1/query | sg_qe_db |
+| Semi-Global, do not penalize gaps at beginning and end of both sequences | sg |
+
+To make it easier to find the function you're looking for, the function names follow a naming convention.  The following will use set notation {} to indicate a selection must be made and brackets [] to indicate an optional part of the name.
+ 
 - Non-vectorized, reference implementations.
-  - Required, select one of global (nw), semi-global (sg), or local (sw) alignment.
+  - Required, select algorithm from table above.
   - Optional return alignment statistics.
   - Optional return DP table or last row/col.
   - Optional use a prefix scan implementation.
-  - `parasail_ {nw,sg,sw} [_stats] [{_table,_rowcol}] [_scan]`
+  - `parasail_ {nw,sg,sg_qb,sg_qe,sg_qx,sg_db,sg_de,sg_dx,sg_qb_de,sg_qe_db,sw} [_stats] [{_table,_rowcol}] [_scan]`
 - Non-vectorized, traceback-capable reference implementations.
-  - Required, select one of global (nw), semi-global (sg), or local (sw) alignment.
+  - Required, select algorithm from table above.
   - Optional use a prefix scan implementation.
-  - `parasail_ {nw,sg,sw} _trace [_scan]`
+  - `parasail_ {nw,sg,sg_qb,sg_qe,sg_qx,sg_db,sg_de,sg_dx,sg_qb_de,sg_qe_db,sw} _trace [_scan]`
 - Vectorized.
-  - Required, select one of global (nw), semi-global (sg), or local (sw) alignment.
+  - Required, select algorithm from table above.
   - Optional return alignment statistics.
   - Optional return DP table or last row/col.
   - Required, select vectorization strategy -- striped is a good place to start, but scan is often faster for global alignment.
   - Optional, select vector instruction set. Otherwise, best will be chosen for you.
   - Required, select solution width. 'sat' will attempt 8-bit solution but if overflow is detected it will then perform the 16-bit operation. Can be faster in some cases, though 16-bit is often sufficient.
-  - `parasail_ {nw,sg,sw} [_stats] [{_table,_rowcol}] {_striped,_scan,_diag} [{_sse2_128,_sse41_128,_avx2_256,_altivec_128,_neon_128}] {_8,_16,_32,_64,_sat}`
+  - `parasail_ {nw,sg,sg_qb,sg_qe,sg_qx,sg_db,sg_de,sg_dx,sg_qb_de,sg_qe_db,sw} [_stats] [{_table,_rowcol}] {_striped,_scan,_diag} [{_sse2_128,_sse41_128,_avx2_256,_altivec_128,_neon_128}] {_8,_16,_32,_64,_sat}`
 - Vectorized, traceback-capable.
-  - Required, select one of global (nw), semi-global (sg), or local (sw) alignment.
+  - Required, select algorithm from table above.
   - Required, select vectorization strategy -- striped is a good place to start, but scan is often faster for global alignment.
   - Optional, select vector instruction set. Otherwise, best will be chosen for you.
   - Required, select solution width. 'sat' will attempt 8-bit solution but if overflow is detected it will then perform the 16-bit operation. Can be faster in some cases, though 16-bit is often sufficient.
-  - `parasail_ {nw,sg,sw} _trace {_striped,_scan,_diag} [{_sse2_128,_sse41_128,_avx2_256,_altivec_128,_neon_128}] {_8,_16,_32,_64,_sat}`
+  - `parasail_ {nw,sg,sg_qb,sg_qe,sg_qx,sg_db,sg_de,sg_dx,sg_qb_de,sg_qe_db,sw} _trace {_striped,_scan,_diag} [{_sse2_128,_sse41_128,_avx2_256,_altivec_128,_neon_128}] {_8,_16,_32,_64,_sat}`
 
 For example:
 
 - `parasail_nw_stats_striped_sse41_128_16` is Needleman-Wunsch global alignment, with alignment statistics, using striped vectors for sse41 16-bit integers.
-- `parasail_sg` is semi-global, without alignment statistics, without vectorized code (i.e. serial).
+- `parasail_sg` is semi-global, not penalizing beginning or end gaps of both sequences, without alignment statistics, without vectorized code (i.e. serial).
 - `parasail_sw_scan_avx2_256_8` is Smith-Waterman local alignment, without alignment statistics, and uses prefix scan vectors for avx2 8-bit integers.
 - `parasail_nw_stats_scan_16` is Needleman-Wunsch global alignment, with alignment statistics, uses prefix scan vectors, dispatches to the best CPU instruction set, and uses 16-bit integers.
 - `parasail_sg_rowcol_striped_16` is semi-global alignment, without alignment statistics, outputs the last row and column of the DP table, uses striped vectors, dispatches to the best CPU instruction set, for 16-bit integers.
 - `parasail_sw_trace_striped_sat` uses local alignment, is traceback-capable, dispatches to the best CPU instruction set, and attempts the 8-bit solution before trying the 16-bit solution.
+- `parasail_sg_qx_trace_striped_32` is semi-global alignment, not penalizing beginning or end gaps for the query, is traceback-capable, dispatches to the best CPU instruction set, using 32-bit integers for the solution.
 
 ### Function Dispatchers
 

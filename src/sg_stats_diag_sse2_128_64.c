@@ -560,19 +560,19 @@ parasail_result_t* FNAME(
             }
         }
         if (s1_end && s2_end) {
-            if (max_rowh >= max_colh) {
-                score = max_rowh;
-                end_query = s1Len-1;
-                matches = max_rowm;
-                similar = max_rows;
-                length = max_rowl;
-            }
-            else {
+            if (max_colh > max_rowh || (max_colh == max_rowh && end_ref == s2Len-1)) {
                 score = max_colh;
                 end_ref = s2Len-1;
                 matches = max_colm;
                 similar = max_cols;
                 length = max_coll;
+            }
+            else {
+                score = max_rowh;
+                end_query = s1Len-1;
+                matches = max_rowm;
+                similar = max_rows;
+                length = max_rowl;
             }
         }
         else if (s1_end) {

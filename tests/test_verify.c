@@ -210,22 +210,22 @@ static void check_functions(
                     if (reference_result->end_query != result->end_query) {
 #pragma omp critical(printer)
                         {
-                            printf("%s(%lu,%lu,%d,%d,%s) wrong end_query (%d!=%d)\n",
+                            printf("%s(%lu,%lu,%d,%d,%s) wrong end_query (%d!=%d) score=%d\n",
                                     functions[function_index].name,
                                     a, b, open, extend,
                                     matrixname,
-                                    reference_result->end_query, result->end_query);
+                                    reference_result->end_query, result->end_query, result->score);
                             if (exit_on_mismatch) exit(EXIT_FAILURE);
                         }
                     }
                     if (reference_result->end_ref != result->end_ref) {
 #pragma omp critical(printer)
                         {
-                            printf("%s(%lu,%lu,%d,%d,%s) wrong end_ref (%d!=%d)\n",
+                            printf("%s(%lu,%lu,%d,%d,%s) wrong end_ref (%d!=%d) score=%d\n",
                                     functions[function_index].name,
                                     a, b, open, extend,
                                     matrixname,
-                                    reference_result->end_ref, result->end_ref);
+                                    reference_result->end_ref, result->end_ref, result->score);
                             if (exit_on_mismatch) exit(EXIT_FAILURE);
                         }
                     }

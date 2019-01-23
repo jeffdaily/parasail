@@ -360,13 +360,13 @@ parasail_result_t* FNAME(
             }
         }
         if (s1_end && s2_end) {
-            if (max_row >= max_col) {
-                score = max_row;
-                end_query = s1Len-1;
-            }
-            else {
+            if (max_col > max_row || (max_col == max_row && end_ref == s2Len-1)) {
                 score = max_col;
                 end_ref = s2Len-1;
+            }
+            else {
+                score = max_row;
+                end_query = s1Len-1;
             }
         }
         else if (s1_end) {

@@ -838,8 +838,6 @@ static parasail_matrix_t* parasail_matrix_from_file_internal(const char *filenam
     int min = INT_MAX;
     size_t c = 0;
 
-    mapper = (int*)malloc(sizeof(int)*256);
-
     pf = parasail_open(filename);
     T = pf->buf;
     size = pf->size;

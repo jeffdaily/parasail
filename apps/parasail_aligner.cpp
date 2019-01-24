@@ -612,6 +612,7 @@ int main(int argc, char **argv) {
     int kbandsize = 3;
     const char *matrixname = NULL;
     const parasail_matrix_t *matrix = NULL;
+    bool matrix_needs_free = false;
     int gap_open = 10;
     int gap_extend = 1;
     int match = 1;
@@ -937,6 +938,7 @@ int main(int argc, char **argv) {
         else {
             matrix = parasail_matrix_create("ACGT", match, -mismatch);
         }
+        matrix_needs_free = true;
     }
     else {
         if (NULL == matrixname) {
@@ -950,6 +952,9 @@ int main(int argc, char **argv) {
             }
             else {
                 matrix = parasail_matrix_from_file(matrixname);
+            }
+            if (NULL != matrix) {
+                matrix_needs_free = true;
             }
         }
         if (NULL == matrix) {
@@ -1732,6 +1737,12 @@ int main(int argc, char **argv) {
 
     /* Done with input text. */
     free(T);
+
+    /* Done with matrix, if it was not a built-in one. */
+    if (matrix_needs_free) {
+        // cast away const-ness to free */
+        parasail_matrix_free(const_cast<parasail_matrix_t*>(matrix));
+    }
 
     /* Done with sequences if we were using tracebacks. */
     if (is_trace) {

@@ -14,7 +14,9 @@ EXPORTS
     parasail_time
     parasail_matrix_lookup
     parasail_matrix_create
+    parasail_matrix_create_case_sensitive
     parasail_matrix_from_file
+    parasail_matrix_from_file_case_sensitive
     parasail_matrix_free
     parasail_matrix_copy
     parasail_matrix_set_value

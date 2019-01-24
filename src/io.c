@@ -821,7 +821,7 @@ inline static char*  get_alphabet(const char *T, off_t i, off_t size)
  * N  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1 -30
  * X -30 -30 -30 -30 -30 -30 -30 -30 -30 -30 -30 -30
  */
-parasail_matrix_t* parasail_matrix_from_file_internal(const char *filename, int case_sensitive)
+static parasail_matrix_t* parasail_matrix_from_file_internal(const char *filename, int case_sensitive)
 {
     parasail_matrix_t *retval = NULL;
     int *matrix = NULL;

@@ -23,14 +23,18 @@ EXPORTS
     parasail_nw_banded
     parasail_traceback_generic
     parasail_traceback_generic_extra
+    parasail_traceback_generic_case_sensitive
+    parasail_traceback_generic_extra_case_sensitive
     parasail_cigar_encode
     parasail_cigar_encode_string
     parasail_cigar_decode_op
     parasail_cigar_decode_len
     parasail_cigar_decode
     parasail_result_get_cigar
+    parasail_result_get_cigar_case_sensitive
     parasail_cigar_free
     parasail_result_get_traceback
+    parasail_result_get_traceback_case_sensitive
     parasail_traceback_free
     parasail_ssw
     parasail_ssw_profile

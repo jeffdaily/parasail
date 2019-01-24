@@ -293,6 +293,15 @@ extern parasail_traceback_t* parasail_result_get_traceback(
         const parasail_matrix_t *matrix,
         char match, char pos, char neg);
 
+extern parasail_traceback_t* parasail_result_get_traceback_case_sensitive(
+        parasail_result_t *result,
+        const char *seqA,
+        int lena,
+        const char *seqB,
+        int lenb,
+        const parasail_matrix_t *matrix,
+        char match, char pos, char neg);
+
 extern void parasail_traceback_free(parasail_traceback_t *traceback);
 
 extern void parasail_traceback_generic(
@@ -310,6 +319,36 @@ extern void parasail_traceback_generic(
         int use_stats);
 
 extern void parasail_traceback_generic_extra(
+        const char *seqA,
+        int lena,
+        const char *seqB,
+        int lenb,
+        const char *nameA,
+        const char *nameB,
+        const parasail_matrix_t *matrix,
+        parasail_result_t *result,
+        char match, char pos, char neg,
+        int width,
+        int name_width,
+        int use_stats,
+        int int_width,
+        FILE *stream);
+
+extern void parasail_traceback_generic_case_sensitive(
+        const char *seqA,
+        int lena,
+        const char *seqB,
+        int lenb,
+        const char *nameA,
+        const char *nameB,
+        const parasail_matrix_t *matrix,
+        parasail_result_t *result,
+        char match, char pos, char neg,
+        int width,
+        int name_width,
+        int use_stats);
+
+extern void parasail_traceback_generic_extra_case_sensitive(
         const char *seqA,
         int lena,
         const char *seqB,
@@ -380,6 +419,15 @@ extern char* parasail_cigar_decode(parasail_cigar_t *cigar);
 
 /* allocate and return the cigar for the given alignment */
 extern parasail_cigar_t* parasail_result_get_cigar(
+        parasail_result_t *result,
+        const char *seqA,
+        int lena,
+        const char *seqB,
+        int lenb,
+        const parasail_matrix_t *matrix);
+
+/* allocate and return the cigar for the given alignment */
+extern parasail_cigar_t* parasail_result_get_cigar_case_sensitive(
         parasail_result_t *result,
         const char *seqA,
         int lena,

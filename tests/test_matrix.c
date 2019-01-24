@@ -17,11 +17,12 @@ static char* get_alphabet(const parasail_matrix_t *matrix) {
     }
     alphabet[matrix->size+1] = '\0';
 
-    for (i=65; i<122; ++i) {
+    for (i=65; i<=122; ++i) {
         if (matrix->mapper[i] < matrix->size) {
             alphabet[matrix->mapper[i]] = i;
         }
     }
+    alphabet[matrix->size-1] = '*';
 
     return alphabet;
 }

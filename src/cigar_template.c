@@ -61,7 +61,8 @@ static inline parasail_cigar_t* CONCAT(NAME, T) (
         const char *seqB,
         int lenb,
         const parasail_matrix_t *matrix,
-        parasail_result_t *result)
+        parasail_result_t *result,
+        int case_sensitive)
 {
     size_t size = lena+lenb;
     parasail_cigar_t *cigar = malloc(sizeof(parasail_cigar_t));
@@ -152,7 +153,9 @@ static inline parasail_cigar_t* CONCAT(NAME, T) (
         }
         if (PARASAIL_DIAG == where) {
             if (HT[loc] & PARASAIL_DIAG) {
-                if (toupper(seqA[i]) == toupper(seqB[j])) {
+                int matches = case_sensitive ? (seqA[i] == seqB[i]) :
+                                               (toupper(seqA[i]) == toupper(seqB[j]));
+                if (matches) {
                     if (0 == c_mat) {
                         WRITE_ANY;
                     }

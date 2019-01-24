@@ -17,7 +17,8 @@ static inline parasail_traceback_t* CONCAT(NAME, T) (
         const char *seqB,
         int lenb,
         const parasail_matrix_t *matrix,
-        char match, char pos, char neg)
+        char match, char pos, char neg,
+        int case_sensitive)
 {
     parasail_traceback_t *traceback = NULL;
     char *q = malloc(sizeof(char)*(lena+lenb));
@@ -109,7 +110,7 @@ static inline parasail_traceback_t* CONCAT(NAME, T) (
             if (HT[loc] & PARASAIL_DIAG) {
                 *(qc++) = seqA[i];
                 *(dc++) = seqB[j];
-                *(ac++) = match_char(seqA[i], seqB[j], matrix, match, pos, neg);
+                *(ac++) = match_char(seqA[i], seqB[j], matrix, match, pos, neg, case_sensitive);
                 --i;
                 --j;
             }
@@ -201,7 +202,8 @@ static inline void CONCAT(NAME, T) (
         int name_width,
         int use_stats,
         int int_width,
-        FILE *stream)
+        FILE *stream,
+        int case_sensitive)
 {
     char *q = malloc(sizeof(char)*(lena+lenb));
     char *d = malloc(sizeof(char)*(lena+lenb));
@@ -308,7 +310,7 @@ static inline void CONCAT(NAME, T) (
             if (HT[loc] & PARASAIL_DIAG) {
                 *(qc++) = seqA[i];
                 *(dc++) = seqB[j];
-                *(ac++) = match_char(seqA[i], seqB[j], matrix, match, pos, neg);
+                *(ac++) = match_char(seqA[i], seqB[j], matrix, match, pos, neg, case_sensitive);
                 --i;
                 --j;
             }

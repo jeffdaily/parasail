@@ -205,7 +205,8 @@ inline static void output_emboss(
         const vector<parasail_result_t*> &results,
         long long start,
         long long stop,
-        bool case_sensitive);
+        bool case_sensitive,
+        const char *alphabet_aliases);
 
 inline static void output_ssw(
         FILE *fop,
@@ -218,7 +219,8 @@ inline static void output_ssw(
         const vector<parasail_result_t*> &results,
         long long start,
         long long stop,
-        bool case_sensitive);
+        bool case_sensitive,
+        const char *alphabet_aliases);
 
 inline static void output_sam(
         FILE *fop,
@@ -232,7 +234,8 @@ inline static void output_sam(
         const vector<parasail_result_t*> &results,
         long long start,
         long long stop,
-        bool case_sensitive);
+        bool case_sensitive,
+        const char *alphabet_aliases);
 
 inline static void output_trace(
         FILE *fop,
@@ -246,7 +249,8 @@ inline static void output_trace(
         const vector<parasail_result_t*> &results,
         long long start,
         long long stop,
-        bool case_sensitive);
+        bool case_sensitive,
+        const char *alphabet_aliases);
 
 inline static void output_tables(
         bool has_query,
@@ -284,7 +288,8 @@ inline static void output(
         const vector<parasail_result_t*> &results,
         long long start,
         long long stop,
-        bool case_sensitive);
+        bool case_sensitive,
+        const char *alphabet_aliases);
 
 inline static size_t parse_bytes(const char*);
 static void set_signal_handler();
@@ -612,6 +617,7 @@ int main(int argc, char **argv) {
     int match = 1;
     int mismatch = 0;
     bool case_sensitive = false;
+    const char *alphabet_aliases = NULL;
     bool use_dna = false;
     bool pairs_only = false;
     bool edge_output = false;
@@ -646,10 +652,13 @@ int main(int argc, char **argv) {
     }
 
     /* Check arguments. */
-    while ((c = getopt(argc, argv, "a:b:c:Cde:Ef:g:Ghi:k:l:m:M:o:O:pq:r:s:t:vVxX:")) != -1) {
+    while ((c = getopt(argc, argv, "a:A:b:c:Cde:Ef:g:Ghi:k:l:m:M:o:O:pq:r:s:t:vVxX:")) != -1) {
         switch (c) {
             case 'a':
                 funcname = optarg;
+                break;
+            case 'A':
+                alphabet_aliases = optarg;
                 break;
             case 'b':
                 {
@@ -1563,7 +1572,7 @@ int main(int argc, char **argv) {
                         use_sam_format, use_sam_header, fop, has_query,
                         sid_crossover, T, AOL, SIM, OS, matrix,
                         BEG, END, vpairs, queries, sequences, results,
-                        start, stop, case_sensitive);
+                        start, stop, case_sensitive, alphabet_aliases);
             }
             for (long long index=start; index<stop; ++index) {
                 parasail_result_t *result = results[index];
@@ -1614,7 +1623,7 @@ int main(int argc, char **argv) {
                     use_emboss_format, use_ssw_format, use_sam_format,
                     use_sam_header, fop, has_query, sid_crossover, T, AOL,
                     SIM, OS, matrix, BEG, END, vpairs, queries, sequences,
-                    results, start, stop, case_sensitive);
+                    results, start, stop, case_sensitive, alphabet_aliases);
             for (long long index=start; index<stop; ++index) {
                 parasail_result_t *result = results[index];
                 parasail_result_free(result);
@@ -1672,7 +1681,7 @@ int main(int argc, char **argv) {
                         use_sam_format, use_sam_header, fop, has_query,
                         sid_crossover, T, AOL, SIM, OS, matrix,
                         BEG, END, vpairs, queries, sequences, results,
-                        start, stop, case_sensitive);
+                        start, stop, case_sensitive, alphabet_aliases);
             }
             for (long long index=start; index<stop; ++index) {
                 parasail_result_t *result = results[index];
@@ -2142,7 +2151,8 @@ inline static void output_emboss(
         const vector<parasail_result_t*> &results,
         long long start,
         long long stop,
-        bool case_sensitive)
+        bool case_sensitive,
+        const char *alphabet_aliases)
 {
     for (long long index=start; index<stop; ++index) {
         parasail_result_t *result = results[index];
@@ -2157,40 +2167,23 @@ inline static void output_emboss(
                         j, sequences->seqs[j].name.s);
                 continue;
             }
-            if (case_sensitive) {
-                parasail_traceback_generic_extra_case_sensitive(
-                        queries->seqs[i].seq.s,
-                        queries->seqs[i].seq.l,
-                        sequences->seqs[j].seq.s,
-                        sequences->seqs[j].seq.l,
-                        queries->seqs[i].name.s,
-                        sequences->seqs[j].name.s,
-                        matrix,
-                        result,
-                        '|', ':', '.',
-                        50,
-                        14,
-                        1,
-                        7,
-                        fop);
-            }
-            else {
-                parasail_traceback_generic_extra(
-                        queries->seqs[i].seq.s,
-                        queries->seqs[i].seq.l,
-                        sequences->seqs[j].seq.s,
-                        sequences->seqs[j].seq.l,
-                        queries->seqs[i].name.s,
-                        sequences->seqs[j].name.s,
-                        matrix,
-                        result,
-                        '|', ':', '.',
-                        50,
-                        14,
-                        1,
-                        7,
-                        fop);
-            }
+            parasail_traceback_generic_extra2(
+                    queries->seqs[i].seq.s,
+                    queries->seqs[i].seq.l,
+                    sequences->seqs[j].seq.s,
+                    sequences->seqs[j].seq.l,
+                    queries->seqs[i].name.s,
+                    sequences->seqs[j].name.s,
+                    matrix,
+                    result,
+                    '|', ':', '.',
+                    50,
+                    14,
+                    1,
+                    7,
+                    fop,
+                    case_sensitive,
+                    alphabet_aliases);
         }
         else {
             if (parasail_result_is_saturated(result)) {
@@ -2199,40 +2192,23 @@ inline static void output_emboss(
                         j, sequences->seqs[j].name.s);
                 continue;
             }
-            if (case_sensitive) {
-                parasail_traceback_generic_extra_case_sensitive(
-                        sequences->seqs[i].seq.s,
-                        sequences->seqs[i].seq.l,
-                        sequences->seqs[j].seq.s,
-                        sequences->seqs[j].seq.l,
-                        sequences->seqs[i].name.s,
-                        sequences->seqs[j].name.s,
-                        matrix,
-                        result,
-                        '|', ':', '.',
-                        50,
-                        14,
-                        1,
-                        7,
-                        fop);
-            }
-            else {
-                parasail_traceback_generic_extra(
-                        sequences->seqs[i].seq.s,
-                        sequences->seqs[i].seq.l,
-                        sequences->seqs[j].seq.s,
-                        sequences->seqs[j].seq.l,
-                        sequences->seqs[i].name.s,
-                        sequences->seqs[j].name.s,
-                        matrix,
-                        result,
-                        '|', ':', '.',
-                        50,
-                        14,
-                        1,
-                        7,
-                        fop);
-            }
+            parasail_traceback_generic_extra2(
+                    sequences->seqs[i].seq.s,
+                    sequences->seqs[i].seq.l,
+                    sequences->seqs[j].seq.s,
+                    sequences->seqs[j].seq.l,
+                    sequences->seqs[i].name.s,
+                    sequences->seqs[j].name.s,
+                    matrix,
+                    result,
+                    '|', ':', '.',
+                    50,
+                    14,
+                    1,
+                    7,
+                    fop,
+                    case_sensitive,
+                    alphabet_aliases);
         }
     }
 }
@@ -2248,7 +2224,8 @@ inline static void output_ssw(
         const vector<parasail_result_t*> &results,
         long long start,
         long long stop,
-        bool case_sensitive)
+        bool case_sensitive,
+        const char *alphabet_aliases)
 {
     for (long long index=start; index<stop; ++index) {
         parasail_result_t *result = results[index];
@@ -2266,22 +2243,14 @@ inline static void output_ssw(
             }
             fprintf(fop, "target_name: %s\n", sequences->seqs[j].name.s);
             fprintf(fop, "query_name: %s\n", queries->seqs[i].name.s);
-            if (case_sensitive) {
-                cigar = parasail_result_get_cigar_case_sensitive(result,
-                        queries->seqs[i].seq.s,
-                        queries->seqs[i].seq.l,
-                        sequences->seqs[j].seq.s,
-                        sequences->seqs[j].seq.l,
-                        matrix);
-            }
-            else {
-                cigar = parasail_result_get_cigar(result,
-                        queries->seqs[i].seq.s,
-                        queries->seqs[i].seq.l,
-                        sequences->seqs[j].seq.s,
-                        sequences->seqs[j].seq.l,
-                        matrix);
-            }
+            cigar = parasail_result_get_cigar_extra(result,
+                    queries->seqs[i].seq.s,
+                    queries->seqs[i].seq.l,
+                    sequences->seqs[j].seq.s,
+                    sequences->seqs[j].seq.l,
+                    matrix,
+                    case_sensitive,
+                    alphabet_aliases);
         }
         else {
             if (parasail_result_is_saturated(result)) {
@@ -2292,22 +2261,14 @@ inline static void output_ssw(
             }
             fprintf(fop, "target_name: %s\n", sequences->seqs[j].name.s);
             fprintf(fop, "query_name: %s\n", sequences->seqs[i].name.s);
-            if (case_sensitive) {
-                cigar = parasail_result_get_cigar_case_sensitive(result,
-                        sequences->seqs[i].seq.s,
-                        sequences->seqs[i].seq.l,
-                        sequences->seqs[j].seq.s,
-                        sequences->seqs[j].seq.l,
-                        matrix);
-            }
-            else {
-                cigar = parasail_result_get_cigar(result,
-                        sequences->seqs[i].seq.s,
-                        sequences->seqs[i].seq.l,
-                        sequences->seqs[j].seq.s,
-                        sequences->seqs[j].seq.l,
-                        matrix);
-            }
+            cigar = parasail_result_get_cigar_extra(result,
+                    sequences->seqs[i].seq.s,
+                    sequences->seqs[i].seq.l,
+                    sequences->seqs[j].seq.s,
+                    sequences->seqs[j].seq.l,
+                    matrix,
+                    case_sensitive,
+                    alphabet_aliases);
         }
 
         fprintf(fop, "optimal_alignment_score: %d"
@@ -2326,76 +2287,42 @@ inline static void output_ssw(
         parasail_cigar_free(cigar);
 
         if (has_query) {
-            if (case_sensitive) {
-                parasail_traceback_generic_extra_case_sensitive(
-                        queries->seqs[i].seq.s,
-                        queries->seqs[i].seq.l,
-                        sequences->seqs[j].seq.s,
-                        sequences->seqs[j].seq.l,
-                        "Query:",
-                        "Target:",
-                        matrix,
-                        result,
-                        '|', '*', '*',
-                        60,
-                        10,
-                        0,
-                        7,
-                        fop);
-            }
-            else {
-                parasail_traceback_generic_extra(
-                        queries->seqs[i].seq.s,
-                        queries->seqs[i].seq.l,
-                        sequences->seqs[j].seq.s,
-                        sequences->seqs[j].seq.l,
-                        "Query:",
-                        "Target:",
-                        matrix,
-                        result,
-                        '|', '*', '*',
-                        60,
-                        10,
-                        0,
-                        7,
-                        fop);
-            }
+            parasail_traceback_generic_extra2(
+                    queries->seqs[i].seq.s,
+                    queries->seqs[i].seq.l,
+                    sequences->seqs[j].seq.s,
+                    sequences->seqs[j].seq.l,
+                    "Query:",
+                    "Target:",
+                    matrix,
+                    result,
+                    '|', '*', '*',
+                    60,
+                    10,
+                    0,
+                    7,
+                    fop,
+                    case_sensitive,
+                    alphabet_aliases);
         }
         else {
-            if (case_sensitive) {
-                parasail_traceback_generic_extra_case_sensitive(
-                        sequences->seqs[i].seq.s,
-                        sequences->seqs[i].seq.l,
-                        sequences->seqs[j].seq.s,
-                        sequences->seqs[j].seq.l,
-                        "Query:",
-                        "Target:",
-                        matrix,
-                        result,
-                        '|', '*', '*',
-                        60,
-                        10,
-                        0,
-                        7,
-                        fop);
-            }
-            else {
-                parasail_traceback_generic_extra(
-                        sequences->seqs[i].seq.s,
-                        sequences->seqs[i].seq.l,
-                        sequences->seqs[j].seq.s,
-                        sequences->seqs[j].seq.l,
-                        "Query:",
-                        "Target:",
-                        matrix,
-                        result,
-                        '|', '*', '*',
-                        60,
-                        10,
-                        0,
-                        7,
-                        fop);
-            }
+            parasail_traceback_generic_extra2(
+                    sequences->seqs[i].seq.s,
+                    sequences->seqs[i].seq.l,
+                    sequences->seqs[j].seq.s,
+                    sequences->seqs[j].seq.l,
+                    "Query:",
+                    "Target:",
+                    matrix,
+                    result,
+                    '|', '*', '*',
+                    60,
+                    10,
+                    0,
+                    7,
+                    fop,
+                    case_sensitive,
+                    alphabet_aliases);
         }
     }
 }
@@ -2412,7 +2339,8 @@ inline static void output_sam(
         const vector<parasail_result_t*> &results,
         long long start,
         long long stop,
-        bool case_sensitive)
+        bool case_sensitive,
+        const char *alphabet_aliases)
 {
     if (use_sam_header && has_query && 0 == start) {
         fprintf(fop, "@HD\tVN:1.4\tSO:queryname\n");
@@ -2461,20 +2389,13 @@ inline static void output_sam(
             parasail_cigar_t *cigar = NULL;
             uint32_t mismatch = 0;
 
-            if (case_sensitive) {
-                cigar = parasail_result_get_cigar_case_sensitive(
-                        result,
-                        read_seq.seq.s, read_seq.seq.l,
-                        ref_seq.seq.s, ref_seq.seq.l,
-                        matrix);
-            }
-            else {
-                cigar = parasail_result_get_cigar(
-                        result,
-                        read_seq.seq.s, read_seq.seq.l,
-                        ref_seq.seq.s, ref_seq.seq.l,
-                        matrix);
-            }
+            cigar = parasail_result_get_cigar_extra(
+                    result,
+                    read_seq.seq.s, read_seq.seq.l,
+                    ref_seq.seq.s, ref_seq.seq.l,
+                    matrix,
+                    case_sensitive,
+                    alphabet_aliases);
 
             fprintf(fop, "0\t");
             fprintf(fop, "%s\t%d\t%d\t",
@@ -2529,7 +2450,8 @@ inline static void output_trace(
         const vector<parasail_result_t*> &results,
         long long start,
         long long stop,
-        bool case_sensitive)
+        bool case_sensitive,
+        const char *alphabet_aliases)
 {
     for (long long index=start; index<stop; ++index) {
         parasail_result_t *result = results[index];
@@ -2557,20 +2479,13 @@ inline static void output_trace(
             continue;
         }
 
-        if (case_sensitive) {
-            cigar = parasail_result_get_cigar_case_sensitive(
-                    result,
-                    (const char*)&T[i_beg], i_len,
-                    (const char*)&T[j_beg], j_len,
-                    matrix);
-        }
-        else {
-            cigar = parasail_result_get_cigar(
-                    result,
-                    (const char*)&T[i_beg], i_len,
-                    (const char*)&T[j_beg], j_len,
-                    matrix);
-        }
+        cigar = parasail_result_get_cigar_extra(
+                result,
+                (const char*)&T[i_beg], i_len,
+                (const char*)&T[j_beg], j_len,
+                matrix,
+                case_sensitive,
+                alphabet_aliases);
         cigar_string = parasail_cigar_decode(cigar);
         eprintf(fop, "%d,%d,%ld,%ld,%d,%d,%d,%s\n",
                 i,
@@ -2646,7 +2561,8 @@ inline static void output(
         const vector<parasail_result_t*> &results,
         long long start,
         long long stop,
-        bool case_sensitive)
+        bool case_sensitive,
+        const char *alphabet_aliases)
 {
     if (is_stats) {
         if (edge_output) {
@@ -2658,16 +2574,16 @@ inline static void output(
     }
     else if (is_trace) {
         if (use_emboss_format) {
-            output_emboss(fop, has_query, sid_crossover, matrix, vpairs, queries, sequences, results, start, stop, case_sensitive);
+            output_emboss(fop, has_query, sid_crossover, matrix, vpairs, queries, sequences, results, start, stop, case_sensitive, alphabet_aliases);
         }
         else if (use_ssw_format) {
-            output_ssw(fop, has_query, sid_crossover, matrix, vpairs, queries, sequences, results, start, stop, case_sensitive);
+            output_ssw(fop, has_query, sid_crossover, matrix, vpairs, queries, sequences, results, start, stop, case_sensitive, alphabet_aliases);
         }
         else if (use_sam_format) {
-            output_sam(fop, use_sam_header, has_query, sid_crossover, matrix, vpairs, queries, sequences, results, start, stop, case_sensitive);
+            output_sam(fop, use_sam_header, has_query, sid_crossover, matrix, vpairs, queries, sequences, results, start, stop, case_sensitive, alphabet_aliases);
         }
         else {
-            output_trace(fop, has_query, sid_crossover, T, matrix, BEG, END, vpairs, results, start, stop, case_sensitive);
+            output_trace(fop, has_query, sid_crossover, T, matrix, BEG, END, vpairs, results, start, stop, case_sensitive, alphabet_aliases);
         }
     }
     else {

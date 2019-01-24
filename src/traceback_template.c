@@ -18,8 +18,11 @@ static inline parasail_traceback_t* CONCAT(NAME, T) (
         int lenb,
         const parasail_matrix_t *matrix,
         char match, char pos, char neg,
-        int case_sensitive)
+        int case_sensitive,
+        const char *alphabet_aliases_)
 {
+    char alphabet_aliases[256];
+    size_t aliases_size = 0;
     parasail_traceback_t *traceback = NULL;
     char *q = malloc(sizeof(char)*(lena+lenb));
     char *d = malloc(sizeof(char)*(lena+lenb));
@@ -57,6 +60,15 @@ static inline parasail_traceback_t* CONCAT(NAME, T) (
     }
     segLen = (lena + segWidth - 1) / segWidth;
 #endif
+    if (NULL != alphabet_aliases_) {
+        size_t i;
+        aliases_size = strlen(alphabet_aliases_);
+        assert(aliases_size % 2 == 0 && aliases_size < 256); // even number of characters in alias
+        for (i=0; i<aliases_size; ++i) {
+            alphabet_aliases[i] = case_sensitive ? alphabet_aliases_[i] :
+                                                   toupper(alphabet_aliases_[i]);
+        }
+    }
     /* semi-global alignment includes the end gaps */
     if (result->flag & PARASAIL_FLAG_SG) {
         int k;
@@ -110,7 +122,7 @@ static inline parasail_traceback_t* CONCAT(NAME, T) (
             if (HT[loc] & PARASAIL_DIAG) {
                 *(qc++) = seqA[i];
                 *(dc++) = seqB[j];
-                *(ac++) = match_char(seqA[i], seqB[j], matrix, match, pos, neg, case_sensitive);
+                *(ac++) = match_char(seqA[i], seqB[j], matrix, match, pos, neg, case_sensitive, alphabet_aliases, aliases_size);
                 --i;
                 --j;
             }
@@ -203,8 +215,11 @@ static inline void CONCAT(NAME, T) (
         int use_stats,
         int int_width,
         FILE *stream,
-        int case_sensitive)
+        int case_sensitive,
+        const char *alphabet_aliases_)
 {
+    char alphabet_aliases[256];
+    size_t aliases_size = 0;
     char *q = malloc(sizeof(char)*(lena+lenb));
     char *d = malloc(sizeof(char)*(lena+lenb));
     char *a = malloc(sizeof(char)*(lena+lenb));
@@ -247,6 +262,15 @@ static inline void CONCAT(NAME, T) (
     }
     segLen = (lena + segWidth - 1) / segWidth;
 #endif
+    if (NULL != alphabet_aliases_) {
+        size_t i;
+        aliases_size = strlen(alphabet_aliases_);
+        assert(aliases_size % 2 == 0 && aliases_size < 256); // even number of characters in alias
+        for (i=0; i<aliases_size; ++i) {
+            alphabet_aliases[i] = case_sensitive ? alphabet_aliases_[i] :
+                                                   toupper(alphabet_aliases_[i]);
+        }
+    }
     /* how wide does our index label need to be? */
     _int_width = snprintf(tmp, 32, "%llu", (unsigned long long)lena+(unsigned long long)lenb);
     /* if requested int width is too small, override it */
@@ -310,7 +334,7 @@ static inline void CONCAT(NAME, T) (
             if (HT[loc] & PARASAIL_DIAG) {
                 *(qc++) = seqA[i];
                 *(dc++) = seqB[j];
-                *(ac++) = match_char(seqA[i], seqB[j], matrix, match, pos, neg, case_sensitive);
+                *(ac++) = match_char(seqA[i], seqB[j], matrix, match, pos, neg, case_sensitive, alphabet_aliases, aliases_size);
                 --i;
                 --j;
             }

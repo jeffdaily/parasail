@@ -62,8 +62,11 @@ static inline parasail_cigar_t* CONCAT(NAME, T) (
         int lenb,
         const parasail_matrix_t *matrix,
         parasail_result_t *result,
-        int case_sensitive)
+        int case_sensitive,
+        const char *alphabet_aliases_)
 {
+    char alphabet_aliases[256];
+    size_t aliases_size = 0;
     size_t size = lena+lenb;
     parasail_cigar_t *cigar = malloc(sizeof(parasail_cigar_t));
     uint32_t *cigar_reverse = NULL;
@@ -101,6 +104,15 @@ static inline parasail_cigar_t* CONCAT(NAME, T) (
     }
     segLen = (lena + segWidth - 1) / segWidth;
 #endif
+    if (NULL != alphabet_aliases_) {
+        size_t i;
+        aliases_size = strlen(alphabet_aliases_);
+        assert(aliases_size % 2 == 0 && aliases_size < 256); // even number of characters in alias
+        for (i=0; i<aliases_size; ++i) {
+            alphabet_aliases[i] = case_sensitive ? alphabet_aliases_[i] :
+                                                   toupper(alphabet_aliases_[i]);
+        }
+    }
     cigar->seq = malloc(sizeof(uint32_t)*size);
     cigar->len = 0;
     cigar->beg_query = 0;
@@ -153,8 +165,20 @@ static inline parasail_cigar_t* CONCAT(NAME, T) (
         }
         if (PARASAIL_DIAG == where) {
             if (HT[loc] & PARASAIL_DIAG) {
-                int matches = case_sensitive ? (seqA[i] == seqB[i]) :
-                                               (toupper(seqA[i]) == toupper(seqB[j]));
+                char a = case_sensitive ? seqA[i] : toupper(seqA[i]);
+                char b = case_sensitive ? seqB[i] : toupper(seqB[i]);
+                int matches = (a == b);
+                if (NULL != alphabet_aliases) {
+                    size_t i;
+                    for (i=0; i<aliases_size; i+=1) {
+                        if (alphabet_aliases[i] == a) {
+                            matches |= alphabet_aliases[i+1] == b;
+                        }
+                        else if (alphabet_aliases[i+1] == a) {
+                            matches |= alphabet_aliases[i] == b;
+                        }
+                    }
+                }
                 if (matches) {
                     if (0 == c_mat) {
                         WRITE_ANY;

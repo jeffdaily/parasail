@@ -197,33 +197,34 @@ void parasail_cigar_free(parasail_cigar_t *cigar)
 #undef T
 #undef STRIPED
 
-static parasail_cigar_t* parasail_result_get_cigar_internal(
+parasail_cigar_t* parasail_result_get_cigar_extra(
         parasail_result_t *result,
         const char *seqA,
         int lena,
         const char *seqB,
         int lenb,
         const parasail_matrix_t *matrix,
-        int case_sensitive)
+        int case_sensitive,
+        const char *alphabet_aliases)
 {
     assert(parasail_result_is_trace(result));
 
     if (result->flag & PARASAIL_FLAG_STRIPED || result->flag & PARASAIL_FLAG_SCAN) {
         if (result->flag & PARASAIL_FLAG_BITS_8) {
-            return parasail_cigar_striped_8(seqA, lena, seqB, lenb, matrix, result, case_sensitive);
+            return parasail_cigar_striped_8(seqA, lena, seqB, lenb, matrix, result, case_sensitive, alphabet_aliases);
         }
         else if (result->flag & PARASAIL_FLAG_BITS_16) {
-            return parasail_cigar_striped_16(seqA, lena, seqB, lenb, matrix, result, case_sensitive);
+            return parasail_cigar_striped_16(seqA, lena, seqB, lenb, matrix, result, case_sensitive, alphabet_aliases);
         }
         else if (result->flag & PARASAIL_FLAG_BITS_32) {
-            return parasail_cigar_striped_32(seqA, lena, seqB, lenb, matrix, result, case_sensitive);
+            return parasail_cigar_striped_32(seqA, lena, seqB, lenb, matrix, result, case_sensitive, alphabet_aliases);
         }
         else if (result->flag & PARASAIL_FLAG_BITS_64) {
-            return parasail_cigar_striped_64(seqA, lena, seqB, lenb, matrix, result, case_sensitive);
+            return parasail_cigar_striped_64(seqA, lena, seqB, lenb, matrix, result, case_sensitive, alphabet_aliases);
         }
     }
     else {
-        return parasail_cigar_8(seqA, lena, seqB, lenb, matrix, result, case_sensitive);
+        return parasail_cigar_8(seqA, lena, seqB, lenb, matrix, result, case_sensitive, alphabet_aliases);
     }
 
     /* should not get here, but to silence warnings */
@@ -238,17 +239,6 @@ parasail_cigar_t* parasail_result_get_cigar(
         int lenb,
         const parasail_matrix_t *matrix)
 {
-    return parasail_result_get_cigar_internal(result, seqA, lena, seqB, lenb, matrix, 0);
-}
-
-parasail_cigar_t* parasail_result_get_cigar_case_sensitive(
-        parasail_result_t *result,
-        const char *seqA,
-        int lena,
-        const char *seqB,
-        int lenb,
-        const parasail_matrix_t *matrix)
-{
-    return parasail_result_get_cigar_internal(result, seqA, lena, seqB, lenb, matrix, 1);
+    return parasail_result_get_cigar_extra(result, seqA, lena, seqB, lenb, matrix, 0, NULL);
 }
 

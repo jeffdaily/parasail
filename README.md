@@ -228,6 +228,8 @@ There are over 1,000 functions within the parasail library, but most are variati
 | Semi-Global, do not penalize gaps at beginning of s2/database and end of s1/query | sg_qe_db |
 | Semi-Global, do not penalize gaps at beginning and end of both sequences | sg |
 
+A good summary of the various alignment algorithms can be found courtesy of Dr. Dannie Durand's course on computational genomics [here](http://www.cs.cmu.edu/~durand/03-711/2015/Lectures/PW_sequence_alignment_2015.pdf).  The same document was copied locally to this repo in case this link ever breaks, found [here](contrib/PW_sequence_alignment_2015.pdf).
+
 To make it easier to find the function you're looking for, the function names follow a naming convention.  The following will use set notation {} to indicate a selection must be made and brackets [] to indicate an optional part of the name.
  
 - Non-vectorized, reference implementations.
@@ -366,7 +368,7 @@ You can also parse simple matrix files using the function
 # alphabet and assumed to be identical in order to the first alphabet row.
 #
 # Last row and column *must* be a non-alphabet character to represent
-# any input sequence that is outside of the alphabet.
+# any input sequence character that is outside of the alphabet.
 #
     A   T   G   C   S   W   R   Y   K   M   B   V   H   D   N   U   *
 A   5  -4  -4  -4  -4   1   1  -4  -4   1  -4  -1  -1  -1  -2  -4  -5

@@ -11,32 +11,35 @@ The parasail_aligner can also receive an input file piped from another program i
 ### Command-Line Interface
 
 ```bash
-usage: parasail_aligner [-a funcname] [-c cutoff] [-x] [-e gap_extend] [-o gap_open] [-m matrix] [-t threads] [-d] [-M match] [-X mismatch] [-k band size (for nw_banded)] [-l AOL] [-s SIM] [-i OS] [-v] [-V] -f file [-q query_file] [-g output_file] [-O output_format {EMBOSS,SAM,SAMH,SSW}] [-b batch_size] [-r memory_budget]
+usage: parasail_aligner [-a funcname] [-c cutoff] [-x] [-e gap_extend] [-o gap_open] [-m matrix] [-t threads] [-d] [-M match] [-X mismatch] [-k band size (for nw_banded)] [-l AOL] [-s SIM] [-i OS] [-v] [-V] -f file [-q query_file] [-g output_file] [-O output_format {EMBOSS,SAM,SAMH,SSW}] [-b batch_size] [-r memory_budget] [-C] [-A alphabet_aliases]
 
 Defaults:
-     funcname: sw_stats_striped_16
-       cutoff: 7, must be >= 1, exact match length cutoff
-           -x: if present, don't use suffix array filter
-   gap_extend: 1, must be >= 0
-     gap_open: 10, must be >= 0
-       matrix: blosum62
-           -d: if present, assume DNA alphabet
-        match: 1, must be >= 0
-     mismatch: 0, must be >= 0
-      threads: Warning: ignored; OpenMP was not supported by your compiler
-          AOL: 80, must be 0 <= AOL <= 100, percent alignment length
-          SIM: 40, must be 0 <= SIM <= 100, percent exact matches
-           OS: 30, must be 0 <= OS <= 100, percent optimal score
-                                           over self score
-           -v: verbose output, report input parameters and timing
-           -V: verbose memory output, report memory use
-         file: no default, must be in FASTA format
-   query_file: no default, must be in FASTA format
-  output_file: parasail.csv
-output_format: no deafult, must be one of {EMBOSS,SAM,SAMH,SSW}
-   batch_size: 0 (calculate based on memory budget),
-               how many alignments before writing output
-memory_budget: 2GB or half available from system query (X.XXX GB)
+        funcname: sw_stats_striped_16
+          cutoff: 7, must be >= 1, exact match length cutoff
+              -x: if present, don't use suffix array filter
+      gap_extend: 1, must be >= 0
+        gap_open: 10, must be >= 0
+          matrix: blosum62
+              -d: if present, assume DNA alphabet ACGT
+           match: 1, must be >= 0
+        mismatch: 0, must be >= 0
+      threads: system-specific default, must be >= 1
+             AOL: 80, must be 0 <= AOL <= 100, percent alignment length
+             SIM: 40, must be 0 <= SIM <= 100, percent exact matches
+              OS: 30, must be 0 <= OS <= 100, percent optimal score
+                                              over self score
+              -v: verbose output, report input parameters and timing
+              -V: verbose memory output, report memory use
+            file: no default, must be in FASTA format
+      query_file: no default, must be in FASTA format
+     output_file: parasail.csv
+   output_format: no deafult, must be one of {EMBOSS,SAM,SAMH,SSW}
+      batch_size: 0 (calculate based on memory budget),
+                  how many alignments before writing output
+   memory_budget: 2GB or half available from system query (135.185 GB)
+              -C: if present, use case sensitive alignments, matrices, etc.
+alphabet_aliases: traceback will treat these pairs of characters as matches,
+                  for example, 'TU' for one pair, or multiple pairs as 'XYab'
 ```
 
 #### Using the Enhanced Suffix Array Filter
@@ -51,7 +54,17 @@ The alignment routine to use defaults to one of the stats Smith-Waterman routine
 
 #### DNA Mode
 
-The aligner assumes amino acid sequences; use `-d` to indicate DNA sequences as well as `-M` and `-X` to indicate the match and mismatch scores, respectively.
+The aligner assumes amino acid sequences; use `-d` to indicate DNA sequences containing the characters ACGT.  Use `-M` and `-X` to indicate the match and mismatch scores, respectively.
+
+#### Alphabet Aliases
+
+When a user attempts to align nucleotide sequences with T's with those with U's, these two symbols are treated as mismatches, even after adding rows and columns for U's to the scoring matrix.  Using `-A TU`, the alphabet aliasing option, the resulting tracebacks and cigar output will treat T and U as a match.
+
+You can use this feature with other sequence types besides DNA.  Specify all aliases as pairs of characters, including lowercase characters if you are using the case-sensitive mode of the aligner.  For example, `-A XYabTt`.
+
+#### Case-Sensitive Mode
+
+The aligner treats all sequences and substitution matrices as case-insensitive.  This avoids most common pitfalls with sequence alignment.  However, if you require case-sensitive alignments, you indicate this using `-C`.  
 
 #### Substitution Matrix Selection
 

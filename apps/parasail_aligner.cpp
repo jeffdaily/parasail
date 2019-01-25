@@ -318,32 +318,37 @@ static void print_help(const char *progname, int status) {
             "[-O output_format {EMBOSS,SAM,SAMH,SSW}] "
             "[-b batch_size] "
             "[-r memory_budget] "
+            "[-C] "
+            "[-A alphabet_aliases] "
             "\n\n",
             progname);
     eprintf(stderr, "Defaults:\n"
-            "     funcname: sw_stats_striped_16\n"
-            "       cutoff: 7, must be >= 1, exact match length cutoff\n"
-            "           -x: if present, don't use suffix array filter\n"
-            "   gap_extend: 1, must be >= 0\n"
-            "     gap_open: 10, must be >= 0\n"
-            "       matrix: blosum62\n"
-            "           -d: if present, assume DNA alphabet\n"
-            "        match: 1, must be >= 0\n"
-            "     mismatch: 0, must be >= 0\n"
+            "        funcname: sw_stats_striped_16\n"
+            "          cutoff: 7, must be >= 1, exact match length cutoff\n"
+            "              -x: if present, don't use suffix array filter\n"
+            "      gap_extend: 1, must be >= 0\n"
+            "        gap_open: 10, must be >= 0\n"
+            "          matrix: blosum62\n"
+            "              -d: if present, assume DNA alphabet ACGT\n"
+            "           match: 1, must be >= 0\n"
+            "        mismatch: 0, must be >= 0\n"
 THREAD_DOC
-            "          AOL: 80, must be 0 <= AOL <= 100, percent alignment length\n"
-            "          SIM: 40, must be 0 <= SIM <= 100, percent exact matches\n"
-            "           OS: 30, must be 0 <= OS <= 100, percent optimal score\n"
-            "                                           over self score\n"
-            "           -v: verbose output, report input parameters and timing\n"
-            "           -V: verbose memory output, report memory use\n"
-            "         file: no default, must be in FASTA format\n"
-            "   query_file: no default, must be in FASTA format\n"
-            "  output_file: parasail.csv\n"
-            "output_format: no deafult, must be one of {EMBOSS,SAM,SAMH,SSW}\n"
-            "   batch_size: 0 (calculate based on memory budget),\n"
-            "               how many alignments before writing output\n"
-            "memory_budget: 2GB or half available from system query (%.3f GB)\n",
+            "             AOL: 80, must be 0 <= AOL <= 100, percent alignment length\n"
+            "             SIM: 40, must be 0 <= SIM <= 100, percent exact matches\n"
+            "              OS: 30, must be 0 <= OS <= 100, percent optimal score\n"
+            "                                              over self score\n"
+            "              -v: verbose output, report input parameters and timing\n"
+            "              -V: verbose memory output, report memory use\n"
+            "            file: no default, must be in FASTA format\n"
+            "      query_file: no default, must be in FASTA format\n"
+            "     output_file: parasail.csv\n"
+            "   output_format: no deafult, must be one of {EMBOSS,SAM,SAMH,SSW}\n"
+            "      batch_size: 0 (calculate based on memory budget),\n"
+            "                  how many alignments before writing output\n"
+            "   memory_budget: 2GB or half available from system query (%.3f GB)\n"
+            "              -C: if present, use case sensitive alignments, matrices, etc.\n"
+            "alphabet_aliases: traceback will treat these pairs of characters as matches,\n"
+            "                  for example, 'TU' for one pair, or multiple pairs as 'XYab'\n",
         getMemorySize()/2.0*GB
             );
     exit(status);
@@ -785,6 +790,7 @@ int main(int argc, char **argv) {
                 break;
             case '?':
                 if (optopt == 'a'
+                        || optopt == 'A'
                         || optopt == 'c'
                         || optopt == 'e'
                         || optopt == 'f'
@@ -977,6 +983,7 @@ int main(int argc, char **argv) {
                 "%20s: %d\n"
                 "%20s: %s\n"
                 "%20s: %s\n"
+                "%20s: %s\n"
                 "%20s: %d\n"
                 "%20s: %d\n"
                 "%20s: %s\n"
@@ -992,6 +999,7 @@ int main(int argc, char **argv) {
                 "funcname", funcname,
                 "cutoff", cutoff,
                 "case sensitive", case_sensitive ? "yes" : "no",
+                "alphabet aliases", alphabet_aliases ? alphabet_aliases : "<no aliases>",
                 "use filter", use_filter ? "yes" : "no",
                 "gap_extend", gap_extend,
                 "gap_open", gap_open,

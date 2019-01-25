@@ -15,7 +15,7 @@ static char* get_alphabet(const parasail_matrix_t *matrix) {
     for (i=0; i<matrix->size; ++i) {
         alphabet[i] = '*';
     }
-    alphabet[matrix->size+1] = '\0';
+    alphabet[matrix->size] = '\0';
 
     for (i=65; i<=122; ++i) {
         if (matrix->mapper[i] < matrix->size) {
@@ -53,6 +53,17 @@ static void print_matrix(const parasail_matrix_t *matrix) {
     free(alphabet);
 }
 
+static void print_mapper(const parasail_matrix_t *matrix) {
+    int i = 0;
+    const int *mapper = matrix->mapper;
+
+    for (i=0; i<256; ++i) {
+        if (i%16 == 0) printf("\n");
+        printf("%5d", mapper[i]);
+    }
+    printf("\n");
+}
+
 int main(int argc, char **argv)
 {
     parasail_matrix_t *matrix = NULL;
@@ -62,6 +73,7 @@ int main(int argc, char **argv)
     if (argc == 2) {
         matrix = parasail_matrix_from_file(argv[1]);
         print_matrix(matrix);
+        print_mapper(matrix);
         parasail_matrix_free(matrix);
     }
     else {
@@ -69,6 +81,7 @@ int main(int argc, char **argv)
     }
 
     print_matrix(&parasail_blosum62);
+    print_mapper(&parasail_blosum62);
 
     internal_matrix = parasail_matrix_lookup("blosum62");
     if (NULL == internal_matrix) {
@@ -82,6 +95,7 @@ int main(int argc, char **argv)
         exit(EXIT_FAILURE);
     }
     print_matrix(user_matrix);
+    print_mapper(user_matrix);
     parasail_matrix_free(user_matrix);
 
     user_matrix = parasail_matrix_create_case_sensitive("AcgT", 2, -1);
@@ -90,6 +104,7 @@ int main(int argc, char **argv)
         exit(EXIT_FAILURE);
     }
     print_matrix(user_matrix);
+    print_mapper(user_matrix);
     parasail_matrix_free(user_matrix);
 
     user_matrix = parasail_matrix_create_case_sensitive("ACGTacgt", 2, -1);
@@ -98,6 +113,7 @@ int main(int argc, char **argv)
         exit(EXIT_FAILURE);
     }
     print_matrix(user_matrix);
+    print_mapper(user_matrix);
     parasail_matrix_free(user_matrix);
 
     user_matrix = parasail_matrix_copy(internal_matrix);

@@ -916,7 +916,7 @@ static parasail_matrix_t* parasail_matrix_from_file_internal(const char *filenam
         perror("malloc");
         exit(EXIT_FAILURE);
     }
-    parasail_memset_int(mapper, size-1, 256);
+    parasail_memset_int(mapper, asize-1, 256);
     if (case_sensitive) {
         for (c=0; c<asize; ++c) {
             mapper[(unsigned char)alphabet[c]] = (int)c;

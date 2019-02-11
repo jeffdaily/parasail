@@ -9,7 +9,7 @@ Author: Jeff Daily (jeff.daily@pnnl.gov)
 ## Table of Contents
 
   * [Introduction](#introduction)
-  * [A Note About Instruction Sets and CPU Dispatching](#a-note-about-instruction-sets-and-cpu-dispatching)
+  * [Instruction Sets and CPU Dispatching](#instruction-sets-and-cpu-dispatching)
   * [Compiling and Installing](#compiling-and-installing)
     * [autotools build](#autotools-build)
     * [CMake build](#cmake-build)
@@ -45,7 +45,7 @@ parasail implements the above algorithms currently in three variants, 1) returni
 
 Note: When any of the algorithms open a gap, only the gap open penalty alone is applied.
 
-## A Note About Instruction Sets and CPU Dispatching
+## Instruction Sets and CPU Dispatching
 
 [back to top]
 
@@ -147,6 +147,8 @@ parasail_result_t* the_parasail_function_name(
         const int open, const int gap,
         const parasail_matrix_t* matrix);
 ```
+
+The gap open (`open`) and gap extension (`gap`) penalties are passed to the functions as positive values.  The gap open penalty must be greater than or equal to the gap extension penalty.  When any of the algorithms open a gap, only the gap open penalty alone is applied.
 
 With respect to traditional database query use, s1 is the query sequence and s2 is the database sequence.  For the functions returning the DP table or last row and column, the dimensions of the DP table are s1Len x s2Len where s1Len is the number of rows and s2Len is the number of columns (in C row-major order).
 

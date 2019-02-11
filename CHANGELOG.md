@@ -7,6 +7,7 @@ This project follows the [Gitflow Workflow model](https://www.atlassian.com/git/
 ## [Unreleased]
 The Unreleased section will be empty for tagged releases. Unreleased functionality appears in the develop branch.
 
+## [2.4] - 2019-02-11
 ### Added
 - Specific semi-global routines for various beginning and end gap penalty combinations.
   
@@ -22,12 +23,26 @@ The Unreleased section will be empty for tagged releases. Unreleased functionali
 | beginning of s2/database and end of s1/query | sg_qe_db |
 | beginning and end of both sequences | sg (original, unchanged for backwards compatibility) |
 
+- parasail_aligner
+  - case-sensitive mode
+  - alphabet aliases, for example to support T/U as matches
+- New functions, to support case-sensitivity and alphabet aliases
+  - parasail_matrix_create_case_sensitive
+  - parasail_matrix_from_file_case_sensitive
+  - parasail_traceback_generic_extra2
+  - parasail_result_get_cigar_extra
+  - parasail_result_get_traceback_extra
+
 ### Changed
 - parasail_matrix_from_file matrix format must have a null last row and column (see [README.md])
 
 ### Fixed
 - Bug in ARM NEON 64-bit comparison functions causing incorrect results.
 - Bug in parasail_matrix_from_file.
+
+### Closed Issues
+- Question about gap open penalty for different vectorizations. [\#64]
+- T and U are treated as mismatching nucleotides. [\#58]
 
 ## [2.3] - 2018-10-23
 ### Added
@@ -352,7 +367,8 @@ The Unreleased section will be empty for tagged releases. Unreleased functionali
 ## [1.0.0] - 2015-09-16
 First stable, production-ready version of parasail.
 
-[Unreleased]: https://github.com/jeffdaily/parasail/compare/v2.3...develop
+[Unreleased]: https://github.com/jeffdaily/parasail/compare/v2.4...develop
+[2.4]:   https://github.com/jeffdaily/parasail/compare/v2.3...v2.4
 [2.3]:   https://github.com/jeffdaily/parasail/compare/v2.2...v2.3
 [2.2]:   https://github.com/jeffdaily/parasail/compare/v2.1.5...v2.2
 [2.1.5]: https://github.com/jeffdaily/parasail/compare/v2.1.4...v2.1.5
@@ -379,6 +395,8 @@ First stable, production-ready version of parasail.
 [1.0.1]: https://github.com/jeffdaily/parasail/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/jeffdaily/parasail/releases/tag/v1.0.0
 
+[\#65]: https://github.com/jeffdaily/parasail/issues/65
+[\#64]: https://github.com/jeffdaily/parasail/issues/64
 [\#63]: https://github.com/jeffdaily/parasail/issues/63
 [\#62]: https://github.com/jeffdaily/parasail/issues/62
 [\#61]: https://github.com/jeffdaily/parasail/issues/61

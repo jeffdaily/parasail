@@ -7,6 +7,13 @@ This project follows the [Gitflow Workflow model](https://www.atlassian.com/git/
 ## [Unreleased]
 The Unreleased section will be empty for tagged releases. Unreleased functionality appears in the develop branch.
 
+## [2.4.1] - 2019-04-08
+### Fixed
+- Bug in CIGAR construction causing incorrect results. Regression from 2.3 release.
+
+### Closed Issues
+- Bug in CIGAR Construction [\#67]
+
 ## [2.4] - 2019-02-11
 ### Added
 - Specific semi-global routines for various beginning and end gap penalty combinations.
@@ -367,7 +374,8 @@ The Unreleased section will be empty for tagged releases. Unreleased functionali
 ## [1.0.0] - 2015-09-16
 First stable, production-ready version of parasail.
 
-[Unreleased]: https://github.com/jeffdaily/parasail/compare/v2.4...develop
+[Unreleased]: https://github.com/jeffdaily/parasail/compare/v2.4.1...develop
+[2.4.1]: https://github.com/jeffdaily/parasail/compare/v2.4...v2.4.1
 [2.4]:   https://github.com/jeffdaily/parasail/compare/v2.3...v2.4
 [2.3]:   https://github.com/jeffdaily/parasail/compare/v2.2...v2.3
 [2.2]:   https://github.com/jeffdaily/parasail/compare/v2.1.5...v2.2
@@ -395,6 +403,9 @@ First stable, production-ready version of parasail.
 [1.0.1]: https://github.com/jeffdaily/parasail/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/jeffdaily/parasail/releases/tag/v1.0.0
 
+[\#68]: https://github.com/jeffdaily/parasail/issues/68
+[\#67]: https://github.com/jeffdaily/parasail/issues/67
+[\#66]: https://github.com/jeffdaily/parasail/issues/66
 [\#65]: https://github.com/jeffdaily/parasail/issues/65
 [\#64]: https://github.com/jeffdaily/parasail/issues/64
 [\#63]: https://github.com/jeffdaily/parasail/issues/63

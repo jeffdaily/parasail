@@ -204,12 +204,18 @@ SRC_CORE += src/sg_dispatch.c
 SRC_CORE += src/sw_dispatch.c
 SRC_CORE += src/sg_qb_dispatch.c
 SRC_CORE += src/sg_qe_dispatch.c
-SRC_CORE += src/sg_qx_dispatch.c
 SRC_CORE += src/sg_db_dispatch.c
 SRC_CORE += src/sg_de_dispatch.c
+SRC_CORE += src/sg_qx_dispatch.c
 SRC_CORE += src/sg_dx_dispatch.c
+SRC_CORE += src/sg_qb_db_dispatch.c
 SRC_CORE += src/sg_qb_de_dispatch.c
 SRC_CORE += src/sg_qe_db_dispatch.c
+SRC_CORE += src/sg_qe_de_dispatch.c
+SRC_CORE += src/sg_qx_db_dispatch.c
+SRC_CORE += src/sg_qx_de_dispatch.c
+SRC_CORE += src/sg_qb_dx_dispatch.c
+SRC_CORE += src/sg_qe_dx_dispatch.c
 SRC_CORE += src/dispatch_profile.c
 SRC_CORE += src/satcheck.c
 SRC_CORE += src/striped_unwind.c
@@ -1169,6 +1175,7 @@ check_PROGRAMS += tests/test_verify_traces
 check_PROGRAMS += tests/test_verify_cigars
 check_PROGRAMS += tests/test_12
 check_PROGRAMS += tests/test_64
+check_PROGRAMS += tests/test_69
 check_PROGRAMS += tests/test_p29
 if HAVE_SSE2
 check_PROGRAMS += tests/test_ssw
@@ -1296,6 +1303,8 @@ tests_test_verify_cigars_LDFLAGS = $(AM_LDFLAGS) $(OPENMP_CFLAGS)
 tests_test_12_SOURCES = tests/test_12.c
 
 tests_test_64_SOURCES = tests/test_64.c
+
+tests_test_69_SOURCES = tests/test_69.c
 
 tests_test_p29_SOURCES = tests/test_p29.c
 

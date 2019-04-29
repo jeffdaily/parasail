@@ -93,7 +93,7 @@ def body3():
 #endif"""
 
 # vectorized implementations
-alg = ["nw", "sg", "sw", "sg_qb", "sg_qe", "sg_qx", "sg_db", "sg_de", "sg_dx", "sg_qb_de", "sg_qe_db"]
+alg = ["nw", "sg", "sw", "sg_qb", "sg_qe", "sg_db", "sg_de", "sg_qx", "sg_dx", "sg_qb_db", "sg_qb_de", "sg_qe_db", "sg_qe_de", "sg_qx_db", "sg_qx_de", "sg_qb_dx", "sg_qe_dx"]
 stats = ["", "_stats"]
 table = ["", "_table", "_rowcol", "_trace"]
 par = ["_scan", "_striped", "_diag"]
@@ -121,7 +121,7 @@ for a in alg:
                     body1()
 
 # vectorized profile implementations
-alg = ["nw", "sg", "sw", "sg_qb", "sg_qe", "sg_qx", "sg_db", "sg_de", "sg_dx", "sg_qb_de", "sg_qe_db"]
+alg = ["nw", "sg", "sw", "sg_qb", "sg_qe", "sg_db", "sg_de", "sg_qx", "sg_dx", "sg_qb_db", "sg_qb_de", "sg_qe_db", "sg_qe_de", "sg_qx_db", "sg_qx_de", "sg_qb_dx", "sg_qe_dx"]
 stats = ["", "_stats"]
 table = ["", "_table", "_rowcol", "_trace"]
 par = ["_scan_profile", "_striped_profile"]

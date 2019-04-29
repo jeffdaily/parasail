@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # serial reference implementations
-alg = ["nw", "sg", "sw", "sg_qb", "sg_qe", "sg_qx", "sg_db", "sg_de", "sg_dx", "sg_qb_de", "sg_qe_db"]
+alg = ["nw", "sg", "sw", "sg_qb", "sg_qe", "sg_db", "sg_de", "sg_qx", "sg_dx", "sg_qb_db", "sg_qb_de", "sg_qe_db", "sg_qe_de", "sg_qx_db", "sg_qx_de", "sg_qb_dx", "sg_qe_dx"]
 stats = ["", "_stats"]
 table = ["", "_table", "_rowcol", "_trace"]
 for a in alg:
@@ -30,7 +30,7 @@ for s in stats:
         print " "*8+"int s1_beg, int s1_end, int s2_beg, int s2_end);"
 
 # serial scan reference implementations
-alg = ["nw", "sg", "sw", "sg_qb", "sg_qe", "sg_qx", "sg_db", "sg_de", "sg_dx", "sg_qb_de", "sg_qe_db"]
+alg = ["nw", "sg", "sw", "sg_qb", "sg_qe", "sg_db", "sg_de", "sg_qx", "sg_dx", "sg_qb_db", "sg_qb_de", "sg_qe_db", "sg_qe_de", "sg_qx_db", "sg_qx_de", "sg_qb_dx", "sg_qe_dx"]
 stats = ["", "_stats"]
 table = ["", "_table", "_rowcol", "_trace"]
 for a in alg:
@@ -59,7 +59,7 @@ for s in stats:
         print " "*8+"int s1_beg, int s1_end, int s2_beg, int s2_end);"
 
 # vectorized implementations
-alg = ["nw", "sg", "sw", "sg_qb", "sg_qe", "sg_qx", "sg_db", "sg_de", "sg_dx", "sg_qb_de", "sg_qe_db"]
+alg = ["nw", "sg", "sw", "sg_qb", "sg_qe", "sg_db", "sg_de", "sg_qx", "sg_dx", "sg_qb_db", "sg_qb_de", "sg_qe_db", "sg_qe_de", "sg_qx_db", "sg_qx_de", "sg_qb_dx", "sg_qe_dx"]
 stats = ["", "_stats"]
 table = ["", "_table", "_rowcol", "_trace"]
 par = ["_scan", "_striped", "_diag"]
@@ -108,7 +108,7 @@ for s in stats:
                 print " "*8+"int s1_beg, int s1_end, int s2_beg, int s2_end);"
 
 # vectorized profile implementations
-alg = ["nw", "sg", "sw", "sg_qb", "sg_qe", "sg_qx", "sg_db", "sg_de", "sg_dx", "sg_qb_de", "sg_qe_db"]
+alg = ["nw", "sg", "sw", "sg_qb", "sg_qe", "sg_db", "sg_de", "sg_qx", "sg_dx", "sg_qb_db", "sg_qb_de", "sg_qe_db", "sg_qe_de", "sg_qx_db", "sg_qx_de", "sg_qb_dx", "sg_qe_dx"]
 stats = ["", "_stats"]
 table = ["", "_table", "_rowcol", "_trace"]
 par = ["_scan_profile", "_striped_profile"]
@@ -173,7 +173,7 @@ for a in alg:
                     print " "*8+"const int open, const int gap,"
                     print " "*8+"const parasail_matrix_t* matrix);"
 # dispatching implementations
-alg = ["nw", "sg", "sw", "sg_qb", "sg_qe", "sg_qx", "sg_db", "sg_de", "sg_dx", "sg_qb_de", "sg_qe_db"]
+alg = ["nw", "sg", "sw", "sg_qb", "sg_qe", "sg_db", "sg_de", "sg_qx", "sg_dx", "sg_qb_db", "sg_qb_de", "sg_qe_db", "sg_qe_de", "sg_qx_db", "sg_qx_de", "sg_qb_dx", "sg_qe_dx"]
 stats = ["", "_stats"]
 table = ["", "_table", "_rowcol", "_trace"]
 par = ["_scan", "_striped", "_diag"]
@@ -210,7 +210,7 @@ for s in stats:
                 print " "*8+"int s1_beg, int s1_end, int s2_beg, int s2_end);"
 
 # dispatching profile implementations
-alg = ["nw", "sg", "sw", "sg_qb", "sg_qe", "sg_qx", "sg_db", "sg_de", "sg_dx", "sg_qb_de", "sg_qe_db"]
+alg = ["nw", "sg", "sw", "sg_qb", "sg_qe", "sg_db", "sg_de", "sg_qx", "sg_dx", "sg_qb_db", "sg_qb_de", "sg_qe_db", "sg_qe_de", "sg_qx_db", "sg_qx_de", "sg_qb_dx", "sg_qe_dx"]
 stats = ["", "_stats"]
 table = ["", "_table", "_rowcol", "_trace"]
 par = ["_scan_profile", "_striped_profile"]
@@ -261,7 +261,7 @@ for s in stats:
         print " "*8+"const parasail_matrix_t* matrix);"
 
 # dispatching saturation check implementations
-alg = ["nw", "sg", "sw", "sg_qb", "sg_qe", "sg_qx", "sg_db", "sg_de", "sg_dx", "sg_qb_de", "sg_qe_db"]
+alg = ["nw", "sg", "sw", "sg_qb", "sg_qe", "sg_db", "sg_de", "sg_qx", "sg_dx", "sg_qb_db", "sg_qb_de", "sg_qe_db", "sg_qe_de", "sg_qx_db", "sg_qx_de", "sg_qb_dx", "sg_qe_dx"]
 stats = ["", "_stats"]
 table = ["", "_table", "_rowcol", "_trace"]
 par = ["_scan", "_striped", "_diag"]

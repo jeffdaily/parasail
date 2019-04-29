@@ -7,6 +7,27 @@ This project follows the [Gitflow Workflow model](https://www.atlassian.com/git/
 ## [Unreleased]
 The Unreleased section will be empty for tagged releases. Unreleased functionality appears in the develop branch.
 
+### Added
+- Even more semi-global routines for various beginning and end gap penalty combinations. Updated semi-global table:
+  
+| query begin | query end | db begin | db end | Function Name |
+| --- | --- |--- | --- | --- |
+| x |   |   |   | sg_qb |
+|   | x |   |   | sg_qe |
+|   |   | x |   | sg_db |
+|   |   |   | x | sg_de |
+| x | x |   |   | sg_qx |
+|   |   | x | x | sg_dx |
+| x |   | x |   | sg_qb_db |
+| x |   |   | x | sg_qb_de |
+|   | x | x |   | sg_qe_db |
+|   | x |   | x | sg_qe_de |
+| x | x | x |   | sg_qx_db |
+| x | x |   | x | sg_qx_de |
+| x |   | x | x | sg_qb_dx |
+|   | x | x | x | sg_qe_dx |
+| x | x | x | x | sg (original, unchanged for backwards compatibility) |
+
 ## [2.4.1] - 2019-04-08
 ### Fixed
 - Bug in CIGAR construction causing incorrect results. Regression from 2.3 release.

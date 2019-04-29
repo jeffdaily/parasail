@@ -21,7 +21,7 @@ txt = """/**
 #include "parasail.h"
 
 """
-for alg in ["nw", "sg", "sw", "sg_qb", "sg_qe", "sg_qx", "sg_db", "sg_de", "sg_dx", "sg_qb_de", "sg_qe_db"]:
+for alg in ["nw", "sg", "sw", "sg_qb", "sg_qe", "sg_db", "sg_de", "sg_qx", "sg_dx", "sg_qb_db", "sg_qb_de", "sg_qe_db", "sg_qe_de", "sg_qx_db", "sg_qx_de", "sg_qb_dx", "sg_qe_dx"]:
     for table in ["", "_table", "_rowcol", "_trace"]:
         for stats in ["", "_stats"]:
             if 'stats' in stats and 'trace' in table: continue
@@ -62,7 +62,7 @@ parasail_result_t* %(PREFIX)s_sat(
 %(ISA_POST)s
 """ % params
 
-for alg in ["nw", "sg", "sw", "sg_qb", "sg_qe", "sg_qx", "sg_db", "sg_de", "sg_dx", "sg_qb_de", "sg_qe_db"]:
+for alg in ["nw", "sg", "sw", "sg_qb", "sg_qe", "sg_db", "sg_de", "sg_qx", "sg_dx", "sg_qb_db", "sg_qb_de", "sg_qe_db", "sg_qe_de", "sg_qx_db", "sg_qx_de", "sg_qb_dx", "sg_qe_dx"]:
     for table in ["", "_table", "_rowcol", "_trace"]:
         for stats in ["", "_stats"]:
             if 'stats' in stats and 'trace' in table: continue

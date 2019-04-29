@@ -180,12 +180,18 @@ SET( SRC_CORE
     src/sw_dispatch.c
     src/sg_qb_dispatch.c
     src/sg_qe_dispatch.c
-    src/sg_qx_dispatch.c
     src/sg_db_dispatch.c
     src/sg_de_dispatch.c
+    src/sg_qx_dispatch.c
     src/sg_dx_dispatch.c
+    src/sg_qb_db_dispatch.c
     src/sg_qb_de_dispatch.c
     src/sg_qe_db_dispatch.c
+    src/sg_qe_de_dispatch.c
+    src/sg_qx_db_dispatch.c
+    src/sg_qx_de_dispatch.c
+    src/sg_qb_dx_dispatch.c
+    src/sg_qe_dx_dispatch.c
     src/dispatch_profile.c
     src/satcheck.c
     src/striped_unwind.c

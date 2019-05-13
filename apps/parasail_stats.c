@@ -39,6 +39,10 @@ int main(int argc, char **argv) {
 
     /* open file */
     sequences = parasail_sequences_from_file(argv[1]);
+    if (NULL == sequences) {
+        fprintf(stderr, "parasail_sequences_from_file(%s) failed\n", argv[1]);
+        print_help(progname, EXIT_FAILURE);
+    }
 
     /* print the stats */
     fprintf(stdout,

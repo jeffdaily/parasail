@@ -7,6 +7,8 @@ This project follows the [Gitflow Workflow model](https://www.atlassian.com/git/
 ## [Unreleased]
 The Unreleased section will be empty for tagged releases. Unreleased functionality appears in the develop branch.
 
+- Update email address.
+
 ## [2.4.1] - 2019-04-08
 ### Fixed
 - Bug in CIGAR construction causing incorrect results. Regression from 2.3 release.

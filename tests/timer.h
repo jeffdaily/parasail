@@ -1,7 +1,7 @@
 /**
  * @file timer.h
  *
- * @author jeff.daily@pnnl.gov
+ * @author jeffrey.daily@gmail.com
  *
  * Copyright 2012 Pacific Northwest National Laboratory. All rights reserved.
  *

@@ -7,7 +7,7 @@
 AC_PREREQ([2.69])
 AC_INIT([Pairwise Sequence Alignment Library],
         [m4_esyscmd([./version.sh])],
-        [jeff.daily@pnnl.gov],
+        [jeffrey.daily@gmail.com],
         [parasail])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_HEADER([config.h])

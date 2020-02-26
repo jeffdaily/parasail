@@ -5,7 +5,7 @@
 # The template is filled in as appropriate for various instruction sets
 # and integer precisions.
 #
-# author jeff.daily@pnnl.gov
+# author jeffrey.daily@gmail.com
 #
 # Copyright (c) 2015 Battelle Memorial Institute.
 

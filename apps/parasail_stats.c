@@ -1,7 +1,7 @@
 /**
  * @file parasail_stats
  *
- * @author jeff.daily@pnnl.gov
+ * @author jeffrey.daily@gmail.com
  *
  * Copyright 2015 Pacific Northwest National Laboratory. All rights reserved.
  *

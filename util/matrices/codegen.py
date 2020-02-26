@@ -10,7 +10,7 @@ import os
 header = """/**
  * @file
  *
- * @author jeff.daily@pnnl.gov
+ * @author jeffrey.daily@gmail.com
  *
  * Copyright (c) 2015 Battelle Memorial Institute.
  *
@@ -60,7 +60,7 @@ def generate_mapper(name, line):
     text = """/**
  * @file
  *
- * @author jeff.daily@pnnl.gov
+ * @author jeffrey.daily@gmail.com
  *
  * Copyright (c) 2015 Battelle Memorial Institute.
  */
@@ -176,7 +176,7 @@ static const parasail_matrix_t parasail_%s = {
 text = """/**
  * @file
  *
- * @author jeff.daily@pnnl.gov
+ * @author jeffrey.daily@gmail.com
  *
  * Copyright (c) 2015 Battelle Memorial Institute.
  */

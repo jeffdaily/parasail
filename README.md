@@ -4,7 +4,7 @@ Travis: [![Build Status](https://travis-ci.org/jeffdaily/parasail.svg?branch=mas
 
 AppVeyor: [![Build status](https://ci.appveyor.com/api/projects/status/rtmcf2kowwnrl6g2/branch/master?svg=true)](https://ci.appveyor.com/project/jeffdaily/parasail-7t5in/branch/master)
 
-Author: Jeff Daily (jeff.daily@pnnl.gov)
+Author: Jeff Daily (jeffrey.daily@gmail.com)
 
 ## Table of Contents
 

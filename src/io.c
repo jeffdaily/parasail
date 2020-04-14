@@ -54,6 +54,13 @@ parasail_file_t* parasail_open(const char *fname)
 {
     parasail_file_t *pf = NULL;
     char *buf = NULL;
+#if defined(HAVE_SYS_MMAN_H)
+    int fd = -1;
+    STATBUF fs;
+#else
+    FILE *fd = NULL;
+    STATBUF fs;
+#endif
 
     if (NULL == fname) {
         fprintf(stderr, "parasail_open: NULL filename\n");
@@ -61,9 +68,6 @@ parasail_file_t* parasail_open(const char *fname)
     }
 
 #if defined(HAVE_SYS_MMAN_H)
-    int fd = -1;
-    STATBUF fs;
-
     fd = open(fname, O_RDONLY);
     if (fd == -1) {
         perror("open");
@@ -87,9 +91,6 @@ parasail_file_t* parasail_open(const char *fname)
         return NULL;
     }
 #else
-    FILE *fd = NULL;
-    STATBUF fs;
-
     fd = fopen(fname, "rb");
     if (NULL == fd) {
         perror("fopen");

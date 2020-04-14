@@ -202,6 +202,7 @@ SRC_CORE += src/time.c
 SRC_CORE += src/nw_dispatch.c
 SRC_CORE += src/sg_dispatch.c
 SRC_CORE += src/sw_dispatch.c
+SRC_CORE += src/sg_helper.h
 SRC_CORE += src/sg_qb_dispatch.c
 SRC_CORE += src/sg_qe_dispatch.c
 SRC_CORE += src/sg_qx_dispatch.c
@@ -1472,3 +1473,9 @@ EXTRA_DIST += src/meson.build
 EXTRA_DIST += tests/meson.build
 EXTRA_DIST += meson_options.txt
 EXTRA_DIST += src/dummy.c
+
+DISTCLEANFILES =
+DISTCLEANFILES += parasail-1-uninstalled.sh
+DISTCLEANFILES += parasail-1-uninstalled.pc
+DISTCLEANFILES += parasail-1.pc
+DISTCLEANFILES += parasail-1.pc.in

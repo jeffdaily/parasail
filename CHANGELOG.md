@@ -7,7 +7,17 @@ This project follows the [Gitflow Workflow model](https://www.atlassian.com/git/
 ## [Unreleased]
 The Unreleased section will be empty for tagged releases. Unreleased functionality appears in the develop branch.
 
+## [2.4.2] - 2020-04-15
+### Fixed
+- Add missing headers to make dist target, use distcheck in Travis.
+- Library functions no longer call exit() upon failure, instead returning error to caller.
 - Update email address.
+
+### Closed Issues
+- API request: return NULL from parasail_sequences_from_file upon error? [\#71]
+
+### Merged Pull Requests
+- Fix tarball [\#77] ([SoapZA])
 
 ## [2.4.1] - 2019-04-08
 ### Fixed
@@ -376,7 +386,8 @@ The Unreleased section will be empty for tagged releases. Unreleased functionali
 ## [1.0.0] - 2015-09-16
 First stable, production-ready version of parasail.
 
-[Unreleased]: https://github.com/jeffdaily/parasail/compare/v2.4.1...develop
+[Unreleased]: https://github.com/jeffdaily/parasail/compare/v2.4.2...develop
+[2.4.2]: https://github.com/jeffdaily/parasail/compare/v2.4.1...v2.4.2
 [2.4.1]: https://github.com/jeffdaily/parasail/compare/v2.4...v2.4.1
 [2.4]:   https://github.com/jeffdaily/parasail/compare/v2.3...v2.4
 [2.3]:   https://github.com/jeffdaily/parasail/compare/v2.2...v2.3
@@ -405,6 +416,15 @@ First stable, production-ready version of parasail.
 [1.0.1]: https://github.com/jeffdaily/parasail/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/jeffdaily/parasail/releases/tag/v1.0.0
 
+[\#77]: https://github.com/jeffdaily/parasail/pull/77
+[\#76]: https://github.com/jeffdaily/parasail/issues/76
+[\#75]: https://github.com/jeffdaily/parasail/issues/75
+[\#74]: https://github.com/jeffdaily/parasail/issues/74
+[\#73]: https://github.com/jeffdaily/parasail/issues/73
+[\#72]: https://github.com/jeffdaily/parasail/issues/72
+[\#71]: https://github.com/jeffdaily/parasail/issues/71
+[\#70]: https://github.com/jeffdaily/parasail/issues/70
+[\#69]: https://github.com/jeffdaily/parasail/issues/69
 [\#68]: https://github.com/jeffdaily/parasail/issues/68
 [\#67]: https://github.com/jeffdaily/parasail/issues/67
 [\#66]: https://github.com/jeffdaily/parasail/issues/66

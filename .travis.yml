@@ -28,11 +28,6 @@ matrix:
     - os: linux
       env: BUILD_TYPE=cmake
     - os: osx
-      osx_image: xcode8.3
-      env: BUILD_TYPE=cmake
-           MAYBE_ARCH=-DCMAKE_OSX_ARCHITECTURES="i386;x86_64"
-    - os: osx
-      osx_image: xcode7.3
       env: BUILD_TYPE=cmake
            MAYBE_ARCH=-DCMAKE_OSX_ARCHITECTURES="i386;x86_64"
     - os: linux
@@ -115,7 +110,8 @@ script:
   - if [[ "$BUILD_TYPE" == "make" ]]; then autoreconf -fi; fi
   - if [[ "$BUILD_TYPE" == "make" ]]; then ./configure $MAYBE_CROSS || cat config.log; fi
   - if [[ "$BUILD_TYPE" == "make" ]]; then make -j 4; fi
-  - if [[ "$BUILD_TYPE" == "make" ]]; then make check -j 4; fi
+  - if [[ "$BUILD_TYPE" == "make" && "x${MAYBE_CROSS}" != x ]]; then make check -j 4; fi
+  - if [[ "$BUILD_TYPE" == "make" && "x${MAYBE_CROSS}" = x ]]; then make distcheck -j 4; fi
   - if [[ "$BUILD_TYPE" == "make" ]]; then make dist; fi
   - if [[ "$BUILD_TYPE" == "make" ]]; then make dist-zip; fi
   - if [[ "$BUILD_TYPE" == "make" ]]; then mkdir dist; fi

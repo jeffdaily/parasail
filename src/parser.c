@@ -61,18 +61,22 @@ parasail_sequences_t* parasail_sequences_from_file(const char *filename)
     unsigned long capacity = 1000;
     size_t chars = 0;
     stats_t stats;
+    int error_during_kseq = 0;
 
     stats_clear(&stats);
 
     retval = (parasail_sequences_t*)malloc(sizeof(parasail_sequences_t));
     if (NULL == retval) {
         perror("malloc");
-        exit(1);
+        fprintf(stderr, "parasail_sequences_from_file: failed\n");
+        return NULL;
     }
     sequences = (parasail_sequence_t*)malloc(sizeof(parasail_sequence_t) * capacity);
     if (NULL == sequences) {
         perror("malloc");
-        exit(1);
+        fprintf(stderr, "parasail_sequences_from_file: failed\n");
+        free(retval);
+        return NULL;
     }
 
     /* check for stdin instead of a normal filename */
@@ -81,7 +85,10 @@ parasail_sequences_t* parasail_sequences_from_file(const char *filename)
         fp = gzdopen(fileno(stdin), "r");
         if (fp == Z_NULL) {
             perror("gzdopen");
-            exit(1);
+            fprintf(stderr, "parasail_sequences_from_file: failed\n");
+            free(sequences);
+            free(retval);
+            return NULL;
         }
 #else
         fp = stdin;
@@ -95,13 +102,19 @@ parasail_sequences_t* parasail_sequences_from_file(const char *filename)
         fp = gzopen(filename, "r");
         if (fp == Z_NULL) {
             perror("gzopen");
-            exit(1);
+            fprintf(stderr, "parasail_sequences_from_file: failed\n");
+            free(sequences);
+            free(retval);
+            return NULL;
         }
 #else
         fp = fopen(filename, "r");
         if (fp == NULL) {
             perror("fopen");
-            exit(1);
+            fprintf(stderr, "parasail_sequences_from_file: failed\n");
+            free(sequences);
+            free(retval);
+            return NULL;
         }
 #endif
     }
@@ -132,28 +145,32 @@ parasail_sequences_t* parasail_sequences_from_file(const char *filename)
             sequences[count].name.s = strdup_rpl(seq->name.s);
             if (NULL == sequences[count].name.s) {
                 perror("strdup name");
-                exit(1);
+                error_during_kseq = 1;
+                break;
             }
         }
         if (sequences[count].comment.l) {
             sequences[count].comment.s = strdup_rpl(seq->comment.s);
             if (NULL == sequences[count].comment.s) {
                 perror("strdup comment");
-                exit(1);
+                error_during_kseq = 1;
+                break;
             }
         }
         if (sequences[count].seq.l) {
             sequences[count].seq.s = strdup_rpl(seq->seq.s);
             if (NULL == sequences[count].seq.s) {
                 perror("strdup seq");
-                exit(1);
+                error_during_kseq = 1;
+                break;
             }
         }
         if (sequences[count].qual.l) {
             sequences[count].qual.s = strdup_rpl(seq->qual.s);
             if (NULL == sequences[count].qual.s) {
                 perror("strdup qual");
-                exit(1);
+                error_during_kseq = 1;
+                break;
             }
         }
         ++count;
@@ -166,7 +183,8 @@ parasail_sequences_t* parasail_sequences_from_file(const char *filename)
             new_sequences = (parasail_sequence_t*)realloc(sequences, sizeof(parasail_sequence_t) * capacity);
             if (NULL == new_sequences) {
                 perror("realloc");
-                exit(1);
+                error_during_kseq = 2;
+                break;
             }
             sequences = new_sequences;
             errno = 0;
@@ -188,6 +206,15 @@ parasail_sequences_t* parasail_sequences_from_file(const char *filename)
     retval->longest = stats._max;
     retval->mean = stats._mean;
     retval->stddev = stats_stddev(&stats);
+
+    if (0 != error_during_kseq) {
+        fprintf(stderr, "parasail_sequences_from_file: failed\n");
+        if (1 == error_during_kseq) {
+            retval->l++;
+        }
+        parasail_sequences_free(retval);
+        return NULL;
+    }
 
     return retval;
 }
@@ -212,6 +239,11 @@ char* parasail_sequences_pack(const parasail_sequences_t *sequences, size_t *siz
     char *packed = NULL;
 
     packed = (char*)malloc(sizeof(char) * (sequences->characters+sequences->l+1));
+    if (NULL == packed) {
+        perror("malloc");
+        fprintf(stderr, "parasail_sequences_pack: failed\n");
+        return NULL;
+    }
 
     for (i=0; i<sequences->l; ++i) {
         memcpy(&packed[offset], sequences->seqs[i].seq.s, sequences->seqs[i].seq.l);

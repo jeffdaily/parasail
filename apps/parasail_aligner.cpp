@@ -944,6 +944,10 @@ int main(int argc, char **argv) {
         else {
             matrix = parasail_matrix_create("ACGT", match, -mismatch);
         }
+        if (NULL == matrix) {
+            eprintf(stderr, "Could not create DNA match/mismatch matrix.\n");
+            exit(EXIT_FAILURE);
+        }
         matrix_needs_free = true;
     }
     else {
@@ -959,13 +963,11 @@ int main(int argc, char **argv) {
             else {
                 matrix = parasail_matrix_from_file(matrixname);
             }
-            if (NULL != matrix) {
-                matrix_needs_free = true;
+            if (NULL == matrix) {
+                eprintf(stderr, "parasail_matrix_from_file(%s) failed.\n", matrixname);
+                exit(EXIT_FAILURE);
             }
-        }
-        if (NULL == matrix) {
-            eprintf(stderr, "Specified substitution matrix not found.\n");
-            exit(EXIT_FAILURE);
+            matrix_needs_free = true;
         }
     }
 
@@ -1042,7 +1044,15 @@ int main(int argc, char **argv) {
     if (!has_query) {
         size_t count = 0;
         sequences = parasail_sequences_from_file(fname);
+        if (NULL == sequences) {
+            eprintf(stderr, "parasail_sequences_from_file(%s) failed.\n", fname);
+            exit(EXIT_FAILURE);
+        }
         T = (unsigned char*)parasail_sequences_pack(sequences, &count);
+        if (NULL == T) {
+            eprintf(stderr, "parasail_sequences_pack failed.\n");
+            exit(EXIT_FAILURE);
+        }
         n = count;
         if (is_trace) {
             /* This does not include name, comment, or qual strings. */
@@ -1058,7 +1068,15 @@ int main(int argc, char **argv) {
     else {
         size_t count = 0;
         sequences = parasail_sequences_from_file(fname);
+        if (NULL == sequences) {
+            eprintf(stderr, "parasail_sequences_from_file(%s) failed.\n", fname);
+            exit(EXIT_FAILURE);
+        }
         T = (unsigned char*)parasail_sequences_pack(sequences, &count);
+        if (NULL == T) {
+            eprintf(stderr, "parasail_sequences_pack failed.\n");
+            exit(EXIT_FAILURE);
+        }
         t = count;
         if (is_trace) {
             /* This does not include name, comment, or qual strings. */
@@ -1071,7 +1089,15 @@ int main(int argc, char **argv) {
         }
         bytes_used += count;
         queries = parasail_sequences_from_file(qname);
+        if (NULL == queries) {
+            eprintf(stderr, "parasail_sequences_from_file(%s) failed.\n", qname);
+            exit(EXIT_FAILURE);
+        }
         Q = (unsigned char*)parasail_sequences_pack(queries, &count);
+        if (NULL == Q) {
+            eprintf(stderr, "parasail_sequences_pack queries failed.\n");
+            exit(EXIT_FAILURE);
+        }
         q = count;
         if (is_trace) {
             /* This does not include name, comment, or qual strings. */

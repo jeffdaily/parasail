@@ -618,7 +618,7 @@ static cigar* banded_sw (const int8_t* ref,
 			kroundup32(s2);
 			if (s2 < 0) {
 				fprintf(stderr, "Alignment score and position are not consensus.\n");
-				exit(1);
+				return NULL;
 			}
 			direction = (int8_t*)realloc(direction, s2 * sizeof(int8_t));
 		}

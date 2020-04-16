@@ -39,7 +39,7 @@ deploy:
   description: 'Release description'
   provider: GitHub
   auth_token:
-    secure: pAqZWDE6h3dlvBzOw9g3s2OYlB/+nd+yZebVru/wmHsUeFXo2KiP1baQ9klc/uLO
+    secure: vS3UgcYGy2W4m1zaFaB9rX9hCd+z71J8OlGRCq1MA2ibP73ysMhXdvGjXJgU1ZVI
   artifact: package
   draft: true
   on:

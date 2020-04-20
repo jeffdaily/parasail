@@ -12,7 +12,7 @@
  * For each sequence pair, performs semi-global alignment.
  *
  * Note about the input file. It is expected to be a packed fasta file
- * with each sequence delimited by the '$' sentinal. For example,
+ * with each sequence delimited by the '$' sentinel. For example,
  * "banana$mississippi$foo$bar$".
  */
 #include "config.h"
@@ -256,7 +256,7 @@ int main(int argc, char **argv) {
 
     T[n]='\0'; /* so we can print it */
 
-    /* determine sentinal */
+    /* determine sentinel */
     if (sentinal == 0) {
         int off = 0;
         while (!isgraph(T[n-off])) {
@@ -290,8 +290,8 @@ int main(int argc, char **argv) {
     }
     longest += 1;
     assert(BEG.size()==END.size()+1);
-    if (0 == sid) { /* no sentinal found */
-        fprintf(stdout, "no sentinal(%c) found in input\n", sentinal);
+    if (0 == sid) { /* no sentinel found */
+        fprintf(stdout, "no sentinel(%c) found in input\n", sentinal);
         exit(EXIT_FAILURE);
     }
 
@@ -317,30 +317,30 @@ int main(int argc, char **argv) {
     /* "fix" the LCP array to clamp LCP's that are too long */
     start = timer_real();
     for (i = 0; i < n; ++i) {
-        int len = END[SID[SA[i]]] - SA[i]; /* don't include sentinal */
+        int len = END[SID[SA[i]]] - SA[i]; /* don't include sentinel */
         if (LCP[i] > len) LCP[i] = len;
     }
     finish = timer_real();
     fprintf(stdout, " clamp LCP: %.4f sec\n", finish-start);
 
-    /* The GSA we create will put all sentinals either at the beginning
+    /* The GSA we create will put all sentinels either at the beginning
      * or end of the SA. We don't want to count all of the terminals,
      * nor do we want to process them in our bottom-up traversal. */
-    /* do the sentinals appear at the beginning or end of SA? */
+    /* do the sentinels appear at the beginning or end of SA? */
     int bup_start = 1;
     int bup_stop = n;
     if (T[SA[0]] == sentinal) {
-        /* sentinals at beginning */
+        /* sentinels at beginning */
         bup_start = sid+1;
         bup_stop = n;
     }
     else if (T[SA[n-1]] == sentinal) {
-        /* sentinals at end */
+        /* sentinels at end */
         bup_start = 1;
         bup_stop = n-sid;
     }
     else {
-        fprintf(stdout, "sentinals not found at beginning or end of SA\n");
+        fprintf(stdout, "sentinels not found at beginning or end of SA\n");
     }
 
     /* DFS of enhanced SA, from Abouelhoda et al */

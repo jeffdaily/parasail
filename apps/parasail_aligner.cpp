@@ -342,7 +342,7 @@ THREAD_DOC
             "            file: no default, must be in FASTA format\n"
             "      query_file: no default, must be in FASTA format\n"
             "     output_file: parasail.csv\n"
-            "   output_format: no deafult, must be one of {EMBOSS,SAM,SAMH,SSW}\n"
+            "   output_format: no default, must be one of {EMBOSS,SAM,SAMH,SSW}\n"
             "      batch_size: 0 (calculate based on memory budget),\n"
             "                  how many alignments before writing output\n"
             "   memory_budget: 2GB or half available from system query (%.3f GB)\n"
@@ -1331,24 +1331,24 @@ int main(int argc, char **argv) {
             eprintf(stdout, "%20s: %.4f seconds\n", "clamp LCP time", finish-start);
         }
 
-        /* The GSA we create will put all sentinals either at the beginning
+        /* The GSA we create will put all sentinels either at the beginning
          * or end of the SA. We don't want to count all of the terminals,
          * nor do we want to process them in our bottom-up traversal. */
-        /* do the sentinals appear at the beginning or end of SA? */
+        /* do the sentinels appear at the beginning or end of SA? */
         int bup_start = 1;
         int bup_stop = n;
         if (T[SA[0]] == sentinal) {
-            /* sentinals at beginning */
+            /* sentinels at beginning */
             bup_start = sid+1;
             bup_stop = n;
         }
         else if (T[SA[n-1]] == sentinal) {
-            /* sentinals at end */
+            /* sentinels at end */
             bup_start = 1;
             bup_stop = n-sid;
         }
         else {
-            eprintf(stderr, "sentinals not found at beginning or end of SA\n");
+            eprintf(stderr, "sentinels not found at beginning or end of SA\n");
             exit(EXIT_FAILURE);
         }
 
@@ -1484,7 +1484,7 @@ int main(int argc, char **argv) {
     if (vpairs.empty()) {
         if (pairs.empty()) {
             if (use_filter) {
-                eprintf(stderr, "no alignment work, either the filter removed all alignemnts or the input file(s) were empty\n");
+                eprintf(stderr, "no alignment work, either the filter removed all alignments or the input file(s) were empty\n");
                 exit(EXIT_FAILURE);
             }
             else {

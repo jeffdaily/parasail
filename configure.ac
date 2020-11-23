@@ -1096,7 +1096,7 @@ AC_ARG_WITH([zlib],
 zlib_okay_val=0
 AS_IF([test "x$with_zlib" = xno], [], [
 m4_ifdef([PKG_CHECK_MODULES],
-         [PKG_CHECK_MODULES([Z], [zlib], [zlib_okay_val=1])],
+         [PKG_CHECK_MODULES([Z], [zlib], [zlib_okay_val=1], [zlib_okay_val=0])],
          [
 parasail_save_LIBS="$LIBS"
 AC_CHECK_HEADERS([zlib.h])

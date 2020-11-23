@@ -7,6 +7,18 @@ This project follows the [Gitflow Workflow model](https://www.atlassian.com/git/
 ## [Unreleased]
 The Unreleased section will be empty for tagged releases. Unreleased functionality appears in the develop branch.
 
+## [2.4.3] - 2020-11-23
+### Fixed
+- provide action-if-not-found case for PKG_CHECK_MODULES([Z])
+  Thanks to [ksahlin] for the bug report.
+- spellcheck parasail_aligner, thanks to [nileshpatra].
+
+### Closed Issues
+- Failed to build parasail on Mac OSx [\#81]
+
+### Merged Pull Requests
+- Fix spellings [\#78]
+
 ## [2.4.2] - 2020-04-15
 ### Fixed
 - Add missing headers to make dist target, use distcheck in Travis.
@@ -386,7 +398,8 @@ The Unreleased section will be empty for tagged releases. Unreleased functionali
 ## [1.0.0] - 2015-09-16
 First stable, production-ready version of parasail.
 
-[Unreleased]: https://github.com/jeffdaily/parasail/compare/v2.4.2...develop
+[Unreleased]: https://github.com/jeffdaily/parasail/compare/v2.4.3...develop
+[2.4.3]: https://github.com/jeffdaily/parasail/compare/v2.4.2...v2.4.3
 [2.4.2]: https://github.com/jeffdaily/parasail/compare/v2.4.1...v2.4.2
 [2.4.1]: https://github.com/jeffdaily/parasail/compare/v2.4...v2.4.1
 [2.4]:   https://github.com/jeffdaily/parasail/compare/v2.3...v2.4
@@ -416,6 +429,10 @@ First stable, production-ready version of parasail.
 [1.0.1]: https://github.com/jeffdaily/parasail/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/jeffdaily/parasail/releases/tag/v1.0.0
 
+[\#81]: https://github.com/jeffdaily/parasail/issues/81
+[\#80]: https://github.com/jeffdaily/parasail/issues/80
+[\#79]: https://github.com/jeffdaily/parasail/issues/79
+[\#78]: https://github.com/jeffdaily/parasail/pull/78
 [\#77]: https://github.com/jeffdaily/parasail/pull/77
 [\#76]: https://github.com/jeffdaily/parasail/issues/76
 [\#75]: https://github.com/jeffdaily/parasail/issues/75
@@ -506,3 +523,5 @@ First stable, production-ready version of parasail.
 [GrappoloTK]: https://github.com/luhowardmark/GrappoloTK
 [SSW]: https://github.com/mengyao/Complete-Striped-Smith-Waterman-Library
 [kseq.h]: http://lh3lh3.users.sourceforge.net/kseq.shtml
+[nileshpatra]: https://github.com/nileshpatra
+[ksahlin]: https://github.com/ksahlin

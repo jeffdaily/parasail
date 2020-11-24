@@ -54,6 +54,7 @@ AC_SUBST([PACKAGE_VERSION])
 # parasail version 2.4.0: 7:0:4 (ABI version 7) added functions
 # parasail version 2.4.1: 7:1:4 (ABI version 7)
 # parasail version 2.4.2: 7:2:4 (ABI version 7)
+# parasail version 2.4.3: 7:2:4 (ABI version 7) no change
 #
 # libparasail -version-info current:revision:age
 LTVER="7:2:4"
@@ -1096,7 +1097,7 @@ AC_ARG_WITH([zlib],
 zlib_okay_val=0
 AS_IF([test "x$with_zlib" = xno], [], [
 m4_ifdef([PKG_CHECK_MODULES],
-         [PKG_CHECK_MODULES([Z], [zlib], [zlib_okay_val=1])],
+         [PKG_CHECK_MODULES([Z], [zlib], [zlib_okay_val=1], [zlib_okay_val=0])],
          [
 parasail_save_LIBS="$LIBS"
 AC_CHECK_HEADERS([zlib.h])

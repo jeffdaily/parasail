@@ -33,7 +33,7 @@ Defaults:
             file: no default, must be in FASTA format
       query_file: no default, must be in FASTA format
      output_file: parasail.csv
-   output_format: no deafult, must be one of {EMBOSS,SAM,SAMH,SSW}
+   output_format: no default, must be one of {EMBOSS,SAM,SAMH,SSW}
       batch_size: 0 (calculate based on memory budget),
                   how many alignments before writing output
    memory_budget: 2GB or half available from system query (135.185 GB)

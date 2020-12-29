@@ -27,36 +27,45 @@ extern void parasail_free_simde__m128i(void *ptr);
 SIMDE_FUNCTION_ATTRIBUTES
 simde__m128i
 simde_mm_cmplt_epi64 (simde__m128i a, simde__m128i b) {
-  simde__m128i r;
-  SIMDE__VECTORIZE
-  for (size_t i = 0 ; i < (sizeof(r.i64) / sizeof(r.i64[0])) ; i++) {
-    r.i64[i] = (a.i64[i] < b.i64[i]) ? 0xffffffffffffffff : 0x0000000000000000;
+  simde__m128i_private
+    r_,
+    a_ = simde__m128i_to_private(a),
+    b_ = simde__m128i_to_private(b);
+  SIMDE_VECTORIZE
+  for (size_t i = 0 ; i < (sizeof(r_.i64) / sizeof(r_.i64[0])) ; i++) {
+    r_.i64[i] = (a_.i64[i] < b_.i64[i]) ? 0xffffffffffffffff : 0x0000000000000000;
   }
-  return r;
+  return simde__m128i_from_private(r_);
 }
 
 /* this function is part of AVX512VL + AVX512F */
 SIMDE_FUNCTION_ATTRIBUTES
 simde__m128i
 simde_mm_max_epi64 (simde__m128i a, simde__m128i b) {
-  simde__m128i r;
-  SIMDE__VECTORIZE
-  for (size_t i = 0 ; i < (sizeof(r.i64) / sizeof(r.i64[0])) ; i++) {
-    r.i64[i] = (a.i64[i] > b.i64[i]) ? a.i64[i] : b.i64[i];
+  simde__m128i_private
+    r_,
+    a_ = simde__m128i_to_private(a),
+    b_ = simde__m128i_to_private(b);
+  SIMDE_VECTORIZE
+  for (size_t i = 0 ; i < (sizeof(r_.i64) / sizeof(r_.i64[0])) ; i++) {
+    r_.i64[i] = (a_.i64[i] > b_.i64[i]) ? a_.i64[i] : b_.i64[i];
   }
-  return r;
+  return simde__m128i_from_private(r_);
 }
 
 /* this function is part of AVX512VL + AVX512F */
 SIMDE_FUNCTION_ATTRIBUTES
 simde__m128i
 simde_mm_min_epi64 (simde__m128i a, simde__m128i b) {
-  simde__m128i r;
-  SIMDE__VECTORIZE
-  for (size_t i = 0 ; i < (sizeof(r.i64) / sizeof(r.i64[0])) ; i++) {
-    r.i64[i] = (a.i64[i] < b.i64[i]) ? a.i64[i] : b.i64[i];
+  simde__m128i_private
+    r_,
+    a_ = simde__m128i_to_private(a),
+    b_ = simde__m128i_to_private(b);
+  SIMDE_VECTORIZE
+  for (size_t i = 0 ; i < (sizeof(r_.i64) / sizeof(r_.i64[0])) ; i++) {
+    r_.i64[i] = (a_.i64[i] < b_.i64[i]) ? a_.i64[i] : b_.i64[i];
   }
-  return r;
+  return simde__m128i_from_private(r_);
 }
 
 /* "hmax" is made up, but used */

@@ -11,7 +11,7 @@
 #include <stdint.h>
 
 /* we use simde neon equivalents up to sse4.1 */
-#include "x86/sse4.1.h"
+#include "simde_x86_sse4.2.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -23,20 +23,8 @@ extern void parasail_memset_simde__m128i(simde__m128i *b, simde__m128i c, size_t
 
 extern void parasail_free_simde__m128i(void *ptr);
 
-/* this function is part of sse4.2 */
-SIMDE__FUNCTION_ATTRIBUTES
-simde__m128i
-simde_mm_cmpgt_epi64 (simde__m128i a, simde__m128i b) {
-  simde__m128i r;
-  SIMDE__VECTORIZE
-  for (size_t i = 0 ; i < (sizeof(r.i64) / sizeof(r.i64[0])) ; i++) {
-    r.i64[i] = (a.i64[i] > b.i64[i]) ? 0xffffffffffffffff : 0x0000000000000000;
-  }
-  return r;
-}
-
 /* this function does not exist, but is easy to make */
-SIMDE__FUNCTION_ATTRIBUTES
+SIMDE_FUNCTION_ATTRIBUTES
 simde__m128i
 simde_mm_cmplt_epi64 (simde__m128i a, simde__m128i b) {
   simde__m128i r;
@@ -48,7 +36,7 @@ simde_mm_cmplt_epi64 (simde__m128i a, simde__m128i b) {
 }
 
 /* this function is part of AVX512VL + AVX512F */
-SIMDE__FUNCTION_ATTRIBUTES
+SIMDE_FUNCTION_ATTRIBUTES
 simde__m128i
 simde_mm_max_epi64 (simde__m128i a, simde__m128i b) {
   simde__m128i r;
@@ -60,7 +48,7 @@ simde_mm_max_epi64 (simde__m128i a, simde__m128i b) {
 }
 
 /* this function is part of AVX512VL + AVX512F */
-SIMDE__FUNCTION_ATTRIBUTES
+SIMDE_FUNCTION_ATTRIBUTES
 simde__m128i
 simde_mm_min_epi64 (simde__m128i a, simde__m128i b) {
   simde__m128i r;

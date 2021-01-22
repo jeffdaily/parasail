@@ -17,6 +17,10 @@
 #include <mach/clock.h>
 #include <mach/mach.h>
 #elif HAVE_CLOCK_GETTIME_MONOTONIC || HAVE_CLOCK_GETTIME_REALTIME
+/* undef if needed to avoid compiler warning */
+#ifdef _POSIX_C_SOURCE
+#undef _POSIX_C_SOURCE
+#endif
 #define _POSIX_C_SOURCE 199309L
 #include <time.h>
 #endif

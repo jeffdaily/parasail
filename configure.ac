@@ -142,6 +142,7 @@ AC_TYPE_UINT64_T
 AC_TYPE_OFF_T
 AC_TYPE_SIZE_T
 AX_OPENMP
+AX_GCC_BUILTIN([__builtin_cpu_supports])
 AC_SUBST([OPENMP_CFLAGS])
 AM_CONDITIONAL([HAVE_OPENMP],
                [test "x$ax_cv_[]_AC_LANG_ABBREV[]_openmp" != "xunknown"])

@@ -66,7 +66,9 @@ static const parasail_matrix_t parasail_dnafull = {
     16,
     5,
     -4,
-    0
+    0,
+    PARASAIL_MATRIX_TYPE_SQUARE,
+    16
 };
 
 #ifdef __cplusplus

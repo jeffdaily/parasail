@@ -155,10 +155,12 @@ static const parasail_matrix_t parasail_%s = {
     %d,
     NULL,
     PARASAIL_MATRIX_TYPE_SQUARE,
-    %d
+    %d,
+    "%s"
 };
 
-""" % (filename_lower, filename_lower, filename_lower, base, count, biggest, smallest, count))
+""" % (filename_lower, filename_lower, filename_lower, base, count, biggest, smallest, count,
+    "".join(the_lines[0].split())))
     writer.write(footer % filename)
     writer.write("\n")
     writer.close()

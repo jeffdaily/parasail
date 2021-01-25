@@ -157,6 +157,7 @@ typedef struct parasail_matrix {
     int *user_matrix;
     int type;
     int length;
+    const char *alphabet;
 } parasail_matrix_t;
 
 typedef struct parasail_profile_data {

@@ -63,7 +63,8 @@ static const parasail_matrix_t parasail_blosum45 = {
     -5,
     NULL,
     PARASAIL_MATRIX_TYPE_SQUARE,
-    24
+    24,
+    "ARNDCQEGHILKMFPSTWYVBZX*"
 };
 
 #ifdef __cplusplus

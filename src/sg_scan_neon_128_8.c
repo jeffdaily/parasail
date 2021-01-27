@@ -159,16 +159,16 @@ parasail_result_t* PNAME(
         int32_t index = 0;
         for (i=0; i<segLen; ++i) {
             int32_t segNum = 0;
-            simde__m128i h;
-            simde__m128i e;
+            simde__m128i_private h_;
+            simde__m128i_private e_;
             for (segNum=0; segNum<segWidth; ++segNum) {
                 int64_t tmp = s1_beg ? 0 : (-open-gap*(segNum*segLen+i));
-                h.i8[segNum] = tmp < INT8_MIN ? INT8_MIN : tmp;
+                h_.i8[segNum] = tmp < INT8_MIN ? INT8_MIN : tmp;
                 tmp = tmp - open;
-                e.i8[segNum] = tmp < INT8_MIN ? INT8_MIN : tmp;
+                e_.i8[segNum] = tmp < INT8_MIN ? INT8_MIN : tmp;
             }
-            simde_mm_store_si128(&pvH[index], h);
-            simde_mm_store_si128(&pvE[index], e);
+            simde_mm_store_si128(&pvH[index], simde__m128i_from_private(h_));
+            simde_mm_store_si128(&pvE[index], simde__m128i_from_private(e_));
             ++index;
         }
     }

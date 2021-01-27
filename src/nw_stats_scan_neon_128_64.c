@@ -157,12 +157,12 @@ parasail_result_t* PNAME(
         int32_t index = 0;
         for (i=0; i<segLen; ++i) {
             int32_t segNum = 0;
-            simde__m128i h;
+            simde__m128i_private h_;
             for (segNum=0; segNum<segWidth; ++segNum) {
                 int64_t tmp = -open-gap*(segNum*segLen+i);
-                h.i64[segNum] = tmp < INT64_MIN ? INT64_MIN : tmp;
+                h_.i64[segNum] = tmp < INT64_MIN ? INT64_MIN : tmp;
             }
-            simde_mm_store_si128(&pvH[index], h);
+            simde_mm_store_si128(&pvH[index], simde__m128i_from_private(h_));
             ++index;
         }
     }

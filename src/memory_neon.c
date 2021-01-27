@@ -44,13 +44,13 @@ parasail_profile_t * parasail_profile_create_neon_128_8(
 
     for (k=0; k<n; ++k) {
         for (i=0; i<segLen; ++i) {
-            simde__m128i t;
+            simde__m128i_private t_;
             j = i;
             for (segNum=0; segNum<segWidth; ++segNum) {
-                t.i8[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
+                t_.i8[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
                 j += segLen;
             }
-            simde_mm_store_si128(&vProfile[index], t);
+            simde_mm_store_si128(&vProfile[index], simde__m128i_from_private(t_));
             ++index;
         }
     }
@@ -78,13 +78,13 @@ parasail_profile_t * parasail_profile_create_neon_128_16(
 
     for (k=0; k<n; ++k) {
         for (i=0; i<segLen; ++i) {
-            simde__m128i t;
+            simde__m128i_private t_;
             j = i;
             for (segNum=0; segNum<segWidth; ++segNum) {
-                t.i16[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
+                t_.i16[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
                 j += segLen;
             }
-            simde_mm_store_si128(&vProfile[index], t);
+            simde_mm_store_si128(&vProfile[index], simde__m128i_from_private(t_));
             ++index;
         }
     }
@@ -112,13 +112,13 @@ parasail_profile_t * parasail_profile_create_neon_128_32(
 
     for (k=0; k<n; ++k) {
         for (i=0; i<segLen; ++i) {
-            simde__m128i t;
+            simde__m128i_private t_;
             j = i;
             for (segNum=0; segNum<segWidth; ++segNum) {
-                t.i32[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
+                t_.i32[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
                 j += segLen;
             }
-            simde_mm_store_si128(&vProfile[index], t);
+            simde_mm_store_si128(&vProfile[index], simde__m128i_from_private(t_));
             ++index;
         }
     }
@@ -146,13 +146,13 @@ parasail_profile_t * parasail_profile_create_neon_128_64(
 
     for (k=0; k<n; ++k) {
         for (i=0; i<segLen; ++i) {
-            simde__m128i t;
+            simde__m128i_private t_;
             j = i;
             for (segNum=0; segNum<segWidth; ++segNum) {
-                t.i64[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
+                t_.i64[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
                 j += segLen;
             }
-            simde_mm_store_si128(&vProfile[index], t);
+            simde_mm_store_si128(&vProfile[index], simde__m128i_from_private(t_));
             ++index;
         }
     }
@@ -197,19 +197,19 @@ parasail_profile_t * parasail_profile_create_stats_neon_128_8(
 
     for (k=0; k<n; ++k) {
         for (i=0; i<segLen; ++i) {
-            simde__m128i p;
-            simde__m128i m;
-            simde__m128i s;
+            simde__m128i_private p_;
+            simde__m128i_private m_;
+            simde__m128i_private s_;
             j = i;
             for (segNum=0; segNum<segWidth; ++segNum) {
-                p.i8[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
-                m.i8[segNum] = j >= s1Len ? 0 : (k == matrix->mapper[(unsigned char)s1[j]]);
-                s.i8[segNum] = p.i8[segNum] > 0;
+                p_.i8[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
+                m_.i8[segNum] = j >= s1Len ? 0 : (k == matrix->mapper[(unsigned char)s1[j]]);
+                s_.i8[segNum] = p_.i8[segNum] > 0;
                 j += segLen;
             }
-            simde_mm_store_si128(&vProfile[index], p);
-            simde_mm_store_si128(&vProfileM[index], m);
-            simde_mm_store_si128(&vProfileS[index], s);
+            simde_mm_store_si128(&vProfile[index], simde__m128i_from_private(p_));
+            simde_mm_store_si128(&vProfileM[index], simde__m128i_from_private(m_));
+            simde_mm_store_si128(&vProfileS[index], simde__m128i_from_private(s_));
             ++index;
         }
     }
@@ -241,19 +241,19 @@ parasail_profile_t * parasail_profile_create_stats_neon_128_16(
 
     for (k=0; k<n; ++k) {
         for (i=0; i<segLen; ++i) {
-            simde__m128i p;
-            simde__m128i m;
-            simde__m128i s;
+            simde__m128i_private p_;
+            simde__m128i_private m_;
+            simde__m128i_private s_;
             j = i;
             for (segNum=0; segNum<segWidth; ++segNum) {
-                p.i16[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
-                m.i16[segNum] = j >= s1Len ? 0 : (k == matrix->mapper[(unsigned char)s1[j]]);
-                s.i16[segNum] = p.i16[segNum] > 0;
+                p_.i16[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
+                m_.i16[segNum] = j >= s1Len ? 0 : (k == matrix->mapper[(unsigned char)s1[j]]);
+                s_.i16[segNum] = p_.i16[segNum] > 0;
                 j += segLen;
             }
-            simde_mm_store_si128(&vProfile[index], p);
-            simde_mm_store_si128(&vProfileM[index], m);
-            simde_mm_store_si128(&vProfileS[index], s);
+            simde_mm_store_si128(&vProfile[index], simde__m128i_from_private(p_));
+            simde_mm_store_si128(&vProfileM[index], simde__m128i_from_private(m_));
+            simde_mm_store_si128(&vProfileS[index], simde__m128i_from_private(s_));
             ++index;
         }
     }
@@ -285,19 +285,19 @@ parasail_profile_t * parasail_profile_create_stats_neon_128_32(
 
     for (k=0; k<n; ++k) {
         for (i=0; i<segLen; ++i) {
-            simde__m128i p;
-            simde__m128i m;
-            simde__m128i s;
+            simde__m128i_private p_;
+            simde__m128i_private m_;
+            simde__m128i_private s_;
             j = i;
             for (segNum=0; segNum<segWidth; ++segNum) {
-                p.i32[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
-                m.i32[segNum] = j >= s1Len ? 0 : (k == matrix->mapper[(unsigned char)s1[j]]);
-                s.i32[segNum] = p.i32[segNum] > 0;
+                p_.i32[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
+                m_.i32[segNum] = j >= s1Len ? 0 : (k == matrix->mapper[(unsigned char)s1[j]]);
+                s_.i32[segNum] = p_.i32[segNum] > 0;
                 j += segLen;
             }
-            simde_mm_store_si128(&vProfile[index], p);
-            simde_mm_store_si128(&vProfileM[index], m);
-            simde_mm_store_si128(&vProfileS[index], s);
+            simde_mm_store_si128(&vProfile[index], simde__m128i_from_private(p_));
+            simde_mm_store_si128(&vProfileM[index], simde__m128i_from_private(m_));
+            simde_mm_store_si128(&vProfileS[index], simde__m128i_from_private(s_));
             ++index;
         }
     }
@@ -329,19 +329,19 @@ parasail_profile_t * parasail_profile_create_stats_neon_128_64(
 
     for (k=0; k<n; ++k) {
         for (i=0; i<segLen; ++i) {
-            simde__m128i p;
-            simde__m128i m;
-            simde__m128i s;
+            simde__m128i_private p_;
+            simde__m128i_private m_;
+            simde__m128i_private s_;
             j = i;
             for (segNum=0; segNum<segWidth; ++segNum) {
-                p.i64[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
-                m.i64[segNum] = j >= s1Len ? 0 : (k == matrix->mapper[(unsigned char)s1[j]]);
-                s.i64[segNum] = p.i64[segNum] > 0;
+                p_.i64[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
+                m_.i64[segNum] = j >= s1Len ? 0 : (k == matrix->mapper[(unsigned char)s1[j]]);
+                s_.i64[segNum] = p_.i64[segNum] > 0;
                 j += segLen;
             }
-            simde_mm_store_si128(&vProfile[index], p);
-            simde_mm_store_si128(&vProfileM[index], m);
-            simde_mm_store_si128(&vProfileS[index], s);
+            simde_mm_store_si128(&vProfile[index], simde__m128i_from_private(p_));
+            simde_mm_store_si128(&vProfileM[index], simde__m128i_from_private(m_));
+            simde_mm_store_si128(&vProfileS[index], simde__m128i_from_private(s_));
             ++index;
         }
     }

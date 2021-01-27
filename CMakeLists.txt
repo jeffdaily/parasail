@@ -65,6 +65,11 @@ CHECK_TYPE_SIZE( "uint32_t" SIZEOF_UINT32_T )
 CHECK_TYPE_SIZE( "uint64_t" SIZEOF_UINT64_T )
 TEST_BIG_ENDIAN( WORDS_BIGENDIAN )
 
+# Check for __builtin_cpu_supports
+CHECK_C_SOURCE_COMPILES(
+"int main () { __builtin_cpu_supports(\"sse\"); return 0; }"
+HAVE___BUILTIN_CPU_SUPPORTS )
+
 # Check for restrict keyword
 FOREACH( ac_kw __restrict __restrict__ _Restrict restrict )
     CHECK_C_SOURCE_COMPILES(
@@ -150,6 +155,7 @@ CHECK_SYMBOL_EXISTS( aligned_alloc stdlib.h HAVE_ALIGNED_ALLOC )
 CHECK_SYMBOL_EXISTS( memalign malloc.h HAVE_MEMALIGN )
 CHECK_FUNCTION_EXISTS( getopt HAVE_GETOPT )
 CHECK_FUNCTION_EXISTS( poll HAVE_POLL )
+#CHECK_FUNCTION_EXISTS( __builtin_cpu_supports HAVE___BUILTIN_CPU_SUPPORTS )
 #CHECK_FUNCTION_EXISTS( filelength HAVE_FILELENGTH )
 #CHECK_FUNCTION_EXISTS( GetSystemTimeAsFileTime HAVE_GETSYSTEMTIMEASFILETIME )
 #CHECK_FUNCTION_EXISTS( SetUnhandledExceptionFilter HAVE_SETUNHANDLEDEXCEPTIONFILTER )

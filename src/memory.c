@@ -646,8 +646,10 @@ parasail_profile_t* parasail_profile_new(
     /* declare all variables */
     parasail_profile_t *profile = NULL;
 
-    PARASAIL_CHECK_NULL(s1);
     PARASAIL_CHECK_NULL(matrix);
+    if (matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) {
+        PARASAIL_CHECK_NULL(s1);
+    }
 
     PARASAIL_NEW(profile, parasail_profile_t);
 

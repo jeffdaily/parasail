@@ -26,27 +26,46 @@ void parasail_memset___m128i(__m128i *b, __m128i c, size_t len)
 }
 
 parasail_profile_t * parasail_profile_create_sse_128_8(
-        const char * const restrict s1, const int s1Len,
+        const char * const restrict s1, const int _s1Len,
         const parasail_matrix_t *matrix)
 {
+    int s1Len = 0;
     int32_t i = 0;
     int32_t j = 0;
     int32_t k = 0;
     int32_t segNum = 0;
-    const int32_t n = matrix->size; /* number of amino acids in table */
+    int32_t n = 0; /* number of amino acids in table */
     const int32_t segWidth = 16; /* number of values in vector unit */
-    const int32_t segLen = (s1Len + segWidth - 1) / segWidth;
-    __m128i* const restrict vProfile = parasail_memalign___m128i(16, n * segLen);
+    int32_t segLen = 0;
+    __m128i* restrict vProfile = NULL;
     int32_t index = 0;
+    parasail_profile_t *profile = NULL;
 
-    parasail_profile_t *profile = parasail_profile_new(s1, s1Len, matrix);
+    PARASAIL_CHECK_NULL(matrix);
+    /* s1 is ignored for pssm, required for square */
+    if (matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) {
+        PARASAIL_CHECK_NULL(s1);
+    }
+
+    s1Len = matrix->type == PARASAIL_MATRIX_TYPE_SQUARE ? _s1Len : matrix->length;
+    n = matrix->size;
+    segLen = (s1Len + segWidth - 1) / segWidth;
+    vProfile = parasail_memalign___m128i(16, n * segLen);
+    if (!vProfile) return NULL;
+    profile = parasail_profile_new(s1, s1Len, matrix);
+    if (!profile) return NULL;
 
     for (k=0; k<n; ++k) {
         for (i=0; i<segLen; ++i) {
             __m128i_8_t t;
             j = i;
             for (segNum=0; segNum<segWidth; ++segNum) {
-                t.v[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
+                if (matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) {
+                    t.v[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
+                }
+                else {
+                    t.v[segNum] = j >= s1Len ? 0 : matrix->matrix[n*j+matrix->mapper[(unsigned char)matrix->alphabet[k]]];
+                }
                 j += segLen;
             }
             _mm_store_si128(&vProfile[index], t.m);
@@ -60,27 +79,46 @@ parasail_profile_t * parasail_profile_create_sse_128_8(
 }
 
 parasail_profile_t * parasail_profile_create_sse_128_16(
-        const char * const restrict s1, const int s1Len,
+        const char * const restrict s1, const int _s1Len,
         const parasail_matrix_t *matrix)
 {
+    int s1Len = 0;
     int32_t i = 0;
     int32_t j = 0;
     int32_t k = 0;
     int32_t segNum = 0;
-    const int32_t n = matrix->size; /* number of amino acids in table */
+    int32_t n = 0; /* number of amino acids in table */
     const int32_t segWidth = 8; /* number of values in vector unit */
-    const int32_t segLen = (s1Len + segWidth - 1) / segWidth;
-    __m128i* const restrict vProfile = parasail_memalign___m128i(16, n * segLen);
+    int32_t segLen = 0;
+    __m128i* restrict vProfile = NULL;
     int32_t index = 0;
+    parasail_profile_t *profile = NULL;
 
-    parasail_profile_t *profile = parasail_profile_new(s1, s1Len, matrix);
+    PARASAIL_CHECK_NULL(matrix);
+    /* s1 is ignored for pssm, required for square */
+    if (matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) {
+        PARASAIL_CHECK_NULL(s1);
+    }
+
+    s1Len = matrix->type == PARASAIL_MATRIX_TYPE_SQUARE ? _s1Len : matrix->length;
+    n = matrix->size;
+    segLen = (s1Len + segWidth - 1) / segWidth;
+    vProfile = parasail_memalign___m128i(16, n * segLen);
+    if (!vProfile) return NULL;
+    profile = parasail_profile_new(s1, s1Len, matrix);
+    if (!profile) return NULL;
 
     for (k=0; k<n; ++k) {
         for (i=0; i<segLen; ++i) {
             __m128i_16_t t;
             j = i;
             for (segNum=0; segNum<segWidth; ++segNum) {
-                t.v[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
+                if (matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) {
+                    t.v[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
+                }
+                else {
+                    t.v[segNum] = j >= s1Len ? 0 : matrix->matrix[n*j+matrix->mapper[(unsigned char)matrix->alphabet[k]]];
+                }
                 j += segLen;
             }
             _mm_store_si128(&vProfile[index], t.m);
@@ -94,27 +132,46 @@ parasail_profile_t * parasail_profile_create_sse_128_16(
 }
 
 parasail_profile_t * parasail_profile_create_sse_128_32(
-        const char * const restrict s1, const int s1Len,
+        const char * const restrict s1, const int _s1Len,
         const parasail_matrix_t *matrix)
 {
+    int s1Len = 0;
     int32_t i = 0;
     int32_t j = 0;
     int32_t k = 0;
     int32_t segNum = 0;
-    const int32_t n = matrix->size; /* number of amino acids in table */
+    int32_t n = 0; /* number of amino acids in table */
     const int32_t segWidth = 4; /* number of values in vector unit */
-    const int32_t segLen = (s1Len + segWidth - 1) / segWidth;
-    __m128i* const restrict vProfile = parasail_memalign___m128i(16, n * segLen);
+    int32_t segLen = 0;
+    __m128i* restrict vProfile = NULL;
     int32_t index = 0;
+    parasail_profile_t *profile = NULL;
 
-    parasail_profile_t *profile = parasail_profile_new(s1, s1Len, matrix);
+    PARASAIL_CHECK_NULL(matrix);
+    /* s1 is ignored for pssm, required for square */
+    if (matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) {
+        PARASAIL_CHECK_NULL(s1);
+    }
+
+    s1Len = matrix->type == PARASAIL_MATRIX_TYPE_SQUARE ? _s1Len : matrix->length;
+    n = matrix->size;
+    segLen = (s1Len + segWidth - 1) / segWidth;
+    vProfile = parasail_memalign___m128i(16, n * segLen);
+    if (!vProfile) return NULL;
+    profile = parasail_profile_new(s1, s1Len, matrix);
+    if (!profile) return NULL;
 
     for (k=0; k<n; ++k) {
         for (i=0; i<segLen; ++i) {
             __m128i_32_t t;
             j = i;
             for (segNum=0; segNum<segWidth; ++segNum) {
-                t.v[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
+                if (matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) {
+                    t.v[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
+                }
+                else {
+                    t.v[segNum] = j >= s1Len ? 0 : matrix->matrix[n*j+matrix->mapper[(unsigned char)matrix->alphabet[k]]];
+                }
                 j += segLen;
             }
             _mm_store_si128(&vProfile[index], t.m);
@@ -128,27 +185,46 @@ parasail_profile_t * parasail_profile_create_sse_128_32(
 }
 
 parasail_profile_t * parasail_profile_create_sse_128_64(
-        const char * const restrict s1, const int s1Len,
+        const char * const restrict s1, const int _s1Len,
         const parasail_matrix_t *matrix)
 {
+    int s1Len = 0;
     int32_t i = 0;
     int32_t j = 0;
     int32_t k = 0;
     int32_t segNum = 0;
-    const int32_t n = matrix->size; /* number of amino acids in table */
+    int32_t n = 0; /* number of amino acids in table */
     const int32_t segWidth = 2; /* number of values in vector unit */
-    const int32_t segLen = (s1Len + segWidth - 1) / segWidth;
-    __m128i* const restrict vProfile = parasail_memalign___m128i(16, n * segLen);
+    int32_t segLen = 0;
+    __m128i* restrict vProfile = NULL;
     int32_t index = 0;
+    parasail_profile_t *profile = NULL;
 
-    parasail_profile_t *profile = parasail_profile_new(s1, s1Len, matrix);
+    PARASAIL_CHECK_NULL(matrix);
+    /* s1 is ignored for pssm, required for square */
+    if (matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) {
+        PARASAIL_CHECK_NULL(s1);
+    }
+
+    s1Len = matrix->type == PARASAIL_MATRIX_TYPE_SQUARE ? _s1Len : matrix->length;
+    n = matrix->size;
+    segLen = (s1Len + segWidth - 1) / segWidth;
+    vProfile = parasail_memalign___m128i(16, n * segLen);
+    if (!vProfile) return NULL;
+    profile = parasail_profile_new(s1, s1Len, matrix);
+    if (!profile) return NULL;
 
     for (k=0; k<n; ++k) {
         for (i=0; i<segLen; ++i) {
             __m128i_64_t t;
             j = i;
             for (segNum=0; segNum<segWidth; ++segNum) {
-                t.v[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
+                if (matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) {
+                    t.v[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
+                }
+                else {
+                    t.v[segNum] = j >= s1Len ? 0 : matrix->matrix[n*j+matrix->mapper[(unsigned char)matrix->alphabet[k]]];
+                }
                 j += segLen;
             }
             _mm_store_si128(&vProfile[index], t.m);
@@ -177,22 +253,38 @@ parasail_profile_t* parasail_profile_create_sse_128_sat(
 }
 
 parasail_profile_t * parasail_profile_create_stats_sse_128_8(
-        const char * const restrict s1, const int s1Len,
+        const char * const restrict s1, const int _s1Len,
         const parasail_matrix_t *matrix)
 {
+    int s1Len = 0;
     int32_t i = 0;
     int32_t j = 0;
     int32_t k = 0;
     int32_t segNum = 0;
-    const int32_t n = matrix->size; /* number of amino acids in table */
+    int32_t n = 0;
     const int32_t segWidth = 16; /* number of values in vector unit */
-    const int32_t segLen = (s1Len + segWidth - 1) / segWidth;
-    __m128i* const restrict vProfile = parasail_memalign___m128i(16, n * segLen);
-    __m128i* const restrict vProfileM = parasail_memalign___m128i(16, n * segLen);
-    __m128i* const restrict vProfileS = parasail_memalign___m128i(16, n * segLen);
+    int32_t segLen = 0;
+    __m128i* restrict vProfile = NULL;
+    __m128i* restrict vProfileM = NULL;
+    __m128i* restrict vProfileS = NULL;
     int32_t index = 0;
+    parasail_profile_t *profile = NULL;
 
-    parasail_profile_t *profile = parasail_profile_new(s1, s1Len, matrix);
+    PARASAIL_CHECK_NULL(matrix);
+    /* s1 is required for both pssm and square */
+    PARASAIL_CHECK_NULL(s1);
+
+    s1Len = matrix->type == PARASAIL_MATRIX_TYPE_SQUARE ? _s1Len : matrix->length;
+    n = matrix->size; /* number of amino acids in table */
+    segLen = (s1Len + segWidth - 1) / segWidth;
+    vProfile = parasail_memalign___m128i(16, n * segLen);
+    if (!vProfile) return NULL;
+    vProfileM = parasail_memalign___m128i(16, n * segLen);
+    if (!vProfileM) return NULL;
+    vProfileS = parasail_memalign___m128i(16, n * segLen);
+    if (!vProfileS) return NULL;
+    profile = parasail_profile_new(s1, s1Len, matrix);
+    if (!profile) return NULL;
 
     for (k=0; k<n; ++k) {
         for (i=0; i<segLen; ++i) {
@@ -201,7 +293,12 @@ parasail_profile_t * parasail_profile_create_stats_sse_128_8(
             __m128i_8_t s;
             j = i;
             for (segNum=0; segNum<segWidth; ++segNum) {
-                p.v[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
+                if (matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) {
+                    p.v[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
+                }
+                else {
+                    p.v[segNum] = j >= s1Len ? 0 : matrix->matrix[n*j+matrix->mapper[(unsigned char)matrix->alphabet[k]]];
+                }
                 m.v[segNum] = j >= s1Len ? 0 : (k == matrix->mapper[(unsigned char)s1[j]]);
                 s.v[segNum] = p.v[segNum] > 0;
                 j += segLen;
@@ -221,22 +318,38 @@ parasail_profile_t * parasail_profile_create_stats_sse_128_8(
 }
 
 parasail_profile_t * parasail_profile_create_stats_sse_128_16(
-        const char * const restrict s1, const int s1Len,
+        const char * const restrict s1, const int _s1Len,
         const parasail_matrix_t *matrix)
 {
+    int s1Len = 0;
     int32_t i = 0;
     int32_t j = 0;
     int32_t k = 0;
     int32_t segNum = 0;
-    const int32_t n = matrix->size; /* number of amino acids in table */
+    int32_t n = 0;
     const int32_t segWidth = 8; /* number of values in vector unit */
-    const int32_t segLen = (s1Len + segWidth - 1) / segWidth;
-    __m128i* const restrict vProfile = parasail_memalign___m128i(16, n * segLen);
-    __m128i* const restrict vProfileM = parasail_memalign___m128i(16, n * segLen);
-    __m128i* const restrict vProfileS = parasail_memalign___m128i(16, n * segLen);
+    int32_t segLen = 0;
+    __m128i* restrict vProfile = NULL;
+    __m128i* restrict vProfileM = NULL;
+    __m128i* restrict vProfileS = NULL;
     int32_t index = 0;
+    parasail_profile_t *profile = NULL;
 
-    parasail_profile_t *profile = parasail_profile_new(s1, s1Len, matrix);
+    PARASAIL_CHECK_NULL(matrix);
+    /* s1 is required for both pssm and square */
+    PARASAIL_CHECK_NULL(s1);
+
+    s1Len = matrix->type == PARASAIL_MATRIX_TYPE_SQUARE ? _s1Len : matrix->length;
+    n = matrix->size; /* number of amino acids in table */
+    segLen = (s1Len + segWidth - 1) / segWidth;
+    vProfile = parasail_memalign___m128i(16, n * segLen);
+    if (!vProfile) return NULL;
+    vProfileM = parasail_memalign___m128i(16, n * segLen);
+    if (!vProfileM) return NULL;
+    vProfileS = parasail_memalign___m128i(16, n * segLen);
+    if (!vProfileS) return NULL;
+    profile = parasail_profile_new(s1, s1Len, matrix);
+    if (!profile) return NULL;
 
     for (k=0; k<n; ++k) {
         for (i=0; i<segLen; ++i) {
@@ -245,7 +358,12 @@ parasail_profile_t * parasail_profile_create_stats_sse_128_16(
             __m128i_16_t s;
             j = i;
             for (segNum=0; segNum<segWidth; ++segNum) {
-                p.v[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
+                if (matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) {
+                    p.v[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
+                }
+                else {
+                    p.v[segNum] = j >= s1Len ? 0 : matrix->matrix[n*j+matrix->mapper[(unsigned char)matrix->alphabet[k]]];
+                }
                 m.v[segNum] = j >= s1Len ? 0 : (k == matrix->mapper[(unsigned char)s1[j]]);
                 s.v[segNum] = p.v[segNum] > 0;
                 j += segLen;
@@ -265,22 +383,38 @@ parasail_profile_t * parasail_profile_create_stats_sse_128_16(
 }
 
 parasail_profile_t * parasail_profile_create_stats_sse_128_32(
-        const char * const restrict s1, const int s1Len,
+        const char * const restrict s1, const int _s1Len,
         const parasail_matrix_t *matrix)
 {
+    int s1Len = 0;
     int32_t i = 0;
     int32_t j = 0;
     int32_t k = 0;
     int32_t segNum = 0;
-    const int32_t n = matrix->size; /* number of amino acids in table */
+    int32_t n = 0;
     const int32_t segWidth = 4; /* number of values in vector unit */
-    const int32_t segLen = (s1Len + segWidth - 1) / segWidth;
-    __m128i* const restrict vProfile = parasail_memalign___m128i(16, n * segLen);
-    __m128i* const restrict vProfileM = parasail_memalign___m128i(16, n * segLen);
-    __m128i* const restrict vProfileS = parasail_memalign___m128i(16, n * segLen);
+    int32_t segLen = 0;
+    __m128i* restrict vProfile = NULL;
+    __m128i* restrict vProfileM = NULL;
+    __m128i* restrict vProfileS = NULL;
     int32_t index = 0;
+    parasail_profile_t *profile = NULL;
 
-    parasail_profile_t *profile = parasail_profile_new(s1, s1Len, matrix);
+    PARASAIL_CHECK_NULL(matrix);
+    /* s1 is required for both pssm and square */
+    PARASAIL_CHECK_NULL(s1);
+
+    s1Len = matrix->type == PARASAIL_MATRIX_TYPE_SQUARE ? _s1Len : matrix->length;
+    n = matrix->size; /* number of amino acids in table */
+    segLen = (s1Len + segWidth - 1) / segWidth;
+    vProfile = parasail_memalign___m128i(16, n * segLen);
+    if (!vProfile) return NULL;
+    vProfileM = parasail_memalign___m128i(16, n * segLen);
+    if (!vProfileM) return NULL;
+    vProfileS = parasail_memalign___m128i(16, n * segLen);
+    if (!vProfileS) return NULL;
+    profile = parasail_profile_new(s1, s1Len, matrix);
+    if (!profile) return NULL;
 
     for (k=0; k<n; ++k) {
         for (i=0; i<segLen; ++i) {
@@ -289,7 +423,12 @@ parasail_profile_t * parasail_profile_create_stats_sse_128_32(
             __m128i_32_t s;
             j = i;
             for (segNum=0; segNum<segWidth; ++segNum) {
-                p.v[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
+                if (matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) {
+                    p.v[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
+                }
+                else {
+                    p.v[segNum] = j >= s1Len ? 0 : matrix->matrix[n*j+matrix->mapper[(unsigned char)matrix->alphabet[k]]];
+                }
                 m.v[segNum] = j >= s1Len ? 0 : (k == matrix->mapper[(unsigned char)s1[j]]);
                 s.v[segNum] = p.v[segNum] > 0;
                 j += segLen;
@@ -309,22 +448,38 @@ parasail_profile_t * parasail_profile_create_stats_sse_128_32(
 }
 
 parasail_profile_t * parasail_profile_create_stats_sse_128_64(
-        const char * const restrict s1, const int s1Len,
+        const char * const restrict s1, const int _s1Len,
         const parasail_matrix_t *matrix)
 {
+    int s1Len = 0;
     int32_t i = 0;
     int32_t j = 0;
     int32_t k = 0;
     int32_t segNum = 0;
-    const int32_t n = matrix->size; /* number of amino acids in table */
+    int32_t n = 0;
     const int32_t segWidth = 2; /* number of values in vector unit */
-    const int32_t segLen = (s1Len + segWidth - 1) / segWidth;
-    __m128i* const restrict vProfile = parasail_memalign___m128i(16, n * segLen);
-    __m128i* const restrict vProfileM = parasail_memalign___m128i(16, n * segLen);
-    __m128i* const restrict vProfileS = parasail_memalign___m128i(16, n * segLen);
+    int32_t segLen = 0;
+    __m128i* restrict vProfile = NULL;
+    __m128i* restrict vProfileM = NULL;
+    __m128i* restrict vProfileS = NULL;
     int32_t index = 0;
+    parasail_profile_t *profile = NULL;
 
-    parasail_profile_t *profile = parasail_profile_new(s1, s1Len, matrix);
+    PARASAIL_CHECK_NULL(matrix);
+    /* s1 is required for both pssm and square */
+    PARASAIL_CHECK_NULL(s1);
+
+    s1Len = matrix->type == PARASAIL_MATRIX_TYPE_SQUARE ? _s1Len : matrix->length;
+    n = matrix->size; /* number of amino acids in table */
+    segLen = (s1Len + segWidth - 1) / segWidth;
+    vProfile = parasail_memalign___m128i(16, n * segLen);
+    if (!vProfile) return NULL;
+    vProfileM = parasail_memalign___m128i(16, n * segLen);
+    if (!vProfileM) return NULL;
+    vProfileS = parasail_memalign___m128i(16, n * segLen);
+    if (!vProfileS) return NULL;
+    profile = parasail_profile_new(s1, s1Len, matrix);
+    if (!profile) return NULL;
 
     for (k=0; k<n; ++k) {
         for (i=0; i<segLen; ++i) {
@@ -333,7 +488,12 @@ parasail_profile_t * parasail_profile_create_stats_sse_128_64(
             __m128i_64_t s;
             j = i;
             for (segNum=0; segNum<segWidth; ++segNum) {
-                p.v[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
+                if (matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) {
+                    p.v[segNum] = j >= s1Len ? 0 : matrix->matrix[n*k+matrix->mapper[(unsigned char)s1[j]]];
+                }
+                else {
+                    p.v[segNum] = j >= s1Len ? 0 : matrix->matrix[n*j+matrix->mapper[(unsigned char)matrix->alphabet[k]]];
+                }
                 m.v[segNum] = j >= s1Len ? 0 : (k == matrix->mapper[(unsigned char)s1[j]]);
                 s.v[segNum] = p.v[segNum] > 0;
                 j += segLen;

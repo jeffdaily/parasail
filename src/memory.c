@@ -386,7 +386,7 @@ static parasail_matrix_t* parasail_matrix_create_internal(
         }
     }
 
-    alphabet_copy = (char*)malloc(sizeof(char) * (size1+1));
+    PARASAIL_CALLOC(alphabet_copy, char, size1+1);
     (void)memcpy(alphabet_copy, alphabet, sizeof(char) * size);
     alphabet_copy[size] = '*';
     alphabet_copy[size1] = '\0';
@@ -433,12 +433,21 @@ static parasail_matrix_t* parasail_matrix_pssm_create_internal(
     int min = INT_MAX;
     int max = INT_MIN;
 
+    PARASAIL_CHECK_NULL(alphabet);
+    PARASAIL_CHECK_NULL(values);
+    if (length <= 0) {
+        fprintf(stderr, "%s: length must be > 0\n", __func__);
+        return NULL;
+    }
+
     size = strlen(alphabet);
-    assert(size < INT_MAX);
+    if (size >= INT_MAX) {
+        fprintf(stderr, "%s: alphabet is too large\n", __func__);
+        return NULL;
+    }
     size1 = size + 1;
 
-    matrix = (int*)malloc(sizeof(int)*size1*length);
-    assert(matrix);
+    PARASAIL_CALLOC(matrix, int, size1*length);
 
     /* find min and max values */
     for (i=0; i<size*length; ++i) {
@@ -446,15 +455,14 @@ static parasail_matrix_t* parasail_matrix_pssm_create_internal(
         max = values[i] > max ? values[i] : max;
     }
 
-    for (i=0; i<length; ++i) {
+    for (i=0; i<(size_t)length; ++i) {
         for (j=0; j<size; ++j) {
             matrix[c++] = values[v++];
         }
         matrix[c++] = min;
     }
 
-    mapper = (int*)malloc(sizeof(int)*256);
-    assert(mapper);
+    PARASAIL_CALLOC(mapper, int, 256);
     parasail_memset_int(mapper, (int)size, 256);
     if (case_sensitive) {
         for (i=0; i<size; ++i) {
@@ -468,13 +476,12 @@ static parasail_matrix_t* parasail_matrix_pssm_create_internal(
         }
     }
 
-    alphabet_copy = (char*)malloc(sizeof(char) * (size1+1));
+    PARASAIL_CALLOC(alphabet_copy, char, size1+1);
     (void)memcpy(alphabet_copy, alphabet, sizeof(char) * size);
     alphabet_copy[size] = '*';
     alphabet_copy[size1] = '\0';
 
-    retval = (parasail_matrix_t*)malloc(sizeof(parasail_matrix_t));
-    assert(retval);
+    PARASAIL_NEW(retval, parasail_matrix_t);
     retval->name = "";
     retval->matrix = matrix;
     retval->mapper = mapper;
@@ -500,7 +507,7 @@ parasail_matrix_t* parasail_matrix_pssm_create_case_sensitive(
     return parasail_matrix_pssm_create_internal(alphabet, values, length, 1);
 }
 
-parasail_matrix_t* parasail_matrix_copy(const parasail_matrix_t *original)
+parasail_matrix_t* parasail_matrix_copy(const parasail_matrix_t *matrix)
 {
     parasail_matrix_t *retval = NULL;
 
@@ -511,31 +518,31 @@ parasail_matrix_t* parasail_matrix_copy(const parasail_matrix_t *original)
     retval->size = matrix->size;
     retval->max = matrix->max;
     retval->min = matrix->min;
-    retval->type = original->type;
-    retval->length = original->length;
+    retval->type = matrix->type;
+    retval->length = matrix->length;
 
     {
         size_t matrix_size = 0;
-        size_t alphabet_size = original->size+1;
+        size_t alphabet_size = (matrix->size+1);
         int *new_mapper = NULL;
         int *new_matrix = NULL;
         char *new_alphabet = NULL;
 
-        if (original->type == PARASAIL_MATRIX_TYPE_SQUARE) {
-            matrix_size = original->size*original->size;
+        if (matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) {
+            matrix_size = matrix->size*matrix->size;
         }
-        else if (original->type == PARASAIL_MATRIX_TYPE_PSSM) {
-            matrix_size = original->size*original->length;
+        else if (matrix->type == PARASAIL_MATRIX_TYPE_PSSM) {
+            matrix_size = matrix->size*matrix->length;
         }
 
         PARASAIL_CALLOC(new_mapper, int, 256);
-        (void)memcpy(new_mapper, original->mapper, sizeof(int)*mapper_size);
+        (void)memcpy(new_mapper, matrix->mapper, sizeof(int)*256);
 
         PARASAIL_CALLOC(new_matrix, int, matrix_size);
         (void)memcpy(new_matrix, matrix->matrix, sizeof(int)*matrix_size);
 
         PARASAIL_CALLOC(new_alphabet, char, alphabet_size);
-        (void)memcpy(new_alphabet, original->alphabet, sizeof(char)*alphabet_size);
+        (void)memcpy(new_alphabet, matrix->alphabet, sizeof(char)*alphabet_size);
 
         retval->mapper = new_mapper;
         retval->matrix = new_matrix;
@@ -547,60 +554,48 @@ parasail_matrix_t* parasail_matrix_copy(const parasail_matrix_t *original)
 }
 
 parasail_matrix_t* parasail_matrix_convert_square_to_pssm(
-        const parasail_matrix_t *original,
+        const parasail_matrix_t *matrix,
         const char *s1,
         int s1Len)
 {
     parasail_matrix_t *retval = NULL;
-    size_t matrix_size = sizeof(int)*original->size*s1Len;
-    size_t mapper_size = sizeof(int)*256;
-    size_t alphabet_size = sizeof(char)*(original->size+1);
+    size_t matrix_size = matrix->size*s1Len;
+    size_t alphabet_size = matrix->size+1;
     int *new_mapper = NULL;
     int *new_matrix = NULL;
     char *new_alphabet = NULL;
     int i;
 
-    if (original->type != PARASAIL_MATRIX_TYPE_SQUARE) {
-        fprintf(stderr, "attempted to convert non-square matrix to pssm\n");
+    PARASAIL_CHECK_NULL(matrix);
+
+    if (matrix->type != PARASAIL_MATRIX_TYPE_SQUARE) {
+        fprintf(stderr, "%s: attempted to convert non-square matrix to pssm\n", __func__);
         return NULL;
     }
 
-    retval = (parasail_matrix_t*)malloc(sizeof(parasail_matrix_t));
-    if (!retval) {
-        fprintf(stderr, "failed to malloc %zu bytes\n", sizeof(parasail_matrix_t));
-        return NULL;
-    }
+    PARASAIL_NEW(retval, parasail_matrix_t);
 
-    new_mapper = (int*)malloc(mapper_size);
-    if (!new_mapper) {
-        fprintf(stderr, "failed to malloc %zu bytes\n", sizeof(mapper_size));
-        return NULL;
-    }
-    (void)memcpy(new_mapper, original->mapper, mapper_size);
+    PARASAIL_CALLOC(new_mapper, int, 256);
+    (void)memcpy(new_mapper, matrix->mapper, sizeof(int)*256);
 
-    new_matrix = (int*)malloc(matrix_size);
-    if (!new_matrix) {
-        fprintf(stderr, "failed to malloc %zu bytes\n", sizeof(matrix_size));
-        return NULL;
-    }
+    PARASAIL_CALLOC(new_matrix, int, matrix_size);
 
-    new_alphabet = (char*)malloc(alphabet_size);
-    assert(new_alphabet);
-    (void)memcpy(new_alphabet, original->alphabet, alphabet_size);
+    PARASAIL_CALLOC(new_alphabet, char, alphabet_size);
+    (void)memcpy(new_alphabet, matrix->alphabet, sizeof(char)*alphabet_size);
 
     for (i=0; i<s1Len; ++i) {
         (void)memcpy(
-                &new_matrix[original->size*i],
-                &original->matrix[original->size*original->mapper[(unsigned char)s1[i]]],
-                sizeof(int)*original->size);
+                &new_matrix[matrix->size*i],
+                &matrix->matrix[matrix->size*matrix->mapper[(unsigned char)s1[i]]],
+                sizeof(int)*matrix->size);
     }
 
-    retval->name = original->name;
+    retval->name = matrix->name;
     retval->matrix = new_matrix;
     retval->mapper = new_mapper;
-    retval->size = original->size;
-    retval->max = original->max;
-    retval->min = original->min;
+    retval->size = matrix->size;
+    retval->max = matrix->max;
+    retval->min = matrix->min;
     retval->user_matrix = new_matrix;
     retval->type = PARASAIL_MATRIX_TYPE_PSSM;
     retval->length = s1Len;

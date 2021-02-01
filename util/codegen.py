@@ -12,7 +12,6 @@
 import copy
 import os
 import re
-import string
 import sys
 
 from isa import sse2
@@ -21,7 +20,7 @@ from isa import avx2
 from isa import altivec
 from isa import neon
 
-keys = sse2.keys()
+keys = list(sse2.keys())
 
 # gather templates
 template_dir = "templates/"
@@ -236,7 +235,7 @@ def generate_printer(params):
         col[(i+%(LANE)s)] = (%(INT)s)%(VEXTRACT)s(vWH, %(LANE_END)s);
     }\n"""[1:] % params
     else:
-        print "bad printer name"
+        print("bad printer name")
         sys.exit(1)
     params["PRINTER"] = text[:-1] # remove last newline
     params["PRINTER_TRACE"] = trace[:-1] # remove last newline
@@ -430,11 +429,11 @@ def generate_saturation_check(params):
 def generated_params_diag(params):
     lanes = params["LANES"]
     params["DIAG_I"] = ",".join(["%d"%i for i in range(lanes)])
-    params["DIAG_ILO"] = ",".join(["%d"%i for i in range(lanes/2,lanes)])
-    params["DIAG_IHI"] = ",".join(["%d"%i for i in range(lanes/2)])
+    params["DIAG_ILO"] = ",".join(["%d"%i for i in range(lanes//2,lanes)])
+    params["DIAG_IHI"] = ",".join(["%d"%i for i in range(lanes//2)])
     params["DIAG_J"] = ",".join(["%d"%-i for i in range(lanes)])
-    params["DIAG_JLO"] = ",".join(["%d"%-i for i in range(lanes/2,lanes)])
-    params["DIAG_JHI"] = ",".join(["%d"%-i for i in range(lanes/2)])
+    params["DIAG_JLO"] = ",".join(["%d"%-i for i in range(lanes//2,lanes)])
+    params["DIAG_JHI"] = ",".join(["%d"%-i for i in range(lanes//2)])
     params["DIAG_IBoundary"] = "            ".join(
             ["-open-%d*gap,\n"%(i)
                 for i in range(lanes)])[:-2]
@@ -514,9 +513,9 @@ def generated_params(template, params):
     bits = params["BITS"]
     width = params["WIDTH"]
     params["INDEX"] = "int32_t"
-    params["ALIGNMENT"] = bits/8
-    params["BYTES"] = width/8
-    params["LANES"] = bits/width
+    params["ALIGNMENT"] = bits//8
+    params["BYTES"] = width//8
+    params["LANES"] = bits//width
     params["LAST_POS"] = params["LANES"]-1
     params["INT"] = "int%(WIDTH)s_t" % params
     params["NEG_INF"] = "(INT%(WIDTH)s_MIN/(%(INT)s)(2))" % params
@@ -568,9 +567,9 @@ for template_filename in template_filenames:
             suffix_prefix = ""
             suffix_prefix_prof = ""
             if 'sg' in parts[0]:
-                parts[0] = string.replace(parts[0], 'sg', 'sg_flags')
-                prefix = string.replace(prefix, 'sg', 'sg_flags')
-                prefix_prof = string.replace(prefix_prof, 'sg', 'sg_flags')
+                parts[0] = parts[0].replace('sg', 'sg_flags')
+                prefix = prefix.replace('sg', 'sg_flags')
+                prefix_prof = prefix_prof.replace('sg', 'sg_flags')
             if len(parts) == 2:
                 table_prefix = "%s_table_%s" % (parts[0], parts[1])
                 rowcol_prefix = "%s_rowcol_%s" % (parts[0], parts[1])
@@ -608,18 +607,18 @@ for template_filename in template_filenames:
             params["SUFFIX"] = suffix
             params["SUFFIX_PROF"] = suffix_prof
             params["NAME"] = "parasail_"+function_name
-            params["NAME_BASE"] = string.replace(params["NAME"], "_stats", "")
+            params["NAME_BASE"] = params["NAME"].replace("_stats", "")
             params["NAME_TABLE"] = "parasail_"+function_table_name
             params["NAME_ROWCOL"] = "parasail_"+function_rowcol_name
             params["NAME_TRACE"] = "parasail_"+function_trace_name
             params["PNAME"] = "parasail_"+function_pname
-            params["PNAME_BASE"] = string.replace(params["PNAME"], "_stats", "")
+            params["PNAME_BASE"] = params["PNAME"].replace("_stats", "")
             params["PNAME_TABLE"] = "parasail_"+function_table_pname
             params["PNAME_ROWCOL"] = "parasail_"+function_rowcol_pname
             params["PNAME_TRACE"] = "parasail_"+function_trace_pname
             params = generated_params(template, params)
             if 'flags' in function_name:
-                function_name = string.replace(function_name, '_flags', '')
+                function_name = function_name.replace('_flags', '')
             output_filename = "%s%s.c" % (output_dir, function_name)
             result = template % params
             writer = open(output_filename, "w")
@@ -636,7 +635,7 @@ for template_filename in special_templates:
     width = int(parts[-1])
     parts = parts[:-1]
     if 'sg' in parts[0]:
-        parts[0] = string.replace(parts[0], 'sg', 'sg_flags')
+        parts[0] = parts[0].replace('sg', 'sg_flags')
     prefix = "_".join(parts)
     table_prefix = ""
     rowcol_prefix = ""
@@ -672,7 +671,7 @@ for template_filename in special_templates:
         params["NAME_TRACE"] = "parasail_"+function_trace_name
         params = generated_params(template, params)
         if 'flags' in function_name:
-            function_name = string.replace(function_name, '_flags', '')
+            function_name = function_name.replace('_flags', '')
         output_filename = "%s%s.c" % (output_dir, function_name)
         result = template % params
         writer = open(output_filename, "w")
@@ -687,7 +686,7 @@ for template_filename in bias_templates:
     parts = prefix.split('_')
     parts = parts[:-1]
     if 'sg' in parts[0]:
-        parts[0] = string.replace(parts[0], 'sg', 'sg_flags')
+        parts[0] = parts[0].replace('sg', 'sg_flags')
     prefix = "_".join(parts)
     prefix_prof = prefix + "_profile"
     table_prefix = ""
@@ -735,12 +734,12 @@ for template_filename in bias_templates:
             params["SUFFIX"] = suffix
             params["SUFFIX_PROF"] = suffix_prof
             params["NAME"] = "parasail_"+function_name
-            params["NAME_BASE"] = string.replace(params["NAME"], "_stats", "")
+            params["NAME_BASE"] = params["NAME"].replace("_stats", "")
             params["NAME_TABLE"] = "parasail_"+function_table_name
             params["NAME_ROWCOL"] = "parasail_"+function_rowcol_name
             params["NAME_TRACE"] = "parasail_"+function_trace_name
             params["PNAME"] = "parasail_"+function_pname
-            params["PNAME_BASE"] = string.replace(params["PNAME"], "_stats", "")
+            params["PNAME_BASE"] = params["PNAME"].replace("_stats", "")
             params["PNAME_TABLE"] = "parasail_"+function_table_pname
             params["PNAME_ROWCOL"] = "parasail_"+function_rowcol_pname
             params["PNAME_TRACE"] = "parasail_"+function_trace_pname

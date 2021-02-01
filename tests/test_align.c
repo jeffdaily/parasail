@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <assert.h>
 #if defined(_MSC_VER)
 #include "wingetopt/src/getopt.h"
 #else
@@ -192,10 +193,13 @@ int main(int argc, char **argv)
     char *endptr = NULL;
     char *matrixname = NULL;
     const parasail_matrix_t *matrix = NULL;
+    parasail_matrix_t *matrix_pssm = NULL;
     int open = 10;
     int extend = 1;
     int match = 1;
     int mismatch = 0;
+    int pssm_toggle = 0;
+    int do_pssm = 0;
     int do_normal = 1;
     int do_stats = 1;
     int do_nonstats = 1;
@@ -212,7 +216,7 @@ int main(int argc, char **argv)
     int do_sw = 1;
     int use_dna = 0;
 
-    while ((c = getopt(argc, argv, "a:b:df:i:m:M:n:o:e:rRTtNSsBX:")) != -1) {
+    while ((c = getopt(argc, argv, "a:b:df:i:m:M:n:o:Pe:rRTtNSsBX:")) != -1) {
         switch (c) {
             case 'a':
                 errno = 0;
@@ -293,6 +297,9 @@ int main(int argc, char **argv)
                 break;
             case 'N':
                 do_normal = 0;
+                break;
+            case 'P':
+                do_pssm = 1;
                 break;
             case 'S':
                 do_stats = 0;
@@ -386,6 +393,11 @@ int main(int argc, char **argv)
     seqB = sequences->seqs[seqB_index].seq.s;
     lena = sequences->seqs[seqA_index].seq.l;
     lenb = sequences->seqs[seqB_index].seq.l;
+
+    if (do_pssm) {
+        printf("PSSM ENABLED\n");
+        matrix_pssm = parasail_matrix_convert_square_to_pssm(matrix, seqA, lena);
+    }
 
     printf("file: %s\n", filename);
     printf("matrix: %s\n", matrixname);
@@ -486,7 +498,25 @@ int main(int argc, char **argv)
         for (i=0; i<new_limit; ++i) {
             timer_rdtsc_single = timer_start();
             timer_nsecs_single = timer_real();
-            result = f.pointer(seqA, lena, seqB, lenb, open, extend, matrix);
+            assert(seqA);
+            assert(lena>0);
+            assert(seqB);
+            assert(lenb>0);
+            if (pssm_toggle) {
+                if (f.is_stats) {
+                    result = f.pointer(seqA, lena, seqB, lenb, open, extend, matrix_pssm);
+                }
+                else {
+                    result = f.pointer(NULL, 0, seqB, lenb, open, extend, matrix_pssm);
+                }
+            }
+            else {
+                result = f.pointer(seqA, lena, seqB, lenb, open, extend, matrix);
+            }
+            if (!result) {
+                fprintf(stderr, "alignment error\n");
+                exit(EXIT_FAILURE);
+            }
             timer_rdtsc_single = timer_start()-(timer_rdtsc_single);
             timer_nsecs_single = timer_real() - timer_nsecs_single;
             stats_sample_value(&stats_rdtsc, timer_rdtsc_single);
@@ -514,6 +544,9 @@ int main(int argc, char **argv)
             timer_rdtsc_ref_mean = stats_rdtsc._mean;
         }
         strcpy(name, f.alg);
+        if (do_pssm && pssm_toggle) {
+            strcat(name, "_pssm");
+        }
         if (f.is_table) {
             strcat(name, "_table");
         }
@@ -716,7 +749,18 @@ int main(int argc, char **argv)
                 saturated ? 0 : stats_nsecs._min,
                 saturated ? 0 : stats_nsecs._max);
         }
-        f = functions[index++];
+        if (do_pssm) {
+            if (pssm_toggle) {
+                pssm_toggle = 0;
+                f = functions[index++];
+            }
+            else {
+                pssm_toggle = 1;
+            }
+        }
+        else {
+            f = functions[index++];
+        }
     }
     /* banded test */
     if (do_nw) {
@@ -835,6 +879,10 @@ int main(int argc, char **argv)
 
     if (filename) {
         parasail_sequences_free(sequences);
+    }
+
+    if (do_pssm) {
+        parasail_matrix_free(matrix_pssm);
     }
 
     return 0;

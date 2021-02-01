@@ -105,6 +105,15 @@ parasail_result_t* FNAME(
             );
     %(SATURATION_CHECK_INIT)s
 
+    int64_t limiter = -open -(gap*(s1Len > s2Len ? s1Len : s2Len));
+    if (limiter < (int64_t)INT%(WIDTH)s_MIN) {
+        result->flag |= PARASAIL_FLAG_SATURATED;
+        score = 0;
+        end_query = 0;
+        end_ref = 0;
+        return result;
+    }
+
     /* convert _s1 from char to int in range 0-23 */
     for (i=0; i<s1Len; ++i) {
         s1[i] = matrix->mapper[(unsigned char)_s1[i]];

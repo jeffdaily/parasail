@@ -245,72 +245,22 @@ def generate_printer(params):
     return params
 
 
-def generate_saturation_check_old(params):
-    width = params["WIDTH"]
-    if width == 8:
-
-        params["SATURATION_CHECK_INIT"] = """
-    %(VTYPE)s vSaturationCheck = %(VSET0)s();
-    %(VTYPE)s vNegLimit = %(VSET1)s(INT8_MIN);
-    %(VTYPE)s vPosLimit = %(VSET1)s(INT8_MAX);""".strip() % params
-
-        params["SATURATION_CHECK_MID"] = """
-            /* check for saturation */
-            {
-                vSaturationCheck = %(VOR)s(vSaturationCheck,
-                        %(VOR)s(
-                            %(VCMPEQ)s(vH, vNegLimit),
-                            %(VCMPEQ)s(vH, vPosLimit)));
-            }""".strip() % params
-
-        params["SATURATION_CHECK_FINAL"] = """
-    if (%(VMOVEMASK)s(vSaturationCheck)) {
-        result->flag |= PARASAIL_FLAG_SATURATED;
-        score = INT8_MAX;
-    }""".strip() % params
-
-        params["STATS_SATURATION_CHECK_INIT"] = """
-    %(VTYPE)s vSaturationCheck = %(VSET0)s();
-    %(VTYPE)s vNegLimit = %(VSET1)s(INT8_MIN);
-    %(VTYPE)s vPosLimit = %(VSET1)s(INT8_MAX);""".strip() % params
-
-        params["STATS_SATURATION_CHECK_MID"] = """
-            /* check for saturation */
-            {
-                vSaturationCheck = %(VOR)s(vSaturationCheck,
-                        %(VOR)s(
-                            %(VCMPEQ)s(vH, vNegLimit),
-                            %(VCMPEQ)s(vH, vPosLimit)));
-            }""".strip() % params
-
-        params["STATS_SATURATION_CHECK_FINAL"] = """
-    if (%(VMOVEMASK)s(vSaturationCheck)) {
-        result->flag |= PARASAIL_FLAG_SATURATED;
-        score = INT8_MAX;
-    }""".strip() % params
-
-        params["NEG_INF"] = "INT8_MIN"
-        params["VADD"] = params["VADDSx8"]
-        params["VSUB"] = params["VSUBSx8"]
-    else:
-        params["SATURATION_CHECK_INIT"] = ""
-        params["SATURATION_CHECK_MID"] = ""
-        params["SATURATION_CHECK_FINAL"] = ""
-        params["STATS_SATURATION_CHECK_INIT"] = ""
-        params["STATS_SATURATION_CHECK_MID"] = ""
-        params["STATS_SATURATION_CHECK_FINAL"] = ""
-    return params
-
-
+# keep this for diag only -- templates for other algs have it baked in already
 def generate_saturation_check(params):
     width = params["WIDTH"]
-    if width == 8:
-        params["SATURATION_CHECK_INIT"] = """
-    %(VTYPE)s vNegLimit = %(VSET1)s(INT8_MIN);
-    %(VTYPE)s vPosLimit = %(VSET1)s(INT8_MAX);
+    # by commenting this out, all bit widths get sat checks
+    #if width == 8:
+    if True:
+	params["SATURATION_CHECK_INIT"] = """
+    const %(INT)s NEG_LIMIT = (-open < matrix->min ?
+        INT%(WIDTH)s_MIN + open : INT%(WIDTH)s_MIN - matrix->min) + 1;
+    const %(INT)s POS_LIMIT = INT%(WIDTH)s_MAX - matrix->max - 1;
+    %(INT)s score = NEG_LIMIT;
+    %(VTYPE)s vNegLimit = %(VSET1)s(NEG_LIMIT);
+    %(VTYPE)s vPosLimit = %(VSET1)s(POS_LIMIT);
     %(VTYPE)s vSaturationCheckMin = vPosLimit;
     %(VTYPE)s vSaturationCheckMax = vNegLimit;""".strip() % params
-        if "diag" in params["NAME"]:
+	if "diag" in params["NAME"]:
             params["SATURATION_CHECK_MID"] = """
             /* check for saturation */
             {
@@ -346,14 +296,17 @@ def generate_saturation_check(params):
             %(VCMPEQ)s(vSaturationCheckMin, vNegLimit),
             %(VCMPEQ)s(vSaturationCheckMax, vPosLimit)))) {
         result->flag |= PARASAIL_FLAG_SATURATED;
-        score = INT8_MAX;
+        score = 0;
         end_query = 0;
         end_ref = 0;
     }""".strip() % params
 
         params["STATS_SATURATION_CHECK_INIT"] = """
-    %(VTYPE)s vNegLimit = %(VSET1)s(INT8_MIN);
-    %(VTYPE)s vPosLimit = %(VSET1)s(INT8_MAX);
+    const %(INT)s NEG_LIMIT = (-open < matrix->min ?
+        INT%(WIDTH)s_MIN + open : INT%(WIDTH)s_MIN - matrix->min) + 1;
+    const %(INT)s POS_LIMIT = INT%(WIDTH)s_MAX - matrix->max - 1;
+    %(VTYPE)s vNegLimit = %(VSET1)s(NEG_LIMIT);
+    %(VTYPE)s vPosLimit = %(VSET1)s(POS_LIMIT);
     %(VTYPE)s vSaturationCheckMin = vPosLimit;
     %(VTYPE)s vSaturationCheckMax = vNegLimit;""".strip() % params
         if "diag" in params["NAME"]:
@@ -393,10 +346,10 @@ def generate_saturation_check(params):
 
         params["STATS_SATURATION_CHECK_FINAL"] = """
     if (%(VMOVEMASK)s(%(VOR)s(
-            %(VCMPEQ)s(vSaturationCheckMin, vNegLimit),
-            %(VCMPEQ)s(vSaturationCheckMax, vPosLimit)))) {
+            %(VCMPLT)s(vSaturationCheckMin, vNegLimit),
+            %(VCMPGT)s(vSaturationCheckMax, vPosLimit)))) {
         result->flag |= PARASAIL_FLAG_SATURATED;
-        score = INT8_MAX;
+        score = 0;
         matches = 0;
         similar = 0;
         length = 0;
@@ -404,9 +357,11 @@ def generate_saturation_check(params):
         end_ref = 0;
     }""".strip() % params
 
-        params["NEG_INF"] = "INT8_MIN"
-        params["VADD"] = params["VADDSx8"]
-        params["VSUB"] = params["VSUBSx8"]
+        # but here we DO specialize for 8-bit
+        if width == 8:
+            params["NEG_INF"] = "INT8_MIN"
+            params["VADD"] = params["VADDSx8"]
+            params["VSUB"] = params["VSUBSx8"]
         if "sw" in params["NAME"] and "striped" in params["NAME"]:
             pass
         else:

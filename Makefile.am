@@ -1172,6 +1172,7 @@ check_PROGRAMS += tests/test_verify_cigars
 check_PROGRAMS += tests/test_12
 check_PROGRAMS += tests/test_64
 check_PROGRAMS += tests/test_p29
+check_PROGRAMS += tests/test_p59
 if HAVE_SSE2
 check_PROGRAMS += tests/test_ssw
 check_PROGRAMS += tests/ssw_vs_pssw
@@ -1302,6 +1303,8 @@ tests_test_12_SOURCES = tests/test_12.c
 tests_test_64_SOURCES = tests/test_64.c
 
 tests_test_p29_SOURCES = tests/test_p29.c
+
+tests_test_p59_SOURCES = tests/test_p59.c
 
 EXTRA_DIST += .gitignore
 EXTRA_DIST += .travis.yml

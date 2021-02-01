@@ -63,7 +63,7 @@ static inline parasail_traceback_t* CONCAT(NAME, T) (
     if (NULL != alphabet_aliases_) {
         size_t i;
         aliases_size = strlen(alphabet_aliases_);
-        assert(aliases_size % 2 == 0 && aliases_size < 256); // even number of characters in alias
+        PARASAIL_ASSERT(aliases_size % 2 == 0 && aliases_size < 256); // even number of characters in alias
         for (i=0; i<aliases_size; ++i) {
             alphabet_aliases[i] = case_sensitive ? alphabet_aliases_[i] :
                                                    toupper(alphabet_aliases_[i]);
@@ -91,7 +91,7 @@ static inline parasail_traceback_t* CONCAT(NAME, T) (
             }
         }
         else {
-            assert(0);
+            PARASAIL_ASSERT(0 && "internal error");
         }
     }
     while (i >= 0 || j >= 0) {
@@ -148,7 +148,7 @@ static inline parasail_traceback_t* CONCAT(NAME, T) (
                 where = PARASAIL_INS;
             }
             else {
-                assert(0);
+                PARASAIL_ASSERT(0 && "internal error");
             }
         }
         else if (PARASAIL_DEL == where) {
@@ -163,14 +163,14 @@ static inline parasail_traceback_t* CONCAT(NAME, T) (
                 where = PARASAIL_DEL;
             }
             else {
-                assert(0);
+                PARASAIL_ASSERT(0 && "internal error");
             }
         }
         else if (PARASAIL_ZERO == where) {
             break;
         }
         else {
-            assert(0);
+            PARASAIL_ASSERT(0 && "internal error");
         }
     }
     *(qc++) = '\0';
@@ -265,7 +265,7 @@ static inline void CONCAT(NAME, T) (
     if (NULL != alphabet_aliases_) {
         size_t i;
         aliases_size = strlen(alphabet_aliases_);
-        assert(aliases_size % 2 == 0 && aliases_size < 256); // even number of characters in alias
+        PARASAIL_ASSERT_NORETVAL(aliases_size % 2 == 0 && aliases_size < 256); // even number of characters in alias
         for (i=0; i<aliases_size; ++i) {
             alphabet_aliases[i] = case_sensitive ? alphabet_aliases_[i] :
                                                    toupper(alphabet_aliases_[i]);
@@ -301,7 +301,7 @@ static inline void CONCAT(NAME, T) (
             }
         }
         else {
-            assert(0);
+            PARASAIL_ASSERT_NORETVAL(0 && "internal error");
         }
     }
     while (i >= 0 || j >= 0) {
@@ -361,7 +361,7 @@ static inline void CONCAT(NAME, T) (
                 where = PARASAIL_INS;
             }
             else {
-                assert(0);
+                PARASAIL_ASSERT_NORETVAL(0 && "internal error");
             }
         }
         else if (PARASAIL_DEL == where) {
@@ -377,14 +377,14 @@ static inline void CONCAT(NAME, T) (
                 where = PARASAIL_DEL;
             }
             else {
-                assert(0);
+                PARASAIL_ASSERT_NORETVAL(0 && "internal error");
             }
         }
         else if (PARASAIL_ZERO == where) {
             break;
         }
         else {
-            assert(0);
+            PARASAIL_ASSERT_NORETVAL(0 && "internal error");
         }
     }
     *(qc++) = '\0';
@@ -442,7 +442,7 @@ static inline void CONCAT(NAME, T) (
                 else if (ar[ai] == ' ') ++gap;
                 else {
                     fprintf(stderr, "bad char in traceback '%c'\n", ar[ai]);
-                    assert(0);
+                    PARASAIL_ASSERT_NORETVAL(0 && "internal error");
                 }
                 fprintf(stream, "%c", ar[ai]);
                 ++ai;

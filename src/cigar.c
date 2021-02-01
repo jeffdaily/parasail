@@ -1,6 +1,5 @@
 #include "config.h"
 
-#include <assert.h>
 #include <ctype.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -207,7 +206,7 @@ parasail_cigar_t* parasail_result_get_cigar_extra(
         int case_sensitive,
         const char *alphabet_aliases)
 {
-    assert(parasail_result_is_trace(result));
+    PARASAIL_ASSERT(parasail_result_is_trace(result));
 
     if (result->flag & PARASAIL_FLAG_STRIPED || result->flag & PARASAIL_FLAG_SCAN) {
         if (result->flag & PARASAIL_FLAG_BITS_8) {

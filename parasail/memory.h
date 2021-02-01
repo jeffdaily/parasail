@@ -16,6 +16,54 @@
 extern "C" {
 #endif
 
+#define PARASAIL_MALLOC(var,size) do {                                          \
+    size_t _size = (size);                                                      \
+    var = malloc(_size);                                                        \
+    if (!var) {                                                                 \
+        fprintf(stderr, "%s: failed to malloc %zu bytes\n", __func__, (_size)); \
+        return NULL;                                                            \
+    }                                                                           \
+} while(0)
+
+#define PARASAIL_CALLOC(var,type,count) do {                                    \
+    size_t _size = sizeof(type)*(count);                                        \
+    var = (type*)malloc(_size);                                                 \
+    if (!var) {                                                                 \
+        fprintf(stderr, "%s: failed to malloc %zu bytes\n", __func__, (_size)); \
+        return NULL;                                                            \
+    }                                                                           \
+} while(0)
+
+#define PARASAIL_NEW(var,type) PARASAIL_CALLOC(var,type,1)
+
+#define PARASAIL_CHECK_NULL(var) do {                        \
+    if (!var) {                                              \
+        fprintf(stderr, "%s: missing %s\n", __func__, #var); \
+        return 0;                                            \
+    }                                                        \
+} while(0)
+
+#define PARASAIL_CHECK_NULL_NORETVAL(var) do {               \
+    if (!var) {                                              \
+        fprintf(stderr, "%s: missing %s\n", __func__, #var); \
+        return;                                              \
+    }                                                        \
+} while(0)
+
+#define PARASAIL_ASSERT(var) do {                                   \
+    if (!(var)) {                                                   \
+        fprintf(stderr, "%s: assert(%s) failed\n", __func__, #var); \
+        return 0;                                                   \
+    }                                                               \
+} while(0)
+
+#define PARASAIL_ASSERT_NORETVAL(var) do {                          \
+    if (!(var)) {                                                   \
+        fprintf(stderr, "%s: assert(%s) failed\n", __func__, #var); \
+        return;                                                     \
+    }                                                               \
+} while(0)
+
 extern void * parasail_memalign(size_t alignment, size_t size);
 extern int * parasail_memalign_int(size_t alignment, size_t size);
 extern int8_t * parasail_memalign_int8_t(size_t alignment, size_t size);

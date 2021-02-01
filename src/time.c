@@ -25,8 +25,6 @@
 #include <time.h>
 #endif
 
-#include <assert.h>
-
 double parasail_time(void)
 {
 #if HAVE_GETSYSTEMTIMEASFILETIME && !defined(INT64_LITERAL_SUFFIX_UNKNOWN)
@@ -55,13 +53,19 @@ double parasail_time(void)
     struct timespec ts;
     /* Works on FreeBSD */
     long retval = clock_gettime(CLOCK_MONOTONIC, &ts);
-    assert(0 == retval);
+    if (0 != retval) {
+        fprintf(stderr, "%s: clock_gettime failed\n", __func__);
+        return 0.0;
+    }
     return (double)(ts.tv_sec) + (double)(ts.tv_nsec)/1000000000.0;
 #elif HAVE_CLOCK_GETTIME_REALTIME
     struct timespec ts;
     /* Works on Linux */
     long retval = clock_gettime(CLOCK_REALTIME, &ts);
-    assert(0 == retval);
+    if (0 != retval) {
+        fprintf(stderr, "%s: clock_gettime failed\n", __func__);
+        return 0.0;
+    }
     return (double)(ts.tv_sec) + (double)(ts.tv_nsec)/1000000000.0;
 #endif
     return 0.0; /* avoid warnings */

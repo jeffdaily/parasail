@@ -16,7 +16,6 @@
 #include "parasail/memory.h"
 #include "parasail/internal_%(ISA)s.h"
 
-#define NEG_INF %(NEG_INF)s
 %(FIXES)s
 
 #ifdef PARASAIL_TABLE

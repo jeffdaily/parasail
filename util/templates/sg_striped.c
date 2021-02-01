@@ -158,8 +158,10 @@ parasail_result_t* PNAME(
             vH = %(VMAX)s(vH, vF);
             /* Save vH values. */
             %(VSTORE)s(pvHStore + i, vH);
-            vSaturationCheckMin = %(VMIN)s(vSaturationCheckMin, vH);
             vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vH);
+            vSaturationCheckMin = %(VMIN)s(vSaturationCheckMin, vH);
+            vSaturationCheckMin = %(VMIN)s(vSaturationCheckMin, vE);
+            vSaturationCheckMin = %(VMIN)s(vSaturationCheckMin, vF);
 #ifdef PARASAIL_TABLE
             arr_store_si%(BITS)s(result->tables->score_table, vH, i, segLen, j, s2Len);
 #endif

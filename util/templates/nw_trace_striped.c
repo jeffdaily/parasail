@@ -18,7 +18,6 @@
 
 #define SWAP(A,B) { %(VTYPE)s* tmp = A; A = B; B = tmp; }
 
-#define NEG_INF %(NEG_INF)s
 %(FIXES)s
 
 static inline void arr_store(
@@ -80,9 +79,14 @@ parasail_result_t* PNAME(
     %(INT)s* const restrict boundary = parasail_memalign_%(INT)s(%(ALIGNMENT)s, s2Len+1);
     %(VTYPE)s vGapO = %(VSET1)s(open);
     %(VTYPE)s vGapE = %(VSET1)s(gap);
-    %(VTYPE)s vNegInf = %(VSET1)s(NEG_INF);
-    %(INT)s score = NEG_INF;
-    %(SATURATION_CHECK_INIT)s
+    const %(INT)s NEG_LIMIT = (-open < matrix->min ?
+        INT%(WIDTH)s_MIN + open : INT%(WIDTH)s_MIN - matrix->min) + 1;
+    const %(INT)s POS_LIMIT = INT%(WIDTH)s_MAX - matrix->max - 1;
+    %(INT)s score = NEG_LIMIT;
+    %(VTYPE)s vNegLimit = %(VSET1)s(NEG_LIMIT);
+    %(VTYPE)s vPosLimit = %(VSET1)s(POS_LIMIT);
+    %(VTYPE)s vSaturationCheckMin = vPosLimit;
+    %(VTYPE)s vSaturationCheckMax = vNegLimit;
     parasail_result_t *result = parasail_result_new_trace(segLen, s2Len, %(ALIGNMENT)s, sizeof(%(VTYPE)s));
     %(VTYPE)s vTIns  = %(VSET1)s(PARASAIL_INS);
     %(VTYPE)s vTDel  = %(VSET1)s(PARASAIL_DEL);
@@ -124,7 +128,7 @@ parasail_result_t* PNAME(
 
         /* Initialize F value to -inf.  Any errors to vH values will be
          * corrected in the Lazy_F loop.  */
-        vF = vNegInf;
+        vF = vNegLimit;
 
         /* load final segment of pvHStore and shift left by %(BYTES)s bytes */
         vH = %(VLOAD)s(&pvHStore[segLen - 1]);
@@ -150,7 +154,10 @@ parasail_result_t* PNAME(
             vH = %(VMAX)s(vH, vF);
             /* Save vH values. */
             %(VSTORE)s(pvHStore + i, vH);
-            %(SATURATION_CHECK_MID)s
+            vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vH);
+            vSaturationCheckMin = %(VMIN)s(vSaturationCheckMin, vH);
+            vSaturationCheckMin = %(VMIN)s(vSaturationCheckMin, vE);
+            vSaturationCheckMin = %(VMIN)s(vSaturationCheckMin, vF);
 
             {
                 %(VTYPE)s vTAll = arr_load(result->trace->trace_table, i, segLen, j);
@@ -211,18 +218,19 @@ parasail_result_t* PNAME(
             vEF_opn = %(VSHIFT)s(vEF_opn, %(BYTES)s);
             vEF_opn = %(VINSERT)s(vEF_opn, tmp2, 0);
             vF_ext = %(VSHIFT)s(vF_ext, %(BYTES)s);
-            vF_ext = %(VINSERT)s(vF_ext, NEG_INF, 0);
+            vF_ext = %(VINSERT)s(vF_ext, NEG_LIMIT, 0);
             vF = %(VSHIFT)s(vF, %(BYTES)s);
             vF = %(VINSERT)s(vF, tmp2, 0);
             vFa_ext = %(VSHIFT)s(vFa_ext, %(BYTES)s);
-            vFa_ext = %(VINSERT)s(vFa_ext, NEG_INF, 0);
+            vFa_ext = %(VINSERT)s(vFa_ext, NEG_LIMIT, 0);
             vFa = %(VSHIFT)s(vFa, %(BYTES)s);
             vFa = %(VINSERT)s(vFa, tmp2, 0);
             for (i=0; i<segLen; ++i) {
                 vH = %(VLOAD)s(pvHStore + i);
                 vH = %(VMAX)s(vH,vF);
                 %(VSTORE)s(pvHStore + i, vH);
-                %(SATURATION_CHECK_MID)s
+                vSaturationCheckMin = %(VMIN)s(vSaturationCheckMin, vH);
+                vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vH);
                 {
                     %(VTYPE)s vTAll;
                     %(VTYPE)s vT;
@@ -289,7 +297,14 @@ end:
         score = (%(INT)s) %(VEXTRACT)s (vH, %(LAST_POS)s);
     }
 
-    %(SATURATION_CHECK_FINAL)s
+    if (%(VMOVEMASK)s(%(VOR)s(
+            %(VCMPLT)s(vSaturationCheckMin, vNegLimit),
+            %(VCMPGT)s(vSaturationCheckMax, vPosLimit)))) {
+        result->flag |= PARASAIL_FLAG_SATURATED;
+        score = 0;
+        end_query = 0;
+        end_ref = 0;
+    }
 
     result->score = score;
     result->end_query = end_query;

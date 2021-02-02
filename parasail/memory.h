@@ -58,6 +58,20 @@ extern "C" {
     }                                                        \
 } while(0)
 
+#define PARASAIL_CHECK_GT0(var) do {                             \
+    if ((var) <= 0) {                                            \
+        fprintf(stderr, "%s: %s must be > 0\n", __func__, #var); \
+        return 0;                                                \
+    }                                                            \
+} while(0)
+
+#define PARASAIL_CHECK_GE0(var) do {                              \
+    if ((var) < 0) {                                              \
+        fprintf(stderr, "%s: %s must be >= 0\n", __func__, #var); \
+        return 0;                                                 \
+    }                                                             \
+} while(0)
+
 #define PARASAIL_ASSERT(var) do {                                   \
     if (!(var)) {                                                   \
         fprintf(stderr, "%s: assert(%s) failed\n", __func__, #var); \

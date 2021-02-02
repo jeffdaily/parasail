@@ -92,7 +92,9 @@ int main(int argc, char **argv)
 #endif
 
 #ifdef HAVE___BUILTIN_CPU_SUPPORTS
+#ifdef HAVE___BUILTIN_CPU_INIT
     __builtin_cpu_init();
+#endif
     printf(" ISA        | Compiler | CPU | __builtin_cpu_supports\n");
     printf("------------------------------------------------------\n");
     printf(" SSE2       |  %s     | %s | %s\n", yesno(cc_sse2), yesno(cpu_sse2), yesno(__builtin_cpu_supports("sse2")));

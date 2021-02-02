@@ -245,71 +245,19 @@ def generate_printer(params):
     return params
 
 
-def generate_saturation_check_old(params):
-    width = params["WIDTH"]
-    if width == 8:
-
-        params["SATURATION_CHECK_INIT"] = """
-    %(VTYPE)s vSaturationCheck = %(VSET0)s();
-    %(VTYPE)s vNegLimit = %(VSET1)s(INT8_MIN);
-    %(VTYPE)s vPosLimit = %(VSET1)s(INT8_MAX);""".strip() % params
-
-        params["SATURATION_CHECK_MID"] = """
-            /* check for saturation */
-            {
-                vSaturationCheck = %(VOR)s(vSaturationCheck,
-                        %(VOR)s(
-                            %(VCMPEQ)s(vH, vNegLimit),
-                            %(VCMPEQ)s(vH, vPosLimit)));
-            }""".strip() % params
-
-        params["SATURATION_CHECK_FINAL"] = """
-    if (%(VMOVEMASK)s(vSaturationCheck)) {
-        result->flag |= PARASAIL_FLAG_SATURATED;
-        score = INT8_MAX;
-    }""".strip() % params
-
-        params["STATS_SATURATION_CHECK_INIT"] = """
-    %(VTYPE)s vSaturationCheck = %(VSET0)s();
-    %(VTYPE)s vNegLimit = %(VSET1)s(INT8_MIN);
-    %(VTYPE)s vPosLimit = %(VSET1)s(INT8_MAX);""".strip() % params
-
-        params["STATS_SATURATION_CHECK_MID"] = """
-            /* check for saturation */
-            {
-                vSaturationCheck = %(VOR)s(vSaturationCheck,
-                        %(VOR)s(
-                            %(VCMPEQ)s(vH, vNegLimit),
-                            %(VCMPEQ)s(vH, vPosLimit)));
-            }""".strip() % params
-
-        params["STATS_SATURATION_CHECK_FINAL"] = """
-    if (%(VMOVEMASK)s(vSaturationCheck)) {
-        result->flag |= PARASAIL_FLAG_SATURATED;
-        score = INT8_MAX;
-    }""".strip() % params
-
-        params["NEG_INF"] = "INT8_MIN"
-        params["VADD"] = params["VADDSx8"]
-        params["VSUB"] = params["VSUBSx8"]
-    else:
-        params["SATURATION_CHECK_INIT"] = ""
-        params["SATURATION_CHECK_MID"] = ""
-        params["SATURATION_CHECK_FINAL"] = ""
-        params["STATS_SATURATION_CHECK_INIT"] = ""
-        params["STATS_SATURATION_CHECK_MID"] = ""
-        params["STATS_SATURATION_CHECK_FINAL"] = ""
-    return params
-
-
 def generate_saturation_check(params):
     width = params["WIDTH"]
     if width == 8:
+        params["SATURATION_CHECK_DECL"] = """
+    %(VTYPE)s vNegLimit;
+    %(VTYPE)s vPosLimit;
+    %(VTYPE)s vSaturationCheckMin;
+    %(VTYPE)s vSaturationCheckMax;""".strip() % params
         params["SATURATION_CHECK_INIT"] = """
-    %(VTYPE)s vNegLimit = %(VSET1)s(INT8_MIN);
-    %(VTYPE)s vPosLimit = %(VSET1)s(INT8_MAX);
-    %(VTYPE)s vSaturationCheckMin = vPosLimit;
-    %(VTYPE)s vSaturationCheckMax = vNegLimit;""".strip() % params
+    vNegLimit = %(VSET1)s(INT8_MIN);
+    vPosLimit = %(VSET1)s(INT8_MAX);
+    vSaturationCheckMin = vPosLimit;
+    vSaturationCheckMax = vNegLimit;""".strip() % params
         if "diag" in params["NAME"]:
             params["SATURATION_CHECK_MID"] = """
             /* check for saturation */
@@ -351,11 +299,16 @@ def generate_saturation_check(params):
         end_ref = 0;
     }""".strip() % params
 
+        params["STATS_SATURATION_CHECK_DECL"] = """
+    %(VTYPE)s vNegLimit;
+    %(VTYPE)s vPosLimit;
+    %(VTYPE)s vSaturationCheckMin;
+    %(VTYPE)s vSaturationCheckMax;""".strip() % params
         params["STATS_SATURATION_CHECK_INIT"] = """
-    %(VTYPE)s vNegLimit = %(VSET1)s(INT8_MIN);
-    %(VTYPE)s vPosLimit = %(VSET1)s(INT8_MAX);
-    %(VTYPE)s vSaturationCheckMin = vPosLimit;
-    %(VTYPE)s vSaturationCheckMax = vNegLimit;""".strip() % params
+    vNegLimit = %(VSET1)s(INT8_MIN);
+    vPosLimit = %(VSET1)s(INT8_MAX);
+    vSaturationCheckMin = vPosLimit;
+    vSaturationCheckMax = vNegLimit;""".strip() % params
         if "diag" in params["NAME"]:
             params["STATS_SATURATION_CHECK_MID"] = """
             /* check for saturation */
@@ -415,9 +368,11 @@ def generate_saturation_check(params):
                         and params[p] not in params["FIXES"]):
                     params["FIXES"] += params[params[p]]
     else:
+        params["SATURATION_CHECK_DECL"] = ""
         params["SATURATION_CHECK_INIT"] = ""
         params["SATURATION_CHECK_MID"] = ""
         params["SATURATION_CHECK_FINAL"] = ""
+        params["STATS_SATURATION_CHECK_DECL"] = ""
         params["STATS_SATURATION_CHECK_INIT"] = ""
         params["STATS_SATURATION_CHECK_MID"] = ""
         params["STATS_SATURATION_CHECK_MID1"] = ""

@@ -179,7 +179,7 @@ parasail_result_t* PNAME(
     result->flag |= PARASAIL_FLAG_ROWCOL;
 #endif
 
-    /* initalize heap variables */
+    /* initialize heap variables */
     pvE = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
     boundary = parasail_memalign_%(INT)s(%(ALIGNMENT)s, s2Len+1);
     pvHt= parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);

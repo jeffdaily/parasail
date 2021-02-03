@@ -419,41 +419,12 @@ parasail_result_t* FNAME(
     PARASAIL_CHECK_GE0(gap);
     PARASAIL_CHECK_NULL(matrix);
 
-    /* initialize result */
-#ifdef PARASAIL_TABLE
-    result = parasail_result_new_table1(s1Len, s2Len);
-#else
-#ifdef PARASAIL_ROWCOL
-    result = parasail_result_new_rowcol1(s1Len, s2Len);
-#else
-    result = parasail_result_new();
-#endif
-#endif
-    if (!result) return NULL;
-
-    /* set known flags */
-    result->flag |= PARASAIL_FLAG_NW | PARASAIL_FLAG_DIAG
-        | PARASAIL_FLAG_BITS_8 | PARASAIL_FLAG_LANES_32;
-#ifdef PARASAIL_TABLE
-    result->flag |= PARASAIL_FLAG_TABLE;
-#endif
-#ifdef PARASAIL_ROWCOL
-    result->flag |= PARASAIL_FLAG_ROWCOL;
-#endif
-
-    /* initialize local variables */
+    /* initialize stack variables */
     N = 32; /* number of values in vector */
     PAD = N-1;
     PAD2 = PAD*2;
     s1Len_PAD = s1Len+PAD;
     s2Len_PAD = s2Len+PAD;
-    s1 = parasail_memalign_int8_t(32, s1Len+PAD);
-    s2B= parasail_memalign_int8_t(32, s2Len+PAD2);
-    _H_pr = parasail_memalign_int8_t(32, s2Len+PAD2);
-    _F_pr = parasail_memalign_int8_t(32, s2Len+PAD2);
-    s2 = s2B+PAD; /* will allow later for negative indices */
-    H_pr = _H_pr+PAD;
-    F_pr = _F_pr+PAD;
     i = 0;
     j = 0;
     end_query = s1Len-1;
@@ -512,7 +483,38 @@ parasail_result_t* FNAME(
     vSaturationCheckMin = vPosLimit;
     vSaturationCheckMax = vNegLimit;
 
-    /* validate local variables */
+    /* initialize result */
+#ifdef PARASAIL_TABLE
+    result = parasail_result_new_table1(s1Len, s2Len);
+#else
+#ifdef PARASAIL_ROWCOL
+    result = parasail_result_new_rowcol1(s1Len, s2Len);
+#else
+    result = parasail_result_new();
+#endif
+#endif
+    if (!result) return NULL;
+
+    /* set known flags */
+    result->flag |= PARASAIL_FLAG_NW | PARASAIL_FLAG_DIAG
+        | PARASAIL_FLAG_BITS_8 | PARASAIL_FLAG_LANES_32;
+#ifdef PARASAIL_TABLE
+    result->flag |= PARASAIL_FLAG_TABLE;
+#endif
+#ifdef PARASAIL_ROWCOL
+    result->flag |= PARASAIL_FLAG_ROWCOL;
+#endif
+
+    /* initialize heap variables */
+    s1 = parasail_memalign_int8_t(32, s1Len+PAD);
+    s2B= parasail_memalign_int8_t(32, s2Len+PAD2);
+    _H_pr = parasail_memalign_int8_t(32, s2Len+PAD2);
+    _F_pr = parasail_memalign_int8_t(32, s2Len+PAD2);
+    s2 = s2B+PAD; /* will allow later for negative indices */
+    H_pr = _H_pr+PAD;
+    F_pr = _F_pr+PAD;
+
+    /* validate heap variables */
     if (!s1) return NULL;
     if (!s2B) return NULL;
     if (!_H_pr) return NULL;

@@ -167,7 +167,7 @@ static inline parasail_cigar_t* CONCAT(NAME, T) (
                 char a = case_sensitive ? seqA[i] : toupper(seqA[i]);
                 char b = case_sensitive ? seqB[j] : toupper(seqB[j]);
                 int matches = (a == b);
-                if (NULL != alphabet_aliases) {
+                if (NULL != alphabet_aliases_) {
                     size_t i;
                     for (i=0; i<aliases_size; i+=1) {
                         if (alphabet_aliases[i] == a) {

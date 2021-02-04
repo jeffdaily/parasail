@@ -1155,6 +1155,7 @@ bin_PROGRAMS += apps/parasail_stats
 
 check_PROGRAMS += tests/traceback
 check_PROGRAMS += tests/test_align
+check_PROGRAMS += tests/test_basic
 check_PROGRAMS += tests/test_gcups
 check_PROGRAMS += tests/test_io
 check_PROGRAMS += tests/test_isa
@@ -1202,6 +1203,8 @@ tests_test_align_SOURCES += tests/timer_real.h
 
 tests_test_altivec_SOURCES = tests/test_altivec.c
 tests_test_altivec_CFLAGS = $(AM_CFLAGS) $(ALTIVEC_CFLAGS)
+
+tests_test_basic_SOURCES = tests/test_basic.c
 
 tests_test_gcups_SOURCES = tests/test_gcups.c
 
@@ -1459,6 +1462,7 @@ TESTS =
 if CROSS_COMPILING
 else
 TESTS += tests/test_isa
+TESTS += tests/test_basic
 endif
 
 # alias for 'make check' using 'make test'

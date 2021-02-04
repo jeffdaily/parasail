@@ -1057,6 +1057,9 @@ TARGET_LINK_LIBRARIES( traceback parasail )
 ADD_EXECUTABLE( test_align tests/test_align.c ${maybe_getopt} )
 TARGET_LINK_LIBRARIES( test_align parasail )
 
+ADD_EXECUTABLE( test_basic tests/test_basic.c )
+TARGET_LINK_LIBRARIES( test_basic parasail )
+
 ADD_EXECUTABLE( test_gcups tests/test_gcups.c ${maybe_getopt} )
 IF( OPENMP_FOUND )
     SET_TARGET_PROPERTIES( test_gcups PROPERTIES COMPILE_FLAGS ${OpenMP_CXX_FLAGS} )

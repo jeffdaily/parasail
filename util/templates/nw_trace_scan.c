@@ -60,6 +60,7 @@ parasail_result_t* FNAME(
 
     /* initialize local variables */
     profile = parasail_profile_create_%(ISA)s_%(BITS)s_%(WIDTH)s(s1, s1Len, matrix);
+    if (!profile) return NULL;
     result = PNAME(profile, s2, s2Len, open, gap);
 
     parasail_profile_free(profile);

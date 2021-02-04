@@ -118,7 +118,7 @@ script:
   - if [[ "$BUILD_TYPE" == "cmake" ]]; then cmake . $MAYBE_ARCH; fi
   - if [[ "$BUILD_TYPE" == "cmake" ]]; then cmake --build . --config Release; fi
   - if [[ "$BUILD_TYPE" == "cmake" ]]; then cmake --build . --config Release --target package; fi
-  - if [[ "$BUILD_TYPE" == "cmake" ]]; then ctest --config Release; fi
+  - if [[ "$BUILD_TYPE" == "cmake" ]]; then ctest -C Release; fi
 
 deploy:
   provider: releases

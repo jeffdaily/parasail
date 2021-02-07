@@ -23,14 +23,47 @@ parasail_result_t* ENAME(
         const char * const restrict _s2, const int s2Len,
         const int open, const int gap, const parasail_matrix_t *matrix)
 {
-    parasail_result_t *result = parasail_result_new_trace(s1Len, s2Len, 16, sizeof(int8_t));
-    int * const restrict s1 = parasail_memalign_int(16, s1Len);
-    int * const restrict s2 = parasail_memalign_int(16, s2Len);
-    int * const restrict H = parasail_memalign_int(16, s2Len+1);
-    int * const restrict F = parasail_memalign_int(16, s2Len+1);
-    int8_t * const restrict HT = (int8_t* const restrict)result->trace->trace_table;
+    /* declare local variables */
+    parasail_result_t *result = NULL;
+    int * restrict s1 = NULL;
+    int * restrict s2 = NULL;
+    int * restrict H = NULL;
+    int * restrict F = NULL;
+    int8_t * restrict HT = NULL;
     int i = 0;
     int j = 0;
+
+    /* validate inputs */
+    PARASAIL_CHECK_NULL(_s1);
+    PARASAIL_CHECK_GT0(s1Len);
+    PARASAIL_CHECK_NULL(_s2);
+    PARASAIL_CHECK_GT0(s2Len);
+    PARASAIL_CHECK_GE0(open);
+    PARASAIL_CHECK_GE0(gap);
+    PARASAIL_CHECK_NULL(matrix);
+
+    /* initialize stack variables */
+
+    /* initialize result */
+    result = parasail_result_new_trace(s1Len, s2Len, 16, sizeof(int8_t));
+    if (!result) return NULL;
+
+    /* set known flags */
+    result->flag |= PARASAIL_FLAG_NW | PARASAIL_FLAG_NOVEC | PARASAIL_FLAG_TRACE
+        | PARASAIL_FLAG_BITS_INT | PARASAIL_FLAG_LANES_1;
+
+    /* initialize heap variables */
+    s1 = parasail_memalign_int(16, s1Len);
+    s2 = parasail_memalign_int(16, s2Len);
+    H = parasail_memalign_int(16, s2Len+1);
+    F = parasail_memalign_int(16, s2Len+1);
+    HT = (int8_t* const restrict)result->trace->trace_table;
+
+    /* validate heap variables */
+    if (!s1) return NULL;
+    if (!s2) return NULL;
+    if (!H) return NULL;
+    if (!F) return NULL;
 
     for (i=0; i<s1Len; ++i) {
         s1[i] = matrix->mapper[(unsigned char)_s1[i]];
@@ -88,8 +121,6 @@ parasail_result_t* ENAME(
     result->score = H[s2Len];
     result->end_query = s1Len-1;
     result->end_ref = s2Len-1;
-    result->flag |= PARASAIL_FLAG_NW | PARASAIL_FLAG_NOVEC | PARASAIL_FLAG_TRACE
-        | PARASAIL_FLAG_BITS_INT | PARASAIL_FLAG_LANES_1;
 
     parasail_free(F);
     parasail_free(H);

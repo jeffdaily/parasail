@@ -159,51 +159,85 @@ parasail_result_t* FNAME(
         const int open, const int gap, const parasail_matrix_t *matrix,
         int s1_beg, int s1_end, int s2_beg, int s2_end)
 {
-    const int32_t N = 8; /* number of values in vector */
-    const int32_t PAD = N-1;
-    const int32_t PAD2 = PAD*2;
-    const int32_t s1Len_PAD = s1Len+PAD;
-    const int32_t s2Len_PAD = s2Len+PAD;
-    int32_t * const restrict s1 = parasail_memalign_int32_t(32, s1Len+PAD);
-    int32_t * const restrict s2B= parasail_memalign_int32_t(32, s2Len+PAD2);
-    int32_t * const restrict _H_pr = parasail_memalign_int32_t(32, s2Len+PAD2);
-    int32_t * const restrict _F_pr = parasail_memalign_int32_t(32, s2Len+PAD2);
-    int32_t * const restrict s2 = s2B+PAD; /* will allow later for negative indices */
-    int32_t * const restrict H_pr = _H_pr+PAD;
-    int32_t * const restrict F_pr = _F_pr+PAD;
-#ifdef PARASAIL_TABLE
-    parasail_result_t *result = parasail_result_new_table1(s1Len, s2Len);
-#else
-#ifdef PARASAIL_ROWCOL
-    parasail_result_t *result = parasail_result_new_rowcol1(s1Len, s2Len);
-#else
-    parasail_result_t *result = parasail_result_new();
-#endif
-#endif
+    /* declare local variables */
+    int32_t N = 0;
+    int32_t PAD = 0;
+    int32_t PAD2 = 0;
+    int32_t s1Len_PAD = 0;
+    int32_t s2Len_PAD = 0;
+    int32_t * restrict s1 = NULL;
+    int32_t * restrict s2B = NULL;
+    int32_t * restrict _H_pr = NULL;
+    int32_t * restrict _F_pr = NULL;
+    int32_t * restrict s2 = NULL;
+    int32_t * restrict H_pr = NULL;
+    int32_t * restrict F_pr = NULL;
+    parasail_result_t *result = NULL;
     int32_t i = 0;
     int32_t j = 0;
     int32_t end_query = 0;
     int32_t end_ref = 0;
-    int32_t score = NEG_INF;
-    __m256i vNegInf = _mm256_set1_epi32(NEG_INF);
-    __m256i vOpen = _mm256_set1_epi32(open);
-    __m256i vGap  = _mm256_set1_epi32(gap);
-    __m256i vOne = _mm256_set1_epi32(1);
-    __m256i vN = _mm256_set1_epi32(N);
-    __m256i vGapN = s1_beg ? _mm256_set1_epi32(0) : _mm256_set1_epi32(gap*N);
-    __m256i vNegOne = _mm256_set1_epi32(-1);
-    __m256i vI = _mm256_set_epi32(0,1,2,3,4,5,6,7);
-    __m256i vJreset = _mm256_set_epi32(0,-1,-2,-3,-4,-5,-6,-7);
-    __m256i vMaxHRow = vNegInf;
-    __m256i vMaxHCol = vNegInf;
-    __m256i vLastVal = vNegInf;
-    __m256i vEndI = vNegInf;
-    __m256i vEndJ = vNegInf;
-    __m256i vILimit = _mm256_set1_epi32(s1Len);
-    __m256i vILimit1 = _mm256_sub_epi32(vILimit, vOne);
-    __m256i vJLimit = _mm256_set1_epi32(s2Len);
-    __m256i vJLimit1 = _mm256_sub_epi32(vJLimit, vOne);
-    __m256i vIBoundary = s1_beg ? _mm256_set1_epi32(0) : _mm256_set_epi32(
+    int32_t score = 0;
+    __m256i vNegInf;
+    __m256i vOpen;
+    __m256i vGap;
+    __m256i vOne;
+    __m256i vN;
+    __m256i vGapN;
+    __m256i vNegOne;
+    __m256i vI;
+    __m256i vJreset;
+    __m256i vMaxHRow;
+    __m256i vMaxHCol;
+    __m256i vLastVal;
+    __m256i vEndI;
+    __m256i vEndJ;
+    __m256i vILimit;
+    __m256i vILimit1;
+    __m256i vJLimit;
+    __m256i vJLimit1;
+    __m256i vIBoundary;
+    
+
+    /* validate inputs */
+    PARASAIL_CHECK_NULL(_s1);
+    PARASAIL_CHECK_GT0(s1Len);
+    PARASAIL_CHECK_NULL(_s2);
+    PARASAIL_CHECK_GT0(s2Len);
+    PARASAIL_CHECK_GE0(open);
+    PARASAIL_CHECK_GE0(gap);
+    PARASAIL_CHECK_NULL(matrix);
+
+    /* initialize stack variables */
+    N = 8; /* number of values in vector */
+    PAD = N-1;
+    PAD2 = PAD*2;
+    s1Len_PAD = s1Len+PAD;
+    s2Len_PAD = s2Len+PAD;
+    i = 0;
+    j = 0;
+    end_query = 0;
+    end_ref = 0;
+    score = NEG_INF;
+    vNegInf = _mm256_set1_epi32(NEG_INF);
+    vOpen = _mm256_set1_epi32(open);
+    vGap  = _mm256_set1_epi32(gap);
+    vOne = _mm256_set1_epi32(1);
+    vN = _mm256_set1_epi32(N);
+    vGapN = s1_beg ? _mm256_set1_epi32(0) : _mm256_set1_epi32(gap*N);
+    vNegOne = _mm256_set1_epi32(-1);
+    vI = _mm256_set_epi32(0,1,2,3,4,5,6,7);
+    vJreset = _mm256_set_epi32(0,-1,-2,-3,-4,-5,-6,-7);
+    vMaxHRow = vNegInf;
+    vMaxHCol = vNegInf;
+    vLastVal = vNegInf;
+    vEndI = vNegInf;
+    vEndJ = vNegInf;
+    vILimit = _mm256_set1_epi32(s1Len);
+    vILimit1 = _mm256_sub_epi32(vILimit, vOne);
+    vJLimit = _mm256_set1_epi32(s2Len);
+    vJLimit1 = _mm256_sub_epi32(vJLimit, vOne);
+    vIBoundary = s1_beg ? _mm256_set1_epi32(0) : _mm256_set_epi32(
             -open-0*gap,
             -open-1*gap,
             -open-2*gap,
@@ -214,6 +248,47 @@ parasail_result_t* FNAME(
             -open-7*gap
             );
     
+
+    /* initialize result */
+#ifdef PARASAIL_TABLE
+    result = parasail_result_new_table1(s1Len, s2Len);
+#else
+#ifdef PARASAIL_ROWCOL
+    result = parasail_result_new_rowcol1(s1Len, s2Len);
+#else
+    result = parasail_result_new();
+#endif
+#endif
+    if (!result) return NULL;
+
+    /* set known flags */
+    result->flag |= PARASAIL_FLAG_SG | PARASAIL_FLAG_DIAG
+        | PARASAIL_FLAG_BITS_32 | PARASAIL_FLAG_LANES_8;
+    result->flag |= s1_beg ? PARASAIL_FLAG_SG_S1_BEG : 0;
+    result->flag |= s1_end ? PARASAIL_FLAG_SG_S1_END : 0;
+    result->flag |= s2_beg ? PARASAIL_FLAG_SG_S2_BEG : 0;
+    result->flag |= s2_end ? PARASAIL_FLAG_SG_S2_END : 0;
+#ifdef PARASAIL_TABLE
+    result->flag |= PARASAIL_FLAG_TABLE;
+#endif
+#ifdef PARASAIL_ROWCOL
+    result->flag |= PARASAIL_FLAG_ROWCOL;
+#endif
+
+    /* initialize heap variables */
+    s1 = parasail_memalign_int32_t(32, s1Len+PAD);
+    s2B= parasail_memalign_int32_t(32, s2Len+PAD2);
+    _H_pr = parasail_memalign_int32_t(32, s2Len+PAD2);
+    _F_pr = parasail_memalign_int32_t(32, s2Len+PAD2);
+    s2 = s2B+PAD; /* will allow later for negative indices */
+    H_pr = _H_pr+PAD;
+    F_pr = _F_pr+PAD;
+
+    /* validate heap variables */
+    if (!s1) return NULL;
+    if (!s2B) return NULL;
+    if (!_H_pr) return NULL;
+    if (!_F_pr) return NULL;
 
     /* convert _s1 from char to int in range 0-23 */
     for (i=0; i<s1Len; ++i) {
@@ -408,18 +483,6 @@ parasail_result_t* FNAME(
     result->score = score;
     result->end_query = end_query;
     result->end_ref = end_ref;
-    result->flag |= PARASAIL_FLAG_SG | PARASAIL_FLAG_DIAG
-        | PARASAIL_FLAG_BITS_32 | PARASAIL_FLAG_LANES_8;
-    result->flag |= s1_beg ? PARASAIL_FLAG_SG_S1_BEG : 0;
-    result->flag |= s1_end ? PARASAIL_FLAG_SG_S1_END : 0;
-    result->flag |= s2_beg ? PARASAIL_FLAG_SG_S2_BEG : 0;
-    result->flag |= s2_end ? PARASAIL_FLAG_SG_S2_END : 0;
-#ifdef PARASAIL_TABLE
-    result->flag |= PARASAIL_FLAG_TABLE;
-#endif
-#ifdef PARASAIL_ROWCOL
-    result->flag |= PARASAIL_FLAG_ROWCOL;
-#endif
 
     parasail_free(_F_pr);
     parasail_free(_H_pr);

@@ -66,9 +66,26 @@ parasail_result_t* FNAME(
         const int open, const int gap, const parasail_matrix_t *matrix,
         int s1_beg, int s1_end, int s2_beg, int s2_end)
 {
-    parasail_profile_t *profile = parasail_profile_create_stats_%(ISA)s_%(BITS)s_%(WIDTH)s(s1, s1Len, matrix);
-    parasail_result_t *result = PNAME(profile, s2, s2Len, open, gap, s1_beg, s1_end, s2_beg, s2_end);
+    /* declare local variables */
+    parasail_profile_t *profile = NULL;
+    parasail_result_t *result = NULL;
+
+    /* validate inputs */
+    PARASAIL_CHECK_NULL(s1);
+    PARASAIL_CHECK_GT0(s1Len);
+    PARASAIL_CHECK_NULL(s2);
+    PARASAIL_CHECK_GT0(s2Len);
+    PARASAIL_CHECK_GE0(open);
+    PARASAIL_CHECK_GE0(gap);
+    PARASAIL_CHECK_NULL(matrix);
+
+    /* initialize local variables */
+    profile = parasail_profile_create_stats_%(ISA)s_%(BITS)s_%(WIDTH)s(s1, s1Len, matrix);
+    if (!profile) return NULL;
+    result = PNAME(profile, s2, s2Len, open, gap, s1_beg, s1_end, s2_beg, s2_end);
+
     parasail_profile_free(profile);
+
     return result;
 }
 
@@ -78,72 +95,171 @@ parasail_result_t* PNAME(
         const int open, const int gap,
         int s1_beg, int s1_end, int s2_beg, int s2_end)
 {
+    /* declare local variables */
     %(INDEX)s i = 0;
     %(INDEX)s j = 0;
     %(INDEX)s k = 0;
-    const int s1Len = profile->s1Len;
-    %(INDEX)s end_query = s1Len-1;
-    %(INDEX)s end_ref = s2Len-1;
-    const parasail_matrix_t *matrix = profile->matrix;
-    const %(INDEX)s segWidth = %(LANES)s; /* number of values in vector unit */
-    const %(INDEX)s segLen = (s1Len + segWidth - 1) / segWidth;
-    const %(INDEX)s offset = (s1Len - 1) %% segLen;
-    const %(INDEX)s position = (segWidth - 1) - (s1Len - 1) / segLen;
-    %(VTYPE)s* const restrict pvP  = (%(VTYPE)s*)profile->profile%(WIDTH)s.score;
-    %(VTYPE)s* const restrict pvPm = (%(VTYPE)s*)profile->profile%(WIDTH)s.matches;
-    %(VTYPE)s* const restrict pvPs = (%(VTYPE)s*)profile->profile%(WIDTH)s.similar;
-    %(VTYPE)s* const restrict pvE  = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
-    %(VTYPE)s* const restrict pvEM = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
-    %(VTYPE)s* const restrict pvES = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
-    %(VTYPE)s* const restrict pvEL = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
-    %(VTYPE)s* const restrict pvH  = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
-    %(VTYPE)s* const restrict pvHM = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
-    %(VTYPE)s* const restrict pvHS = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
-    %(VTYPE)s* const restrict pvHL = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
-    %(VTYPE)s* const restrict pvHMax  = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
-    %(VTYPE)s* const restrict pvHMMax = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
-    %(VTYPE)s* const restrict pvHSMax = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
-    %(VTYPE)s* const restrict pvHLMax = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
-    %(VTYPE)s* const restrict pvGapper = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
-    %(VTYPE)s* const restrict pvGapperL = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
-    %(INT)s* const restrict boundary = parasail_memalign_%(INT)s(%(ALIGNMENT)s, s2Len+1);
-    %(VTYPE)s vGapO = %(VSET1)s(open);
-    %(VTYPE)s vGapE = %(VSET1)s(gap);
-    const %(INT)s NEG_LIMIT = (-open < matrix->min ?
-        INT%(WIDTH)s_MIN + open : INT%(WIDTH)s_MIN - matrix->min) + 1;
-    const %(INT)s POS_LIMIT = INT%(WIDTH)s_MAX - matrix->max - 1;
-    %(VTYPE)s vZero = %(VSET0)s();
-    %(VTYPE)s vOne = %(VSET1)s(1);
-    %(INT)s score = NEG_LIMIT;
+    int s1Len = 0;
+    %(INDEX)s end_query = 0;
+    %(INDEX)s end_ref = 0;
+    const parasail_matrix_t *matrix = NULL;
+    %(INDEX)s segWidth = 0;
+    %(INDEX)s segLen = 0;
+    %(INDEX)s offset = 0;
+    %(INDEX)s position = 0;
+    %(VTYPE)s* restrict pvP = NULL;
+    %(VTYPE)s* restrict pvPm = NULL;
+    %(VTYPE)s* restrict pvPs = NULL;
+    %(VTYPE)s* restrict pvE = NULL;
+    %(VTYPE)s* restrict pvEM = NULL;
+    %(VTYPE)s* restrict pvES = NULL;
+    %(VTYPE)s* restrict pvEL = NULL;
+    %(VTYPE)s* restrict pvH = NULL;
+    %(VTYPE)s* restrict pvHM = NULL;
+    %(VTYPE)s* restrict pvHS = NULL;
+    %(VTYPE)s* restrict pvHL = NULL;
+    %(VTYPE)s* restrict pvHMax = NULL;
+    %(VTYPE)s* restrict pvHMMax = NULL;
+    %(VTYPE)s* restrict pvHSMax = NULL;
+    %(VTYPE)s* restrict pvHLMax = NULL;
+    %(VTYPE)s* restrict pvGapper = NULL;
+    %(VTYPE)s* restrict pvGapperL = NULL;
+    %(INT)s* restrict boundary = NULL;
+    %(VTYPE)s vGapO;
+    %(VTYPE)s vGapE;
+    %(INT)s NEG_LIMIT = 0;
+    %(INT)s POS_LIMIT = 0;
+    %(VTYPE)s vZero;
+    %(VTYPE)s vOne;
+    %(INT)s score = 0;
     %(INT)s matches = 0;
     %(INT)s similar = 0;
     %(INT)s length = 0;
-    %(VTYPE)s vNegLimit = %(VSET1)s(NEG_LIMIT);
-    %(VTYPE)s vPosLimit = %(VSET1)s(POS_LIMIT);
-    %(VTYPE)s vSaturationCheckMin = vPosLimit;
-    %(VTYPE)s vSaturationCheckMax = vNegLimit;
-    %(VTYPE)s vMaxH = vNegLimit;
-    %(VTYPE)s vMaxM = vNegLimit;
-    %(VTYPE)s vMaxS = vNegLimit;
-    %(VTYPE)s vMaxL = vNegLimit;
-    %(VTYPE)s vPosMask = %(VCMPEQ)s(%(VSET1)s(position),
-            %(VSET)s(%(POSITION_MASK)s));
-    %(VTYPE)s vNegInfFront = vZero;
+    %(VTYPE)s vNegLimit;
+    %(VTYPE)s vPosLimit;
+    %(VTYPE)s vSaturationCheckMin;
+    %(VTYPE)s vSaturationCheckMax;
+    %(VTYPE)s vMaxH;
+    %(VTYPE)s vMaxM;
+    %(VTYPE)s vMaxS;
+    %(VTYPE)s vMaxL;
+    %(VTYPE)s vPosMask;
+    %(VTYPE)s vNegInfFront;
     %(VTYPE)s vSegLenXgap;
-    %(VTYPE)s vSegLen = %(VSHIFT)s(%(VSET1)s(segLen), %(BYTES)s);
-#ifdef PARASAIL_TABLE
-    parasail_result_t *result = parasail_result_new_table3(segLen*segWidth, s2Len);
-#else
-#ifdef PARASAIL_ROWCOL
-    parasail_result_t *result = parasail_result_new_rowcol3(segLen*segWidth, s2Len);
-#else
-    parasail_result_t *result = parasail_result_new_stats();
-#endif
-#endif
+    %(VTYPE)s vSegLen;
+    parasail_result_t *result = NULL;
 
+    /* validate inputs */
+    PARASAIL_CHECK_NULL(profile);
+    PARASAIL_CHECK_NULL(profile->profile%(WIDTH)s.score);
+    PARASAIL_CHECK_NULL(profile->matrix);
+    PARASAIL_CHECK_GT0(profile->s1Len);
+    PARASAIL_CHECK_NULL(s2);
+    PARASAIL_CHECK_GT0(s2Len);
+    PARASAIL_CHECK_GE0(open);
+    PARASAIL_CHECK_GE0(gap);
+
+    /* initialize stack variables */
+    i = 0;
+    j = 0;
+    k = 0;
+    s1Len = profile->s1Len;
+    end_query = s1Len-1;
+    end_ref = s2Len-1;
+    matrix = profile->matrix;
+    segWidth = %(LANES)s; /* number of values in vector unit */
+    segLen = (s1Len + segWidth - 1) / segWidth;
+    offset = (s1Len - 1) %% segLen;
+    position = (segWidth - 1) - (s1Len - 1) / segLen;
+    pvP  = (%(VTYPE)s*)profile->profile%(WIDTH)s.score;
+    pvPm = (%(VTYPE)s*)profile->profile%(WIDTH)s.matches;
+    pvPs = (%(VTYPE)s*)profile->profile%(WIDTH)s.similar;
+    vGapO = %(VSET1)s(open);
+    vGapE = %(VSET1)s(gap);
+    NEG_LIMIT = (-open < matrix->min ? INT%(WIDTH)s_MIN + open : INT%(WIDTH)s_MIN - matrix->min) + 1;
+    POS_LIMIT = INT%(WIDTH)s_MAX - matrix->max - 1;
+    vZero = %(VSET0)s();
+    vOne = %(VSET1)s(1);
+    score = NEG_LIMIT;
+    matches = 0;
+    similar = 0;
+    length = 0;
+    vNegLimit = %(VSET1)s(NEG_LIMIT);
+    vPosLimit = %(VSET1)s(POS_LIMIT);
+    vSaturationCheckMin = vPosLimit;
+    vSaturationCheckMax = vNegLimit;
+    vMaxH = vNegLimit;
+    vMaxM = vNegLimit;
+    vMaxS = vNegLimit;
+    vMaxL = vNegLimit;
+    vPosMask = %(VCMPEQ)s(%(VSET1)s(position),
+            %(VSET)s(%(POSITION_MASK)s));
+    vNegInfFront = vZero;
+    vSegLen = %(VSHIFT)s(%(VSET1)s(segLen), %(BYTES)s);
     vNegInfFront = %(VINSERT)s(vNegInfFront, NEG_LIMIT, 0);
     vSegLenXgap = %(VADD)s(vNegInfFront,
             %(VSHIFT)s(%(VSET1)s(-segLen*gap), %(BYTES)s));
+
+    /* initialize result */
+#ifdef PARASAIL_TABLE
+    result = parasail_result_new_table3(segLen*segWidth, s2Len);
+#else
+#ifdef PARASAIL_ROWCOL
+    result = parasail_result_new_rowcol3(segLen*segWidth, s2Len);
+#else
+    result = parasail_result_new_stats();
+#endif
+#endif
+    if (!result) return NULL;
+
+    /* set known flags */
+    result->flag |= PARASAIL_FLAG_SG | PARASAIL_FLAG_SCAN
+        | PARASAIL_FLAG_STATS
+        | PARASAIL_FLAG_BITS_%(WIDTH)s | PARASAIL_FLAG_LANES_%(LANES)s;
+    result->flag |= s1_beg ? PARASAIL_FLAG_SG_S1_BEG : 0;
+    result->flag |= s1_end ? PARASAIL_FLAG_SG_S1_END : 0;
+    result->flag |= s2_beg ? PARASAIL_FLAG_SG_S2_BEG : 0;
+    result->flag |= s2_end ? PARASAIL_FLAG_SG_S2_END : 0;
+#ifdef PARASAIL_TABLE
+    result->flag |= PARASAIL_FLAG_TABLE;
+#endif
+#ifdef PARASAIL_ROWCOL
+    result->flag |= PARASAIL_FLAG_ROWCOL;
+#endif
+
+    /* initialize heap variables */
+    pvE  = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
+    pvEM = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
+    pvES = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
+    pvEL = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
+    pvH  = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
+    pvHM = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
+    pvHS = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
+    pvHL = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
+    pvHMax  = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
+    pvHMMax = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
+    pvHSMax = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
+    pvHLMax = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
+    pvGapper = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
+    pvGapperL = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
+    boundary = parasail_memalign_%(INT)s(%(ALIGNMENT)s, s2Len+1);
+
+    /* validate heap variables */
+    if (!pvE) return NULL;
+    if (!pvEM) return NULL;
+    if (!pvES) return NULL;
+    if (!pvEL) return NULL;
+    if (!pvH) return NULL;
+    if (!pvHM) return NULL;
+    if (!pvHS) return NULL;
+    if (!pvHL) return NULL;
+    if (!pvHMax) return NULL;
+    if (!pvHMMax) return NULL;
+    if (!pvHSMax) return NULL;
+    if (!pvHLMax) return NULL;
+    if (!pvGapper) return NULL;
+    if (!pvGapperL) return NULL;
+    if (!boundary) return NULL;
 
     parasail_memset_%(VTYPE)s(pvHM, vZero, segLen);
     parasail_memset_%(VTYPE)s(pvHS, vZero, segLen);
@@ -507,19 +623,6 @@ parasail_result_t* PNAME(
     result->stats->matches = matches;
     result->stats->similar = similar;
     result->stats->length = length;
-    result->flag |= PARASAIL_FLAG_SG | PARASAIL_FLAG_SCAN
-        | PARASAIL_FLAG_STATS
-        | PARASAIL_FLAG_BITS_%(WIDTH)s | PARASAIL_FLAG_LANES_%(LANES)s;
-    result->flag |= s1_beg ? PARASAIL_FLAG_SG_S1_BEG : 0;
-    result->flag |= s1_end ? PARASAIL_FLAG_SG_S1_END : 0;
-    result->flag |= s2_beg ? PARASAIL_FLAG_SG_S2_BEG : 0;
-    result->flag |= s2_end ? PARASAIL_FLAG_SG_S2_END : 0;
-#ifdef PARASAIL_TABLE
-    result->flag |= PARASAIL_FLAG_TABLE;
-#endif
-#ifdef PARASAIL_ROWCOL
-    result->flag |= PARASAIL_FLAG_ROWCOL;
-#endif
 
     parasail_free(boundary);
     parasail_free(pvGapperL);

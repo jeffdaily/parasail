@@ -393,7 +393,7 @@ int main(int argc, char **argv)
     printf("gap extend: %d\n", extend);
     printf("seq pair %lu,%lu\n", seqA_index, seqB_index);
 
-    printf("%-15s %8s %6s %4s %5s %5s %4s "
+    printf("%-20s %8s %6s %4s %5s %5s %4s "
            "%8s %8s %8s %8s %9s %8s "
            "%8s %5s %8s %8s %8s\n",
             "name", "type", "isa", "bits", "width", "elem", "sat",
@@ -523,7 +523,7 @@ int main(int argc, char **argv)
         else if (f.is_trace) {
             strcat(name, "_trace");
         }
-        printf("%-15s %8s %6s %4s %5s %5d ",
+        printf("%-20s %8s %6s %4s %5s %5d ",
                 name, f.type, f.isa, f.bits, f.width, f.lanes);
         /* xeon phi was unable to perform I/O running natively */
         if (f.is_table) {
@@ -746,7 +746,7 @@ int main(int argc, char **argv)
         timer_nsecs = timer_real() - timer_nsecs;
         if (use_rdtsc) {
             printf(
-                    "%-15s %8s %6s %4s %5s %5d %4d "
+                    "%-20s %8s %6s %4s %5s %5d %4d "
                     "%8d %8d %8d %8d "
                     "%9d %8d "
                     "%8.1f %5.1f %8.1f %8.0f %8.0f\n",
@@ -761,7 +761,7 @@ int main(int argc, char **argv)
         }
         else {
             printf(
-                    "%-15s %8s %6s %4s %5s %5d %4d "
+                    "%-20s %8s %6s %4s %5s %5d %4d "
                     "%8d %8d %8d %8d "
                     "%9d %8d "
                     "%8.3f %5.2f %8.3f %8.3f %8.3f\n",
@@ -803,7 +803,7 @@ int main(int argc, char **argv)
         timer_nsecs = timer_real() - timer_nsecs;
         if (use_rdtsc) {
             printf(
-                    "%-15s %8s %6s %4s %5s %5d %4d "
+                    "%-20s %8s %6s %4s %5s %5d %4d "
                     "%8d %8d %8d %8d "
                     "%9d %8d "
                     "%8.1f %5.1f %8.1f %8.0f %8.0f\n",
@@ -818,7 +818,7 @@ int main(int argc, char **argv)
         }
         else {
             printf(
-                    "%-15s %8s %6s %4s %5s %5d %4d "
+                    "%-20s %8s %6s %4s %5s %5d %4d "
                     "%8d %8d %8d %8d "
                     "%9d %8d "
                     "%8.3f %5.2f %8.3f %8.3f %8.3f\n",

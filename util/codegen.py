@@ -61,7 +61,7 @@ special_templates = [
 #"sg_diag_8.c",
 "sw_diag_8.c",
 "sw_stats_diag_8.c",
-"sg_trace_diag_8.c",
+#"sg_trace_diag_8.c",
 "sw_trace_diag_8.c",
 ]
 

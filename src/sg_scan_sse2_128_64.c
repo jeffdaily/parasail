@@ -394,6 +394,7 @@ parasail_result_t* PNAME(
             vH = _mm_max_epi64_rpl(vHt, vF);
             _mm_store_si128(pvH+i, vH);
             vSaturationCheckMin = _mm_min_epi64_rpl(vSaturationCheckMin, vH);
+            vSaturationCheckMin = _mm_min_epi64_rpl(vSaturationCheckMin, vF);
             vSaturationCheckMax = _mm_max_epi64_rpl(vSaturationCheckMax, vH);
 #ifdef PARASAIL_TABLE
             arr_store_si128(result->tables->score_table, vH, i, segLen, j, s2Len);

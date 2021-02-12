@@ -35,27 +35,78 @@ parasail_result_t* FNAME(
         const int open, const int gap, const parasail_matrix_t *matrix,
         int s1_beg, int s1_end, int s2_beg, int s2_end)
 {
-#ifdef PARASAIL_TABLE
-    parasail_result_t *result = parasail_result_new_table1(s1Len, s2Len);
-#else
-#ifdef PARASAIL_ROWCOL
-    parasail_result_t *result = parasail_result_new_rowcol1(s1Len, s2Len);
-#else
-    parasail_result_t *result = parasail_result_new();
-#endif
-#endif
-    int * const restrict s1 = parasail_memalign_int(16, s1Len);
-    int * const restrict s2 = parasail_memalign_int(16, s2Len);
-    int * const restrict HB = parasail_memalign_int(16, s1Len+1);
-    int * const restrict H  = HB+1;
-    int * const restrict E  = parasail_memalign_int(16, s1Len);
-    int * const restrict HtB= parasail_memalign_int(16, s1Len+1);
-    int * const restrict Ht = HtB+1;
+    /* declare local variables */
+    parasail_result_t *result = NULL;
+    int * restrict s1 = NULL;
+    int * restrict s2 = NULL;
+    int * restrict HB = NULL;
+    int * restrict H = NULL;
+    int * restrict E = NULL;
+    int * restrict HtB = NULL;
+    int * restrict Ht = NULL;
     int i = 0;
     int j = 0;
-    int score = NEG_INF_32;
-    int end_query = s1Len;
-    int end_ref = s2Len;
+    int score = 0;
+    int end_query = 0;
+    int end_ref = 0;
+
+    /* validate inputs */
+    PARASAIL_CHECK_NULL(_s1);
+    PARASAIL_CHECK_GT0(s1Len);
+    PARASAIL_CHECK_NULL(_s2);
+    PARASAIL_CHECK_GT0(s2Len);
+    PARASAIL_CHECK_GE0(open);
+    PARASAIL_CHECK_GE0(gap);
+    PARASAIL_CHECK_NULL(matrix);
+
+    /* initialize stack variables */
+    i = 0;
+    j = 0;
+    score = NEG_INF_32;
+    end_query = s1Len;
+    end_ref = s2Len;
+
+    /* initialize result */
+#ifdef PARASAIL_TABLE
+    result = parasail_result_new_table1(s1Len, s2Len);
+#else
+#ifdef PARASAIL_ROWCOL
+    result = parasail_result_new_rowcol1(s1Len, s2Len);
+#else
+    result = parasail_result_new();
+#endif
+#endif
+    if (!result) return NULL;
+
+    /* set known flags */
+    result->flag |= PARASAIL_FLAG_SG | PARASAIL_FLAG_NOVEC_SCAN
+        | PARASAIL_FLAG_BITS_INT | PARASAIL_FLAG_LANES_1;
+    result->flag |= s1_beg ? PARASAIL_FLAG_SG_S1_BEG : 0;
+    result->flag |= s1_end ? PARASAIL_FLAG_SG_S1_END : 0;
+    result->flag |= s2_beg ? PARASAIL_FLAG_SG_S2_BEG : 0;
+    result->flag |= s2_end ? PARASAIL_FLAG_SG_S2_END : 0;
+#ifdef PARASAIL_TABLE
+    result->flag |= PARASAIL_FLAG_TABLE;
+#endif
+#ifdef PARASAIL_ROWCOL
+    result->flag |= PARASAIL_FLAG_ROWCOL;
+#endif
+
+    /* initialize heap variables */
+    s1 = parasail_memalign_int(16, s1Len);
+    s2 = parasail_memalign_int(16, s2Len);
+    HB = parasail_memalign_int(16, s1Len+1);
+    H  = HB+1;
+    E  = parasail_memalign_int(16, s1Len);
+    HtB= parasail_memalign_int(16, s1Len+1);
+    Ht = HtB+1;
+
+    /* validate heap variables */
+    if (!s1) return NULL;
+    if (!s2) return NULL;
+    if (!HB) return NULL;
+    if (!E) return NULL;
+    if (!HtB) return NULL;
 
     for (i=0; i<s1Len; ++i) {
         s1[i] = matrix->mapper[(unsigned char)_s1[i]];
@@ -179,18 +230,6 @@ parasail_result_t* FNAME(
     result->score = score;
     result->end_query = end_query;
     result->end_ref = end_ref;
-    result->flag |= PARASAIL_FLAG_SG | PARASAIL_FLAG_NOVEC_SCAN
-        | PARASAIL_FLAG_BITS_INT | PARASAIL_FLAG_LANES_1;
-    result->flag |= s1_beg ? PARASAIL_FLAG_SG_S1_BEG : 0;
-    result->flag |= s1_end ? PARASAIL_FLAG_SG_S1_END : 0;
-    result->flag |= s2_beg ? PARASAIL_FLAG_SG_S2_BEG : 0;
-    result->flag |= s2_end ? PARASAIL_FLAG_SG_S2_END : 0;
-#ifdef PARASAIL_TABLE
-    result->flag |= PARASAIL_FLAG_TABLE;
-#endif
-#ifdef PARASAIL_ROWCOL
-    result->flag |= PARASAIL_FLAG_ROWCOL;
-#endif
 
     parasail_free(HtB);
     parasail_free(E);

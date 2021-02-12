@@ -390,77 +390,178 @@ parasail_result_t* FNAME(
         const char * const restrict _s2, const int s2Len,
         const int open, const int gap, const parasail_matrix_t *matrix)
 {
-    const int32_t N = 32; /* number of values in vector */
-    const int32_t PAD = N-1;
-    const int32_t PAD2 = PAD*2;
-    const int32_t s1Len_PAD = s1Len+PAD;
-    const int32_t s2Len_PAD = s2Len+PAD;
-    int8_t * const restrict s1      = parasail_memalign_int8_t(32, s1Len+PAD);
-    int8_t * const restrict s2B     = parasail_memalign_int8_t(32, s2Len+PAD2);
-    int8_t * const restrict _H_pr = parasail_memalign_int8_t(32, s2Len+PAD2);
-    int8_t * const restrict _HM_pr = parasail_memalign_int8_t(32, s2Len+PAD2);
-    int8_t * const restrict _HS_pr = parasail_memalign_int8_t(32, s2Len+PAD2);
-    int8_t * const restrict _HL_pr = parasail_memalign_int8_t(32, s2Len+PAD2);
-    int8_t * const restrict _F_pr = parasail_memalign_int8_t(32, s2Len+PAD2);
-    int8_t * const restrict _FM_pr = parasail_memalign_int8_t(32, s2Len+PAD2);
-    int8_t * const restrict _FS_pr = parasail_memalign_int8_t(32, s2Len+PAD2);
-    int8_t * const restrict _FL_pr = parasail_memalign_int8_t(32, s2Len+PAD2);
-    int8_t * const restrict s2 = s2B+PAD; /* will allow later for negative indices */
-    int8_t * const restrict H_pr = _H_pr+PAD;
-    int8_t * const restrict HM_pr = _HM_pr+PAD;
-    int8_t * const restrict HS_pr = _HS_pr+PAD;
-    int8_t * const restrict HL_pr = _HL_pr+PAD;
-    int8_t * const restrict F_pr = _F_pr+PAD;
-    int8_t * const restrict FM_pr = _FM_pr+PAD;
-    int8_t * const restrict FS_pr = _FS_pr+PAD;
-    int8_t * const restrict FL_pr = _FL_pr+PAD;
-#ifdef PARASAIL_TABLE
-    parasail_result_t *result = parasail_result_new_table3(s1Len, s2Len);
-#else
-#ifdef PARASAIL_ROWCOL
-    parasail_result_t *result = parasail_result_new_rowcol3(s1Len, s2Len);
-#else
-    parasail_result_t *result = parasail_result_new_stats();
-#endif
-#endif
+    /* declare local variables */
+    int32_t N = 0;
+    int32_t PAD = 0;
+    int32_t PAD2 = 0;
+    int32_t s1Len_PAD = 0;
+    int32_t s2Len_PAD = 0;
+    int8_t * restrict s1 = NULL;
+    int8_t * restrict s2B = NULL;
+    int8_t * restrict _H_pr = NULL;
+    int8_t * restrict _HM_pr = NULL;
+    int8_t * restrict _HS_pr = NULL;
+    int8_t * restrict _HL_pr = NULL;
+    int8_t * restrict _F_pr = NULL;
+    int8_t * restrict _FM_pr = NULL;
+    int8_t * restrict _FS_pr = NULL;
+    int8_t * restrict _FL_pr = NULL;
+    int8_t * restrict s2 = NULL;
+    int8_t * restrict H_pr = NULL;
+    int8_t * restrict HM_pr = NULL;
+    int8_t * restrict HS_pr = NULL;
+    int8_t * restrict HL_pr = NULL;
+    int8_t * restrict F_pr = NULL;
+    int8_t * restrict FM_pr = NULL;
+    int8_t * restrict FS_pr = NULL;
+    int8_t * restrict FL_pr = NULL;
+    parasail_result_t *result = NULL;
     int32_t i = 0;
     int32_t j = 0;
     int32_t end_query = 0;
     int32_t end_ref = 0;
-    const int8_t NEG_LIMIT = (-open < matrix->min ?
-        INT8_MIN + open : INT8_MIN - matrix->min) + 1;
-    const int8_t POS_LIMIT = INT8_MAX - matrix->max - 1;
-    int8_t score = NEG_LIMIT;
-    int8_t matches = NEG_LIMIT;
-    int8_t similar = NEG_LIMIT;
-    int8_t length = NEG_LIMIT;
-    __m256i vNegLimit = _mm256_set1_epi8(NEG_LIMIT);
-    __m256i vPosLimit = _mm256_set1_epi8(POS_LIMIT);
-    __m256i vSaturationCheckMin = vPosLimit;
-    __m256i vSaturationCheckMax = vNegLimit;
-    __m256i vNegInf = _mm256_set1_epi8(NEG_LIMIT);
-    __m256i vNegInf0 = _mm256_srli_si256_rpl(vNegInf, 1); /* shift in a 0 */
-    __m256i vOpen = _mm256_set1_epi8(open);
-    __m256i vGap  = _mm256_set1_epi8(gap);
-    __m256i vZero = _mm256_set1_epi8(0);
-    __m256i vOne = _mm256_set1_epi8(1);
-    __m256i vOne16 = _mm256_set1_epi16(1);
-    __m256i vNegOne16 = _mm256_set1_epi16(-1);
-    __m256i vN16 = _mm256_set1_epi16(N);
-    __m256i vILo16 = _mm256_set_epi16(16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31);
-    __m256i vIHi16 = _mm256_set_epi16(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15);
-    __m256i vJresetLo16 = _mm256_set_epi16(-16,-17,-18,-19,-20,-21,-22,-23,-24,-25,-26,-27,-28,-29,-30,-31);
-    __m256i vJresetHi16 = _mm256_set_epi16(0,-1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11,-12,-13,-14,-15);
-    __m256i vMaxH = vNegInf;
-    __m256i vMaxM = vNegInf;
-    __m256i vMaxS = vNegInf;
-    __m256i vMaxL = vNegInf;
-    __m256i vEndILo = vNegInf;
-    __m256i vEndIHi = vNegInf;
-    __m256i vEndJLo = vNegInf;
-    __m256i vEndJHi = vNegInf;
-    __m256i vILimit16 = _mm256_set1_epi16(s1Len);
-    __m256i vJLimit16 = _mm256_set1_epi16(s2Len);
+    int8_t NEG_LIMIT = 0;
+    int8_t POS_LIMIT = 0;
+    int8_t score = 0;
+    int8_t matches = 0;
+    int8_t similar = 0;
+    int8_t length = 0;
+    __m256i vNegLimit;
+    __m256i vPosLimit;
+    __m256i vSaturationCheckMin;
+    __m256i vSaturationCheckMax;
+    __m256i vNegInf;
+    __m256i vNegInf0;
+    __m256i vOpen;
+    __m256i vGap;
+    __m256i vZero;
+    __m256i vOne;
+    __m256i vOne16;
+    __m256i vNegOne16;
+    __m256i vN16;
+    __m256i vILo16;
+    __m256i vIHi16;
+    __m256i vJresetLo16;
+    __m256i vJresetHi16;
+    __m256i vMaxH;
+    __m256i vMaxM;
+    __m256i vMaxS;
+    __m256i vMaxL;
+    __m256i vEndILo;
+    __m256i vEndIHi;
+    __m256i vEndJLo;
+    __m256i vEndJHi;
+    __m256i vILimit16;
+    __m256i vJLimit16;
+
+    /* validate inputs */
+    PARASAIL_CHECK_NULL(_s1);
+    PARASAIL_CHECK_GT0(s1Len);
+    PARASAIL_CHECK_NULL(_s2);
+    PARASAIL_CHECK_GT0(s2Len);
+    PARASAIL_CHECK_GE0(open);
+    PARASAIL_CHECK_GE0(gap);
+    PARASAIL_CHECK_NULL(matrix);
+        
+    /* initialize stack variables */
+    N = 32; /* number of values in vector */
+    PAD = N-1;
+    PAD2 = PAD*2;
+    s1Len_PAD = s1Len+PAD;
+    s2Len_PAD = s2Len+PAD;
+    i = 0;
+    j = 0;
+    end_query = 0;
+    end_ref = 0;
+    NEG_LIMIT = (-open < matrix->min ? INT8_MIN + open : INT8_MIN - matrix->min) + 1;
+    POS_LIMIT = INT8_MAX - matrix->max - 1;
+    score = NEG_LIMIT;
+    matches = NEG_LIMIT;
+    similar = NEG_LIMIT;
+    length = NEG_LIMIT;
+    vNegLimit = _mm256_set1_epi8(NEG_LIMIT);
+    vPosLimit = _mm256_set1_epi8(POS_LIMIT);
+    vSaturationCheckMin = vPosLimit;
+    vSaturationCheckMax = vNegLimit;
+    vNegInf = _mm256_set1_epi8(NEG_LIMIT);
+    vNegInf0 = _mm256_srli_si256_rpl(vNegInf, 1); /* shift in a 0 */
+    vOpen = _mm256_set1_epi8(open);
+    vGap  = _mm256_set1_epi8(gap);
+    vZero = _mm256_set1_epi8(0);
+    vOne = _mm256_set1_epi8(1);
+    vOne16 = _mm256_set1_epi16(1);
+    vNegOne16 = _mm256_set1_epi16(-1);
+    vN16 = _mm256_set1_epi16(N);
+    vILo16 = _mm256_set_epi16(16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31);
+    vIHi16 = _mm256_set_epi16(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15);
+    vJresetLo16 = _mm256_set_epi16(-16,-17,-18,-19,-20,-21,-22,-23,-24,-25,-26,-27,-28,-29,-30,-31);
+    vJresetHi16 = _mm256_set_epi16(0,-1,-2,-3,-4,-5,-6,-7,-8,-9,-10,-11,-12,-13,-14,-15);
+    vMaxH = vNegInf;
+    vMaxM = vNegInf;
+    vMaxS = vNegInf;
+    vMaxL = vNegInf;
+    vEndILo = vNegInf;
+    vEndIHi = vNegInf;
+    vEndJLo = vNegInf;
+    vEndJHi = vNegInf;
+    vILimit16 = _mm256_set1_epi16(s1Len);
+    vJLimit16 = _mm256_set1_epi16(s2Len);
+
+    /* initialize result */
+#ifdef PARASAIL_TABLE
+    result = parasail_result_new_table3(s1Len, s2Len);
+#else
+#ifdef PARASAIL_ROWCOL
+    result = parasail_result_new_rowcol3(s1Len, s2Len);
+#else
+    result = parasail_result_new_stats();
+#endif
+#endif
+    if (!result) return NULL;
+
+    /* set known flags */
+    result->flag |= PARASAIL_FLAG_SW | PARASAIL_FLAG_DIAG
+        | PARASAIL_FLAG_STATS
+        | PARASAIL_FLAG_BITS_8 | PARASAIL_FLAG_LANES_32;
+#ifdef PARASAIL_TABLE
+    result->flag |= PARASAIL_FLAG_TABLE;
+#endif
+#ifdef PARASAIL_ROWCOL
+    result->flag |= PARASAIL_FLAG_ROWCOL;
+#endif
+
+    /* initialize heap variables */
+    s1     = parasail_memalign_int8_t(32, s1Len+PAD);
+    s2B    = parasail_memalign_int8_t(32, s2Len+PAD2);
+    _H_pr  = parasail_memalign_int8_t(32, s2Len+PAD2);
+    _HM_pr = parasail_memalign_int8_t(32, s2Len+PAD2);
+    _HS_pr = parasail_memalign_int8_t(32, s2Len+PAD2);
+    _HL_pr = parasail_memalign_int8_t(32, s2Len+PAD2);
+    _F_pr  = parasail_memalign_int8_t(32, s2Len+PAD2);
+    _FM_pr = parasail_memalign_int8_t(32, s2Len+PAD2);
+    _FS_pr = parasail_memalign_int8_t(32, s2Len+PAD2);
+    _FL_pr = parasail_memalign_int8_t(32, s2Len+PAD2);
+    s2 = s2B+PAD; /* will allow later for negative indices */
+    H_pr  = _H_pr+PAD;
+    HM_pr = _HM_pr+PAD;
+    HS_pr = _HS_pr+PAD;
+    HL_pr = _HL_pr+PAD;
+    F_pr  = _F_pr+PAD;
+    FM_pr = _FM_pr+PAD;
+    FS_pr = _FS_pr+PAD;
+    FL_pr = _FL_pr+PAD;
+
+    /* validate heap variables */
+    if (!s1) return NULL;
+    if (!s2B) return NULL;
+    if (!_H_pr) return NULL;
+    if (!_HM_pr) return NULL;
+    if (!_HS_pr) return NULL;
+    if (!_HL_pr) return NULL;
+    if (!_F_pr) return NULL;
+    if (!_FM_pr) return NULL;
+    if (!_FS_pr) return NULL;
+    if (!_FL_pr) return NULL;
 
     /* convert _s1 from char to int in range 0-23 */
     for (i=0; i<s1Len; ++i) {
@@ -886,15 +987,6 @@ parasail_result_t* FNAME(
     result->stats->matches = matches;
     result->stats->similar = similar;
     result->stats->length = length;
-    result->flag |= PARASAIL_FLAG_SW | PARASAIL_FLAG_DIAG
-        | PARASAIL_FLAG_STATS
-        | PARASAIL_FLAG_BITS_8 | PARASAIL_FLAG_LANES_32;
-#ifdef PARASAIL_TABLE
-    result->flag |= PARASAIL_FLAG_TABLE;
-#endif
-#ifdef PARASAIL_ROWCOL
-    result->flag |= PARASAIL_FLAG_ROWCOL;
-#endif
 
     parasail_free(_FL_pr);
     parasail_free(_FS_pr);

@@ -83,55 +83,132 @@ parasail_result_t* FNAME(
         const char * const restrict _s2, const int s2Len,
         const int open, const int gap, const parasail_matrix_t *matrix)
 {
-    const int32_t N = 16; /* number of values in vector */
-    const int32_t PAD = N-1;
-    const int32_t PAD2 = PAD*2;
-    const int32_t s1Len_PAD = s1Len+PAD;
-    const int32_t s2Len_PAD = s2Len+PAD;
-    int8_t * const restrict s1 = parasail_memalign_int8_t(16, s1Len+PAD);
-    int8_t * const restrict s2B= parasail_memalign_int8_t(16, s2Len+PAD2);
-    int8_t * const restrict _H_pr = parasail_memalign_int8_t(16, s2Len+PAD2);
-    int8_t * const restrict _F_pr = parasail_memalign_int8_t(16, s2Len+PAD2);
-    int8_t * const restrict s2 = s2B+PAD; /* will allow later for negative indices */
-    int8_t * const restrict H_pr = _H_pr+PAD;
-    int8_t * const restrict F_pr = _F_pr+PAD;
-    parasail_result_t *result = parasail_result_new_trace(s1Len, s2Len, 16, sizeof(int8_t));
+    /* declare local variables */
+    int32_t N = 0;
+    int32_t PAD = 0;
+    int32_t PAD2 = 0;
+    int32_t s1Len_PAD = 0;
+    int32_t s2Len_PAD = 0;
+    int8_t * restrict s1 = NULL;
+    int8_t * restrict s2B = NULL;
+    int8_t * restrict _H_pr = NULL;
+    int8_t * restrict _F_pr = NULL;
+    int8_t * restrict s2 = NULL;
+    int8_t * restrict H_pr = NULL;
+    int8_t * restrict F_pr = NULL;
+    parasail_result_t *result = NULL;
     int32_t i = 0;
     int32_t j = 0;
     int32_t end_query = 0;
     int32_t end_ref = 0;
-    int8_t score = NEG_INF;
-    vec128i vNegInf = _mm_set1_epi8(NEG_INF);
-    vec128i vNegInf0 = _mm_srli_si128(vNegInf, 1); /* shift in a 0 */
-    vec128i vOpen = _mm_set1_epi8(open);
-    vec128i vGap  = _mm_set1_epi8(gap);
-    vec128i vZero = _mm_set1_epi8(0);
-    vec128i vOne16 = _mm_set1_epi16(1);
-    vec128i vNegOne16 = _mm_set1_epi16(-1);
-    vec128i vN16 = _mm_set1_epi16(N);
-    vec128i vILo16 = _mm_set_epi16(8,9,10,11,12,13,14,15);
-    vec128i vIHi16 = _mm_set_epi16(0,1,2,3,4,5,6,7);
-    vec128i vJresetLo16 = _mm_set_epi16(-8,-9,-10,-11,-12,-13,-14,-15);
-    vec128i vJresetHi16 = _mm_set_epi16(0,-1,-2,-3,-4,-5,-6,-7);
-    vec128i vMaxH = vNegInf;
-    vec128i vEndILo = vNegInf;
-    vec128i vEndIHi = vNegInf;
-    vec128i vEndJLo = vNegInf;
-    vec128i vEndJHi = vNegInf;
-    vec128i vILimit16 = _mm_set1_epi16(s1Len);
-    vec128i vJLimit16 = _mm_set1_epi16(s2Len);
-    vec128i vTDiag = _mm_set1_epi8(PARASAIL_DIAG);
-    vec128i vTIns = _mm_set1_epi8(PARASAIL_INS);
-    vec128i vTDel = _mm_set1_epi8(PARASAIL_DEL);
-    vec128i vTZero = _mm_set1_epi8(PARASAIL_ZERO);
-    vec128i vTDiagE = _mm_set1_epi8(PARASAIL_DIAG_E);
-    vec128i vTInsE = _mm_set1_epi8(PARASAIL_INS_E);
-    vec128i vTDiagF = _mm_set1_epi8(PARASAIL_DIAG_F);
-    vec128i vTDelF = _mm_set1_epi8(PARASAIL_DEL_F);
-    vec128i vNegLimit = _mm_set1_epi8(INT8_MIN);
-    vec128i vPosLimit = _mm_set1_epi8(INT8_MAX);
-    vec128i vSaturationCheckMin = vPosLimit;
-    vec128i vSaturationCheckMax = vNegLimit;
+    int8_t score = 0;
+    vec128i vNegInf;
+    vec128i vNegInf0;
+    vec128i vOpen;
+    vec128i vGap;
+    vec128i vZero;
+    vec128i vOne16;
+    vec128i vNegOne16;
+    vec128i vN16;
+    vec128i vILo16;
+    vec128i vIHi16;
+    vec128i vJresetLo16;
+    vec128i vJresetHi16;
+    vec128i vMaxH;
+    vec128i vEndILo;
+    vec128i vEndIHi;
+    vec128i vEndJLo;
+    vec128i vEndJHi;
+    vec128i vILimit16;
+    vec128i vJLimit16;
+    vec128i vTDiag;
+    vec128i vTIns;
+    vec128i vTDel;
+    vec128i vTZero;
+    vec128i vTDiagE;
+    vec128i vTInsE;
+    vec128i vTDiagF;
+    vec128i vTDelF;
+    vec128i vNegLimit;
+    vec128i vPosLimit;
+    vec128i vSaturationCheckMin;
+    vec128i vSaturationCheckMax;
+
+    /* validate inputs */
+    PARASAIL_CHECK_NULL(_s1);
+    PARASAIL_CHECK_GT0(s1Len);
+    PARASAIL_CHECK_NULL(_s2);
+    PARASAIL_CHECK_GT0(s2Len);
+    PARASAIL_CHECK_GE0(open);
+    PARASAIL_CHECK_GE0(gap);
+    PARASAIL_CHECK_NULL(matrix);
+        
+    /* initialize stack variables */
+    N = 16; /* number of values in vector */
+    PAD = N-1;
+    PAD2 = PAD*2;
+    s1Len_PAD = s1Len+PAD;
+    s2Len_PAD = s2Len+PAD;
+    i = 0;
+    j = 0;
+    end_query = 0;
+    end_ref = 0;
+    score = NEG_INF;
+    vNegInf = _mm_set1_epi8(NEG_INF);
+    vNegInf0 = _mm_srli_si128(vNegInf, 1); /* shift in a 0 */
+    vOpen = _mm_set1_epi8(open);
+    vGap  = _mm_set1_epi8(gap);
+    vZero = _mm_set1_epi8(0);
+    vOne16 = _mm_set1_epi16(1);
+    vNegOne16 = _mm_set1_epi16(-1);
+    vN16 = _mm_set1_epi16(N);
+    vILo16 = _mm_set_epi16(8,9,10,11,12,13,14,15);
+    vIHi16 = _mm_set_epi16(0,1,2,3,4,5,6,7);
+    vJresetLo16 = _mm_set_epi16(-8,-9,-10,-11,-12,-13,-14,-15);
+    vJresetHi16 = _mm_set_epi16(0,-1,-2,-3,-4,-5,-6,-7);
+    vMaxH = vNegInf;
+    vEndILo = vNegInf;
+    vEndIHi = vNegInf;
+    vEndJLo = vNegInf;
+    vEndJHi = vNegInf;
+    vILimit16 = _mm_set1_epi16(s1Len);
+    vJLimit16 = _mm_set1_epi16(s2Len);
+    vTDiag = _mm_set1_epi8(PARASAIL_DIAG);
+    vTIns = _mm_set1_epi8(PARASAIL_INS);
+    vTDel = _mm_set1_epi8(PARASAIL_DEL);
+    vTZero = _mm_set1_epi8(PARASAIL_ZERO);
+    vTDiagE = _mm_set1_epi8(PARASAIL_DIAG_E);
+    vTInsE = _mm_set1_epi8(PARASAIL_INS_E);
+    vTDiagF = _mm_set1_epi8(PARASAIL_DIAG_F);
+    vTDelF = _mm_set1_epi8(PARASAIL_DEL_F);
+    vNegLimit = _mm_set1_epi8(INT8_MIN);
+    vPosLimit = _mm_set1_epi8(INT8_MAX);
+    vSaturationCheckMin = vPosLimit;
+    vSaturationCheckMax = vNegLimit;
+
+    /* initialize result */
+    result = parasail_result_new_trace(s1Len, s2Len, 16, sizeof(int8_t));
+    if (!result) return NULL;
+
+    /* set known flags */
+    result->flag |= PARASAIL_FLAG_SW | PARASAIL_FLAG_DIAG
+        | PARASAIL_FLAG_TRACE
+        | PARASAIL_FLAG_BITS_8 | PARASAIL_FLAG_LANES_16;
+
+    /* initialize heap variables */
+    s1 = parasail_memalign_int8_t(16, s1Len+PAD);
+    s2B= parasail_memalign_int8_t(16, s2Len+PAD2);
+    _H_pr = parasail_memalign_int8_t(16, s2Len+PAD2);
+    _F_pr = parasail_memalign_int8_t(16, s2Len+PAD2);
+    s2 = s2B+PAD; /* will allow later for negative indices */
+    H_pr = _H_pr+PAD;
+    F_pr = _F_pr+PAD;
+
+    /* validate heap variables */
+    if (!s1) return NULL;
+    if (!s2B) return NULL;
+    if (!_H_pr) return NULL;
+    if (!_F_pr) return NULL;
 
     /* convert _s1 from char to int in range 0-23 */
     for (i=0; i<s1Len; ++i) {
@@ -368,9 +445,6 @@ parasail_result_t* FNAME(
     result->score = score;
     result->end_query = end_query;
     result->end_ref = end_ref;
-    result->flag |= PARASAIL_FLAG_SW | PARASAIL_FLAG_DIAG
-        | PARASAIL_FLAG_TRACE
-        | PARASAIL_FLAG_BITS_8 | PARASAIL_FLAG_LANES_16;
 
     parasail_free(_F_pr);
     parasail_free(_H_pr);

@@ -51,6 +51,13 @@ extern "C" {
     }                                                        \
 } while(0)
 
+#define PARASAIL_CHECK_NULL_PSSM_STATS(var) do {                                                   \
+    if (!var) {                                                                                    \
+        fprintf(stderr, "%s: stats functions with pssm require a consensus sequence\n", __func__); \
+        return 0;                                                                                  \
+    }                                                                                              \
+} while(0)
+
 #define PARASAIL_CHECK_NULL_NORETVAL(var) do {               \
     if (!var) {                                              \
         fprintf(stderr, "%s: missing %s\n", __func__, #var); \

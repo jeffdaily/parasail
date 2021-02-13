@@ -32,7 +32,7 @@ static inline void arr_store_si%(BITS)s(
 #define FNAME %(NAME_TRACE)s
 
 parasail_result_t* FNAME(
-        const char * const restrict _s1, const int s1Len,
+        const char * const restrict _s1, const int _s1Len,
         const char * const restrict _s2, const int s2Len,
         const int open, const int gap, const parasail_matrix_t *matrix)
 {
@@ -52,6 +52,7 @@ parasail_result_t* FNAME(
     parasail_result_t *result = NULL;
     %(INDEX)s i = 0;
     %(INDEX)s j = 0;
+    %(INDEX)s s1Len = 0;
     %(INDEX)s end_query = 0;
     %(INDEX)s end_ref = 0;
     %(INT)s score = 0;
@@ -81,18 +82,21 @@ parasail_result_t* FNAME(
     %(SATURATION_CHECK_DECL)s
 
     /* validate inputs */
-    PARASAIL_CHECK_NULL(_s1);
-    PARASAIL_CHECK_GT0(s1Len);
     PARASAIL_CHECK_NULL(_s2);
     PARASAIL_CHECK_GT0(s2Len);
     PARASAIL_CHECK_GE0(open);
     PARASAIL_CHECK_GE0(gap);
     PARASAIL_CHECK_NULL(matrix);
+    if (matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) {
+        PARASAIL_CHECK_NULL(_s1);
+        PARASAIL_CHECK_GT0(_s1Len);
+    }
         
     /* initialize stack variables */
     N = %(LANES)s; /* number of values in vector */
     PAD = N-1;
     PAD2 = PAD*2;
+    s1Len = matrix->type == PARASAIL_MATRIX_TYPE_SQUARE ? _s1Len : matrix->length;
     s1Len_PAD = s1Len+PAD;
     s2Len_PAD = s2Len+PAD;
     i = 0;
@@ -135,7 +139,6 @@ parasail_result_t* FNAME(
         | PARASAIL_FLAG_BITS_%(WIDTH)s | PARASAIL_FLAG_LANES_%(LANES)s;
 
     /* initialize heap variables */
-    s1 = parasail_memalign_%(INT)s(%(ALIGNMENT)s, s1Len+PAD);
     s2B= parasail_memalign_%(INT)s(%(ALIGNMENT)s, s2Len+PAD2);
     _H_pr = parasail_memalign_%(INT)s(%(ALIGNMENT)s, s2Len+PAD2);
     _F_pr = parasail_memalign_%(INT)s(%(ALIGNMENT)s, s2Len+PAD2);
@@ -144,18 +147,21 @@ parasail_result_t* FNAME(
     F_pr = _F_pr+PAD;
 
     /* validate heap variables */
-    if (!s1) return NULL;
     if (!s2B) return NULL;
     if (!_H_pr) return NULL;
     if (!_F_pr) return NULL;
 
     /* convert _s1 from char to int in range 0-23 */
-    for (i=0; i<s1Len; ++i) {
-        s1[i] = matrix->mapper[(unsigned char)_s1[i]];
-    }
-    /* pad back of s1 with dummy values */
-    for (i=s1Len; i<s1Len_PAD; ++i) {
-        s1[i] = 0; /* point to first matrix row because we don't care */
+    if (matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) {
+        s1 = parasail_memalign_%(INT)s(%(ALIGNMENT)s, s1Len+PAD);
+        if (!s1) return NULL;
+        for (i=0; i<s1Len; ++i) {
+            s1[i] = matrix->mapper[(unsigned char)_s1[i]];
+        }
+        /* pad back of s1 with dummy values */
+        for (i=s1Len; i<s1Len_PAD; ++i) {
+            s1[i] = 0; /* point to first matrix row because we don't care */
+        }
     }
 
     /* convert _s2 from char to int in range 0-23 */
@@ -307,7 +313,9 @@ parasail_result_t* FNAME(
     parasail_free(_F_pr);
     parasail_free(_H_pr);
     parasail_free(s2B);
-    parasail_free(s1);
+    if (matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) {
+        parasail_free(s1);
+    }
 
     return result;
 }

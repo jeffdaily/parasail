@@ -92,13 +92,15 @@ parasail_result_t* FNAME(
     parasail_result_t *result = NULL;
 
     /* validate inputs */
-    PARASAIL_CHECK_NULL(s1);
-    PARASAIL_CHECK_GT0(s1Len);
     PARASAIL_CHECK_NULL(s2);
     PARASAIL_CHECK_GT0(s2Len);
     PARASAIL_CHECK_GE0(open);
     PARASAIL_CHECK_GE0(gap);
     PARASAIL_CHECK_NULL(matrix);
+    if (matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) {
+        PARASAIL_CHECK_NULL(s1);
+        PARASAIL_CHECK_GT0(s1Len);
+    }
 
     /* initialize local variables */
     profile = parasail_profile_create_sse_128_16(s1, s1Len, matrix);

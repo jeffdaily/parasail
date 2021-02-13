@@ -51,7 +51,6 @@ parasail_result_t* ENAME(
     score = NEG_INF_32;
     end_query = s1Len;
     end_ref = s2Len;
-    HT = (int8_t* restrict)result->trace->trace_table;
 
     /* initialize result */
     result = parasail_result_new_trace(s1Len, s2Len, 16, sizeof(int8_t));
@@ -66,6 +65,7 @@ parasail_result_t* ENAME(
     s2 = parasail_memalign_int(16, s2Len);
     H = parasail_memalign_int(16, s2Len+1);
     F = parasail_memalign_int(16, s2Len+1);
+    HT = (int8_t* restrict)result->trace->trace_table;
 
     /* validate heap variables */
     if (!s1) return NULL;

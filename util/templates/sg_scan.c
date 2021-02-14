@@ -70,13 +70,15 @@ parasail_result_t* FNAME(
     parasail_result_t *result = NULL;
 
     /* validate inputs */
-    PARASAIL_CHECK_NULL(s1);
-    PARASAIL_CHECK_GT0(s1Len);
     PARASAIL_CHECK_NULL(s2);
     PARASAIL_CHECK_GT0(s2Len);
     PARASAIL_CHECK_GE0(open);
     PARASAIL_CHECK_GE0(gap);
     PARASAIL_CHECK_NULL(matrix);
+    if (matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) {
+        PARASAIL_CHECK_NULL(s1);
+        PARASAIL_CHECK_GT0(s1Len);
+    }
 
     /* initialize local variables */
     profile = parasail_profile_create_%(ISA)s_%(BITS)s_%(WIDTH)s(s1, s1Len, matrix);
@@ -98,9 +100,9 @@ parasail_result_t* PNAME(
     %(INDEX)s i = 0;
     %(INDEX)s j = 0;
     %(INDEX)s k = 0;
-    int s1Len = 0;
     %(INDEX)s end_query = 0;
     %(INDEX)s end_ref = 0;
+    %(INDEX)s s1Len = 0;
     const parasail_matrix_t *matrix = NULL;
     %(INDEX)s segWidth = 0;
     %(INDEX)s segLen = 0;

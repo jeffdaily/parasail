@@ -140,7 +140,7 @@ static inline void arr_store_rowcol(
 #endif
 
 parasail_result_t* FNAME(
-        const char * const restrict _s1, const int s1Len,
+        const char * const restrict _s1, const int _s1Len,
         const char * const restrict _s2, const int s2Len,
         const int open, const int gap, const parasail_matrix_t *matrix,
         int s1_beg, int s1_end, int s2_beg, int s2_end)
@@ -149,6 +149,7 @@ parasail_result_t* FNAME(
     int32_t N = 0;
     int32_t PAD = 0;
     int32_t PAD2 = 0;
+    int32_t s1Len = 0;
     int32_t s1Len_PAD = 0;
     int32_t s2Len_PAD = 0;
     int16_t * restrict s1 = NULL;
@@ -216,18 +217,24 @@ parasail_result_t* FNAME(
     __m128i vIBoundary;
 
     /* validate inputs */
-    PARASAIL_CHECK_NULL(_s1);
-    PARASAIL_CHECK_GT0(s1Len);
     PARASAIL_CHECK_NULL(_s2);
     PARASAIL_CHECK_GT0(s2Len);
     PARASAIL_CHECK_GE0(open);
     PARASAIL_CHECK_GE0(gap);
     PARASAIL_CHECK_NULL(matrix);
-
+    if (matrix->type == PARASAIL_MATRIX_TYPE_PSSM) {
+        PARASAIL_CHECK_NULL_PSSM_STATS(_s1);
+    }
+    else {
+        PARASAIL_CHECK_NULL(_s1);
+        PARASAIL_CHECK_GT0(_s1Len);
+    }
+        
     /* initialize stack variables */
     N = 8; /* number of values in vector */
     PAD = N-1;
     PAD2 = PAD*2;
+    s1Len = matrix->type == PARASAIL_MATRIX_TYPE_SQUARE ? _s1Len : matrix->length;
     s1Len_PAD = s1Len+PAD;
     s2Len_PAD = s2Len+PAD;
     i = 0;
@@ -448,14 +455,14 @@ parasail_result_t* FNAME(
                 s1[i+6],
                 s1[i+7]);
         __m128i vs2 = vNegInf;
-        const int * const restrict matrow0 = &matrix->matrix[matrix->size*s1[i+0]];
-        const int * const restrict matrow1 = &matrix->matrix[matrix->size*s1[i+1]];
-        const int * const restrict matrow2 = &matrix->matrix[matrix->size*s1[i+2]];
-        const int * const restrict matrow3 = &matrix->matrix[matrix->size*s1[i+3]];
-        const int * const restrict matrow4 = &matrix->matrix[matrix->size*s1[i+4]];
-        const int * const restrict matrow5 = &matrix->matrix[matrix->size*s1[i+5]];
-        const int * const restrict matrow6 = &matrix->matrix[matrix->size*s1[i+6]];
-        const int * const restrict matrow7 = &matrix->matrix[matrix->size*s1[i+7]];
+        const int * const restrict matrow0 = &matrix->matrix[matrix->size * ((matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) ? s1[i+0] : ((i+0 >= s1Len) ? s1Len-1 : i+0))];
+        const int * const restrict matrow1 = &matrix->matrix[matrix->size * ((matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) ? s1[i+1] : ((i+1 >= s1Len) ? s1Len-1 : i+1))];
+        const int * const restrict matrow2 = &matrix->matrix[matrix->size * ((matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) ? s1[i+2] : ((i+2 >= s1Len) ? s1Len-1 : i+2))];
+        const int * const restrict matrow3 = &matrix->matrix[matrix->size * ((matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) ? s1[i+3] : ((i+3 >= s1Len) ? s1Len-1 : i+3))];
+        const int * const restrict matrow4 = &matrix->matrix[matrix->size * ((matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) ? s1[i+4] : ((i+4 >= s1Len) ? s1Len-1 : i+4))];
+        const int * const restrict matrow5 = &matrix->matrix[matrix->size * ((matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) ? s1[i+5] : ((i+5 >= s1Len) ? s1Len-1 : i+5))];
+        const int * const restrict matrow6 = &matrix->matrix[matrix->size * ((matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) ? s1[i+6] : ((i+6 >= s1Len) ? s1Len-1 : i+6))];
+        const int * const restrict matrow7 = &matrix->matrix[matrix->size * ((matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) ? s1[i+7] : ((i+7 >= s1Len) ? s1Len-1 : i+7))];
         __m128i vIltLimit = _mm_cmplt_epi16(vI, vILimit);
         __m128i vIeqLimit1 = _mm_cmpeq_epi16(vI, vILimit1);
         vNH = _mm_srli_si128(vNH, 2);

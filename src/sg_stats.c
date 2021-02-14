@@ -31,7 +31,7 @@
 #endif
 
 parasail_result_t* FNAME(
-        const char * const restrict _s1, const int s1Len,
+        const char * const restrict _s1, const int _s1Len,
         const char * const restrict _s2, const int s2Len,
         const int open, const int gap, const parasail_matrix_t *matrix,
         int s1_beg, int s1_end, int s2_beg, int s2_end)
@@ -50,6 +50,7 @@ parasail_result_t* FNAME(
     int * restrict FL = NULL;
     int i = 0;
     int j = 0;
+    int s1Len = 0;
     int score = 0;
     int matches = 0;
     int similar = 0;
@@ -58,17 +59,23 @@ parasail_result_t* FNAME(
     int end_ref = 0;
 
     /* validate inputs */
-    PARASAIL_CHECK_NULL(_s1);
-    PARASAIL_CHECK_GT0(s1Len);
     PARASAIL_CHECK_NULL(_s2);
     PARASAIL_CHECK_GT0(s2Len);
     PARASAIL_CHECK_GE0(open);
     PARASAIL_CHECK_GE0(gap);
     PARASAIL_CHECK_NULL(matrix);
+    if (matrix->type == PARASAIL_MATRIX_TYPE_PSSM) {
+        PARASAIL_CHECK_NULL_PSSM_STATS(_s1);
+    }
+    else {
+        PARASAIL_CHECK_NULL(_s1);
+        PARASAIL_CHECK_GT0(_s1Len);
+    }
 
     /* initialize stack variables */
     i = 0;
     j = 0;
+    s1Len = matrix->type == PARASAIL_MATRIX_TYPE_SQUARE ? _s1Len : matrix->length;
     score = NEG_INF_32;
     matches = NEG_INF_32;
     similar = NEG_INF_32;
@@ -173,7 +180,10 @@ parasail_result_t* FNAME(
 
     /* iter over first sequence */
     for (i=1; i<=s1Len; ++i) {
-        const int * const restrict matrow = &matrix->matrix[matrix->size*s1[i-1]];
+        const int * const restrict matrow =
+            matrix->type == PARASAIL_MATRIX_TYPE_SQUARE ?
+            &matrix->matrix[matrix->size*s1[i-1]] :
+            &matrix->matrix[matrix->size*(i-1)];
         /* init first column */
         int NH = H[0];
         int NHM = HM[0];

@@ -31,7 +31,7 @@
 #endif
 
 parasail_result_t* FNAME(
-        const char * const restrict _s1, const int s1Len,
+        const char * const restrict _s1, const int _s1Len,
         const char * const restrict _s2, const int s2Len,
         const int open, const int gap, const parasail_matrix_t *matrix,
         int s1_beg, int s1_end, int s2_beg, int s2_end)
@@ -63,6 +63,7 @@ parasail_result_t* FNAME(
     int * restrict Ex = NULL;
     int i = 0;
     int j = 0;
+    int s1Len = 0;
     int score = 0;
     int matches = 0;
     int similar = 0;
@@ -71,17 +72,23 @@ parasail_result_t* FNAME(
     int end_ref = 0;
 
     /* validate inputs */
-    PARASAIL_CHECK_NULL(_s1);
-    PARASAIL_CHECK_GT0(s1Len);
     PARASAIL_CHECK_NULL(_s2);
     PARASAIL_CHECK_GT0(s2Len);
     PARASAIL_CHECK_GE0(open);
     PARASAIL_CHECK_GE0(gap);
     PARASAIL_CHECK_NULL(matrix);
+    if (matrix->type == PARASAIL_MATRIX_TYPE_PSSM) {
+        PARASAIL_CHECK_NULL_PSSM_STATS(_s1);
+    }
+    else {
+        PARASAIL_CHECK_NULL(_s1);
+        PARASAIL_CHECK_GT0(_s1Len);
+    }
 
     /* initialize stack variables */
     i = 0;
     j = 0;
+    s1Len = matrix->type == PARASAIL_MATRIX_TYPE_SQUARE ? _s1Len : matrix->length;
     score = NEG_INF_32;
     matches = 0;
     similar = 0;
@@ -202,7 +209,6 @@ parasail_result_t* FNAME(
         int FtM = 0;
         int FtS = 0;
         int FtL = 0;
-        const int * const restrict matcol = &matrix->matrix[matrix->size*s2[j]];
         /* calculate E */
         for (i=0; i<s1Len; ++i) {
             int E_opn = H[i]-open;
@@ -221,12 +227,15 @@ parasail_result_t* FNAME(
         /* calculate Ht */
         Ht[-1] = s2_beg ? 0 : (-open -j*gap);
         for (i=0; i<s1Len; ++i) {
-            int H_dag = H[i-1]+matcol[s1[i]];
+            int matval = matrix->type == PARASAIL_MATRIX_TYPE_SQUARE ?
+                         matrix->matrix[matrix->size*s1[i]+s2[j]] :
+                         matrix->matrix[matrix->size*i+s2[j]];
+            int H_dag = H[i-1]+matval;
             Ex[i] = (E[i] > H_dag);
             if (H_dag >= E[i]) {
                 Ht[i] = H_dag;
                 HtM[i] = HM[i-1] + (s1[i]==s2[j]);
-                HtS[i] = HS[i-1] + (matcol[s1[i]] > 0);
+                HtS[i] = HS[i-1] + (matval > 0);
                 HtL[i] = HL[i-1] + 1;
             }
             else {

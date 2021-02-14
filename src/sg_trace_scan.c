@@ -23,7 +23,7 @@
 #define FNAME parasail_sg_flags_trace_scan
 
 parasail_result_t* FNAME(
-        const char * const restrict _s1, const int s1Len,
+        const char * const restrict _s1, const int _s1Len,
         const char * const restrict _s2, const int s2Len,
         const int open, const int gap, const parasail_matrix_t *matrix,
         int s1_beg, int s1_end, int s2_beg, int s2_end)
@@ -41,22 +41,26 @@ parasail_result_t* FNAME(
     int * restrict Ex = NULL;
     int i = 0;
     int j = 0;
+    int s1Len = 0;
     int score = 0;
     int end_query = 0;
     int end_ref = 0;
 
     /* validate inputs */
-    PARASAIL_CHECK_NULL(_s1);
-    PARASAIL_CHECK_GT0(s1Len);
     PARASAIL_CHECK_NULL(_s2);
     PARASAIL_CHECK_GT0(s2Len);
     PARASAIL_CHECK_GE0(open);
     PARASAIL_CHECK_GE0(gap);
     PARASAIL_CHECK_NULL(matrix);
+    if (matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) {
+        PARASAIL_CHECK_NULL(_s1);
+        PARASAIL_CHECK_GT0(_s1Len);
+    }
 
     /* initialize stack variables */
     i = 0;
     j = 0;
+    s1Len = matrix->type == PARASAIL_MATRIX_TYPE_SQUARE ? _s1Len : matrix->length;
     score = NEG_INF_32;
     end_query = s1Len;
     end_ref = s2Len;
@@ -75,7 +79,6 @@ parasail_result_t* FNAME(
     result->flag |= s2_end ? PARASAIL_FLAG_SG_S2_END : 0;
 
     /* initialize heap variables */
-    s1 = parasail_memalign_int(16, s1Len);
     s2 = parasail_memalign_int(16, s2Len);
     HB = parasail_memalign_int(16, s1Len+1);
     H  = HB+1;
@@ -86,15 +89,18 @@ parasail_result_t* FNAME(
     HT = (int8_t* restrict)result->trace->trace_table;
 
     /* validate heap variables */
-    if (!s1) return NULL;
     if (!s2) return NULL;
     if (!HB) return NULL;
     if (!E) return NULL;
     if (!HtB) return NULL;
     if (!Ex) return NULL;
 
-    for (i=0; i<s1Len; ++i) {
-        s1[i] = matrix->mapper[(unsigned char)_s1[i]];
+    if (matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) {
+        s1 = parasail_memalign_int(16, s1Len);
+        if (!s1) return NULL;
+        for (i=0; i<s1Len; ++i) {
+            s1[i] = matrix->mapper[(unsigned char)_s1[i]];
+        }
     }
     for (j=0; j<s2Len; ++j) {
         s2[j] = matrix->mapper[(unsigned char)_s2[j]];
@@ -122,7 +128,6 @@ parasail_result_t* FNAME(
     /* iterate over database */
     for (j=0; j<s2Len-1; ++j) {
         int Ft = NEG_INF_32;
-        const int * const restrict matcol = &matrix->matrix[matrix->size*s2[j]];
         /* calculate E */
         for (i=0; i<s1Len; ++i) {
             int E_opn = H[i]-open;
@@ -134,7 +139,10 @@ parasail_result_t* FNAME(
         /* calculate Ht */
         Ht[-1] = s2_beg ? 0 : (-open -j*gap);
         for (i=0; i<s1Len; ++i) {
-            int H_dag = H[i-1]+matcol[s1[i]];
+            int matval = matrix->type == PARASAIL_MATRIX_TYPE_SQUARE ?
+                         matrix->matrix[matrix->size*s1[i]+s2[j]] :
+                         matrix->matrix[matrix->size*i+s2[j]];
+            int H_dag = H[i-1]+matval;
             Ht[i] = MAX(H_dag, E[i]);
             Ex[i] = (E[i] > H_dag);
         }
@@ -185,7 +193,6 @@ parasail_result_t* FNAME(
     j = s2Len - 1;
     {
         int Ft = NEG_INF_32;
-        const int * const restrict matcol = &matrix->matrix[matrix->size*s2[j]];
         /* calculate E */
         for (i=0; i<s1Len; ++i) {
             int E_opn = H[i]-open;
@@ -197,7 +204,10 @@ parasail_result_t* FNAME(
         /* calculate Ht */
         Ht[-1] = s2_beg ? 0 : (-open -j*gap);
         for (i=0; i<s1Len; ++i) {
-            int H_dag = H[i-1]+matcol[s1[i]];
+            int matval = matrix->type == PARASAIL_MATRIX_TYPE_SQUARE ?
+                         matrix->matrix[matrix->size*s1[i]+s2[j]] :
+                         matrix->matrix[matrix->size*i+s2[j]];
+            int H_dag = H[i-1]+matval;
             Ht[i] = MAX(H_dag, E[i]);
             Ex[i] = (E[i] > H_dag);
         }
@@ -264,7 +274,9 @@ parasail_result_t* FNAME(
     parasail_free(E);
     parasail_free(HB);
     parasail_free(s2);
-    parasail_free(s1);
+    if (matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) {
+        parasail_free(s1);
+    }
 
     return result;
 }

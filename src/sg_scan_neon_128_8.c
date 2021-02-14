@@ -100,13 +100,15 @@ parasail_result_t* FNAME(
     parasail_result_t *result = NULL;
 
     /* validate inputs */
-    PARASAIL_CHECK_NULL(s1);
-    PARASAIL_CHECK_GT0(s1Len);
     PARASAIL_CHECK_NULL(s2);
     PARASAIL_CHECK_GT0(s2Len);
     PARASAIL_CHECK_GE0(open);
     PARASAIL_CHECK_GE0(gap);
     PARASAIL_CHECK_NULL(matrix);
+    if (matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) {
+        PARASAIL_CHECK_NULL(s1);
+        PARASAIL_CHECK_GT0(s1Len);
+    }
 
     /* initialize local variables */
     profile = parasail_profile_create_neon_128_8(s1, s1Len, matrix);
@@ -128,9 +130,9 @@ parasail_result_t* PNAME(
     int32_t i = 0;
     int32_t j = 0;
     int32_t k = 0;
-    int s1Len = 0;
     int32_t end_query = 0;
     int32_t end_ref = 0;
+    int32_t s1Len = 0;
     const parasail_matrix_t *matrix = NULL;
     int32_t segWidth = 0;
     int32_t segLen = 0;

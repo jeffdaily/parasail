@@ -113,7 +113,7 @@ parasail_result_t* PNAME(
     int32_t k = 0;
     int32_t end_query = 0;
     int32_t end_ref = 0;
-    int s1Len = 0;
+    int32_t s1Len = 0;
     const parasail_matrix_t *matrix = NULL;
     int32_t segWidth = 0;
     int32_t segLen = 0;

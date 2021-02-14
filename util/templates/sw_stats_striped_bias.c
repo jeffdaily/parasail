@@ -119,7 +119,7 @@ STATIC parasail_result_t* PNAME(
     %(INDEX)s k = 0;
     %(INDEX)s end_query = 0;
     %(INDEX)s end_ref = 0;
-    int s1Len = 0;
+    %(INDEX)s s1Len = 0;
     const parasail_matrix_t *matrix = NULL;
     %(INDEX)s segWidth = 0;
     %(INDEX)s segLen = 0;

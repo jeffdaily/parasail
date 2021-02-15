@@ -48,6 +48,7 @@ static void print_array_int8_t(
         printf("fopen(\"%s\") error: %s\n", filename, strerror(errno));
         exit(-1);
     }
+    fprintf(f, "saturated=%d\n", parasail_result_is_saturated(result) ? 1 : 0);
     fprintf(f, " ");
     for (j=0; j<s2Len; ++j) {
         fprintf(f, "%4c", s2[j]);
@@ -79,6 +80,7 @@ static void print_array_int(
         printf("fopen(\"%s\") error: %s\n", filename, strerror(errno));
         exit(-1);
     }
+    fprintf(f, "saturated=%d\n", parasail_result_is_saturated(result) ? 1 : 0);
     fprintf(f, " ");
     for (j=0; j<s2Len; ++j) {
         fprintf(f, "%4c", s2[j]);
@@ -121,7 +123,8 @@ static void print_rowcol(
         const int * const restrict row,
         const int * const restrict col,
         const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len)
+        const char * const restrict s2, const int s2Len,
+        parasail_result_t *result)
 {
     int i;
     int j;
@@ -132,6 +135,7 @@ static void print_rowcol(
         printf("fopen(\"%s\") error: %s\n", filename, strerror(errno));
         exit(-1);
     }
+    fprintf(f, "saturated=%d\n", parasail_result_is_saturated(result) ? 1 : 0);
     fprintf(f, "%c", s1[s1Len-1]);
     if (NULL == row) {
         for (j=0; j<s2Len; ++j) {
@@ -640,7 +644,7 @@ int main(int argc, char **argv)
                 strcpy(filename, f.alg);
                 strcat(filename, "_rowcol_scr");
                 strcat(filename, suffix);
-                print_rowcol(filename, row, col, seqA, lena, seqB, lenb);
+                print_rowcol(filename, row, col, seqA, lena, seqB, lenb, result);
             }
             if (f.is_stats) {
                 int *row = parasail_result_get_matches_row(result);
@@ -649,7 +653,7 @@ int main(int argc, char **argv)
                 strcpy(filename, f.alg);
                 strcat(filename, "_rowcol_mch");
                 strcat(filename, suffix);
-                print_rowcol(filename, row, col, seqA, lena, seqB, lenb);
+                print_rowcol(filename, row, col, seqA, lena, seqB, lenb, result);
             }
             if (f.is_stats) {
                 int *row = parasail_result_get_similar_row(result);
@@ -658,7 +662,7 @@ int main(int argc, char **argv)
                 strcpy(filename, f.alg);
                 strcat(filename, "_rowcol_sim");
                 strcat(filename, suffix);
-                print_rowcol(filename, row, col, seqA, lena, seqB, lenb);
+                print_rowcol(filename, row, col, seqA, lena, seqB, lenb, result);
             }
             if (f.is_stats) {
                 int *row = parasail_result_get_length_row(result);
@@ -667,7 +671,7 @@ int main(int argc, char **argv)
                 strcpy(filename, f.alg);
                 strcat(filename, "_rowcol_len");
                 strcat(filename, suffix);
-                print_rowcol(filename, row, col, seqA, lena, seqB, lenb);
+                print_rowcol(filename, row, col, seqA, lena, seqB, lenb, result);
             }
             parasail_result_free(result);
         }
@@ -725,7 +729,7 @@ int main(int argc, char **argv)
                 "%8d %8d %8d %8d "
                 "%9d %8d "
                 "%8.1f %5.1f %8.1f %8.0f %8.0f\n",
-                saturated,
+                saturated ? 1 : 0,
                 score, matches, similar, length,
                 end_query, end_ref,
                 saturated ? 0 : stats_rdtsc._mean,
@@ -740,7 +744,7 @@ int main(int argc, char **argv)
                 "%8d %8d %8d %8d "
                 "%9d %8d "
                 "%8.3f %5.2f %8.3f %8.3f %8.3f\n",
-                saturated,
+                saturated ? 1 : 0,
                 score, matches, similar, length,
                 end_query, end_ref,
                 saturated ? 0 : stats_nsecs._mean,
@@ -794,7 +798,8 @@ int main(int argc, char **argv)
                     "%8d %8d %8d %8d "
                     "%9d %8d "
                     "%8.1f %5.1f %8.1f %8.0f %8.0f\n",
-                    "nw", "banded", "NA", "32", "32", 1, saturated,
+                    "nw", "banded", "NA", "32", "32", 1,
+                    saturated ? 1 : 0,
                     score, matches, similar, length,
                     end_query, end_ref,
                     saturated ? 0 : stats_rdtsc._mean,
@@ -809,7 +814,8 @@ int main(int argc, char **argv)
                     "%8d %8d %8d %8d "
                     "%9d %8d "
                     "%8.3f %5.2f %8.3f %8.3f %8.3f\n",
-                    "nw", "banded", "NA", "32", "32", 1, saturated,
+                    "nw", "banded", "NA", "32", "32", 1,
+                    saturated ? 1 : 0,
                     score, matches, similar, length,
                     end_query, end_ref,
                     saturated ? 0 : stats_nsecs._mean,
@@ -851,7 +857,8 @@ int main(int argc, char **argv)
                     "%8d %8d %8d %8d "
                     "%9d %8d "
                     "%8.1f %5.1f %8.1f %8.0f %8.0f\n",
-                    "ssw", "striped", "NA", "16", "16", 1, saturated,
+                    "ssw", "striped", "NA", "16", "16", 1,
+                    saturated ? 1 : 0,
                     score, matches, similar, length,
                     end_query, end_ref,
                     saturated ? 0 : stats_rdtsc._mean,
@@ -866,7 +873,8 @@ int main(int argc, char **argv)
                     "%8d %8d %8d %8d "
                     "%9d %8d "
                     "%8.3f %5.2f %8.3f %8.3f %8.3f\n",
-                    "ssw", "striped", "NA", "16", "16", 1, saturated,
+                    "ssw", "striped", "NA", "16", "16", 1,
+                    saturated ? 1 : 0,
                     score, matches, similar, length,
                     end_query, end_ref,
                     saturated ? 0 : stats_nsecs._mean,

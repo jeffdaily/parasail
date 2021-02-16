@@ -55,7 +55,7 @@ static inline void arr_store_rowcol(
 #endif
 
 parasail_result_t* FNAME(
-        const char * const restrict _s1, const int s1Len,
+        const char * const restrict _s1, const int _s1Len,
         const char * const restrict _s2, const int s2Len,
         const int open, const int gap, const parasail_matrix_t *matrix)
 {
@@ -63,6 +63,7 @@ parasail_result_t* FNAME(
     %(INDEX)s N = 0;
     %(INDEX)s PAD = 0;
     %(INDEX)s PAD2 = 0;
+    %(INDEX)s s1Len = 0;
     %(INDEX)s s1Len_PAD = 0;
     %(INDEX)s s2Len_PAD = 0;
     %(INT)s * restrict s1 = NULL;
@@ -121,18 +122,24 @@ parasail_result_t* FNAME(
     %(VTYPE)s vIBoundary;
 
     /* validate inputs */
-    PARASAIL_CHECK_NULL(_s1);
-    PARASAIL_CHECK_GT0(s1Len);
     PARASAIL_CHECK_NULL(_s2);
     PARASAIL_CHECK_GT0(s2Len);
     PARASAIL_CHECK_GE0(open);
     PARASAIL_CHECK_GE0(gap);
     PARASAIL_CHECK_NULL(matrix);
+    if (matrix->type == PARASAIL_MATRIX_TYPE_PSSM) {
+        PARASAIL_CHECK_NULL_PSSM_STATS(_s1);
+    }
+    else {
+        PARASAIL_CHECK_NULL(_s1);
+        PARASAIL_CHECK_GT0(_s1Len);
+    }
 
     /* initialize stack variables */
     N = %(LANES)s; /* number of values in vector */
     PAD = N-1;
     PAD2 = PAD*2;
+    s1Len = matrix->type == PARASAIL_MATRIX_TYPE_SQUARE ? _s1Len : matrix->length;
     s1Len_PAD = s1Len+PAD;
     s2Len_PAD = s2Len+PAD;
     i = 0;

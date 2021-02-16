@@ -149,7 +149,7 @@ parasail_result_t* FNAME(
         PARASAIL_CHECK_NULL(_s1);
         PARASAIL_CHECK_GT0(_s1Len);
     }
-        
+
     /* initialize stack variables */
     N = %(LANES)s; /* number of values in vector */
     PAD = N-1;

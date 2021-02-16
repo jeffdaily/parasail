@@ -409,7 +409,7 @@ int main(int argc, char **argv)
     printf("gap extend: %d\n", extend);
     printf("seq pair %lu,%lu\n", seqA_index, seqB_index);
 
-    printf("%-20s %8s %6s %4s %5s %5s %4s "
+    printf("%-26s %8s %6s %4s %5s %5s %4s "
            "%8s %8s %8s %8s %9s %8s "
            "%8s %5s %8s %8s %8s\n",
             "name", "type", "isa", "bits", "width", "elem", "sat",
@@ -560,7 +560,7 @@ int main(int argc, char **argv)
         else if (f.is_trace) {
             strcat(name, "_trace");
         }
-        printf("%-20s %8s %6s %4s %5s %5d ",
+        printf("%-26s %8s %6s %4s %5s %5d ",
                 name, f.type, f.isa, f.bits, f.width, f.lanes);
         /* xeon phi was unable to perform I/O running natively */
         if (f.is_table) {
@@ -768,61 +768,64 @@ int main(int argc, char **argv)
     }
     /* banded test */
     if (do_nw) {
-        int saturated = 0;
-        stats_clear(&stats_rdtsc);
-        stats_clear(&stats_nsecs);
-        timer_rdtsc = timer_start();
-        timer_nsecs = timer_real();
-        for (i=0; i<limit; ++i) {
-            timer_rdtsc_single = timer_start();
-            timer_nsecs_single = timer_real();
-            result = parasail_nw_banded(seqA, lena, seqB, lenb, open, extend, 3, matrix);
-            timer_rdtsc_single = timer_start()-(timer_rdtsc_single);
-            timer_nsecs_single = timer_real() - timer_nsecs_single;
-            stats_sample_value(&stats_rdtsc, timer_rdtsc_single);
-            stats_sample_value(&stats_nsecs, timer_nsecs_single);
-            score = parasail_result_get_score(result);
-            similar = 0;
-            matches = 0;
-            length = 0;
-            end_query = parasail_result_get_end_query(result);
-            end_ref = parasail_result_get_end_ref(result);
-            saturated = parasail_result_is_saturated(result);
-            parasail_result_free(result);
-        }
-        timer_rdtsc = timer_start()-(timer_rdtsc);
-        timer_nsecs = timer_real() - timer_nsecs;
-        if (use_rdtsc) {
-            printf(
-                    "%-20s %8s %6s %4s %5s %5d %4d "
-                    "%8d %8d %8d %8d "
-                    "%9d %8d "
-                    "%8.1f %5.1f %8.1f %8.0f %8.0f\n",
-                    "nw", "banded", "NA", "32", "32", 1,
-                    saturated ? 1 : 0,
-                    score, matches, similar, length,
-                    end_query, end_ref,
-                    saturated ? 0 : stats_rdtsc._mean,
-                    saturated ? 0 : pctf(timer_rdtsc_ref_mean, stats_rdtsc._mean),
-                    saturated ? 0 : stats_stddev(&stats_rdtsc),
-                    saturated ? 0 : stats_rdtsc._min,
-                    saturated ? 0 : stats_rdtsc._max);
-        }
-        else {
-            printf(
-                    "%-20s %8s %6s %4s %5s %5d %4d "
-                    "%8d %8d %8d %8d "
-                    "%9d %8d "
-                    "%8.3f %5.2f %8.3f %8.3f %8.3f\n",
-                    "nw", "banded", "NA", "32", "32", 1,
-                    saturated ? 1 : 0,
-                    score, matches, similar, length,
-                    end_query, end_ref,
-                    saturated ? 0 : stats_nsecs._mean,
-                    saturated ? 0 : pctf(timer_nsecs_ref_mean, stats_nsecs._mean),
-                    saturated ? 0 : stats_stddev(&stats_nsecs),
-                    saturated ? 0 : stats_nsecs._min,
-                    saturated ? 0 : stats_nsecs._max);
+        int pssm_toggle;
+        for (pssm_toggle=0; pssm_toggle<2; ++pssm_toggle) {
+            int saturated = 0;
+            stats_clear(&stats_rdtsc);
+            stats_clear(&stats_nsecs);
+            timer_rdtsc = timer_start();
+            timer_nsecs = timer_real();
+            for (i=0; i<limit; ++i) {
+                timer_rdtsc_single = timer_start();
+                timer_nsecs_single = timer_real();
+                result = parasail_nw_banded(seqA, lena, seqB, lenb, open, extend, 3, pssm_toggle ? matrix_pssm : matrix);
+                timer_rdtsc_single = timer_start()-(timer_rdtsc_single);
+                timer_nsecs_single = timer_real() - timer_nsecs_single;
+                stats_sample_value(&stats_rdtsc, timer_rdtsc_single);
+                stats_sample_value(&stats_nsecs, timer_nsecs_single);
+                score = parasail_result_get_score(result);
+                similar = 0;
+                matches = 0;
+                length = 0;
+                end_query = parasail_result_get_end_query(result);
+                end_ref = parasail_result_get_end_ref(result);
+                saturated = parasail_result_is_saturated(result);
+                parasail_result_free(result);
+            }
+            timer_rdtsc = timer_start()-(timer_rdtsc);
+            timer_nsecs = timer_real() - timer_nsecs;
+            if (use_rdtsc) {
+                printf(
+                        "%-26s %8s %6s %4s %5s %5d %4d "
+                        "%8d %8d %8d %8d "
+                        "%9d %8d "
+                        "%8.1f %5.1f %8.1f %8.0f %8.0f\n",
+                        pssm_toggle ? "nw_pssm" : "nw", "banded", "NA", "32", "32", 1,
+                        saturated ? 1 : 0,
+                        score, matches, similar, length,
+                        end_query, end_ref,
+                        saturated ? 0 : stats_rdtsc._mean,
+                        saturated ? 0 : pctf(timer_rdtsc_ref_mean, stats_rdtsc._mean),
+                        saturated ? 0 : stats_stddev(&stats_rdtsc),
+                        saturated ? 0 : stats_rdtsc._min,
+                        saturated ? 0 : stats_rdtsc._max);
+            }
+            else {
+                printf(
+                        "%-26s %8s %6s %4s %5s %5d %4d "
+                        "%8d %8d %8d %8d "
+                        "%9d %8d "
+                        "%8.3f %5.2f %8.3f %8.3f %8.3f\n",
+                        pssm_toggle ? "nw_pssm" : "nw", "banded", "NA", "32", "32", 1,
+                        saturated ? 1 : 0,
+                        score, matches, similar, length,
+                        end_query, end_ref,
+                        saturated ? 0 : stats_nsecs._mean,
+                        saturated ? 0 : pctf(timer_nsecs_ref_mean, stats_nsecs._mean),
+                        saturated ? 0 : stats_stddev(&stats_nsecs),
+                        saturated ? 0 : stats_nsecs._min,
+                        saturated ? 0 : stats_nsecs._max);
+            }
         }
     }
     /* ssw test */
@@ -853,7 +856,7 @@ int main(int argc, char **argv)
         timer_nsecs = timer_real() - timer_nsecs;
         if (use_rdtsc) {
             printf(
-                    "%-20s %8s %6s %4s %5s %5d %4d "
+                    "%-26s %8s %6s %4s %5s %5d %4d "
                     "%8d %8d %8d %8d "
                     "%9d %8d "
                     "%8.1f %5.1f %8.1f %8.0f %8.0f\n",
@@ -869,7 +872,7 @@ int main(int argc, char **argv)
         }
         else {
             printf(
-                    "%-20s %8s %6s %4s %5s %5d %4d "
+                    "%-26s %8s %6s %4s %5s %5d %4d "
                     "%8d %8d %8d %8d "
                     "%9d %8d "
                     "%8.3f %5.2f %8.3f %8.3f %8.3f\n",

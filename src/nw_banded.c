@@ -140,7 +140,6 @@ parasail_result_t* ENAME(
     /* iter over db */
     for (j=0; j<s2Len; ++j) {
         /* substitution matrix row (really we wanted a column) */
-        const int * const restrict matcol = &matrix->matrix[matrix->size*s2[j]];
         int F = NEG_INF_32;
         if (colOff < 0) {
             H[-colOff-1] = -open - j*gap;
@@ -153,11 +152,15 @@ parasail_result_t* ENAME(
             int E_ext = 0;
             int F_opn = 0;
             int F_ext = 0;
+            int matval = 0;
             pos = colOff+i;
             if (pos < 0 || pos >= s1Len) {
                 continue;
             }
-            H_dag = H[i] + matcol[s1[pos]];
+            matval = matrix->type == PARASAIL_MATRIX_TYPE_SQUARE ?
+                     matrix->matrix[matrix->size*s1[pos]+s2[j]] :
+                     matrix->matrix[matrix->size*pos+s2[j]];
+            H_dag = H[i] + matval;
             E_opn = H[i+1] - open;
             E_ext = E[i+1] - gap;
             F_opn = H[i-1] - open;

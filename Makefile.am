@@ -1304,7 +1304,9 @@ tests_test_64_SOURCES = tests/test_64.c
 
 tests_test_p29_SOURCES = tests/test_p29.c
 
-tests_test_p59_SOURCES = tests/test_p59.c
+tests_test_p59_SOURCES =
+tests_test_p59_SOURCES += tests/test_p59.c
+tests_test_p59_SOURCES += tests/test_p59.h
 
 EXTRA_DIST += .gitignore
 EXTRA_DIST += .travis.yml

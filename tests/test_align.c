@@ -769,7 +769,7 @@ int main(int argc, char **argv)
     /* banded test */
     if (do_nw) {
         int pssm_toggle;
-        for (pssm_toggle=0; pssm_toggle<2; ++pssm_toggle) {
+        for (pssm_toggle=0; pssm_toggle<(do_pssm ? 2 : 1); ++pssm_toggle) {
             int saturated = 0;
             stats_clear(&stats_rdtsc);
             stats_clear(&stats_nsecs);

@@ -16,7 +16,6 @@
 #include "parasail/memory.h"
 #include "parasail/internal_altivec.h"
 
-#define NEG_INF INT8_MIN
 
 
 #ifdef PARASAIL_TABLE

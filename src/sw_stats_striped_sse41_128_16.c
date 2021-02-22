@@ -26,7 +26,7 @@
 #define SWAP(A,B) { __m128i* tmp = A; A = B; B = tmp; }
 #define SWAP3(A,B,C) { __m128i* tmp = A; A = B; B = C; C = tmp; }
 
-#define NEG_INF (INT16_MIN/(int16_t)(2))
+#define NEG_INF INT16_MIN
 
 static inline int16_t _mm_hmax_epi16_rpl(__m128i a) {
     a = _mm_max_epi16(a, _mm_srli_si128(a, 8));

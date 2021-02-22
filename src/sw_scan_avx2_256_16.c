@@ -227,7 +227,7 @@ parasail_result_t* PNAME(
     vMaxHUnit = vNegLimit;
     vNegInfFront = vZero;
     vNegInfFront = _mm256_insert_epi16_rpl(vNegInfFront, NEG_LIMIT, 0);
-    vSegLenXgap = _mm256_add_epi16(vNegInfFront,
+    vSegLenXgap = _mm256_adds_epi16(vNegInfFront,
             _mm256_slli_si256_rpl(_mm256_set1_epi16(-segLen*gap), 2));
 
     /* initialize result */
@@ -269,10 +269,10 @@ parasail_result_t* PNAME(
     parasail_memset___m256i(pvH, vZero, segLen);
     parasail_memset___m256i(pvE, vNegLimit, segLen);
     {
-        __m256i vGapper = _mm256_sub_epi16(vZero,vGapO);
+        __m256i vGapper = _mm256_subs_epi16(vZero,vGapO);
         for (i=segLen-1; i>=0; --i) {
             _mm256_store_si256(pvGapper+i, vGapper);
-            vGapper = _mm256_sub_epi16(vGapper, vGapE);
+            vGapper = _mm256_subs_epi16(vGapper, vGapE);
         }
     }
 
@@ -299,10 +299,10 @@ parasail_result_t* PNAME(
             vE = _mm256_load_si256(pvE+i);
             vW = _mm256_load_si256(pvW+i);
             vE = _mm256_max_epi16(
-                    _mm256_sub_epi16(vE, vGapE),
-                    _mm256_sub_epi16(vH, vGapO));
-            vHp = _mm256_add_epi16(vHp, vW);
-            vF = _mm256_max_epi16(vF, _mm256_add_epi16(vHt, pvGapper[i]));
+                    _mm256_subs_epi16(vE, vGapE),
+                    _mm256_subs_epi16(vH, vGapO));
+            vHp = _mm256_adds_epi16(vHp, vW);
+            vF = _mm256_max_epi16(vF, _mm256_adds_epi16(vHt, pvGapper[i]));
             vHt = _mm256_max_epi16(vE, vHp);
             _mm256_store_si256(pvE+i, vE);
             _mm256_store_si256(pvHt+i, vHt);
@@ -311,23 +311,23 @@ parasail_result_t* PNAME(
 
         /* pseudo prefix scan on F and H */
         vHt = _mm256_slli_si256_rpl(vHt, 2);
-        vF = _mm256_max_epi16(vF, _mm256_add_epi16(vHt, pvGapper[0]));
+        vF = _mm256_max_epi16(vF, _mm256_adds_epi16(vHt, pvGapper[0]));
         for (i=0; i<segWidth-2; ++i) {
             __m256i vFt = _mm256_slli_si256_rpl(vF, 2);
-            vFt = _mm256_add_epi16(vFt, vSegLenXgap);
+            vFt = _mm256_adds_epi16(vFt, vSegLenXgap);
             vF = _mm256_max_epi16(vF, vFt);
         }
 
         /* calculate final H */
         vF = _mm256_slli_si256_rpl(vF, 2);
-        vF = _mm256_add_epi16(vF, vNegInfFront);
+        vF = _mm256_adds_epi16(vF, vNegInfFront);
         vH = _mm256_max_epi16(vHt, vF);
         vH = _mm256_max_epi16(vH, vZero);
         for (i=0; i<segLen; ++i) {
             vHt = _mm256_load_si256(pvHt+i);
             vF = _mm256_max_epi16(
-                    _mm256_sub_epi16(vF, vGapE),
-                    _mm256_sub_epi16(vH, vGapO));
+                    _mm256_subs_epi16(vF, vGapE),
+                    _mm256_subs_epi16(vH, vGapO));
             vH = _mm256_max_epi16(vHt, vF);
             vH = _mm256_max_epi16(vH, vZero);
             _mm256_store_si256(pvH+i, vH);

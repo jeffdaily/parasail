@@ -18,7 +18,6 @@
 
 #define SWAP(A,B) { vec128i* tmp = A; A = B; B = tmp; }
 
-#define NEG_INF (INT32_MIN/(int32_t)(2))
 
 
 static inline void arr_store(
@@ -100,9 +99,13 @@ parasail_result_t* PNAME(
     int32_t* restrict boundary = NULL;
     vec128i vGapO;
     vec128i vGapE;
-    vec128i vNegInf;
+    int32_t NEG_LIMIT = 0;
+    int32_t POS_LIMIT = 0;
     int32_t score = 0;
-    
+    vec128i vNegLimit;
+    vec128i vPosLimit;
+    vec128i vSaturationCheckMin;
+    vec128i vSaturationCheckMax;
     parasail_result_t *result = NULL;
     vec128i vTIns;
     vec128i vTDel;
@@ -139,8 +142,13 @@ parasail_result_t* PNAME(
     vProfile = (vec128i*)profile->profile32.score;
     vGapO = _mm_set1_epi32(open);
     vGapE = _mm_set1_epi32(gap);
-    vNegInf = _mm_set1_epi32(NEG_INF);
-    score = NEG_INF;
+    NEG_LIMIT = (-open < matrix->min ? INT32_MIN + open : INT32_MIN - matrix->min) + 1;
+    POS_LIMIT = INT32_MAX - matrix->max - 1;
+    score = NEG_LIMIT;
+    vNegLimit = _mm_set1_epi32(NEG_LIMIT);
+    vPosLimit = _mm_set1_epi32(POS_LIMIT);
+    vSaturationCheckMin = vPosLimit;
+    vSaturationCheckMax = vNegLimit;
     vTIns  = _mm_set1_epi32(PARASAIL_INS);
     vTDel  = _mm_set1_epi32(PARASAIL_DEL);
     vTDiag = _mm_set1_epi32(PARASAIL_DIAG);
@@ -150,7 +158,6 @@ parasail_result_t* PNAME(
     vTDelF = _mm_set1_epi32(PARASAIL_DEL_F);
     vTMask = _mm_set1_epi32(PARASAIL_ZERO_MASK);
     vFTMask = _mm_set1_epi32(PARASAIL_F_MASK);
-    
 
     /* initialize result */
     result = parasail_result_new_trace(segLen, s2Len, 16, sizeof(vec128i));
@@ -227,7 +234,7 @@ parasail_result_t* PNAME(
 
         /* Initialize F value to -inf.  Any errors to vH values will be
          * corrected in the Lazy_F loop.  */
-        vF = vNegInf;
+        vF = vNegLimit;
 
         /* load final segment of pvHStore and shift left by 4 bytes */
         vH = _mm_load_si128(&pvHStore[segLen - 1]);
@@ -253,7 +260,10 @@ parasail_result_t* PNAME(
             vH = _mm_max_epi32(vH, vF);
             /* Save vH values. */
             _mm_store_si128(pvHStore + i, vH);
-            
+            vSaturationCheckMax = _mm_max_epi32(vSaturationCheckMax, vH);
+            vSaturationCheckMin = _mm_min_epi32(vSaturationCheckMin, vH);
+            vSaturationCheckMin = _mm_min_epi32(vSaturationCheckMin, vE);
+            vSaturationCheckMin = _mm_min_epi32(vSaturationCheckMin, vF);
 
             {
                 vec128i vTAll = arr_load(result->trace->trace_table, i, segLen, j);
@@ -314,18 +324,19 @@ parasail_result_t* PNAME(
             vEF_opn = _mm_slli_si128(vEF_opn, 4);
             vEF_opn = _mm_insert_epi32(vEF_opn, tmp2, 0);
             vF_ext = _mm_slli_si128(vF_ext, 4);
-            vF_ext = _mm_insert_epi32(vF_ext, NEG_INF, 0);
+            vF_ext = _mm_insert_epi32(vF_ext, NEG_LIMIT, 0);
             vF = _mm_slli_si128(vF, 4);
             vF = _mm_insert_epi32(vF, tmp2, 0);
             vFa_ext = _mm_slli_si128(vFa_ext, 4);
-            vFa_ext = _mm_insert_epi32(vFa_ext, NEG_INF, 0);
+            vFa_ext = _mm_insert_epi32(vFa_ext, NEG_LIMIT, 0);
             vFa = _mm_slli_si128(vFa, 4);
             vFa = _mm_insert_epi32(vFa, tmp2, 0);
             for (i=0; i<segLen; ++i) {
                 vH = _mm_load_si128(pvHStore + i);
                 vH = _mm_max_epi32(vH,vF);
                 _mm_store_si128(pvHStore + i, vH);
-                
+                vSaturationCheckMin = _mm_min_epi32(vSaturationCheckMin, vH);
+                vSaturationCheckMax = _mm_max_epi32(vSaturationCheckMax, vH);
                 {
                     vec128i vTAll;
                     vec128i vT;
@@ -392,7 +403,14 @@ end:
         score = (int32_t) _mm_extract_epi32 (vH, 3);
     }
 
-    
+    if (_mm_movemask_epi8(_mm_or_si128(
+            _mm_cmplt_epi32(vSaturationCheckMin, vNegLimit),
+            _mm_cmpgt_epi32(vSaturationCheckMax, vPosLimit)))) {
+        result->flag |= PARASAIL_FLAG_SATURATED;
+        score = 0;
+        end_query = 0;
+        end_ref = 0;
+    }
 
     result->score = score;
     result->end_query = end_query;

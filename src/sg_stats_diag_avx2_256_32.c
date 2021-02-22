@@ -19,7 +19,6 @@
 #define SG_SUFFIX _diag_avx2_256_32
 #include "sg_helper.h"
 
-#define NEG_INF (INT32_MIN/(int32_t)(2))
 
 #if HAVE_AVX2_MM256_INSERT_EPI32
 #define _mm256_insert_epi32_rpl _mm256_insert_epi32
@@ -244,7 +243,7 @@ parasail_result_t* FNAME(
         PARASAIL_CHECK_NULL(_s1);
         PARASAIL_CHECK_GT0(_s1Len);
     }
-        
+
     /* initialize stack variables */
     N = 8; /* number of values in vector */
     PAD = N-1;
@@ -393,7 +392,7 @@ parasail_result_t* FNAME(
             HM_pr[j] = 0;
             HS_pr[j] = 0;
             HL_pr[j] = 0;
-            F_pr[j] = NEG_INF;
+            F_pr[j] = NEG_LIMIT;
             FM_pr[j] = 0;
             FS_pr[j] = 0;
             FL_pr[j] = 0;
@@ -405,7 +404,7 @@ parasail_result_t* FNAME(
             HM_pr[j] = 0;
             HS_pr[j] = 0;
             HL_pr[j] = 0;
-            F_pr[j] = NEG_INF;
+            F_pr[j] = NEG_LIMIT;
             FM_pr[j] = 0;
             FS_pr[j] = 0;
             FL_pr[j] = 0;
@@ -571,13 +570,15 @@ parasail_result_t* FNAME(
                 vES = _mm256_andnot_si256(cond, vES);
                 vEL = _mm256_andnot_si256(cond, vEL);
             }
-            vSaturationCheckMin = _mm256_min_epi32(vSaturationCheckMin, vWH);
-            vSaturationCheckMax = _mm256_max_epi32(vSaturationCheckMax, vWH);
-            vSaturationCheckMax = _mm256_max_epi32(vSaturationCheckMax, vWM);
-            vSaturationCheckMax = _mm256_max_epi32(vSaturationCheckMax, vWS);
-            vSaturationCheckMax = _mm256_max_epi32(vSaturationCheckMax, vWL);
-            vSaturationCheckMax = _mm256_max_epi32(vSaturationCheckMax, vWL);
-            vSaturationCheckMax = _mm256_max_epi32(vSaturationCheckMax, vJ);
+            /* cannot start checking sat until after J clears boundary */
+            if (j > PAD) {
+                vSaturationCheckMin = _mm256_min_epi32(vSaturationCheckMin, vWH);
+                vSaturationCheckMax = _mm256_max_epi32(vSaturationCheckMax, vWH);
+                vSaturationCheckMax = _mm256_max_epi32(vSaturationCheckMax, vWM);
+                vSaturationCheckMax = _mm256_max_epi32(vSaturationCheckMax, vWS);
+                vSaturationCheckMax = _mm256_max_epi32(vSaturationCheckMax, vWL);
+                vSaturationCheckMax = _mm256_max_epi32(vSaturationCheckMax, vWL);
+            }
 #ifdef PARASAIL_TABLE
             arr_store_si256(result->stats->tables->score_table, vWH, i, s1Len, j, s2Len);
             arr_store_si256(result->stats->tables->matches_table, vWM, i, s1Len, j, s2Len);
@@ -631,23 +632,22 @@ parasail_result_t* FNAME(
         }
         vI = _mm256_add_epi32(vI, vN);
         vIBoundary = _mm256_sub_epi32(vIBoundary, vGapN);
-        vSaturationCheckMax = _mm256_max_epi32(vSaturationCheckMax, vI);
     }
 
     /* alignment ending position */
     {
-        int32_t max_rowh = NEG_INF;
-        int32_t max_rowm = NEG_INF;
-        int32_t max_rows = NEG_INF;
-        int32_t max_rowl = NEG_INF;
-        int32_t max_colh = NEG_INF;
-        int32_t max_colm = NEG_INF;
-        int32_t max_cols = NEG_INF;
-        int32_t max_coll = NEG_INF;
-        int32_t last_valh = NEG_INF;
-        int32_t last_valm = NEG_INF;
-        int32_t last_vals = NEG_INF;
-        int32_t last_vall = NEG_INF;
+        int32_t max_rowh = NEG_LIMIT;
+        int32_t max_rowm = NEG_LIMIT;
+        int32_t max_rows = NEG_LIMIT;
+        int32_t max_rowl = NEG_LIMIT;
+        int32_t max_colh = NEG_LIMIT;
+        int32_t max_colm = NEG_LIMIT;
+        int32_t max_cols = NEG_LIMIT;
+        int32_t max_coll = NEG_LIMIT;
+        int32_t last_valh = NEG_LIMIT;
+        int32_t last_valm = NEG_LIMIT;
+        int32_t last_vals = NEG_LIMIT;
+        int32_t last_vall = NEG_LIMIT;
         int32_t *rh = (int32_t*)&vMaxHRow;
         int32_t *rm = (int32_t*)&vMaxMRow;
         int32_t *rs = (int32_t*)&vMaxSRow;

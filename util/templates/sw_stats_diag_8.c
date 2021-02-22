@@ -416,11 +416,14 @@ parasail_result_t* FNAME(
                 vES = %(VANDNOT)s(cond, vES);
                 vEL = %(VANDNOT)s(cond, vEL);
             }
-            vSaturationCheckMin = %(VMIN)s(vSaturationCheckMin, vWH);
-            vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vWH);
-            vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vWM);
-            vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vWS);
-            vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vWL);
+            /* cannot start checking sat until after J clears boundary */
+            if (j > PAD) {
+                vSaturationCheckMin = %(VMIN)s(vSaturationCheckMin, vWH);
+                vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vWH);
+                vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vWM);
+                vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vWS);
+                vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vWL);
+            }
 #ifdef PARASAIL_TABLE
             arr_store_si%(BITS)s(result->stats->tables->score_table, vWH, i, s1Len, j, s2Len);
             arr_store_si%(BITS)s(result->stats->tables->matches_table, vWM, i, s1Len, j, s2Len);

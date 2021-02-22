@@ -19,7 +19,6 @@
 #define SG_SUFFIX %(SUFFIX)s
 #include "sg_helper.h"
 
-#define NEG_INF %(NEG_INF)s
 %(FIXES)s
 
 static inline void arr_store_si%(BITS)s(
@@ -60,7 +59,13 @@ parasail_result_t* FNAME(
     %(INDEX)s s1Len = 0;
     %(INDEX)s end_query = 0;
     %(INDEX)s end_ref = 0;
+    %(INT)s NEG_LIMIT = 0;
+    %(INT)s POS_LIMIT = 0;
     %(INT)s score = 0;
+    %(VTYPE)s vNegLimit;
+    %(VTYPE)s vPosLimit;
+    %(VTYPE)s vSaturationCheckMin;
+    %(VTYPE)s vSaturationCheckMax;
     %(VTYPE)s vNegInf;
     %(VTYPE)s vOpen;
     %(VTYPE)s vGap;
@@ -87,7 +92,6 @@ parasail_result_t* FNAME(
     %(VTYPE)s vTInsE;
     %(VTYPE)s vTDiagF;
     %(VTYPE)s vTDelF;
-    %(SATURATION_CHECK_DECL)s
 
     /* validate inputs */
     PARASAIL_CHECK_NULL(_s2);
@@ -99,7 +103,7 @@ parasail_result_t* FNAME(
         PARASAIL_CHECK_NULL(_s1);
         PARASAIL_CHECK_GT0(_s1Len);
     }
-        
+
     /* initialize stack variables */
     N = %(LANES)s; /* number of values in vector */
     PAD = N-1;
@@ -111,8 +115,14 @@ parasail_result_t* FNAME(
     j = 0;
     end_query = s1Len-1;
     end_ref = s2Len-1;
-    score = NEG_INF;
-    vNegInf = %(VSET1)s(NEG_INF);
+    NEG_LIMIT = (-open < matrix->min ? INT%(WIDTH)s_MIN + open : INT%(WIDTH)s_MIN - matrix->min) + 1;
+    POS_LIMIT = INT%(WIDTH)s_MAX - matrix->max - 1;
+    score = NEG_LIMIT;
+    vNegLimit = %(VSET1)s(NEG_LIMIT);
+    vPosLimit = %(VSET1)s(POS_LIMIT);
+    vSaturationCheckMin = vPosLimit;
+    vSaturationCheckMax = vNegLimit;
+    vNegInf = %(VSET1)s(NEG_LIMIT);
     vOpen = %(VSET1)s(open);
     vGap  = %(VSET1)s(gap);
     vOne = %(VSET1)s(1);
@@ -131,8 +141,7 @@ parasail_result_t* FNAME(
     vJLimit = %(VSET1)s(s2Len);
     vJLimit1 = %(VSUB)s(vJLimit, vOne);
     vIBoundary = s1_beg ? %(VSET1)s(0) : %(VSET)s(
-            %(DIAG_IBoundary)s
-            );
+            %(DIAG_IBoundary)s);
     vTDiag = %(VSET1)s(PARASAIL_DIAG);
     vTIns = %(VSET1)s(PARASAIL_INS);
     vTDel = %(VSET1)s(PARASAIL_DEL);
@@ -140,7 +149,6 @@ parasail_result_t* FNAME(
     vTInsE = %(VSET1)s(PARASAIL_INS_E);
     vTDiagF = %(VSET1)s(PARASAIL_DIAG_F);
     vTDelF = %(VSET1)s(PARASAIL_DEL_F);
-    %(SATURATION_CHECK_INIT)s
 
     /* initialize result */
     result = parasail_result_new_trace(s1Len, s2Len, %(ALIGNMENT)s, sizeof(int8_t));
@@ -198,24 +206,24 @@ parasail_result_t* FNAME(
     if (s2_beg) {
         for (j=0; j<s2Len; ++j) {
             H_pr[j] = 0;
-            F_pr[j] = NEG_INF;
+            F_pr[j] = NEG_LIMIT;
         }
     }
     else {
         for (j=0; j<s2Len; ++j) {
             H_pr[j] = -open - j*gap;
-            F_pr[j] = NEG_INF;
+            F_pr[j] = NEG_LIMIT;
         }
     }
     /* pad front of stored row values */
     for (j=-PAD; j<0; ++j) {
-        H_pr[j] = NEG_INF;
-        F_pr[j] = NEG_INF;
+        H_pr[j] = NEG_LIMIT;
+        F_pr[j] = NEG_LIMIT;
     }
     /* pad back of stored row values */
     for (j=s2Len; j<s2Len+PAD; ++j) {
-        H_pr[j] = NEG_INF;
-        F_pr[j] = NEG_INF;
+        H_pr[j] = NEG_LIMIT;
+        F_pr[j] = NEG_LIMIT;
     }
     H_pr[-1] = 0; /* upper left corner */
 
@@ -266,7 +274,11 @@ parasail_result_t* FNAME(
                 vF = %(VBLEND)s(vF, vNegInf, cond);
                 vE = %(VBLEND)s(vE, vNegInf, cond);
             }
-            %(SATURATION_CHECK_MID)s
+            /* cannot start checking sat until after J clears boundary */
+            if (j > PAD) {
+                vSaturationCheckMin = %(VMIN)s(vSaturationCheckMin, vWH);
+                vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vWH);
+            }
             /* trace table */
             {
                 %(VTYPE)s case1 = %(VCMPEQ)s(vWH, vNWH);
@@ -313,9 +325,9 @@ parasail_result_t* FNAME(
 
     /* alignment ending position */
     {
-        %(INT)s max_row = NEG_INF;
-        %(INT)s max_col = NEG_INF;
-        %(INT)s last_val = NEG_INF;
+        %(INT)s max_row = NEG_LIMIT;
+        %(INT)s max_col = NEG_LIMIT;
+        %(INT)s last_val = NEG_LIMIT;
         %(INT)s *s = (%(INT)s*)&vMaxHRow;
         %(INT)s *t = (%(INT)s*)&vMaxHCol;
         %(INT)s *u = (%(INT)s*)&vLastVal;
@@ -360,7 +372,14 @@ parasail_result_t* FNAME(
         }
     }
 
-    %(SATURATION_CHECK_FINAL)s
+    if (%(VMOVEMASK)s(%(VOR)s(
+            %(VCMPLT)s(vSaturationCheckMin, vNegLimit),
+            %(VCMPGT)s(vSaturationCheckMax, vPosLimit)))) {
+        result->flag |= PARASAIL_FLAG_SATURATED;
+        score = 0;
+        end_query = 0;
+        end_ref = 0;
+    }
 
     result->score = score;
     result->end_query = end_query;

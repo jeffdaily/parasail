@@ -20,7 +20,6 @@
 #include "parasail/memory.h"
 #include "parasail/internal_sse.h"
 
-#define NEG_INF INT8_MIN
 
 static inline __m128i _mm_blendv_epi8_rpl(__m128i a, __m128i b, __m128i mask) {
     a = _mm_andnot_si128(mask, a);

@@ -604,13 +604,15 @@ parasail_result_t* FNAME(
                 vES = simde_mm_andnot_si128(cond, vES);
                 vEL = simde_mm_andnot_si128(cond, vEL);
             }
-            vSaturationCheckMin = simde_mm_min_epi8(vSaturationCheckMin, vWH);
-            vSaturationCheckMax = simde_mm_max_epi8(vSaturationCheckMax, vWH);
-            vSaturationCheckMax = simde_mm_max_epi8(vSaturationCheckMax, vWM);
-            vSaturationCheckMax = simde_mm_max_epi8(vSaturationCheckMax, vWS);
-            vSaturationCheckMax = simde_mm_max_epi8(vSaturationCheckMax, vWL);
-            vSaturationCheckMax = simde_mm_max_epi8(vSaturationCheckMax, vWL);
-            vSaturationCheckMax = simde_mm_max_epi8(vSaturationCheckMax, vJ);
+            /* cannot start checking sat until after J clears boundary */
+            if (j > PAD) {
+                vSaturationCheckMin = simde_mm_min_epi8(vSaturationCheckMin, vWH);
+                vSaturationCheckMax = simde_mm_max_epi8(vSaturationCheckMax, vWH);
+                vSaturationCheckMax = simde_mm_max_epi8(vSaturationCheckMax, vWM);
+                vSaturationCheckMax = simde_mm_max_epi8(vSaturationCheckMax, vWS);
+                vSaturationCheckMax = simde_mm_max_epi8(vSaturationCheckMax, vWL);
+                vSaturationCheckMax = simde_mm_max_epi8(vSaturationCheckMax, vWL);
+            }
 #ifdef PARASAIL_TABLE
             arr_store_si128(result->stats->tables->score_table, vWH, i, s1Len, j, s2Len);
             arr_store_si128(result->stats->tables->matches_table, vWM, i, s1Len, j, s2Len);
@@ -645,7 +647,6 @@ parasail_result_t* FNAME(
             vJ = simde_mm_adds_epi8(vJ, vOne);
         }
         vI = simde_mm_adds_epi8(vI, vN);
-        vSaturationCheckMax = simde_mm_max_epi8(vSaturationCheckMax, vI);
         vIBoundary = simde_mm_subs_epi8(vIBoundary, vGapN);
     }
 

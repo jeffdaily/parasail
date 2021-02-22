@@ -16,7 +16,6 @@
 #include "parasail/memory.h"
 #include "parasail/internal_neon.h"
 
-#define NEG_INF INT8_MIN
 
 
 #ifdef PARASAIL_TABLE
@@ -140,7 +139,8 @@ parasail_result_t* PNAME(
     int8_t* restrict boundary = NULL;
     simde__m128i vGapO;
     simde__m128i vGapE;
-    simde__m128i vNegInf;
+    int8_t NEG_LIMIT = 0;
+    int8_t POS_LIMIT = 0;
     int8_t score = 0;
     simde__m128i vNegLimit;
     simde__m128i vPosLimit;
@@ -173,10 +173,11 @@ parasail_result_t* PNAME(
     vProfile = (simde__m128i*)profile->profile8.score;
     vGapO = simde_mm_set1_epi8(open);
     vGapE = simde_mm_set1_epi8(gap);
-    vNegInf = simde_mm_set1_epi8(NEG_INF);
-    score = NEG_INF;
-    vNegLimit = simde_mm_set1_epi8(INT8_MIN);
-    vPosLimit = simde_mm_set1_epi8(INT8_MAX);
+    NEG_LIMIT = (-open < matrix->min ? INT8_MIN + open : INT8_MIN - matrix->min) + 1;
+    POS_LIMIT = INT8_MAX - matrix->max - 1;
+    score = NEG_LIMIT;
+    vNegLimit = simde_mm_set1_epi8(NEG_LIMIT);
+    vPosLimit = simde_mm_set1_epi8(POS_LIMIT);
     vSaturationCheckMin = vPosLimit;
     vSaturationCheckMax = vNegLimit;
 
@@ -247,7 +248,7 @@ parasail_result_t* PNAME(
         simde__m128i vE;
         /* Initialize F value to -inf.  Any errors to vH values will be
          * corrected in the Lazy_F loop.  */
-        simde__m128i vF = vNegInf;
+        simde__m128i vF = vNegLimit;
 
         /* load final segment of pvHStore and shift left by 2 bytes */
         simde__m128i vH = simde_mm_slli_si128(pvHStore[segLen - 1], 1);
@@ -273,13 +274,10 @@ parasail_result_t* PNAME(
             vH = simde_mm_max_epi8(vH, vF);
             /* Save vH values. */
             simde_mm_store_si128(pvHStore + i, vH);
-            /* check for saturation */
-            {
-                vSaturationCheckMax = simde_mm_max_epi8(vSaturationCheckMax, vH);
-                vSaturationCheckMin = simde_mm_min_epi8(vSaturationCheckMin, vH);
-                vSaturationCheckMin = simde_mm_min_epi8(vSaturationCheckMin, vE);
-                vSaturationCheckMin = simde_mm_min_epi8(vSaturationCheckMin, vF);
-            }
+            vSaturationCheckMax = simde_mm_max_epi8(vSaturationCheckMax, vH);
+            vSaturationCheckMin = simde_mm_min_epi8(vSaturationCheckMin, vH);
+            vSaturationCheckMin = simde_mm_min_epi8(vSaturationCheckMin, vE);
+            vSaturationCheckMin = simde_mm_min_epi8(vSaturationCheckMin, vF);
 #ifdef PARASAIL_TABLE
             arr_store_si128(result->tables->score_table, vH, i, segLen, j, s2Len);
 #endif
@@ -309,13 +307,8 @@ parasail_result_t* PNAME(
                 vH = simde_mm_load_si128(pvHStore + i);
                 vH = simde_mm_max_epi8(vH,vF);
                 simde_mm_store_si128(pvHStore + i, vH);
-                /* check for saturation */
-            {
-                vSaturationCheckMax = simde_mm_max_epi8(vSaturationCheckMax, vH);
                 vSaturationCheckMin = simde_mm_min_epi8(vSaturationCheckMin, vH);
-                vSaturationCheckMin = simde_mm_min_epi8(vSaturationCheckMin, vE);
-                vSaturationCheckMin = simde_mm_min_epi8(vSaturationCheckMin, vF);
-            }
+                vSaturationCheckMax = simde_mm_max_epi8(vSaturationCheckMax, vH);
 #ifdef PARASAIL_TABLE
                 arr_store_si128(result->tables->score_table, vH, i, segLen, j, s2Len);
 #endif
@@ -358,10 +351,10 @@ end:
     }
 
     if (simde_mm_movemask_epi8(simde_mm_or_si128(
-            simde_mm_cmpeq_epi8(vSaturationCheckMin, vNegLimit),
-            simde_mm_cmpeq_epi8(vSaturationCheckMax, vPosLimit)))) {
+            simde_mm_cmplt_epi8(vSaturationCheckMin, vNegLimit),
+            simde_mm_cmpgt_epi8(vSaturationCheckMax, vPosLimit)))) {
         result->flag |= PARASAIL_FLAG_SATURATED;
-        score = INT8_MAX;
+        score = 0;
         end_query = 0;
         end_ref = 0;
     }

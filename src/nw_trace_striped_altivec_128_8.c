@@ -18,7 +18,6 @@
 
 #define SWAP(A,B) { vec128i* tmp = A; A = B; B = tmp; }
 
-#define NEG_INF INT8_MIN
 
 
 static inline void arr_store(
@@ -100,7 +99,8 @@ parasail_result_t* PNAME(
     int8_t* restrict boundary = NULL;
     vec128i vGapO;
     vec128i vGapE;
-    vec128i vNegInf;
+    int8_t NEG_LIMIT = 0;
+    int8_t POS_LIMIT = 0;
     int8_t score = 0;
     vec128i vNegLimit;
     vec128i vPosLimit;
@@ -142,8 +142,13 @@ parasail_result_t* PNAME(
     vProfile = (vec128i*)profile->profile8.score;
     vGapO = _mm_set1_epi8(open);
     vGapE = _mm_set1_epi8(gap);
-    vNegInf = _mm_set1_epi8(NEG_INF);
-    score = NEG_INF;
+    NEG_LIMIT = (-open < matrix->min ? INT8_MIN + open : INT8_MIN - matrix->min) + 1;
+    POS_LIMIT = INT8_MAX - matrix->max - 1;
+    score = NEG_LIMIT;
+    vNegLimit = _mm_set1_epi8(NEG_LIMIT);
+    vPosLimit = _mm_set1_epi8(POS_LIMIT);
+    vSaturationCheckMin = vPosLimit;
+    vSaturationCheckMax = vNegLimit;
     vTIns  = _mm_set1_epi8(PARASAIL_INS);
     vTDel  = _mm_set1_epi8(PARASAIL_DEL);
     vTDiag = _mm_set1_epi8(PARASAIL_DIAG);
@@ -153,10 +158,6 @@ parasail_result_t* PNAME(
     vTDelF = _mm_set1_epi8(PARASAIL_DEL_F);
     vTMask = _mm_set1_epi8(PARASAIL_ZERO_MASK);
     vFTMask = _mm_set1_epi8(PARASAIL_F_MASK);
-    vNegLimit = _mm_set1_epi8(INT8_MIN);
-    vPosLimit = _mm_set1_epi8(INT8_MAX);
-    vSaturationCheckMin = vPosLimit;
-    vSaturationCheckMax = vNegLimit;
 
     /* initialize result */
     result = parasail_result_new_trace(segLen, s2Len, 16, sizeof(vec128i));
@@ -233,7 +234,7 @@ parasail_result_t* PNAME(
 
         /* Initialize F value to -inf.  Any errors to vH values will be
          * corrected in the Lazy_F loop.  */
-        vF = vNegInf;
+        vF = vNegLimit;
 
         /* load final segment of pvHStore and shift left by 1 bytes */
         vH = _mm_load_si128(&pvHStore[segLen - 1]);
@@ -259,13 +260,10 @@ parasail_result_t* PNAME(
             vH = _mm_max_epi8(vH, vF);
             /* Save vH values. */
             _mm_store_si128(pvHStore + i, vH);
-            /* check for saturation */
-            {
-                vSaturationCheckMax = _mm_max_epi8(vSaturationCheckMax, vH);
-                vSaturationCheckMin = _mm_min_epi8(vSaturationCheckMin, vH);
-                vSaturationCheckMin = _mm_min_epi8(vSaturationCheckMin, vE);
-                vSaturationCheckMin = _mm_min_epi8(vSaturationCheckMin, vF);
-            }
+            vSaturationCheckMax = _mm_max_epi8(vSaturationCheckMax, vH);
+            vSaturationCheckMin = _mm_min_epi8(vSaturationCheckMin, vH);
+            vSaturationCheckMin = _mm_min_epi8(vSaturationCheckMin, vE);
+            vSaturationCheckMin = _mm_min_epi8(vSaturationCheckMin, vF);
 
             {
                 vec128i vTAll = arr_load(result->trace->trace_table, i, segLen, j);
@@ -326,24 +324,19 @@ parasail_result_t* PNAME(
             vEF_opn = _mm_slli_si128(vEF_opn, 1);
             vEF_opn = _mm_insert_epi8(vEF_opn, tmp2, 0);
             vF_ext = _mm_slli_si128(vF_ext, 1);
-            vF_ext = _mm_insert_epi8(vF_ext, NEG_INF, 0);
+            vF_ext = _mm_insert_epi8(vF_ext, NEG_LIMIT, 0);
             vF = _mm_slli_si128(vF, 1);
             vF = _mm_insert_epi8(vF, tmp2, 0);
             vFa_ext = _mm_slli_si128(vFa_ext, 1);
-            vFa_ext = _mm_insert_epi8(vFa_ext, NEG_INF, 0);
+            vFa_ext = _mm_insert_epi8(vFa_ext, NEG_LIMIT, 0);
             vFa = _mm_slli_si128(vFa, 1);
             vFa = _mm_insert_epi8(vFa, tmp2, 0);
             for (i=0; i<segLen; ++i) {
                 vH = _mm_load_si128(pvHStore + i);
                 vH = _mm_max_epi8(vH,vF);
                 _mm_store_si128(pvHStore + i, vH);
-                /* check for saturation */
-            {
-                vSaturationCheckMax = _mm_max_epi8(vSaturationCheckMax, vH);
                 vSaturationCheckMin = _mm_min_epi8(vSaturationCheckMin, vH);
-                vSaturationCheckMin = _mm_min_epi8(vSaturationCheckMin, vE);
-                vSaturationCheckMin = _mm_min_epi8(vSaturationCheckMin, vF);
-            }
+                vSaturationCheckMax = _mm_max_epi8(vSaturationCheckMax, vH);
                 {
                     vec128i vTAll;
                     vec128i vT;
@@ -411,10 +404,10 @@ end:
     }
 
     if (_mm_movemask_epi8(_mm_or_si128(
-            _mm_cmpeq_epi8(vSaturationCheckMin, vNegLimit),
-            _mm_cmpeq_epi8(vSaturationCheckMax, vPosLimit)))) {
+            _mm_cmplt_epi8(vSaturationCheckMin, vNegLimit),
+            _mm_cmpgt_epi8(vSaturationCheckMax, vPosLimit)))) {
         result->flag |= PARASAIL_FLAG_SATURATED;
-        score = INT8_MAX;
+        score = 0;
         end_query = 0;
         end_ref = 0;
     }

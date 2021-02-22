@@ -171,7 +171,7 @@ parasail_result_t* PNAME(
     vSaturationCheckMax = vNegLimit;
     vNegInfFront = vZero;
     vNegInfFront = _mm_insert_epi16(vNegInfFront, NEG_LIMIT, 0);
-    vSegLenXgap = _mm_add_epi16(vNegInfFront,
+    vSegLenXgap = _mm_adds_epi16(vNegInfFront,
             _mm_slli_si128(_mm_set1_epi16(-segLen*gap), 2));
 
     /* initialize result */
@@ -239,10 +239,10 @@ parasail_result_t* PNAME(
     }
 
     {
-        vec128i vGapper = _mm_sub_epi16(vZero,vGapO);
+        vec128i vGapper = _mm_subs_epi16(vZero,vGapO);
         for (i=segLen-1; i>=0; --i) {
             _mm_store_si128(pvGapper+i, vGapper);
-            vGapper = _mm_sub_epi16(vGapper, vGapE);
+            vGapper = _mm_subs_epi16(vGapper, vGapE);
         }
     }
 
@@ -263,17 +263,17 @@ parasail_result_t* PNAME(
         vHp = _mm_slli_si128(vHp, 2);
         vHp = _mm_insert_epi16(vHp, boundary[j], 0);
         pvW = pvP + matrix->mapper[(unsigned char)s2[j]]*segLen;
-        vHt = _mm_sub_epi16(vNegLimit, pvGapper[0]);
+        vHt = _mm_subs_epi16(vNegLimit, pvGapper[0]);
         vF = vNegLimit;
         for (i=0; i<segLen; ++i) {
             vH = _mm_load_si128(pvH+i);
             vE = _mm_load_si128(pvE+i);
             vW = _mm_load_si128(pvW+i);
             vE = _mm_max_epi16(
-                    _mm_sub_epi16(vE, vGapE),
-                    _mm_sub_epi16(vH, vGapO));
-            vHp = _mm_add_epi16(vHp, vW);
-            vF = _mm_max_epi16(vF, _mm_add_epi16(vHt, pvGapper[i]));
+                    _mm_subs_epi16(vE, vGapE),
+                    _mm_subs_epi16(vH, vGapO));
+            vHp = _mm_adds_epi16(vHp, vW);
+            vF = _mm_max_epi16(vF, _mm_adds_epi16(vHt, pvGapper[i]));
             vHt = _mm_max_epi16(vE, vHp);
             _mm_store_si128(pvE+i, vE);
             _mm_store_si128(pvHt+i, vHt);
@@ -283,22 +283,22 @@ parasail_result_t* PNAME(
         /* pseudo prefix scan on F and H */
         vHt = _mm_slli_si128(vHt, 2);
         vHt = _mm_insert_epi16(vHt, boundary[j+1], 0);
-        vF = _mm_max_epi16(vF, _mm_add_epi16(vHt, pvGapper[0]));
+        vF = _mm_max_epi16(vF, _mm_adds_epi16(vHt, pvGapper[0]));
         for (i=0; i<segWidth-2; ++i) {
             vec128i vFt = _mm_slli_si128(vF, 2);
-            vFt = _mm_add_epi16(vFt, vSegLenXgap);
+            vFt = _mm_adds_epi16(vFt, vSegLenXgap);
             vF = _mm_max_epi16(vF, vFt);
         }
 
         /* calculate final H */
         vF = _mm_slli_si128(vF, 2);
-        vF = _mm_add_epi16(vF, vNegInfFront);
+        vF = _mm_adds_epi16(vF, vNegInfFront);
         vH = _mm_max_epi16(vHt, vF);
         for (i=0; i<segLen; ++i) {
             vHt = _mm_load_si128(pvHt+i);
             vF = _mm_max_epi16(
-                    _mm_sub_epi16(vF, vGapE),
-                    _mm_sub_epi16(vH, vGapO));
+                    _mm_subs_epi16(vF, vGapE),
+                    _mm_subs_epi16(vH, vGapO));
             vH = _mm_max_epi16(vHt, vF);
             _mm_store_si128(pvH+i, vH);
             vSaturationCheckMin = _mm_min_epi16(vSaturationCheckMin, vH);

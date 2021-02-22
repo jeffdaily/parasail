@@ -149,7 +149,7 @@ parasail_result_t* PNAME(
     vMaxHUnit = vNegLimit;
     vNegInfFront = vZero;
     vNegInfFront = _mm_insert_epi16(vNegInfFront, NEG_LIMIT, 0);
-    vSegLenXgap = _mm_add_epi16(vNegInfFront,
+    vSegLenXgap = _mm_adds_epi16(vNegInfFront,
             _mm_slli_si128(_mm_set1_epi16(-segLen*gap), 2));
     vTZero = _mm_set1_epi16(PARASAIL_ZERO);
     vTIns  = _mm_set1_epi16(PARASAIL_INS);
@@ -187,10 +187,10 @@ parasail_result_t* PNAME(
     parasail_memset_vec128i(pvH, vZero, segLen);
     parasail_memset_vec128i(pvE, vNegLimit, segLen);
     {
-        vec128i vGapper = _mm_sub_epi16(vZero,vGapO);
+        vec128i vGapper = _mm_subs_epi16(vZero,vGapO);
         for (i=segLen-1; i>=0; --i) {
             _mm_store_si128(pvGapper+i, vGapper);
-            vGapper = _mm_sub_epi16(vGapper, vGapE);
+            vGapper = _mm_subs_epi16(vGapper, vGapE);
         }
     }
 
@@ -228,15 +228,15 @@ parasail_result_t* PNAME(
             vE = _mm_load_si128(pvE+i);
             vW = _mm_load_si128(pvW+i);
             vGapper = _mm_load_si128(pvGapper+i);
-            vE_opn = _mm_sub_epi16(vH, vGapO);
-            vE_ext = _mm_sub_epi16(vE, vGapE);
+            vE_opn = _mm_subs_epi16(vH, vGapO);
+            vE_ext = _mm_subs_epi16(vE, vGapE);
             case1 = _mm_cmpgt_epi16(vE_opn, vE_ext);
             vET = _mm_blendv_epi8(vTInsE, vTDiagE, case1);
             arr_store(result->trace->trace_table, vET, i, segLen, j);
             vE = _mm_max_epi16(vE_opn, vE_ext);
-            vGapper = _mm_add_epi16(vHt, vGapper);
+            vGapper = _mm_adds_epi16(vHt, vGapper);
             vF = _mm_max_epi16(vF, vGapper);
-            vHp = _mm_add_epi16(vHp, vW);
+            vHp = _mm_adds_epi16(vHp, vW);
             vHt = _mm_max_epi16(vE, vHp);
             _mm_store_si128(pvE+i, vE);
             _mm_store_si128(pvHt+i, vHt);
@@ -247,25 +247,25 @@ parasail_result_t* PNAME(
         /* pseudo prefix scan on F and H */
         vHt = _mm_slli_si128(vHt, 2);
         vGapper = _mm_load_si128(pvGapper);
-        vGapper = _mm_add_epi16(vHt, vGapper);
+        vGapper = _mm_adds_epi16(vHt, vGapper);
         vF = _mm_max_epi16(vF, vGapper);
         for (i=0; i<segWidth-2; ++i) {
             vec128i vFt = _mm_slli_si128(vF, 2);
-            vFt = _mm_add_epi16(vFt, vSegLenXgap);
+            vFt = _mm_adds_epi16(vFt, vSegLenXgap);
             vF = _mm_max_epi16(vF, vFt);
         }
 
         /* calculate final H */
         vF = _mm_slli_si128(vF, 2);
-        vF = _mm_add_epi16(vF, vNegInfFront);
+        vF = _mm_adds_epi16(vF, vNegInfFront);
         vH = _mm_max_epi16(vF, vHt);
         vH = _mm_max_epi16(vH, vZero);
         for (i=0; i<segLen; ++i) {
             vET = arr_load(result->trace->trace_table, i, segLen, j);
             vHp = _mm_load_si128(pvH+i);
             vHt = _mm_load_si128(pvHt+i);
-            vF_opn = _mm_sub_epi16(vH, vGapO);
-            vF_ext = _mm_sub_epi16(vF, vGapE);
+            vF_opn = _mm_subs_epi16(vH, vGapO);
+            vF_ext = _mm_subs_epi16(vF, vGapE);
             vF = _mm_max_epi16(vF_opn, vF_ext);
             case1 = _mm_cmpgt_epi16(vF_opn, vF_ext);
             vFT = _mm_blendv_epi8(vTDelF, vTDiagF, case1);

@@ -265,7 +265,7 @@ parasail_result_t* PNAME(
 
         /* inner loop to process the query sequence */
         for (i=0; i<segLen; ++i) {
-            vH = simde_mm_add_epi16(vH, simde_mm_load_si128(vP + i));
+            vH = simde_mm_adds_epi16(vH, simde_mm_load_si128(vP + i));
             vE = simde_mm_load_si128(pvE + i);
 
             /* Get max from vH, vE and vF. */
@@ -273,20 +273,22 @@ parasail_result_t* PNAME(
             vH = simde_mm_max_epi16(vH, vF);
             /* Save vH values. */
             simde_mm_store_si128(pvHStore + i, vH);
-            vSaturationCheckMin = simde_mm_min_epi16(vSaturationCheckMin, vH);
             vSaturationCheckMax = simde_mm_max_epi16(vSaturationCheckMax, vH);
+            vSaturationCheckMin = simde_mm_min_epi16(vSaturationCheckMin, vH);
+            vSaturationCheckMin = simde_mm_min_epi16(vSaturationCheckMin, vE);
+            vSaturationCheckMin = simde_mm_min_epi16(vSaturationCheckMin, vF);
 #ifdef PARASAIL_TABLE
             arr_store_si128(result->tables->score_table, vH, i, segLen, j, s2Len);
 #endif
 
             /* Update vE value. */
-            vH = simde_mm_sub_epi16(vH, vGapO);
-            vE = simde_mm_sub_epi16(vE, vGapE);
+            vH = simde_mm_subs_epi16(vH, vGapO);
+            vE = simde_mm_subs_epi16(vE, vGapE);
             vE = simde_mm_max_epi16(vE, vH);
             simde_mm_store_si128(pvE + i, vE);
 
             /* Update vF value. */
-            vF = simde_mm_sub_epi16(vF, vGapE);
+            vF = simde_mm_subs_epi16(vF, vGapE);
             vF = simde_mm_max_epi16(vF, vH);
 
             /* Load the next vH. */
@@ -309,8 +311,8 @@ parasail_result_t* PNAME(
 #ifdef PARASAIL_TABLE
                 arr_store_si128(result->tables->score_table, vH, i, segLen, j, s2Len);
 #endif
-                vH = simde_mm_sub_epi16(vH, vGapO);
-                vF = simde_mm_sub_epi16(vF, vGapE);
+                vH = simde_mm_subs_epi16(vH, vGapO);
+                vF = simde_mm_subs_epi16(vF, vGapE);
                 if (! simde_mm_movemask_epi8(simde_mm_cmpgt_epi16(vF, vH))) goto end;
                 /*vF = simde_mm_max_epi16(vF, vH);*/
             }

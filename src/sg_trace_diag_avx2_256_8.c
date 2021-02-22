@@ -19,7 +19,6 @@
 #define SG_SUFFIX _diag_avx2_256_8
 #include "sg_helper.h"
 
-#define NEG_INF INT8_MIN
 
 #if HAVE_AVX2_MM256_INSERT_EPI8
 #define _mm256_insert_epi8_rpl _mm256_insert_epi8
@@ -180,7 +179,13 @@ parasail_result_t* FNAME(
     int32_t s1Len = 0;
     int32_t end_query = 0;
     int32_t end_ref = 0;
+    int8_t NEG_LIMIT = 0;
+    int8_t POS_LIMIT = 0;
     int8_t score = 0;
+    __m256i vNegLimit;
+    __m256i vPosLimit;
+    __m256i vSaturationCheckMin;
+    __m256i vSaturationCheckMax;
     __m256i vNegInf;
     __m256i vOpen;
     __m256i vGap;
@@ -207,10 +212,6 @@ parasail_result_t* FNAME(
     __m256i vTInsE;
     __m256i vTDiagF;
     __m256i vTDelF;
-    __m256i vNegLimit;
-    __m256i vPosLimit;
-    __m256i vSaturationCheckMin;
-    __m256i vSaturationCheckMax;
 
     /* validate inputs */
     PARASAIL_CHECK_NULL(_s2);
@@ -222,7 +223,7 @@ parasail_result_t* FNAME(
         PARASAIL_CHECK_NULL(_s1);
         PARASAIL_CHECK_GT0(_s1Len);
     }
-        
+
     /* initialize stack variables */
     N = 32; /* number of values in vector */
     PAD = N-1;
@@ -234,8 +235,14 @@ parasail_result_t* FNAME(
     j = 0;
     end_query = s1Len-1;
     end_ref = s2Len-1;
-    score = NEG_INF;
-    vNegInf = _mm256_set1_epi8(NEG_INF);
+    NEG_LIMIT = (-open < matrix->min ? INT8_MIN + open : INT8_MIN - matrix->min) + 1;
+    POS_LIMIT = INT8_MAX - matrix->max - 1;
+    score = NEG_LIMIT;
+    vNegLimit = _mm256_set1_epi8(NEG_LIMIT);
+    vPosLimit = _mm256_set1_epi8(POS_LIMIT);
+    vSaturationCheckMin = vPosLimit;
+    vSaturationCheckMax = vNegLimit;
+    vNegInf = _mm256_set1_epi8(NEG_LIMIT);
     vOpen = _mm256_set1_epi8(open);
     vGap  = _mm256_set1_epi8(gap);
     vOne = _mm256_set1_epi8(1);
@@ -285,8 +292,7 @@ parasail_result_t* FNAME(
             -open-28*gap,
             -open-29*gap,
             -open-30*gap,
-            -open-31*gap
-            );
+            -open-31*gap);
     vTDiag = _mm256_set1_epi8(PARASAIL_DIAG);
     vTIns = _mm256_set1_epi8(PARASAIL_INS);
     vTDel = _mm256_set1_epi8(PARASAIL_DEL);
@@ -294,10 +300,6 @@ parasail_result_t* FNAME(
     vTInsE = _mm256_set1_epi8(PARASAIL_INS_E);
     vTDiagF = _mm256_set1_epi8(PARASAIL_DIAG_F);
     vTDelF = _mm256_set1_epi8(PARASAIL_DEL_F);
-    vNegLimit = _mm256_set1_epi8(INT8_MIN);
-    vPosLimit = _mm256_set1_epi8(INT8_MAX);
-    vSaturationCheckMin = vPosLimit;
-    vSaturationCheckMax = vNegLimit;
 
     /* initialize result */
     result = parasail_result_new_trace(s1Len, s2Len, 32, sizeof(int8_t));
@@ -355,24 +357,24 @@ parasail_result_t* FNAME(
     if (s2_beg) {
         for (j=0; j<s2Len; ++j) {
             H_pr[j] = 0;
-            F_pr[j] = NEG_INF;
+            F_pr[j] = NEG_LIMIT;
         }
     }
     else {
         for (j=0; j<s2Len; ++j) {
             H_pr[j] = -open - j*gap;
-            F_pr[j] = NEG_INF;
+            F_pr[j] = NEG_LIMIT;
         }
     }
     /* pad front of stored row values */
     for (j=-PAD; j<0; ++j) {
-        H_pr[j] = NEG_INF;
-        F_pr[j] = NEG_INF;
+        H_pr[j] = NEG_LIMIT;
+        F_pr[j] = NEG_LIMIT;
     }
     /* pad back of stored row values */
     for (j=s2Len; j<s2Len+PAD; ++j) {
-        H_pr[j] = NEG_INF;
-        F_pr[j] = NEG_INF;
+        H_pr[j] = NEG_LIMIT;
+        F_pr[j] = NEG_LIMIT;
     }
     H_pr[-1] = 0; /* upper left corner */
 
@@ -485,10 +487,10 @@ parasail_result_t* FNAME(
                 vF = _mm256_blendv_epi8(vF, vNegInf, cond);
                 vE = _mm256_blendv_epi8(vE, vNegInf, cond);
             }
-            /* check for saturation */
-            {
-                vSaturationCheckMax = _mm256_max_epi8(vSaturationCheckMax, vWH);
+            /* cannot start checking sat until after J clears boundary */
+            if (j > PAD) {
                 vSaturationCheckMin = _mm256_min_epi8(vSaturationCheckMin, vWH);
+                vSaturationCheckMax = _mm256_max_epi8(vSaturationCheckMax, vWH);
             }
             /* trace table */
             {
@@ -536,9 +538,9 @@ parasail_result_t* FNAME(
 
     /* alignment ending position */
     {
-        int8_t max_row = NEG_INF;
-        int8_t max_col = NEG_INF;
-        int8_t last_val = NEG_INF;
+        int8_t max_row = NEG_LIMIT;
+        int8_t max_col = NEG_LIMIT;
+        int8_t last_val = NEG_LIMIT;
         int8_t *s = (int8_t*)&vMaxHRow;
         int8_t *t = (int8_t*)&vMaxHCol;
         int8_t *u = (int8_t*)&vLastVal;
@@ -584,10 +586,10 @@ parasail_result_t* FNAME(
     }
 
     if (_mm256_movemask_epi8(_mm256_or_si256(
-            _mm256_cmpeq_epi8(vSaturationCheckMin, vNegLimit),
-            _mm256_cmpeq_epi8(vSaturationCheckMax, vPosLimit)))) {
+            _mm256_cmplt_epi8_rpl(vSaturationCheckMin, vNegLimit),
+            _mm256_cmpgt_epi8(vSaturationCheckMax, vPosLimit)))) {
         result->flag |= PARASAIL_FLAG_SATURATED;
-        score = INT8_MAX;
+        score = 0;
         end_query = 0;
         end_ref = 0;
     }

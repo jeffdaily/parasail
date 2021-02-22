@@ -25,7 +25,7 @@
 #define SWAP(A,B) { __m128i* tmp = A; A = B; B = tmp; }
 #define SWAP3(A,B,C) { __m128i* tmp = A; A = B; B = C; C = tmp; }
 
-#define NEG_INF (INT16_MIN/(int16_t)(2))
+#define NEG_INF INT16_MIN
 
 static inline __m128i _mm_blendv_epi8_rpl(__m128i a, __m128i b, __m128i mask) {
     a = _mm_andnot_si128(mask, a);

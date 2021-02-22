@@ -12,18 +12,17 @@
 
 
 
+#include "parasail.h"
+#include "parasail/memory.h"
+#include "parasail/internal_neon.h"
+
 #define SG_TRACE
 #define SG_SUFFIX _striped_neon_128_32
 #define SG_SUFFIX_PROF _striped_profile_neon_128_32
 #include "sg_helper.h"
 
-#include "parasail.h"
-#include "parasail/memory.h"
-#include "parasail/internal_neon.h"
-
 #define SWAP(A,B) { simde__m128i* tmp = A; A = B; B = tmp; }
 
-#define NEG_INF (INT32_MIN/(int32_t)(2))
 
 
 static inline void arr_store(
@@ -107,9 +106,13 @@ parasail_result_t* PNAME(
     int32_t* restrict boundary = NULL;
     simde__m128i vGapO;
     simde__m128i vGapE;
-    simde__m128i vNegInf;
+    int32_t NEG_LIMIT = 0;
+    int32_t POS_LIMIT = 0;
     int32_t score = 0;
-    
+    simde__m128i vNegLimit;
+    simde__m128i vPosLimit;
+    simde__m128i vSaturationCheckMin;
+    simde__m128i vSaturationCheckMax;
     simde__m128i vMaxH;
     simde__m128i vPosMask;
     parasail_result_t *result = NULL;
@@ -148,10 +151,14 @@ parasail_result_t* PNAME(
     vProfile = (simde__m128i*)profile->profile32.score;
     vGapO = simde_mm_set1_epi32(open);
     vGapE = simde_mm_set1_epi32(gap);
-    vNegInf = simde_mm_set1_epi32(NEG_INF);
-    score = NEG_INF;
-    vMaxH = vNegInf;
-    
+    NEG_LIMIT = (-open < matrix->min ? INT32_MIN + open : INT32_MIN - matrix->min) + 1;
+    POS_LIMIT = INT32_MAX - matrix->max - 1;
+    score = NEG_LIMIT;
+    vNegLimit = simde_mm_set1_epi32(NEG_LIMIT);
+    vPosLimit = simde_mm_set1_epi32(POS_LIMIT);
+    vSaturationCheckMin = vPosLimit;
+    vSaturationCheckMax = vNegLimit;
+    vMaxH = vNegLimit;
     vPosMask = simde_mm_cmpeq_epi32(simde_mm_set1_epi32(position),
             simde_mm_set_epi32(0,1,2,3));
     vTIns  = simde_mm_set1_epi32(PARASAIL_INS);
@@ -243,7 +250,7 @@ parasail_result_t* PNAME(
 
         /* Initialize F value to -inf.  Any errors to vH values will be
          * corrected in the Lazy_F loop. */
-        vF = vNegInf;
+        vF = vNegLimit;
 
         /* load final segment of pvHStore and shift left by 4 bytes */
         vH = simde_mm_load_si128(&pvHStore[segLen - 1]);
@@ -269,7 +276,10 @@ parasail_result_t* PNAME(
             vH = simde_mm_max_epi32(vH, vF);
             /* Save vH values. */
             simde_mm_store_si128(pvHStore + i, vH);
-            
+            vSaturationCheckMax = simde_mm_max_epi32(vSaturationCheckMax, vH);
+            vSaturationCheckMin = simde_mm_min_epi32(vSaturationCheckMin, vH);
+            vSaturationCheckMin = simde_mm_min_epi32(vSaturationCheckMin, vE);
+            vSaturationCheckMin = simde_mm_min_epi32(vSaturationCheckMin, vF);
 
             {
                 simde__m128i vTAll = arr_load(result->trace->trace_table, i, segLen, j);
@@ -329,18 +339,19 @@ parasail_result_t* PNAME(
             vEF_opn = simde_mm_slli_si128(vEF_opn, 4);
             vEF_opn = simde_mm_insert_epi32(vEF_opn, tmp2, 0);
             vF_ext = simde_mm_slli_si128(vF_ext, 4);
-            vF_ext = simde_mm_insert_epi32(vF_ext, NEG_INF, 0);
+            vF_ext = simde_mm_insert_epi32(vF_ext, NEG_LIMIT, 0);
             vF = simde_mm_slli_si128(vF, 4);
             vF = simde_mm_insert_epi32(vF, tmp2, 0);
             vFa_ext = simde_mm_slli_si128(vFa_ext, 4);
-            vFa_ext = simde_mm_insert_epi32(vFa_ext, NEG_INF, 0);
+            vFa_ext = simde_mm_insert_epi32(vFa_ext, NEG_LIMIT, 0);
             vFa = simde_mm_slli_si128(vFa, 4);
             vFa = simde_mm_insert_epi32(vFa, tmp2, 0);
             for (i=0; i<segLen; ++i) {
                 vH = simde_mm_load_si128(pvHStore + i);
                 vH = simde_mm_max_epi32(vH,vF);
                 simde_mm_store_si128(pvHStore + i, vH);
-                
+                vSaturationCheckMin = simde_mm_min_epi32(vSaturationCheckMin, vH);
+                vSaturationCheckMax = simde_mm_max_epi32(vSaturationCheckMax, vH);
                 {
                     simde__m128i vTAll;
                     simde__m128i vT;
@@ -449,7 +460,14 @@ end:
         }
     }
 
-    
+    if (simde_mm_movemask_epi8(simde_mm_or_si128(
+            simde_mm_cmplt_epi32(vSaturationCheckMin, vNegLimit),
+            simde_mm_cmpgt_epi32(vSaturationCheckMax, vPosLimit)))) {
+        result->flag |= PARASAIL_FLAG_SATURATED;
+        score = 0;
+        end_query = 0;
+        end_ref = 0;
+    }
 
     result->score = score;
     result->end_query = end_query;

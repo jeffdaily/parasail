@@ -161,7 +161,7 @@ parasail_result_t* PNAME(
             simde_mm_set_epi16(0,1,2,3,4,5,6,7));
     vNegInfFront = vZero;
     vNegInfFront = simde_mm_insert_epi16(vNegInfFront, NEG_LIMIT, 0);
-    vSegLenXgap = simde_mm_add_epi16(vNegInfFront,
+    vSegLenXgap = simde_mm_adds_epi16(vNegInfFront,
             simde_mm_slli_si128(simde_mm_set1_epi16(-segLen*gap), 2));
     vTIns  = simde_mm_set1_epi16(PARASAIL_INS);
     vTDel  = simde_mm_set1_epi16(PARASAIL_DEL);
@@ -227,10 +227,10 @@ parasail_result_t* PNAME(
     }
 
     {
-        simde__m128i vGapper = simde_mm_sub_epi16(vZero,vGapO);
+        simde__m128i vGapper = simde_mm_subs_epi16(vZero,vGapO);
         for (i=segLen-1; i>=0; --i) {
             simde_mm_store_si128(pvGapper+i, vGapper);
-            vGapper = simde_mm_sub_epi16(vGapper, vGapE);
+            vGapper = simde_mm_subs_epi16(vGapper, vGapE);
             /* long queries and/or large penalties will break the pseudo prefix scan */
             vSaturationCheckMin = simde_mm_min_epi16(vSaturationCheckMin, vGapper);
         }
@@ -263,23 +263,23 @@ parasail_result_t* PNAME(
         vHp = simde_mm_slli_si128(vHp, 2);
         vHp = simde_mm_insert_epi16(vHp, boundary[j], 0);
         pvW = pvP + matrix->mapper[(unsigned char)s2[j]]*segLen;
-        vHt = simde_mm_sub_epi16(vNegLimit, pvGapper[0]);
+        vHt = simde_mm_subs_epi16(vNegLimit, pvGapper[0]);
         vF = vNegLimit;
         for (i=0; i<segLen; ++i) {
             vH = simde_mm_load_si128(pvH+i);
             vE = simde_mm_load_si128(pvE+i);
             vW = simde_mm_load_si128(pvW+i);
             vGapper = simde_mm_load_si128(pvGapper+i);
-            vE_opn = simde_mm_sub_epi16(vH, vGapO);
-            vE_ext = simde_mm_sub_epi16(vE, vGapE);
+            vE_opn = simde_mm_subs_epi16(vH, vGapO);
+            vE_ext = simde_mm_subs_epi16(vE, vGapE);
             case1 = simde_mm_cmpgt_epi16(vE_opn, vE_ext);
             vET = simde_mm_blendv_epi8(vTInsE, vTDiagE, case1);
             arr_store(result->trace->trace_table, vET, i, segLen, j);
             vE = simde_mm_max_epi16(vE_opn, vE_ext);
             vSaturationCheckMin = simde_mm_min_epi16(vSaturationCheckMin, vE);
-            vGapper = simde_mm_add_epi16(vHt, vGapper);
+            vGapper = simde_mm_adds_epi16(vHt, vGapper);
             vF = simde_mm_max_epi16(vF, vGapper);
-            vHp = simde_mm_add_epi16(vHp, vW);
+            vHp = simde_mm_adds_epi16(vHp, vW);
             vHt = simde_mm_max_epi16(vE, vHp);
             simde_mm_store_si128(pvE+i, vE);
             simde_mm_store_si128(pvHt+i, vHt);
@@ -291,24 +291,24 @@ parasail_result_t* PNAME(
         vHt = simde_mm_slli_si128(vHt, 2);
         vHt = simde_mm_insert_epi16(vHt, boundary[j+1], 0);
         vGapper = simde_mm_load_si128(pvGapper);
-        vGapper = simde_mm_add_epi16(vHt, vGapper);
+        vGapper = simde_mm_adds_epi16(vHt, vGapper);
         vF = simde_mm_max_epi16(vF, vGapper);
         for (i=0; i<segWidth-2; ++i) {
             simde__m128i vFt = simde_mm_slli_si128(vF, 2);
-            vFt = simde_mm_add_epi16(vFt, vSegLenXgap);
+            vFt = simde_mm_adds_epi16(vFt, vSegLenXgap);
             vF = simde_mm_max_epi16(vF, vFt);
         }
 
         /* calculate final H */
         vF = simde_mm_slli_si128(vF, 2);
-        vF = simde_mm_add_epi16(vF, vNegInfFront);
+        vF = simde_mm_adds_epi16(vF, vNegInfFront);
         vH = simde_mm_max_epi16(vF, vHt);
         for (i=0; i<segLen; ++i) {
             vET = arr_load(result->trace->trace_table, i, segLen, j);
             vHp = simde_mm_load_si128(pvH+i);
             vHt = simde_mm_load_si128(pvHt+i);
-            vF_opn = simde_mm_sub_epi16(vH, vGapO);
-            vF_ext = simde_mm_sub_epi16(vF, vGapE);
+            vF_opn = simde_mm_subs_epi16(vH, vGapO);
+            vF_ext = simde_mm_subs_epi16(vF, vGapE);
             vF = simde_mm_max_epi16(vF_opn, vF_ext);
             case1 = simde_mm_cmpgt_epi16(vF_opn, vF_ext);
             vFT = simde_mm_blendv_epi8(vTDelF, vTDiagF, case1);

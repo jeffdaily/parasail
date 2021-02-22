@@ -16,7 +16,6 @@
 #include "parasail/memory.h"
 #include "parasail/internal_avx.h"
 
-#define NEG_INF INT8_MIN
 
 #if HAVE_AVX2_MM256_EXTRACT_EPI8
 #define _mm256_extract_epi8_rpl _mm256_extract_epi8

@@ -408,7 +408,7 @@ parasail_result_t* PNAME(
             vEL = _mm256_load_si256(pvEL+ i);
 
             /* Get max from vH, vE and vF. */
-            vH_dag = _mm256_add_epi16(vH, _mm256_load_si256(vP + i));
+            vH_dag = _mm256_adds_epi16(vH, _mm256_load_si256(vP + i));
             vH = _mm256_max_epi16(vH_dag, vE);
             vH = _mm256_max_epi16(vH, vF);
             /* Save vH values. */
@@ -420,21 +420,21 @@ parasail_result_t* PNAME(
             /* calculate vM */
             vHM = _mm256_blendv_epi8(
                     _mm256_blendv_epi8(vEM, vFM, case2),
-                    _mm256_add_epi16(vHM, _mm256_load_si256(vPM + i)),
+                    _mm256_adds_epi16(vHM, _mm256_load_si256(vPM + i)),
                     case1);
             _mm256_store_si256(pvHMStore + i, vHM);
 
             /* calculate vS */
             vHS = _mm256_blendv_epi8(
                     _mm256_blendv_epi8(vES, vFS, case2),
-                    _mm256_add_epi16(vHS, _mm256_load_si256(vPS + i)),
+                    _mm256_adds_epi16(vHS, _mm256_load_si256(vPS + i)),
                     case1);
             _mm256_store_si256(pvHSStore + i, vHS);
 
             /* calculate vL */
             vHL = _mm256_blendv_epi8(
                     _mm256_blendv_epi8(vEL, vFL, case2),
-                    _mm256_add_epi16(vHL, vOne),
+                    _mm256_adds_epi16(vHL, vOne),
                     case1);
             _mm256_store_si256(pvHLStore + i, vHL);
 
@@ -449,17 +449,17 @@ parasail_result_t* PNAME(
             arr_store_si256(result->stats->tables->length_table, vHL, i, segLen, j, s2Len);
             arr_store_si256(result->stats->tables->score_table, vH, i, segLen, j, s2Len);
 #endif
-            vEF_opn = _mm256_sub_epi16(vH, vGapO);
+            vEF_opn = _mm256_subs_epi16(vH, vGapO);
 
             /* Update vE value. */
-            vE_ext = _mm256_sub_epi16(vE, vGapE);
+            vE_ext = _mm256_subs_epi16(vE, vGapE);
             vE = _mm256_max_epi16(vEF_opn, vE_ext);
             case1 = _mm256_cmpgt_epi16(vEF_opn, vE_ext);
             vEM = _mm256_blendv_epi8(vEM, vHM, case1);
             vES = _mm256_blendv_epi8(vES, vHS, case1);
             vEL = _mm256_blendv_epi8(
-                    _mm256_add_epi16(vEL, vOne),
-                    _mm256_add_epi16(vHL, vOne),
+                    _mm256_adds_epi16(vEL, vOne),
+                    _mm256_adds_epi16(vHL, vOne),
                     case1);
             _mm256_store_si256(pvE + i, vE);
             _mm256_store_si256(pvEM + i, vEM);
@@ -467,14 +467,14 @@ parasail_result_t* PNAME(
             _mm256_store_si256(pvEL + i, vEL);
 
             /* Update vF value. */
-            vF_ext = _mm256_sub_epi16(vF, vGapE);
+            vF_ext = _mm256_subs_epi16(vF, vGapE);
             vF = _mm256_max_epi16(vEF_opn, vF_ext);
             case1 = _mm256_cmpgt_epi16(vEF_opn, vF_ext);
             vFM = _mm256_blendv_epi8(vFM, vHM, case1);
             vFS = _mm256_blendv_epi8(vFS, vHS, case1);
             vFL = _mm256_blendv_epi8(
-                    _mm256_add_epi16(vFL, vOne),
-                    _mm256_add_epi16(vHL, vOne),
+                    _mm256_adds_epi16(vFL, vOne),
+                    _mm256_adds_epi16(vHL, vOne),
                     case1);
 
             /* Load the next vH. */
@@ -503,7 +503,7 @@ parasail_result_t* PNAME(
                 __m256i case2;
                 __m256i cond;
 
-                vHp = _mm256_add_epi16(vHp, _mm256_load_si256(vP + i));
+                vHp = _mm256_adds_epi16(vHp, _mm256_load_si256(vP + i));
                 vH = _mm256_load_si256(pvHStore + i);
                 vH = _mm256_max_epi16(vH,vF);
                 _mm256_store_si256(pvHStore + i, vH);
@@ -538,8 +538,8 @@ parasail_result_t* PNAME(
                 arr_store_si256(result->stats->tables->score_table, vH, i, segLen, j, s2Len);
 #endif
                 /* Update vF value. */
-                vEF_opn = _mm256_sub_epi16(vH, vGapO);
-                vF_ext = _mm256_sub_epi16(vF, vGapE);
+                vEF_opn = _mm256_subs_epi16(vH, vGapO);
+                vF_ext = _mm256_subs_epi16(vF, vGapE);
                 if (! _mm256_movemask_epi8(
                             _mm256_or_si256(
                                 _mm256_cmpgt_epi16(vF_ext, vEF_opn),
@@ -551,8 +551,8 @@ parasail_result_t* PNAME(
                 vFM = _mm256_blendv_epi8(vFM, vHM, cond);
                 vFS = _mm256_blendv_epi8(vFS, vHS, cond);
                 vFL = _mm256_blendv_epi8(
-                        _mm256_add_epi16(vFL, vOne),
-                        _mm256_add_epi16(vHL, vOne),
+                        _mm256_adds_epi16(vFL, vOne),
+                        _mm256_adds_epi16(vHL, vOne),
                         cond);
                 vHp = _mm256_load_si256(pvHLoad + i);
             }

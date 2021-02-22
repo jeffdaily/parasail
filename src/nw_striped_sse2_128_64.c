@@ -20,7 +20,6 @@
 #include "parasail/memory.h"
 #include "parasail/internal_sse.h"
 
-#define NEG_INF (INT64_MIN/(int64_t)(2))
 
 static inline __m128i _mm_cmpgt_epi64_rpl(__m128i a, __m128i b) {
     __m128i_64_t A;
@@ -53,6 +52,26 @@ static inline int64_t _mm_extract_epi64_rpl(__m128i a, const int imm) {
     __m128i_64_t A;
     A.m = a;
     return A.v[imm];
+}
+
+static inline __m128i _mm_min_epi64_rpl(__m128i a, __m128i b) {
+    __m128i_64_t A;
+    __m128i_64_t B;
+    A.m = a;
+    B.m = b;
+    A.v[0] = (A.v[0]<B.v[0]) ? A.v[0] : B.v[0];
+    A.v[1] = (A.v[1]<B.v[1]) ? A.v[1] : B.v[1];
+    return A.m;
+}
+
+static inline __m128i _mm_cmplt_epi64_rpl(__m128i a, __m128i b) {
+    __m128i_64_t A;
+    __m128i_64_t B;
+    A.m = a;
+    B.m = b;
+    A.v[0] = (A.v[0]<B.v[0]) ? 0xFFFFFFFFFFFFFFFF : 0;
+    A.v[1] = (A.v[1]<B.v[1]) ? 0xFFFFFFFFFFFFFFFF : 0;
+    return A.m;
 }
 
 #if HAVE_SSE2_MM_SET1_EPI64X
@@ -160,9 +179,13 @@ parasail_result_t* PNAME(
     int64_t* restrict boundary = NULL;
     __m128i vGapO;
     __m128i vGapE;
-    __m128i vNegInf;
+    int64_t NEG_LIMIT = 0;
+    int64_t POS_LIMIT = 0;
     int64_t score = 0;
-    
+    __m128i vNegLimit;
+    __m128i vPosLimit;
+    __m128i vSaturationCheckMin;
+    __m128i vSaturationCheckMax;
     parasail_result_t *result = NULL;
 
     /* validate inputs */
@@ -190,9 +213,13 @@ parasail_result_t* PNAME(
     vProfile = (__m128i*)profile->profile64.score;
     vGapO = _mm_set1_epi64x_rpl(open);
     vGapE = _mm_set1_epi64x_rpl(gap);
-    vNegInf = _mm_set1_epi64x_rpl(NEG_INF);
-    score = NEG_INF;
-    
+    NEG_LIMIT = (-open < matrix->min ? INT64_MIN + open : INT64_MIN - matrix->min) + 1;
+    POS_LIMIT = INT64_MAX - matrix->max - 1;
+    score = NEG_LIMIT;
+    vNegLimit = _mm_set1_epi64x_rpl(NEG_LIMIT);
+    vPosLimit = _mm_set1_epi64x_rpl(POS_LIMIT);
+    vSaturationCheckMin = vPosLimit;
+    vSaturationCheckMax = vNegLimit;
 
     /* initialize result */
 #ifdef PARASAIL_TABLE
@@ -261,7 +288,7 @@ parasail_result_t* PNAME(
         __m128i vE;
         /* Initialize F value to -inf.  Any errors to vH values will be
          * corrected in the Lazy_F loop.  */
-        __m128i vF = vNegInf;
+        __m128i vF = vNegLimit;
 
         /* load final segment of pvHStore and shift left by 2 bytes */
         __m128i vH = _mm_slli_si128(pvHStore[segLen - 1], 8);
@@ -287,7 +314,10 @@ parasail_result_t* PNAME(
             vH = _mm_max_epi64_rpl(vH, vF);
             /* Save vH values. */
             _mm_store_si128(pvHStore + i, vH);
-            
+            vSaturationCheckMax = _mm_max_epi64_rpl(vSaturationCheckMax, vH);
+            vSaturationCheckMin = _mm_min_epi64_rpl(vSaturationCheckMin, vH);
+            vSaturationCheckMin = _mm_min_epi64_rpl(vSaturationCheckMin, vE);
+            vSaturationCheckMin = _mm_min_epi64_rpl(vSaturationCheckMin, vF);
 #ifdef PARASAIL_TABLE
             arr_store_si128(result->tables->score_table, vH, i, segLen, j, s2Len);
 #endif
@@ -317,7 +347,8 @@ parasail_result_t* PNAME(
                 vH = _mm_load_si128(pvHStore + i);
                 vH = _mm_max_epi64_rpl(vH,vF);
                 _mm_store_si128(pvHStore + i, vH);
-                
+                vSaturationCheckMin = _mm_min_epi64_rpl(vSaturationCheckMin, vH);
+                vSaturationCheckMax = _mm_max_epi64_rpl(vSaturationCheckMax, vH);
 #ifdef PARASAIL_TABLE
                 arr_store_si128(result->tables->score_table, vH, i, segLen, j, s2Len);
 #endif
@@ -359,7 +390,14 @@ end:
         score = (int64_t) _mm_extract_epi64_rpl (vH, 1);
     }
 
-    
+    if (_mm_movemask_epi8(_mm_or_si128(
+            _mm_cmplt_epi64_rpl(vSaturationCheckMin, vNegLimit),
+            _mm_cmpgt_epi64_rpl(vSaturationCheckMax, vPosLimit)))) {
+        result->flag |= PARASAIL_FLAG_SATURATED;
+        score = 0;
+        end_query = 0;
+        end_ref = 0;
+    }
 
     result->score = score;
     result->end_query = end_query;

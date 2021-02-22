@@ -16,7 +16,6 @@
 #include "parasail/memory.h"
 #include "parasail/internal_neon.h"
 
-#define NEG_INF (INT16_MIN/(int16_t)(2))
 
 
 #ifdef PARASAIL_TABLE

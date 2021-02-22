@@ -21,7 +21,7 @@
 #define SWAP(A,B) { simde__m128i* tmp = A; A = B; B = tmp; }
 #define SWAP3(A,B,C) { simde__m128i* tmp = A; A = B; B = C; C = tmp; }
 
-#define NEG_INF (INT16_MIN/(int16_t)(2))
+#define NEG_INF INT16_MIN
 
 
 #ifdef PARASAIL_TABLE

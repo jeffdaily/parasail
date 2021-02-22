@@ -270,7 +270,7 @@ parasail_result_t* PNAME(
 
         /* inner loop to process the query sequence */
         for (i=0; i<segLen; ++i) {
-            vH = _mm_add_epi16(vH, _mm_load_si128(vP + i));
+            vH = _mm_adds_epi16(vH, _mm_load_si128(vP + i));
             vE = _mm_load_si128(pvE + i);
 
             /* Get max from vH, vE and vF. */
@@ -278,20 +278,22 @@ parasail_result_t* PNAME(
             vH = _mm_max_epi16(vH, vF);
             /* Save vH values. */
             _mm_store_si128(pvHStore + i, vH);
-            vSaturationCheckMin = _mm_min_epi16(vSaturationCheckMin, vH);
             vSaturationCheckMax = _mm_max_epi16(vSaturationCheckMax, vH);
+            vSaturationCheckMin = _mm_min_epi16(vSaturationCheckMin, vH);
+            vSaturationCheckMin = _mm_min_epi16(vSaturationCheckMin, vE);
+            vSaturationCheckMin = _mm_min_epi16(vSaturationCheckMin, vF);
 #ifdef PARASAIL_TABLE
             arr_store_si128(result->tables->score_table, vH, i, segLen, j, s2Len);
 #endif
 
             /* Update vE value. */
-            vH = _mm_sub_epi16(vH, vGapO);
-            vE = _mm_sub_epi16(vE, vGapE);
+            vH = _mm_subs_epi16(vH, vGapO);
+            vE = _mm_subs_epi16(vE, vGapE);
             vE = _mm_max_epi16(vE, vH);
             _mm_store_si128(pvE + i, vE);
 
             /* Update vF value. */
-            vF = _mm_sub_epi16(vF, vGapE);
+            vF = _mm_subs_epi16(vF, vGapE);
             vF = _mm_max_epi16(vF, vH);
 
             /* Load the next vH. */
@@ -314,8 +316,8 @@ parasail_result_t* PNAME(
 #ifdef PARASAIL_TABLE
                 arr_store_si128(result->tables->score_table, vH, i, segLen, j, s2Len);
 #endif
-                vH = _mm_sub_epi16(vH, vGapO);
-                vF = _mm_sub_epi16(vF, vGapE);
+                vH = _mm_subs_epi16(vH, vGapO);
+                vF = _mm_subs_epi16(vF, vGapE);
                 if (! _mm_movemask_epi8(_mm_cmpgt_epi16(vF, vH))) goto end;
                 /*vF = _mm_max_epi16(vF, vH);*/
             }

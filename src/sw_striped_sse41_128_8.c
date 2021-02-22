@@ -21,7 +21,6 @@
 #include "parasail/memory.h"
 #include "parasail/internal_sse.h"
 
-#define NEG_INF INT8_MIN
 
 static inline int8_t _mm_hmax_epi8_rpl(__m128i a) {
     a = _mm_max_epi8(a, _mm_srli_si128(a, 8));

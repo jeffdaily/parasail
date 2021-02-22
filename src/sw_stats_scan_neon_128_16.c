@@ -210,7 +210,7 @@ parasail_result_t* PNAME(
     vSegLen = simde_mm_slli_si128(simde_mm_set1_epi16(segLen), 2);
     vNegInfFront = vZero;
     vNegInfFront = simde_mm_insert_epi16(vNegInfFront, NEG_LIMIT, 0);
-    vSegLenXgap = simde_mm_add_epi16(vNegInfFront,
+    vSegLenXgap = simde_mm_adds_epi16(vNegInfFront,
             simde_mm_slli_si128(simde_mm_set1_epi16(-segLen*gap), 2));
 
     /* initialize result */
@@ -277,13 +277,13 @@ parasail_result_t* PNAME(
     parasail_memset_simde__m128i(pvES, vZero, segLen);
     parasail_memset_simde__m128i(pvEL, vZero, segLen);
     {
-        simde__m128i vGapper = simde_mm_sub_epi16(vZero,vGapO);
+        simde__m128i vGapper = simde_mm_subs_epi16(vZero,vGapO);
         simde__m128i vGapperL = vOne;
         for (i=segLen-1; i>=0; --i) {
             simde_mm_store_si128(pvGapper+i, vGapper);
             simde_mm_store_si128(pvGapperL+i, vGapperL);
-            vGapper = simde_mm_sub_epi16(vGapper, vGapE);
-            vGapperL = simde_mm_add_epi16(vGapperL, vOne);
+            vGapper = simde_mm_subs_epi16(vGapper, vGapE);
+            vGapperL = simde_mm_adds_epi16(vGapperL, vOne);
         }
     }
 
@@ -358,15 +358,15 @@ parasail_result_t* PNAME(
             vWS = simde_mm_load_si128(pvWS+i);
             vGapper = simde_mm_load_si128(pvGapper+i);
             vGapperL = simde_mm_load_si128(pvGapperL+i);
-            vE_opn = simde_mm_sub_epi16(vH, vGapO);
-            vE_ext = simde_mm_sub_epi16(vE, vGapE);
+            vE_opn = simde_mm_subs_epi16(vH, vGapO);
+            vE_ext = simde_mm_subs_epi16(vE, vGapE);
             case1 = simde_mm_cmpgt_epi16(vE_opn, vE_ext);
             vE = simde_mm_max_epi16(vE_opn, vE_ext);
             vEM = simde_mm_blendv_epi8(vEM, vHM, case1);
             vES = simde_mm_blendv_epi8(vES, vHS, case1);
             vEL = simde_mm_blendv_epi8(vEL, vHL, case1);
-            vEL = simde_mm_add_epi16(vEL, vOne);
-            vGapper = simde_mm_add_epi16(vHt, vGapper);
+            vEL = simde_mm_adds_epi16(vEL, vOne);
+            vGapper = simde_mm_adds_epi16(vHt, vGapper);
             case1 = simde_mm_or_si128(
                     simde_mm_cmpgt_epi16(vF, vGapper),
                     simde_mm_cmpeq_epi16(vF, vGapper));
@@ -374,12 +374,12 @@ parasail_result_t* PNAME(
             vFM = simde_mm_blendv_epi8(vHtM, vFM, case1);
             vFS = simde_mm_blendv_epi8(vHtS, vFS, case1);
             vFL = simde_mm_blendv_epi8(
-                    simde_mm_add_epi16(vHtL, vGapperL),
+                    simde_mm_adds_epi16(vHtL, vGapperL),
                     vFL, case1);
-            vHp = simde_mm_add_epi16(vHp, vW);
-            vHpM = simde_mm_add_epi16(vHpM, vWM);
-            vHpS = simde_mm_add_epi16(vHpS, vWS);
-            vHpL = simde_mm_add_epi16(vHpL, vOne);
+            vHp = simde_mm_adds_epi16(vHp, vW);
+            vHpM = simde_mm_adds_epi16(vHpM, vWM);
+            vHpS = simde_mm_adds_epi16(vHpS, vWS);
+            vHpL = simde_mm_adds_epi16(vHpL, vOne);
             case1 = simde_mm_cmpgt_epi16(vE, vHp);
             vHt = simde_mm_max_epi16(vE, vHp);
             vHtM = simde_mm_blendv_epi8(vHpM, vEM, case1);
@@ -406,7 +406,7 @@ parasail_result_t* PNAME(
         vHtL = simde_mm_slli_si128(vHtL, 2);
         vGapper = simde_mm_load_si128(pvGapper);
         vGapperL = simde_mm_load_si128(pvGapperL);
-        vGapper = simde_mm_add_epi16(vHt, vGapper);
+        vGapper = simde_mm_adds_epi16(vHt, vGapper);
         case1 = simde_mm_or_si128(
                 simde_mm_cmpgt_epi16(vGapper, vF),
                 simde_mm_cmpeq_epi16(vGapper, vF));
@@ -415,14 +415,14 @@ parasail_result_t* PNAME(
         vFS = simde_mm_blendv_epi8(vFS, vHtS, case1);
         vFL = simde_mm_blendv_epi8(
                 vFL,
-                simde_mm_add_epi16(vHtL, vGapperL),
+                simde_mm_adds_epi16(vHtL, vGapperL),
                 case1);
         for (i=0; i<segWidth-2; ++i) {
             simde__m128i vFt = simde_mm_slli_si128(vF, 2);
             simde__m128i vFtM = simde_mm_slli_si128(vFM, 2);
             simde__m128i vFtS = simde_mm_slli_si128(vFS, 2);
             simde__m128i vFtL = simde_mm_slli_si128(vFL, 2);
-            vFt = simde_mm_add_epi16(vFt, vSegLenXgap);
+            vFt = simde_mm_adds_epi16(vFt, vSegLenXgap);
             case1 = simde_mm_or_si128(
                     simde_mm_cmpgt_epi16(vFt, vF),
                     simde_mm_cmpeq_epi16(vFt, vF));
@@ -431,7 +431,7 @@ parasail_result_t* PNAME(
             vFS = simde_mm_blendv_epi8(vFS, vFtS, case1);
             vFL = simde_mm_blendv_epi8(
                     vFL,
-                    simde_mm_add_epi16(vFtL, vSegLen),
+                    simde_mm_adds_epi16(vFtL, vSegLen),
                     case1);
         }
 
@@ -440,7 +440,7 @@ parasail_result_t* PNAME(
         vFM = simde_mm_slli_si128(vFM, 2);
         vFS = simde_mm_slli_si128(vFS, 2);
         vFL = simde_mm_slli_si128(vFL, 2);
-        vF = simde_mm_add_epi16(vF, vNegInfFront);
+        vF = simde_mm_adds_epi16(vF, vNegInfFront);
         case1 = simde_mm_cmpgt_epi16(vF, vHt);
         vH = simde_mm_max_epi16(vF, vHt);
         vHM = simde_mm_blendv_epi8(vHtM, vFM, case1);
@@ -455,14 +455,14 @@ parasail_result_t* PNAME(
             vEM = simde_mm_load_si128(pvEM+i);
             vES = simde_mm_load_si128(pvES+i);
             vEL = simde_mm_load_si128(pvEL+i);
-            vF_opn = simde_mm_sub_epi16(vH, vGapO);
-            vF_ext = simde_mm_sub_epi16(vF, vGapE);
+            vF_opn = simde_mm_subs_epi16(vH, vGapO);
+            vF_ext = simde_mm_subs_epi16(vF, vGapE);
             vF = simde_mm_max_epi16(vF_opn, vF_ext);
             case1 = simde_mm_cmpgt_epi16(vF_opn, vF_ext);
             vFM = simde_mm_blendv_epi8(vFM, vHM, case1);
             vFS = simde_mm_blendv_epi8(vFS, vHS, case1);
             vFL = simde_mm_blendv_epi8(vFL, vHL, case1);
-            vFL = simde_mm_add_epi16(vFL, vOne);
+            vFL = simde_mm_adds_epi16(vFL, vOne);
             vH = simde_mm_max_epi16(vHp, vE);
             vH = simde_mm_max_epi16(vH, vF);
             vH = simde_mm_max_epi16(vH, vZero);

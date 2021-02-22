@@ -18,7 +18,6 @@
 
 #define SWAP(A,B) { __m256i* tmp = A; A = B; B = tmp; }
 
-#define NEG_INF (INT64_MIN/(int64_t)(2))
 
 #if HAVE_AVX2_MM256_INSERT_EPI64
 #define _mm256_insert_epi64_rpl _mm256_insert_epi64
@@ -65,6 +64,20 @@ static inline int64_t _mm256_extract_epi64_rpl(__m256i a, int imm) {
     return A.v[imm];
 }
 #endif
+
+static inline __m256i _mm256_min_epi64_rpl(__m256i a, __m256i b) {
+    __m256i_64_t A;
+    __m256i_64_t B;
+    A.m = a;
+    B.m = b;
+    A.v[0] = (A.v[0]<B.v[0]) ? A.v[0] : B.v[0];
+    A.v[1] = (A.v[1]<B.v[1]) ? A.v[1] : B.v[1];
+    A.v[2] = (A.v[2]<B.v[2]) ? A.v[2] : B.v[2];
+    A.v[3] = (A.v[3]<B.v[3]) ? A.v[3] : B.v[3];
+    return A.m;
+}
+
+#define _mm256_cmplt_epi64_rpl(a,b) _mm256_cmpgt_epi64(b,a)
 
 #define _mm256_slli_si256_rpl(a,imm) _mm256_alignr_epi8(a, _mm256_permute2x128_si256(a, a, _MM_SHUFFLE(0,0,3,0)), 16-imm)
 
@@ -148,9 +161,13 @@ parasail_result_t* PNAME(
     int64_t* restrict boundary = NULL;
     __m256i vGapO;
     __m256i vGapE;
-    __m256i vNegInf;
+    int64_t NEG_LIMIT = 0;
+    int64_t POS_LIMIT = 0;
     int64_t score = 0;
-    
+    __m256i vNegLimit;
+    __m256i vPosLimit;
+    __m256i vSaturationCheckMin;
+    __m256i vSaturationCheckMax;
     parasail_result_t *result = NULL;
     __m256i vTIns;
     __m256i vTDel;
@@ -187,8 +204,13 @@ parasail_result_t* PNAME(
     vProfile = (__m256i*)profile->profile64.score;
     vGapO = _mm256_set1_epi64x_rpl(open);
     vGapE = _mm256_set1_epi64x_rpl(gap);
-    vNegInf = _mm256_set1_epi64x_rpl(NEG_INF);
-    score = NEG_INF;
+    NEG_LIMIT = (-open < matrix->min ? INT64_MIN + open : INT64_MIN - matrix->min) + 1;
+    POS_LIMIT = INT64_MAX - matrix->max - 1;
+    score = NEG_LIMIT;
+    vNegLimit = _mm256_set1_epi64x_rpl(NEG_LIMIT);
+    vPosLimit = _mm256_set1_epi64x_rpl(POS_LIMIT);
+    vSaturationCheckMin = vPosLimit;
+    vSaturationCheckMax = vNegLimit;
     vTIns  = _mm256_set1_epi64x_rpl(PARASAIL_INS);
     vTDel  = _mm256_set1_epi64x_rpl(PARASAIL_DEL);
     vTDiag = _mm256_set1_epi64x_rpl(PARASAIL_DIAG);
@@ -198,7 +220,6 @@ parasail_result_t* PNAME(
     vTDelF = _mm256_set1_epi64x_rpl(PARASAIL_DEL_F);
     vTMask = _mm256_set1_epi64x_rpl(PARASAIL_ZERO_MASK);
     vFTMask = _mm256_set1_epi64x_rpl(PARASAIL_F_MASK);
-    
 
     /* initialize result */
     result = parasail_result_new_trace(segLen, s2Len, 32, sizeof(__m256i));
@@ -275,7 +296,7 @@ parasail_result_t* PNAME(
 
         /* Initialize F value to -inf.  Any errors to vH values will be
          * corrected in the Lazy_F loop.  */
-        vF = vNegInf;
+        vF = vNegLimit;
 
         /* load final segment of pvHStore and shift left by 8 bytes */
         vH = _mm256_load_si256(&pvHStore[segLen - 1]);
@@ -301,7 +322,10 @@ parasail_result_t* PNAME(
             vH = _mm256_max_epi64_rpl(vH, vF);
             /* Save vH values. */
             _mm256_store_si256(pvHStore + i, vH);
-            
+            vSaturationCheckMax = _mm256_max_epi64_rpl(vSaturationCheckMax, vH);
+            vSaturationCheckMin = _mm256_min_epi64_rpl(vSaturationCheckMin, vH);
+            vSaturationCheckMin = _mm256_min_epi64_rpl(vSaturationCheckMin, vE);
+            vSaturationCheckMin = _mm256_min_epi64_rpl(vSaturationCheckMin, vF);
 
             {
                 __m256i vTAll = arr_load(result->trace->trace_table, i, segLen, j);
@@ -362,18 +386,19 @@ parasail_result_t* PNAME(
             vEF_opn = _mm256_slli_si256_rpl(vEF_opn, 8);
             vEF_opn = _mm256_insert_epi64_rpl(vEF_opn, tmp2, 0);
             vF_ext = _mm256_slli_si256_rpl(vF_ext, 8);
-            vF_ext = _mm256_insert_epi64_rpl(vF_ext, NEG_INF, 0);
+            vF_ext = _mm256_insert_epi64_rpl(vF_ext, NEG_LIMIT, 0);
             vF = _mm256_slli_si256_rpl(vF, 8);
             vF = _mm256_insert_epi64_rpl(vF, tmp2, 0);
             vFa_ext = _mm256_slli_si256_rpl(vFa_ext, 8);
-            vFa_ext = _mm256_insert_epi64_rpl(vFa_ext, NEG_INF, 0);
+            vFa_ext = _mm256_insert_epi64_rpl(vFa_ext, NEG_LIMIT, 0);
             vFa = _mm256_slli_si256_rpl(vFa, 8);
             vFa = _mm256_insert_epi64_rpl(vFa, tmp2, 0);
             for (i=0; i<segLen; ++i) {
                 vH = _mm256_load_si256(pvHStore + i);
                 vH = _mm256_max_epi64_rpl(vH,vF);
                 _mm256_store_si256(pvHStore + i, vH);
-                
+                vSaturationCheckMin = _mm256_min_epi64_rpl(vSaturationCheckMin, vH);
+                vSaturationCheckMax = _mm256_max_epi64_rpl(vSaturationCheckMax, vH);
                 {
                     __m256i vTAll;
                     __m256i vT;
@@ -440,7 +465,14 @@ end:
         score = (int64_t) _mm256_extract_epi64_rpl (vH, 3);
     }
 
-    
+    if (_mm256_movemask_epi8(_mm256_or_si256(
+            _mm256_cmplt_epi64_rpl(vSaturationCheckMin, vNegLimit),
+            _mm256_cmpgt_epi64(vSaturationCheckMax, vPosLimit)))) {
+        result->flag |= PARASAIL_FLAG_SATURATED;
+        score = 0;
+        end_query = 0;
+        end_ref = 0;
+    }
 
     result->score = score;
     result->end_query = end_query;

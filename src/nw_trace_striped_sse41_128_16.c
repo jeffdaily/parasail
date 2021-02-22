@@ -23,7 +23,6 @@
 
 #define SWAP(A,B) { __m128i* tmp = A; A = B; B = tmp; }
 
-#define NEG_INF (INT16_MIN/(int16_t)(2))
 
 
 static inline void arr_store(
@@ -105,9 +104,13 @@ parasail_result_t* PNAME(
     int16_t* restrict boundary = NULL;
     __m128i vGapO;
     __m128i vGapE;
-    __m128i vNegInf;
+    int16_t NEG_LIMIT = 0;
+    int16_t POS_LIMIT = 0;
     int16_t score = 0;
-    
+    __m128i vNegLimit;
+    __m128i vPosLimit;
+    __m128i vSaturationCheckMin;
+    __m128i vSaturationCheckMax;
     parasail_result_t *result = NULL;
     __m128i vTIns;
     __m128i vTDel;
@@ -144,8 +147,13 @@ parasail_result_t* PNAME(
     vProfile = (__m128i*)profile->profile16.score;
     vGapO = _mm_set1_epi16(open);
     vGapE = _mm_set1_epi16(gap);
-    vNegInf = _mm_set1_epi16(NEG_INF);
-    score = NEG_INF;
+    NEG_LIMIT = (-open < matrix->min ? INT16_MIN + open : INT16_MIN - matrix->min) + 1;
+    POS_LIMIT = INT16_MAX - matrix->max - 1;
+    score = NEG_LIMIT;
+    vNegLimit = _mm_set1_epi16(NEG_LIMIT);
+    vPosLimit = _mm_set1_epi16(POS_LIMIT);
+    vSaturationCheckMin = vPosLimit;
+    vSaturationCheckMax = vNegLimit;
     vTIns  = _mm_set1_epi16(PARASAIL_INS);
     vTDel  = _mm_set1_epi16(PARASAIL_DEL);
     vTDiag = _mm_set1_epi16(PARASAIL_DIAG);
@@ -155,7 +163,6 @@ parasail_result_t* PNAME(
     vTDelF = _mm_set1_epi16(PARASAIL_DEL_F);
     vTMask = _mm_set1_epi16(PARASAIL_ZERO_MASK);
     vFTMask = _mm_set1_epi16(PARASAIL_F_MASK);
-    
 
     /* initialize result */
     result = parasail_result_new_trace(segLen, s2Len, 16, sizeof(__m128i));
@@ -232,7 +239,7 @@ parasail_result_t* PNAME(
 
         /* Initialize F value to -inf.  Any errors to vH values will be
          * corrected in the Lazy_F loop.  */
-        vF = vNegInf;
+        vF = vNegLimit;
 
         /* load final segment of pvHStore and shift left by 2 bytes */
         vH = _mm_load_si128(&pvHStore[segLen - 1]);
@@ -253,12 +260,15 @@ parasail_result_t* PNAME(
             vE = _mm_load_si128(pvE + i);
 
             /* Get max from vH, vE and vF. */
-            vH_dag = _mm_add_epi16(vH, _mm_load_si128(vP + i));
+            vH_dag = _mm_adds_epi16(vH, _mm_load_si128(vP + i));
             vH = _mm_max_epi16(vH_dag, vE);
             vH = _mm_max_epi16(vH, vF);
             /* Save vH values. */
             _mm_store_si128(pvHStore + i, vH);
-            
+            vSaturationCheckMax = _mm_max_epi16(vSaturationCheckMax, vH);
+            vSaturationCheckMin = _mm_min_epi16(vSaturationCheckMin, vH);
+            vSaturationCheckMin = _mm_min_epi16(vSaturationCheckMin, vE);
+            vSaturationCheckMin = _mm_min_epi16(vSaturationCheckMin, vF);
 
             {
                 __m128i vTAll = arr_load(result->trace->trace_table, i, segLen, j);
@@ -272,15 +282,15 @@ parasail_result_t* PNAME(
                 arr_store(result->trace->trace_table, vT, i, segLen, j);
             }
 
-            vEF_opn = _mm_sub_epi16(vH, vGapO);
+            vEF_opn = _mm_subs_epi16(vH, vGapO);
 
             /* Update vE value. */
-            vE_ext = _mm_sub_epi16(vE, vGapE);
+            vE_ext = _mm_subs_epi16(vE, vGapE);
             vE = _mm_max_epi16(vEF_opn, vE_ext);
             _mm_store_si128(pvE + i, vE);
             {
                 __m128i vEa = _mm_load_si128(pvEaLoad + i);
-                __m128i vEa_ext = _mm_sub_epi16(vEa, vGapE);
+                __m128i vEa_ext = _mm_subs_epi16(vEa, vGapE);
                 vEa = _mm_max_epi16(vEF_opn, vEa_ext);
                 _mm_store_si128(pvEaStore + i, vEa);
                 if (j+1<s2Len) {
@@ -291,7 +301,7 @@ parasail_result_t* PNAME(
             }
 
             /* Update vF value. */
-            vF_ext = _mm_sub_epi16(vF, vGapE);
+            vF_ext = _mm_subs_epi16(vF, vGapE);
             vF = _mm_max_epi16(vEF_opn, vF_ext);
             if (i+1<segLen) {
                 __m128i vTAll = arr_load(result->trace->trace_table, i+1, segLen, j);
@@ -319,25 +329,26 @@ parasail_result_t* PNAME(
             vEF_opn = _mm_slli_si128(vEF_opn, 2);
             vEF_opn = _mm_insert_epi16(vEF_opn, tmp2, 0);
             vF_ext = _mm_slli_si128(vF_ext, 2);
-            vF_ext = _mm_insert_epi16(vF_ext, NEG_INF, 0);
+            vF_ext = _mm_insert_epi16(vF_ext, NEG_LIMIT, 0);
             vF = _mm_slli_si128(vF, 2);
             vF = _mm_insert_epi16(vF, tmp2, 0);
             vFa_ext = _mm_slli_si128(vFa_ext, 2);
-            vFa_ext = _mm_insert_epi16(vFa_ext, NEG_INF, 0);
+            vFa_ext = _mm_insert_epi16(vFa_ext, NEG_LIMIT, 0);
             vFa = _mm_slli_si128(vFa, 2);
             vFa = _mm_insert_epi16(vFa, tmp2, 0);
             for (i=0; i<segLen; ++i) {
                 vH = _mm_load_si128(pvHStore + i);
                 vH = _mm_max_epi16(vH,vF);
                 _mm_store_si128(pvHStore + i, vH);
-                
+                vSaturationCheckMin = _mm_min_epi16(vSaturationCheckMin, vH);
+                vSaturationCheckMax = _mm_max_epi16(vSaturationCheckMax, vH);
                 {
                     __m128i vTAll;
                     __m128i vT;
                     __m128i case1;
                     __m128i case2;
                     __m128i cond;
-                    vHp = _mm_add_epi16(vHp, _mm_load_si128(vP + i));
+                    vHp = _mm_adds_epi16(vHp, _mm_load_si128(vP + i));
                     case1 = _mm_cmpeq_epi16(vH, vHp);
                     case2 = _mm_cmpeq_epi16(vH, vF);
                     cond = _mm_andnot_si128(case1,case2);
@@ -358,11 +369,11 @@ parasail_result_t* PNAME(
                     vTAll = _mm_or_si128(vTAll, vT);
                     arr_store(result->trace->trace_table, vTAll, i, segLen, j);
                 }
-                vEF_opn = _mm_sub_epi16(vH, vGapO);
-                vF_ext = _mm_sub_epi16(vF, vGapE);
+                vEF_opn = _mm_subs_epi16(vH, vGapO);
+                vF_ext = _mm_subs_epi16(vF, vGapE);
                 {
                     __m128i vEa = _mm_load_si128(pvEaLoad + i);
-                    __m128i vEa_ext = _mm_sub_epi16(vEa, vGapE);
+                    __m128i vEa_ext = _mm_subs_epi16(vEa, vGapE);
                     vEa = _mm_max_epi16(vEF_opn, vEa_ext);
                     _mm_store_si128(pvEaStore + i, vEa);
                     if (j+1<s2Len) {
@@ -378,7 +389,7 @@ parasail_result_t* PNAME(
                     goto end;
                 /*vF = _mm_max_epi16(vEF_opn, vF_ext);*/
                 vF = vF_ext;
-                vFa_ext = _mm_sub_epi16(vFa, vGapE);
+                vFa_ext = _mm_subs_epi16(vFa, vGapE);
                 vFa = _mm_max_epi16(vEF_opn, vFa_ext);
                 vHp = _mm_load_si128(pvHLoad + i);
             }
@@ -397,7 +408,14 @@ end:
         score = (int16_t) _mm_extract_epi16 (vH, 7);
     }
 
-    
+    if (_mm_movemask_epi8(_mm_or_si128(
+            _mm_cmplt_epi16(vSaturationCheckMin, vNegLimit),
+            _mm_cmpgt_epi16(vSaturationCheckMax, vPosLimit)))) {
+        result->flag |= PARASAIL_FLAG_SATURATED;
+        score = 0;
+        end_query = 0;
+        end_ref = 0;
+    }
 
     result->score = score;
     result->end_query = end_query;

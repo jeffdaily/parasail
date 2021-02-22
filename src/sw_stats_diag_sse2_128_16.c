@@ -212,7 +212,7 @@ parasail_result_t* FNAME(
         PARASAIL_CHECK_NULL(_s1);
         PARASAIL_CHECK_GT0(_s1Len);
     }
-        
+
     /* initialize stack variables */
     N = 8; /* number of values in vector */
     PAD = N-1;
@@ -434,22 +434,22 @@ parasail_result_t* FNAME(
             vFS = _mm_insert_epi16(vFS, FS_pr[j], 7);
             vFL = _mm_srli_si128(vFL, 2);
             vFL = _mm_insert_epi16(vFL, FL_pr[j], 7);
-            vF_opn = _mm_sub_epi16(vNH, vOpen);
-            vF_ext = _mm_sub_epi16(vF, vGap);
+            vF_opn = _mm_subs_epi16(vNH, vOpen);
+            vF_ext = _mm_subs_epi16(vF, vGap);
             vF = _mm_max_epi16(vF_opn, vF_ext);
             case1 = _mm_cmpgt_epi16(vF_opn, vF_ext);
             vFM = _mm_blendv_epi8_rpl(vFM, vNM, case1);
             vFS = _mm_blendv_epi8_rpl(vFS, vNS, case1);
             vFL = _mm_blendv_epi8_rpl(vFL, vNL, case1);
-            vFL = _mm_add_epi16(vFL, vOne);
-            vE_opn = _mm_sub_epi16(vWH, vOpen);
-            vE_ext = _mm_sub_epi16(vE, vGap);
+            vFL = _mm_adds_epi16(vFL, vOne);
+            vE_opn = _mm_subs_epi16(vWH, vOpen);
+            vE_ext = _mm_subs_epi16(vE, vGap);
             vE = _mm_max_epi16(vE_opn, vE_ext);
             case1 = _mm_cmpgt_epi16(vE_opn, vE_ext);
             vEM = _mm_blendv_epi8_rpl(vEM, vWM, case1);
             vES = _mm_blendv_epi8_rpl(vES, vWS, case1);
             vEL = _mm_blendv_epi8_rpl(vEL, vWL, case1);
-            vEL = _mm_add_epi16(vEL, vOne);
+            vEL = _mm_adds_epi16(vEL, vOne);
             vs2 = _mm_srli_si128(vs2, 2);
             vs2 = _mm_insert_epi16(vs2, s2[j], 7);
             vMat = _mm_set_epi16(
@@ -462,7 +462,7 @@ parasail_result_t* FNAME(
                     matrow6[s2[j-6]],
                     matrow7[s2[j-7]]
                     );
-            vNWH = _mm_add_epi16(vNWH, vMat);
+            vNWH = _mm_adds_epi16(vNWH, vMat);
             vWH = _mm_max_epi16(vNWH, vE);
             vWH = _mm_max_epi16(vWH, vF);
             vWH = _mm_max_epi16(vWH, vZero);
@@ -471,7 +471,7 @@ parasail_result_t* FNAME(
             case0 = _mm_cmpeq_epi16(vWH, vZero);
             vWM = _mm_blendv_epi8_rpl(
                     _mm_blendv_epi8_rpl(vEM, vFM, case2),
-                    _mm_add_epi16(vNWM,
+                    _mm_adds_epi16(vNWM,
                         _mm_and_si128(
                             _mm_cmpeq_epi16(vs1,vs2),
                             vOne)),
@@ -479,7 +479,7 @@ parasail_result_t* FNAME(
             vWM = _mm_blendv_epi8_rpl(vWM, vZero, case0);
             vWS = _mm_blendv_epi8_rpl(
                     _mm_blendv_epi8_rpl(vES, vFS, case2),
-                    _mm_add_epi16(vNWS,
+                    _mm_adds_epi16(vNWS,
                         _mm_and_si128(
                             _mm_cmpgt_epi16(vMat,vZero),
                             vOne)),
@@ -487,7 +487,7 @@ parasail_result_t* FNAME(
             vWS = _mm_blendv_epi8_rpl(vWS, vZero, case0);
             vWL = _mm_blendv_epi8_rpl(
                     _mm_blendv_epi8_rpl(vEL, vFL, case2),
-                    _mm_add_epi16(vNWL, vOne), case1);
+                    _mm_adds_epi16(vNWL, vOne), case1);
             vWL = _mm_blendv_epi8_rpl(vWL, vZero, case0);
             /* as minor diagonal vector passes across the j=-1 boundary,
              * assign the appropriate boundary conditions */
@@ -502,11 +502,14 @@ parasail_result_t* FNAME(
                 vES = _mm_andnot_si128(cond, vES);
                 vEL = _mm_andnot_si128(cond, vEL);
             }
-            vSaturationCheckMin = _mm_min_epi16(vSaturationCheckMin, vWH);
-            vSaturationCheckMax = _mm_max_epi16(vSaturationCheckMax, vWH);
-            vSaturationCheckMax = _mm_max_epi16(vSaturationCheckMax, vWM);
-            vSaturationCheckMax = _mm_max_epi16(vSaturationCheckMax, vWS);
-            vSaturationCheckMax = _mm_max_epi16(vSaturationCheckMax, vWL);
+            /* cannot start checking sat until after J clears boundary */
+            if (j > PAD) {
+                vSaturationCheckMin = _mm_min_epi16(vSaturationCheckMin, vWH);
+                vSaturationCheckMax = _mm_max_epi16(vSaturationCheckMax, vWH);
+                vSaturationCheckMax = _mm_max_epi16(vSaturationCheckMax, vWM);
+                vSaturationCheckMax = _mm_max_epi16(vSaturationCheckMax, vWS);
+                vSaturationCheckMax = _mm_max_epi16(vSaturationCheckMax, vWL);
+            }
 #ifdef PARASAIL_TABLE
             arr_store_si128(result->stats->tables->score_table, vWH, i, s1Len, j, s2Len);
             arr_store_si128(result->stats->tables->matches_table, vWM, i, s1Len, j, s2Len);
@@ -552,9 +555,9 @@ parasail_result_t* FNAME(
                 vEndI = _mm_blendv_epi8_rpl(vEndI, vI, cond_all);
                 vEndJ = _mm_blendv_epi8_rpl(vEndJ, vJ, cond_all);
             }
-            vJ = _mm_add_epi16(vJ, vOne);
+            vJ = _mm_adds_epi16(vJ, vOne);
         }
-        vI = _mm_add_epi16(vI, vN);
+        vI = _mm_adds_epi16(vI, vN);
     }
 
     /* alignment ending position */

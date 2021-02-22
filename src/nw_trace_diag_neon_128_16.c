@@ -15,7 +15,6 @@
 #include "parasail/memory.h"
 #include "parasail/internal_neon.h"
 
-#define NEG_INF (INT16_MIN/(int16_t)(2))
 
 
 static inline void arr_store_si128(
@@ -78,7 +77,13 @@ parasail_result_t* FNAME(
     int32_t s1Len = 0;
     int32_t end_query = 0;
     int32_t end_ref = 0;
+    int16_t NEG_LIMIT = 0;
+    int16_t POS_LIMIT = 0;
     int16_t score = 0;
+    simde__m128i vNegLimit;
+    simde__m128i vPosLimit;
+    simde__m128i vSaturationCheckMin;
+    simde__m128i vSaturationCheckMax;
     simde__m128i vNegInf;
     simde__m128i vOpen;
     simde__m128i vGap;
@@ -101,7 +106,6 @@ parasail_result_t* FNAME(
     simde__m128i vTInsE;
     simde__m128i vTDiagF;
     simde__m128i vTDelF;
-    
 
     /* validate inputs */
     PARASAIL_CHECK_NULL(_s2);
@@ -125,8 +129,14 @@ parasail_result_t* FNAME(
     j = 0;
     end_query = s1Len-1;
     end_ref = s2Len-1;
-    score = NEG_INF;
-    vNegInf = simde_mm_set1_epi16(NEG_INF);
+    NEG_LIMIT = (-open < matrix->min ? INT16_MIN + open : INT16_MIN - matrix->min) + 1;
+    POS_LIMIT = INT16_MAX - matrix->max - 1;
+    score = NEG_LIMIT;
+    vNegLimit = simde_mm_set1_epi16(NEG_LIMIT);
+    vPosLimit = simde_mm_set1_epi16(POS_LIMIT);
+    vSaturationCheckMin = vPosLimit;
+    vSaturationCheckMax = vNegLimit;
+    vNegInf = simde_mm_set1_epi16(NEG_LIMIT);
     vOpen = simde_mm_set1_epi16(open);
     vGap  = simde_mm_set1_epi16(gap);
     vOne = simde_mm_set1_epi16(1);
@@ -137,9 +147,9 @@ parasail_result_t* FNAME(
     vJreset = simde_mm_set_epi16(0,-1,-2,-3,-4,-5,-6,-7);
     vMax = vNegInf;
     vILimit = simde_mm_set1_epi16(s1Len);
-    vILimit1 = simde_mm_sub_epi16(vILimit, vOne);
+    vILimit1 = simde_mm_subs_epi16(vILimit, vOne);
     vJLimit = simde_mm_set1_epi16(s2Len);
-    vJLimit1 = simde_mm_sub_epi16(vJLimit, vOne);
+    vJLimit1 = simde_mm_subs_epi16(vJLimit, vOne);
     vIBoundary = simde_mm_set_epi16(
             -open-0*gap,
             -open-1*gap,
@@ -148,8 +158,7 @@ parasail_result_t* FNAME(
             -open-4*gap,
             -open-5*gap,
             -open-6*gap,
-            -open-7*gap
-            );
+            -open-7*gap);
     vTDiag = simde_mm_set1_epi16(PARASAIL_DIAG);
     vTIns = simde_mm_set1_epi16(PARASAIL_INS);
     vTDel = simde_mm_set1_epi16(PARASAIL_DEL);
@@ -157,7 +166,6 @@ parasail_result_t* FNAME(
     vTInsE = simde_mm_set1_epi16(PARASAIL_INS_E);
     vTDiagF = simde_mm_set1_epi16(PARASAIL_DIAG_F);
     vTDelF = simde_mm_set1_epi16(PARASAIL_DEL_F);
-    
 
     /* initialize result */
     result = parasail_result_new_trace(s1Len, s2Len, 16, sizeof(int8_t));
@@ -210,17 +218,17 @@ parasail_result_t* FNAME(
     /* set initial values for stored row */
     for (j=0; j<s2Len; ++j) {
         H_pr[j] = -open - j*gap;
-        F_pr[j] = NEG_INF;
+        F_pr[j] = NEG_LIMIT;
     }
     /* pad front of stored row values */
     for (j=-PAD; j<0; ++j) {
-        H_pr[j] = NEG_INF;
-        F_pr[j] = NEG_INF;
+        H_pr[j] = NEG_LIMIT;
+        F_pr[j] = NEG_LIMIT;
     }
     /* pad back of stored row values */
     for (j=s2Len; j<s2Len+PAD; ++j) {
-        H_pr[j] = NEG_INF;
-        F_pr[j] = NEG_INF;
+        H_pr[j] = NEG_LIMIT;
+        F_pr[j] = NEG_LIMIT;
     }
     H_pr[-1] = 0; /* upper left corner */
 
@@ -256,11 +264,11 @@ parasail_result_t* FNAME(
             vNH = simde_mm_insert_epi16(vNH, H_pr[j], 7);
             vF = simde_mm_srli_si128(vF, 2);
             vF = simde_mm_insert_epi16(vF, F_pr[j], 7);
-            vF_opn = simde_mm_sub_epi16(vNH, vOpen);
-            vF_ext = simde_mm_sub_epi16(vF, vGap);
+            vF_opn = simde_mm_subs_epi16(vNH, vOpen);
+            vF_ext = simde_mm_subs_epi16(vF, vGap);
             vF = simde_mm_max_epi16(vF_opn, vF_ext);
-            vE_opn = simde_mm_sub_epi16(vWH, vOpen);
-            vE_ext = simde_mm_sub_epi16(vE, vGap);
+            vE_opn = simde_mm_subs_epi16(vWH, vOpen);
+            vE_ext = simde_mm_subs_epi16(vE, vGap);
             vE = simde_mm_max_epi16(vE_opn, vE_ext);
             vMat = simde_mm_set_epi16(
                     matrow0[s2[j-0]],
@@ -272,7 +280,7 @@ parasail_result_t* FNAME(
                     matrow6[s2[j-6]],
                     matrow7[s2[j-7]]
                     );
-            vNWH = simde_mm_add_epi16(vNWH, vMat);
+            vNWH = simde_mm_adds_epi16(vNWH, vMat);
             vWH = simde_mm_max_epi16(vNWH, vE);
             vWH = simde_mm_max_epi16(vWH, vF);
             /* as minor diagonal vector passes across the j=-1 boundary,
@@ -283,7 +291,11 @@ parasail_result_t* FNAME(
                 vF = simde_mm_blendv_epi8(vF, vNegInf, cond);
                 vE = simde_mm_blendv_epi8(vE, vNegInf, cond);
             }
-            
+            /* cannot start checking sat until after J clears boundary */
+            if (j > PAD) {
+                vSaturationCheckMin = simde_mm_min_epi16(vSaturationCheckMin, vWH);
+                vSaturationCheckMax = simde_mm_max_epi16(vSaturationCheckMax, vWH);
+            }
             /* trace table */
             {
                 simde__m128i case1 = simde_mm_cmpeq_epi16(vWH, vNWH);
@@ -310,10 +322,10 @@ parasail_result_t* FNAME(
                 simde__m128i cond_all = simde_mm_and_si128(cond_valid_I, cond_valid_J);
                 vMax = simde_mm_blendv_epi8(vMax, vWH, cond_all);
             }
-            vJ = simde_mm_add_epi16(vJ, vOne);
+            vJ = simde_mm_adds_epi16(vJ, vOne);
         }
-        vI = simde_mm_add_epi16(vI, vN);
-        vIBoundary = simde_mm_sub_epi16(vIBoundary, vGapN);
+        vI = simde_mm_adds_epi16(vI, vN);
+        vIBoundary = simde_mm_subs_epi16(vIBoundary, vGapN);
     }
 
     /* max in vMax */
@@ -326,7 +338,14 @@ parasail_result_t* FNAME(
         vMax = simde_mm_slli_si128(vMax, 2);
     }
 
-    
+    if (simde_mm_movemask_epi8(simde_mm_or_si128(
+            simde_mm_cmplt_epi16(vSaturationCheckMin, vNegLimit),
+            simde_mm_cmpgt_epi16(vSaturationCheckMax, vPosLimit)))) {
+        result->flag |= PARASAIL_FLAG_SATURATED;
+        score = 0;
+        end_query = 0;
+        end_ref = 0;
+    }
 
     result->score = score;
     result->end_query = end_query;

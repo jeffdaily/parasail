@@ -19,7 +19,6 @@
 #include "parasail/memory.h"
 #include "parasail/internal_sse.h"
 
-#define NEG_INF (INT16_MIN/(int16_t)(2))
 
 static inline __m128i _mm_blendv_epi8_rpl(__m128i a, __m128i b, __m128i mask) {
     a = _mm_andnot_si128(mask, a);
@@ -159,7 +158,13 @@ parasail_result_t* FNAME(
     int32_t j = 0;
     int32_t end_query = 0;
     int32_t end_ref = 0;
+    int16_t NEG_LIMIT = 0;
+    int16_t POS_LIMIT = 0;
     int16_t score = 0;
+    __m128i vNegLimit;
+    __m128i vPosLimit;
+    __m128i vSaturationCheckMin;
+    __m128i vSaturationCheckMax;
     __m128i vNegInf;
     __m128i vOpen;
     __m128i vGap;
@@ -175,7 +180,6 @@ parasail_result_t* FNAME(
     __m128i vJLimit;
     __m128i vJLimit1;
     __m128i vIBoundary;
-    
 
     /* validate inputs */
     PARASAIL_CHECK_NULL(_s2);
@@ -199,8 +203,14 @@ parasail_result_t* FNAME(
     j = 0;
     end_query = s1Len-1;
     end_ref = s2Len-1;
-    score = NEG_INF;
-    vNegInf = _mm_set1_epi16(NEG_INF);
+    NEG_LIMIT = (-open < matrix->min ? INT16_MIN + open : INT16_MIN - matrix->min) + 1;
+    POS_LIMIT = INT16_MAX - matrix->max - 1;
+    score = NEG_LIMIT;
+    vNegLimit = _mm_set1_epi16(NEG_LIMIT);
+    vPosLimit = _mm_set1_epi16(POS_LIMIT);
+    vSaturationCheckMin = vPosLimit;
+    vSaturationCheckMax = vNegLimit;
+    vNegInf = _mm_set1_epi16(NEG_LIMIT);
     vOpen = _mm_set1_epi16(open);
     vGap  = _mm_set1_epi16(gap);
     vOne = _mm_set1_epi16(1);
@@ -211,9 +221,9 @@ parasail_result_t* FNAME(
     vJreset = _mm_set_epi16(0,-1,-2,-3,-4,-5,-6,-7);
     vMax = vNegInf;
     vILimit = _mm_set1_epi16(s1Len);
-    vILimit1 = _mm_sub_epi16(vILimit, vOne);
+    vILimit1 = _mm_subs_epi16(vILimit, vOne);
     vJLimit = _mm_set1_epi16(s2Len);
-    vJLimit1 = _mm_sub_epi16(vJLimit, vOne);
+    vJLimit1 = _mm_subs_epi16(vJLimit, vOne);
     vIBoundary = _mm_set_epi16(
             -open-0*gap,
             -open-1*gap,
@@ -222,9 +232,7 @@ parasail_result_t* FNAME(
             -open-4*gap,
             -open-5*gap,
             -open-6*gap,
-            -open-7*gap
-            );
-    
+            -open-7*gap);
 
     /* initialize result */
 #ifdef PARASAIL_TABLE
@@ -290,17 +298,17 @@ parasail_result_t* FNAME(
     /* set initial values for stored row */
     for (j=0; j<s2Len; ++j) {
         H_pr[j] = -open - j*gap;
-        F_pr[j] = NEG_INF;
+        F_pr[j] = NEG_LIMIT;
     }
     /* pad front of stored row values */
     for (j=-PAD; j<0; ++j) {
-        H_pr[j] = NEG_INF;
-        F_pr[j] = NEG_INF;
+        H_pr[j] = NEG_LIMIT;
+        F_pr[j] = NEG_LIMIT;
     }
     /* pad back of stored row values */
     for (j=s2Len; j<s2Len+PAD; ++j) {
-        H_pr[j] = NEG_INF;
-        F_pr[j] = NEG_INF;
+        H_pr[j] = NEG_LIMIT;
+        F_pr[j] = NEG_LIMIT;
     }
     H_pr[-1] = 0; /* upper left corner */
 
@@ -333,11 +341,11 @@ parasail_result_t* FNAME(
             vF = _mm_srli_si128(vF, 2);
             vF = _mm_insert_epi16(vF, F_pr[j], 7);
             vF = _mm_max_epi16(
-                    _mm_sub_epi16(vNH, vOpen),
-                    _mm_sub_epi16(vF, vGap));
+                    _mm_subs_epi16(vNH, vOpen),
+                    _mm_subs_epi16(vF, vGap));
             vE = _mm_max_epi16(
-                    _mm_sub_epi16(vWH, vOpen),
-                    _mm_sub_epi16(vE, vGap));
+                    _mm_subs_epi16(vWH, vOpen),
+                    _mm_subs_epi16(vE, vGap));
             vMat = _mm_set_epi16(
                     matrow0[s2[j-0]],
                     matrow1[s2[j-1]],
@@ -348,7 +356,7 @@ parasail_result_t* FNAME(
                     matrow6[s2[j-6]],
                     matrow7[s2[j-7]]
                     );
-            vNWH = _mm_add_epi16(vNWH, vMat);
+            vNWH = _mm_adds_epi16(vNWH, vMat);
             vWH = _mm_max_epi16(vNWH, vE);
             vWH = _mm_max_epi16(vWH, vF);
             /* as minor diagonal vector passes across the j=-1 boundary,
@@ -359,7 +367,11 @@ parasail_result_t* FNAME(
                 vF = _mm_blendv_epi8_rpl(vF, vNegInf, cond);
                 vE = _mm_blendv_epi8_rpl(vE, vNegInf, cond);
             }
-            
+            /* cannot start checking sat until after J clears boundary */
+            if (j > PAD) {
+                vSaturationCheckMin = _mm_min_epi16(vSaturationCheckMin, vWH);
+                vSaturationCheckMax = _mm_max_epi16(vSaturationCheckMax, vWH);
+            }
 #ifdef PARASAIL_TABLE
             arr_store_si128(result->tables->score_table, vWH, i, s1Len, j, s2Len);
 #endif
@@ -376,10 +388,10 @@ parasail_result_t* FNAME(
                 __m128i cond_all = _mm_and_si128(cond_valid_I, cond_valid_J);
                 vMax = _mm_blendv_epi8_rpl(vMax, vWH, cond_all);
             }
-            vJ = _mm_add_epi16(vJ, vOne);
+            vJ = _mm_adds_epi16(vJ, vOne);
         }
-        vI = _mm_add_epi16(vI, vN);
-        vIBoundary = _mm_sub_epi16(vIBoundary, vGapN);
+        vI = _mm_adds_epi16(vI, vN);
+        vIBoundary = _mm_subs_epi16(vIBoundary, vGapN);
     }
 
     /* max in vMax */
@@ -392,7 +404,14 @@ parasail_result_t* FNAME(
         vMax = _mm_slli_si128(vMax, 2);
     }
 
-    
+    if (_mm_movemask_epi8(_mm_or_si128(
+            _mm_cmplt_epi16(vSaturationCheckMin, vNegLimit),
+            _mm_cmpgt_epi16(vSaturationCheckMax, vPosLimit)))) {
+        result->flag |= PARASAIL_FLAG_SATURATED;
+        score = 0;
+        end_query = 0;
+        end_ref = 0;
+    }
 
     result->score = score;
     result->end_query = end_query;

@@ -21,7 +21,7 @@
 #define SWAP(A,B) { __m256i* tmp = A; A = B; B = tmp; }
 #define SWAP3(A,B,C) { __m256i* tmp = A; A = B; B = C; C = tmp; }
 
-#define NEG_INF (INT16_MIN/(int16_t)(2))
+#define NEG_INF INT16_MIN
 
 #if HAVE_AVX2_MM256_EXTRACT_EPI16
 #define _mm256_extract_epi16_rpl _mm256_extract_epi16

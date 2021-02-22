@@ -15,7 +15,6 @@
 #include "parasail/memory.h"
 #include "parasail/internal_avx.h"
 
-#define NEG_INF (INT64_MIN/(int64_t)(2))
 
 #if HAVE_AVX2_MM256_INSERT_EPI64
 #define _mm256_insert_epi64_rpl _mm256_insert_epi64
@@ -76,6 +75,18 @@ static inline int64_t _mm256_extract_epi64_rpl(__m256i a, int imm) {
 }
 #endif
 
+static inline __m256i _mm256_min_epi64_rpl(__m256i a, __m256i b) {
+    __m256i_64_t A;
+    __m256i_64_t B;
+    A.m = a;
+    B.m = b;
+    A.v[0] = (A.v[0]<B.v[0]) ? A.v[0] : B.v[0];
+    A.v[1] = (A.v[1]<B.v[1]) ? A.v[1] : B.v[1];
+    A.v[2] = (A.v[2]<B.v[2]) ? A.v[2] : B.v[2];
+    A.v[3] = (A.v[3]<B.v[3]) ? A.v[3] : B.v[3];
+    return A.m;
+}
+
 #define _mm256_cmplt_epi64_rpl(a,b) _mm256_cmpgt_epi64(b,a)
 
 #define _mm256_srli_si256_rpl(a,imm) _mm256_or_si256(_mm256_slli_si256(_mm256_permute2x128_si256(a, a, _MM_SHUFFLE(3,0,0,1)), 16-imm), _mm256_srli_si256(a, imm))
@@ -129,7 +140,13 @@ parasail_result_t* FNAME(
     int32_t s1Len = 0;
     int32_t end_query = 0;
     int32_t end_ref = 0;
+    int64_t NEG_LIMIT = 0;
+    int64_t POS_LIMIT = 0;
     int64_t score = 0;
+    __m256i vNegLimit;
+    __m256i vPosLimit;
+    __m256i vSaturationCheckMin;
+    __m256i vSaturationCheckMax;
     __m256i vNegInf;
     __m256i vNegInf0;
     __m256i vOpen;
@@ -153,7 +170,6 @@ parasail_result_t* FNAME(
     __m256i vTInsE;
     __m256i vTDiagF;
     __m256i vTDelF;
-    
 
     /* validate inputs */
     PARASAIL_CHECK_NULL(_s2);
@@ -177,8 +193,14 @@ parasail_result_t* FNAME(
     j = 0;
     end_query = 0;
     end_ref = 0;
-    score = NEG_INF;
-    vNegInf = _mm256_set1_epi64x_rpl(NEG_INF);
+    NEG_LIMIT = (-open < matrix->min ? INT64_MIN + open : INT64_MIN - matrix->min) + 1;
+    POS_LIMIT = INT64_MAX - matrix->max - 1;
+    score = NEG_LIMIT;
+    vNegLimit = _mm256_set1_epi64x_rpl(NEG_LIMIT);
+    vPosLimit = _mm256_set1_epi64x_rpl(POS_LIMIT);
+    vSaturationCheckMin = vPosLimit;
+    vSaturationCheckMax = vNegLimit;
+    vNegInf = _mm256_set1_epi64x_rpl(NEG_LIMIT);
     vNegInf0 = _mm256_srli_si256_rpl(vNegInf, 8); /* shift in a 0 */
     vOpen = _mm256_set1_epi64x_rpl(open);
     vGap  = _mm256_set1_epi64x_rpl(gap);
@@ -201,7 +223,6 @@ parasail_result_t* FNAME(
     vTInsE = _mm256_set1_epi64x_rpl(PARASAIL_INS_E);
     vTDiagF = _mm256_set1_epi64x_rpl(PARASAIL_DIAG_F);
     vTDelF = _mm256_set1_epi64x_rpl(PARASAIL_DEL_F);
-    
 
     /* initialize result */
     result = parasail_result_new_trace(s1Len, s2Len, 32, sizeof(int8_t));
@@ -254,17 +275,17 @@ parasail_result_t* FNAME(
     /* set initial values for stored row */
     for (j=0; j<s2Len; ++j) {
         H_pr[j] = 0;
-        F_pr[j] = NEG_INF;
+        F_pr[j] = NEG_LIMIT;
     }
     /* pad front of stored row values */
     for (j=-PAD; j<0; ++j) {
-        H_pr[j] = NEG_INF;
-        F_pr[j] = NEG_INF;
+        H_pr[j] = NEG_LIMIT;
+        F_pr[j] = NEG_LIMIT;
     }
     /* pad back of stored row values */
     for (j=s2Len; j<s2Len+PAD; ++j) {
-        H_pr[j] = NEG_INF;
-        F_pr[j] = NEG_INF;
+        H_pr[j] = NEG_LIMIT;
+        F_pr[j] = NEG_LIMIT;
     }
 
     /* iterate over query sequence */
@@ -315,7 +336,11 @@ parasail_result_t* FNAME(
                 vF = _mm256_blendv_epi8(vF, vNegInf, cond);
                 vE = _mm256_blendv_epi8(vE, vNegInf, cond);
             }
-            
+            /* cannot start checking sat until after J clears boundary */
+            if (j > PAD) {
+                vSaturationCheckMin = _mm256_min_epi64_rpl(vSaturationCheckMin, vWH);
+                vSaturationCheckMax = _mm256_max_epi64_rpl(vSaturationCheckMax, vWH);
+            }
             /* trace table */
             {
                 __m256i cond_zero = _mm256_cmpeq_epi64(vWH, vZero);
@@ -384,7 +409,14 @@ parasail_result_t* FNAME(
         }
     }
 
-    
+    if (_mm256_movemask_epi8(_mm256_or_si256(
+            _mm256_cmplt_epi64_rpl(vSaturationCheckMin, vNegLimit),
+            _mm256_cmpgt_epi64(vSaturationCheckMax, vPosLimit)))) {
+        result->flag |= PARASAIL_FLAG_SATURATED;
+        score = 0;
+        end_query = 0;
+        end_ref = 0;
+    }
 
     result->score = score;
     result->end_query = end_query;

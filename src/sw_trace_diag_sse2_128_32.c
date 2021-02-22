@@ -19,7 +19,6 @@
 #include "parasail/memory.h"
 #include "parasail/internal_sse.h"
 
-#define NEG_INF (INT32_MIN/(int32_t)(2))
 
 static inline __m128i _mm_blendv_epi8_rpl(__m128i a, __m128i b, __m128i mask) {
     a = _mm_andnot_si128(mask, a);
@@ -45,6 +44,13 @@ static inline int32_t _mm_extract_epi32_rpl(__m128i a, const int imm) {
     __m128i_32_t A;
     A.m = a;
     return A.v[imm];
+}
+
+static inline __m128i _mm_min_epi32_rpl(__m128i a, __m128i b) {
+    __m128i mask = _mm_cmpgt_epi32(b, a);
+    a = _mm_and_si128(a, mask);
+    b = _mm_andnot_si128(mask, b);
+    return _mm_or_si128(a, b);
 }
 
 
@@ -96,7 +102,13 @@ parasail_result_t* FNAME(
     int32_t s1Len = 0;
     int32_t end_query = 0;
     int32_t end_ref = 0;
+    int32_t NEG_LIMIT = 0;
+    int32_t POS_LIMIT = 0;
     int32_t score = 0;
+    __m128i vNegLimit;
+    __m128i vPosLimit;
+    __m128i vSaturationCheckMin;
+    __m128i vSaturationCheckMax;
     __m128i vNegInf;
     __m128i vNegInf0;
     __m128i vOpen;
@@ -120,7 +132,6 @@ parasail_result_t* FNAME(
     __m128i vTInsE;
     __m128i vTDiagF;
     __m128i vTDelF;
-    
 
     /* validate inputs */
     PARASAIL_CHECK_NULL(_s2);
@@ -144,8 +155,14 @@ parasail_result_t* FNAME(
     j = 0;
     end_query = 0;
     end_ref = 0;
-    score = NEG_INF;
-    vNegInf = _mm_set1_epi32(NEG_INF);
+    NEG_LIMIT = (-open < matrix->min ? INT32_MIN + open : INT32_MIN - matrix->min) + 1;
+    POS_LIMIT = INT32_MAX - matrix->max - 1;
+    score = NEG_LIMIT;
+    vNegLimit = _mm_set1_epi32(NEG_LIMIT);
+    vPosLimit = _mm_set1_epi32(POS_LIMIT);
+    vSaturationCheckMin = vPosLimit;
+    vSaturationCheckMax = vNegLimit;
+    vNegInf = _mm_set1_epi32(NEG_LIMIT);
     vNegInf0 = _mm_srli_si128(vNegInf, 4); /* shift in a 0 */
     vOpen = _mm_set1_epi32(open);
     vGap  = _mm_set1_epi32(gap);
@@ -168,7 +185,6 @@ parasail_result_t* FNAME(
     vTInsE = _mm_set1_epi32(PARASAIL_INS_E);
     vTDiagF = _mm_set1_epi32(PARASAIL_DIAG_F);
     vTDelF = _mm_set1_epi32(PARASAIL_DEL_F);
-    
 
     /* initialize result */
     result = parasail_result_new_trace(s1Len, s2Len, 16, sizeof(int8_t));
@@ -221,17 +237,17 @@ parasail_result_t* FNAME(
     /* set initial values for stored row */
     for (j=0; j<s2Len; ++j) {
         H_pr[j] = 0;
-        F_pr[j] = NEG_INF;
+        F_pr[j] = NEG_LIMIT;
     }
     /* pad front of stored row values */
     for (j=-PAD; j<0; ++j) {
-        H_pr[j] = NEG_INF;
-        F_pr[j] = NEG_INF;
+        H_pr[j] = NEG_LIMIT;
+        F_pr[j] = NEG_LIMIT;
     }
     /* pad back of stored row values */
     for (j=s2Len; j<s2Len+PAD; ++j) {
-        H_pr[j] = NEG_INF;
-        F_pr[j] = NEG_INF;
+        H_pr[j] = NEG_LIMIT;
+        F_pr[j] = NEG_LIMIT;
     }
 
     /* iterate over query sequence */
@@ -282,7 +298,11 @@ parasail_result_t* FNAME(
                 vF = _mm_blendv_epi8_rpl(vF, vNegInf, cond);
                 vE = _mm_blendv_epi8_rpl(vE, vNegInf, cond);
             }
-            
+            /* cannot start checking sat until after J clears boundary */
+            if (j > PAD) {
+                vSaturationCheckMin = _mm_min_epi32_rpl(vSaturationCheckMin, vWH);
+                vSaturationCheckMax = _mm_max_epi32_rpl(vSaturationCheckMax, vWH);
+            }
             /* trace table */
             {
                 __m128i cond_zero = _mm_cmpeq_epi32(vWH, vZero);
@@ -351,7 +371,14 @@ parasail_result_t* FNAME(
         }
     }
 
-    
+    if (_mm_movemask_epi8(_mm_or_si128(
+            _mm_cmplt_epi32(vSaturationCheckMin, vNegLimit),
+            _mm_cmpgt_epi32(vSaturationCheckMax, vPosLimit)))) {
+        result->flag |= PARASAIL_FLAG_SATURATED;
+        score = 0;
+        end_query = 0;
+        end_ref = 0;
+    }
 
     result->score = score;
     result->end_query = end_query;

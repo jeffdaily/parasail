@@ -16,7 +16,6 @@
 #include "parasail/memory.h"
 #include "parasail/internal_avx.h"
 
-#define NEG_INF (INT16_MIN/(int16_t)(2))
 
 #if HAVE_AVX2_MM256_EXTRACT_EPI16
 #define _mm256_extract_epi16_rpl _mm256_extract_epi16

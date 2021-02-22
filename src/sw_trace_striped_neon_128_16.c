@@ -19,7 +19,7 @@
 #define SWAP(A,B) { simde__m128i* tmp = A; A = B; B = tmp; }
 #define SWAP3(A,B,C) { simde__m128i* tmp = A; A = B; B = C; C = tmp; }
 
-#define NEG_INF (INT16_MIN/(int16_t)(2))
+#define NEG_INF INT16_MIN
 
 
 static inline void arr_store(
@@ -206,7 +206,7 @@ parasail_result_t* PNAME(
 
         /* Initialize F value to 0.  Any errors to vH values will be
          * corrected in the Lazy_F loop. */
-        vF = simde_mm_sub_epi16(vZero,vGapO);
+        vF = simde_mm_subs_epi16(vZero,vGapO);
 
         /* load final segment of pvHStore and shift left by 2 bytes */
         vH = simde_mm_load_si128(&pvHStore[segLen - 1]);
@@ -231,7 +231,7 @@ parasail_result_t* PNAME(
             vE = simde_mm_load_si128(pvE + i);
 
             /* Get max from vH, vE and vF. */
-            vH_dag = simde_mm_add_epi16(vH, simde_mm_load_si128(vP + i));
+            vH_dag = simde_mm_adds_epi16(vH, simde_mm_load_si128(vP + i));
             vH_dag = simde_mm_max_epi16(vH_dag, vZero);
             vH = simde_mm_max_epi16(vH_dag, vE);
             vH = simde_mm_max_epi16(vH, vF);
@@ -252,15 +252,15 @@ parasail_result_t* PNAME(
                 arr_store(result->trace->trace_table, vT, i, segLen, j);
             }
             vMaxH = simde_mm_max_epi16(vH, vMaxH);
-            vEF_opn = simde_mm_sub_epi16(vH, vGapO);
+            vEF_opn = simde_mm_subs_epi16(vH, vGapO);
 
             /* Update vE value. */
-            vE_ext = simde_mm_sub_epi16(vE, vGapE);
+            vE_ext = simde_mm_subs_epi16(vE, vGapE);
             vE = simde_mm_max_epi16(vEF_opn, vE_ext);
             simde_mm_store_si128(pvE + i, vE);
             {
                 simde__m128i vEa = simde_mm_load_si128(pvEaLoad + i);
-                simde__m128i vEa_ext = simde_mm_sub_epi16(vEa, vGapE);
+                simde__m128i vEa_ext = simde_mm_subs_epi16(vEa, vGapE);
                 vEa = simde_mm_max_epi16(vEF_opn, vEa_ext);
                 simde_mm_store_si128(pvEaStore + i, vEa);
                 if (j+1<s2Len) {
@@ -271,7 +271,7 @@ parasail_result_t* PNAME(
             }
 
             /* Update vF value. */
-            vF_ext = simde_mm_sub_epi16(vF, vGapE);
+            vF_ext = simde_mm_subs_epi16(vF, vGapE);
             vF = simde_mm_max_epi16(vEF_opn, vF_ext);
             if (i+1<segLen) {
                 simde__m128i vTAll = arr_load(result->trace->trace_table, i+1, segLen, j);
@@ -312,7 +312,7 @@ parasail_result_t* PNAME(
                     simde__m128i case1;
                     simde__m128i case2;
                     simde__m128i cond;
-                    vHp = simde_mm_add_epi16(vHp, simde_mm_load_si128(vP + i));
+                    vHp = simde_mm_adds_epi16(vHp, simde_mm_load_si128(vP + i));
                     vHp = simde_mm_max_epi16(vHp, vZero);
                     case1 = simde_mm_cmpeq_epi16(vH, vHp);
                     case2 = simde_mm_cmpeq_epi16(vH, vF);
@@ -335,11 +335,11 @@ parasail_result_t* PNAME(
                     vTAll = simde_mm_or_si128(vTAll, vT);
                     arr_store(result->trace->trace_table, vTAll, i, segLen, j);
                 }
-                vEF_opn = simde_mm_sub_epi16(vH, vGapO);
-                vF_ext = simde_mm_sub_epi16(vF, vGapE);
+                vEF_opn = simde_mm_subs_epi16(vH, vGapO);
+                vF_ext = simde_mm_subs_epi16(vF, vGapE);
                 {
                     simde__m128i vEa = simde_mm_load_si128(pvEaLoad + i);
-                    simde__m128i vEa_ext = simde_mm_sub_epi16(vEa, vGapE);
+                    simde__m128i vEa_ext = simde_mm_subs_epi16(vEa, vGapE);
                     vEa = simde_mm_max_epi16(vEF_opn, vEa_ext);
                     simde_mm_store_si128(pvEaStore + i, vEa);
                     if (j+1<s2Len) {
@@ -355,7 +355,7 @@ parasail_result_t* PNAME(
                     goto end;
                 /*vF = simde_mm_max_epi16(vEF_opn, vF_ext);*/
                 vF = vF_ext;
-                vFa_ext = simde_mm_sub_epi16(vFa, vGapE);
+                vFa_ext = simde_mm_subs_epi16(vFa, vGapE);
                 vFa = simde_mm_max_epi16(vEF_opn, vFa_ext);
                 vHp = simde_mm_load_si128(pvHLoad + i);
             }

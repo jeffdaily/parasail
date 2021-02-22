@@ -345,7 +345,7 @@ parasail_result_t* PNAME(
             vEL = simde_mm_load_si128(pvEL+ i);
 
             /* Get max from vH, vE and vF. */
-            vH_dag = simde_mm_add_epi16(vH, simde_mm_load_si128(vP + i));
+            vH_dag = simde_mm_adds_epi16(vH, simde_mm_load_si128(vP + i));
             vH = simde_mm_max_epi16(vH_dag, vE);
             vH = simde_mm_max_epi16(vH, vF);
             /* Save vH values. */
@@ -357,21 +357,21 @@ parasail_result_t* PNAME(
             /* calculate vM */
             vHM = simde_mm_blendv_epi8(
                     simde_mm_blendv_epi8(vEM, vFM, case2),
-                    simde_mm_add_epi16(vHM, simde_mm_load_si128(vPM + i)),
+                    simde_mm_adds_epi16(vHM, simde_mm_load_si128(vPM + i)),
                     case1);
             simde_mm_store_si128(pvHMStore + i, vHM);
 
             /* calculate vS */
             vHS = simde_mm_blendv_epi8(
                     simde_mm_blendv_epi8(vES, vFS, case2),
-                    simde_mm_add_epi16(vHS, simde_mm_load_si128(vPS + i)),
+                    simde_mm_adds_epi16(vHS, simde_mm_load_si128(vPS + i)),
                     case1);
             simde_mm_store_si128(pvHSStore + i, vHS);
 
             /* calculate vL */
             vHL = simde_mm_blendv_epi8(
                     simde_mm_blendv_epi8(vEL, vFL, case2),
-                    simde_mm_add_epi16(vHL, vOne),
+                    simde_mm_adds_epi16(vHL, vOne),
                     case1);
             simde_mm_store_si128(pvHLStore + i, vHL);
 
@@ -386,17 +386,17 @@ parasail_result_t* PNAME(
             arr_store_si128(result->stats->tables->length_table, vHL, i, segLen, j, s2Len);
             arr_store_si128(result->stats->tables->score_table, vH, i, segLen, j, s2Len);
 #endif
-            vEF_opn = simde_mm_sub_epi16(vH, vGapO);
+            vEF_opn = simde_mm_subs_epi16(vH, vGapO);
 
             /* Update vE value. */
-            vE_ext = simde_mm_sub_epi16(vE, vGapE);
+            vE_ext = simde_mm_subs_epi16(vE, vGapE);
             vE = simde_mm_max_epi16(vEF_opn, vE_ext);
             case1 = simde_mm_cmpgt_epi16(vEF_opn, vE_ext);
             vEM = simde_mm_blendv_epi8(vEM, vHM, case1);
             vES = simde_mm_blendv_epi8(vES, vHS, case1);
             vEL = simde_mm_blendv_epi8(
-                    simde_mm_add_epi16(vEL, vOne),
-                    simde_mm_add_epi16(vHL, vOne),
+                    simde_mm_adds_epi16(vEL, vOne),
+                    simde_mm_adds_epi16(vHL, vOne),
                     case1);
             simde_mm_store_si128(pvE + i, vE);
             simde_mm_store_si128(pvEM + i, vEM);
@@ -404,14 +404,14 @@ parasail_result_t* PNAME(
             simde_mm_store_si128(pvEL + i, vEL);
 
             /* Update vF value. */
-            vF_ext = simde_mm_sub_epi16(vF, vGapE);
+            vF_ext = simde_mm_subs_epi16(vF, vGapE);
             vF = simde_mm_max_epi16(vEF_opn, vF_ext);
             case1 = simde_mm_cmpgt_epi16(vEF_opn, vF_ext);
             vFM = simde_mm_blendv_epi8(vFM, vHM, case1);
             vFS = simde_mm_blendv_epi8(vFS, vHS, case1);
             vFL = simde_mm_blendv_epi8(
-                    simde_mm_add_epi16(vFL, vOne),
-                    simde_mm_add_epi16(vHL, vOne),
+                    simde_mm_adds_epi16(vFL, vOne),
+                    simde_mm_adds_epi16(vHL, vOne),
                     case1);
 
             /* Load the next vH. */
@@ -440,7 +440,7 @@ parasail_result_t* PNAME(
                 simde__m128i case2;
                 simde__m128i cond;
 
-                vHp = simde_mm_add_epi16(vHp, simde_mm_load_si128(vP + i));
+                vHp = simde_mm_adds_epi16(vHp, simde_mm_load_si128(vP + i));
                 vH = simde_mm_load_si128(pvHStore + i);
                 vH = simde_mm_max_epi16(vH,vF);
                 simde_mm_store_si128(pvHStore + i, vH);
@@ -475,8 +475,8 @@ parasail_result_t* PNAME(
                 arr_store_si128(result->stats->tables->score_table, vH, i, segLen, j, s2Len);
 #endif
                 /* Update vF value. */
-                vEF_opn = simde_mm_sub_epi16(vH, vGapO);
-                vF_ext = simde_mm_sub_epi16(vF, vGapE);
+                vEF_opn = simde_mm_subs_epi16(vH, vGapO);
+                vF_ext = simde_mm_subs_epi16(vF, vGapE);
                 if (! simde_mm_movemask_epi8(
                             simde_mm_or_si128(
                                 simde_mm_cmpgt_epi16(vF_ext, vEF_opn),
@@ -488,8 +488,8 @@ parasail_result_t* PNAME(
                 vFM = simde_mm_blendv_epi8(vFM, vHM, cond);
                 vFS = simde_mm_blendv_epi8(vFS, vHS, cond);
                 vFL = simde_mm_blendv_epi8(
-                        simde_mm_add_epi16(vFL, vOne),
-                        simde_mm_add_epi16(vHL, vOne),
+                        simde_mm_adds_epi16(vFL, vOne),
+                        simde_mm_adds_epi16(vHL, vOne),
                         cond);
                 vHp = simde_mm_load_si128(pvHLoad + i);
             }

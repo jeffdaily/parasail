@@ -159,7 +159,6 @@ parasail_result_t* PNAME(
     vSaturationCheckMin = vPosLimit;
     vSaturationCheckMax = vNegLimit;
     vMaxH = vNegLimit;
-    %(SATURATION_CHECK_INIT)s
     vPosMask = %(VCMPEQ)s(%(VSET1)s(position),
             %(VSET)s(%(POSITION_MASK)s));
     vTIns  = %(VSET1)s(PARASAIL_INS);

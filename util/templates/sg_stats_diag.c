@@ -19,7 +19,6 @@
 #define SG_SUFFIX %(SUFFIX)s
 #include "sg_helper.h"
 
-#define NEG_INF %(NEG_INF)s
 %(FIXES)s
 
 #ifdef PARASAIL_TABLE
@@ -291,7 +290,7 @@ parasail_result_t* FNAME(
             HM_pr[j] = 0;
             HS_pr[j] = 0;
             HL_pr[j] = 0;
-            F_pr[j] = NEG_INF;
+            F_pr[j] = NEG_LIMIT;
             FM_pr[j] = 0;
             FS_pr[j] = 0;
             FL_pr[j] = 0;
@@ -303,7 +302,7 @@ parasail_result_t* FNAME(
             HM_pr[j] = 0;
             HS_pr[j] = 0;
             HL_pr[j] = 0;
-            F_pr[j] = NEG_INF;
+            F_pr[j] = NEG_LIMIT;
             FM_pr[j] = 0;
             FS_pr[j] = 0;
             FL_pr[j] = 0;
@@ -448,13 +447,15 @@ parasail_result_t* FNAME(
                 vES = %(VANDNOT)s(cond, vES);
                 vEL = %(VANDNOT)s(cond, vEL);
             }
-            vSaturationCheckMin = %(VMIN)s(vSaturationCheckMin, vWH);
-            vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vWH);
-            vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vWM);
-            vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vWS);
-            vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vWL);
-            vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vWL);
-            vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vJ);
+            /* cannot start checking sat until after J clears boundary */
+            if (j > PAD) {
+                vSaturationCheckMin = %(VMIN)s(vSaturationCheckMin, vWH);
+                vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vWH);
+                vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vWM);
+                vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vWS);
+                vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vWL);
+                vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vWL);
+            }
 #ifdef PARASAIL_TABLE
             arr_store_si%(BITS)s(result->stats->tables->score_table, vWH, i, s1Len, j, s2Len);
             arr_store_si%(BITS)s(result->stats->tables->matches_table, vWM, i, s1Len, j, s2Len);
@@ -508,23 +509,22 @@ parasail_result_t* FNAME(
         }
         vI = %(VADD)s(vI, vN);
         vIBoundary = %(VSUB)s(vIBoundary, vGapN);
-        vSaturationCheckMax = %(VMAX)s(vSaturationCheckMax, vI);
     }
 
     /* alignment ending position */
     {
-        %(INT)s max_rowh = NEG_INF;
-        %(INT)s max_rowm = NEG_INF;
-        %(INT)s max_rows = NEG_INF;
-        %(INT)s max_rowl = NEG_INF;
-        %(INT)s max_colh = NEG_INF;
-        %(INT)s max_colm = NEG_INF;
-        %(INT)s max_cols = NEG_INF;
-        %(INT)s max_coll = NEG_INF;
-        %(INT)s last_valh = NEG_INF;
-        %(INT)s last_valm = NEG_INF;
-        %(INT)s last_vals = NEG_INF;
-        %(INT)s last_vall = NEG_INF;
+        %(INT)s max_rowh = NEG_LIMIT;
+        %(INT)s max_rowm = NEG_LIMIT;
+        %(INT)s max_rows = NEG_LIMIT;
+        %(INT)s max_rowl = NEG_LIMIT;
+        %(INT)s max_colh = NEG_LIMIT;
+        %(INT)s max_colm = NEG_LIMIT;
+        %(INT)s max_cols = NEG_LIMIT;
+        %(INT)s max_coll = NEG_LIMIT;
+        %(INT)s last_valh = NEG_LIMIT;
+        %(INT)s last_valm = NEG_LIMIT;
+        %(INT)s last_vals = NEG_LIMIT;
+        %(INT)s last_vall = NEG_LIMIT;
         %(INT)s *rh = (%(INT)s*)&vMaxHRow;
         %(INT)s *rm = (%(INT)s*)&vMaxMRow;
         %(INT)s *rs = (%(INT)s*)&vMaxSRow;

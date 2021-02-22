@@ -16,7 +16,6 @@
 #include "parasail/memory.h"
 #include "parasail/internal_neon.h"
 
-#define NEG_INF (INT16_MIN/(int16_t)(2))
 
 
 #ifdef PARASAIL_TABLE
@@ -124,9 +123,13 @@ parasail_result_t* PNAME(
     int16_t* restrict boundary = NULL;
     simde__m128i vGapO;
     simde__m128i vGapE;
-    simde__m128i vNegInf;
+    int16_t NEG_LIMIT = 0;
+    int16_t POS_LIMIT = 0;
     int16_t score = 0;
-    
+    simde__m128i vNegLimit;
+    simde__m128i vPosLimit;
+    simde__m128i vSaturationCheckMin;
+    simde__m128i vSaturationCheckMax;
     parasail_result_t *result = NULL;
 
     /* validate inputs */
@@ -154,9 +157,13 @@ parasail_result_t* PNAME(
     vProfile = (simde__m128i*)profile->profile16.score;
     vGapO = simde_mm_set1_epi16(open);
     vGapE = simde_mm_set1_epi16(gap);
-    vNegInf = simde_mm_set1_epi16(NEG_INF);
-    score = NEG_INF;
-    
+    NEG_LIMIT = (-open < matrix->min ? INT16_MIN + open : INT16_MIN - matrix->min) + 1;
+    POS_LIMIT = INT16_MAX - matrix->max - 1;
+    score = NEG_LIMIT;
+    vNegLimit = simde_mm_set1_epi16(NEG_LIMIT);
+    vPosLimit = simde_mm_set1_epi16(POS_LIMIT);
+    vSaturationCheckMin = vPosLimit;
+    vSaturationCheckMax = vNegLimit;
 
     /* initialize result */
 #ifdef PARASAIL_TABLE
@@ -225,7 +232,7 @@ parasail_result_t* PNAME(
         simde__m128i vE;
         /* Initialize F value to -inf.  Any errors to vH values will be
          * corrected in the Lazy_F loop.  */
-        simde__m128i vF = vNegInf;
+        simde__m128i vF = vNegLimit;
 
         /* load final segment of pvHStore and shift left by 2 bytes */
         simde__m128i vH = simde_mm_slli_si128(pvHStore[segLen - 1], 2);
@@ -243,7 +250,7 @@ parasail_result_t* PNAME(
 
         /* inner loop to process the query sequence */
         for (i=0; i<segLen; ++i) {
-            vH = simde_mm_add_epi16(vH, simde_mm_load_si128(vP + i));
+            vH = simde_mm_adds_epi16(vH, simde_mm_load_si128(vP + i));
             vE = simde_mm_load_si128(pvE + i);
 
             /* Get max from vH, vE and vF. */
@@ -251,19 +258,22 @@ parasail_result_t* PNAME(
             vH = simde_mm_max_epi16(vH, vF);
             /* Save vH values. */
             simde_mm_store_si128(pvHStore + i, vH);
-            
+            vSaturationCheckMax = simde_mm_max_epi16(vSaturationCheckMax, vH);
+            vSaturationCheckMin = simde_mm_min_epi16(vSaturationCheckMin, vH);
+            vSaturationCheckMin = simde_mm_min_epi16(vSaturationCheckMin, vE);
+            vSaturationCheckMin = simde_mm_min_epi16(vSaturationCheckMin, vF);
 #ifdef PARASAIL_TABLE
             arr_store_si128(result->tables->score_table, vH, i, segLen, j, s2Len);
 #endif
 
             /* Update vE value. */
-            vH = simde_mm_sub_epi16(vH, vGapO);
-            vE = simde_mm_sub_epi16(vE, vGapE);
+            vH = simde_mm_subs_epi16(vH, vGapO);
+            vE = simde_mm_subs_epi16(vE, vGapE);
             vE = simde_mm_max_epi16(vE, vH);
             simde_mm_store_si128(pvE + i, vE);
 
             /* Update vF value. */
-            vF = simde_mm_sub_epi16(vF, vGapE);
+            vF = simde_mm_subs_epi16(vF, vGapE);
             vF = simde_mm_max_epi16(vF, vH);
 
             /* Load the next vH. */
@@ -281,12 +291,13 @@ parasail_result_t* PNAME(
                 vH = simde_mm_load_si128(pvHStore + i);
                 vH = simde_mm_max_epi16(vH,vF);
                 simde_mm_store_si128(pvHStore + i, vH);
-                
+                vSaturationCheckMin = simde_mm_min_epi16(vSaturationCheckMin, vH);
+                vSaturationCheckMax = simde_mm_max_epi16(vSaturationCheckMax, vH);
 #ifdef PARASAIL_TABLE
                 arr_store_si128(result->tables->score_table, vH, i, segLen, j, s2Len);
 #endif
-                vH = simde_mm_sub_epi16(vH, vGapO);
-                vF = simde_mm_sub_epi16(vF, vGapE);
+                vH = simde_mm_subs_epi16(vH, vGapO);
+                vF = simde_mm_subs_epi16(vF, vGapE);
                 if (! simde_mm_movemask_epi8(simde_mm_cmpgt_epi16(vF, vH))) goto end;
                 /*vF = simde_mm_max_epi16(vF, vH);*/
             }
@@ -323,7 +334,14 @@ end:
         score = (int16_t) simde_mm_extract_epi16 (vH, 7);
     }
 
-    
+    if (simde_mm_movemask_epi8(simde_mm_or_si128(
+            simde_mm_cmplt_epi16(vSaturationCheckMin, vNegLimit),
+            simde_mm_cmpgt_epi16(vSaturationCheckMax, vPosLimit)))) {
+        result->flag |= PARASAIL_FLAG_SATURATED;
+        score = 0;
+        end_query = 0;
+        end_ref = 0;
+    }
 
     result->score = score;
     result->end_query = end_query;

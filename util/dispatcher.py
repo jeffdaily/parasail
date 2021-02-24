@@ -187,7 +187,8 @@ parasail_result_t* %(PREFIX)s_dispatcher(
     else
 #endif
     {
-        %(PREFIX)s_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return %(PREFIX)s_pointer(profile, s2, s2Len, open, gap);
 }

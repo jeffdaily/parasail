@@ -56,19 +56,32 @@ int main(int argc, char ** argv)
     parasail_result_free(result);
     parasail_matrix_free(matrix);
 
+    /* if no vector ISA detected at build-time and/or run-time, this will fail */
     printf("\ntest4\n");
     printf("profile = parasail_profile_create_8(\"asdf\", 4, &parasail_blosum62)\n");
     profile = parasail_profile_create_8("asdf", 4, &parasail_blosum62);
-    printf("result = parasail_sw_striped_profile_8(profile, \"asdf\", 4, 10, 1)\n");
-    result = parasail_sw_striped_profile_8(profile, "asdf", 4, 10, 1);
-    if (result->score != 20) {
-        printf("failed\n");
-        return EXIT_FAILURE;
-    }
-    else {
+    if (!profile) {
+        printf("NULL profile returned; vector ISA not supported\n");
         printf("pass\n");
     }
-    parasail_result_free(result);
+    else {
+        printf("result = parasail_sw_striped_profile_8(profile, \"asdf\", 4, 10, 1)\n");
+        result = parasail_sw_striped_profile_8(profile, "asdf", 4, 10, 1);
+        if (!result) {
+            printf("NULL result returned; vector ISA not supported\n");
+            printf("pass\n");
+        }
+        else {
+            if (result->score != 20) {
+                printf("failed\n");
+                return EXIT_FAILURE;
+            }
+            else {
+                printf("pass\n");
+            }
+            parasail_result_free(result);
+        }
+    }
 
     return 0;
 

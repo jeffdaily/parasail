@@ -379,6 +379,13 @@ parasail_result_t* FNAME(
     result->flag |= PARASAIL_FLAG_ROWCOL;
 #endif
 
+    if (!s1_beg) {
+        PARASAIL_SATURATION_PRECHECK(s1Len, NEG_LIMIT);
+    }
+    if (!s2_beg) {
+        PARASAIL_SATURATION_PRECHECK(s2Len, NEG_LIMIT);
+    }
+
     /* initialize heap variables */
     s2B= parasail_memalign_int8_t(16, s2Len+PAD2);
     _H_pr = parasail_memalign_int8_t(16, s2Len+PAD2);

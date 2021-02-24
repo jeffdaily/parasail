@@ -201,6 +201,9 @@ parasail_result_t* FNAME(
     result->flag |= PARASAIL_FLAG_ROWCOL;
 #endif
 
+    PARASAIL_SATURATION_PRECHECK(s1Len, NEG_LIMIT);
+    PARASAIL_SATURATION_PRECHECK(s2Len, NEG_LIMIT);
+
     /* initialize heap variables */
     s1     = parasail_memalign_%(INT)s(%(ALIGNMENT)s, s1Len+PAD);
     s2B    = parasail_memalign_%(INT)s(%(ALIGNMENT)s, s2Len+PAD2);

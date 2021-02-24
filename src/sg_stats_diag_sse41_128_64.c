@@ -333,6 +333,13 @@ parasail_result_t* FNAME(
     result->flag |= PARASAIL_FLAG_ROWCOL;
 #endif
 
+    if (!s1_beg) {
+        PARASAIL_SATURATION_PRECHECK_STATS(s1Len, NEG_LIMIT);
+    }
+    if (!s2_beg) {
+        PARASAIL_SATURATION_PRECHECK_STATS(s2Len, NEG_LIMIT);
+    }
+
     /* initialize heap variables */
     s1     = parasail_memalign_int64_t(16, s1Len+PAD);
     s2B    = parasail_memalign_int64_t(16, s2Len+PAD2);

@@ -182,6 +182,9 @@ parasail_result_t* PNAME(
     result->flag |= PARASAIL_FLAG_ROWCOL;
 #endif
 
+    PARASAIL_SATURATION_PRECHECK(s1Len, NEG_LIMIT);
+    PARASAIL_SATURATION_PRECHECK(s2Len, NEG_LIMIT);
+
     /* initialize heap variables */
     pvE = parasail_memalign_%(VTYPE)s(%(ALIGNMENT)s, segLen);
     boundary = parasail_memalign_%(INT)s(%(ALIGNMENT)s, s2Len+1);

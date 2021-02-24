@@ -160,6 +160,13 @@ parasail_result_t* FNAME(
         | PARASAIL_FLAG_TRACE
         | PARASAIL_FLAG_BITS_%(WIDTH)s | PARASAIL_FLAG_LANES_%(LANES)s;
 
+    if (!s1_beg) {
+        PARASAIL_SATURATION_PRECHECK(s1Len, NEG_LIMIT);
+    }
+    if (!s2_beg) {
+        PARASAIL_SATURATION_PRECHECK(s2Len, NEG_LIMIT);
+    }
+
     /* initialize heap variables */
     s2B= parasail_memalign_%(INT)s(%(ALIGNMENT)s, s2Len+PAD2);
     _H_pr = parasail_memalign_%(INT)s(%(ALIGNMENT)s, s2Len+PAD2);

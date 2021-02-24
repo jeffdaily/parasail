@@ -93,6 +93,40 @@ extern "C" {
     }                                                               \
 } while(0)
 
+#define PARASAIL_SATURATION_SET {            \
+    result->flag |= PARASAIL_FLAG_SATURATED; \
+    result->score = 0;                       \
+    result->end_query = 0;                   \
+    result->end_ref = 0;                     \
+}
+
+#define PARASAIL_SATURATION_SET_STATS { \
+    PARASAIL_SATURATION_SET             \
+    result->stats->matches = 0;         \
+    result->stats->similar = 0;         \
+    result->stats->length = 0;          \
+}
+
+#define PARASAIL_SATURATION_CAST_AND_CHECK(len,limit) \
+    int64_t len_ = (int64_t)(len);                    \
+    int64_t open_ = (int64_t)(open);                  \
+    int64_t gap_ = (int64_t)(gap);                    \
+    int64_t limit_ = (int64_t)(limit);                \
+    int64_t val = -open_ - len_*gap_;                 \
+    if (val <= limit_)
+
+#define PARASAIL_SATURATION_PRECHECK(len,limit) do { \
+    PARASAIL_SATURATION_CAST_AND_CHECK(len,limit)    \
+    PARASAIL_SATURATION_SET                          \
+    if (val <= limit_) return result;                \
+} while(0)
+
+#define PARASAIL_SATURATION_PRECHECK_STATS(len,limit) do { \
+    PARASAIL_SATURATION_CAST_AND_CHECK(len,limit)          \
+    PARASAIL_SATURATION_SET_STATS                          \
+    if (val <= limit_) return result;                      \
+} while(0)
+
 extern void * parasail_memalign(size_t alignment, size_t size);
 extern int * parasail_memalign_int(size_t alignment, size_t size);
 extern int8_t * parasail_memalign_int8_t(size_t alignment, size_t size);

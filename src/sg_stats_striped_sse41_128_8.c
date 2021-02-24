@@ -259,6 +259,13 @@ parasail_result_t* PNAME(
     result->flag |= PARASAIL_FLAG_ROWCOL;
 #endif
 
+    if (!s1_beg) {
+        PARASAIL_SATURATION_PRECHECK_STATS(s1Len, NEG_LIMIT);
+    }
+    if (!s2_beg) {
+        PARASAIL_SATURATION_PRECHECK_STATS(s2Len, NEG_LIMIT);
+    }
+
     /* initialize heap variables */
     pvHStore  = parasail_memalign___m128i(16, segLen);
     pvHLoad   = parasail_memalign___m128i(16, segLen);

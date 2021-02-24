@@ -258,6 +258,13 @@ parasail_result_t* PNAME(
     result->flag |= PARASAIL_FLAG_ROWCOL;
 #endif
 
+    if (!s1_beg) {
+        PARASAIL_SATURATION_PRECHECK(s1Len, NEG_LIMIT);
+    }
+    if (!s2_beg) {
+        PARASAIL_SATURATION_PRECHECK(s2Len, NEG_LIMIT);
+    }
+
     /* initialize heap variables */
     pvE = parasail_memalign___m128i(16, segLen);
     boundary = parasail_memalign_int8_t(16, s2Len+1);

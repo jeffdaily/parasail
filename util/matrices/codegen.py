@@ -156,7 +156,8 @@ static const parasail_matrix_t parasail_%s = {
     NULL,
     PARASAIL_MATRIX_TYPE_SQUARE,
     %d,
-    "%s"
+    "%s",
+    NULL
 };
 
 """ % (filename_lower, filename_lower, filename_lower, base, count, biggest, smallest, count,

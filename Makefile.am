@@ -1161,6 +1161,7 @@ check_PROGRAMS += tests/test_io
 check_PROGRAMS += tests/test_isa
 check_PROGRAMS += tests/test_matrix
 check_PROGRAMS += tests/test_openmp
+check_PROGRAMS += tests/test_pssm
 check_PROGRAMS += tests/test_query
 check_PROGRAMS += tests/test_scatter
 check_PROGRAMS += tests/test_sw_dispatch
@@ -1226,6 +1227,8 @@ tests_test_openmp_LDADD   += $(LDADD)
 if HAVE_SSE2
 tests_test_openmp_LDADD   += tests/libssw.la
 endif
+
+tests_test_pssm_SOURCES = tests/test_pssm.c
 
 tests_test_query_SOURCES =
 tests_test_query_SOURCES += tests/test_query.c

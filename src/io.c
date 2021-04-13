@@ -922,8 +922,13 @@ static parasail_matrix_t* parasail_matrix_from_file_internal(const char *filenam
 {
     parasail_matrix_t *retval = NULL;
     int *matrix = NULL;
+    size_t matrix_i = 0;
+    size_t matrix_capacity = 0;
     int *mapper = NULL;
     char *alphabet = NULL;
+    char *alphabet_query = NULL;
+    size_t alphabet_query_i = 0;
+    size_t alphabet_query_capacity = 0;
     parasail_file_t *pf = NULL;
     const char *T = NULL;
     off_t i = 0;
@@ -934,6 +939,7 @@ static parasail_matrix_t* parasail_matrix_from_file_internal(const char *filenam
     int max = INT_MIN;
     int min = INT_MAX;
     size_t c = 0;
+    int type = PARASAIL_MATRIX_TYPE_SQUARE;
 
     if (NULL == filename) {
         fprintf(stderr, "parasail_matrix_from_file: NULL pointer\n");
@@ -965,7 +971,8 @@ static parasail_matrix_t* parasail_matrix_from_file_internal(const char *filenam
                     return NULL;
                 }
                 asize = strlen(alphabet);
-                matrix = (int*)malloc(sizeof(int)*asize*asize);
+                matrix_capacity = asize*asize;
+                matrix = (int*)malloc(sizeof(int)*matrix_capacity);
                 if (NULL == matrix) {
                     perror("malloc");
                     fprintf(stderr, "parasail_matrix_from_file: "
@@ -974,19 +981,37 @@ static parasail_matrix_t* parasail_matrix_from_file_internal(const char *filenam
                     parasail_close(pf);
                     return NULL;
                 }
+                alphabet_query_capacity = asize;
+                alphabet_query = (char*)malloc(sizeof(char)*(alphabet_query_capacity+1));
+                if (NULL == alphabet_query) {
+                    perror("malloc");
+                    fprintf(stderr, "parasail_matrix_from_file: "
+                            "cannont malloc buffer for matrix alphabet\n");
+                    free(matrix);
+                    free(alphabet);
+                    parasail_close(pf);
+                    return NULL;
+                }
                 i = skip_line(T, i);
             }
             else {
                 size_t j=0;
-                /* make sure it is in same order as first line */
-                if (T[i] != alphabet[count]) {
-                    fprintf(stderr, "parasail_matrix_from_file: "
-                            "matrix header out of order\n");
-                    if (alphabet) free(alphabet);
-                    if (matrix) free(matrix);
-                    parasail_close(pf);
-                    return NULL;
+                /* store the letter */
+                if (alphabet_query_i >= alphabet_query_capacity) {
+                    alphabet_query_capacity *= 2;
+                    alphabet_query = realloc(alphabet_query, alphabet_query_capacity+1);
+                    if (NULL == alphabet_query) {
+                        perror("realloc");
+                        fprintf(stderr, "parasail_matrix_from_file: "
+                                "couldn't grow query size\n");
+                        if (alphabet) free(alphabet);
+                        if (alphabet_query) free(alphabet_query);
+                        if (matrix) free(matrix);
+                        parasail_close(pf);
+                        return NULL;
+                    }
                 }
+                alphabet_query[alphabet_query_i++] = T[i];
                 ++i; /* skip over the letter */
                 ++count;
                 for (j=0; j<asize; ++j) {
@@ -996,11 +1021,26 @@ static parasail_matrix_t* parasail_matrix_from_file_internal(const char *filenam
                         fprintf(stderr, "parasail_matrix_from_file: "
                                 "poorly formed matrix file\n");
                         if (alphabet) free(alphabet);
+                        if (alphabet_query) free(alphabet_query);
                         if (matrix) free(matrix);
                         parasail_close(pf);
                         return NULL;
                     }
-                    matrix[c++] = val;
+                    if (matrix_i >= matrix_capacity) {
+                        matrix_capacity *= 2;
+                        matrix = realloc(matrix, matrix_capacity);
+                        if (NULL == matrix) {
+                            perror("realloc");
+                            fprintf(stderr, "parasail_matrix_from_file: "
+                                    "couldn't grow matrix size\n");
+                            if (alphabet) free(alphabet);
+                            if (alphabet_query) free(alphabet_query);
+                            if (matrix) free(matrix);
+                            parasail_close(pf);
+                            return NULL;
+                        }
+                    }
+                    matrix[matrix_i++] = val;
                     max = val > max ? val : max;
                     min = val < min ? val : min;
                 }
@@ -1020,6 +1060,7 @@ static parasail_matrix_t* parasail_matrix_from_file_internal(const char *filenam
             fprintf(stderr, "parasail_matrix_from_file: "
                     "non-alpha character in matrix file ('%c')\n", T[i]);
             if (alphabet) free(alphabet);
+            if (alphabet_query) free(alphabet_query);
             if (matrix) free(matrix);
             parasail_close(pf);
             return NULL;
@@ -1028,6 +1069,7 @@ static parasail_matrix_t* parasail_matrix_from_file_internal(const char *filenam
             fprintf(stderr, "parasail_matrix_from_file: "
                     "non-printing character in matrix file ('%d')\n", T[i]);
             if (alphabet) free(alphabet);
+            if (alphabet_query) free(alphabet_query);
             if (matrix) free(matrix);
             parasail_close(pf);
             return NULL;
@@ -1037,19 +1079,38 @@ static parasail_matrix_t* parasail_matrix_from_file_internal(const char *filenam
 
     parasail_close(pf);
 
-    if (c != asize*asize) {
-        fprintf(stderr, "parasail_matrix_from_file: "
-                "matrix is missing values\n");
-        free(alphabet);
-        free(matrix);
-        return NULL;
+    /* we consider this a square matrix if alphabet sizes match and are identical */
+    alphabet_query[alphabet_query_i] = '\0';
+    if (asize == alphabet_query_i && 0 == strcmp(alphabet, alphabet_query)) {
+        /* square */
+        if (matrix_i != asize*asize) {
+            fprintf(stderr, "parasail_matrix_from_file: "
+                    "matrix is missing values\n");
+            free(alphabet);
+            free(alphabet_query);
+            free(matrix);
+            return NULL;
+        }
+        if (count != asize) {
+            fprintf(stderr, "parasail_matrix_from_file: "
+                    "matrix is missing rows\n");
+            free(alphabet);
+            free(alphabet_query);
+            free(matrix);
+            return NULL;
+        }
     }
-    if (count != asize) {
-        fprintf(stderr, "parasail_matrix_from_file: "
-                "matrix is missing rows\n");
-        free(alphabet);
-        free(matrix);
-        return NULL;
+    else {
+        /* PSSM */
+        type = PARASAIL_MATRIX_TYPE_PSSM;
+        if (matrix_i != asize*count) {
+            fprintf(stderr, "parasail_matrix_from_file: "
+                    "matrix is missing values\n");
+            free(alphabet);
+            free(alphabet_query);
+            free(matrix);
+            return NULL;
+        }
     }
 
     mapper = (int*)malloc(sizeof(int)*256);
@@ -1059,6 +1120,7 @@ static parasail_matrix_t* parasail_matrix_from_file_internal(const char *filenam
                 "cannont malloc mapper buffer for matrix file `%s'\n",
                 filename);
         free(alphabet);
+        free(alphabet_query);
         free(matrix);
         return NULL;
     }
@@ -1074,8 +1136,6 @@ static parasail_matrix_t* parasail_matrix_from_file_internal(const char *filenam
             mapper[tolower((unsigned char)alphabet[c])] = (int)c;
         }
     }
-
-    free(alphabet);
 
     retval = (parasail_matrix_t*)malloc(sizeof(parasail_matrix_t));
     if (NULL == retval) {
@@ -1093,6 +1153,10 @@ static parasail_matrix_t* parasail_matrix_from_file_internal(const char *filenam
     retval->max = max;
     retval->min = min;
     retval->user_matrix = matrix;
+    retval->type = type;
+    retval->length = (int)count;
+    retval->alphabet = alphabet;
+    retval->query = alphabet_query;
     return retval;
 }
 

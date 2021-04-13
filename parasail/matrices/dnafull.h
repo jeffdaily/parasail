@@ -69,7 +69,8 @@ static const parasail_matrix_t parasail_dnafull = {
     0,
     PARASAIL_MATRIX_TYPE_SQUARE,
     16,
-    "ATGCSWRYKMBVHDNU"
+    "ATGCSWRYKMBVHDNU",
+    NULL
 };
 
 #ifdef __cplusplus

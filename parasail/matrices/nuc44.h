@@ -73,7 +73,8 @@ static const parasail_matrix_t parasail_nuc44 = {
     0,
     PARASAIL_MATRIX_TYPE_SQUARE,
     16,
-    "ATGCSWRYKMBVHDN*"
+    "ATGCSWRYKMBVHDN*",
+    NULL
 };
 
 #ifdef __cplusplus

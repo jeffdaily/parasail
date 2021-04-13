@@ -149,15 +149,16 @@ typedef struct parasail_result {
 
 typedef struct parasail_matrix {
     const char * name;
-    const int *matrix;
-    const int *mapper;
+    const int * matrix;
+    const int * mapper;
     int size;
     int max;
     int min;
-    int *user_matrix;
+    int * user_matrix;
     int type;
     int length;
-    const char *alphabet;
+    const char * alphabet;
+    const char * query;
 } parasail_matrix_t;
 
 typedef struct parasail_profile_data {

@@ -36,24 +36,6 @@ INCLUDE( FindNEON )
 INCLUDE( FindZLIB )
 INCLUDE( TestBigEndian )
 
-MESSAGE( STATUS "Check if the CPU is POWER" )
-IF( ${CMAKE_SYSTEM_PROCESSOR} MATCHES "p(ower)?pc" )
-    SET( IS_POWER_ISA TRUE )
-    MESSAGE( STATUS "Check if the CPU is POWER - TRUE" )
-ELSE( )
-    SET( IS_POWER_ISA FALSE )
-    MESSAGE( STATUS "Check if the CPU is POWER - FALSE" )
-ENDIF( )
-
-MESSAGE( STATUS "Check if the CPU is ARM" )
-IF( ${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm.*" OR ${CMAKE_SYSTEM_PROCESSOR} MATCHES "aarch64.*" )
-    SET( IS_ARM_ISA TRUE )
-    MESSAGE( STATUS "Check if the CPU is ARM - TRUE" )
-ELSE( )
-    SET( IS_ARM_ISA FALSE )
-    MESSAGE( STATUS "Check if the CPU is ARM - FALSE" )
-ENDIF( )
-
 CHECK_TYPE_SIZE( "int" SIZEOF_INT )
 CHECK_TYPE_SIZE( "int8_t" SIZEOF_INT8_T )
 CHECK_TYPE_SIZE( "int16_t" SIZEOF_INT16_T )
@@ -176,6 +158,7 @@ CONFIGURE_FILE( ${CMAKE_CURRENT_LIST_DIR}/cmake/config.h.in ${CMAKE_BINARY_DIR}/
 
 SET( SRC_CORE
     src/cigar.c
+    src/cpuid.c
     src/function_lookup.c
     src/io.c
     src/isastubs.c
@@ -200,14 +183,6 @@ SET( SRC_CORE
     src/striped_unwind.c
     src/traceback.c
 )
-
-IF( IS_POWER_ISA )
-    SET( SRC_CORE ${SRC_CORE} src/cpuid_ppc.c )
-ELSEIF( IS_ARM_ISA )
-    SET( SRC_CORE ${SRC_CORE} src/cpuid_arm.c )
-ELSE( )
-    SET( SRC_CORE ${SRC_CORE} src/cpuid.c )
-ENDIF( )
 
 SET( SRC_NOVEC
     src/nw.c

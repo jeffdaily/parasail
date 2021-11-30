@@ -73,16 +73,6 @@ AM_MAINTAINER_MODE
 ###############################################################################
 AC_CANONICAL_HOST
 
-is_power_isa=0
-AS_CASE(["$host_cpu"],
-        [*powerpc*|*ppc*], [is_power_isa=1])
-AM_CONDITIONAL([IS_POWER_ISA], [test "x$is_power_isa" = x1])
-
-is_arm_isa=0
-AS_CASE(["$host_cpu"],
-        [*arm*|*aarch64*], [is_arm_isa=1])
-AM_CONDITIONAL([IS_ARM_ISA], [test "x$is_arm_isa" = x1])
-
 ###############################################################################
 # --enable options
 ###############################################################################

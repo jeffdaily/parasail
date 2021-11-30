@@ -13,6 +13,46 @@
 
 #include "parasail/cpuid.h"
 
+#if defined(__aarch64__) || defined(__powerpc__) || defined(__PPC__) || defined(__powerpc64__) || defined(__PPC64__)
+
+/* stubs for all non-x86_64 platforms */
+int parasail_can_use_avx512vbmi() { return 0; }
+int parasail_can_use_avx512bw() { return 0; }
+int parasail_can_use_avx512f() { return 0; }
+int parasail_can_use_avx2() { return 0; }
+int parasail_can_use_sse41() { return 0; }
+int parasail_can_use_sse2() { return 0; }
+
+#if defined(__powerpc__) || defined(__PPC__) || defined(__powerpc64__) || defined(__PPC64__)
+int parasail_can_use_altivec()
+{
+#if HAVE_ALTIVEC
+    return 1;
+#else
+    return 0;
+#endif
+}
+#else
+int parasail_can_use_altivec() { return 0; }
+#endif
+
+#if defined(__aarch64__)
+int parasail_can_use_neon()
+{
+#if HAVE_NEON
+    return 1;
+#else
+    return 0;
+#endif
+}
+#else
+int parasail_can_use_neon() { return 0; }
+#endif
+
+#else
+
+/* x64_64 */
+
 #include <stdint.h>
 #if defined(_MSC_VER)
 # include <intrin.h>
@@ -327,3 +367,4 @@ int parasail_can_use_neon()
     return 0;
 }
 
+#endif

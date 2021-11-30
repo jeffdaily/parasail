@@ -42,6 +42,15 @@ matrix:
           - gcc-arm-linux-gnueabihf
           - g++-arm-linux-gnueabihf
     - os: linux
+      env: BUILD_TYPE=meson
+      addons:
+        apt:
+          packages:
+          - meson
+          - ninja-build
+          - pkg-config
+          - zlib1g-dev
+    - os: linux
       env: BUILD_TYPE=make
            MAYBE_CROSS="--host=aarch64-linux-gnu --enable-static --disable-shared --without-zlib"
            MY_CFLAGS=-O2
@@ -119,6 +128,8 @@ script:
   - if [[ "$BUILD_TYPE" == "cmake" ]]; then cmake --build . --config Release; fi
   - if [[ "$BUILD_TYPE" == "cmake" ]]; then cmake --build . --config Release --target package; fi
   - if [[ "$BUILD_TYPE" == "cmake" ]]; then ctest -C Release; fi
+  - if [[ "$BUILD_TYPE" == "meson" ]]; then meson --buildtype plain . bld_meson; fi
+  - if [[ "$BUILD_TYPE" == "meson" ]]; then cd bld_meson; ninja; fi
 
 deploy:
   provider: releases

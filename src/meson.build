@@ -571,8 +571,10 @@ parasail_config.set('SIZEOF_INT', parasail_cc.sizeof('int'))
 foreach funcname : [
   '_aligned_malloc',
   'aligned_alloc',
+  'getopt',
   'memalign',
   'memset',
+  'poll',
   'posix_memalign']
     if parasail_cc.has_function(funcname)
       result = 1
@@ -580,6 +582,16 @@ foreach funcname : [
       result = false
     endif
     parasail_config.set('HAVE_' + funcname.to_upper(), result)
+endforeach
+
+foreach headername : [
+  'unistd.h']
+    if parasail_cc.has_header(headername)
+      result = 1
+    else
+      result = false
+    endif
+    parasail_config.set('HAVE_' + headername.to_upper().underscorify(), result)
 endforeach
 
 #########################

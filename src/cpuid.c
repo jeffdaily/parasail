@@ -13,7 +13,7 @@
 
 #include "parasail/cpuid.h"
 
-#if defined(__aarch64__) || defined(__powerpc__) || defined(__PPC__) || defined(__powerpc64__) || defined(__PPC64__)
+#if defined(__arm__) || defined(__aarch64__) || defined(__powerpc__) || defined(__PPC__) || defined(__powerpc64__) || defined(__PPC64__)
 
 /* stubs for all non-x86_64 platforms */
 int parasail_can_use_avx512vbmi() { return 0; }
@@ -36,7 +36,7 @@ int parasail_can_use_altivec()
 int parasail_can_use_altivec() { return 0; }
 #endif
 
-#if defined(__aarch64__)
+#if defined(__arm__) || defined(__aarch64__)
 int parasail_can_use_neon()
 {
 #if HAVE_NEON

@@ -18,7 +18,7 @@ jobs:
 
     - name: Configure CMake (osx cross)
       if: ${{ matrix.os == 'macos-latest' }}
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_OSX_ARCHITECTURES="i386;x86_64"
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64"
 
     - name: Configure CMake
       if: ${{ matrix.os != 'macos-latest' }}

@@ -1,0 +1,25 @@
+name: autotools cross-compile make
+
+on: [push, pull_request]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        host: [arm-linux-gnueabihf, aarch64-linux-gnu, powerpc-linux-gnu, arm-linux-gnueabi]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: install packages
+      run: sudo apt install gcc-${{ matrix.host }} g++-${{ matrix.host }}
+    - name: autoreconf
+      run: autoreconf -fi
+    - name: configure
+      run: ./configure --host=${{ matrix.host }} --enable-static --disable-shared --without-zlib || cat config.log
+    - name: make
+      run: make -j $(nproc)
+    - name: make check
+      run: make check -j $(nproc)

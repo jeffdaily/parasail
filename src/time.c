@@ -40,6 +40,8 @@ double parasail_time(void)
     wintime -=116444736000000000LL;   /*1jan1601 to 1jan1970*/
     sec  = wintime / 10000000LL;      /*seconds*/
     nsec = wintime % 10000000LL *100; /*nano-seconds*/
+#else
+#error unknown int64 literal suffix
 #endif
     return sec + nsec/1000000000.0;
 #elif HAVE_CLOCK_GET_TIME

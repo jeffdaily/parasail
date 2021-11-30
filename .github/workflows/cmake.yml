@@ -24,8 +24,10 @@ jobs:
       if: ${{ matrix.os != 'macos-latest' }}
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
+    - name: Print config.h
+      run: cat ${{github.workspace}}/build/config.h
+
     - name: Build
-      # Build your program with the given configuration
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
     - name: Test

@@ -56,16 +56,37 @@ CHECK_C_SOURCE_COMPILES("int main () { __builtin_cpu_supports(\"sse\"); return 0
 HAVE___BUILTIN_CPU_SUPPORTS )
 
 # Check for restrict keyword
+# Verify that the #define restrict will not conflict with system headers. This happened on windows.
 FOREACH( ac_kw __restrict __restrict__ _Restrict restrict )
     CHECK_C_SOURCE_COMPILES(
 "
+#define restrict ${ac_kw}
+#include <errno.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#if defined(_WIN32)
+#include <windows.h>
+#endif
+#include <algorithm>
+#include <cctype>
+#include <cfloat>
+#include <climits>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <set>
+#include <sstream>
+#include <stack>
+#include <string>
+#include <utility>
+#include <vector>
 typedef int * int_ptr;
-int foo (int_ptr ${ac_kw} ip) {
+int foo (int_ptr restrict ip) {
     return ip[0];
 }
 int main() {
     int s[1];
-    int * ${ac_kw} t = s;
+    int * restrict t = s;
     t[0] = 0;
     return foo(t);
 }

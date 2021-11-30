@@ -56,37 +56,9 @@ CHECK_C_SOURCE_COMPILES("int main () { __builtin_cpu_supports(\"sse\"); return 0
 HAVE___BUILTIN_CPU_SUPPORTS )
 
 # Check for restrict keyword
-CHECK_C_SOURCE_COMPILES(
-"
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#if defined(_WIN32)
-#include <windows.h>
-#endif
-#include <ctype.h>
-#include <float.h>
-#include <limits.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-typedef int * int_ptr;
-int foo (int_ptr restrict ip) {
-    return ip[0];
-}
-int main() {
-    int s[1];
-    int * restrict t = s;
-    t[0] = 0;
-    return foo(t);
-}
-"
-    HAVE_RESTRICT_NATIVE )
-IF( HAVE_RESTRICT_NATIVE )
-ELSE( )
-    # Verify that the #define restrict will not conflict with system headers. This happened on windows.
-    FOREACH( ac_kw __restrict __restrict__ _Restrict restrict )
-        CHECK_C_SOURCE_COMPILES(
+# Verify that the #define restrict will not conflict with system headers. This happened on windows.
+FOREACH( ac_kw __restrict __restrict__ _Restrict restrict )
+    CHECK_C_SOURCE_COMPILES(
 "
 #define restrict ${ac_kw}
 #include <errno.h>
@@ -95,12 +67,19 @@ ELSE( )
 #if defined(_WIN32)
 #include <windows.h>
 #endif
-#include <ctype.h>
-#include <float.h>
-#include <limits.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <algorithm>
+#include <cctype>
+#include <cfloat>
+#include <climits>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <set>
+#include <sstream>
+#include <stack>
+#include <string>
+#include <utility>
+#include <vector>
 typedef int * int_ptr;
 int foo (int_ptr restrict ip) {
     return ip[0];
@@ -112,19 +91,16 @@ int main() {
     return foo(t);
 }
 "
-        HAVE_RESTRICT )
-        IF( HAVE_RESTRICT )
-            SET( ac_cv_c_restrict ${ac_kw} )
-            BREAK( )
-	    ELSE( )
-            UNSET( HAVE_RESTRICT CACHE )
-        ENDIF( )
-    ENDFOREACH( )
+    HAVE_RESTRICT )
     IF( HAVE_RESTRICT )
-        SET( restrict ${ac_cv_c_restrict} )
-    ELSE( )
-        SET( restrict " " )
+        SET( ac_cv_c_restrict ${ac_kw} )
+        BREAK( )
     ENDIF( )
+ENDFOREACH( )
+IF( HAVE_RESTRICT )
+    SET( restrict ${ac_cv_c_restrict} )
+ELSE( )
+    SET( restrict " " )
 ENDIF( )
 
 # Check for inline keyword
@@ -150,8 +126,6 @@ int main(int argc, char *argv[]){return 0;}
         IF( HAVE_INLINE )
             SET( ac_cv_c_inline ${ac_kw} )
             BREAK( )
-		ELSE( )
-		    UNSET( HAVE_INLINE CACHE )
         ENDIF( )
     ENDFOREACH( )
     IF( HAVE_INLINE )

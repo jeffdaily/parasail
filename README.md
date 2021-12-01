@@ -1,8 +1,16 @@
 # parasail: Pairwise Sequence Alignment Library
 
-Travis: [![Build Status](https://travis-ci.org/jeffdaily/parasail.svg?branch=master)](https://travis-ci.org/jeffdaily/parasail)
+master:
+[![status](https://github.com/jeffdaily/parasail/actions/workflows/autotools.yml/badge.svg?branch=master)](https://github.com/jeffdaily/parasail/actions/workflows/autotools.yml?query=branch%3Amaster)
+[![status](https://github.com/jeffdaily/parasail/actions/workflows/autotools-cross.yml/badge.svg?branch=master)](https://github.com/jeffdaily/parasail/actions/workflows/autotools-cross.yml?query=branch%3Amaster)
+[![status](https://github.com/jeffdaily/parasail/actions/workflows/cmake.yml/badge.svg?branch=master)](https://github.com/jeffdaily/parasail/actions/workflows/cmake.yml?query=branch%3Amaster)
+[![status](https://ci.appveyor.com/api/projects/status/rtmcf2kowwnrl6g2/branch/master?svg=true)](https://ci.appveyor.com/project/jeffdaily/parasail-7t5in/branch/master)
 
-AppVeyor: [![Build status](https://ci.appveyor.com/api/projects/status/rtmcf2kowwnrl6g2/branch/master?svg=true)](https://ci.appveyor.com/project/jeffdaily/parasail-7t5in/branch/master)
+develop:
+[![status](https://github.com/jeffdaily/parasail/actions/workflows/autotools.yml/badge.svg?branch=develop)](https://github.com/jeffdaily/parasail/actions/workflows/autotools.yml?query=branch%3Adevelop)
+[![status](https://github.com/jeffdaily/parasail/actions/workflows/autotools-cross.yml/badge.svg?branch=develop)](https://github.com/jeffdaily/parasail/actions/workflows/autotools-cross.yml?query=branch%3Adevelop)
+[![status](https://github.com/jeffdaily/parasail/actions/workflows/cmake.yml/badge.svg?branch=develop)](https://github.com/jeffdaily/parasail/actions/workflows/cmake.yml?query=branch%3Adevelop)
+[![status](https://ci.appveyor.com/api/projects/status/rtmcf2kowwnrl6g2/branch/develop?svg=true)](https://ci.appveyor.com/project/jeffdaily/parasail-7t5in/branch/develop)
 
 Author: Jeff Daily (jeffrey.daily@gmail.com)
 

@@ -1304,7 +1304,6 @@ tests_test_p59_SOURCES += tests/test_p59.c
 tests_test_p59_SOURCES += tests/test_p59.h
 
 EXTRA_DIST += .gitignore
-EXTRA_DIST += .travis.yml
 EXTRA_DIST += CHANGELOG.md
 EXTRA_DIST += CMakeLists.txt
 EXTRA_DIST += DISCLAIMER

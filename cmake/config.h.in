@@ -42,5 +42,7 @@
 #cmakedefine01 INT64_LITERAL_SUFFIX_LL
 #ifndef __cplusplus
 #cmakedefine inline ${inline}
-#endif
 #cmakedefine restrict ${restrict}
+#endif
+/* avoid name clashes */
+#cmakedefine parasail_safe_restrict_cxx ${parasail_safe_restrict_cxx}

@@ -71,6 +71,14 @@
 
 #define GB 1.0E-9
 
+/*
+ * config.h above would normally define the correct restrict keyword, 
+ * but to avoid conflicts we must wait to redefine it until after all headers.
+ */
+#if !defined(restrict) && defined(parasail_safe_restrict_cxx)
+#define restrict parasail_safe_restrict_cxx
+#endif
+
 extern "C" size_t getMemorySize(void);
 
 using ::std::bad_alloc;

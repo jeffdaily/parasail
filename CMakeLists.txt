@@ -56,30 +56,10 @@ CHECK_C_SOURCE_COMPILES("int main () { __builtin_cpu_supports(\"sse\"); return 0
 HAVE___BUILTIN_CPU_SUPPORTS )
 
 # Check for restrict keyword
-# Verify that the #define restrict will not conflict with system headers. This happened on windows.
 FOREACH( ac_kw __restrict __restrict__ _Restrict restrict )
     CHECK_C_SOURCE_COMPILES(
 "
 #define restrict ${ac_kw}
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#if defined(_WIN32)
-#include <windows.h>
-#endif
-#include <algorithm>
-#include <cctype>
-#include <cfloat>
-#include <climits>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <set>
-#include <sstream>
-#include <stack>
-#include <string>
-#include <utility>
-#include <vector>
 typedef int * int_ptr;
 int foo (int_ptr restrict ip) {
     return ip[0];
@@ -95,12 +75,16 @@ int main() {
     IF( HAVE_RESTRICT )
         SET( ac_cv_c_restrict ${ac_kw} )
         BREAK( )
+    ELSE( )
+        UNSET( HAVE_RESTRICT CACHE )
     ENDIF( )
 ENDFOREACH( )
 IF( HAVE_RESTRICT )
     SET( restrict ${ac_cv_c_restrict} )
+    SET( parasail_safe_restrict_cxx ${ac_cv_c_restrict} )
 ELSE( )
     SET( restrict " " )
+    SET( parasail_safe_restrict_cxx " ")
 ENDIF( )
 
 # Check for inline keyword
@@ -126,6 +110,8 @@ int main(int argc, char *argv[]){return 0;}
         IF( HAVE_INLINE )
             SET( ac_cv_c_inline ${ac_kw} )
             BREAK( )
+        ELSE( )
+            UNSET( HAVE_INLINE CACHE )
         ENDIF( )
     ENDFOREACH( )
     IF( HAVE_INLINE )

@@ -7,31 +7,11 @@
 #include "parasail/io.h"
 #include "parasail/matrices/blosum62.h"
 
-static char* get_alphabet(const parasail_matrix_t *matrix) {
-    int i = 0;
-    char *alphabet = NULL;
-
-    alphabet = (char*)malloc(sizeof(char)*(matrix->size+1));
-    for (i=0; i<matrix->size; ++i) {
-        alphabet[i] = '*';
-    }
-    alphabet[matrix->size] = '\0';
-
-    for (i=65; i<=122; ++i) {
-        if (matrix->mapper[i] < matrix->size) {
-            alphabet[matrix->mapper[i]] = i;
-        }
-    }
-    alphabet[matrix->size-1] = '*';
-
-    return alphabet;
-}
-
 static void print_matrix(const parasail_matrix_t *matrix) {
     int i = 0;
     int j = 0;
-    char *alphabet = NULL;
-    alphabet = get_alphabet(matrix);
+    const char *alphabet = NULL;
+    alphabet = matrix->alphabet;
 
     printf("matrix '%s'\n", matrix->name);
     printf("  ");
@@ -44,7 +24,12 @@ static void print_matrix(const parasail_matrix_t *matrix) {
             printf("%c ", alphabet[j]);
         }
         else {
-            printf("%d ", j);
+            if (matrix->query != NULL) {
+                printf("%c ", matrix->query[j]);
+            }
+            else {
+                printf("* ");
+            }
         }
         for (i=0; i<matrix->size; ++i) {
             printf("%4d", matrix->matrix[j*matrix->size + i]);
@@ -53,8 +38,6 @@ static void print_matrix(const parasail_matrix_t *matrix) {
     }
     printf("max = %d\n", matrix->max);
     printf("min = %d\n", matrix->min);
-
-    free(alphabet);
 }
 
 static void print_mapper(const parasail_matrix_t *matrix) {

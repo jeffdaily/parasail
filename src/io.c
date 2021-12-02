@@ -960,7 +960,7 @@ static parasail_matrix_t* parasail_matrix_from_file_internal(const char *filenam
             /* ignore comments */
             i = skip_line(T, i);
         }
-        else if (isalpha(T[i]) || T[i] == '*') {
+        else if (isalnum(T[i]) || T[i] == '*' || T[i] == '-') {
             if (first_alpha) {
                 first_alpha = 0;
                 alphabet = get_alphabet(T, i, size);
@@ -999,7 +999,7 @@ static parasail_matrix_t* parasail_matrix_from_file_internal(const char *filenam
                 /* store the letter */
                 if (alphabet_query_i >= alphabet_query_capacity) {
                     alphabet_query_capacity *= 2;
-                    alphabet_query = realloc(alphabet_query, alphabet_query_capacity+1);
+                    alphabet_query = realloc(alphabet_query, sizeof(char)*(alphabet_query_capacity+1));
                     if (NULL == alphabet_query) {
                         perror("realloc");
                         fprintf(stderr, "parasail_matrix_from_file: "
@@ -1011,9 +1011,16 @@ static parasail_matrix_t* parasail_matrix_from_file_internal(const char *filenam
                         return NULL;
                     }
                 }
-                alphabet_query[alphabet_query_i++] = T[i];
-                ++i; /* skip over the letter */
                 ++count;
+                /* allow PSSM matrix to omit query */
+                if (isalpha(T[i]) || T[i] == '*') {
+                    alphabet_query[alphabet_query_i++] = T[i];
+                    ++i; /* skip over the letter */
+                }
+                else {
+                    alphabet_query[alphabet_query_i++] = '*';
+                    /* don't increment read index i */
+                }
                 for (j=0; j<asize; ++j) {
                     int val = 0;
                     int retcode = get_num(T, &i, &val);
@@ -1028,7 +1035,7 @@ static parasail_matrix_t* parasail_matrix_from_file_internal(const char *filenam
                     }
                     if (matrix_i >= matrix_capacity) {
                         matrix_capacity *= 2;
-                        matrix = realloc(matrix, matrix_capacity);
+                        matrix = realloc(matrix, sizeof(int)*matrix_capacity);
                         if (NULL == matrix) {
                             perror("realloc");
                             fprintf(stderr, "parasail_matrix_from_file: "

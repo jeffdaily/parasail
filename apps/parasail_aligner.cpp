@@ -979,6 +979,15 @@ int main(int argc, char **argv) {
         }
     }
 
+    /* if matrix is PSSM, we disable the filter */
+    if (matrix->type == PARASAIL_MATRIX_TYPE_PSSM) {
+        use_filter = false;
+        if (has_query) {
+            eprintf(stderr, "A query file is not permitted with a pssm matrix.\n");
+            exit(EXIT_FAILURE);
+        }
+    }
+
     if (is_trace && !oname_from_user) {
         oname = "stdout";
     }
@@ -1423,7 +1432,13 @@ int main(int argc, char **argv) {
     else {
         /* don't use enhanced SA filter -- generate all pairs */
         start = parasail_time();
-        if (!has_query) {
+        if (matrix->type == PARASAIL_MATRIX_TYPE_PSSM) {
+            /* pssm matrix is itself a single query, so 1 to all comparison */
+            for (int i=0; i<sid; ++i) {
+                vpairs.push_back(make_pair(i,i));
+            }
+        }
+        else if (!has_query) {
             /* no query file, so all against all comparison */
             for (int i=0; i<sid; ++i) {
                 for (int j=i+1; j<sid; ++j) {
@@ -2246,11 +2261,11 @@ inline static void output_emboss(
                 continue;
             }
             parasail_traceback_generic_extra2(
-                    sequences->seqs[i].seq.s,
-                    sequences->seqs[i].seq.l,
+                    matrix->type == PARASAIL_MATRIX_TYPE_SQUARE ? sequences->seqs[i].seq.s : matrix->query,
+                    matrix->type == PARASAIL_MATRIX_TYPE_SQUARE ? sequences->seqs[i].seq.l : matrix->length,
                     sequences->seqs[j].seq.s,
                     sequences->seqs[j].seq.l,
-                    sequences->seqs[i].name.s,
+                    matrix->type == PARASAIL_MATRIX_TYPE_SQUARE ? sequences->seqs[i].name.s : matrix->name,
                     sequences->seqs[j].name.s,
                     matrix,
                     result,

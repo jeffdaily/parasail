@@ -84,7 +84,7 @@ static inline parasail_traceback_t* CONCAT(NAME, T) (
         else if (result->end_ref+1 == lenb) {
             k = lena-1;
             while (k > i) {
-                *(qc++) = seqA[k];
+                *(qc++) = missing_char(seqA, k);
                 *(dc++) = '-';
                 *(ac++) = ' ';
                 --k;
@@ -110,7 +110,7 @@ static inline parasail_traceback_t* CONCAT(NAME, T) (
         if (j < 0) {
             if (!(result->flag & PARASAIL_FLAG_SW)) {
                 while (i >= 0) {
-                    *(qc++) = seqA[i];
+                    *(qc++) = missing_char(seqA, i);
                     *(dc++) = '-';
                     *(ac++) = ' ';
                     --i;
@@ -120,9 +120,9 @@ static inline parasail_traceback_t* CONCAT(NAME, T) (
         }
         if (PARASAIL_DIAG == where) {
             if (HT[loc] & PARASAIL_DIAG) {
-                *(qc++) = seqA[i];
+                *(qc++) = missing_char(seqA, i);
                 *(dc++) = seqB[j];
-                *(ac++) = match_char(seqA[i], seqB[j], matrix, match, pos, neg, case_sensitive, alphabet_aliases, aliases_size);
+                *(ac++) = match_char(seqA, i, seqB, j, matrix, match, pos, neg, case_sensitive, alphabet_aliases, aliases_size);
                 --i;
                 --j;
             }
@@ -152,7 +152,7 @@ static inline parasail_traceback_t* CONCAT(NAME, T) (
             }
         }
         else if (PARASAIL_DEL == where) {
-            *(qc++) = seqA[i];
+            *(qc++) = missing_char(seqA, i);
             *(dc++) = '-';
             *(ac++) = ' ';
             --i;
@@ -294,7 +294,7 @@ static inline void CONCAT(NAME, T) (
             k = lena-1;
             while (k > i) {
                 ++c_del;
-                *(qc++) = seqA[k];
+                *(qc++) = missing_char(seqA, k);
                 *(dc++) = '-';
                 *(ac++) = ' ';
                 --k;
@@ -322,7 +322,7 @@ static inline void CONCAT(NAME, T) (
             if (!(result->flag & PARASAIL_FLAG_SW)) {
                 while (i >= 0) {
                     ++c_del;
-                    *(qc++) = seqA[i];
+                    *(qc++) = missing_char(seqA, i);
                     *(dc++) = '-';
                     *(ac++) = ' ';
                     --i;
@@ -332,9 +332,9 @@ static inline void CONCAT(NAME, T) (
         }
         if (PARASAIL_DIAG == where) {
             if (HT[loc] & PARASAIL_DIAG) {
-                *(qc++) = seqA[i];
+                *(qc++) = missing_char(seqA, i);
                 *(dc++) = seqB[j];
-                *(ac++) = match_char(seqA[i], seqB[j], matrix, match, pos, neg, case_sensitive, alphabet_aliases, aliases_size);
+                *(ac++) = match_char(seqA, i, seqB, j, matrix, match, pos, neg, case_sensitive, alphabet_aliases, aliases_size);
                 --i;
                 --j;
             }
@@ -366,7 +366,7 @@ static inline void CONCAT(NAME, T) (
         }
         else if (PARASAIL_DEL == where) {
             ++c_del;
-            *(qc++) = seqA[i];
+            *(qc++) = missing_char(seqA, i);
             *(dc++) = '-';
             *(ac++) = ' ';
             --i;

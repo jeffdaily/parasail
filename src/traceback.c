@@ -1,6 +1,5 @@
 #include "config.h"
 
-#include <assert.h>
 #include <ctype.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -16,17 +15,18 @@
 #define snprintf _snprintf
 #endif
 
-static inline int weight(
-        const char a,
-        const char b,
-        const parasail_matrix_t *matrix)
+static inline char missing_char(
+        const char *seqA,
+        int ai)
 {
-    return matrix->matrix[matrix->mapper[(unsigned char)a]*matrix->size + matrix->mapper[(unsigned char)b]];
+    return seqA == NULL ? '*' : seqA[ai];
 }
 
 static inline char match_char(
-        const char a,
-        const char b,
+        const char *seqA,
+        int ai,
+        const char *seqB,
+        int bi,
         const parasail_matrix_t *matrix,
         char match,
         char pos,
@@ -35,6 +35,8 @@ static inline char match_char(
         const char *alphabet_aliases,
         size_t aliases_size)
 {
+    char a = missing_char(seqA, ai);
+    char b = seqB[bi];
     int matches = case_sensitive ? (a == b) : (toupper(a) == toupper(b));
     if (NULL != alphabet_aliases) {
         size_t i;
@@ -51,7 +53,13 @@ static inline char match_char(
         return match;
     }
     else {
-        int sub = weight(a, b, matrix);
+        int sub = 0;
+        if (matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) {
+            sub = matrix->matrix[matrix->mapper[(unsigned char)a]*matrix->size + matrix->mapper[(unsigned char)b]];
+        }
+        else {
+            sub = matrix->matrix[ai*matrix->size + matrix->mapper[(unsigned char)b]];
+        }
         if (sub > 0) {
             return pos;
         }
@@ -121,7 +129,7 @@ parasail_traceback_t* parasail_result_get_traceback_extra(
         int case_sensitive,
         const char *alphabet_aliases)
 {
-    assert(parasail_result_is_trace(result));
+    PARASAIL_ASSERT(parasail_result_is_trace(result));
 
     if (result->flag & PARASAIL_FLAG_STRIPED
             || result->flag & PARASAIL_FLAG_SCAN) {
@@ -199,7 +207,7 @@ void parasail_traceback_generic_extra2(
         int case_sensitive, 
         const char *alphabet_aliases)
 {
-    assert(parasail_result_is_trace(result));
+    PARASAIL_ASSERT_NORETVAL(parasail_result_is_trace(result));
 
     if (result->flag & PARASAIL_FLAG_STRIPED
             || result->flag & PARASAIL_FLAG_SCAN) {

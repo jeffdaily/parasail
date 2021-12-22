@@ -15,10 +15,13 @@ EXPORTS
     parasail_matrix_lookup
     parasail_matrix_create
     parasail_matrix_create_case_sensitive
+    parasail_matrix_pssm_create
+    parasail_matrix_pssm_create_case_sensitive
     parasail_matrix_from_file
     parasail_matrix_from_file_case_sensitive
     parasail_matrix_free
     parasail_matrix_copy
+    parasail_matrix_convert_square_to_pssm
     parasail_matrix_set_value
     parasail_nw_banded
     parasail_traceback_generic

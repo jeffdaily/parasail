@@ -32,7 +32,6 @@ static inline int* CONCAT(parasail_striped_unwind_, T) (
 
 #include "config.h"
 
-#include <assert.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -71,11 +70,11 @@ int* parasail_striped_unwind(
 {
     int *ret = NULL;
 
-    assert((result->flag & PARASAIL_FLAG_STRIPED)
+    PARASAIL_ASSERT((result->flag & PARASAIL_FLAG_STRIPED)
             || result->flag & PARASAIL_FLAG_SCAN);
 
     if (result->flag & PARASAIL_FLAG_LANES_1) {
-        assert(0);
+        PARASAIL_ASSERT(0 && "internal error");
     }
     else if (result->flag & PARASAIL_FLAG_LANES_2) {
         if (result->flag & PARASAIL_FLAG_BITS_8) {
@@ -91,7 +90,7 @@ int* parasail_striped_unwind(
             ret = parasail_striped_unwind_64(lena, lenb, 2, array);
         }
         else {
-            assert(0);
+            PARASAIL_ASSERT(0 && "internal error");
         }
     }
     else if (result->flag & PARASAIL_FLAG_LANES_4) {
@@ -108,7 +107,7 @@ int* parasail_striped_unwind(
             ret = parasail_striped_unwind_64(lena, lenb, 4, array);
         }
         else {
-            assert(0);
+            PARASAIL_ASSERT(0 && "internal error");
         }
     }
     else if (result->flag & PARASAIL_FLAG_LANES_8) {
@@ -125,7 +124,7 @@ int* parasail_striped_unwind(
             ret = parasail_striped_unwind_64(lena, lenb, 8, array);
         }
         else {
-            assert(0);
+            PARASAIL_ASSERT(0 && "internal error");
         }
     }
     else if (result->flag & PARASAIL_FLAG_LANES_16) {
@@ -142,7 +141,7 @@ int* parasail_striped_unwind(
             ret = parasail_striped_unwind_64(lena, lenb, 16, array);
         }
         else {
-            assert(0);
+            PARASAIL_ASSERT(0 && "internal error");
         }
     }
     else if (result->flag & PARASAIL_FLAG_LANES_32) {
@@ -159,7 +158,7 @@ int* parasail_striped_unwind(
             ret = parasail_striped_unwind_64(lena, lenb, 32, array);
         }
         else {
-            assert(0);
+            PARASAIL_ASSERT(0 && "internal error");
         }
     }
     else if (result->flag & PARASAIL_FLAG_LANES_64) {
@@ -176,11 +175,11 @@ int* parasail_striped_unwind(
             ret = parasail_striped_unwind_64(lena, lenb, 64, array);
         }
         else {
-            assert(0);
+            PARASAIL_ASSERT(0 && "internal error");
         }
     }
     else {
-        assert(0);
+        PARASAIL_ASSERT(0 && "internal error");
     }
 
     return ret;

@@ -1,8 +1,16 @@
 # parasail: Pairwise Sequence Alignment Library
 
-Travis: [![Build Status](https://travis-ci.org/jeffdaily/parasail.svg?branch=master)](https://travis-ci.org/jeffdaily/parasail)
+master:
+[![status](https://github.com/jeffdaily/parasail/actions/workflows/autotools.yml/badge.svg?branch=master)](https://github.com/jeffdaily/parasail/actions/workflows/autotools.yml?query=branch%3Amaster)
+[![status](https://github.com/jeffdaily/parasail/actions/workflows/autotools-cross.yml/badge.svg?branch=master)](https://github.com/jeffdaily/parasail/actions/workflows/autotools-cross.yml?query=branch%3Amaster)
+[![status](https://github.com/jeffdaily/parasail/actions/workflows/cmake.yml/badge.svg?branch=master)](https://github.com/jeffdaily/parasail/actions/workflows/cmake.yml?query=branch%3Amaster)
+[![status](https://ci.appveyor.com/api/projects/status/rtmcf2kowwnrl6g2/branch/master?svg=true)](https://ci.appveyor.com/project/jeffdaily/parasail-7t5in/branch/master)
 
-AppVeyor: [![Build status](https://ci.appveyor.com/api/projects/status/rtmcf2kowwnrl6g2/branch/master?svg=true)](https://ci.appveyor.com/project/jeffdaily/parasail-7t5in/branch/master)
+develop:
+[![status](https://github.com/jeffdaily/parasail/actions/workflows/autotools.yml/badge.svg?branch=develop)](https://github.com/jeffdaily/parasail/actions/workflows/autotools.yml?query=branch%3Adevelop)
+[![status](https://github.com/jeffdaily/parasail/actions/workflows/autotools-cross.yml/badge.svg?branch=develop)](https://github.com/jeffdaily/parasail/actions/workflows/autotools-cross.yml?query=branch%3Adevelop)
+[![status](https://github.com/jeffdaily/parasail/actions/workflows/cmake.yml/badge.svg?branch=develop)](https://github.com/jeffdaily/parasail/actions/workflows/cmake.yml?query=branch%3Adevelop)
+[![status](https://ci.appveyor.com/api/projects/status/rtmcf2kowwnrl6g2/branch/develop?svg=true)](https://ci.appveyor.com/project/jeffdaily/parasail-7t5in/branch/develop)
 
 Author: Jeff Daily (jeffrey.daily@gmail.com)
 
@@ -23,6 +31,7 @@ Author: Jeff Daily (jeffrey.daily@gmail.com)
     * [SSW Library Emulation](#ssw-library-emulation)
     * [Function Lookup](#function-lookup)
     * [Banded Global Alignment](#banded-global-alignment)
+    * [Position-Specific Scoring Matrix Alignment](#position-specific-scoring-matrix-alignment)
     * [File Input](#file-input)
     * [Tracebacks](#tracebacks)
   * [Language Bindings](#language-bindings)
@@ -359,8 +368,44 @@ int main(int argc, char **argv) {
 }
 ```
 
+You can also create position-specific scoring matrices.  You can supply
+an array of values, or start with a built-in matrix and convert it.
+
+```C
+#include "parasail.h"
+#include "parasail/matrices/blosum62.h"
+
+int main(int argc, char **argv)
+{
+    const parasail_matrix_t *internal_matrix = NULL;
+    parasail_matrix_t *user_matrix = NULL;
+    const char *pssm_alphabet = "abcdef";
+    const char *pssm_query = "asdf";
+    int pssm_query_len = 4;
+    const int pssm_values[] = {
+        0,  1,  2,  3,   4,  5,
+        6,  7,  8,  9,  10, 11,
+        12, 13, 14, 15, 16, 17,
+        18, 19, 20, 21, 22, 23
+    };
+    const int pssm_rows = 4;
+
+    user_matrix = parasail_matrix_pssm_create(
+            pssm_alphabet,
+            pssm_values,
+            pssm_rows);
+    parasail_matrix_free(user_matrix);
+
+    internal_matrix = parasail_matrix_lookup("blosum62");
+    user_matrix = parasail_matrix_convert_square_to_pssm(internal_matrix, pssm_query, pssm_query_len);
+    parasail_matrix_free(user_matrix);
+}
+```
+
 You can also parse simple matrix files using the function
-`parasail_matrix_from_file` if the file is in the following format:
+`parasail_matrix_from_file` if the file is in one of the following formats:
+
+#### square
 
 ```
 #
@@ -390,6 +435,28 @@ D  -1  -1  -1  -4  -3  -1  -1  -3  -1  -3  -2  -2  -2  -1  -1  -1  -5
 N  -2  -2  -2  -2  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -2  -5
 U  -4   5  -4  -4  -4   1  -4   1   1  -4  -1  -4  -1  -1  -2   5  -5
 *  -5  -5  -5  -5  -5  -5  -5  -5  -5  -5  -5  -5  -5  -5  -5  -5  -5
+```
+
+#### position-specific scoring matrix (pssm)
+
+```
+#
+# Any line starting with '#' is a comment.
+#
+# Needs a first row for the alphabet.
+# First column containing a representative sequence is optional, but included below for an example.
+#
+    A   G   I   L   V   M   F   W   P   C   S   T   Y   N   Q   H   K   R   D   E
+Y  -5  -6   3  -4   2   1   4  -3   0  -5   0  -4   6  0  -5   -4  -5   2  -6  -5
+S  -1  -5   2  -2   0  -4   1  -6   0   1   3   3  -4  -4  -4  -5  -1   1  -5  -1
+C  -4  -6  -5  -5  -4  -5  -6  -6  -6  12  -4  -4  -6  -6  -7  -7  -7  -7  -7  -7
+D  -1  -5  -7  -7  -6  -6  -7  -7  -5  -7  -3  -1  -6   4  -3   3   0  -1   7  -2
+G   0   4   1  -2  -2  -5  -5  -6  -6   5  -2   0   0   2  -4   3  -5  -5  -5   0
+C  -4  -6  -5  -5  -4  -5  -6  -6  -6  12  -4  -4  -6  -6  -7  -7  -7  -7  -7  -7
+L  -4   3  -1   3  -1  -3  -5  -6  -5  -6   0  -4  -5   1   3  -5   1   0  -1  -1
+K  -2   1   1  -2  -1   3  -5  -6  -5  -5   2   2   0   1   1   1   2  -4  -4   0
+P  -2   0  -4   0  -2  -4  -5  -5   5  -5  -3  -1   1   1  -3   2  -4  -4   1   3
+I  -5  -7   7   1   0  -2   3  -5  -6  -5   0  -4  -4  -1  -6   3  -6  -6  -6  -6
 ```
 
 ### SSW Library Emulation
@@ -468,6 +535,21 @@ parasail_result_t* parasail_nw_banded(
         const char * const restrict s2, const int s2Len,
         const int open, const int gap, const int k,
         const parasail_matrix_t* matrix);
+```
+
+### Position-Specific Scoring Matrix Alignment
+
+[back to top]
+
+If your scoring matrix is PSSM (see above), the alignment functions will ignore the query sequence and instead use the PSSM scores from the matrix.
+All alignment functions support this new mode.  The only exception is the set of "stats" functions that return the score and alignment statistics (matches, mismatches, etc) without providing a full cigar or traceback.  These stats functions exepct both input sequences to be available for calculating counts of exact matches.
+
+Rather than creating brand new APIs for just PSSM matrices that omit one of the two input sequences, the old signatures are used.  This design decision promotes API compatibility and preserves function lookup.  The first sequence will be ignored if the substitution matrix type is detected as PSSM.  You should pass in a NULL pointer if you know your matrix is PSSM.
+
+Example:
+
+```C
+result = parasail_sw(NULL, 0, s2, s2Len, 11, 1, matrix_pssm);
 ```
 
 ### File Input

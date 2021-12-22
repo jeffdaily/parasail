@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include <assert.h>
 #if defined(_MSC_VER)
 #include "wingetopt/src/getopt.h"
 #else
@@ -47,6 +48,7 @@ static void print_array_int8_t(
         printf("fopen(\"%s\") error: %s\n", filename, strerror(errno));
         exit(-1);
     }
+    fprintf(f, "saturated=%d\n", parasail_result_is_saturated(result) ? 1 : 0);
     fprintf(f, " ");
     for (j=0; j<s2Len; ++j) {
         fprintf(f, "%4c", s2[j]);
@@ -78,6 +80,7 @@ static void print_array_int(
         printf("fopen(\"%s\") error: %s\n", filename, strerror(errno));
         exit(-1);
     }
+    fprintf(f, "saturated=%d\n", parasail_result_is_saturated(result) ? 1 : 0);
     fprintf(f, " ");
     for (j=0; j<s2Len; ++j) {
         fprintf(f, "%4c", s2[j]);
@@ -120,7 +123,8 @@ static void print_rowcol(
         const int * const restrict row,
         const int * const restrict col,
         const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len)
+        const char * const restrict s2, const int s2Len,
+        parasail_result_t *result)
 {
     int i;
     int j;
@@ -131,6 +135,7 @@ static void print_rowcol(
         printf("fopen(\"%s\") error: %s\n", filename, strerror(errno));
         exit(-1);
     }
+    fprintf(f, "saturated=%d\n", parasail_result_is_saturated(result) ? 1 : 0);
     fprintf(f, "%c", s1[s1Len-1]);
     if (NULL == row) {
         for (j=0; j<s2Len; ++j) {
@@ -192,10 +197,13 @@ int main(int argc, char **argv)
     char *endptr = NULL;
     char *matrixname = NULL;
     const parasail_matrix_t *matrix = NULL;
+    parasail_matrix_t *matrix_pssm = NULL;
     int open = 10;
     int extend = 1;
     int match = 1;
     int mismatch = 0;
+    int pssm_toggle = 0;
+    int do_pssm = 0;
     int do_normal = 1;
     int do_stats = 1;
     int do_nonstats = 1;
@@ -212,7 +220,7 @@ int main(int argc, char **argv)
     int do_sw = 1;
     int use_dna = 0;
 
-    while ((c = getopt(argc, argv, "a:b:df:i:m:M:n:o:e:rRTtNSsBX:")) != -1) {
+    while ((c = getopt(argc, argv, "a:b:df:i:m:M:n:o:Pe:rRTtNSsBX:")) != -1) {
         switch (c) {
             case 'a':
                 errno = 0;
@@ -293,6 +301,9 @@ int main(int argc, char **argv)
                 break;
             case 'N':
                 do_normal = 0;
+                break;
+            case 'P':
+                do_pssm = 1;
                 break;
             case 'S':
                 do_stats = 0;
@@ -387,13 +398,18 @@ int main(int argc, char **argv)
     lena = sequences->seqs[seqA_index].seq.l;
     lenb = sequences->seqs[seqB_index].seq.l;
 
+    if (do_pssm) {
+        printf("PSSM ENABLED\n");
+        matrix_pssm = parasail_matrix_convert_square_to_pssm(matrix, seqA, lena);
+    }
+
     printf("file: %s\n", filename);
     printf("matrix: %s\n", matrixname);
     printf("gap open: %d\n", open);
     printf("gap extend: %d\n", extend);
     printf("seq pair %lu,%lu\n", seqA_index, seqB_index);
 
-    printf("%-15s %8s %6s %4s %5s %5s %4s "
+    printf("%-26s %8s %6s %4s %5s %5s %4s "
            "%8s %8s %8s %8s %9s %8s "
            "%8s %5s %8s %8s %8s\n",
             "name", "type", "isa", "bits", "width", "elem", "sat",
@@ -486,7 +502,25 @@ int main(int argc, char **argv)
         for (i=0; i<new_limit; ++i) {
             timer_rdtsc_single = timer_start();
             timer_nsecs_single = timer_real();
-            result = f.pointer(seqA, lena, seqB, lenb, open, extend, matrix);
+            assert(seqA);
+            assert(lena>0);
+            assert(seqB);
+            assert(lenb>0);
+            if (pssm_toggle) {
+                if (f.is_stats) {
+                    result = f.pointer(seqA, lena, seqB, lenb, open, extend, matrix_pssm);
+                }
+                else {
+                    result = f.pointer(NULL, 0, seqB, lenb, open, extend, matrix_pssm);
+                }
+            }
+            else {
+                result = f.pointer(seqA, lena, seqB, lenb, open, extend, matrix);
+            }
+            if (!result) {
+                fprintf(stderr, "alignment error\n");
+                exit(EXIT_FAILURE);
+            }
             timer_rdtsc_single = timer_start()-(timer_rdtsc_single);
             timer_nsecs_single = timer_real() - timer_nsecs_single;
             stats_sample_value(&stats_rdtsc, timer_rdtsc_single);
@@ -514,6 +548,9 @@ int main(int argc, char **argv)
             timer_rdtsc_ref_mean = stats_rdtsc._mean;
         }
         strcpy(name, f.alg);
+        if (do_pssm && pssm_toggle) {
+            strcat(name, "_pssm");
+        }
         if (f.is_table) {
             strcat(name, "_table");
         }
@@ -523,7 +560,7 @@ int main(int argc, char **argv)
         else if (f.is_trace) {
             strcat(name, "_trace");
         }
-        printf("%-15s %8s %6s %4s %5s %5d ",
+        printf("%-26s %8s %6s %4s %5s %5d ",
                 name, f.type, f.isa, f.bits, f.width, f.lanes);
         /* xeon phi was unable to perform I/O running natively */
         if (f.is_table) {
@@ -607,7 +644,7 @@ int main(int argc, char **argv)
                 strcpy(filename, f.alg);
                 strcat(filename, "_rowcol_scr");
                 strcat(filename, suffix);
-                print_rowcol(filename, row, col, seqA, lena, seqB, lenb);
+                print_rowcol(filename, row, col, seqA, lena, seqB, lenb, result);
             }
             if (f.is_stats) {
                 int *row = parasail_result_get_matches_row(result);
@@ -616,7 +653,7 @@ int main(int argc, char **argv)
                 strcpy(filename, f.alg);
                 strcat(filename, "_rowcol_mch");
                 strcat(filename, suffix);
-                print_rowcol(filename, row, col, seqA, lena, seqB, lenb);
+                print_rowcol(filename, row, col, seqA, lena, seqB, lenb, result);
             }
             if (f.is_stats) {
                 int *row = parasail_result_get_similar_row(result);
@@ -625,7 +662,7 @@ int main(int argc, char **argv)
                 strcpy(filename, f.alg);
                 strcat(filename, "_rowcol_sim");
                 strcat(filename, suffix);
-                print_rowcol(filename, row, col, seqA, lena, seqB, lenb);
+                print_rowcol(filename, row, col, seqA, lena, seqB, lenb, result);
             }
             if (f.is_stats) {
                 int *row = parasail_result_get_length_row(result);
@@ -634,7 +671,7 @@ int main(int argc, char **argv)
                 strcpy(filename, f.alg);
                 strcat(filename, "_rowcol_len");
                 strcat(filename, suffix);
-                print_rowcol(filename, row, col, seqA, lena, seqB, lenb);
+                print_rowcol(filename, row, col, seqA, lena, seqB, lenb, result);
             }
             parasail_result_free(result);
         }
@@ -692,7 +729,7 @@ int main(int argc, char **argv)
                 "%8d %8d %8d %8d "
                 "%9d %8d "
                 "%8.1f %5.1f %8.1f %8.0f %8.0f\n",
-                saturated,
+                saturated ? 1 : 0,
                 score, matches, similar, length,
                 end_query, end_ref,
                 saturated ? 0 : stats_rdtsc._mean,
@@ -707,7 +744,7 @@ int main(int argc, char **argv)
                 "%8d %8d %8d %8d "
                 "%9d %8d "
                 "%8.3f %5.2f %8.3f %8.3f %8.3f\n",
-                saturated,
+                saturated ? 1 : 0,
                 score, matches, similar, length,
                 end_query, end_ref,
                 saturated ? 0 : stats_nsecs._mean,
@@ -716,63 +753,79 @@ int main(int argc, char **argv)
                 saturated ? 0 : stats_nsecs._min,
                 saturated ? 0 : stats_nsecs._max);
         }
-        f = functions[index++];
+        if (do_pssm) {
+            if (pssm_toggle) {
+                pssm_toggle = 0;
+                f = functions[index++];
+            }
+            else {
+                pssm_toggle = 1;
+            }
+        }
+        else {
+            f = functions[index++];
+        }
     }
     /* banded test */
     if (do_nw) {
-        int saturated = 0;
-        stats_clear(&stats_rdtsc);
-        stats_clear(&stats_nsecs);
-        timer_rdtsc = timer_start();
-        timer_nsecs = timer_real();
-        for (i=0; i<limit; ++i) {
-            timer_rdtsc_single = timer_start();
-            timer_nsecs_single = timer_real();
-            result = parasail_nw_banded(seqA, lena, seqB, lenb, open, extend, 3, matrix);
-            timer_rdtsc_single = timer_start()-(timer_rdtsc_single);
-            timer_nsecs_single = timer_real() - timer_nsecs_single;
-            stats_sample_value(&stats_rdtsc, timer_rdtsc_single);
-            stats_sample_value(&stats_nsecs, timer_nsecs_single);
-            score = parasail_result_get_score(result);
-            similar = 0;
-            matches = 0;
-            length = 0;
-            end_query = parasail_result_get_end_query(result);
-            end_ref = parasail_result_get_end_ref(result);
-            saturated = parasail_result_is_saturated(result);
-            parasail_result_free(result);
-        }
-        timer_rdtsc = timer_start()-(timer_rdtsc);
-        timer_nsecs = timer_real() - timer_nsecs;
-        if (use_rdtsc) {
-            printf(
-                    "%-15s %8s %6s %4s %5s %5d %4d "
-                    "%8d %8d %8d %8d "
-                    "%9d %8d "
-                    "%8.1f %5.1f %8.1f %8.0f %8.0f\n",
-                    "nw", "banded", "NA", "32", "32", 1, saturated,
-                    score, matches, similar, length,
-                    end_query, end_ref,
-                    saturated ? 0 : stats_rdtsc._mean,
-                    saturated ? 0 : pctf(timer_rdtsc_ref_mean, stats_rdtsc._mean),
-                    saturated ? 0 : stats_stddev(&stats_rdtsc),
-                    saturated ? 0 : stats_rdtsc._min,
-                    saturated ? 0 : stats_rdtsc._max);
-        }
-        else {
-            printf(
-                    "%-15s %8s %6s %4s %5s %5d %4d "
-                    "%8d %8d %8d %8d "
-                    "%9d %8d "
-                    "%8.3f %5.2f %8.3f %8.3f %8.3f\n",
-                    "nw", "banded", "NA", "32", "32", 1, saturated,
-                    score, matches, similar, length,
-                    end_query, end_ref,
-                    saturated ? 0 : stats_nsecs._mean,
-                    saturated ? 0 : pctf(timer_nsecs_ref_mean, stats_nsecs._mean),
-                    saturated ? 0 : stats_stddev(&stats_nsecs),
-                    saturated ? 0 : stats_nsecs._min,
-                    saturated ? 0 : stats_nsecs._max);
+        int pssm_toggle;
+        for (pssm_toggle=0; pssm_toggle<(do_pssm ? 2 : 1); ++pssm_toggle) {
+            int saturated = 0;
+            stats_clear(&stats_rdtsc);
+            stats_clear(&stats_nsecs);
+            timer_rdtsc = timer_start();
+            timer_nsecs = timer_real();
+            for (i=0; i<limit; ++i) {
+                timer_rdtsc_single = timer_start();
+                timer_nsecs_single = timer_real();
+                result = parasail_nw_banded(seqA, lena, seqB, lenb, open, extend, 3, pssm_toggle ? matrix_pssm : matrix);
+                timer_rdtsc_single = timer_start()-(timer_rdtsc_single);
+                timer_nsecs_single = timer_real() - timer_nsecs_single;
+                stats_sample_value(&stats_rdtsc, timer_rdtsc_single);
+                stats_sample_value(&stats_nsecs, timer_nsecs_single);
+                score = parasail_result_get_score(result);
+                similar = 0;
+                matches = 0;
+                length = 0;
+                end_query = parasail_result_get_end_query(result);
+                end_ref = parasail_result_get_end_ref(result);
+                saturated = parasail_result_is_saturated(result);
+                parasail_result_free(result);
+            }
+            timer_rdtsc = timer_start()-(timer_rdtsc);
+            timer_nsecs = timer_real() - timer_nsecs;
+            if (use_rdtsc) {
+                printf(
+                        "%-26s %8s %6s %4s %5s %5d %4d "
+                        "%8d %8d %8d %8d "
+                        "%9d %8d "
+                        "%8.1f %5.1f %8.1f %8.0f %8.0f\n",
+                        pssm_toggle ? "nw_pssm" : "nw", "banded", "NA", "32", "32", 1,
+                        saturated ? 1 : 0,
+                        score, matches, similar, length,
+                        end_query, end_ref,
+                        saturated ? 0 : stats_rdtsc._mean,
+                        saturated ? 0 : pctf(timer_rdtsc_ref_mean, stats_rdtsc._mean),
+                        saturated ? 0 : stats_stddev(&stats_rdtsc),
+                        saturated ? 0 : stats_rdtsc._min,
+                        saturated ? 0 : stats_rdtsc._max);
+            }
+            else {
+                printf(
+                        "%-26s %8s %6s %4s %5s %5d %4d "
+                        "%8d %8d %8d %8d "
+                        "%9d %8d "
+                        "%8.3f %5.2f %8.3f %8.3f %8.3f\n",
+                        pssm_toggle ? "nw_pssm" : "nw", "banded", "NA", "32", "32", 1,
+                        saturated ? 1 : 0,
+                        score, matches, similar, length,
+                        end_query, end_ref,
+                        saturated ? 0 : stats_nsecs._mean,
+                        saturated ? 0 : pctf(timer_nsecs_ref_mean, stats_nsecs._mean),
+                        saturated ? 0 : stats_stddev(&stats_nsecs),
+                        saturated ? 0 : stats_nsecs._min,
+                        saturated ? 0 : stats_nsecs._max);
+            }
         }
     }
     /* ssw test */
@@ -803,11 +856,12 @@ int main(int argc, char **argv)
         timer_nsecs = timer_real() - timer_nsecs;
         if (use_rdtsc) {
             printf(
-                    "%-15s %8s %6s %4s %5s %5d %4d "
+                    "%-26s %8s %6s %4s %5s %5d %4d "
                     "%8d %8d %8d %8d "
                     "%9d %8d "
                     "%8.1f %5.1f %8.1f %8.0f %8.0f\n",
-                    "ssw", "striped", "NA", "16", "16", 1, saturated,
+                    "ssw", "striped", "NA", "16", "16", 1,
+                    saturated ? 1 : 0,
                     score, matches, similar, length,
                     end_query, end_ref,
                     saturated ? 0 : stats_rdtsc._mean,
@@ -818,11 +872,12 @@ int main(int argc, char **argv)
         }
         else {
             printf(
-                    "%-15s %8s %6s %4s %5s %5d %4d "
+                    "%-26s %8s %6s %4s %5s %5d %4d "
                     "%8d %8d %8d %8d "
                     "%9d %8d "
                     "%8.3f %5.2f %8.3f %8.3f %8.3f\n",
-                    "ssw", "striped", "NA", "16", "16", 1, saturated,
+                    "ssw", "striped", "NA", "16", "16", 1,
+                    saturated ? 1 : 0,
                     score, matches, similar, length,
                     end_query, end_ref,
                     saturated ? 0 : stats_nsecs._mean,
@@ -835,6 +890,10 @@ int main(int argc, char **argv)
 
     if (filename) {
         parasail_sequences_free(sequences);
+    }
+
+    if (do_pssm) {
+        parasail_matrix_free(matrix_pssm);
     }
 
     return 0;

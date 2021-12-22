@@ -30,15 +30,19 @@
 #cmakedefine HAVE_WINDOWS_H
 #cmakedefine HAVE_GETOPT
 #cmakedefine HAVE_POLL
+#cmakedefine HAVE___BUILTIN_CPU_INIT
+#cmakedefine HAVE___BUILTIN_CPU_SUPPORTS
 #cmakedefine HAVE_FILELENGTH
 #cmakedefine01 HAVE_GETSYSTEMTIMEASFILETIME
 #cmakedefine HAVE_SETUNHANDLEDEXCEPTIONFILTER
 #cmakedefine01 HAVE_CLOCK_GET_TIME
 #cmakedefine01 HAVE_CLOCK_GETTIME_MONOTONIC
 #cmakedefine01 HAVE_CLOCK_GETTIME_REALTIME
-#cmakedefine INT64_LITERAL_SUFFIX_I64
-#cmakedefine INT64_LITERAL_SUFFIX_LL
+#cmakedefine01 INT64_LITERAL_SUFFIX_I64
+#cmakedefine01 INT64_LITERAL_SUFFIX_LL
 #ifndef __cplusplus
 #cmakedefine inline ${inline}
-#endif
 #cmakedefine restrict ${restrict}
+#endif
+/* avoid name clashes */
+#cmakedefine parasail_safe_restrict_cxx ${parasail_safe_restrict_cxx}

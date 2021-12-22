@@ -63,7 +63,7 @@ static inline parasail_traceback_t* CONCAT(NAME, T) (
     if (NULL != alphabet_aliases_) {
         size_t i;
         aliases_size = strlen(alphabet_aliases_);
-        assert(aliases_size % 2 == 0 && aliases_size < 256); // even number of characters in alias
+        PARASAIL_ASSERT(aliases_size % 2 == 0 && aliases_size < 256); // even number of characters in alias
         for (i=0; i<aliases_size; ++i) {
             alphabet_aliases[i] = case_sensitive ? alphabet_aliases_[i] :
                                                    toupper(alphabet_aliases_[i]);
@@ -84,14 +84,14 @@ static inline parasail_traceback_t* CONCAT(NAME, T) (
         else if (result->end_ref+1 == lenb) {
             k = lena-1;
             while (k > i) {
-                *(qc++) = seqA[k];
+                *(qc++) = missing_char(seqA, k);
                 *(dc++) = '-';
                 *(ac++) = ' ';
                 --k;
             }
         }
         else {
-            assert(0);
+            PARASAIL_ASSERT(0 && "internal error");
         }
     }
     while (i >= 0 || j >= 0) {
@@ -110,7 +110,7 @@ static inline parasail_traceback_t* CONCAT(NAME, T) (
         if (j < 0) {
             if (!(result->flag & PARASAIL_FLAG_SW)) {
                 while (i >= 0) {
-                    *(qc++) = seqA[i];
+                    *(qc++) = missing_char(seqA, i);
                     *(dc++) = '-';
                     *(ac++) = ' ';
                     --i;
@@ -120,9 +120,9 @@ static inline parasail_traceback_t* CONCAT(NAME, T) (
         }
         if (PARASAIL_DIAG == where) {
             if (HT[loc] & PARASAIL_DIAG) {
-                *(qc++) = seqA[i];
+                *(qc++) = missing_char(seqA, i);
                 *(dc++) = seqB[j];
-                *(ac++) = match_char(seqA[i], seqB[j], matrix, match, pos, neg, case_sensitive, alphabet_aliases, aliases_size);
+                *(ac++) = match_char(seqA, i, seqB, j, matrix, match, pos, neg, case_sensitive, alphabet_aliases, aliases_size);
                 --i;
                 --j;
             }
@@ -148,11 +148,11 @@ static inline parasail_traceback_t* CONCAT(NAME, T) (
                 where = PARASAIL_INS;
             }
             else {
-                assert(0);
+                PARASAIL_ASSERT(0 && "internal error");
             }
         }
         else if (PARASAIL_DEL == where) {
-            *(qc++) = seqA[i];
+            *(qc++) = missing_char(seqA, i);
             *(dc++) = '-';
             *(ac++) = ' ';
             --i;
@@ -163,14 +163,14 @@ static inline parasail_traceback_t* CONCAT(NAME, T) (
                 where = PARASAIL_DEL;
             }
             else {
-                assert(0);
+                PARASAIL_ASSERT(0 && "internal error");
             }
         }
         else if (PARASAIL_ZERO == where) {
             break;
         }
         else {
-            assert(0);
+            PARASAIL_ASSERT(0 && "internal error");
         }
     }
     *(qc++) = '\0';
@@ -265,7 +265,7 @@ static inline void CONCAT(NAME, T) (
     if (NULL != alphabet_aliases_) {
         size_t i;
         aliases_size = strlen(alphabet_aliases_);
-        assert(aliases_size % 2 == 0 && aliases_size < 256); // even number of characters in alias
+        PARASAIL_ASSERT_NORETVAL(aliases_size % 2 == 0 && aliases_size < 256); // even number of characters in alias
         for (i=0; i<aliases_size; ++i) {
             alphabet_aliases[i] = case_sensitive ? alphabet_aliases_[i] :
                                                    toupper(alphabet_aliases_[i]);
@@ -294,14 +294,14 @@ static inline void CONCAT(NAME, T) (
             k = lena-1;
             while (k > i) {
                 ++c_del;
-                *(qc++) = seqA[k];
+                *(qc++) = missing_char(seqA, k);
                 *(dc++) = '-';
                 *(ac++) = ' ';
                 --k;
             }
         }
         else {
-            assert(0);
+            PARASAIL_ASSERT_NORETVAL(0 && "internal error");
         }
     }
     while (i >= 0 || j >= 0) {
@@ -322,7 +322,7 @@ static inline void CONCAT(NAME, T) (
             if (!(result->flag & PARASAIL_FLAG_SW)) {
                 while (i >= 0) {
                     ++c_del;
-                    *(qc++) = seqA[i];
+                    *(qc++) = missing_char(seqA, i);
                     *(dc++) = '-';
                     *(ac++) = ' ';
                     --i;
@@ -332,9 +332,9 @@ static inline void CONCAT(NAME, T) (
         }
         if (PARASAIL_DIAG == where) {
             if (HT[loc] & PARASAIL_DIAG) {
-                *(qc++) = seqA[i];
+                *(qc++) = missing_char(seqA, i);
                 *(dc++) = seqB[j];
-                *(ac++) = match_char(seqA[i], seqB[j], matrix, match, pos, neg, case_sensitive, alphabet_aliases, aliases_size);
+                *(ac++) = match_char(seqA, i, seqB, j, matrix, match, pos, neg, case_sensitive, alphabet_aliases, aliases_size);
                 --i;
                 --j;
             }
@@ -361,12 +361,12 @@ static inline void CONCAT(NAME, T) (
                 where = PARASAIL_INS;
             }
             else {
-                assert(0);
+                PARASAIL_ASSERT_NORETVAL(0 && "internal error");
             }
         }
         else if (PARASAIL_DEL == where) {
             ++c_del;
-            *(qc++) = seqA[i];
+            *(qc++) = missing_char(seqA, i);
             *(dc++) = '-';
             *(ac++) = ' ';
             --i;
@@ -377,14 +377,14 @@ static inline void CONCAT(NAME, T) (
                 where = PARASAIL_DEL;
             }
             else {
-                assert(0);
+                PARASAIL_ASSERT_NORETVAL(0 && "internal error");
             }
         }
         else if (PARASAIL_ZERO == where) {
             break;
         }
         else {
-            assert(0);
+            PARASAIL_ASSERT_NORETVAL(0 && "internal error");
         }
     }
     *(qc++) = '\0';
@@ -442,7 +442,7 @@ static inline void CONCAT(NAME, T) (
                 else if (ar[ai] == ' ') ++gap;
                 else {
                     fprintf(stderr, "bad char in traceback '%c'\n", ar[ai]);
-                    assert(0);
+                    PARASAIL_ASSERT_NORETVAL(0 && "internal error");
                 }
                 fprintf(stream, "%c", ar[ai]);
                 ++ai;

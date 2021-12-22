@@ -12,7 +12,6 @@
 import copy
 import os
 import re
-import string
 import sys
 
 from isa import sse2
@@ -21,7 +20,7 @@ from isa import avx2
 from isa import altivec
 from isa import neon
 
-keys = sse2.keys()
+keys = list(sse2.keys())
 
 # gather templates
 template_dir = "templates/"
@@ -59,10 +58,10 @@ template_filenames = [
 ]
 
 special_templates = [
-"sg_diag_8.c",
+#"sg_diag_8.c",
 "sw_diag_8.c",
 "sw_stats_diag_8.c",
-"sg_trace_diag_8.c",
+#"sg_trace_diag_8.c",
 "sw_trace_diag_8.c",
 ]
 
@@ -236,7 +235,7 @@ def generate_printer(params):
         col[(i+%(LANE)s)] = (%(INT)s)%(VEXTRACT)s(vWH, %(LANE_END)s);
     }\n"""[1:] % params
     else:
-        print "bad printer name"
+        print("bad printer name")
         sys.exit(1)
     params["PRINTER"] = text[:-1] # remove last newline
     params["PRINTER_TRACE"] = trace[:-1] # remove last newline
@@ -246,71 +245,27 @@ def generate_printer(params):
     return params
 
 
-def generate_saturation_check_old(params):
-    width = params["WIDTH"]
-    if width == 8:
-
-        params["SATURATION_CHECK_INIT"] = """
-    %(VTYPE)s vSaturationCheck = %(VSET0)s();
-    %(VTYPE)s vNegLimit = %(VSET1)s(INT8_MIN);
-    %(VTYPE)s vPosLimit = %(VSET1)s(INT8_MAX);""".strip() % params
-
-        params["SATURATION_CHECK_MID"] = """
-            /* check for saturation */
-            {
-                vSaturationCheck = %(VOR)s(vSaturationCheck,
-                        %(VOR)s(
-                            %(VCMPEQ)s(vH, vNegLimit),
-                            %(VCMPEQ)s(vH, vPosLimit)));
-            }""".strip() % params
-
-        params["SATURATION_CHECK_FINAL"] = """
-    if (%(VMOVEMASK)s(vSaturationCheck)) {
-        result->flag |= PARASAIL_FLAG_SATURATED;
-        score = INT8_MAX;
-    }""".strip() % params
-
-        params["STATS_SATURATION_CHECK_INIT"] = """
-    %(VTYPE)s vSaturationCheck = %(VSET0)s();
-    %(VTYPE)s vNegLimit = %(VSET1)s(INT8_MIN);
-    %(VTYPE)s vPosLimit = %(VSET1)s(INT8_MAX);""".strip() % params
-
-        params["STATS_SATURATION_CHECK_MID"] = """
-            /* check for saturation */
-            {
-                vSaturationCheck = %(VOR)s(vSaturationCheck,
-                        %(VOR)s(
-                            %(VCMPEQ)s(vH, vNegLimit),
-                            %(VCMPEQ)s(vH, vPosLimit)));
-            }""".strip() % params
-
-        params["STATS_SATURATION_CHECK_FINAL"] = """
-    if (%(VMOVEMASK)s(vSaturationCheck)) {
-        result->flag |= PARASAIL_FLAG_SATURATED;
-        score = INT8_MAX;
-    }""".strip() % params
-
-        params["NEG_INF"] = "INT8_MIN"
-        params["VADD"] = params["VADDSx8"]
-        params["VSUB"] = params["VSUBSx8"]
-    else:
-        params["SATURATION_CHECK_INIT"] = ""
-        params["SATURATION_CHECK_MID"] = ""
-        params["SATURATION_CHECK_FINAL"] = ""
-        params["STATS_SATURATION_CHECK_INIT"] = ""
-        params["STATS_SATURATION_CHECK_MID"] = ""
-        params["STATS_SATURATION_CHECK_FINAL"] = ""
-    return params
-
-
 def generate_saturation_check(params):
     width = params["WIDTH"]
-    if width == 8:
+    # by commenting this out, all bit widths get sat checks
+    #if width == 8:
+    if True:
+        params["SATURATION_CHECK_DECL"] = """
+    %(INT)s NEG_LIMIT = 0;
+    %(INT)s POS_LIMIT = 0;
+    %(INT)s score = 0;
+    %(VTYPE)s vNegLimit;
+    %(VTYPE)s vPosLimit;
+    %(VTYPE)s vSaturationCheckMin;
+    %(VTYPE)s vSaturationCheckMax;""".strip() % params
         params["SATURATION_CHECK_INIT"] = """
-    %(VTYPE)s vNegLimit = %(VSET1)s(INT8_MIN);
-    %(VTYPE)s vPosLimit = %(VSET1)s(INT8_MAX);
-    %(VTYPE)s vSaturationCheckMin = vPosLimit;
-    %(VTYPE)s vSaturationCheckMax = vNegLimit;""".strip() % params
+    NEG_LIMIT = (-open < matrix->min ? INT%(WIDTH)s_MIN + open : INT%(WIDTH)s_MIN - matrix->min) + 1;
+    POS_LIMIT = INT%(WIDTH)s_MAX - matrix->max - 1;
+    score = NEG_LIMIT;
+    vNegLimit = %(VSET1)s(NEG_LIMIT);
+    vPosLimit = %(VSET1)s(POS_LIMIT);
+    vSaturationCheckMin = vPosLimit;
+    vSaturationCheckMax = vNegLimit;""".strip() % params
         if "diag" in params["NAME"]:
             params["SATURATION_CHECK_MID"] = """
             /* check for saturation */
@@ -344,19 +299,30 @@ def generate_saturation_check(params):
 
         params["SATURATION_CHECK_FINAL"] = """
     if (%(VMOVEMASK)s(%(VOR)s(
-            %(VCMPEQ)s(vSaturationCheckMin, vNegLimit),
-            %(VCMPEQ)s(vSaturationCheckMax, vPosLimit)))) {
+            %(VCMPLT)s(vSaturationCheckMin, vNegLimit),
+            %(VCMPGT)s(vSaturationCheckMax, vPosLimit)))) {
         result->flag |= PARASAIL_FLAG_SATURATED;
-        score = INT8_MAX;
+        score = 0;
         end_query = 0;
         end_ref = 0;
     }""".strip() % params
 
+        params["STATS_SATURATION_CHECK_DECL"] = """
+    %(INT)s NEG_LIMIT = 0;
+    %(INT)s POS_LIMIT = 0;
+    %(INT)s score = 0;
+    %(VTYPE)s vNegLimit;
+    %(VTYPE)s vPosLimit;
+    %(VTYPE)s vSaturationCheckMin;
+    %(VTYPE)s vSaturationCheckMax;""".strip() % params
         params["STATS_SATURATION_CHECK_INIT"] = """
-    %(VTYPE)s vNegLimit = %(VSET1)s(INT8_MIN);
-    %(VTYPE)s vPosLimit = %(VSET1)s(INT8_MAX);
-    %(VTYPE)s vSaturationCheckMin = vPosLimit;
-    %(VTYPE)s vSaturationCheckMax = vNegLimit;""".strip() % params
+    NEG_LIMIT = (-open < matrix->min ? INT%(WIDTH)s_MIN + open : INT%(WIDTH)s_MIN - matrix->min) + 1;
+    POS_LIMIT = INT%(WIDTH)s_MAX - matrix->max - 1;
+    score = NEG_LIMIT;
+    vNegLimit = %(VSET1)s(NEG_LIMIT);
+    vPosLimit = %(VSET1)s(POS_LIMIT);
+    vSaturationCheckMin = vPosLimit;
+    vSaturationCheckMax = vNegLimit;""".strip() % params
         if "diag" in params["NAME"]:
             params["STATS_SATURATION_CHECK_MID"] = """
             /* check for saturation */
@@ -394,10 +360,10 @@ def generate_saturation_check(params):
 
         params["STATS_SATURATION_CHECK_FINAL"] = """
     if (%(VMOVEMASK)s(%(VOR)s(
-            %(VCMPEQ)s(vSaturationCheckMin, vNegLimit),
-            %(VCMPEQ)s(vSaturationCheckMax, vPosLimit)))) {
+            %(VCMPLT)s(vSaturationCheckMin, vNegLimit),
+            %(VCMPGT)s(vSaturationCheckMax, vPosLimit)))) {
         result->flag |= PARASAIL_FLAG_SATURATED;
-        score = INT8_MAX;
+        score = 0;
         matches = 0;
         similar = 0;
         length = 0;
@@ -405,20 +371,27 @@ def generate_saturation_check(params):
         end_ref = 0;
     }""".strip() % params
 
-        params["NEG_INF"] = "INT8_MIN"
-        params["VADD"] = params["VADDSx8"]
-        params["VSUB"] = params["VSUBSx8"]
+        if width == 8:
+            params["NEG_INF"] = "INT8_MIN"
+	    params["VADD"] = params["VADDSx8"]
+	    params["VSUB"] = params["VSUBSx8"]
+        elif width == 16:
+            params["NEG_INF"] = "INT16_MIN"
+	    params["VADD"] = params["VADDSx16"]
+	    params["VSUB"] = params["VSUBSx16"]
         if "sw" in params["NAME"] and "striped" in params["NAME"]:
             pass
         else:
-            for p in ["VMAX", "VMIN"]:
+            for p in ["VMAX", "VMIN", "VCMPLT", "VCMPGT"]:
                 if (params[p].endswith("_rpl")
                         and params[p] not in params["FIXES"]):
                     params["FIXES"] += params[params[p]]
     else:
+        params["SATURATION_CHECK_DECL"] = ""
         params["SATURATION_CHECK_INIT"] = ""
         params["SATURATION_CHECK_MID"] = ""
         params["SATURATION_CHECK_FINAL"] = ""
+        params["STATS_SATURATION_CHECK_DECL"] = ""
         params["STATS_SATURATION_CHECK_INIT"] = ""
         params["STATS_SATURATION_CHECK_MID"] = ""
         params["STATS_SATURATION_CHECK_MID1"] = ""
@@ -430,11 +403,11 @@ def generate_saturation_check(params):
 def generated_params_diag(params):
     lanes = params["LANES"]
     params["DIAG_I"] = ",".join(["%d"%i for i in range(lanes)])
-    params["DIAG_ILO"] = ",".join(["%d"%i for i in range(lanes/2,lanes)])
-    params["DIAG_IHI"] = ",".join(["%d"%i for i in range(lanes/2)])
+    params["DIAG_ILO"] = ",".join(["%d"%i for i in range(lanes//2,lanes)])
+    params["DIAG_IHI"] = ",".join(["%d"%i for i in range(lanes//2)])
     params["DIAG_J"] = ",".join(["%d"%-i for i in range(lanes)])
-    params["DIAG_JLO"] = ",".join(["%d"%-i for i in range(lanes/2,lanes)])
-    params["DIAG_JHI"] = ",".join(["%d"%-i for i in range(lanes/2)])
+    params["DIAG_JLO"] = ",".join(["%d"%-i for i in range(lanes//2,lanes)])
+    params["DIAG_JHI"] = ",".join(["%d"%-i for i in range(lanes//2)])
     params["DIAG_IBoundary"] = "            ".join(
             ["-open-%d*gap,\n"%(i)
                 for i in range(lanes)])[:-2]
@@ -442,7 +415,7 @@ def generated_params_diag(params):
             ["s1[i+%d],\n"%i
                 for i in range(lanes)])[:-2]
     params["DIAG_MATROW_DECL"] = "        ".join(
-            ["const int * const restrict matrow%d = &matrix->matrix[matrix->size*s1[i+%d]];\n"%(i,i)
+            ["const int * const restrict matrow%d = &matrix->matrix[matrix->size * ((matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) ? s1[i+%d] : ((i+%d >= s1Len) ? s1Len-1 : i+%d))];\n"%(i,i,i,i)
                 for i in range(lanes)])[:-1]
     params["DIAG_MATROW_USE"] = "                    ".join(
             ["matrow%d[s2[j-%d]],\n"%(i,i)
@@ -514,9 +487,9 @@ def generated_params(template, params):
     bits = params["BITS"]
     width = params["WIDTH"]
     params["INDEX"] = "int32_t"
-    params["ALIGNMENT"] = bits/8
-    params["BYTES"] = width/8
-    params["LANES"] = bits/width
+    params["ALIGNMENT"] = bits//8
+    params["BYTES"] = width//8
+    params["LANES"] = bits//width
     params["LAST_POS"] = params["LANES"]-1
     params["INT"] = "int%(WIDTH)s_t" % params
     params["NEG_INF"] = "(INT%(WIDTH)s_MIN/(%(INT)s)(2))" % params
@@ -568,9 +541,9 @@ for template_filename in template_filenames:
             suffix_prefix = ""
             suffix_prefix_prof = ""
             if 'sg' in parts[0]:
-                parts[0] = string.replace(parts[0], 'sg', 'sg_flags')
-                prefix = string.replace(prefix, 'sg', 'sg_flags')
-                prefix_prof = string.replace(prefix_prof, 'sg', 'sg_flags')
+                parts[0] = parts[0].replace('sg', 'sg_flags')
+                prefix = prefix.replace('sg', 'sg_flags')
+                prefix_prof = prefix_prof.replace('sg', 'sg_flags')
             if len(parts) == 2:
                 table_prefix = "%s_table_%s" % (parts[0], parts[1])
                 rowcol_prefix = "%s_rowcol_%s" % (parts[0], parts[1])
@@ -608,18 +581,18 @@ for template_filename in template_filenames:
             params["SUFFIX"] = suffix
             params["SUFFIX_PROF"] = suffix_prof
             params["NAME"] = "parasail_"+function_name
-            params["NAME_BASE"] = string.replace(params["NAME"], "_stats", "")
+            params["NAME_BASE"] = params["NAME"].replace("_stats", "")
             params["NAME_TABLE"] = "parasail_"+function_table_name
             params["NAME_ROWCOL"] = "parasail_"+function_rowcol_name
             params["NAME_TRACE"] = "parasail_"+function_trace_name
             params["PNAME"] = "parasail_"+function_pname
-            params["PNAME_BASE"] = string.replace(params["PNAME"], "_stats", "")
+            params["PNAME_BASE"] = params["PNAME"].replace("_stats", "")
             params["PNAME_TABLE"] = "parasail_"+function_table_pname
             params["PNAME_ROWCOL"] = "parasail_"+function_rowcol_pname
             params["PNAME_TRACE"] = "parasail_"+function_trace_pname
             params = generated_params(template, params)
             if 'flags' in function_name:
-                function_name = string.replace(function_name, '_flags', '')
+                function_name = function_name.replace('_flags', '')
             output_filename = "%s%s.c" % (output_dir, function_name)
             result = template % params
             writer = open(output_filename, "w")
@@ -636,7 +609,7 @@ for template_filename in special_templates:
     width = int(parts[-1])
     parts = parts[:-1]
     if 'sg' in parts[0]:
-        parts[0] = string.replace(parts[0], 'sg', 'sg_flags')
+        parts[0] = parts[0].replace('sg', 'sg_flags')
     prefix = "_".join(parts)
     table_prefix = ""
     rowcol_prefix = ""
@@ -672,7 +645,7 @@ for template_filename in special_templates:
         params["NAME_TRACE"] = "parasail_"+function_trace_name
         params = generated_params(template, params)
         if 'flags' in function_name:
-            function_name = string.replace(function_name, '_flags', '')
+            function_name = function_name.replace('_flags', '')
         output_filename = "%s%s.c" % (output_dir, function_name)
         result = template % params
         writer = open(output_filename, "w")
@@ -687,7 +660,7 @@ for template_filename in bias_templates:
     parts = prefix.split('_')
     parts = parts[:-1]
     if 'sg' in parts[0]:
-        parts[0] = string.replace(parts[0], 'sg', 'sg_flags')
+        parts[0] = parts[0].replace('sg', 'sg_flags')
     prefix = "_".join(parts)
     prefix_prof = prefix + "_profile"
     table_prefix = ""
@@ -735,12 +708,12 @@ for template_filename in bias_templates:
             params["SUFFIX"] = suffix
             params["SUFFIX_PROF"] = suffix_prof
             params["NAME"] = "parasail_"+function_name
-            params["NAME_BASE"] = string.replace(params["NAME"], "_stats", "")
+            params["NAME_BASE"] = params["NAME"].replace("_stats", "")
             params["NAME_TABLE"] = "parasail_"+function_table_name
             params["NAME_ROWCOL"] = "parasail_"+function_rowcol_name
             params["NAME_TRACE"] = "parasail_"+function_trace_name
             params["PNAME"] = "parasail_"+function_pname
-            params["PNAME_BASE"] = string.replace(params["PNAME"], "_stats", "")
+            params["PNAME_BASE"] = params["PNAME"].replace("_stats", "")
             params["PNAME_TABLE"] = "parasail_"+function_table_pname
             params["PNAME_ROWCOL"] = "parasail_"+function_rowcol_pname
             params["PNAME_TRACE"] = "parasail_"+function_trace_pname

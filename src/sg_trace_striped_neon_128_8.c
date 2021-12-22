@@ -12,18 +12,17 @@
 
 
 
+#include "parasail.h"
+#include "parasail/memory.h"
+#include "parasail/internal_neon.h"
+
 #define SG_TRACE
 #define SG_SUFFIX _striped_neon_128_8
 #define SG_SUFFIX_PROF _striped_profile_neon_128_8
 #include "sg_helper.h"
 
-#include "parasail.h"
-#include "parasail/memory.h"
-#include "parasail/internal_neon.h"
-
 #define SWAP(A,B) { simde__m128i* tmp = A; A = B; B = tmp; }
 
-#define NEG_INF INT8_MIN
 
 
 static inline void arr_store(
@@ -54,9 +53,28 @@ parasail_result_t* FNAME(
         const int open, const int gap, const parasail_matrix_t *matrix,
         int s1_beg, int s1_end, int s2_beg, int s2_end)
 {
-    parasail_profile_t *profile = parasail_profile_create_neon_128_8(s1, s1Len, matrix);
-    parasail_result_t *result = PNAME(profile, s2, s2Len, open, gap, s1_beg, s1_end, s2_beg, s2_end);
+    /* declare local variables */
+    parasail_profile_t *profile = NULL;
+    parasail_result_t *result = NULL;
+
+    /* validate inputs */
+    PARASAIL_CHECK_NULL(s2);
+    PARASAIL_CHECK_GT0(s2Len);
+    PARASAIL_CHECK_GE0(open);
+    PARASAIL_CHECK_GE0(gap);
+    PARASAIL_CHECK_NULL(matrix);
+    if (matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) {
+        PARASAIL_CHECK_NULL(s1);
+        PARASAIL_CHECK_GT0(s1Len);
+    }
+
+    /* initialize local variables */
+    profile = parasail_profile_create_neon_128_8(s1, s1Len, matrix);
+    if (!profile) return NULL;
+    result = PNAME(profile, s2, s2Len, open, gap, s1_beg, s1_end, s2_beg, s2_end);
+
     parasail_profile_free(profile);
+
     return result;
 }
 
@@ -66,46 +84,123 @@ parasail_result_t* PNAME(
         const int open, const int gap,
         int s1_beg, int s1_end, int s2_beg, int s2_end)
 {
+    /* declare local variables */
     int32_t i = 0;
     int32_t j = 0;
     int32_t k = 0;
-    const int s1Len = profile->s1Len;
-    int32_t end_query = s1Len-1;
-    int32_t end_ref = s2Len-1;
-    const parasail_matrix_t *matrix = profile->matrix;
-    const int32_t segWidth = 16; /* number of values in vector unit */
-    const int32_t segLen = (s1Len + segWidth - 1) / segWidth;
-    const int32_t offset = (s1Len - 1) % segLen;
-    const int32_t position = (segWidth - 1) - (s1Len - 1) / segLen;
-    simde__m128i* const restrict vProfile = (simde__m128i*)profile->profile8.score;
-    simde__m128i* restrict pvHStore = parasail_memalign_simde__m128i(16, segLen);
-    simde__m128i* restrict pvHLoad = parasail_memalign_simde__m128i(16, segLen);
-    simde__m128i* const restrict pvE = parasail_memalign_simde__m128i(16, segLen);
-    simde__m128i* restrict pvEaStore = parasail_memalign_simde__m128i(16, segLen);
-    simde__m128i* restrict pvEaLoad = parasail_memalign_simde__m128i(16, segLen);
-    simde__m128i* const restrict pvHT = parasail_memalign_simde__m128i(16, segLen);
-    int8_t* const restrict boundary = parasail_memalign_int8_t(16, s2Len+1);
-    simde__m128i vGapO = simde_mm_set1_epi8(open);
-    simde__m128i vGapE = simde_mm_set1_epi8(gap);
-    simde__m128i vNegInf = simde_mm_set1_epi8(NEG_INF);
-    int8_t score = NEG_INF;
-    simde__m128i vMaxH = vNegInf;
-    simde__m128i vPosMask = simde_mm_cmpeq_epi8(simde_mm_set1_epi8(position),
+    int32_t s1Len = 0;
+    int32_t end_query = 0;
+    int32_t end_ref = 0;
+    const parasail_matrix_t *matrix = NULL;
+    int32_t segWidth = 0;
+    int32_t segLen = 0;
+    int32_t offset = 0;
+    int32_t position = 0;
+    simde__m128i* restrict vProfile = NULL;
+    simde__m128i* restrict pvHStore = NULL;
+    simde__m128i* restrict pvHLoad = NULL;
+    simde__m128i* restrict pvE = NULL;
+    simde__m128i* restrict pvEaStore = NULL;
+    simde__m128i* restrict pvEaLoad = NULL;
+    simde__m128i* restrict pvHT = NULL;
+    int8_t* restrict boundary = NULL;
+    simde__m128i vGapO;
+    simde__m128i vGapE;
+    int8_t NEG_LIMIT = 0;
+    int8_t POS_LIMIT = 0;
+    int8_t score = 0;
+    simde__m128i vNegLimit;
+    simde__m128i vPosLimit;
+    simde__m128i vSaturationCheckMin;
+    simde__m128i vSaturationCheckMax;
+    simde__m128i vMaxH;
+    simde__m128i vPosMask;
+    parasail_result_t *result = NULL;
+    simde__m128i vTIns;
+    simde__m128i vTDel;
+    simde__m128i vTDiag;
+    simde__m128i vTDiagE;
+    simde__m128i vTInsE;
+    simde__m128i vTDiagF;
+    simde__m128i vTDelF;
+    simde__m128i vTMask;
+    simde__m128i vFTMask;
+
+    /* validate inputs */
+    PARASAIL_CHECK_NULL(profile);
+    PARASAIL_CHECK_NULL(profile->profile8.score);
+    PARASAIL_CHECK_NULL(profile->matrix);
+    PARASAIL_CHECK_GT0(profile->s1Len);
+    PARASAIL_CHECK_NULL(s2);
+    PARASAIL_CHECK_GT0(s2Len);
+    PARASAIL_CHECK_GE0(open);
+    PARASAIL_CHECK_GE0(gap);
+
+    /* initialize stack variables */
+    i = 0;
+    j = 0;
+    k = 0;
+    s1Len = profile->s1Len;
+    end_query = s1Len-1;
+    end_ref = s2Len-1;
+    matrix = profile->matrix;
+    segWidth = 16; /* number of values in vector unit */
+    segLen = (s1Len + segWidth - 1) / segWidth;
+    offset = (s1Len - 1) % segLen;
+    position = (segWidth - 1) - (s1Len - 1) / segLen;
+    vProfile = (simde__m128i*)profile->profile8.score;
+    vGapO = simde_mm_set1_epi8(open);
+    vGapE = simde_mm_set1_epi8(gap);
+    NEG_LIMIT = (-open < matrix->min ? INT8_MIN + open : INT8_MIN - matrix->min) + 1;
+    POS_LIMIT = INT8_MAX - matrix->max - 1;
+    score = NEG_LIMIT;
+    vNegLimit = simde_mm_set1_epi8(NEG_LIMIT);
+    vPosLimit = simde_mm_set1_epi8(POS_LIMIT);
+    vSaturationCheckMin = vPosLimit;
+    vSaturationCheckMax = vNegLimit;
+    vMaxH = vNegLimit;
+    vPosMask = simde_mm_cmpeq_epi8(simde_mm_set1_epi8(position),
             simde_mm_set_epi8(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15));
-    simde__m128i vNegLimit = simde_mm_set1_epi8(INT8_MIN);
-    simde__m128i vPosLimit = simde_mm_set1_epi8(INT8_MAX);
-    simde__m128i vSaturationCheckMin = vPosLimit;
-    simde__m128i vSaturationCheckMax = vNegLimit;
-    parasail_result_t *result = parasail_result_new_trace(segLen, s2Len, 16, sizeof(simde__m128i));
-    simde__m128i vTIns  = simde_mm_set1_epi8(PARASAIL_INS);
-    simde__m128i vTDel  = simde_mm_set1_epi8(PARASAIL_DEL);
-    simde__m128i vTDiag = simde_mm_set1_epi8(PARASAIL_DIAG);
-    simde__m128i vTDiagE = simde_mm_set1_epi8(PARASAIL_DIAG_E);
-    simde__m128i vTInsE = simde_mm_set1_epi8(PARASAIL_INS_E);
-    simde__m128i vTDiagF = simde_mm_set1_epi8(PARASAIL_DIAG_F);
-    simde__m128i vTDelF = simde_mm_set1_epi8(PARASAIL_DEL_F);
-    simde__m128i vTMask = simde_mm_set1_epi8(PARASAIL_ZERO_MASK);
-    simde__m128i vFTMask = simde_mm_set1_epi8(PARASAIL_F_MASK);
+    vTIns  = simde_mm_set1_epi8(PARASAIL_INS);
+    vTDel  = simde_mm_set1_epi8(PARASAIL_DEL);
+    vTDiag = simde_mm_set1_epi8(PARASAIL_DIAG);
+    vTDiagE= simde_mm_set1_epi8(PARASAIL_DIAG_E);
+    vTInsE = simde_mm_set1_epi8(PARASAIL_INS_E);
+    vTDiagF= simde_mm_set1_epi8(PARASAIL_DIAG_F);
+    vTDelF = simde_mm_set1_epi8(PARASAIL_DEL_F);
+    vTMask = simde_mm_set1_epi8(PARASAIL_ZERO_MASK);
+    vFTMask= simde_mm_set1_epi8(PARASAIL_F_MASK);
+
+    /* initialize result */
+    result = parasail_result_new_trace(segLen, s2Len, 16, sizeof(simde__m128i));
+    if (!result) return NULL;
+
+    /* set known flags */
+    result->flag |= PARASAIL_FLAG_SG | PARASAIL_FLAG_STRIPED
+        | PARASAIL_FLAG_TRACE
+        | PARASAIL_FLAG_BITS_8 | PARASAIL_FLAG_LANES_16;
+    result->flag |= s1_beg ? PARASAIL_FLAG_SG_S1_BEG : 0;
+    result->flag |= s1_end ? PARASAIL_FLAG_SG_S1_END : 0;
+    result->flag |= s2_beg ? PARASAIL_FLAG_SG_S2_BEG : 0;
+    result->flag |= s2_end ? PARASAIL_FLAG_SG_S2_END : 0;
+
+    /* initialize heap variables */
+    pvHStore = parasail_memalign_simde__m128i(16, segLen);
+    pvHLoad  = parasail_memalign_simde__m128i(16, segLen);
+    pvE      = parasail_memalign_simde__m128i(16, segLen);
+    pvEaStore= parasail_memalign_simde__m128i(16, segLen);
+    pvEaLoad = parasail_memalign_simde__m128i(16, segLen);
+    pvHT     = parasail_memalign_simde__m128i(16, segLen);
+    boundary = parasail_memalign_int8_t(16, s2Len+1);
+
+    /* validate heap variables */
+    if (!pvHStore) return NULL;
+    if (!pvHLoad) return NULL;
+    if (!pvE) return NULL;
+    if (!pvEaStore) return NULL;
+    if (!pvEaLoad) return NULL;
+    if (!pvHT) return NULL;
+    if (!boundary) return NULL;
 
     /* initialize H and E */
     {
@@ -155,7 +250,7 @@ parasail_result_t* PNAME(
 
         /* Initialize F value to -inf.  Any errors to vH values will be
          * corrected in the Lazy_F loop. */
-        vF = vNegInf;
+        vF = vNegLimit;
 
         /* load final segment of pvHStore and shift left by 1 bytes */
         vH = simde_mm_load_si128(&pvHStore[segLen - 1]);
@@ -181,13 +276,10 @@ parasail_result_t* PNAME(
             vH = simde_mm_max_epi8(vH, vF);
             /* Save vH values. */
             simde_mm_store_si128(pvHStore + i, vH);
-            /* check for saturation */
-            {
-                vSaturationCheckMax = simde_mm_max_epi8(vSaturationCheckMax, vH);
-                vSaturationCheckMin = simde_mm_min_epi8(vSaturationCheckMin, vH);
-                vSaturationCheckMin = simde_mm_min_epi8(vSaturationCheckMin, vE);
-                vSaturationCheckMin = simde_mm_min_epi8(vSaturationCheckMin, vF);
-            }
+            vSaturationCheckMax = simde_mm_max_epi8(vSaturationCheckMax, vH);
+            vSaturationCheckMin = simde_mm_min_epi8(vSaturationCheckMin, vH);
+            vSaturationCheckMin = simde_mm_min_epi8(vSaturationCheckMin, vE);
+            vSaturationCheckMin = simde_mm_min_epi8(vSaturationCheckMin, vF);
 
             {
                 simde__m128i vTAll = arr_load(result->trace->trace_table, i, segLen, j);
@@ -247,24 +339,19 @@ parasail_result_t* PNAME(
             vEF_opn = simde_mm_slli_si128(vEF_opn, 1);
             vEF_opn = simde_mm_insert_epi8(vEF_opn, tmp2, 0);
             vF_ext = simde_mm_slli_si128(vF_ext, 1);
-            vF_ext = simde_mm_insert_epi8(vF_ext, NEG_INF, 0);
+            vF_ext = simde_mm_insert_epi8(vF_ext, NEG_LIMIT, 0);
             vF = simde_mm_slli_si128(vF, 1);
             vF = simde_mm_insert_epi8(vF, tmp2, 0);
             vFa_ext = simde_mm_slli_si128(vFa_ext, 1);
-            vFa_ext = simde_mm_insert_epi8(vFa_ext, NEG_INF, 0);
+            vFa_ext = simde_mm_insert_epi8(vFa_ext, NEG_LIMIT, 0);
             vFa = simde_mm_slli_si128(vFa, 1);
             vFa = simde_mm_insert_epi8(vFa, tmp2, 0);
             for (i=0; i<segLen; ++i) {
                 vH = simde_mm_load_si128(pvHStore + i);
                 vH = simde_mm_max_epi8(vH,vF);
                 simde_mm_store_si128(pvHStore + i, vH);
-                /* check for saturation */
-            {
-                vSaturationCheckMax = simde_mm_max_epi8(vSaturationCheckMax, vH);
                 vSaturationCheckMin = simde_mm_min_epi8(vSaturationCheckMin, vH);
-                vSaturationCheckMin = simde_mm_min_epi8(vSaturationCheckMin, vE);
-                vSaturationCheckMin = simde_mm_min_epi8(vSaturationCheckMin, vF);
-            }
+                vSaturationCheckMax = simde_mm_max_epi8(vSaturationCheckMax, vH);
                 {
                     simde__m128i vTAll;
                     simde__m128i vT;
@@ -374,10 +461,10 @@ end:
     }
 
     if (simde_mm_movemask_epi8(simde_mm_or_si128(
-            simde_mm_cmpeq_epi8(vSaturationCheckMin, vNegLimit),
-            simde_mm_cmpeq_epi8(vSaturationCheckMax, vPosLimit)))) {
+            simde_mm_cmplt_epi8(vSaturationCheckMin, vNegLimit),
+            simde_mm_cmpgt_epi8(vSaturationCheckMax, vPosLimit)))) {
         result->flag |= PARASAIL_FLAG_SATURATED;
-        score = INT8_MAX;
+        score = 0;
         end_query = 0;
         end_ref = 0;
     }
@@ -385,13 +472,6 @@ end:
     result->score = score;
     result->end_query = end_query;
     result->end_ref = end_ref;
-    result->flag |= PARASAIL_FLAG_SG | PARASAIL_FLAG_STRIPED
-        | PARASAIL_FLAG_TRACE
-        | PARASAIL_FLAG_BITS_8 | PARASAIL_FLAG_LANES_16;
-    result->flag |= s1_beg ? PARASAIL_FLAG_SG_S1_BEG : 0;
-    result->flag |= s1_end ? PARASAIL_FLAG_SG_S1_END : 0;
-    result->flag |= s2_beg ? PARASAIL_FLAG_SG_S2_BEG : 0;
-    result->flag |= s2_end ? PARASAIL_FLAG_SG_S2_END : 0;
 
     parasail_free(boundary);
     parasail_free(pvHT);

@@ -3863,7 +3863,8 @@ parasail_result_t* parasail_sg_qb_scan_profile_64_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_scan_profile_64_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_scan_profile_64_pointer(profile, s2, s2Len, open, gap);
 }
@@ -3904,7 +3905,8 @@ parasail_result_t* parasail_sg_qb_scan_profile_32_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_scan_profile_32_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_scan_profile_32_pointer(profile, s2, s2Len, open, gap);
 }
@@ -3945,7 +3947,8 @@ parasail_result_t* parasail_sg_qb_scan_profile_16_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_scan_profile_16_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_scan_profile_16_pointer(profile, s2, s2Len, open, gap);
 }
@@ -3986,7 +3989,8 @@ parasail_result_t* parasail_sg_qb_scan_profile_8_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_scan_profile_8_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_scan_profile_8_pointer(profile, s2, s2Len, open, gap);
 }
@@ -4027,7 +4031,8 @@ parasail_result_t* parasail_sg_qb_striped_profile_64_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_striped_profile_64_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_striped_profile_64_pointer(profile, s2, s2Len, open, gap);
 }
@@ -4068,7 +4073,8 @@ parasail_result_t* parasail_sg_qb_striped_profile_32_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_striped_profile_32_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_striped_profile_32_pointer(profile, s2, s2Len, open, gap);
 }
@@ -4109,7 +4115,8 @@ parasail_result_t* parasail_sg_qb_striped_profile_16_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_striped_profile_16_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_striped_profile_16_pointer(profile, s2, s2Len, open, gap);
 }
@@ -4150,7 +4157,8 @@ parasail_result_t* parasail_sg_qb_striped_profile_8_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_striped_profile_8_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_striped_profile_8_pointer(profile, s2, s2Len, open, gap);
 }
@@ -4191,7 +4199,8 @@ parasail_result_t* parasail_sg_qb_stats_scan_profile_64_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_stats_scan_profile_64_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_stats_scan_profile_64_pointer(profile, s2, s2Len, open, gap);
 }
@@ -4232,7 +4241,8 @@ parasail_result_t* parasail_sg_qb_stats_scan_profile_32_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_stats_scan_profile_32_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_stats_scan_profile_32_pointer(profile, s2, s2Len, open, gap);
 }
@@ -4273,7 +4283,8 @@ parasail_result_t* parasail_sg_qb_stats_scan_profile_16_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_stats_scan_profile_16_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_stats_scan_profile_16_pointer(profile, s2, s2Len, open, gap);
 }
@@ -4314,7 +4325,8 @@ parasail_result_t* parasail_sg_qb_stats_scan_profile_8_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_stats_scan_profile_8_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_stats_scan_profile_8_pointer(profile, s2, s2Len, open, gap);
 }
@@ -4355,7 +4367,8 @@ parasail_result_t* parasail_sg_qb_stats_striped_profile_64_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_stats_striped_profile_64_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_stats_striped_profile_64_pointer(profile, s2, s2Len, open, gap);
 }
@@ -4396,7 +4409,8 @@ parasail_result_t* parasail_sg_qb_stats_striped_profile_32_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_stats_striped_profile_32_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_stats_striped_profile_32_pointer(profile, s2, s2Len, open, gap);
 }
@@ -4437,7 +4451,8 @@ parasail_result_t* parasail_sg_qb_stats_striped_profile_16_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_stats_striped_profile_16_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_stats_striped_profile_16_pointer(profile, s2, s2Len, open, gap);
 }
@@ -4478,7 +4493,8 @@ parasail_result_t* parasail_sg_qb_stats_striped_profile_8_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_stats_striped_profile_8_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_stats_striped_profile_8_pointer(profile, s2, s2Len, open, gap);
 }
@@ -4519,7 +4535,8 @@ parasail_result_t* parasail_sg_qb_table_scan_profile_64_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_table_scan_profile_64_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_table_scan_profile_64_pointer(profile, s2, s2Len, open, gap);
 }
@@ -4560,7 +4577,8 @@ parasail_result_t* parasail_sg_qb_table_scan_profile_32_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_table_scan_profile_32_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_table_scan_profile_32_pointer(profile, s2, s2Len, open, gap);
 }
@@ -4601,7 +4619,8 @@ parasail_result_t* parasail_sg_qb_table_scan_profile_16_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_table_scan_profile_16_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_table_scan_profile_16_pointer(profile, s2, s2Len, open, gap);
 }
@@ -4642,7 +4661,8 @@ parasail_result_t* parasail_sg_qb_table_scan_profile_8_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_table_scan_profile_8_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_table_scan_profile_8_pointer(profile, s2, s2Len, open, gap);
 }
@@ -4683,7 +4703,8 @@ parasail_result_t* parasail_sg_qb_table_striped_profile_64_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_table_striped_profile_64_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_table_striped_profile_64_pointer(profile, s2, s2Len, open, gap);
 }
@@ -4724,7 +4745,8 @@ parasail_result_t* parasail_sg_qb_table_striped_profile_32_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_table_striped_profile_32_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_table_striped_profile_32_pointer(profile, s2, s2Len, open, gap);
 }
@@ -4765,7 +4787,8 @@ parasail_result_t* parasail_sg_qb_table_striped_profile_16_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_table_striped_profile_16_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_table_striped_profile_16_pointer(profile, s2, s2Len, open, gap);
 }
@@ -4806,7 +4829,8 @@ parasail_result_t* parasail_sg_qb_table_striped_profile_8_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_table_striped_profile_8_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_table_striped_profile_8_pointer(profile, s2, s2Len, open, gap);
 }
@@ -4847,7 +4871,8 @@ parasail_result_t* parasail_sg_qb_stats_table_scan_profile_64_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_stats_table_scan_profile_64_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_stats_table_scan_profile_64_pointer(profile, s2, s2Len, open, gap);
 }
@@ -4888,7 +4913,8 @@ parasail_result_t* parasail_sg_qb_stats_table_scan_profile_32_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_stats_table_scan_profile_32_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_stats_table_scan_profile_32_pointer(profile, s2, s2Len, open, gap);
 }
@@ -4929,7 +4955,8 @@ parasail_result_t* parasail_sg_qb_stats_table_scan_profile_16_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_stats_table_scan_profile_16_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_stats_table_scan_profile_16_pointer(profile, s2, s2Len, open, gap);
 }
@@ -4970,7 +4997,8 @@ parasail_result_t* parasail_sg_qb_stats_table_scan_profile_8_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_stats_table_scan_profile_8_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_stats_table_scan_profile_8_pointer(profile, s2, s2Len, open, gap);
 }
@@ -5011,7 +5039,8 @@ parasail_result_t* parasail_sg_qb_stats_table_striped_profile_64_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_stats_table_striped_profile_64_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_stats_table_striped_profile_64_pointer(profile, s2, s2Len, open, gap);
 }
@@ -5052,7 +5081,8 @@ parasail_result_t* parasail_sg_qb_stats_table_striped_profile_32_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_stats_table_striped_profile_32_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_stats_table_striped_profile_32_pointer(profile, s2, s2Len, open, gap);
 }
@@ -5093,7 +5123,8 @@ parasail_result_t* parasail_sg_qb_stats_table_striped_profile_16_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_stats_table_striped_profile_16_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_stats_table_striped_profile_16_pointer(profile, s2, s2Len, open, gap);
 }
@@ -5134,7 +5165,8 @@ parasail_result_t* parasail_sg_qb_stats_table_striped_profile_8_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_stats_table_striped_profile_8_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_stats_table_striped_profile_8_pointer(profile, s2, s2Len, open, gap);
 }
@@ -5175,7 +5207,8 @@ parasail_result_t* parasail_sg_qb_rowcol_scan_profile_64_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_rowcol_scan_profile_64_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_rowcol_scan_profile_64_pointer(profile, s2, s2Len, open, gap);
 }
@@ -5216,7 +5249,8 @@ parasail_result_t* parasail_sg_qb_rowcol_scan_profile_32_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_rowcol_scan_profile_32_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_rowcol_scan_profile_32_pointer(profile, s2, s2Len, open, gap);
 }
@@ -5257,7 +5291,8 @@ parasail_result_t* parasail_sg_qb_rowcol_scan_profile_16_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_rowcol_scan_profile_16_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_rowcol_scan_profile_16_pointer(profile, s2, s2Len, open, gap);
 }
@@ -5298,7 +5333,8 @@ parasail_result_t* parasail_sg_qb_rowcol_scan_profile_8_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_rowcol_scan_profile_8_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_rowcol_scan_profile_8_pointer(profile, s2, s2Len, open, gap);
 }
@@ -5339,7 +5375,8 @@ parasail_result_t* parasail_sg_qb_rowcol_striped_profile_64_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_rowcol_striped_profile_64_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_rowcol_striped_profile_64_pointer(profile, s2, s2Len, open, gap);
 }
@@ -5380,7 +5417,8 @@ parasail_result_t* parasail_sg_qb_rowcol_striped_profile_32_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_rowcol_striped_profile_32_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_rowcol_striped_profile_32_pointer(profile, s2, s2Len, open, gap);
 }
@@ -5421,7 +5459,8 @@ parasail_result_t* parasail_sg_qb_rowcol_striped_profile_16_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_rowcol_striped_profile_16_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_rowcol_striped_profile_16_pointer(profile, s2, s2Len, open, gap);
 }
@@ -5462,7 +5501,8 @@ parasail_result_t* parasail_sg_qb_rowcol_striped_profile_8_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_rowcol_striped_profile_8_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_rowcol_striped_profile_8_pointer(profile, s2, s2Len, open, gap);
 }
@@ -5503,7 +5543,8 @@ parasail_result_t* parasail_sg_qb_stats_rowcol_scan_profile_64_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_stats_rowcol_scan_profile_64_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_stats_rowcol_scan_profile_64_pointer(profile, s2, s2Len, open, gap);
 }
@@ -5544,7 +5585,8 @@ parasail_result_t* parasail_sg_qb_stats_rowcol_scan_profile_32_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_stats_rowcol_scan_profile_32_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_stats_rowcol_scan_profile_32_pointer(profile, s2, s2Len, open, gap);
 }
@@ -5585,7 +5627,8 @@ parasail_result_t* parasail_sg_qb_stats_rowcol_scan_profile_16_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_stats_rowcol_scan_profile_16_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_stats_rowcol_scan_profile_16_pointer(profile, s2, s2Len, open, gap);
 }
@@ -5626,7 +5669,8 @@ parasail_result_t* parasail_sg_qb_stats_rowcol_scan_profile_8_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_stats_rowcol_scan_profile_8_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_stats_rowcol_scan_profile_8_pointer(profile, s2, s2Len, open, gap);
 }
@@ -5667,7 +5711,8 @@ parasail_result_t* parasail_sg_qb_stats_rowcol_striped_profile_64_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_stats_rowcol_striped_profile_64_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_stats_rowcol_striped_profile_64_pointer(profile, s2, s2Len, open, gap);
 }
@@ -5708,7 +5753,8 @@ parasail_result_t* parasail_sg_qb_stats_rowcol_striped_profile_32_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_stats_rowcol_striped_profile_32_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_stats_rowcol_striped_profile_32_pointer(profile, s2, s2Len, open, gap);
 }
@@ -5749,7 +5795,8 @@ parasail_result_t* parasail_sg_qb_stats_rowcol_striped_profile_16_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_stats_rowcol_striped_profile_16_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_stats_rowcol_striped_profile_16_pointer(profile, s2, s2Len, open, gap);
 }
@@ -5790,7 +5837,8 @@ parasail_result_t* parasail_sg_qb_stats_rowcol_striped_profile_8_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_stats_rowcol_striped_profile_8_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_stats_rowcol_striped_profile_8_pointer(profile, s2, s2Len, open, gap);
 }
@@ -5831,7 +5879,8 @@ parasail_result_t* parasail_sg_qb_trace_scan_profile_64_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_trace_scan_profile_64_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_trace_scan_profile_64_pointer(profile, s2, s2Len, open, gap);
 }
@@ -5872,7 +5921,8 @@ parasail_result_t* parasail_sg_qb_trace_scan_profile_32_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_trace_scan_profile_32_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_trace_scan_profile_32_pointer(profile, s2, s2Len, open, gap);
 }
@@ -5913,7 +5963,8 @@ parasail_result_t* parasail_sg_qb_trace_scan_profile_16_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_trace_scan_profile_16_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_trace_scan_profile_16_pointer(profile, s2, s2Len, open, gap);
 }
@@ -5954,7 +6005,8 @@ parasail_result_t* parasail_sg_qb_trace_scan_profile_8_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_trace_scan_profile_8_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_trace_scan_profile_8_pointer(profile, s2, s2Len, open, gap);
 }
@@ -5995,7 +6047,8 @@ parasail_result_t* parasail_sg_qb_trace_striped_profile_64_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_trace_striped_profile_64_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_trace_striped_profile_64_pointer(profile, s2, s2Len, open, gap);
 }
@@ -6036,7 +6089,8 @@ parasail_result_t* parasail_sg_qb_trace_striped_profile_32_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_trace_striped_profile_32_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_trace_striped_profile_32_pointer(profile, s2, s2Len, open, gap);
 }
@@ -6077,7 +6131,8 @@ parasail_result_t* parasail_sg_qb_trace_striped_profile_16_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_trace_striped_profile_16_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_trace_striped_profile_16_pointer(profile, s2, s2Len, open, gap);
 }
@@ -6118,7 +6173,8 @@ parasail_result_t* parasail_sg_qb_trace_striped_profile_8_dispatcher(
     else
 #endif
     {
-        parasail_sg_qb_trace_striped_profile_8_pointer = NULL;
+        /* no fallback; caller must check for non-NULL result */
+        return NULL;
     }
     return parasail_sg_qb_trace_striped_profile_8_pointer(profile, s2, s2Len, open, gap);
 }

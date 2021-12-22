@@ -1,0 +1,17 @@
+name: meson build
+
+on: [push, pull_request]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: install meson and ninja
+      run: sudo apt install meson ninja-build
+    - name: run meson
+      run: meson --buildtype plain . bld_meson
+    - name: run ninja
+      run: cd bld_meson && ninja

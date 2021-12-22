@@ -182,15 +182,7 @@ SRC_TRACE_NEON =
 #################
 
 SRC_CORE += src/cigar.c
-if IS_POWER_ISA
-SRC_CORE += src/cpuid_ppc.c
-else
-if IS_ARM_ISA
-SRC_CORE += src/cpuid_arm.c
-else
 SRC_CORE += src/cpuid.c
-endif
-endif
 SRC_CORE += src/function_lookup.c
 SRC_CORE += src/io.c
 SRC_CORE += src/isastubs.c
@@ -1155,11 +1147,13 @@ bin_PROGRAMS += apps/parasail_stats
 
 check_PROGRAMS += tests/traceback
 check_PROGRAMS += tests/test_align
+check_PROGRAMS += tests/test_basic
 check_PROGRAMS += tests/test_gcups
 check_PROGRAMS += tests/test_io
 check_PROGRAMS += tests/test_isa
 check_PROGRAMS += tests/test_matrix
 check_PROGRAMS += tests/test_openmp
+check_PROGRAMS += tests/test_pssm
 check_PROGRAMS += tests/test_query
 check_PROGRAMS += tests/test_scatter
 check_PROGRAMS += tests/test_sw_dispatch
@@ -1171,6 +1165,7 @@ check_PROGRAMS += tests/test_verify_cigars
 check_PROGRAMS += tests/test_12
 check_PROGRAMS += tests/test_64
 check_PROGRAMS += tests/test_p29
+check_PROGRAMS += tests/test_p59
 if HAVE_SSE2
 check_PROGRAMS += tests/test_ssw
 check_PROGRAMS += tests/ssw_vs_pssw
@@ -1203,6 +1198,8 @@ tests_test_align_SOURCES += tests/timer_real.h
 tests_test_altivec_SOURCES = tests/test_altivec.c
 tests_test_altivec_CFLAGS = $(AM_CFLAGS) $(ALTIVEC_CFLAGS)
 
+tests_test_basic_SOURCES = tests/test_basic.c
+
 tests_test_gcups_SOURCES = tests/test_gcups.c
 
 tests_test_isa_SOURCES = tests/test_isa.c
@@ -1222,6 +1219,8 @@ tests_test_openmp_LDADD   += $(LDADD)
 if HAVE_SSE2
 tests_test_openmp_LDADD   += tests/libssw.la
 endif
+
+tests_test_pssm_SOURCES = tests/test_pssm.c
 
 tests_test_query_SOURCES =
 tests_test_query_SOURCES += tests/test_query.c
@@ -1300,8 +1299,11 @@ tests_test_64_SOURCES = tests/test_64.c
 
 tests_test_p29_SOURCES = tests/test_p29.c
 
+tests_test_p59_SOURCES =
+tests_test_p59_SOURCES += tests/test_p59.c
+tests_test_p59_SOURCES += tests/test_p59.h
+
 EXTRA_DIST += .gitignore
-EXTRA_DIST += .travis.yml
 EXTRA_DIST += CHANGELOG.md
 EXTRA_DIST += CMakeLists.txt
 EXTRA_DIST += DISCLAIMER
@@ -1459,6 +1461,7 @@ TESTS =
 if CROSS_COMPILING
 else
 TESTS += tests/test_isa
+TESTS += tests/test_basic
 endif
 
 # alias for 'make check' using 'make test'

@@ -64,6 +64,10 @@ static const parasail_matrix_t parasail_pam240 = {
     24,
     17,
     -8,
+    NULL,
+    PARASAIL_MATRIX_TYPE_SQUARE,
+    24,
+    "ARNDCQEGHILKMFPSTWYVBZX*",
     NULL
 };
 

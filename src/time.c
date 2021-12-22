@@ -17,11 +17,13 @@
 #include <mach/clock.h>
 #include <mach/mach.h>
 #elif HAVE_CLOCK_GETTIME_MONOTONIC || HAVE_CLOCK_GETTIME_REALTIME
+/* undef if needed to avoid compiler warning */
+#ifdef _POSIX_C_SOURCE
+#undef _POSIX_C_SOURCE
+#endif
 #define _POSIX_C_SOURCE 199309L
 #include <time.h>
 #endif
-
-#include <assert.h>
 
 double parasail_time(void)
 {
@@ -38,6 +40,8 @@ double parasail_time(void)
     wintime -=116444736000000000LL;   /*1jan1601 to 1jan1970*/
     sec  = wintime / 10000000LL;      /*seconds*/
     nsec = wintime % 10000000LL *100; /*nano-seconds*/
+#else
+#error unknown int64 literal suffix
 #endif
     return sec + nsec/1000000000.0;
 #elif HAVE_CLOCK_GET_TIME
@@ -51,13 +55,19 @@ double parasail_time(void)
     struct timespec ts;
     /* Works on FreeBSD */
     long retval = clock_gettime(CLOCK_MONOTONIC, &ts);
-    assert(0 == retval);
+    if (0 != retval) {
+        fprintf(stderr, "%s: clock_gettime failed\n", __func__);
+        return 0.0;
+    }
     return (double)(ts.tv_sec) + (double)(ts.tv_nsec)/1000000000.0;
 #elif HAVE_CLOCK_GETTIME_REALTIME
     struct timespec ts;
     /* Works on Linux */
     long retval = clock_gettime(CLOCK_REALTIME, &ts);
-    assert(0 == retval);
+    if (0 != retval) {
+        fprintf(stderr, "%s: clock_gettime failed\n", __func__);
+        return 0.0;
+    }
     return (double)(ts.tv_sec) + (double)(ts.tv_nsec)/1000000000.0;
 #endif
     return 0.0; /* avoid warnings */

@@ -55,9 +55,10 @@ AC_SUBST([PACKAGE_VERSION])
 # parasail version 2.4.1: 7:1:4 (ABI version 7)
 # parasail version 2.4.2: 7:2:4 (ABI version 7)
 # parasail version 2.4.3: 7:2:4 (ABI version 7) no change
+# parasail version 2.5.0: 8:0:0 (ABI version 8) new struct attrs, added functions
 #
 # libparasail -version-info current:revision:age
-LTVER="7:2:4"
+LTVER="8:0:0"
 AC_SUBST([LTVER])
 
 ###############################################################################
@@ -72,16 +73,6 @@ AM_MAINTAINER_MODE
 # Platform identity
 ###############################################################################
 AC_CANONICAL_HOST
-
-is_power_isa=0
-AS_CASE(["$host_cpu"],
-        [*powerpc*|*ppc*], [is_power_isa=1])
-AM_CONDITIONAL([IS_POWER_ISA], [test "x$is_power_isa" = x1])
-
-is_arm_isa=0
-AS_CASE(["$host_cpu"],
-        [*arm*|*aarch64*], [is_arm_isa=1])
-AM_CONDITIONAL([IS_ARM_ISA], [test "x$is_arm_isa" = x1])
 
 ###############################################################################
 # --enable options
@@ -142,6 +133,8 @@ AC_TYPE_UINT64_T
 AC_TYPE_OFF_T
 AC_TYPE_SIZE_T
 AX_OPENMP
+AX_GCC_BUILTIN([__builtin_cpu_init])
+AX_GCC_BUILTIN([__builtin_cpu_supports])
 AC_SUBST([OPENMP_CFLAGS])
 AM_CONDITIONAL([HAVE_OPENMP],
                [test "x$ax_cv_[]_AC_LANG_ABBREV[]_openmp" != "xunknown"])

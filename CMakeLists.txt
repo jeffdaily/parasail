@@ -26,7 +26,6 @@ INCLUDE( CheckLibraryExists )
 INCLUDE( CheckSymbolExists )
 INCLUDE( CheckTypeSize )
 INCLUDE( CheckCSourceCompiles )
-INCLUDE( FindOpenMP )
 INCLUDE( FindSSE2 )
 INCLUDE( FindSSE41 )
 INCLUDE( FindAVX2 )
@@ -36,23 +35,10 @@ INCLUDE( FindNEON )
 INCLUDE( FindZLIB )
 INCLUDE( TestBigEndian )
 
-MESSAGE( STATUS "Check if the CPU is POWER" )
-IF( ${CMAKE_SYSTEM_PROCESSOR} MATCHES "p(ower)?pc" )
-    SET( IS_POWER_ISA TRUE )
-    MESSAGE( STATUS "Check if the CPU is POWER - TRUE" )
-ELSE( )
-    SET( IS_POWER_ISA FALSE )
-    MESSAGE( STATUS "Check if the CPU is POWER - FALSE" )
-ENDIF( )
-
-MESSAGE( STATUS "Check if the CPU is ARM" )
-IF( ${CMAKE_SYSTEM_PROCESSOR} MATCHES "arm.*" OR ${CMAKE_SYSTEM_PROCESSOR} MATCHES "aarch64.*" )
-    SET( IS_ARM_ISA TRUE )
-    MESSAGE( STATUS "Check if the CPU is ARM - TRUE" )
-ELSE( )
-    SET( IS_ARM_ISA FALSE )
-    MESSAGE( STATUS "Check if the CPU is ARM - FALSE" )
-ENDIF( )
+OPTION( WITH_OPENMP "Enable OpenMP (if supported by the compiler)" ON )
+IF( WITH_OPENMP )
+  INCLUDE( FindOpenMP )
+ENDIF()
 
 CHECK_TYPE_SIZE( "int" SIZEOF_INT )
 CHECK_TYPE_SIZE( "int8_t" SIZEOF_INT8_T )
@@ -65,17 +51,26 @@ CHECK_TYPE_SIZE( "uint32_t" SIZEOF_UINT32_T )
 CHECK_TYPE_SIZE( "uint64_t" SIZEOF_UINT64_T )
 TEST_BIG_ENDIAN( WORDS_BIGENDIAN )
 
+# Check for __builtin_cpu_init
+CHECK_C_SOURCE_COMPILES("int main () { __builtin_cpu_init(); return 0; } "
+HAVE___BUILTIN_CPU_INIT )
+
+# Check for __builtin_cpu_supports
+CHECK_C_SOURCE_COMPILES("int main () { __builtin_cpu_supports(\"sse\"); return 0; } "
+HAVE___BUILTIN_CPU_SUPPORTS )
+
 # Check for restrict keyword
 FOREACH( ac_kw __restrict __restrict__ _Restrict restrict )
     CHECK_C_SOURCE_COMPILES(
 "
+#define restrict ${ac_kw}
 typedef int * int_ptr;
-int foo (int_ptr ${ac_kw} ip) {
+int foo (int_ptr restrict ip) {
     return ip[0];
 }
 int main() {
     int s[1];
-    int * ${ac_kw} t = s;
+    int * restrict t = s;
     t[0] = 0;
     return foo(t);
 }
@@ -84,12 +79,16 @@ int main() {
     IF( HAVE_RESTRICT )
         SET( ac_cv_c_restrict ${ac_kw} )
         BREAK( )
+    ELSE( )
+        UNSET( HAVE_RESTRICT CACHE )
     ENDIF( )
 ENDFOREACH( )
 IF( HAVE_RESTRICT )
     SET( restrict ${ac_cv_c_restrict} )
+    SET( parasail_safe_restrict_cxx ${ac_cv_c_restrict} )
 ELSE( )
     SET( restrict " " )
+    SET( parasail_safe_restrict_cxx " ")
 ENDIF( )
 
 # Check for inline keyword
@@ -115,6 +114,8 @@ int main(int argc, char *argv[]){return 0;}
         IF( HAVE_INLINE )
             SET( ac_cv_c_inline ${ac_kw} )
             BREAK( )
+        ELSE( )
+            UNSET( HAVE_INLINE CACHE )
         ENDIF( )
     ENDFOREACH( )
     IF( HAVE_INLINE )
@@ -150,6 +151,7 @@ CHECK_SYMBOL_EXISTS( aligned_alloc stdlib.h HAVE_ALIGNED_ALLOC )
 CHECK_SYMBOL_EXISTS( memalign malloc.h HAVE_MEMALIGN )
 CHECK_FUNCTION_EXISTS( getopt HAVE_GETOPT )
 CHECK_FUNCTION_EXISTS( poll HAVE_POLL )
+#CHECK_FUNCTION_EXISTS( __builtin_cpu_supports HAVE___BUILTIN_CPU_SUPPORTS )
 #CHECK_FUNCTION_EXISTS( filelength HAVE_FILELENGTH )
 #CHECK_FUNCTION_EXISTS( GetSystemTimeAsFileTime HAVE_GETSYSTEMTIMEASFILETIME )
 #CHECK_FUNCTION_EXISTS( SetUnhandledExceptionFilter HAVE_SETUNHANDLEDEXCEPTIONFILTER )
@@ -167,6 +169,7 @@ CONFIGURE_FILE( ${CMAKE_CURRENT_LIST_DIR}/cmake/config.h.in ${CMAKE_BINARY_DIR}/
 
 SET( SRC_CORE
     src/cigar.c
+    src/cpuid.c
     src/function_lookup.c
     src/io.c
     src/isastubs.c
@@ -191,14 +194,6 @@ SET( SRC_CORE
     src/striped_unwind.c
     src/traceback.c
 )
-
-IF( IS_POWER_ISA )
-    SET( SRC_CORE ${SRC_CORE} src/cpuid_ppc.c )
-ELSEIF( IS_ARM_ISA )
-    SET( SRC_CORE ${SRC_CORE} src/cpuid_arm.c )
-ELSE( )
-    SET( SRC_CORE ${SRC_CORE} src/cpuid.c )
-ENDIF( )
 
 SET( SRC_NOVEC
     src/nw.c
@@ -1048,6 +1043,9 @@ TARGET_LINK_LIBRARIES( traceback parasail )
 ADD_EXECUTABLE( test_align tests/test_align.c ${maybe_getopt} )
 TARGET_LINK_LIBRARIES( test_align parasail )
 
+ADD_EXECUTABLE( test_basic tests/test_basic.c )
+TARGET_LINK_LIBRARIES( test_basic parasail )
+
 ADD_EXECUTABLE( test_gcups tests/test_gcups.c ${maybe_getopt} )
 IF( OPENMP_FOUND )
     SET_TARGET_PROPERTIES( test_gcups PROPERTIES COMPILE_FLAGS ${OpenMP_CXX_FLAGS} )
@@ -1124,6 +1122,10 @@ INSTALL( TARGETS parasail parasail_aligner parasail_stats
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib
 )
+
+ENABLE_TESTING()
+ADD_TEST( NAME test_isa COMMAND test_isa )
+ADD_TEST( NAME test_basic COMMAND test_basic )
 
 SET( CPACK_PACKAGE_VERSION_MAJOR ${MAJOR} )
 SET( CPACK_PACKAGE_VERSION_MINOR ${MINOR} )

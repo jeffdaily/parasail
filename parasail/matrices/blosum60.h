@@ -61,6 +61,10 @@ static const parasail_matrix_t parasail_blosum60 = {
     24,
     10,
     -4,
+    NULL,
+    PARASAIL_MATRIX_TYPE_SQUARE,
+    24,
+    "ARNDCQEGHILKMFPSTWYVBZX*",
     NULL
 };
 

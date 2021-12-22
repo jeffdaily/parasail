@@ -98,9 +98,31 @@ parasail_result_t* FNAME(
         const int open, const int gap, const parasail_matrix_t *matrix,
         int s1_beg, int s1_end, int s2_beg, int s2_end)
 {
-    parasail_profile_t *profile = parasail_profile_create_stats_altivec_128_8(s1, s1Len, matrix);
-    parasail_result_t *result = PNAME(profile, s2, s2Len, open, gap, s1_beg, s1_end, s2_beg, s2_end);
+    /* declare local variables */
+    parasail_profile_t *profile = NULL;
+    parasail_result_t *result = NULL;
+
+    /* validate inputs */
+    PARASAIL_CHECK_NULL(s2);
+    PARASAIL_CHECK_GT0(s2Len);
+    PARASAIL_CHECK_GE0(open);
+    PARASAIL_CHECK_GE0(gap);
+    PARASAIL_CHECK_NULL(matrix);
+    if (matrix->type == PARASAIL_MATRIX_TYPE_PSSM) {
+        PARASAIL_CHECK_NULL_PSSM_STATS(s1);
+    }
+    else {
+        PARASAIL_CHECK_NULL(s1);
+        PARASAIL_CHECK_GT0(s1Len);
+    }
+
+    /* initialize local variables */
+    profile = parasail_profile_create_stats_altivec_128_8(s1, s1Len, matrix);
+    if (!profile) return NULL;
+    result = PNAME(profile, s2, s2Len, open, gap, s1_beg, s1_end, s2_beg, s2_end);
+
     parasail_profile_free(profile);
+
     return result;
 }
 
@@ -110,63 +132,157 @@ parasail_result_t* PNAME(
         const int open, const int gap,
         int s1_beg, int s1_end, int s2_beg, int s2_end)
 {
+    /* declare local variables */
     int32_t i = 0;
     int32_t j = 0;
     int32_t k = 0;
-    const int s1Len = profile->s1Len;
-    int32_t end_query = s1Len-1;
-    int32_t end_ref = s2Len-1;
-    const parasail_matrix_t *matrix = profile->matrix;
-    const int32_t segWidth = 16; /* number of values in vector unit */
-    const int32_t segLen = (s1Len + segWidth - 1) / segWidth;
-    const int32_t offset = (s1Len - 1) % segLen;
-    const int32_t position = (segWidth - 1) - (s1Len - 1) / segLen;
-    vec128i* const restrict vProfile  = (vec128i*)profile->profile8.score;
-    vec128i* const restrict vProfileM = (vec128i*)profile->profile8.matches;
-    vec128i* const restrict vProfileS = (vec128i*)profile->profile8.similar;
-    vec128i* restrict pvHStore        = parasail_memalign_vec128i(16, segLen);
-    vec128i* restrict pvHLoad         = parasail_memalign_vec128i(16, segLen);
-    vec128i* restrict pvHMStore       = parasail_memalign_vec128i(16, segLen);
-    vec128i* restrict pvHMLoad        = parasail_memalign_vec128i(16, segLen);
-    vec128i* restrict pvHSStore       = parasail_memalign_vec128i(16, segLen);
-    vec128i* restrict pvHSLoad        = parasail_memalign_vec128i(16, segLen);
-    vec128i* restrict pvHLStore       = parasail_memalign_vec128i(16, segLen);
-    vec128i* restrict pvHLLoad        = parasail_memalign_vec128i(16, segLen);
-    vec128i* const restrict pvE       = parasail_memalign_vec128i(16, segLen);
-    vec128i* const restrict pvEM      = parasail_memalign_vec128i(16, segLen);
-    vec128i* const restrict pvES      = parasail_memalign_vec128i(16, segLen);
-    vec128i* const restrict pvEL      = parasail_memalign_vec128i(16, segLen);
-    int8_t* const restrict boundary = parasail_memalign_int8_t(16, s2Len+1);
-    const vec128i vGapO = _mm_set1_epi8(open);
-    const vec128i vGapE = _mm_set1_epi8(gap);
-    const int8_t NEG_LIMIT = (-open < matrix->min ?
-        INT8_MIN + open : INT8_MIN - matrix->min) + 1;
-    const int8_t POS_LIMIT = INT8_MAX - matrix->max - 1;
-    const vec128i vZero = _mm_setzero_si128();
-    const vec128i vOne = _mm_set1_epi8(1);
-    int8_t score = NEG_LIMIT;
+    int32_t s1Len = 0;
+    int32_t end_query = 0;
+    int32_t end_ref = 0;
+    const parasail_matrix_t *matrix = NULL;
+    int32_t segWidth = 0;
+    int32_t segLen = 0;
+    int32_t offset = 0;
+    int32_t position = 0;
+    vec128i* restrict vProfile = NULL;
+    vec128i* restrict vProfileM = NULL;
+    vec128i* restrict vProfileS = NULL;
+    vec128i* restrict pvHStore = NULL;
+    vec128i* restrict pvHLoad = NULL;
+    vec128i* restrict pvHMStore = NULL;
+    vec128i* restrict pvHMLoad = NULL;
+    vec128i* restrict pvHSStore = NULL;
+    vec128i* restrict pvHSLoad = NULL;
+    vec128i* restrict pvHLStore = NULL;
+    vec128i* restrict pvHLLoad = NULL;
+    vec128i* restrict pvE = NULL;
+    vec128i* restrict pvEM = NULL;
+    vec128i* restrict pvES = NULL;
+    vec128i* restrict pvEL = NULL;
+    int8_t* restrict boundary = NULL;
+    vec128i vGapO;
+    vec128i vGapE;
+    int8_t NEG_LIMIT = 0;
+    int8_t POS_LIMIT = 0;
+    vec128i vZero;
+    vec128i vOne;
+    int8_t score = 0;
     int8_t matches = 0;
     int8_t similar = 0;
     int8_t length = 0;
-    vec128i vNegLimit = _mm_set1_epi8(NEG_LIMIT);
-    vec128i vPosLimit = _mm_set1_epi8(POS_LIMIT);
-    vec128i vSaturationCheckMin = vPosLimit;
-    vec128i vSaturationCheckMax = vNegLimit;
-    vec128i vMaxH = vNegLimit;
-    vec128i vMaxHM = vNegLimit;
-    vec128i vMaxHS = vNegLimit;
-    vec128i vMaxHL = vNegLimit;
-    vec128i vPosMask = _mm_cmpeq_epi8(_mm_set1_epi8(position),
+    vec128i vNegLimit;
+    vec128i vPosLimit;
+    vec128i vSaturationCheckMin;
+    vec128i vSaturationCheckMax;
+    vec128i vMaxH;
+    vec128i vMaxHM;
+    vec128i vMaxHS;
+    vec128i vMaxHL;
+    vec128i vPosMask;
+    parasail_result_t *result = NULL;
+
+    /* validate inputs */
+    PARASAIL_CHECK_NULL(profile);
+    PARASAIL_CHECK_NULL(profile->profile8.score);
+    PARASAIL_CHECK_NULL(profile->matrix);
+    PARASAIL_CHECK_GT0(profile->s1Len);
+    PARASAIL_CHECK_NULL(s2);
+    PARASAIL_CHECK_GT0(s2Len);
+    PARASAIL_CHECK_GE0(open);
+    PARASAIL_CHECK_GE0(gap);
+
+    /* initialize stack variables */
+    i = 0;
+    j = 0;
+    k = 0;
+    s1Len = profile->s1Len;
+    end_query = s1Len-1;
+    end_ref = s2Len-1;
+    matrix = profile->matrix;
+    segWidth = 16; /* number of values in vector unit */
+    segLen = (s1Len + segWidth - 1) / segWidth;
+    offset = (s1Len - 1) % segLen;
+    position = (segWidth - 1) - (s1Len - 1) / segLen;
+    vProfile  = (vec128i*)profile->profile8.score;
+    vProfileM = (vec128i*)profile->profile8.matches;
+    vProfileS = (vec128i*)profile->profile8.similar;
+    vGapO = _mm_set1_epi8(open);
+    vGapE = _mm_set1_epi8(gap);
+    NEG_LIMIT = (-open < matrix->min ? INT8_MIN + open : INT8_MIN - matrix->min) + 1;
+    POS_LIMIT = INT8_MAX - matrix->max - 1;
+    vZero = _mm_setzero_si128();
+    vOne = _mm_set1_epi8(1);
+    score = NEG_LIMIT;
+    matches = 0;
+    similar = 0;
+    length = 0;
+    vNegLimit = _mm_set1_epi8(NEG_LIMIT);
+    vPosLimit = _mm_set1_epi8(POS_LIMIT);
+    vSaturationCheckMin = vPosLimit;
+    vSaturationCheckMax = vNegLimit;
+    vMaxH = vNegLimit;
+    vMaxHM = vNegLimit;
+    vMaxHS = vNegLimit;
+    vMaxHL = vNegLimit;
+    vPosMask = _mm_cmpeq_epi8(_mm_set1_epi8(position),
             _mm_set_epi8(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15));
+
+    /* initialize result */
 #ifdef PARASAIL_TABLE
-    parasail_result_t *result = parasail_result_new_table3(segLen*segWidth, s2Len);
+    result = parasail_result_new_table3(segLen*segWidth, s2Len);
 #else
 #ifdef PARASAIL_ROWCOL
-    parasail_result_t *result = parasail_result_new_rowcol3(segLen*segWidth, s2Len);
+    result = parasail_result_new_rowcol3(segLen*segWidth, s2Len);
 #else
-    parasail_result_t *result = parasail_result_new_stats();
+    result = parasail_result_new_stats();
 #endif
 #endif
+    if (!result) return NULL;
+
+    /* set known flags */
+    result->flag |= PARASAIL_FLAG_SG | PARASAIL_FLAG_STRIPED
+        | PARASAIL_FLAG_STATS
+        | PARASAIL_FLAG_BITS_8 | PARASAIL_FLAG_LANES_16;
+    result->flag |= s1_beg ? PARASAIL_FLAG_SG_S1_BEG : 0;
+    result->flag |= s1_end ? PARASAIL_FLAG_SG_S1_END : 0;
+    result->flag |= s2_beg ? PARASAIL_FLAG_SG_S2_BEG : 0;
+    result->flag |= s2_end ? PARASAIL_FLAG_SG_S2_END : 0;
+#ifdef PARASAIL_TABLE
+    result->flag |= PARASAIL_FLAG_TABLE;
+#endif
+#ifdef PARASAIL_ROWCOL
+    result->flag |= PARASAIL_FLAG_ROWCOL;
+#endif
+
+    /* initialize heap variables */
+    pvHStore  = parasail_memalign_vec128i(16, segLen);
+    pvHLoad   = parasail_memalign_vec128i(16, segLen);
+    pvHMStore = parasail_memalign_vec128i(16, segLen);
+    pvHMLoad  = parasail_memalign_vec128i(16, segLen);
+    pvHSStore = parasail_memalign_vec128i(16, segLen);
+    pvHSLoad  = parasail_memalign_vec128i(16, segLen);
+    pvHLStore = parasail_memalign_vec128i(16, segLen);
+    pvHLLoad  = parasail_memalign_vec128i(16, segLen);
+    pvE       = parasail_memalign_vec128i(16, segLen);
+    pvEM      = parasail_memalign_vec128i(16, segLen);
+    pvES      = parasail_memalign_vec128i(16, segLen);
+    pvEL      = parasail_memalign_vec128i(16, segLen);
+    boundary  = parasail_memalign_int8_t(16, s2Len+1);
+
+    /* validate heap variables */
+    if (!pvHStore) return NULL;
+    if (!pvHLoad) return NULL;
+    if (!pvHMStore) return NULL;
+    if (!pvHMLoad) return NULL;
+    if (!pvHSStore) return NULL;
+    if (!pvHSLoad) return NULL;
+    if (!pvHLStore) return NULL;
+    if (!pvHLLoad) return NULL;
+    if (!pvE) return NULL;
+    if (!pvEM) return NULL;
+    if (!pvES) return NULL;
+    if (!pvEL) return NULL;
+    if (!boundary) return NULL;
 
     parasail_memset_vec128i(pvHMStore, vZero, segLen);
     parasail_memset_vec128i(pvHSStore, vZero, segLen);
@@ -547,19 +663,6 @@ end:
     result->stats->matches = matches;
     result->stats->similar = similar;
     result->stats->length = length;
-    result->flag |= PARASAIL_FLAG_SG | PARASAIL_FLAG_STRIPED
-        | PARASAIL_FLAG_STATS
-        | PARASAIL_FLAG_BITS_8 | PARASAIL_FLAG_LANES_16;
-    result->flag |= s1_beg ? PARASAIL_FLAG_SG_S1_BEG : 0;
-    result->flag |= s1_end ? PARASAIL_FLAG_SG_S1_END : 0;
-    result->flag |= s2_beg ? PARASAIL_FLAG_SG_S2_BEG : 0;
-    result->flag |= s2_end ? PARASAIL_FLAG_SG_S2_END : 0;
-#ifdef PARASAIL_TABLE
-    result->flag |= PARASAIL_FLAG_TABLE;
-#endif
-#ifdef PARASAIL_ROWCOL
-    result->flag |= PARASAIL_FLAG_ROWCOL;
-#endif
 
     parasail_free(boundary);
     parasail_free(pvEL);

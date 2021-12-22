@@ -17,8 +17,8 @@ extern "C" {
 
 /* Version macros for compile-time API version detection */
 #define PARASAIL_VERSION_MAJOR 2
-#define PARASAIL_VERSION_MINOR 4
-#define PARASAIL_VERSION_PATCH 3
+#define PARASAIL_VERSION_MINOR 5
+#define PARASAIL_VERSION_PATCH 0
 
 #define PARASAIL_MAKE_VERSION(major, minor, patch) \
     ((major) * 10000 + (minor) * 100 + (patch))
@@ -144,14 +144,21 @@ typedef struct parasail_result {
     };
 } parasail_result_t;
 
+#define PARASAIL_MATRIX_TYPE_SQUARE 0
+#define PARASAIL_MATRIX_TYPE_PSSM 1
+
 typedef struct parasail_matrix {
     const char * name;
-    const int *matrix;
-    const int *mapper;
+    const int * matrix;
+    const int * mapper;
     int size;
     int max;
     int min;
-    int *user_matrix;
+    int * user_matrix;
+    int type;
+    int length;
+    const char * alphabet;
+    const char * query;
 } parasail_matrix_t;
 
 typedef struct parasail_profile_data {
@@ -257,6 +264,14 @@ extern parasail_matrix_t* parasail_matrix_create(
 extern parasail_matrix_t* parasail_matrix_create_case_sensitive(
         const char *alphabet, const int match, const int mismatch);
 
+/** Create pssm substitution matrix. */
+extern parasail_matrix_t* parasail_matrix_pssm_create(
+        const char *alphabet, const int *values, const int length);
+
+/** Create pssm substitution matrix. */
+extern parasail_matrix_t* parasail_matrix_pssm_create_case_sensitive(
+        const char *alphabet, const int *values, const int length);
+
 /** Create substitution matrix from a filename. */
 extern parasail_matrix_t* parasail_matrix_from_file(const char *filename);
 
@@ -268,6 +283,9 @@ extern void parasail_matrix_free(parasail_matrix_t *matrix);
 
 /** Copy any matrix into writeable matrix. */
 extern parasail_matrix_t* parasail_matrix_copy(const parasail_matrix_t *original);
+
+/** Converts a matrix into pssm matrix. */
+extern parasail_matrix_t* parasail_matrix_convert_square_to_pssm(const parasail_matrix_t *original, const char *seq, int len);
 
 /** Modify a user matrix. */
 extern void parasail_matrix_set_value(parasail_matrix_t *matrix, int row, int col, int value);

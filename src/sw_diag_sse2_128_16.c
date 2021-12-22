@@ -19,7 +19,6 @@
 #include "parasail/memory.h"
 #include "parasail/internal_sse.h"
 
-#define NEG_INF (INT16_MIN/(int16_t)(2))
 
 static inline __m128i _mm_blendv_epi8_rpl(__m128i a, __m128i b, __m128i mask) {
     a = _mm_andnot_si128(mask, a);
@@ -136,60 +135,143 @@ static inline void arr_store_rowcol(
 #endif
 
 parasail_result_t* FNAME(
-        const char * const restrict _s1, const int s1Len,
+        const char * const restrict _s1, const int _s1Len,
         const char * const restrict _s2, const int s2Len,
         const int open, const int gap, const parasail_matrix_t *matrix)
 {
-    const int32_t N = 8; /* number of values in vector */
-    const int32_t PAD = N-1;
-    const int32_t PAD2 = PAD*2;
-    const int32_t s1Len_PAD = s1Len+PAD;
-    const int32_t s2Len_PAD = s2Len+PAD;
-    int16_t * const restrict s1 = parasail_memalign_int16_t(16, s1Len+PAD);
-    int16_t * const restrict s2B= parasail_memalign_int16_t(16, s2Len+PAD2);
-    int16_t * const restrict _H_pr = parasail_memalign_int16_t(16, s2Len+PAD2);
-    int16_t * const restrict _F_pr = parasail_memalign_int16_t(16, s2Len+PAD2);
-    int16_t * const restrict s2 = s2B+PAD; /* will allow later for negative indices */
-    int16_t * const restrict H_pr = _H_pr+PAD;
-    int16_t * const restrict F_pr = _F_pr+PAD;
-#ifdef PARASAIL_TABLE
-    parasail_result_t *result = parasail_result_new_table1(s1Len, s2Len);
-#else
-#ifdef PARASAIL_ROWCOL
-    parasail_result_t *result = parasail_result_new_rowcol1(s1Len, s2Len);
-#else
-    parasail_result_t *result = parasail_result_new();
-#endif
-#endif
+    /* declare local variables */
+    int32_t N = 0;
+    int32_t PAD = 0;
+    int32_t PAD2 = 0;
+    int32_t s1Len = 0;
+    int32_t s1Len_PAD = 0;
+    int32_t s2Len_PAD = 0;
+    int16_t * restrict s1 = NULL;
+    int16_t * restrict s2B = NULL;
+    int16_t * restrict _H_pr = NULL;
+    int16_t * restrict _F_pr = NULL;
+    int16_t * restrict s2 = NULL;
+    int16_t * restrict H_pr = NULL;
+    int16_t * restrict F_pr = NULL;
+    parasail_result_t *result = NULL;
     int32_t i = 0;
     int32_t j = 0;
     int32_t end_query = 0;
     int32_t end_ref = 0;
-    int16_t score = NEG_INF;
-    __m128i vNegInf = _mm_set1_epi16(NEG_INF);
-    __m128i vNegInf0 = _mm_srli_si128(vNegInf, 2); /* shift in a 0 */
-    __m128i vOpen = _mm_set1_epi16(open);
-    __m128i vGap  = _mm_set1_epi16(gap);
-    __m128i vZero = _mm_set1_epi16(0);
-    __m128i vOne = _mm_set1_epi16(1);
-    __m128i vN = _mm_set1_epi16(N);
-    __m128i vNegOne = _mm_set1_epi16(-1);
-    __m128i vI = _mm_set_epi16(0,1,2,3,4,5,6,7);
-    __m128i vJreset = _mm_set_epi16(0,-1,-2,-3,-4,-5,-6,-7);
-    __m128i vMaxH = vNegInf;
-    __m128i vEndI = vNegInf;
-    __m128i vEndJ = vNegInf;
-    __m128i vILimit = _mm_set1_epi16(s1Len);
-    __m128i vJLimit = _mm_set1_epi16(s2Len);
-    
+    int16_t NEG_LIMIT = 0;
+    int16_t POS_LIMIT = 0;
+    int16_t score = 0;
+    __m128i vNegLimit;
+    __m128i vPosLimit;
+    __m128i vSaturationCheckMin;
+    __m128i vSaturationCheckMax;
+    __m128i vNegInf;
+    __m128i vNegInf0;
+    __m128i vOpen;
+    __m128i vGap;
+    __m128i vZero;
+    __m128i vOne;
+    __m128i vN;
+    __m128i vNegOne;
+    __m128i vI;
+    __m128i vJreset;
+    __m128i vMaxH;
+    __m128i vEndI;
+    __m128i vEndJ;
+    __m128i vILimit;
+    __m128i vJLimit;
+
+    /* validate inputs */
+    PARASAIL_CHECK_NULL(_s2);
+    PARASAIL_CHECK_GT0(s2Len);
+    PARASAIL_CHECK_GE0(open);
+    PARASAIL_CHECK_GE0(gap);
+    PARASAIL_CHECK_NULL(matrix);
+    if (matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) {
+        PARASAIL_CHECK_NULL(_s1);
+        PARASAIL_CHECK_GT0(_s1Len);
+    }
+
+    /* initialize stack variables */
+    N = 8; /* number of values in vector */
+    PAD = N-1;
+    PAD2 = PAD*2;
+    s1Len = matrix->type == PARASAIL_MATRIX_TYPE_SQUARE ? _s1Len : matrix->length;
+    s1Len_PAD = s1Len+PAD;
+    s2Len_PAD = s2Len+PAD;
+    i = 0;
+    j = 0;
+    end_query = 0;
+    end_ref = 0;
+    NEG_LIMIT = (-open < matrix->min ? INT16_MIN + open : INT16_MIN - matrix->min) + 1;
+    POS_LIMIT = INT16_MAX - matrix->max - 1;
+    score = NEG_LIMIT;
+    vNegLimit = _mm_set1_epi16(NEG_LIMIT);
+    vPosLimit = _mm_set1_epi16(POS_LIMIT);
+    vSaturationCheckMin = vPosLimit;
+    vSaturationCheckMax = vNegLimit;
+    vNegInf = _mm_set1_epi16(NEG_LIMIT);
+    vNegInf0 = _mm_srli_si128(vNegInf, 2); /* shift in a 0 */
+    vOpen = _mm_set1_epi16(open);
+    vGap  = _mm_set1_epi16(gap);
+    vZero = _mm_set1_epi16(0);
+    vOne = _mm_set1_epi16(1);
+    vN = _mm_set1_epi16(N);
+    vNegOne = _mm_set1_epi16(-1);
+    vI = _mm_set_epi16(0,1,2,3,4,5,6,7);
+    vJreset = _mm_set_epi16(0,-1,-2,-3,-4,-5,-6,-7);
+    vMaxH = vNegInf;
+    vEndI = vNegInf;
+    vEndJ = vNegInf;
+    vILimit = _mm_set1_epi16(s1Len);
+    vJLimit = _mm_set1_epi16(s2Len);
+
+    /* initialize result */
+#ifdef PARASAIL_TABLE
+    result = parasail_result_new_table1(s1Len, s2Len);
+#else
+#ifdef PARASAIL_ROWCOL
+    result = parasail_result_new_rowcol1(s1Len, s2Len);
+#else
+    result = parasail_result_new();
+#endif
+#endif
+    if (!result) return NULL;
+
+    /* set known flags */
+    result->flag |= PARASAIL_FLAG_SW | PARASAIL_FLAG_DIAG
+        | PARASAIL_FLAG_BITS_16 | PARASAIL_FLAG_LANES_8;
+#ifdef PARASAIL_TABLE
+    result->flag |= PARASAIL_FLAG_TABLE;
+#endif
+#ifdef PARASAIL_ROWCOL
+    result->flag |= PARASAIL_FLAG_ROWCOL;
+#endif
+
+    /* initialize heap variables */
+    s2B= parasail_memalign_int16_t(16, s2Len+PAD2);
+    _H_pr = parasail_memalign_int16_t(16, s2Len+PAD2);
+    _F_pr = parasail_memalign_int16_t(16, s2Len+PAD2);
+    s2 = s2B+PAD; /* will allow later for negative indices */
+    H_pr = _H_pr+PAD;
+    F_pr = _F_pr+PAD;
+
+    /* validate heap variables */
+    if (!s2B) return NULL;
+    if (!_H_pr) return NULL;
+    if (!_F_pr) return NULL;
 
     /* convert _s1 from char to int in range 0-23 */
-    for (i=0; i<s1Len; ++i) {
-        s1[i] = matrix->mapper[(unsigned char)_s1[i]];
-    }
-    /* pad back of s1 with dummy values */
-    for (i=s1Len; i<s1Len_PAD; ++i) {
-        s1[i] = 0; /* point to first matrix row because we don't care */
+    if (matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) {
+        s1 = parasail_memalign_int16_t(16, s1Len+PAD);
+        if (!s1) return NULL;
+        for (i=0; i<s1Len; ++i) {
+            s1[i] = matrix->mapper[(unsigned char)_s1[i]];
+        }
+        /* pad back of s1 with dummy values */
+        for (i=s1Len; i<s1Len_PAD; ++i) {
+            s1[i] = 0; /* point to first matrix row because we don't care */
+        }
     }
 
     /* convert _s2 from char to int in range 0-23 */
@@ -208,17 +290,17 @@ parasail_result_t* FNAME(
     /* set initial values for stored row */
     for (j=0; j<s2Len; ++j) {
         H_pr[j] = 0;
-        F_pr[j] = NEG_INF;
+        F_pr[j] = NEG_LIMIT;
     }
     /* pad front of stored row values */
     for (j=-PAD; j<0; ++j) {
-        H_pr[j] = NEG_INF;
-        F_pr[j] = NEG_INF;
+        H_pr[j] = NEG_LIMIT;
+        F_pr[j] = NEG_LIMIT;
     }
     /* pad back of stored row values */
     for (j=s2Len; j<s2Len+PAD; ++j) {
-        H_pr[j] = NEG_INF;
-        F_pr[j] = NEG_INF;
+        H_pr[j] = NEG_LIMIT;
+        F_pr[j] = NEG_LIMIT;
     }
 
     /* iterate over query sequence */
@@ -228,14 +310,14 @@ parasail_result_t* FNAME(
         __m128i vE = vNegInf;
         __m128i vF = vNegInf;
         __m128i vJ = vJreset;
-        const int * const restrict matrow0 = &matrix->matrix[matrix->size*s1[i+0]];
-        const int * const restrict matrow1 = &matrix->matrix[matrix->size*s1[i+1]];
-        const int * const restrict matrow2 = &matrix->matrix[matrix->size*s1[i+2]];
-        const int * const restrict matrow3 = &matrix->matrix[matrix->size*s1[i+3]];
-        const int * const restrict matrow4 = &matrix->matrix[matrix->size*s1[i+4]];
-        const int * const restrict matrow5 = &matrix->matrix[matrix->size*s1[i+5]];
-        const int * const restrict matrow6 = &matrix->matrix[matrix->size*s1[i+6]];
-        const int * const restrict matrow7 = &matrix->matrix[matrix->size*s1[i+7]];
+        const int * const restrict matrow0 = &matrix->matrix[matrix->size * ((matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) ? s1[i+0] : ((i+0 >= s1Len) ? s1Len-1 : i+0))];
+        const int * const restrict matrow1 = &matrix->matrix[matrix->size * ((matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) ? s1[i+1] : ((i+1 >= s1Len) ? s1Len-1 : i+1))];
+        const int * const restrict matrow2 = &matrix->matrix[matrix->size * ((matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) ? s1[i+2] : ((i+2 >= s1Len) ? s1Len-1 : i+2))];
+        const int * const restrict matrow3 = &matrix->matrix[matrix->size * ((matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) ? s1[i+3] : ((i+3 >= s1Len) ? s1Len-1 : i+3))];
+        const int * const restrict matrow4 = &matrix->matrix[matrix->size * ((matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) ? s1[i+4] : ((i+4 >= s1Len) ? s1Len-1 : i+4))];
+        const int * const restrict matrow5 = &matrix->matrix[matrix->size * ((matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) ? s1[i+5] : ((i+5 >= s1Len) ? s1Len-1 : i+5))];
+        const int * const restrict matrow6 = &matrix->matrix[matrix->size * ((matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) ? s1[i+6] : ((i+6 >= s1Len) ? s1Len-1 : i+6))];
+        const int * const restrict matrow7 = &matrix->matrix[matrix->size * ((matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) ? s1[i+7] : ((i+7 >= s1Len) ? s1Len-1 : i+7))];
         __m128i vIltLimit = _mm_cmplt_epi16(vI, vILimit);
         /* iterate over database sequence */
         for (j=0; j<s2Len+PAD; ++j) {
@@ -246,11 +328,11 @@ parasail_result_t* FNAME(
             vF = _mm_srli_si128(vF, 2);
             vF = _mm_insert_epi16(vF, F_pr[j], 7);
             vF = _mm_max_epi16(
-                    _mm_sub_epi16(vNH, vOpen),
-                    _mm_sub_epi16(vF, vGap));
+                    _mm_subs_epi16(vNH, vOpen),
+                    _mm_subs_epi16(vF, vGap));
             vE = _mm_max_epi16(
-                    _mm_sub_epi16(vWH, vOpen),
-                    _mm_sub_epi16(vE, vGap));
+                    _mm_subs_epi16(vWH, vOpen),
+                    _mm_subs_epi16(vE, vGap));
             vMat = _mm_set_epi16(
                     matrow0[s2[j-0]],
                     matrow1[s2[j-1]],
@@ -261,7 +343,7 @@ parasail_result_t* FNAME(
                     matrow6[s2[j-6]],
                     matrow7[s2[j-7]]
                     );
-            vNWH = _mm_add_epi16(vNWH, vMat);
+            vNWH = _mm_adds_epi16(vNWH, vMat);
             vWH = _mm_max_epi16(vNWH, vE);
             vWH = _mm_max_epi16(vWH, vF);
             vWH = _mm_max_epi16(vWH, vZero);
@@ -273,7 +355,11 @@ parasail_result_t* FNAME(
                 vF = _mm_blendv_epi8_rpl(vF, vNegInf, cond);
                 vE = _mm_blendv_epi8_rpl(vE, vNegInf, cond);
             }
-            
+            /* cannot start checking sat until after J clears boundary */
+            if (j > PAD) {
+                vSaturationCheckMin = _mm_min_epi16(vSaturationCheckMin, vWH);
+                vSaturationCheckMax = _mm_max_epi16(vSaturationCheckMax, vWH);
+            }
 #ifdef PARASAIL_TABLE
             arr_store_si128(result->tables->score_table, vWH, i, s1Len, j, s2Len);
 #endif
@@ -301,9 +387,9 @@ parasail_result_t* FNAME(
                 vEndI = _mm_blendv_epi8_rpl(vEndI, vI, cond_all);
                 vEndJ = _mm_blendv_epi8_rpl(vEndJ, vJ, cond_all);
             }
-            vJ = _mm_add_epi16(vJ, vOne);
+            vJ = _mm_adds_epi16(vJ, vOne);
         }
-        vI = _mm_add_epi16(vI, vN);
+        vI = _mm_adds_epi16(vI, vN);
     }
 
     /* alignment ending position */
@@ -331,24 +417,25 @@ parasail_result_t* FNAME(
         }
     }
 
-    
+    if (_mm_movemask_epi8(_mm_or_si128(
+            _mm_cmplt_epi16(vSaturationCheckMin, vNegLimit),
+            _mm_cmpgt_epi16(vSaturationCheckMax, vPosLimit)))) {
+        result->flag |= PARASAIL_FLAG_SATURATED;
+        score = 0;
+        end_query = 0;
+        end_ref = 0;
+    }
 
     result->score = score;
     result->end_query = end_query;
     result->end_ref = end_ref;
-    result->flag |= PARASAIL_FLAG_SW | PARASAIL_FLAG_DIAG
-        | PARASAIL_FLAG_BITS_16 | PARASAIL_FLAG_LANES_8;
-#ifdef PARASAIL_TABLE
-    result->flag |= PARASAIL_FLAG_TABLE;
-#endif
-#ifdef PARASAIL_ROWCOL
-    result->flag |= PARASAIL_FLAG_ROWCOL;
-#endif
 
     parasail_free(_F_pr);
     parasail_free(_H_pr);
     parasail_free(s2B);
-    parasail_free(s1);
+    if (matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) {
+        parasail_free(s1);
+    }
 
     return result;
 }

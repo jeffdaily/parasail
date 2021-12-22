@@ -91,6 +91,21 @@ int main(int argc, char **argv)
     cc_neon = 0;
 #endif
 
+#ifdef HAVE___BUILTIN_CPU_SUPPORTS
+#ifdef HAVE___BUILTIN_CPU_INIT
+    __builtin_cpu_init();
+#endif
+    printf(" ISA        | Compiler | CPU | __builtin_cpu_supports\n");
+    printf("------------------------------------------------------\n");
+    printf(" SSE2       |  %s     | %s | %s\n", yesno(cc_sse2), yesno(cpu_sse2), yesno(__builtin_cpu_supports("sse2")));
+    printf(" SSE41      |  %s     | %s | %s\n", yesno(cc_sse41), yesno(cpu_sse41), yesno(__builtin_cpu_supports("sse4.1")));
+    printf(" AVX2       |  %s     | %s | %s\n", yesno(cc_avx2), yesno(cpu_avx2), yesno(__builtin_cpu_supports("avx2")));
+    printf(" AVX512F    |  %s     | %s | %s\n", yesno(cc_avx512f), yesno(cpu_avx512f), yesno(0));
+    printf(" AVX512BW   |  %s     | %s | %s\n", yesno(cc_avx512bw), yesno(cpu_avx512bw), yesno(0));
+    printf(" AVX512VBMI |  %s     | %s | %s\n", yesno(cc_avx512vbmi), yesno(cpu_avx512vbmi), yesno(0));
+    printf(" ALTIVEC    |  %s     | %s | %s\n", yesno(cc_altivec), yesno(cpu_altivec), yesno(0));
+    printf(" NEON       |  %s     | %s | %s\n", yesno(cc_neon), yesno(cpu_neon), yesno(0));
+#else
     printf(" ISA        | Compiler | CPU  \n");
     printf("------------------------------\n");
     printf(" SSE2       |  %s     | %s\n", yesno(cc_sse2), yesno(cpu_sse2));
@@ -101,6 +116,7 @@ int main(int argc, char **argv)
     printf(" AVX512VBMI |  %s     | %s\n", yesno(cc_avx512vbmi), yesno(cpu_avx512vbmi));
     printf(" ALTIVEC    |  %s     | %s\n", yesno(cc_altivec), yesno(cpu_altivec));
     printf(" NEON       |  %s     | %s\n", yesno(cc_neon), yesno(cpu_neon));
+#endif
 
     return 0;
 }

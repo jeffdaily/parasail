@@ -32,17 +32,10 @@ parasail_result_t* ENAME(
         const int open, const int gap, const int k,
         const parasail_matrix_t *matrix)
 {
-#ifdef PARASAIL_TABLE
-    parasail_result_t *result = parasail_result_new_table1(s1Len, s2Len);
-#else
-#ifdef PARASAIL_ROWCOL
-    parasail_result_t *result = parasail_result_new_rowcol1(s1Len, s2Len);
-#else
-    parasail_result_t *result = parasail_result_new();
-#endif
-#endif
-    int * const restrict s1 = parasail_memalign_int(16, s1Len);
-    int * const restrict s2 = parasail_memalign_int(16, s2Len);
+    /* declare local variables */
+    parasail_result_t *result = NULL;
+    int * restrict s1 = NULL;
+    int * restrict s2 = NULL;
     int * HB = NULL;
     int * H = NULL;
     int * EB = NULL;
@@ -53,6 +46,49 @@ parasail_result_t* ENAME(
     int colLen = 0;
     int colOff = 0;
 
+    /* validate inputs */
+    PARASAIL_CHECK_NULL(_s1);
+    PARASAIL_CHECK_GT0(s1Len);
+    PARASAIL_CHECK_NULL(_s2);
+    PARASAIL_CHECK_GT0(s2Len);
+    PARASAIL_CHECK_GE0(open);
+    PARASAIL_CHECK_GE0(gap);
+    PARASAIL_CHECK_GT0(k);
+    PARASAIL_CHECK_NULL(matrix);
+
+    /* initialize stack variables */
+
+    /* initialize result */
+#ifdef PARASAIL_TABLE
+    result = parasail_result_new_table1(s1Len, s2Len);
+#else
+#ifdef PARASAIL_ROWCOL
+    result = parasail_result_new_rowcol1(s1Len, s2Len);
+#else
+    result = parasail_result_new();
+#endif
+#endif
+    if (!result) return NULL;
+
+    /* set known flags */
+    result->flag |= PARASAIL_FLAG_NW | PARASAIL_FLAG_NOVEC
+        | PARASAIL_FLAG_BANDED
+        | PARASAIL_FLAG_BITS_INT | PARASAIL_FLAG_LANES_1;
+#ifdef PARASAIL_TABLE
+    result->flag |= PARASAIL_FLAG_TABLE;
+#endif
+#ifdef PARASAIL_ROWCOL
+    result->flag |= PARASAIL_FLAG_ROWCOL;
+#endif
+
+    /* initalize heap variables */
+    s1 = parasail_memalign_int(16, s1Len);
+    s2 = parasail_memalign_int(16, s2Len);
+
+    /* validate heap variables */
+    if (!s1) return NULL;
+    if (!s2) return NULL;
+
     low = s1Len - s2Len - k;
     if (s1Len > s2Len) {
         low = s2Len - s1Len - k;
@@ -61,8 +97,10 @@ parasail_result_t* ENAME(
     colOff = s1Len > s2Len ? -k : low;
 
     HB = parasail_memalign_int(16, colLen+2);
+    if (!HB) return NULL;
     H = HB+1;
     EB = parasail_memalign_int(16, colLen+2);
+    if (!EB) return NULL;
     E = EB+1;
     parasail_memset_int(HB, 0, colLen+2);
     parasail_memset_int(EB, 0, colLen+2);
@@ -102,7 +140,6 @@ parasail_result_t* ENAME(
     /* iter over db */
     for (j=0; j<s2Len; ++j) {
         /* substitution matrix row (really we wanted a column) */
-        const int * const restrict matcol = &matrix->matrix[matrix->size*s2[j]];
         int F = NEG_INF_32;
         if (colOff < 0) {
             H[-colOff-1] = -open - j*gap;
@@ -115,11 +152,15 @@ parasail_result_t* ENAME(
             int E_ext = 0;
             int F_opn = 0;
             int F_ext = 0;
+            int matval = 0;
             pos = colOff+i;
             if (pos < 0 || pos >= s1Len) {
                 continue;
             }
-            H_dag = H[i] + matcol[s1[pos]];
+            matval = matrix->type == PARASAIL_MATRIX_TYPE_SQUARE ?
+                     matrix->matrix[matrix->size*s1[pos]+s2[j]] :
+                     matrix->matrix[matrix->size*pos+s2[j]];
+            H_dag = H[i] + matval;
             E_opn = H[i+1] - open;
             E_ext = E[i+1] - gap;
             F_opn = H[i-1] - open;
@@ -138,21 +179,12 @@ parasail_result_t* ENAME(
     result->score = s1Len > s2Len ? H[-low] : H[k];
     result->end_query = s1Len-1;
     result->end_ref = s2Len-1;
-    result->flag |= PARASAIL_FLAG_NW | PARASAIL_FLAG_NOVEC
-        | PARASAIL_FLAG_BANDED
-        | PARASAIL_FLAG_BITS_INT | PARASAIL_FLAG_LANES_1;
-#ifdef PARASAIL_TABLE
-    result->flag |= PARASAIL_FLAG_TABLE;
-#endif
-#ifdef PARASAIL_ROWCOL
-    result->flag |= PARASAIL_FLAG_ROWCOL;
-#endif
 
     parasail_free(EB);
     parasail_free(HB);
     parasail_free(s2);
     parasail_free(s1);
-    
+
     return result;
 }
 

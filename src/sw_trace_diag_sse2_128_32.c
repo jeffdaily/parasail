@@ -19,7 +19,6 @@
 #include "parasail/memory.h"
 #include "parasail/internal_sse.h"
 
-#define NEG_INF (INT32_MIN/(int32_t)(2))
 
 static inline __m128i _mm_blendv_epi8_rpl(__m128i a, __m128i b, __m128i mask) {
     a = _mm_andnot_si128(mask, a);
@@ -45,6 +44,13 @@ static inline int32_t _mm_extract_epi32_rpl(__m128i a, const int imm) {
     __m128i_32_t A;
     A.m = a;
     return A.v[imm];
+}
+
+static inline __m128i _mm_min_epi32_rpl(__m128i a, __m128i b) {
+    __m128i mask = _mm_cmpgt_epi32(b, a);
+    a = _mm_and_si128(a, mask);
+    b = _mm_andnot_si128(mask, b);
+    return _mm_or_si128(a, b);
 }
 
 
@@ -73,60 +79,146 @@ static inline void arr_store_si128(
 #define FNAME parasail_sw_trace_diag_sse2_128_32
 
 parasail_result_t* FNAME(
-        const char * const restrict _s1, const int s1Len,
+        const char * const restrict _s1, const int _s1Len,
         const char * const restrict _s2, const int s2Len,
         const int open, const int gap, const parasail_matrix_t *matrix)
 {
-    const int32_t N = 4; /* number of values in vector */
-    const int32_t PAD = N-1;
-    const int32_t PAD2 = PAD*2;
-    const int32_t s1Len_PAD = s1Len+PAD;
-    const int32_t s2Len_PAD = s2Len+PAD;
-    int32_t * const restrict s1 = parasail_memalign_int32_t(16, s1Len+PAD);
-    int32_t * const restrict s2B= parasail_memalign_int32_t(16, s2Len+PAD2);
-    int32_t * const restrict _H_pr = parasail_memalign_int32_t(16, s2Len+PAD2);
-    int32_t * const restrict _F_pr = parasail_memalign_int32_t(16, s2Len+PAD2);
-    int32_t * const restrict s2 = s2B+PAD; /* will allow later for negative indices */
-    int32_t * const restrict H_pr = _H_pr+PAD;
-    int32_t * const restrict F_pr = _F_pr+PAD;
-    parasail_result_t *result = parasail_result_new_trace(s1Len, s2Len, 16, sizeof(int8_t));
+    /* declare local variables */
+    int32_t N = 0;
+    int32_t PAD = 0;
+    int32_t PAD2 = 0;
+    int32_t s1Len_PAD = 0;
+    int32_t s2Len_PAD = 0;
+    int32_t * restrict s1 = NULL;
+    int32_t * restrict s2B = NULL;
+    int32_t * restrict _H_pr = NULL;
+    int32_t * restrict _F_pr = NULL;
+    int32_t * restrict s2 = NULL;
+    int32_t * restrict H_pr = NULL;
+    int32_t * restrict F_pr = NULL;
+    parasail_result_t *result = NULL;
     int32_t i = 0;
     int32_t j = 0;
+    int32_t s1Len = 0;
     int32_t end_query = 0;
     int32_t end_ref = 0;
-    int32_t score = NEG_INF;
-    __m128i vNegInf = _mm_set1_epi32(NEG_INF);
-    __m128i vNegInf0 = _mm_srli_si128(vNegInf, 4); /* shift in a 0 */
-    __m128i vOpen = _mm_set1_epi32(open);
-    __m128i vGap  = _mm_set1_epi32(gap);
-    __m128i vZero = _mm_set1_epi32(0);
-    __m128i vOne = _mm_set1_epi32(1);
-    __m128i vN = _mm_set1_epi32(N);
-    __m128i vNegOne = _mm_set1_epi32(-1);
-    __m128i vI = _mm_set_epi32(0,1,2,3);
-    __m128i vJreset = _mm_set_epi32(0,-1,-2,-3);
-    __m128i vMaxH = vNegInf;
-    __m128i vEndI = vNegInf;
-    __m128i vEndJ = vNegInf;
-    __m128i vILimit = _mm_set1_epi32(s1Len);
-    __m128i vJLimit = _mm_set1_epi32(s2Len);
-    __m128i vTDiag = _mm_set1_epi32(PARASAIL_DIAG);
-    __m128i vTIns = _mm_set1_epi32(PARASAIL_INS);
-    __m128i vTDel = _mm_set1_epi32(PARASAIL_DEL);
-    __m128i vTZero = _mm_set1_epi32(PARASAIL_ZERO);
-    __m128i vTDiagE = _mm_set1_epi32(PARASAIL_DIAG_E);
-    __m128i vTInsE = _mm_set1_epi32(PARASAIL_INS_E);
-    __m128i vTDiagF = _mm_set1_epi32(PARASAIL_DIAG_F);
-    __m128i vTDelF = _mm_set1_epi32(PARASAIL_DEL_F);
-    
+    int32_t NEG_LIMIT = 0;
+    int32_t POS_LIMIT = 0;
+    int32_t score = 0;
+    __m128i vNegLimit;
+    __m128i vPosLimit;
+    __m128i vSaturationCheckMin;
+    __m128i vSaturationCheckMax;
+    __m128i vNegInf;
+    __m128i vNegInf0;
+    __m128i vOpen;
+    __m128i vGap;
+    __m128i vZero;
+    __m128i vOne;
+    __m128i vN;
+    __m128i vNegOne;
+    __m128i vI;
+    __m128i vJreset;
+    __m128i vMaxH;
+    __m128i vEndI;
+    __m128i vEndJ;
+    __m128i vILimit;
+    __m128i vJLimit;
+    __m128i vTDiag;
+    __m128i vTIns;
+    __m128i vTDel;
+    __m128i vTZero;
+    __m128i vTDiagE;
+    __m128i vTInsE;
+    __m128i vTDiagF;
+    __m128i vTDelF;
+
+    /* validate inputs */
+    PARASAIL_CHECK_NULL(_s2);
+    PARASAIL_CHECK_GT0(s2Len);
+    PARASAIL_CHECK_GE0(open);
+    PARASAIL_CHECK_GE0(gap);
+    PARASAIL_CHECK_NULL(matrix);
+    if (matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) {
+        PARASAIL_CHECK_NULL(_s1);
+        PARASAIL_CHECK_GT0(_s1Len);
+    }
+        
+    /* initialize stack variables */
+    N = 4; /* number of values in vector */
+    PAD = N-1;
+    PAD2 = PAD*2;
+    s1Len = matrix->type == PARASAIL_MATRIX_TYPE_SQUARE ? _s1Len : matrix->length;
+    s1Len_PAD = s1Len+PAD;
+    s2Len_PAD = s2Len+PAD;
+    i = 0;
+    j = 0;
+    end_query = 0;
+    end_ref = 0;
+    NEG_LIMIT = (-open < matrix->min ? INT32_MIN + open : INT32_MIN - matrix->min) + 1;
+    POS_LIMIT = INT32_MAX - matrix->max - 1;
+    score = NEG_LIMIT;
+    vNegLimit = _mm_set1_epi32(NEG_LIMIT);
+    vPosLimit = _mm_set1_epi32(POS_LIMIT);
+    vSaturationCheckMin = vPosLimit;
+    vSaturationCheckMax = vNegLimit;
+    vNegInf = _mm_set1_epi32(NEG_LIMIT);
+    vNegInf0 = _mm_srli_si128(vNegInf, 4); /* shift in a 0 */
+    vOpen = _mm_set1_epi32(open);
+    vGap  = _mm_set1_epi32(gap);
+    vZero = _mm_set1_epi32(0);
+    vOne = _mm_set1_epi32(1);
+    vN = _mm_set1_epi32(N);
+    vNegOne = _mm_set1_epi32(-1);
+    vI = _mm_set_epi32(0,1,2,3);
+    vJreset = _mm_set_epi32(0,-1,-2,-3);
+    vMaxH = vNegInf;
+    vEndI = vNegInf;
+    vEndJ = vNegInf;
+    vILimit = _mm_set1_epi32(s1Len);
+    vJLimit = _mm_set1_epi32(s2Len);
+    vTDiag = _mm_set1_epi32(PARASAIL_DIAG);
+    vTIns = _mm_set1_epi32(PARASAIL_INS);
+    vTDel = _mm_set1_epi32(PARASAIL_DEL);
+    vTZero = _mm_set1_epi32(PARASAIL_ZERO);
+    vTDiagE = _mm_set1_epi32(PARASAIL_DIAG_E);
+    vTInsE = _mm_set1_epi32(PARASAIL_INS_E);
+    vTDiagF = _mm_set1_epi32(PARASAIL_DIAG_F);
+    vTDelF = _mm_set1_epi32(PARASAIL_DEL_F);
+
+    /* initialize result */
+    result = parasail_result_new_trace(s1Len, s2Len, 16, sizeof(int8_t));
+    if (!result) return NULL;
+
+    /* set known flags */
+    result->flag |= PARASAIL_FLAG_SW | PARASAIL_FLAG_DIAG
+        | PARASAIL_FLAG_TRACE
+        | PARASAIL_FLAG_BITS_32 | PARASAIL_FLAG_LANES_4;
+
+    /* initialize heap variables */
+    s2B= parasail_memalign_int32_t(16, s2Len+PAD2);
+    _H_pr = parasail_memalign_int32_t(16, s2Len+PAD2);
+    _F_pr = parasail_memalign_int32_t(16, s2Len+PAD2);
+    s2 = s2B+PAD; /* will allow later for negative indices */
+    H_pr = _H_pr+PAD;
+    F_pr = _F_pr+PAD;
+
+    /* validate heap variables */
+    if (!s2B) return NULL;
+    if (!_H_pr) return NULL;
+    if (!_F_pr) return NULL;
 
     /* convert _s1 from char to int in range 0-23 */
-    for (i=0; i<s1Len; ++i) {
-        s1[i] = matrix->mapper[(unsigned char)_s1[i]];
-    }
-    /* pad back of s1 with dummy values */
-    for (i=s1Len; i<s1Len_PAD; ++i) {
-        s1[i] = 0; /* point to first matrix row because we don't care */
+    if (matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) {
+        s1 = parasail_memalign_int32_t(16, s1Len+PAD);
+        if (!s1) return NULL;
+        for (i=0; i<s1Len; ++i) {
+            s1[i] = matrix->mapper[(unsigned char)_s1[i]];
+        }
+        /* pad back of s1 with dummy values */
+        for (i=s1Len; i<s1Len_PAD; ++i) {
+            s1[i] = 0; /* point to first matrix row because we don't care */
+        }
     }
 
     /* convert _s2 from char to int in range 0-23 */
@@ -145,17 +237,17 @@ parasail_result_t* FNAME(
     /* set initial values for stored row */
     for (j=0; j<s2Len; ++j) {
         H_pr[j] = 0;
-        F_pr[j] = NEG_INF;
+        F_pr[j] = NEG_LIMIT;
     }
     /* pad front of stored row values */
     for (j=-PAD; j<0; ++j) {
-        H_pr[j] = NEG_INF;
-        F_pr[j] = NEG_INF;
+        H_pr[j] = NEG_LIMIT;
+        F_pr[j] = NEG_LIMIT;
     }
     /* pad back of stored row values */
     for (j=s2Len; j<s2Len+PAD; ++j) {
-        H_pr[j] = NEG_INF;
-        F_pr[j] = NEG_INF;
+        H_pr[j] = NEG_LIMIT;
+        F_pr[j] = NEG_LIMIT;
     }
 
     /* iterate over query sequence */
@@ -169,10 +261,10 @@ parasail_result_t* FNAME(
         __m128i vF_opn = vNegInf;
         __m128i vF_ext = vNegInf;
         __m128i vJ = vJreset;
-        const int * const restrict matrow0 = &matrix->matrix[matrix->size*s1[i+0]];
-        const int * const restrict matrow1 = &matrix->matrix[matrix->size*s1[i+1]];
-        const int * const restrict matrow2 = &matrix->matrix[matrix->size*s1[i+2]];
-        const int * const restrict matrow3 = &matrix->matrix[matrix->size*s1[i+3]];
+        const int * const restrict matrow0 = &matrix->matrix[matrix->size * ((matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) ? s1[i+0] : ((i+0 >= s1Len) ? s1Len-1 : i+0))];
+        const int * const restrict matrow1 = &matrix->matrix[matrix->size * ((matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) ? s1[i+1] : ((i+1 >= s1Len) ? s1Len-1 : i+1))];
+        const int * const restrict matrow2 = &matrix->matrix[matrix->size * ((matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) ? s1[i+2] : ((i+2 >= s1Len) ? s1Len-1 : i+2))];
+        const int * const restrict matrow3 = &matrix->matrix[matrix->size * ((matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) ? s1[i+3] : ((i+3 >= s1Len) ? s1Len-1 : i+3))];
         __m128i vIltLimit = _mm_cmplt_epi32(vI, vILimit);
         /* iterate over database sequence */
         for (j=0; j<s2Len+PAD; ++j) {
@@ -206,7 +298,11 @@ parasail_result_t* FNAME(
                 vF = _mm_blendv_epi8_rpl(vF, vNegInf, cond);
                 vE = _mm_blendv_epi8_rpl(vE, vNegInf, cond);
             }
-            
+            /* cannot start checking sat until after J clears boundary */
+            if (j > PAD) {
+                vSaturationCheckMin = _mm_min_epi32_rpl(vSaturationCheckMin, vWH);
+                vSaturationCheckMax = _mm_max_epi32_rpl(vSaturationCheckMax, vWH);
+            }
             /* trace table */
             {
                 __m128i cond_zero = _mm_cmpeq_epi32(vWH, vZero);
@@ -275,19 +371,25 @@ parasail_result_t* FNAME(
         }
     }
 
-    
+    if (_mm_movemask_epi8(_mm_or_si128(
+            _mm_cmplt_epi32(vSaturationCheckMin, vNegLimit),
+            _mm_cmpgt_epi32(vSaturationCheckMax, vPosLimit)))) {
+        result->flag |= PARASAIL_FLAG_SATURATED;
+        score = 0;
+        end_query = 0;
+        end_ref = 0;
+    }
 
     result->score = score;
     result->end_query = end_query;
     result->end_ref = end_ref;
-    result->flag |= PARASAIL_FLAG_SW | PARASAIL_FLAG_DIAG
-        | PARASAIL_FLAG_TRACE
-        | PARASAIL_FLAG_BITS_32 | PARASAIL_FLAG_LANES_4;
 
     parasail_free(_F_pr);
     parasail_free(_H_pr);
     parasail_free(s2B);
-    parasail_free(s1);
+    if (matrix->type == PARASAIL_MATRIX_TYPE_SQUARE) {
+        parasail_free(s1);
+    }
 
     return result;
 }

@@ -7,6 +7,25 @@ This project follows the [Gitflow Workflow model](https://www.atlassian.com/git/
 ## [Unreleased]
 The Unreleased section will be empty for tagged releases. Unreleased functionality appears in the develop branch.
 
+## [2.5] - 2021-12-22
+### Added
+- Position-Specific Scoring Matrix Alignment (see [README.md])
+  - parasail_matrix_t attributes type, length, alphabet, and query
+  - pssm matrix functions
+    - parasail_matrix_pssm_create
+    - parasail_matrix_pssm_create_case_sensitive
+    - parasail_matrix_convert_square_to_pssm
+
+### Changed
+- Alignment functions now verify inputs as follows
+  - input sequences are not null and lengths are greater than zero
+  - input matrix is not null
+  - open and gap penalties are greater than or equal to zero
+- parasail_matrix_from_file can now parse a simple pssm format (see [README.md])
+
+### Fixed
+- Failure linking against OpenMP on macOS [\#91] [\#92] ([jvkersch])
+
 ## [2.4.3] - 2020-11-23
 ### Fixed
 - provide action-if-not-found case for PKG_CHECK_MODULES([Z])
@@ -398,7 +417,8 @@ The Unreleased section will be empty for tagged releases. Unreleased functionali
 ## [1.0.0] - 2015-09-16
 First stable, production-ready version of parasail.
 
-[Unreleased]: https://github.com/jeffdaily/parasail/compare/v2.4.3...develop
+[Unreleased]: https://github.com/jeffdaily/parasail/compare/v2.5...develop
+[2.5]:   https://github.com/jeffdaily/parasail/compare/v2.4.3...v2.5
 [2.4.3]: https://github.com/jeffdaily/parasail/compare/v2.4.2...v2.4.3
 [2.4.2]: https://github.com/jeffdaily/parasail/compare/v2.4.1...v2.4.2
 [2.4.1]: https://github.com/jeffdaily/parasail/compare/v2.4...v2.4.1
@@ -429,6 +449,17 @@ First stable, production-ready version of parasail.
 [1.0.1]: https://github.com/jeffdaily/parasail/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/jeffdaily/parasail/releases/tag/v1.0.0
 
+[\#92]: https://github.com/jeffdaily/parasail/pull/92
+[\#91]: https://github.com/jeffdaily/parasail/issues/91
+[\#90]: https://github.com/jeffdaily/parasail/issues/90
+[\#89]: https://github.com/jeffdaily/parasail/issues/89
+[\#88]: https://github.com/jeffdaily/parasail/issues/88
+[\#87]: https://github.com/jeffdaily/parasail/issues/87
+[\#86]: https://github.com/jeffdaily/parasail/issues/86
+[\#85]: https://github.com/jeffdaily/parasail/issues/85
+[\#84]: https://github.com/jeffdaily/parasail/issues/84
+[\#83]: https://github.com/jeffdaily/parasail/issues/83
+[\#82]: https://github.com/jeffdaily/parasail/pull/82
 [\#81]: https://github.com/jeffdaily/parasail/issues/81
 [\#80]: https://github.com/jeffdaily/parasail/issues/80
 [\#79]: https://github.com/jeffdaily/parasail/issues/79
@@ -525,3 +556,4 @@ First stable, production-ready version of parasail.
 [kseq.h]: http://lh3lh3.users.sourceforge.net/kseq.shtml
 [nileshpatra]: https://github.com/nileshpatra
 [ksahlin]: https://github.com/ksahlin
+[jvkersch]: https://github.com/jvkersch

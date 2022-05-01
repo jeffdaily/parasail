@@ -651,7 +651,7 @@ AS_IF([test "x$enable_avx512" != "xno"], [
 
     int foo() {
         __m512i vOne = _mm512_set1_epi32(1);
-        __m512i result =  _mm512_add_epi32(vOne,vOne);
+        _mm512_add_epi32(vOne,vOne);
         return 0;
     }
     int main(void) { return foo(); }
@@ -697,7 +697,7 @@ AS_IF([test "x$enable_avx512" != "xno"], [
 
     int foo() {
         __m512i vOne = _mm512_set1_epi8(1);
-        __m512i result =  _mm512_add_epi8(vOne,vOne);
+        _mm512_add_epi8(vOne,vOne);
         return 0;
     }
     int main(void) { return foo(); }
@@ -735,7 +735,7 @@ AS_IF([test "x$enable_avx512" != "xno"], [
 
     int foo() {
         __m512i vOne = _mm512_set1_epi8(1);
-        __m512i result =  _mm512_permutex2var_epi8(vOne,vOne,vOne);
+        _mm512_permutex2var_epi8(vOne,vOne,vOne);
         return 0;
     }
     int main(void) { return foo(); }

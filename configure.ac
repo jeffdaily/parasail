@@ -868,8 +868,8 @@ AS_IF([test "x$enable_neon" != "xno"], [
 	}
     int main(void)
     {
-        uint32x4_t one;
-        uint32x4_t two = double_elements(one);
+        uint32x4_t one = {1,2,3,4};
+        double_elements(one);
         return 0;
     }
     ]])],

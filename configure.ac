@@ -819,7 +819,7 @@ vector signed long long vec_mm_sub_epi64(vector signed long long a, vector signe
 int main(void)
 {
     vector signed int two = (vector signed int) ${B_OPEN}2${B_CLOSE};
-    vector signed int result = vec_2sComp(two);
+    vec_2sComp(two);
     return vec_extract(two,0);
 }
         ]])],

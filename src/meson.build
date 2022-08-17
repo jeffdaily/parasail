@@ -24,6 +24,8 @@ parasail_c_core_sources = files([
   'sg_dx_dispatch.c',
   'sg_qb_de_dispatch.c',
   'sg_qe_db_dispatch.c',
+  'sg_qb_db_dispatch.c',
+  'sg_qe_de_dispatch.c',
   'dispatch_profile.c',
   'satcheck.c',
   'striped_unwind.c',

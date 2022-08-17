@@ -7,6 +7,21 @@ This project follows the [Gitflow Workflow model](https://www.atlassian.com/git/
 ## [Unreleased]
 The Unreleased section will be empty for tagged releases. Unreleased functionality appears in the develop branch.
 
+## [2.6] - 2022-08-17
+### Added
+- Additional semi-global routines for various beginning and end gap penalty combinations.
+
+| Gaps are penalty-free at | Function Name |
+| --- | --- |
+| beginning of s1/query and beginning of s2/database | sg_qb_db |
+| end of s2/database and end of s1/query | sg_qe_de |
+
+### Closed Issues
+- sg_qe_de - alignment extension? [\#95]
+
+### Merged Pull Requests
+- Fix compiler/linker support of SIMD instructions with -Wall [\#94]
+
 ## [2.5] - 2021-12-22
 ### Added
 - Position-Specific Scoring Matrix Alignment (see [README.md])
@@ -449,7 +464,10 @@ First stable, production-ready version of parasail.
 [1.0.1]: https://github.com/jeffdaily/parasail/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/jeffdaily/parasail/releases/tag/v1.0.0
 
-[\#92]: https://github.com/jeffdaily/parasail/pull/92
+[\#95]: https://github.com/jeffdaily/parasail/issues/95
+[\#94]: https://github.com/jeffdaily/parasail/pull/94
+[\#93]: https://github.com/jeffdaily/parasail/issues/93
+[\#92]: https://github.com/jeffdaily/parasail/issues/92
 [\#91]: https://github.com/jeffdaily/parasail/issues/91
 [\#90]: https://github.com/jeffdaily/parasail/issues/90
 [\#89]: https://github.com/jeffdaily/parasail/issues/89

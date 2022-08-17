@@ -238,6 +238,8 @@ There are over 1,000 functions within the parasail library, but most are variati
 | Semi-Global, do not penalize gaps at beginning of s1/query and end of s2/database | sg_qb_de |
 | Semi-Global, do not penalize gaps at beginning of s2/database and end of s1/query | sg_qe_db |
 | Semi-Global, do not penalize gaps at beginning and end of both sequences | sg |
+| Semi-Global, do not penalize gaps at beginning of s1/query and beginning of s2/database | sg_qb_db |
+| Semi-Global, do not penalize gaps at end of s2/database and end of s1/query | sg_qe_de |
 
 A good summary of the various alignment algorithms can be found courtesy of Dr. Dannie Durand's course on computational genomics [here](http://www.cs.cmu.edu/~durand/03-711/2015/Lectures/PW_sequence_alignment_2015.pdf).  The same document was copied locally to this repo in case this link ever breaks, found [here](contrib/PW_sequence_alignment_2015.pdf).
 
@@ -248,11 +250,11 @@ To make it easier to find the function you're looking for, the function names fo
   - Optional return alignment statistics.
   - Optional return DP table or last row/col.
   - Optional use a prefix scan implementation.
-  - `parasail_ {nw,sg,sg_qb,sg_qe,sg_qx,sg_db,sg_de,sg_dx,sg_qb_de,sg_qe_db,sw} [_stats] [{_table,_rowcol}] [_scan]`
+  - `parasail_ {nw,sg,sg_qb,sg_qe,sg_qx,sg_db,sg_de,sg_dx,sg_qb_de,sg_qe_db,sg_qb_db,sg_qe_de,sw} [_stats] [{_table,_rowcol}] [_scan]`
 - Non-vectorized, traceback-capable reference implementations.
   - Required, select algorithm from table above.
   - Optional use a prefix scan implementation.
-  - `parasail_ {nw,sg,sg_qb,sg_qe,sg_qx,sg_db,sg_de,sg_dx,sg_qb_de,sg_qe_db,sw} _trace [_scan]`
+  - `parasail_ {nw,sg,sg_qb,sg_qe,sg_qx,sg_db,sg_de,sg_dx,sg_qb_de,sg_qe_db,sg_qb_db,sg_qe_de,sw} _trace [_scan]`
 - Vectorized.
   - Required, select algorithm from table above.
   - Optional return alignment statistics.
@@ -260,13 +262,13 @@ To make it easier to find the function you're looking for, the function names fo
   - Required, select vectorization strategy -- striped is a good place to start, but scan is often faster for global alignment.
   - Optional, select vector instruction set. Otherwise, best will be chosen for you.
   - Required, select solution width. 'sat' will attempt 8-bit solution but if overflow is detected it will then perform the 16-bit operation. Can be faster in some cases, though 16-bit is often sufficient.
-  - `parasail_ {nw,sg,sg_qb,sg_qe,sg_qx,sg_db,sg_de,sg_dx,sg_qb_de,sg_qe_db,sw} [_stats] [{_table,_rowcol}] {_striped,_scan,_diag} [{_sse2_128,_sse41_128,_avx2_256,_altivec_128,_neon_128}] {_8,_16,_32,_64,_sat}`
+  - `parasail_ {nw,sg,sg_qb,sg_qe,sg_qx,sg_db,sg_de,sg_dx,sg_qb_de,sg_qe_db,sg_qb_db,sg_qe_de,sw} [_stats] [{_table,_rowcol}] {_striped,_scan,_diag} [{_sse2_128,_sse41_128,_avx2_256,_altivec_128,_neon_128}] {_8,_16,_32,_64,_sat}`
 - Vectorized, traceback-capable.
   - Required, select algorithm from table above.
   - Required, select vectorization strategy -- striped is a good place to start, but scan is often faster for global alignment.
   - Optional, select vector instruction set. Otherwise, best will be chosen for you.
   - Required, select solution width. 'sat' will attempt 8-bit solution but if overflow is detected it will then perform the 16-bit operation. Can be faster in some cases, though 16-bit is often sufficient.
-  - `parasail_ {nw,sg,sg_qb,sg_qe,sg_qx,sg_db,sg_de,sg_dx,sg_qb_de,sg_qe_db,sw} _trace {_striped,_scan,_diag} [{_sse2_128,_sse41_128,_avx2_256,_altivec_128,_neon_128}] {_8,_16,_32,_64,_sat}`
+  - `parasail_ {nw,sg,sg_qb,sg_qe,sg_qx,sg_db,sg_de,sg_dx,sg_qb_de,sg_qe_db,sg_qb_db,sg_qe_de,sw} _trace {_striped,_scan,_diag} [{_sse2_128,_sse41_128,_avx2_256,_altivec_128,_neon_128}] {_8,_16,_32,_64,_sat}`
 
 For example:
 

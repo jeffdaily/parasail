@@ -237,9 +237,9 @@ There are over 1,000 functions within the parasail library, but most are variati
 | Semi-Global, do not penalize gaps at beginning and end of s2/database | sg_dx |
 | Semi-Global, do not penalize gaps at beginning of s1/query and end of s2/database | sg_qb_de |
 | Semi-Global, do not penalize gaps at beginning of s2/database and end of s1/query | sg_qe_db |
-| Semi-Global, do not penalize gaps at beginning and end of both sequences | sg |
 | Semi-Global, do not penalize gaps at beginning of s1/query and beginning of s2/database | sg_qb_db |
 | Semi-Global, do not penalize gaps at end of s2/database and end of s1/query | sg_qe_de |
+| Semi-Global, do not penalize gaps at beginning and end of both sequences | sg |
 
 A good summary of the various alignment algorithms can be found courtesy of Dr. Dannie Durand's course on computational genomics [here](http://www.cs.cmu.edu/~durand/03-711/2015/Lectures/PW_sequence_alignment_2015.pdf).  The same document was copied locally to this repo in case this link ever breaks, found [here](contrib/PW_sequence_alignment_2015.pdf).
 

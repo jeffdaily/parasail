@@ -1346,6 +1346,248 @@ static parasail_function_info_t parasail_sg_qe_db_trace_disp_functions[] = {
 {NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 1, 0, 0}
 };
 static parasail_function_group_t parasail_sg_qe_db_trace_disp = {"parasail_sg_qe_db_trace_disp", parasail_sg_qe_db_trace_disp_functions};
+#if HAVE_SSE2
+static parasail_function_info_t parasail_sg_qb_db_trace_sse2_functions[] = {
+{parasail_sg_qb_db_trace,             "parasail_sg_qb_db_trace",             "sg_qb_db",    "orig", "NA",     "32", "32",  1, 0, 0, 1, 0, 1},
+{parasail_sg_qb_db_trace_scan,        "parasail_sg_qb_db_trace_scan",        "sg_qb_db",    "scan", "NA",     "32", "32",  1, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_scan_sse2_128_64, "parasail_sg_qb_db_trace_scan_sse2_128_64", "sg_qb_db",    "scan", "sse2",  "128", "64",  2, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_scan_sse2_128_32, "parasail_sg_qb_db_trace_scan_sse2_128_32", "sg_qb_db",    "scan", "sse2",  "128", "32",  4, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_scan_sse2_128_16, "parasail_sg_qb_db_trace_scan_sse2_128_16", "sg_qb_db",    "scan", "sse2",  "128", "16",  8, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_scan_sse2_128_8, "parasail_sg_qb_db_trace_scan_sse2_128_8", "sg_qb_db",    "scan", "sse2",  "128",  "8", 16, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_striped_sse2_128_64, "parasail_sg_qb_db_trace_striped_sse2_128_64", "sg_qb_db", "striped", "sse2",  "128", "64",  2, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_striped_sse2_128_32, "parasail_sg_qb_db_trace_striped_sse2_128_32", "sg_qb_db", "striped", "sse2",  "128", "32",  4, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_striped_sse2_128_16, "parasail_sg_qb_db_trace_striped_sse2_128_16", "sg_qb_db", "striped", "sse2",  "128", "16",  8, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_striped_sse2_128_8, "parasail_sg_qb_db_trace_striped_sse2_128_8", "sg_qb_db", "striped", "sse2",  "128",  "8", 16, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_diag_sse2_128_64, "parasail_sg_qb_db_trace_diag_sse2_128_64", "sg_qb_db",    "diag", "sse2",  "128", "64",  2, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_diag_sse2_128_32, "parasail_sg_qb_db_trace_diag_sse2_128_32", "sg_qb_db",    "diag", "sse2",  "128", "32",  4, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_diag_sse2_128_16, "parasail_sg_qb_db_trace_diag_sse2_128_16", "sg_qb_db",    "diag", "sse2",  "128", "16",  8, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_diag_sse2_128_8, "parasail_sg_qb_db_trace_diag_sse2_128_8", "sg_qb_db",    "diag", "sse2",  "128",  "8", 16, 0, 0, 1, 0, 0},
+{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 1, 0, 0}
+};
+static parasail_function_group_t parasail_sg_qb_db_trace_sse2 = {"parasail_sg_qb_db_trace_sse2", parasail_sg_qb_db_trace_sse2_functions};
+#endif
+#if HAVE_SSE41
+static parasail_function_info_t parasail_sg_qb_db_trace_sse41_functions[] = {
+{parasail_sg_qb_db_trace,             "parasail_sg_qb_db_trace",             "sg_qb_db",    "orig", "NA",     "32", "32",  1, 0, 0, 1, 0, 1},
+{parasail_sg_qb_db_trace_scan,        "parasail_sg_qb_db_trace_scan",        "sg_qb_db",    "scan", "NA",     "32", "32",  1, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_scan_sse41_128_64, "parasail_sg_qb_db_trace_scan_sse41_128_64", "sg_qb_db",    "scan", "sse41", "128", "64",  2, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_scan_sse41_128_32, "parasail_sg_qb_db_trace_scan_sse41_128_32", "sg_qb_db",    "scan", "sse41", "128", "32",  4, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_scan_sse41_128_16, "parasail_sg_qb_db_trace_scan_sse41_128_16", "sg_qb_db",    "scan", "sse41", "128", "16",  8, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_scan_sse41_128_8, "parasail_sg_qb_db_trace_scan_sse41_128_8", "sg_qb_db",    "scan", "sse41", "128",  "8", 16, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_striped_sse41_128_64, "parasail_sg_qb_db_trace_striped_sse41_128_64", "sg_qb_db", "striped", "sse41", "128", "64",  2, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_striped_sse41_128_32, "parasail_sg_qb_db_trace_striped_sse41_128_32", "sg_qb_db", "striped", "sse41", "128", "32",  4, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_striped_sse41_128_16, "parasail_sg_qb_db_trace_striped_sse41_128_16", "sg_qb_db", "striped", "sse41", "128", "16",  8, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_striped_sse41_128_8, "parasail_sg_qb_db_trace_striped_sse41_128_8", "sg_qb_db", "striped", "sse41", "128",  "8", 16, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_diag_sse41_128_64, "parasail_sg_qb_db_trace_diag_sse41_128_64", "sg_qb_db",    "diag", "sse41", "128", "64",  2, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_diag_sse41_128_32, "parasail_sg_qb_db_trace_diag_sse41_128_32", "sg_qb_db",    "diag", "sse41", "128", "32",  4, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_diag_sse41_128_16, "parasail_sg_qb_db_trace_diag_sse41_128_16", "sg_qb_db",    "diag", "sse41", "128", "16",  8, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_diag_sse41_128_8, "parasail_sg_qb_db_trace_diag_sse41_128_8", "sg_qb_db",    "diag", "sse41", "128",  "8", 16, 0, 0, 1, 0, 0},
+{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 1, 0, 0}
+};
+static parasail_function_group_t parasail_sg_qb_db_trace_sse41 = {"parasail_sg_qb_db_trace_sse41", parasail_sg_qb_db_trace_sse41_functions};
+#endif
+#if HAVE_AVX2
+static parasail_function_info_t parasail_sg_qb_db_trace_avx2_functions[] = {
+{parasail_sg_qb_db_trace,             "parasail_sg_qb_db_trace",             "sg_qb_db",    "orig", "NA",     "32", "32",  1, 0, 0, 1, 0, 1},
+{parasail_sg_qb_db_trace_scan,        "parasail_sg_qb_db_trace_scan",        "sg_qb_db",    "scan", "NA",     "32", "32",  1, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_scan_avx2_256_64, "parasail_sg_qb_db_trace_scan_avx2_256_64", "sg_qb_db",    "scan", "avx2",  "256", "64",  4, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_scan_avx2_256_32, "parasail_sg_qb_db_trace_scan_avx2_256_32", "sg_qb_db",    "scan", "avx2",  "256", "32",  8, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_scan_avx2_256_16, "parasail_sg_qb_db_trace_scan_avx2_256_16", "sg_qb_db",    "scan", "avx2",  "256", "16", 16, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_scan_avx2_256_8, "parasail_sg_qb_db_trace_scan_avx2_256_8", "sg_qb_db",    "scan", "avx2",  "256",  "8", 32, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_striped_avx2_256_64, "parasail_sg_qb_db_trace_striped_avx2_256_64", "sg_qb_db", "striped", "avx2",  "256", "64",  4, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_striped_avx2_256_32, "parasail_sg_qb_db_trace_striped_avx2_256_32", "sg_qb_db", "striped", "avx2",  "256", "32",  8, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_striped_avx2_256_16, "parasail_sg_qb_db_trace_striped_avx2_256_16", "sg_qb_db", "striped", "avx2",  "256", "16", 16, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_striped_avx2_256_8, "parasail_sg_qb_db_trace_striped_avx2_256_8", "sg_qb_db", "striped", "avx2",  "256",  "8", 32, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_diag_avx2_256_64, "parasail_sg_qb_db_trace_diag_avx2_256_64", "sg_qb_db",    "diag", "avx2",  "256", "64",  4, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_diag_avx2_256_32, "parasail_sg_qb_db_trace_diag_avx2_256_32", "sg_qb_db",    "diag", "avx2",  "256", "32",  8, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_diag_avx2_256_16, "parasail_sg_qb_db_trace_diag_avx2_256_16", "sg_qb_db",    "diag", "avx2",  "256", "16", 16, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_diag_avx2_256_8, "parasail_sg_qb_db_trace_diag_avx2_256_8", "sg_qb_db",    "diag", "avx2",  "256",  "8", 32, 0, 0, 1, 0, 0},
+{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 1, 0, 0}
+};
+static parasail_function_group_t parasail_sg_qb_db_trace_avx2 = {"parasail_sg_qb_db_trace_avx2", parasail_sg_qb_db_trace_avx2_functions};
+#endif
+#if HAVE_ALTIVEC
+static parasail_function_info_t parasail_sg_qb_db_trace_altivec_functions[] = {
+{parasail_sg_qb_db_trace,             "parasail_sg_qb_db_trace",             "sg_qb_db",    "orig", "NA",     "32", "32",  1, 0, 0, 1, 0, 1},
+{parasail_sg_qb_db_trace_scan,        "parasail_sg_qb_db_trace_scan",        "sg_qb_db",    "scan", "NA",     "32", "32",  1, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_scan_altivec_128_64, "parasail_sg_qb_db_trace_scan_altivec_128_64", "sg_qb_db",    "scan", "altivec", "128", "64",  2, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_scan_altivec_128_32, "parasail_sg_qb_db_trace_scan_altivec_128_32", "sg_qb_db",    "scan", "altivec", "128", "32",  4, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_scan_altivec_128_16, "parasail_sg_qb_db_trace_scan_altivec_128_16", "sg_qb_db",    "scan", "altivec", "128", "16",  8, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_scan_altivec_128_8, "parasail_sg_qb_db_trace_scan_altivec_128_8", "sg_qb_db",    "scan", "altivec", "128",  "8", 16, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_striped_altivec_128_64, "parasail_sg_qb_db_trace_striped_altivec_128_64", "sg_qb_db", "striped", "altivec", "128", "64",  2, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_striped_altivec_128_32, "parasail_sg_qb_db_trace_striped_altivec_128_32", "sg_qb_db", "striped", "altivec", "128", "32",  4, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_striped_altivec_128_16, "parasail_sg_qb_db_trace_striped_altivec_128_16", "sg_qb_db", "striped", "altivec", "128", "16",  8, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_striped_altivec_128_8, "parasail_sg_qb_db_trace_striped_altivec_128_8", "sg_qb_db", "striped", "altivec", "128",  "8", 16, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_diag_altivec_128_64, "parasail_sg_qb_db_trace_diag_altivec_128_64", "sg_qb_db",    "diag", "altivec", "128", "64",  2, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_diag_altivec_128_32, "parasail_sg_qb_db_trace_diag_altivec_128_32", "sg_qb_db",    "diag", "altivec", "128", "32",  4, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_diag_altivec_128_16, "parasail_sg_qb_db_trace_diag_altivec_128_16", "sg_qb_db",    "diag", "altivec", "128", "16",  8, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_diag_altivec_128_8, "parasail_sg_qb_db_trace_diag_altivec_128_8", "sg_qb_db",    "diag", "altivec", "128",  "8", 16, 0, 0, 1, 0, 0},
+{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 1, 0, 0}
+};
+static parasail_function_group_t parasail_sg_qb_db_trace_altivec = {"parasail_sg_qb_db_trace_altivec", parasail_sg_qb_db_trace_altivec_functions};
+#endif
+#if HAVE_NEON
+static parasail_function_info_t parasail_sg_qb_db_trace_neon_functions[] = {
+{parasail_sg_qb_db_trace,             "parasail_sg_qb_db_trace",             "sg_qb_db",    "orig", "NA",     "32", "32",  1, 0, 0, 1, 0, 1},
+{parasail_sg_qb_db_trace_scan,        "parasail_sg_qb_db_trace_scan",        "sg_qb_db",    "scan", "NA",     "32", "32",  1, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_scan_neon_128_64, "parasail_sg_qb_db_trace_scan_neon_128_64", "sg_qb_db",    "scan", "neon",  "128", "64",  2, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_scan_neon_128_32, "parasail_sg_qb_db_trace_scan_neon_128_32", "sg_qb_db",    "scan", "neon",  "128", "32",  4, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_scan_neon_128_16, "parasail_sg_qb_db_trace_scan_neon_128_16", "sg_qb_db",    "scan", "neon",  "128", "16",  8, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_scan_neon_128_8, "parasail_sg_qb_db_trace_scan_neon_128_8", "sg_qb_db",    "scan", "neon",  "128",  "8", 16, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_striped_neon_128_64, "parasail_sg_qb_db_trace_striped_neon_128_64", "sg_qb_db", "striped", "neon",  "128", "64",  2, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_striped_neon_128_32, "parasail_sg_qb_db_trace_striped_neon_128_32", "sg_qb_db", "striped", "neon",  "128", "32",  4, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_striped_neon_128_16, "parasail_sg_qb_db_trace_striped_neon_128_16", "sg_qb_db", "striped", "neon",  "128", "16",  8, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_striped_neon_128_8, "parasail_sg_qb_db_trace_striped_neon_128_8", "sg_qb_db", "striped", "neon",  "128",  "8", 16, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_diag_neon_128_64, "parasail_sg_qb_db_trace_diag_neon_128_64", "sg_qb_db",    "diag", "neon",  "128", "64",  2, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_diag_neon_128_32, "parasail_sg_qb_db_trace_diag_neon_128_32", "sg_qb_db",    "diag", "neon",  "128", "32",  4, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_diag_neon_128_16, "parasail_sg_qb_db_trace_diag_neon_128_16", "sg_qb_db",    "diag", "neon",  "128", "16",  8, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_diag_neon_128_8, "parasail_sg_qb_db_trace_diag_neon_128_8", "sg_qb_db",    "diag", "neon",  "128",  "8", 16, 0, 0, 1, 0, 0},
+{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 1, 0, 0}
+};
+static parasail_function_group_t parasail_sg_qb_db_trace_neon = {"parasail_sg_qb_db_trace_neon", parasail_sg_qb_db_trace_neon_functions};
+#endif
+static parasail_function_info_t parasail_sg_qb_db_trace_disp_functions[] = {
+{parasail_sg_qb_db_trace,             "parasail_sg_qb_db_trace",             "sg_qb_db",    "orig", "NA",     "32", "32",  1, 0, 0, 1, 0, 1},
+{parasail_sg_qb_db_trace_scan,        "parasail_sg_qb_db_trace_scan",        "sg_qb_db",    "scan", "NA",     "32", "32",  1, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_scan_64,     "parasail_sg_qb_db_trace_scan_64",     "sg_qb_db",    "scan", "disp",   "NA", "64", -1, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_scan_32,     "parasail_sg_qb_db_trace_scan_32",     "sg_qb_db",    "scan", "disp",   "NA", "32", -1, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_scan_16,     "parasail_sg_qb_db_trace_scan_16",     "sg_qb_db",    "scan", "disp",   "NA", "16", -1, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_scan_8,      "parasail_sg_qb_db_trace_scan_8",      "sg_qb_db",    "scan", "disp",   "NA",  "8", -1, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_striped_64,  "parasail_sg_qb_db_trace_striped_64",  "sg_qb_db", "striped", "disp",   "NA", "64", -1, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_striped_32,  "parasail_sg_qb_db_trace_striped_32",  "sg_qb_db", "striped", "disp",   "NA", "32", -1, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_striped_16,  "parasail_sg_qb_db_trace_striped_16",  "sg_qb_db", "striped", "disp",   "NA", "16", -1, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_striped_8,   "parasail_sg_qb_db_trace_striped_8",   "sg_qb_db", "striped", "disp",   "NA",  "8", -1, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_diag_64,     "parasail_sg_qb_db_trace_diag_64",     "sg_qb_db",    "diag", "disp",   "NA", "64", -1, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_diag_32,     "parasail_sg_qb_db_trace_diag_32",     "sg_qb_db",    "diag", "disp",   "NA", "32", -1, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_diag_16,     "parasail_sg_qb_db_trace_diag_16",     "sg_qb_db",    "diag", "disp",   "NA", "16", -1, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_diag_8,      "parasail_sg_qb_db_trace_diag_8",      "sg_qb_db",    "diag", "disp",   "NA",  "8", -1, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_scan_sat,    "parasail_sg_qb_db_trace_scan_sat",    "sg_qb_db",    "scan", "sat",    "NA",  "8", -1, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_striped_sat, "parasail_sg_qb_db_trace_striped_sat", "sg_qb_db", "striped", "sat",    "NA",  "8", -1, 0, 0, 1, 0, 0},
+{parasail_sg_qb_db_trace_diag_sat,    "parasail_sg_qb_db_trace_diag_sat",    "sg_qb_db",    "diag", "sat",    "NA",  "8", -1, 0, 0, 1, 0, 0},
+{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 1, 0, 0}
+};
+static parasail_function_group_t parasail_sg_qb_db_trace_disp = {"parasail_sg_qb_db_trace_disp", parasail_sg_qb_db_trace_disp_functions};
+#if HAVE_SSE2
+static parasail_function_info_t parasail_sg_qe_de_trace_sse2_functions[] = {
+{parasail_sg_qe_de_trace,             "parasail_sg_qe_de_trace",             "sg_qe_de",    "orig", "NA",     "32", "32",  1, 0, 0, 1, 0, 1},
+{parasail_sg_qe_de_trace_scan,        "parasail_sg_qe_de_trace_scan",        "sg_qe_de",    "scan", "NA",     "32", "32",  1, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_scan_sse2_128_64, "parasail_sg_qe_de_trace_scan_sse2_128_64", "sg_qe_de",    "scan", "sse2",  "128", "64",  2, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_scan_sse2_128_32, "parasail_sg_qe_de_trace_scan_sse2_128_32", "sg_qe_de",    "scan", "sse2",  "128", "32",  4, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_scan_sse2_128_16, "parasail_sg_qe_de_trace_scan_sse2_128_16", "sg_qe_de",    "scan", "sse2",  "128", "16",  8, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_scan_sse2_128_8, "parasail_sg_qe_de_trace_scan_sse2_128_8", "sg_qe_de",    "scan", "sse2",  "128",  "8", 16, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_striped_sse2_128_64, "parasail_sg_qe_de_trace_striped_sse2_128_64", "sg_qe_de", "striped", "sse2",  "128", "64",  2, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_striped_sse2_128_32, "parasail_sg_qe_de_trace_striped_sse2_128_32", "sg_qe_de", "striped", "sse2",  "128", "32",  4, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_striped_sse2_128_16, "parasail_sg_qe_de_trace_striped_sse2_128_16", "sg_qe_de", "striped", "sse2",  "128", "16",  8, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_striped_sse2_128_8, "parasail_sg_qe_de_trace_striped_sse2_128_8", "sg_qe_de", "striped", "sse2",  "128",  "8", 16, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_diag_sse2_128_64, "parasail_sg_qe_de_trace_diag_sse2_128_64", "sg_qe_de",    "diag", "sse2",  "128", "64",  2, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_diag_sse2_128_32, "parasail_sg_qe_de_trace_diag_sse2_128_32", "sg_qe_de",    "diag", "sse2",  "128", "32",  4, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_diag_sse2_128_16, "parasail_sg_qe_de_trace_diag_sse2_128_16", "sg_qe_de",    "diag", "sse2",  "128", "16",  8, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_diag_sse2_128_8, "parasail_sg_qe_de_trace_diag_sse2_128_8", "sg_qe_de",    "diag", "sse2",  "128",  "8", 16, 0, 0, 1, 0, 0},
+{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 1, 0, 0}
+};
+static parasail_function_group_t parasail_sg_qe_de_trace_sse2 = {"parasail_sg_qe_de_trace_sse2", parasail_sg_qe_de_trace_sse2_functions};
+#endif
+#if HAVE_SSE41
+static parasail_function_info_t parasail_sg_qe_de_trace_sse41_functions[] = {
+{parasail_sg_qe_de_trace,             "parasail_sg_qe_de_trace",             "sg_qe_de",    "orig", "NA",     "32", "32",  1, 0, 0, 1, 0, 1},
+{parasail_sg_qe_de_trace_scan,        "parasail_sg_qe_de_trace_scan",        "sg_qe_de",    "scan", "NA",     "32", "32",  1, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_scan_sse41_128_64, "parasail_sg_qe_de_trace_scan_sse41_128_64", "sg_qe_de",    "scan", "sse41", "128", "64",  2, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_scan_sse41_128_32, "parasail_sg_qe_de_trace_scan_sse41_128_32", "sg_qe_de",    "scan", "sse41", "128", "32",  4, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_scan_sse41_128_16, "parasail_sg_qe_de_trace_scan_sse41_128_16", "sg_qe_de",    "scan", "sse41", "128", "16",  8, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_scan_sse41_128_8, "parasail_sg_qe_de_trace_scan_sse41_128_8", "sg_qe_de",    "scan", "sse41", "128",  "8", 16, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_striped_sse41_128_64, "parasail_sg_qe_de_trace_striped_sse41_128_64", "sg_qe_de", "striped", "sse41", "128", "64",  2, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_striped_sse41_128_32, "parasail_sg_qe_de_trace_striped_sse41_128_32", "sg_qe_de", "striped", "sse41", "128", "32",  4, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_striped_sse41_128_16, "parasail_sg_qe_de_trace_striped_sse41_128_16", "sg_qe_de", "striped", "sse41", "128", "16",  8, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_striped_sse41_128_8, "parasail_sg_qe_de_trace_striped_sse41_128_8", "sg_qe_de", "striped", "sse41", "128",  "8", 16, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_diag_sse41_128_64, "parasail_sg_qe_de_trace_diag_sse41_128_64", "sg_qe_de",    "diag", "sse41", "128", "64",  2, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_diag_sse41_128_32, "parasail_sg_qe_de_trace_diag_sse41_128_32", "sg_qe_de",    "diag", "sse41", "128", "32",  4, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_diag_sse41_128_16, "parasail_sg_qe_de_trace_diag_sse41_128_16", "sg_qe_de",    "diag", "sse41", "128", "16",  8, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_diag_sse41_128_8, "parasail_sg_qe_de_trace_diag_sse41_128_8", "sg_qe_de",    "diag", "sse41", "128",  "8", 16, 0, 0, 1, 0, 0},
+{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 1, 0, 0}
+};
+static parasail_function_group_t parasail_sg_qe_de_trace_sse41 = {"parasail_sg_qe_de_trace_sse41", parasail_sg_qe_de_trace_sse41_functions};
+#endif
+#if HAVE_AVX2
+static parasail_function_info_t parasail_sg_qe_de_trace_avx2_functions[] = {
+{parasail_sg_qe_de_trace,             "parasail_sg_qe_de_trace",             "sg_qe_de",    "orig", "NA",     "32", "32",  1, 0, 0, 1, 0, 1},
+{parasail_sg_qe_de_trace_scan,        "parasail_sg_qe_de_trace_scan",        "sg_qe_de",    "scan", "NA",     "32", "32",  1, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_scan_avx2_256_64, "parasail_sg_qe_de_trace_scan_avx2_256_64", "sg_qe_de",    "scan", "avx2",  "256", "64",  4, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_scan_avx2_256_32, "parasail_sg_qe_de_trace_scan_avx2_256_32", "sg_qe_de",    "scan", "avx2",  "256", "32",  8, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_scan_avx2_256_16, "parasail_sg_qe_de_trace_scan_avx2_256_16", "sg_qe_de",    "scan", "avx2",  "256", "16", 16, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_scan_avx2_256_8, "parasail_sg_qe_de_trace_scan_avx2_256_8", "sg_qe_de",    "scan", "avx2",  "256",  "8", 32, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_striped_avx2_256_64, "parasail_sg_qe_de_trace_striped_avx2_256_64", "sg_qe_de", "striped", "avx2",  "256", "64",  4, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_striped_avx2_256_32, "parasail_sg_qe_de_trace_striped_avx2_256_32", "sg_qe_de", "striped", "avx2",  "256", "32",  8, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_striped_avx2_256_16, "parasail_sg_qe_de_trace_striped_avx2_256_16", "sg_qe_de", "striped", "avx2",  "256", "16", 16, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_striped_avx2_256_8, "parasail_sg_qe_de_trace_striped_avx2_256_8", "sg_qe_de", "striped", "avx2",  "256",  "8", 32, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_diag_avx2_256_64, "parasail_sg_qe_de_trace_diag_avx2_256_64", "sg_qe_de",    "diag", "avx2",  "256", "64",  4, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_diag_avx2_256_32, "parasail_sg_qe_de_trace_diag_avx2_256_32", "sg_qe_de",    "diag", "avx2",  "256", "32",  8, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_diag_avx2_256_16, "parasail_sg_qe_de_trace_diag_avx2_256_16", "sg_qe_de",    "diag", "avx2",  "256", "16", 16, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_diag_avx2_256_8, "parasail_sg_qe_de_trace_diag_avx2_256_8", "sg_qe_de",    "diag", "avx2",  "256",  "8", 32, 0, 0, 1, 0, 0},
+{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 1, 0, 0}
+};
+static parasail_function_group_t parasail_sg_qe_de_trace_avx2 = {"parasail_sg_qe_de_trace_avx2", parasail_sg_qe_de_trace_avx2_functions};
+#endif
+#if HAVE_ALTIVEC
+static parasail_function_info_t parasail_sg_qe_de_trace_altivec_functions[] = {
+{parasail_sg_qe_de_trace,             "parasail_sg_qe_de_trace",             "sg_qe_de",    "orig", "NA",     "32", "32",  1, 0, 0, 1, 0, 1},
+{parasail_sg_qe_de_trace_scan,        "parasail_sg_qe_de_trace_scan",        "sg_qe_de",    "scan", "NA",     "32", "32",  1, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_scan_altivec_128_64, "parasail_sg_qe_de_trace_scan_altivec_128_64", "sg_qe_de",    "scan", "altivec", "128", "64",  2, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_scan_altivec_128_32, "parasail_sg_qe_de_trace_scan_altivec_128_32", "sg_qe_de",    "scan", "altivec", "128", "32",  4, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_scan_altivec_128_16, "parasail_sg_qe_de_trace_scan_altivec_128_16", "sg_qe_de",    "scan", "altivec", "128", "16",  8, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_scan_altivec_128_8, "parasail_sg_qe_de_trace_scan_altivec_128_8", "sg_qe_de",    "scan", "altivec", "128",  "8", 16, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_striped_altivec_128_64, "parasail_sg_qe_de_trace_striped_altivec_128_64", "sg_qe_de", "striped", "altivec", "128", "64",  2, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_striped_altivec_128_32, "parasail_sg_qe_de_trace_striped_altivec_128_32", "sg_qe_de", "striped", "altivec", "128", "32",  4, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_striped_altivec_128_16, "parasail_sg_qe_de_trace_striped_altivec_128_16", "sg_qe_de", "striped", "altivec", "128", "16",  8, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_striped_altivec_128_8, "parasail_sg_qe_de_trace_striped_altivec_128_8", "sg_qe_de", "striped", "altivec", "128",  "8", 16, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_diag_altivec_128_64, "parasail_sg_qe_de_trace_diag_altivec_128_64", "sg_qe_de",    "diag", "altivec", "128", "64",  2, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_diag_altivec_128_32, "parasail_sg_qe_de_trace_diag_altivec_128_32", "sg_qe_de",    "diag", "altivec", "128", "32",  4, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_diag_altivec_128_16, "parasail_sg_qe_de_trace_diag_altivec_128_16", "sg_qe_de",    "diag", "altivec", "128", "16",  8, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_diag_altivec_128_8, "parasail_sg_qe_de_trace_diag_altivec_128_8", "sg_qe_de",    "diag", "altivec", "128",  "8", 16, 0, 0, 1, 0, 0},
+{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 1, 0, 0}
+};
+static parasail_function_group_t parasail_sg_qe_de_trace_altivec = {"parasail_sg_qe_de_trace_altivec", parasail_sg_qe_de_trace_altivec_functions};
+#endif
+#if HAVE_NEON
+static parasail_function_info_t parasail_sg_qe_de_trace_neon_functions[] = {
+{parasail_sg_qe_de_trace,             "parasail_sg_qe_de_trace",             "sg_qe_de",    "orig", "NA",     "32", "32",  1, 0, 0, 1, 0, 1},
+{parasail_sg_qe_de_trace_scan,        "parasail_sg_qe_de_trace_scan",        "sg_qe_de",    "scan", "NA",     "32", "32",  1, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_scan_neon_128_64, "parasail_sg_qe_de_trace_scan_neon_128_64", "sg_qe_de",    "scan", "neon",  "128", "64",  2, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_scan_neon_128_32, "parasail_sg_qe_de_trace_scan_neon_128_32", "sg_qe_de",    "scan", "neon",  "128", "32",  4, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_scan_neon_128_16, "parasail_sg_qe_de_trace_scan_neon_128_16", "sg_qe_de",    "scan", "neon",  "128", "16",  8, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_scan_neon_128_8, "parasail_sg_qe_de_trace_scan_neon_128_8", "sg_qe_de",    "scan", "neon",  "128",  "8", 16, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_striped_neon_128_64, "parasail_sg_qe_de_trace_striped_neon_128_64", "sg_qe_de", "striped", "neon",  "128", "64",  2, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_striped_neon_128_32, "parasail_sg_qe_de_trace_striped_neon_128_32", "sg_qe_de", "striped", "neon",  "128", "32",  4, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_striped_neon_128_16, "parasail_sg_qe_de_trace_striped_neon_128_16", "sg_qe_de", "striped", "neon",  "128", "16",  8, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_striped_neon_128_8, "parasail_sg_qe_de_trace_striped_neon_128_8", "sg_qe_de", "striped", "neon",  "128",  "8", 16, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_diag_neon_128_64, "parasail_sg_qe_de_trace_diag_neon_128_64", "sg_qe_de",    "diag", "neon",  "128", "64",  2, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_diag_neon_128_32, "parasail_sg_qe_de_trace_diag_neon_128_32", "sg_qe_de",    "diag", "neon",  "128", "32",  4, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_diag_neon_128_16, "parasail_sg_qe_de_trace_diag_neon_128_16", "sg_qe_de",    "diag", "neon",  "128", "16",  8, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_diag_neon_128_8, "parasail_sg_qe_de_trace_diag_neon_128_8", "sg_qe_de",    "diag", "neon",  "128",  "8", 16, 0, 0, 1, 0, 0},
+{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 1, 0, 0}
+};
+static parasail_function_group_t parasail_sg_qe_de_trace_neon = {"parasail_sg_qe_de_trace_neon", parasail_sg_qe_de_trace_neon_functions};
+#endif
+static parasail_function_info_t parasail_sg_qe_de_trace_disp_functions[] = {
+{parasail_sg_qe_de_trace,             "parasail_sg_qe_de_trace",             "sg_qe_de",    "orig", "NA",     "32", "32",  1, 0, 0, 1, 0, 1},
+{parasail_sg_qe_de_trace_scan,        "parasail_sg_qe_de_trace_scan",        "sg_qe_de",    "scan", "NA",     "32", "32",  1, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_scan_64,     "parasail_sg_qe_de_trace_scan_64",     "sg_qe_de",    "scan", "disp",   "NA", "64", -1, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_scan_32,     "parasail_sg_qe_de_trace_scan_32",     "sg_qe_de",    "scan", "disp",   "NA", "32", -1, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_scan_16,     "parasail_sg_qe_de_trace_scan_16",     "sg_qe_de",    "scan", "disp",   "NA", "16", -1, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_scan_8,      "parasail_sg_qe_de_trace_scan_8",      "sg_qe_de",    "scan", "disp",   "NA",  "8", -1, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_striped_64,  "parasail_sg_qe_de_trace_striped_64",  "sg_qe_de", "striped", "disp",   "NA", "64", -1, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_striped_32,  "parasail_sg_qe_de_trace_striped_32",  "sg_qe_de", "striped", "disp",   "NA", "32", -1, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_striped_16,  "parasail_sg_qe_de_trace_striped_16",  "sg_qe_de", "striped", "disp",   "NA", "16", -1, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_striped_8,   "parasail_sg_qe_de_trace_striped_8",   "sg_qe_de", "striped", "disp",   "NA",  "8", -1, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_diag_64,     "parasail_sg_qe_de_trace_diag_64",     "sg_qe_de",    "diag", "disp",   "NA", "64", -1, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_diag_32,     "parasail_sg_qe_de_trace_diag_32",     "sg_qe_de",    "diag", "disp",   "NA", "32", -1, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_diag_16,     "parasail_sg_qe_de_trace_diag_16",     "sg_qe_de",    "diag", "disp",   "NA", "16", -1, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_diag_8,      "parasail_sg_qe_de_trace_diag_8",      "sg_qe_de",    "diag", "disp",   "NA",  "8", -1, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_scan_sat,    "parasail_sg_qe_de_trace_scan_sat",    "sg_qe_de",    "scan", "sat",    "NA",  "8", -1, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_striped_sat, "parasail_sg_qe_de_trace_striped_sat", "sg_qe_de", "striped", "sat",    "NA",  "8", -1, 0, 0, 1, 0, 0},
+{parasail_sg_qe_de_trace_diag_sat,    "parasail_sg_qe_de_trace_diag_sat",    "sg_qe_de",    "diag", "sat",    "NA",  "8", -1, 0, 0, 1, 0, 0},
+{NULL, "NULL", "NULL", "NULL", "NULL", "NULL", "NULL", 0, 0, 0, 1, 0, 0}
+};
+static parasail_function_group_t parasail_sg_qe_de_trace_disp = {"parasail_sg_qe_de_trace_disp", parasail_sg_qe_de_trace_disp_functions};
 
 #endif /* _PARASAIL_FUNCTION_GROUP_TRACE_H_ */
 

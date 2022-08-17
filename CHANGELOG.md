@@ -16,6 +16,9 @@ The Unreleased section will be empty for tagged releases. Unreleased functionali
 | beginning of s1/query and beginning of s2/database | sg_qb_db |
 | end of s2/database and end of s1/query | sg_qe_de |
 
+### Fixed
+- configure now works correctly when using -Wall
+
 ### Closed Issues
 - sg_qe_de - alignment extension? [\#95]
 
@@ -432,7 +435,8 @@ The Unreleased section will be empty for tagged releases. Unreleased functionali
 ## [1.0.0] - 2015-09-16
 First stable, production-ready version of parasail.
 
-[Unreleased]: https://github.com/jeffdaily/parasail/compare/v2.5...develop
+[Unreleased]: https://github.com/jeffdaily/parasail/compare/v2.6...develop
+[2.6]:   https://github.com/jeffdaily/parasail/compare/v2.5...v2.6
 [2.5]:   https://github.com/jeffdaily/parasail/compare/v2.4.3...v2.5
 [2.4.3]: https://github.com/jeffdaily/parasail/compare/v2.4.2...v2.4.3
 [2.4.2]: https://github.com/jeffdaily/parasail/compare/v2.4.1...v2.4.2

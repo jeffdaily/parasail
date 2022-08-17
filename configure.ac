@@ -651,7 +651,7 @@ AS_IF([test "x$enable_avx512" != "xno"], [
 
     int foo() {
         __m512i vOne = _mm512_set1_epi32(1);
-        __m512i result =  _mm512_add_epi32(vOne,vOne);
+        _mm512_add_epi32(vOne,vOne);
         return 0;
     }
     int main(void) { return foo(); }
@@ -697,7 +697,7 @@ AS_IF([test "x$enable_avx512" != "xno"], [
 
     int foo() {
         __m512i vOne = _mm512_set1_epi8(1);
-        __m512i result =  _mm512_add_epi8(vOne,vOne);
+        _mm512_add_epi8(vOne,vOne);
         return 0;
     }
     int main(void) { return foo(); }
@@ -735,7 +735,7 @@ AS_IF([test "x$enable_avx512" != "xno"], [
 
     int foo() {
         __m512i vOne = _mm512_set1_epi8(1);
-        __m512i result =  _mm512_permutex2var_epi8(vOne,vOne,vOne);
+        _mm512_permutex2var_epi8(vOne,vOne,vOne);
         return 0;
     }
     int main(void) { return foo(); }
@@ -819,7 +819,7 @@ vector signed long long vec_mm_sub_epi64(vector signed long long a, vector signe
 int main(void)
 {
     vector signed int two = (vector signed int) ${B_OPEN}2${B_CLOSE};
-    vector signed int result = vec_2sComp(two);
+    vec_2sComp(two);
     return vec_extract(two,0);
 }
         ]])],
@@ -868,8 +868,8 @@ AS_IF([test "x$enable_neon" != "xno"], [
 	}
     int main(void)
     {
-        uint32x4_t one;
-        uint32x4_t two = double_elements(one);
+        uint32x4_t one = {1,2,3,4};
+        double_elements(one);
         return 0;
     }
     ]])],

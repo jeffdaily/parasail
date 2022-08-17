@@ -399,6 +399,8 @@ int main(int argc, char **argv)
             check_functions(parasail_sg_dx_rowcol_sse2, sequences, limit, matrix, gap);
             check_functions(parasail_sg_qb_de_rowcol_sse2, sequences, limit, matrix, gap);
             check_functions(parasail_sg_qe_db_rowcol_sse2, sequences, limit, matrix, gap);
+            check_functions(parasail_sg_qb_db_rowcol_sse2, sequences, limit, matrix, gap);
+            check_functions(parasail_sg_qe_de_rowcol_sse2, sequences, limit, matrix, gap);
             check_functions(parasail_sw_rowcol_sse2, sequences, limit, matrix, gap);
         }
         if (test_stats) {
@@ -412,6 +414,8 @@ int main(int argc, char **argv)
             check_functions(parasail_sg_dx_stats_rowcol_sse2, sequences, limit, matrix, gap);
             check_functions(parasail_sg_qb_de_stats_rowcol_sse2, sequences, limit, matrix, gap);
             check_functions(parasail_sg_qe_db_stats_rowcol_sse2, sequences, limit, matrix, gap);
+            check_functions(parasail_sg_qb_db_stats_rowcol_sse2, sequences, limit, matrix, gap);
+            check_functions(parasail_sg_qe_de_stats_rowcol_sse2, sequences, limit, matrix, gap);
             check_functions(parasail_sw_stats_rowcol_sse2, sequences, limit, matrix, gap);
         }
     }
@@ -430,6 +434,8 @@ int main(int argc, char **argv)
             check_functions(parasail_sg_dx_rowcol_sse41, sequences, limit, matrix, gap);
             check_functions(parasail_sg_qb_de_rowcol_sse41, sequences, limit, matrix, gap);
             check_functions(parasail_sg_qe_db_rowcol_sse41, sequences, limit, matrix, gap);
+            check_functions(parasail_sg_qb_db_rowcol_sse41, sequences, limit, matrix, gap);
+            check_functions(parasail_sg_qe_de_rowcol_sse41, sequences, limit, matrix, gap);
             check_functions(parasail_sw_rowcol_sse41, sequences, limit, matrix, gap);
         }
         if (test_stats) {
@@ -443,6 +449,8 @@ int main(int argc, char **argv)
             check_functions(parasail_sg_dx_stats_rowcol_sse41, sequences, limit, matrix, gap);
             check_functions(parasail_sg_qb_de_stats_rowcol_sse41, sequences, limit, matrix, gap);
             check_functions(parasail_sg_qe_db_stats_rowcol_sse41, sequences, limit, matrix, gap);
+            check_functions(parasail_sg_qb_db_stats_rowcol_sse41, sequences, limit, matrix, gap);
+            check_functions(parasail_sg_qe_de_stats_rowcol_sse41, sequences, limit, matrix, gap);
             check_functions(parasail_sw_stats_rowcol_sse41, sequences, limit, matrix, gap);
         }
     }
@@ -461,6 +469,8 @@ int main(int argc, char **argv)
             check_functions(parasail_sg_dx_rowcol_avx2, sequences, limit, matrix, gap);
             check_functions(parasail_sg_qb_de_rowcol_avx2, sequences, limit, matrix, gap);
             check_functions(parasail_sg_qe_db_rowcol_avx2, sequences, limit, matrix, gap);
+            check_functions(parasail_sg_qb_db_rowcol_avx2, sequences, limit, matrix, gap);
+            check_functions(parasail_sg_qe_de_rowcol_avx2, sequences, limit, matrix, gap);
             check_functions(parasail_sw_rowcol_avx2, sequences, limit, matrix, gap);
         }
         if (test_stats) {
@@ -474,6 +484,8 @@ int main(int argc, char **argv)
             check_functions(parasail_sg_dx_stats_rowcol_avx2, sequences, limit, matrix, gap);
             check_functions(parasail_sg_qb_de_stats_rowcol_avx2, sequences, limit, matrix, gap);
             check_functions(parasail_sg_qe_db_stats_rowcol_avx2, sequences, limit, matrix, gap);
+            check_functions(parasail_sg_qb_db_stats_rowcol_avx2, sequences, limit, matrix, gap);
+            check_functions(parasail_sg_qe_de_stats_rowcol_avx2, sequences, limit, matrix, gap);
             check_functions(parasail_sw_stats_rowcol_avx2, sequences, limit, matrix, gap);
         }
     }
@@ -492,6 +504,8 @@ int main(int argc, char **argv)
             check_functions(parasail_sg_dx_rowcol_altivec, sequences, limit, matrix, gap);
             check_functions(parasail_sg_qb_de_rowcol_altivec, sequences, limit, matrix, gap);
             check_functions(parasail_sg_qe_db_rowcol_altivec, sequences, limit, matrix, gap);
+            check_functions(parasail_sg_qb_db_rowcol_altivec, sequences, limit, matrix, gap);
+            check_functions(parasail_sg_qe_de_rowcol_altivec, sequences, limit, matrix, gap);
             check_functions(parasail_sw_rowcol_altivec, sequences, limit, matrix, gap);
         }
         if (test_stats) {
@@ -505,6 +519,8 @@ int main(int argc, char **argv)
             check_functions(parasail_sg_dx_stats_rowcol_altivec, sequences, limit, matrix, gap);
             check_functions(parasail_sg_qb_de_stats_rowcol_altivec, sequences, limit, matrix, gap);
             check_functions(parasail_sg_qe_db_stats_rowcol_altivec, sequences, limit, matrix, gap);
+            check_functions(parasail_sg_qb_db_stats_rowcol_altivec, sequences, limit, matrix, gap);
+            check_functions(parasail_sg_qe_de_stats_rowcol_altivec, sequences, limit, matrix, gap);
             check_functions(parasail_sw_stats_rowcol_altivec, sequences, limit, matrix, gap);
         }
     }
@@ -523,6 +539,8 @@ int main(int argc, char **argv)
             check_functions(parasail_sg_dx_rowcol_neon, sequences, limit, matrix, gap);
             check_functions(parasail_sg_qb_de_rowcol_neon, sequences, limit, matrix, gap);
             check_functions(parasail_sg_qe_db_rowcol_neon, sequences, limit, matrix, gap);
+            check_functions(parasail_sg_qb_db_rowcol_neon, sequences, limit, matrix, gap);
+            check_functions(parasail_sg_qe_de_rowcol_neon, sequences, limit, matrix, gap);
             check_functions(parasail_sw_rowcol_neon, sequences, limit, matrix, gap);
         }
         if (test_stats) {
@@ -536,6 +554,8 @@ int main(int argc, char **argv)
             check_functions(parasail_sg_dx_stats_rowcol_neon, sequences, limit, matrix, gap);
             check_functions(parasail_sg_qb_de_stats_rowcol_neon, sequences, limit, matrix, gap);
             check_functions(parasail_sg_qe_db_stats_rowcol_neon, sequences, limit, matrix, gap);
+            check_functions(parasail_sg_qb_db_stats_rowcol_neon, sequences, limit, matrix, gap);
+            check_functions(parasail_sg_qe_de_stats_rowcol_neon, sequences, limit, matrix, gap);
             check_functions(parasail_sw_stats_rowcol_neon, sequences, limit, matrix, gap);
         }
     }
@@ -552,6 +572,8 @@ int main(int argc, char **argv)
         check_functions(parasail_sg_dx_rowcol_disp, sequences, limit, matrix, gap);
         check_functions(parasail_sg_qb_de_rowcol_disp, sequences, limit, matrix, gap);
         check_functions(parasail_sg_qe_db_rowcol_disp, sequences, limit, matrix, gap);
+        check_functions(parasail_sg_qb_db_rowcol_disp, sequences, limit, matrix, gap);
+        check_functions(parasail_sg_qe_de_rowcol_disp, sequences, limit, matrix, gap);
         check_functions(parasail_sw_rowcol_disp, sequences, limit, matrix, gap);
     }
     if (test_stats) {
@@ -565,6 +587,8 @@ int main(int argc, char **argv)
         check_functions(parasail_sg_dx_stats_rowcol_disp, sequences, limit, matrix, gap);
         check_functions(parasail_sg_qb_de_stats_rowcol_disp, sequences, limit, matrix, gap);
         check_functions(parasail_sg_qe_db_stats_rowcol_disp, sequences, limit, matrix, gap);
+        check_functions(parasail_sg_qb_db_stats_rowcol_disp, sequences, limit, matrix, gap);
+        check_functions(parasail_sg_qe_de_stats_rowcol_disp, sequences, limit, matrix, gap);
         check_functions(parasail_sw_stats_rowcol_disp, sequences, limit, matrix, gap);
     }
     

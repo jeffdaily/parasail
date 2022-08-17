@@ -51,7 +51,7 @@ isa_to_bits = {
 
 for table in [""]:
     for stats in ["", "_stats"]:
-        for alg in ["nw", "sg", "sw", "sg_qb", "sg_qe", "sg_qx", "sg_db", "sg_de", "sg_dx", "sg_qb_de", "sg_qe_db"]:
+        for alg in ["nw", "sg", "sw", "sg_qb", "sg_qe", "sg_qx", "sg_db", "sg_de", "sg_dx", "sg_qb_de", "sg_qe_db", "sg_qb_db", "sg_qe_de"]:
             is_table = 0
             is_rowcol = 0
             is_trace = 0

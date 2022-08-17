@@ -139,7 +139,7 @@ EXPORTS
 ; from parasail.h, generated names"""
 
 # serial reference implementations
-alg = ["nw", "sg", "sw", "sg_qb", "sg_qe", "sg_qx", "sg_db", "sg_de", "sg_dx", "sg_qb_de", "sg_qe_db"]
+alg = ["nw", "sg", "sw", "sg_qb", "sg_qe", "sg_qx", "sg_db", "sg_de", "sg_dx", "sg_qb_de", "sg_qe_db", "sg_qb_db", "sg_qe_de"]
 stats = ["", "_stats"]
 table = ["", "_table", "_rowcol", "_trace"]
 for a in alg:
@@ -149,7 +149,7 @@ for a in alg:
             print "    parasail_"+a+s+t
 
 # serial scan reference implementations
-alg = ["nw", "sg", "sw", "sg_qb", "sg_qe", "sg_qx", "sg_db", "sg_de", "sg_dx", "sg_qb_de", "sg_qe_db"]
+alg = ["nw", "sg", "sw", "sg_qb", "sg_qe", "sg_qx", "sg_db", "sg_de", "sg_dx", "sg_qb_de", "sg_qe_db", "sg_qb_db", "sg_qe_de"]
 stats = ["", "_stats"]
 table = ["", "_table", "_rowcol", "_trace"]
 for a in alg:
@@ -159,7 +159,7 @@ for a in alg:
             print "    parasail_"+a+s+t+"_scan"
 
 # vectorized implementations
-alg = ["nw", "sg", "sw", "sg_qb", "sg_qe", "sg_qx", "sg_db", "sg_de", "sg_dx", "sg_qb_de", "sg_qe_db"]
+alg = ["nw", "sg", "sw", "sg_qb", "sg_qe", "sg_qx", "sg_db", "sg_de", "sg_dx", "sg_qb_de", "sg_qe_db", "sg_qb_db", "sg_qe_de"]
 stats = ["", "_stats"]
 table = ["", "_table", "_rowcol", "_trace"]
 par = ["_scan", "_striped", "_diag"]
@@ -179,7 +179,7 @@ for a in alg:
                     print "    parasail_"+a+s+t+p+i
 
 # vectorized profile implementations
-alg = ["nw", "sg", "sw", "sg_qb", "sg_qe", "sg_qx", "sg_db", "sg_de", "sg_dx", "sg_qb_de", "sg_qe_db"]
+alg = ["nw", "sg", "sw", "sg_qb", "sg_qe", "sg_qx", "sg_db", "sg_de", "sg_dx", "sg_qb_de", "sg_qe_db", "sg_qb_db", "sg_qe_de"]
 stats = ["", "_stats"]
 table = ["", "_table", "_rowcol", "_trace"]
 par = ["_scan_profile", "_striped_profile"]
@@ -212,7 +212,7 @@ for a in alg:
                     print "    parasail_"+a+s+t+p+i
 
 # dispatching implementations
-alg = ["nw", "sg", "sw", "sg_qb", "sg_qe", "sg_qx", "sg_db", "sg_de", "sg_dx", "sg_qb_de", "sg_qe_db"]
+alg = ["nw", "sg", "sw", "sg_qb", "sg_qe", "sg_qx", "sg_db", "sg_de", "sg_dx", "sg_qb_de", "sg_qe_db", "sg_qb_db", "sg_qe_de"]
 stats = ["", "_stats"]
 table = ["", "_table", "_rowcol", "_trace"]
 par = ["_scan", "_striped", "_diag"]
@@ -226,7 +226,7 @@ for a in alg:
                     print "    parasail_"+a+s+t+p+w
 
 # dispatching profile implementations
-alg = ["nw", "sg", "sw", "sg_qb", "sg_qe", "sg_qx", "sg_db", "sg_de", "sg_dx", "sg_qb_de", "sg_qe_db"]
+alg = ["nw", "sg", "sw", "sg_qb", "sg_qe", "sg_qx", "sg_db", "sg_de", "sg_dx", "sg_qb_de", "sg_qe_db", "sg_qb_db", "sg_qe_de"]
 stats = ["", "_stats"]
 table = ["", "_table", "_rowcol", "_trace"]
 par = ["_scan_profile", "_striped_profile"]
@@ -253,7 +253,7 @@ for s in stats:
         print "    parasail_profile_create"+s+i
 
 # dispatching saturation check implementations
-alg = ["nw", "sg", "sw", "sg_qb", "sg_qe", "sg_qx", "sg_db", "sg_de", "sg_dx", "sg_qb_de", "sg_qe_db"]
+alg = ["nw", "sg", "sw", "sg_qb", "sg_qe", "sg_qx", "sg_db", "sg_de", "sg_dx", "sg_qb_de", "sg_qe_db", "sg_qb_db", "sg_qe_de"]
 stats = ["", "_stats"]
 table = ["", "_table", "_rowcol", "_trace"]
 par = ["_scan", "_striped", "_diag"]

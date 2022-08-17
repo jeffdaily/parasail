@@ -9,7 +9,7 @@ message() {
     fi
 }
 
-for a in nw sg_qb sg_qe sg_qx sg_db sg_de sg_dx sg_qb_de sg_qe_db sg sw
+for a in nw sg_qb sg_qe sg_qx sg_db sg_de sg_dx sg_qb_de sg_qe_db sg_qb_db sg_qe_de sg sw
 do
 for f in ${a}_scr_*
 do
@@ -20,7 +20,7 @@ do
 done
 done
 
-for a in nw sg_qb sg_qe sg_qx sg_db sg_de sg_dx sg_qb_de sg_qe_db sg sw
+for a in nw sg_qb sg_qe sg_qx sg_db sg_de sg_dx sg_qb_de sg_qe_db sg_qb_db sg_qe_de sg sw
 do
 for t in scr mch len
 do

@@ -1,0 +1,2 @@
+#!/bin/sh
+tests/test_verify -f $srcdir/data/test_small_2.fasta

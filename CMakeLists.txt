@@ -1128,6 +1128,7 @@ INSTALL( TARGETS parasail parasail_aligner parasail_stats
 ENABLE_TESTING()
 ADD_TEST( NAME test_isa COMMAND test_isa )
 ADD_TEST( NAME test_basic COMMAND test_basic )
+ADD_TEST( NAME test_verify COMMAND test_verify ${CMAKE_SOURCE_DIR}/data/test_small_2.fasta )
 
 SET( CPACK_PACKAGE_VERSION_MAJOR ${MAJOR} )
 SET( CPACK_PACKAGE_VERSION_MINOR ${MINOR} )

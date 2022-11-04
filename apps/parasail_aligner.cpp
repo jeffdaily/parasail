@@ -19,21 +19,23 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#if defined(HAVE_GETOPT) && defined(HAVE_UNISTD_H)
+#if defined(HAVE_UNISTD_H)
 #include <unistd.h>
-#elif defined(HAVE_WINDOWS_H)
-#include "wingetopt/src/getopt.h"
 #endif
-#if defined(HAVE_POLL)
+#if defined(HAVE_ERR_H)
 #include <err.h>
-#include <poll.h>
+#endif
+#if defined(HAVE_PWD_H)
 #include <pwd.h>
+#endif
+#if defined(HAVE_SIGNAL_H)
 #include <signal.h>
 #endif
 #if defined(HAVE_WINDOWS_H)
 #include <windows.h>
+#include "wingetopt/src/getopt.h"
 #endif
-#if defined(HAVE_FILELENGTH)
+#if defined(HAVE_IO_H)
 #include <io.h>
 #endif
 
@@ -362,53 +364,23 @@ THREAD_DOC
     exit(status);
 }
 
-#ifdef HAVE_POLL
-static int stdin_has_data() {
-    int timeout = 100; /* wait 100ms */
-    struct pollfd fd;
-    fd.fd = 0;
-    fd.events = POLLIN;
-    fd.revents = 0;
-    int ret = poll(&fd, 1, timeout);
-    return (ret > 0 && (fd.revents & POLLIN));
-}
-#elif defined(HAVE_WINDOWS_H)
-#if !defined(HAVE_FILELENGTH)
-#if defined(HAVE_STRUCT___STAT64) && defined(HAVE__FSTAT64)
-#define STATBUF struct __stat64
-#define FSTATFUNC _fstat64
+#if defined(HAVE_ISATTY)
+#define ISATTY isatty
+#elif defined(HAVE__ISATTY)
+#define ISATTY _isatty
 #else
-#define STATBUF struct stat
-#define FSTATFUNC fstat
+#error "no isatty or _isatty"
 #endif
-static long filelength(int fd) {
-    int status;
-    STATBUF buffer;
-    status = FSTATFUNC(fd, &buffer);
-    if (0 == status) {
-        return buffer.st_size;
-    }
-    return -1;
-}
-#endif /* HAVE_FILELENGTH */
+#if defined(HAVE_FILENO)
+#define FILENO fileno
+#elif defined(HAVE__FILENO)
+#define FILENO _fileno
+#else
+#error "no fileno or _fileno"
+#endif
 static int stdin_has_data() {
-    int stdinHandle = fileno(stdin);
-    long stdinFileLength = filelength(stdinHandle);
-    if (stdinFileLength < 0) {
-        return 0;
-    }
-    else if (stdinFileLength == 0) {
-        int retval = fseek(stdin, 0, 0);
-        if (retval < 0) {
-            return 0;
-        }
-        else {
-            return 1;
-        }
-    }
-    return 1;
+    return (!ISATTY(FILENO(stdin)));
 }
-#endif
 
 template <class info>
 vector<long long> calc_batches(

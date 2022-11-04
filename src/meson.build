@@ -573,7 +573,9 @@ parasail_config.set('SIZEOF_INT', parasail_cc.sizeof('int'))
 foreach funcname : [
   '_aligned_malloc',
   'aligned_alloc',
+  'fileno',
   'getopt',
+  'isatty',
   'memalign',
   'memset',
   'poll',
@@ -587,7 +589,14 @@ foreach funcname : [
 endforeach
 
 foreach headername : [
-  'unistd.h']
+  'err.h',
+  'io.h',
+  'malloc.h',
+  'poll.h',
+  'signal.h',
+  'unistd.h',
+  'windows.h',
+  'sys/mman.h']
     if parasail_cc.has_header(headername)
       result = 1
     else

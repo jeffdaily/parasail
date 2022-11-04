@@ -109,8 +109,11 @@ AX_COMPILER_VENDOR
 AX_COMPILER_VERSION
 
 # Checks for header files.
+AC_CHECK_HEADERS([err.h])
+AC_CHECK_HEADERS([io.h])
 AC_CHECK_HEADERS([malloc.h])
 AC_CHECK_HEADERS([poll.h])
+AC_CHECK_HEADERS([signal.h])
 AC_CHECK_HEADERS([unistd.h])
 AC_CHECK_HEADERS([windows.h])
 AC_CHECK_HEADERS([sys/mman.h])
@@ -906,6 +909,10 @@ AC_SUBST([NEON_CFLAGS])
 AC_CHECK_FUNCS([_aligned_malloc])
 AC_CHECK_FUNCS([aligned_alloc])
 AC_CHECK_FUNCS([filelength])
+AC_CHECK_FUNCS([fileno])
+AC_CHECK_FUNCS([_fileno])
+AC_CHECK_FUNCS([isatty])
+AC_CHECK_FUNCS([_isatty])
 AC_CHECK_FUNCS([memalign])
 AC_CHECK_FUNCS([memset])
 AC_CHECK_FUNCS([poll])

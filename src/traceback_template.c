@@ -24,9 +24,9 @@ static inline parasail_traceback_t* CONCAT(NAME, T) (
     char alphabet_aliases[256];
     size_t aliases_size = 0;
     parasail_traceback_t *traceback = NULL;
-    char *q = malloc(sizeof(char)*(lena+lenb));
-    char *d = malloc(sizeof(char)*(lena+lenb));
-    char *a = malloc(sizeof(char)*(lena+lenb));
+    char *q = malloc(sizeof(char)*(lena+lenb+1));
+    char *d = malloc(sizeof(char)*(lena+lenb+1));
+    char *a = malloc(sizeof(char)*(lena+lenb+1));
     char *qc = q;
     char *dc = d;
     char *ac = a;
@@ -220,9 +220,9 @@ static inline void CONCAT(NAME, T) (
 {
     char alphabet_aliases[256];
     size_t aliases_size = 0;
-    char *q = malloc(sizeof(char)*(lena+lenb));
-    char *d = malloc(sizeof(char)*(lena+lenb));
-    char *a = malloc(sizeof(char)*(lena+lenb));
+    char *q = malloc(sizeof(char)*(lena+lenb+1));
+    char *d = malloc(sizeof(char)*(lena+lenb+1));
+    char *a = malloc(sizeof(char)*(lena+lenb+1));
     char *qc = q;
     char *dc = d;
     char *ac = a;

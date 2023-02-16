@@ -7,6 +7,13 @@ This project follows the [Gitflow Workflow model](https://www.atlassian.com/git/
 ## [Unreleased]
 The Unreleased section will be empty for tagged releases. Unreleased functionality appears in the develop branch.
 
+## [2.6.1] - 2023-02-16
+### Fixed
+- Out-of-bounds memory corruption in tracebacks
+
+### Closed Issues
+- Out-of-bounds memory corruption [\#98]
+
 ## [2.6] - 2022-08-17
 ### Added
 - Additional semi-global routines for various beginning and end gap penalty combinations.
@@ -435,7 +442,8 @@ The Unreleased section will be empty for tagged releases. Unreleased functionali
 ## [1.0.0] - 2015-09-16
 First stable, production-ready version of parasail.
 
-[Unreleased]: https://github.com/jeffdaily/parasail/compare/v2.6...develop
+[Unreleased]: https://github.com/jeffdaily/parasail/compare/v2.6.1...develop
+[2.6.1]: https://github.com/jeffdaily/parasail/compare/v2.6...v2.6.1
 [2.6]:   https://github.com/jeffdaily/parasail/compare/v2.5...v2.6
 [2.5]:   https://github.com/jeffdaily/parasail/compare/v2.4.3...v2.5
 [2.4.3]: https://github.com/jeffdaily/parasail/compare/v2.4.2...v2.4.3
@@ -468,6 +476,9 @@ First stable, production-ready version of parasail.
 [1.0.1]: https://github.com/jeffdaily/parasail/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/jeffdaily/parasail/releases/tag/v1.0.0
 
+[\#98]: https://github.com/jeffdaily/parasail/issues/98
+[\#97]: https://github.com/jeffdaily/parasail/issues/97
+[\#96]: https://github.com/jeffdaily/parasail/issues/96
 [\#95]: https://github.com/jeffdaily/parasail/issues/95
 [\#94]: https://github.com/jeffdaily/parasail/pull/94
 [\#93]: https://github.com/jeffdaily/parasail/issues/93

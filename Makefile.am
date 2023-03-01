@@ -1389,6 +1389,7 @@ EXTRA_DIST += data/test_case.fasta
 EXTRA_DIST += data/test_case2.fasta
 EXTRA_DIST += data/test_p29.fasta
 EXTRA_DIST += data/test_p59.fasta
+EXTRA_DIST += data/test_small_2.fasta
 EXTRA_DIST += images/perf_haswell.png
 EXTRA_DIST += images/perf_mac.png
 EXTRA_DIST += src/cigar_template.c

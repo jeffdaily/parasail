@@ -373,31 +373,31 @@ parasail_profile_t* parasail_profile_create_stats_8_dispatcher(
 {
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_profile_create_stats_8_pointer = parasail_profile_create_avx_256_8;
+        parasail_profile_create_stats_8_pointer = parasail_profile_create_stats_avx_256_8;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_profile_create_stats_8_pointer = parasail_profile_create_sse_128_8;
+        parasail_profile_create_stats_8_pointer = parasail_profile_create_stats_sse_128_8;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_profile_create_stats_8_pointer = parasail_profile_create_sse_128_8;
+        parasail_profile_create_stats_8_pointer = parasail_profile_create_stats_sse_128_8;
     }
     else
 #endif
 #if HAVE_ALTIVEC
     if (parasail_can_use_altivec()) {
-        parasail_profile_create_stats_8_pointer = parasail_profile_create_altivec_128_8;
+        parasail_profile_create_stats_8_pointer = parasail_profile_create_stats_altivec_128_8;
     }
     else
 #endif
 #if HAVE_NEON
     if (parasail_can_use_neon()) {
-        parasail_profile_create_stats_8_pointer = parasail_profile_create_neon_128_8;
+        parasail_profile_create_stats_8_pointer = parasail_profile_create_stats_neon_128_8;
     }
     else
 #endif
@@ -414,31 +414,31 @@ parasail_profile_t* parasail_profile_create_stats_sat_dispatcher(
 {
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_profile_create_stats_sat_pointer = parasail_profile_create_avx_256_sat;
+        parasail_profile_create_stats_sat_pointer = parasail_profile_create_stats_avx_256_sat;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_profile_create_stats_sat_pointer = parasail_profile_create_sse_128_sat;
+        parasail_profile_create_stats_sat_pointer = parasail_profile_create_stats_sse_128_sat;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_profile_create_stats_sat_pointer = parasail_profile_create_sse_128_sat;
+        parasail_profile_create_stats_sat_pointer = parasail_profile_create_stats_sse_128_sat;
     }
     else
 #endif
 #if HAVE_ALTIVEC
     if (parasail_can_use_altivec()) {
-        parasail_profile_create_stats_sat_pointer = parasail_profile_create_altivec_128_sat;
+        parasail_profile_create_stats_sat_pointer = parasail_profile_create_stats_altivec_128_sat;
     }
     else
 #endif
 #if HAVE_NEON
     if (parasail_can_use_neon()) {
-        parasail_profile_create_stats_sat_pointer = parasail_profile_create_neon_128_sat;
+        parasail_profile_create_stats_sat_pointer = parasail_profile_create_stats_neon_128_sat;
     }
     else
 #endif

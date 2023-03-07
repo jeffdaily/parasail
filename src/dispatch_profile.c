@@ -250,31 +250,31 @@ parasail_profile_t* parasail_profile_create_stats_64_dispatcher(
 {
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_profile_create_stats_64_pointer = parasail_profile_create_avx_256_64;
+        parasail_profile_create_stats_64_pointer = parasail_profile_create_stats_avx_256_64;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_profile_create_stats_64_pointer = parasail_profile_create_sse_128_64;
+        parasail_profile_create_stats_64_pointer = parasail_profile_create_stats_sse_128_64;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_profile_create_stats_64_pointer = parasail_profile_create_sse_128_64;
+        parasail_profile_create_stats_64_pointer = parasail_profile_create_stats_sse_128_64;
     }
     else
 #endif
 #if HAVE_ALTIVEC
     if (parasail_can_use_altivec()) {
-        parasail_profile_create_stats_64_pointer = parasail_profile_create_altivec_128_64;
+        parasail_profile_create_stats_64_pointer = parasail_profile_create_stats_altivec_128_64;
     }
     else
 #endif
 #if HAVE_NEON
     if (parasail_can_use_neon()) {
-        parasail_profile_create_stats_64_pointer = parasail_profile_create_neon_128_64;
+        parasail_profile_create_stats_64_pointer = parasail_profile_create_stats_neon_128_64;
     }
     else
 #endif
@@ -291,31 +291,31 @@ parasail_profile_t* parasail_profile_create_stats_32_dispatcher(
 {
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_profile_create_stats_32_pointer = parasail_profile_create_avx_256_32;
+        parasail_profile_create_stats_32_pointer = parasail_profile_create_stats_avx_256_32;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_profile_create_stats_32_pointer = parasail_profile_create_sse_128_32;
+        parasail_profile_create_stats_32_pointer = parasail_profile_create_stats_sse_128_32;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_profile_create_stats_32_pointer = parasail_profile_create_sse_128_32;
+        parasail_profile_create_stats_32_pointer = parasail_profile_create_stats_sse_128_32;
     }
     else
 #endif
 #if HAVE_ALTIVEC
     if (parasail_can_use_altivec()) {
-        parasail_profile_create_stats_32_pointer = parasail_profile_create_altivec_128_32;
+        parasail_profile_create_stats_32_pointer = parasail_profile_create_stats_altivec_128_32;
     }
     else
 #endif
 #if HAVE_NEON
     if (parasail_can_use_neon()) {
-        parasail_profile_create_stats_32_pointer = parasail_profile_create_neon_128_32;
+        parasail_profile_create_stats_32_pointer = parasail_profile_create_stats_neon_128_32;
     }
     else
 #endif
@@ -332,31 +332,31 @@ parasail_profile_t* parasail_profile_create_stats_16_dispatcher(
 {
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        parasail_profile_create_stats_16_pointer = parasail_profile_create_avx_256_16;
+        parasail_profile_create_stats_16_pointer = parasail_profile_create_stats_avx_256_16;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        parasail_profile_create_stats_16_pointer = parasail_profile_create_sse_128_16;
+        parasail_profile_create_stats_16_pointer = parasail_profile_create_stats_sse_128_16;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        parasail_profile_create_stats_16_pointer = parasail_profile_create_sse_128_16;
+        parasail_profile_create_stats_16_pointer = parasail_profile_create_stats_sse_128_16;
     }
     else
 #endif
 #if HAVE_ALTIVEC
     if (parasail_can_use_altivec()) {
-        parasail_profile_create_stats_16_pointer = parasail_profile_create_altivec_128_16;
+        parasail_profile_create_stats_16_pointer = parasail_profile_create_stats_altivec_128_16;
     }
     else
 #endif
 #if HAVE_NEON
     if (parasail_can_use_neon()) {
-        parasail_profile_create_stats_16_pointer = parasail_profile_create_neon_128_16;
+        parasail_profile_create_stats_16_pointer = parasail_profile_create_stats_neon_128_16;
     }
     else
 #endif

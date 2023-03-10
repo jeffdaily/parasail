@@ -21,6 +21,8 @@ int main()
         "A", "B", &parasail_nuc44,
         result, '|', '+', '-', 79, 10, 1);
 
+    parasail_result_free(result);
+
     /* AVX2 alignment */
     result = parasail_sg_trace_striped_avx2_256_16(
         s, strlen(s), t, strlen(t), 1, 4, &parasail_nuc44);
@@ -29,6 +31,8 @@ int main()
         s, strlen(s), t, strlen(t),
         "A", "B", &parasail_nuc44,
         result, '|', '+', '-', 79, 10, 1);
+
+    parasail_result_free(result);
     
     return 0;
 }

@@ -82,6 +82,7 @@ int main(int argc, char ** argv)
             parasail_result_free(result);
         }
     }
+    parasail_profile_free(profile);
 
     return 0;
 

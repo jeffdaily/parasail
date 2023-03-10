@@ -58,9 +58,10 @@ AC_SUBST([PACKAGE_VERSION])
 # parasail version 2.5.0: 8:0:0 (ABI version 8) new struct attrs, added functions
 # parasail version 2.6.0: 9:0:1 (ABI version 9) added functions
 # parasail version 2.6.1: 9:1:1 (ABI version 9)
+# parasail version 2.6.2: 9:2:1 (ABI version 9) bugfix existing functions
 #
 # libparasail -version-info current:revision:age
-LTVER="9:1:1"
+LTVER="9:2:1"
 AC_SUBST([LTVER])
 
 ###############################################################################

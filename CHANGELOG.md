@@ -7,6 +7,14 @@ This project follows the [Gitflow Workflow model](https://www.atlassian.com/git/
 ## [Unreleased]
 The Unreleased section will be empty for tagged releases. Unreleased functionality appears in the develop branch.
 
+## [2.6.2] - 2023-03-10
+### Fixed
+- segfaults when using stats profile functions
+
+### Closed Issues
+- segfaults when using (some) profile functions [\#99]
+- MAPQ should be 0 for unmapped reads [\#100]
+
 ## [2.6.1] - 2023-02-16
 ### Fixed
 - Out-of-bounds memory corruption in tracebacks
@@ -442,7 +450,8 @@ The Unreleased section will be empty for tagged releases. Unreleased functionali
 ## [1.0.0] - 2015-09-16
 First stable, production-ready version of parasail.
 
-[Unreleased]: https://github.com/jeffdaily/parasail/compare/v2.6.1...develop
+[Unreleased]: https://github.com/jeffdaily/parasail/compare/v2.6.2...develop
+[2.6.2]: https://github.com/jeffdaily/parasail/compare/v2.6.1...v2.6.2
 [2.6.1]: https://github.com/jeffdaily/parasail/compare/v2.6...v2.6.1
 [2.6]:   https://github.com/jeffdaily/parasail/compare/v2.5...v2.6
 [2.5]:   https://github.com/jeffdaily/parasail/compare/v2.4.3...v2.5
@@ -476,6 +485,8 @@ First stable, production-ready version of parasail.
 [1.0.1]: https://github.com/jeffdaily/parasail/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/jeffdaily/parasail/releases/tag/v1.0.0
 
+[\#100]: https://github.com/jeffdaily/parasail/issues/100
+[\#99]: https://github.com/jeffdaily/parasail/issues/99
 [\#98]: https://github.com/jeffdaily/parasail/issues/98
 [\#97]: https://github.com/jeffdaily/parasail/issues/97
 [\#96]: https://github.com/jeffdaily/parasail/issues/96

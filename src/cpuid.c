@@ -114,6 +114,7 @@ static int has_intel_avx512vbmi_features(void)
 
 #else /* non-Intel compiler */
 
+#if 0
 static int check_xcr0_ymm(void)
 {
 #if HAVE_XGETBV
@@ -128,6 +129,7 @@ static int check_xcr0_ymm(void)
     return 0;
 #endif
 }
+#endif
 
 static int check_xcr0_zmm(void)
 {

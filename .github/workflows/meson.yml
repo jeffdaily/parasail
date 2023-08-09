@@ -10,7 +10,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: install meson and ninja
-      run: sudo apt install meson ninja-build
+      run: |
+        sudo apt update
+        sudo apt install meson ninja-build
     - name: run meson
       run: meson --buildtype plain . bld_meson
     - name: run ninja

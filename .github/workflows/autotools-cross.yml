@@ -14,7 +14,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: install packages
-      run: sudo apt install gcc-${{ matrix.host }} g++-${{ matrix.host }}
+      run: |
+        sudo apt update
+        sudo apt install gcc-${{ matrix.host }} g++-${{ matrix.host }}
     - name: autoreconf
       run: autoreconf -fi
     - name: configure

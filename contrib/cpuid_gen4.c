@@ -95,7 +95,7 @@ instructions:
 
 #include <immintrin.h>
 
-int check_4th_gen_intel_core_features()
+int check_4th_gen_intel_core_features(void)
 {
     const int the_4th_gen_features = 
         (_FEATURE_AVX2 | _FEATURE_FMA | _FEATURE_BMI | _FEATURE_LZCNT | _FEATURE_MOVBE);
@@ -126,7 +126,7 @@ void run_cpuid(uint32_t eax, uint32_t ecx, uint32_t* abcd)
 #endif
 }     
 
-int check_xcr0_ymm() 
+int check_xcr0_ymm(void)
 {
     uint32_t xcr0;
 #if defined(_MSC_VER)
@@ -138,7 +138,7 @@ int check_xcr0_ymm()
 }
 
 
-int check_4th_gen_intel_core_features()
+int check_4th_gen_intel_core_features(void)
 {
     uint32_t abcd[4];
     uint32_t fma_movbe_osxsave_mask = ((1 << 12) | (1 << 22) | (1 << 27));
@@ -172,7 +172,7 @@ int check_4th_gen_intel_core_features()
 #endif /* non-Intel compiler */
 
 
-static int can_use_intel_core_4th_gen_features()
+static int can_use_intel_core_4th_gen_features(void)
 {
     static int the_4th_gen_features_available = -1;
     /* test is performed once */

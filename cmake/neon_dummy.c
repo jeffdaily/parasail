@@ -21,7 +21,7 @@
 
 extern int ENAME(void);
 
-int ENAME()
+int ENAME(void)
 {
     return 0;
 }

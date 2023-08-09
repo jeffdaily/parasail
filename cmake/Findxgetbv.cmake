@@ -18,7 +18,7 @@
 set(XGETBV_C_TEST_SOURCE
 "
 #include <stdint.h>
-int check_xcr0_ymm()
+int check_xcr0_ymm(void)
 {
     uint32_t xcr0;
 #if defined(_MSC_VER)

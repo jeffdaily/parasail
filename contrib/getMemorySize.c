@@ -25,7 +25,7 @@
 /**
  * Returns the size of physical memory (RAM) in bytes.
  */
-size_t getMemorySize( )
+size_t getMemorySize(void)
 {
 #if defined(_WIN32) && (defined(__CYGWIN__) || defined(__CYGWIN32__))
 	/* Cygwin under Windows. ------------------------------------ */

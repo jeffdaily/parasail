@@ -16,15 +16,15 @@
 #if defined(__arm__) || defined(__aarch64__) || defined(__powerpc__) || defined(__PPC__) || defined(__powerpc64__) || defined(__PPC64__)
 
 /* stubs for all non-x86_64 platforms */
-int parasail_can_use_avx512vbmi() { return 0; }
-int parasail_can_use_avx512bw() { return 0; }
-int parasail_can_use_avx512f() { return 0; }
-int parasail_can_use_avx2() { return 0; }
-int parasail_can_use_sse41() { return 0; }
-int parasail_can_use_sse2() { return 0; }
+int parasail_can_use_avx512vbmi(void) { return 0; }
+int parasail_can_use_avx512bw(void) { return 0; }
+int parasail_can_use_avx512f(void) { return 0; }
+int parasail_can_use_avx2(void) { return 0; }
+int parasail_can_use_sse41(void) { return 0; }
+int parasail_can_use_sse2(void) { return 0; }
 
 #if defined(__powerpc__) || defined(__PPC__) || defined(__powerpc64__) || defined(__PPC64__)
-int parasail_can_use_altivec()
+int parasail_can_use_altivec(void)
 {
 #if HAVE_ALTIVEC
     return 1;
@@ -33,11 +33,11 @@ int parasail_can_use_altivec()
 #endif
 }
 #else
-int parasail_can_use_altivec() { return 0; }
+int parasail_can_use_altivec(void) { return 0; }
 #endif
 
 #if defined(__arm__) || defined(__aarch64__)
-int parasail_can_use_neon()
+int parasail_can_use_neon(void)
 {
 #if HAVE_NEON
     return 1;
@@ -46,7 +46,7 @@ int parasail_can_use_neon()
 #endif
 }
 #else
-int parasail_can_use_neon() { return 0; }
+int parasail_can_use_neon(void) { return 0; }
 #endif
 
 #else
@@ -80,7 +80,7 @@ static void run_cpuid(uint32_t eax, uint32_t ecx, uint32_t* abcd)
 
 #include <immintrin.h>
 
-static int check_4th_gen_intel_core_features()
+static int check_4th_gen_intel_core_features(void)
 {
     /* we only care about avx2, not the other features */
 #if 0
@@ -92,21 +92,21 @@ static int check_4th_gen_intel_core_features()
     return _may_i_use_cpu_feature( the_4th_gen_features );
 }
 
-static int has_intel_avx512f_features()
+static int has_intel_avx512f_features(void)
 {
     const unsigned long avx512f_features =
         (_FEATURE_AVX512F | _FEATURE_AVX512ER | _FEATURE_AVX512PF | _FEATURE_AVX512CD);
     return _may_i_use_cpu_feature( avx512f_features );
 }
 
-static int has_intel_avx512bw_features()
+static int has_intel_avx512bw_features(void)
 {
     const unsigned long avx512f_features =
         (_FEATURE_AVX512VL | _FEATURE_AVX512BW | _FEATURE_AVX512DQ);
     return _may_i_use_cpu_feature( avx512f_features );
 }
 
-static int has_intel_avx512vbmi_features()
+static int has_intel_avx512vbmi_features(void)
 {
     const unsigned long avx512vbmi_features = (_FEATURE_AVX512VBMI);
     return _may_i_use_cpu_feature( avx512vbmi_features );
@@ -114,7 +114,7 @@ static int has_intel_avx512vbmi_features()
 
 #else /* non-Intel compiler */
 
-static int check_xcr0_ymm()
+static int check_xcr0_ymm(void)
 {
 #if HAVE_XGETBV
     uint32_t xcr0;
@@ -129,7 +129,7 @@ static int check_xcr0_ymm()
 #endif
 }
 
-static int check_xcr0_zmm()
+static int check_xcr0_zmm(void)
 {
 #if HAVE_XGETBV
     uint32_t xcr0;
@@ -145,7 +145,7 @@ static int check_xcr0_zmm()
 #endif
 }
 
-static int check_4th_gen_intel_core_features()
+static int check_4th_gen_intel_core_features(void)
 {
     /* we only care about avx2, not the other features */
     uint32_t abcd[4];
@@ -187,7 +187,7 @@ static int check_4th_gen_intel_core_features()
     return 1;
 }
 
-static int has_intel_avx512f_features() {
+static int has_intel_avx512f_features(void) {
     uint32_t abcd[4];
     uint32_t osxsave_mask = (1U << 27); /* OSX. */
     uint32_t avx512f_mask = (1U << 16) | /* AVX-512F */
@@ -214,7 +214,7 @@ static int has_intel_avx512f_features() {
     return 1;
 }
 
-static int has_intel_avx512bw_features() {
+static int has_intel_avx512bw_features(void) {
     uint32_t abcd[4];
     uint32_t osxsave_mask = (1U << 27); /* OSX. */
     uint32_t avx512bw_mask = (1U << 30) | /* AVX-512BW */
@@ -239,7 +239,7 @@ static int has_intel_avx512bw_features() {
     return 1;
 }
 
-static int has_intel_avx512vbmi_features()
+static int has_intel_avx512vbmi_features(void)
 {
     uint32_t abcd[4];
     uint32_t osxsave_mask = (1U << 27); /* OSX. */
@@ -264,7 +264,7 @@ static int has_intel_avx512vbmi_features()
 #endif /* non-Intel compiler */
 
 
-static int check_sse41()
+static int check_sse41(void)
 {
     uint32_t info[4];
     uint32_t nIds;
@@ -282,7 +282,7 @@ static int check_sse41()
 }
 
 
-static int check_sse2()
+static int check_sse2(void)
 {
     uint32_t info[4];
     uint32_t nIds;
@@ -300,7 +300,7 @@ static int check_sse2()
 }
 
 
-int parasail_can_use_avx512vbmi()
+int parasail_can_use_avx512vbmi(void)
 {
     static int avx512vbmi_features_available = -1;
     /* test is performed once */
@@ -309,7 +309,7 @@ int parasail_can_use_avx512vbmi()
     return avx512vbmi_features_available;
 }
 
-int parasail_can_use_avx512bw()
+int parasail_can_use_avx512bw(void)
 {
     static int avx512bw_features_available = -1;
     /* test is performed once */
@@ -318,7 +318,7 @@ int parasail_can_use_avx512bw()
     return avx512bw_features_available;
 }
 
-int parasail_can_use_avx512f()
+int parasail_can_use_avx512f(void)
 {
     static int avx512f_features_available = -1;
     /* test is performed once */
@@ -327,7 +327,7 @@ int parasail_can_use_avx512f()
     return avx512f_features_available;
 }
 
-int parasail_can_use_avx2()
+int parasail_can_use_avx2(void)
 {
     static int the_4th_gen_features_available = -1;
     /* test is performed once */
@@ -337,7 +337,7 @@ int parasail_can_use_avx2()
     return the_4th_gen_features_available;
 }
 
-int parasail_can_use_sse41()
+int parasail_can_use_sse41(void)
 {
     static int can_use_sse41 = -1;
     /* test is performed once */
@@ -347,7 +347,7 @@ int parasail_can_use_sse41()
     return can_use_sse41;
 }
 
-int parasail_can_use_sse2()
+int parasail_can_use_sse2(void)
 {
     static int can_use_sse2 = -1;
     /* test is performed once */
@@ -357,12 +357,12 @@ int parasail_can_use_sse2()
     return can_use_sse2;
 }
 
-int parasail_can_use_altivec()
+int parasail_can_use_altivec(void)
 {
     return 0;
 }
 
-int parasail_can_use_neon()
+int parasail_can_use_neon(void)
 {
     return 0;
 }

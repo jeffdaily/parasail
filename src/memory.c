@@ -137,7 +137,7 @@ void parasail_memset_int64_t(int64_t *b, int64_t c, size_t len)
     }
 }
 
-parasail_result_t* parasail_result_new()
+parasail_result_t* parasail_result_new(void)
 {
     /* declare all variables */
     parasail_result_t *result = NULL;
@@ -153,7 +153,7 @@ parasail_result_t* parasail_result_new()
     return result;
 }
 
-parasail_result_t* parasail_result_new_stats()
+parasail_result_t* parasail_result_new_stats(void)
 {
     /* declare all variables */
     parasail_result_t *result = NULL;

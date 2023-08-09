@@ -64,7 +64,7 @@ static __inline__ unsigned long long rdtsc(void)
 static LARGE_INTEGER frequency;
 #endif
 
-static unsigned long long timer_start()
+static unsigned long long timer_start(void)
 {
 #if defined(HAVE_RDTSC)
     return rdtsc();
@@ -89,7 +89,7 @@ static unsigned long long timer_end(unsigned long long begin)
 */
 
 /*
-static void timer_init()
+static void timer_init(void)
 {
 #if defined(HAVE_RDTSC)
 #elif defined(HAVE_SYS_TIME_H)
@@ -101,7 +101,7 @@ static void timer_init()
 */
 
 /*
-static const char *timer_name()
+static const char *timer_name(void)
 {
 #if defined(HAVE_RDTSC)
     return "rdtsc";

@@ -465,7 +465,7 @@ static inline vec128i _mm_rlli_si128(vec128i v, int imm)
 #endif
 }
 
-static inline vec128i _mm_setzero_si128()
+static inline vec128i _mm_setzero_si128(void)
 {
     return (vec128i) vec_splats((signed char)0);
 }

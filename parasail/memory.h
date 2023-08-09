@@ -110,8 +110,8 @@ extern void parasail_memset_int16_t(int16_t *b, int16_t c, size_t len);
 extern void parasail_memset_int32_t(int32_t *b, int32_t c, size_t len);
 extern void parasail_memset_int64_t(int64_t *b, int64_t c, size_t len);
 
-extern parasail_result_t* parasail_result_new();
-extern parasail_result_t* parasail_result_new_stats();
+extern parasail_result_t* parasail_result_new(void);
+extern parasail_result_t* parasail_result_new_stats(void);
 extern parasail_result_t* parasail_result_new_table1(const int a, const int b);
 extern parasail_result_t* parasail_result_new_table3(const int a, const int b);
 extern parasail_result_t* parasail_result_new_rowcol1(const int a, const int b);

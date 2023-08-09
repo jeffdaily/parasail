@@ -121,7 +121,7 @@ void compare(const char *s1, const char *s2)
     parasail_result_free(result);
 }
 
-int main(int argc, char **argv)
+int main(void)
 {
     const char *s1 = NULL;
     const char *s2 = NULL;

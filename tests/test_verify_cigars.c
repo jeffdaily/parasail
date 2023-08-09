@@ -78,8 +78,7 @@ static inline void k_combination2(
 static inline int diff_cigar(
         uint32_t *a,
         uint32_t *b,
-        int lena,
-        int lenb)
+        int lena)
 {
     int i = 0;
     for (i=0; i<lena; ++i) {
@@ -260,7 +259,7 @@ static void check_functions(
                                     ref_cigar->beg_ref, tst_cigar->beg_ref);
                         }
                     }
-                    if (diff_cigar(ref_cigar->seq, tst_cigar->seq, ref_cigar->len, tst_cigar->len)) {
+                    if (diff_cigar(ref_cigar->seq, tst_cigar->seq, ref_cigar->len)) {
 #pragma omp critical(printer)
                         {
                             printf("%s(%lu,%lu,%d,%d,%s) bad cigar seq\n",

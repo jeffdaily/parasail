@@ -584,7 +584,9 @@ int main(int argc, char **argv) {
     parasail_sequences_t *queries = NULL;
     unsigned char *T = NULL;
     unsigned char *Q = NULL;
+#ifdef _OPENMP
     int num_threads = -1;
+#endif
     int *SA = NULL;
     int *LCP = NULL;
     unsigned char *BWT = NULL;
@@ -775,8 +777,8 @@ int main(int argc, char **argv) {
                 }
                 break;
             case 't':
-                num_threads = atoi(optarg);
 #ifdef _OPENMP
+                num_threads = atoi(optarg);
 #else
                 eprintf(stdout, "-t number of threads requested, but OpenMP was not found during configuration. Running without threads.");
 #endif

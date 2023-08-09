@@ -157,7 +157,9 @@ int main(int argc, char **argv) {
     unsigned char *T = NULL;
     unsigned char *Q = NULL;
     int8_t *Tnum = NULL;
+#ifdef _OPENMP
     int num_threads = -1;
+#endif
     int *SA = NULL;
     int *LCP = NULL;
     unsigned char *BWT = NULL;
@@ -243,7 +245,9 @@ int main(int argc, char **argv) {
                 use_stats = true;
                 break;
             case 't':
+#ifdef _OPENMP
                 num_threads = atoi(optarg);
+#endif
                 break;
             case 'x':
                 use_filter = false;

@@ -111,7 +111,6 @@ int main(int argc, char **argv)
     const parasail_matrix_t *matrix = NULL;
     int gap_open = 10;
     int gap_extend = 1;
-    int saturated = 0;
 
     while ((c = getopt(argc, argv, "a:b:f:n:o:e:")) != -1) {
         switch (c) {
@@ -280,8 +279,6 @@ int main(int argc, char **argv)
                 printf(",%f", (double)(b_counts[j])/size_b);
             }
             printf(",%f\n", size_a*size_b/timer_local);
-#pragma omp atomic
-            saturated += parasail_result_is_saturated(result);
             parasail_result_free(result);
         }
     }

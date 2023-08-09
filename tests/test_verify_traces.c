@@ -232,11 +232,21 @@ int main(int argc, char **argv)
     char *matrixname = NULL;
     const parasail_matrix_t *matrix = NULL;
     gap_score_t gap = {INT_MIN,INT_MIN};
+#if HAVE_SSE2
     int do_sse2 = 1;
+#endif
+#if HAVE_SSE41
     int do_sse41 = 1;
+#endif
+#if HAVE_AVX2
     int do_avx2 = 1;
+#endif
+#if HAVE_ALTIVEC
     int do_altivec = 1;
+#endif
+#if HAVE_NEON
     int do_neon = 1;
+#endif
     int do_disp = 1;
     int do_nw = 1;
     int do_sg = 1;
@@ -284,11 +294,21 @@ int main(int argc, char **argv)
                 test_scores = 0;
                 break;
             case 'i':
+#if HAVE_SSE2
                 do_sse2 = (NULL == strstr(optarg, "sse2"));
+#endif
+#if HAVE_SSE41
                 do_sse41 = (NULL == strstr(optarg, "sse41"));
+#endif
+#if HAVE_AVX2
                 do_avx2 = (NULL == strstr(optarg, "avx2"));
+#endif
+#if HAVE_ALTIVEC
                 do_altivec = (NULL == strstr(optarg, "altivec"));
+#endif
+#if HAVE_NEON
                 do_neon = (NULL == strstr(optarg, "neon"));
+#endif
                 do_disp = (NULL == strstr(optarg, "disp"));
                 do_nw = (NULL == strstr(optarg, "nw"));
                 do_sg = (NULL == strstr(optarg, "sg"));

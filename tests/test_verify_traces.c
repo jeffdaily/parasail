@@ -177,7 +177,7 @@ static void check_functions(
                         saturated += 1;
                         continue;
                     }
-                    ref_trace_table = parasail_result_get_trace_table(reference_result);
+                    ref_trace_table = (int8_t*)parasail_result_get_trace_table(reference_result);
                     trace_table = parasail_result_get_trace_table(result);
                     if (reference_result->score != result->score) {
 #pragma omp critical(printer)
@@ -190,7 +190,7 @@ static void check_functions(
                             if (exit_on_mismatch) exit(EXIT_FAILURE);
                         }
                     }
-                    if (diff_array(size_a, size_b, ref_trace_table, trace_table, result)) {
+                    if (diff_array(size_a, size_b, ref_trace_table, (int8_t*)trace_table, result)) {
 #pragma omp critical(printer)
                         {
                             printf("%s(%lu,%lu,%d,%d,%s) bad trace table\n",

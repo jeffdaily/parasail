@@ -115,7 +115,7 @@ parasail_file_t* parasail_open(const char *fname)
         return NULL;
     }
     /* Slurp file into buffer */
-    if (fs.st_size != fread(buf, 1, fs.st_size, fd)) {
+    if ((size_t)fs.st_size != fread(buf, 1, fs.st_size, fd)) {
         perror("fread");
         fprintf(stderr, "parasail_open: "
                 "cannot read input file `%s'\n", fname);

@@ -52,11 +52,11 @@ CHECK_TYPE_SIZE( "uint64_t" SIZEOF_UINT64_T )
 TEST_BIG_ENDIAN( WORDS_BIGENDIAN )
 
 # Check for __builtin_cpu_init
-CHECK_C_SOURCE_COMPILES("int main () { __builtin_cpu_init(); return 0; } "
+CHECK_C_SOURCE_COMPILES("int main (void) { __builtin_cpu_init(); return 0; } "
 HAVE___BUILTIN_CPU_INIT )
 
 # Check for __builtin_cpu_supports
-CHECK_C_SOURCE_COMPILES("int main () { __builtin_cpu_supports(\"sse\"); return 0; } "
+CHECK_C_SOURCE_COMPILES("int main (void) { __builtin_cpu_supports(\"sse\"); return 0; } "
 HAVE___BUILTIN_CPU_SUPPORTS )
 
 # Check for restrict keyword
@@ -68,7 +68,7 @@ typedef int * int_ptr;
 int foo (int_ptr restrict ip) {
     return ip[0];
 }
-int main() {
+int main(void) {
     int s[1];
     int * restrict t = s;
     t[0] = 0;
@@ -95,8 +95,8 @@ ENDIF( )
 CHECK_C_SOURCE_COMPILES(
 "
 typedef int foo_t;
-static inline foo_t static_foo(){return 0;}
-foo_t foo(){return 0;}
+static inline foo_t static_foo(void){return 0;}
+foo_t foo(void){return 0;}
 int main(int argc, char *argv[]){return 0;}
 "
     HAVE_INLINE_NATIVE )
@@ -106,8 +106,8 @@ ELSE ( )
         CHECK_C_SOURCE_COMPILES(
 "
 typedef int foo_t;
-static ${ac_kw} foo_t static_foo(){return 0;}
-foo_t foo(){return 0;}
+static ${ac_kw} foo_t static_foo(void){return 0;}
+foo_t foo(void){return 0;}
 int main(int argc, char *argv[]){return 0;}
 "
         HAVE_INLINE )

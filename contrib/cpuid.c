@@ -53,7 +53,7 @@ void cpuid(int *info,int x){
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-void cpuid_print_name(){
+void cpuid_print_name(void){
     int name[13];
     cpuid(name + 0,0x80000002);
     cpuid(name + 4,0x80000003);
@@ -63,7 +63,7 @@ void cpuid_print_name(){
     printf("CPU Name = %s\n",(char*)name);
     printf("\n");
 }
-void cpuid_print_exts(){
+void cpuid_print_exts(void){
     int x64     = 0;
     int MMX     = 0;
     int SSE     = 0;

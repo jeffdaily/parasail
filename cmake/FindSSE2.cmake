@@ -31,7 +31,7 @@ set(SSE2_C_TEST_SOURCE
 #else
 #include <emmintrin.h>
 #endif
-int foo() {
+int foo(void) {
     __m128i vOne = _mm_set1_epi16(1);
     __m128i result = _mm_add_epi16(vOne,vOne);
     return _mm_extract_epi16(result, 0);
@@ -107,7 +107,7 @@ set(SSE2_C_TEST_SOURCE_SET1_EPI64X
 #else
 #include <emmintrin.h>
 #endif
-__m128i foo() {
+__m128i foo(void) {
     __m128i vOne = _mm_set1_epi64x(1);
     return vOne;
 }
@@ -130,7 +130,7 @@ set(SSE2_C_TEST_SOURCE_SET_EPI64X
 #else
 #include <emmintrin.h>
 #endif
-__m128i foo() {
+__m128i foo(void) {
     __m128i vOne = _mm_set_epi64x(1,1);
     return vOne;
 }

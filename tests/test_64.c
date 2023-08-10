@@ -5,7 +5,7 @@
 #include "parasail.h"
 #include "parasail/matrices/nuc44.h"
 
-int main()
+int main(void)
 {
     parasail_result_t* result;
     

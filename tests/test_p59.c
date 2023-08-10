@@ -4,7 +4,7 @@
 
 #include "parasail.h"
 
-int main()
+int main(void)
 {
     parasail_result_t* result = NULL;
     parasail_matrix_t* user_matrix = NULL;

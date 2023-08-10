@@ -7,7 +7,7 @@
  */
 extern int parasail_ssw_dummy(void);
 
-int parasail_ssw_dummy()
+int parasail_ssw_dummy(void)
 {
     return 0;
 }

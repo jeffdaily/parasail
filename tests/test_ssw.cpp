@@ -106,12 +106,6 @@ inline static void process(
         const char &sentinal,
         const int &cutoff);
 
-inline static void print_array(
-        const char * filename_,
-        const int * const restrict array,
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len);
-
 inline static void cigar_to_stats(
         s_align *a,
         const int8_t *read_seq,
@@ -163,7 +157,9 @@ int main(int argc, char **argv) {
     unsigned char *T = NULL;
     unsigned char *Q = NULL;
     int8_t *Tnum = NULL;
+#ifdef _OPENMP
     int num_threads = -1;
+#endif
     int *SA = NULL;
     int *LCP = NULL;
     unsigned char *BWT = NULL;
@@ -249,7 +245,9 @@ int main(int argc, char **argv) {
                 use_stats = true;
                 break;
             case 't':
+#ifdef _OPENMP
                 num_threads = atoi(optarg);
+#endif
                 break;
             case 'x':
                 use_filter = false;
@@ -814,36 +812,6 @@ inline static void process(
             }
         }
     }
-}
-
-inline static void print_array(
-        const char * filename_,
-        const int * const restrict array,
-        const char * const restrict s1, const int s1Len,
-        const char * const restrict s2, const int s2Len)
-{
-    int i;
-    int j;
-    FILE *f = NULL;
-    const char *filename = filename_;
-    f = fopen(filename, "w");
-    if (NULL == f) {
-        printf("fopen(\"%s\") error: %s\n", filename, strerror(errno));
-        exit(-1);
-    }
-    fprintf(f, " ");
-    for (j=0; j<s2Len; ++j) {
-        fprintf(f, "%4c", s2[j]);
-    }
-    fprintf(f, "\n");
-    for (i=0; i<s1Len; ++i) {
-        fprintf(f, "%c", s1[i]);
-        for (j=0; j<s2Len; ++j) {
-            fprintf(f, "%4d", array[i*s2Len + j]);
-        }
-        fprintf(f, "\n");
-    }
-    fclose(f);
 }
 
 inline static void cigar_to_stats(

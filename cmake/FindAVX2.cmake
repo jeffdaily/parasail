@@ -35,7 +35,7 @@ void parasail_memset___m256i(__m256i *b, __m256i c, size_t len)
     }
 }
 
-int foo() {
+int foo(void) {
     __m256i vOne = _mm256_set1_epi8(1);
     __m256i result =  _mm256_add_epi8(vOne,vOne);
     return _mm_extract_epi16(_mm256_extracti128_si256(result,0),0);
@@ -118,7 +118,7 @@ set(AVX2_C_TEST_SOURCE_SET1_EPI64X
 "
 #include <stdint.h>
 #include <immintrin.h>
-__m256i foo() {
+__m256i foo(void) {
     __m256i vOne = _mm256_set1_epi64x(1);
     return vOne;
 }
@@ -137,7 +137,7 @@ set(AVX2_C_TEST_SOURCE_SET_EPI64X
 "
 #include <stdint.h>
 #include <immintrin.h>
-__m256i foo() {
+__m256i foo(void) {
     __m256i vOne = _mm256_set_epi64x(1,1,1,1);
     return vOne;
 }
@@ -156,7 +156,7 @@ set(AVX2_C_TEST_SOURCE_INSERT64
 "
 #include <stdint.h>
 #include <immintrin.h>
-__m256i foo() {
+__m256i foo(void) {
     __m256i vOne = _mm256_set1_epi8(1);
     return _mm256_insert_epi64(vOne,INT64_MIN,0);
 }
@@ -175,7 +175,7 @@ set(AVX2_C_TEST_SOURCE_INSERT32
 "
 #include <stdint.h>
 #include <immintrin.h>
-__m256i foo() {
+__m256i foo(void) {
     __m256i vOne = _mm256_set1_epi8(1);
     return _mm256_insert_epi32(vOne,INT32_MIN,0);
 }
@@ -194,7 +194,7 @@ set(AVX2_C_TEST_SOURCE_INSERT16
 "
 #include <stdint.h>
 #include <immintrin.h>
-__m256i foo() {
+__m256i foo(void) {
     __m256i vOne = _mm256_set1_epi8(1);
     return _mm256_insert_epi16(vOne,INT16_MIN,0);
 }
@@ -213,7 +213,7 @@ set(AVX2_C_TEST_SOURCE_INSERT8
 "
 #include <stdint.h>
 #include <immintrin.h>
-__m256i foo() {
+__m256i foo(void) {
     __m256i vOne = _mm256_set1_epi8(1);
     return _mm256_insert_epi8(vOne,INT8_MIN,0);
 }
@@ -233,7 +233,7 @@ set(AVX2_C_TEST_SOURCE_EXTRACT64
 "
 #include <stdint.h>
 #include <immintrin.h>
-int64_t foo() {
+int64_t foo(void) {
     __m256i vOne = _mm256_set1_epi8(1);
     return (int64_t)_mm256_extract_epi64(vOne,0);
 }
@@ -252,7 +252,7 @@ set(AVX2_C_TEST_SOURCE_EXTRACT32
 "
 #include <stdint.h>
 #include <immintrin.h>
-int32_t foo() {
+int32_t foo(void) {
     __m256i vOne = _mm256_set1_epi8(1);
     return (int32_t)_mm256_extract_epi32(vOne,0);
 }
@@ -271,7 +271,7 @@ set(AVX2_C_TEST_SOURCE_EXTRACT16
 "
 #include <stdint.h>
 #include <immintrin.h>
-int16_t foo() {
+int16_t foo(void) {
     __m256i vOne = _mm256_set1_epi8(1);
     return (int16_t)_mm256_extract_epi16(vOne,0);
 }
@@ -290,7 +290,7 @@ set(AVX2_C_TEST_SOURCE_EXTRACT8
 "
 #include <stdint.h>
 #include <immintrin.h>
-int8_t foo() {
+int8_t foo(void) {
     __m256i vOne = _mm256_set1_epi8(1);
     return (int8_t)_mm256_extract_epi8(vOne,0);
 }

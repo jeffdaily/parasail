@@ -79,7 +79,7 @@ parasail_file_t* parasail_open(const char *fname)
     if (-1 == FSTATFUNC(fd, &fs)) {
         perror("fstat");
         fprintf(stderr, "parasail_open: "
-                "cannont stat input file `%s'\n", fname);
+                "cannot stat input file `%s'\n", fname);
         return NULL;
     }
 
@@ -87,7 +87,7 @@ parasail_file_t* parasail_open(const char *fname)
     if (MAP_FAILED == buf) {
         perror("mmap");
         fprintf(stderr, "parasail_open: "
-                "cannont mmap input file `%s'\n", fname);
+                "cannot mmap input file `%s'\n", fname);
         return NULL;
     }
 #else
@@ -102,7 +102,7 @@ parasail_file_t* parasail_open(const char *fname)
     if (0 != STATFUNC(fname, &fs)) {
         perror("_stat");
         fprintf(stderr, "parasail_open: "
-                "cannont stat input file `%s'\n", fname);
+                "cannot stat input file `%s'\n", fname);
         return NULL;
     }
 
@@ -111,14 +111,14 @@ parasail_file_t* parasail_open(const char *fname)
     if (NULL == buf) {
         perror("malloc");
         fprintf(stderr, "parasail_open: "
-                "cannont malloc buffer for input file `%s'\n", fname);
+                "cannot malloc buffer for input file `%s'\n", fname);
         return NULL;
     }
     /* Slurp file into buffer */
-    if (fs.st_size != fread(buf, 1, fs.st_size, fd)) {
+    if ((size_t)fs.st_size != fread(buf, 1, fs.st_size, fd)) {
         perror("fread");
         fprintf(stderr, "parasail_open: "
-                "cannont read input file `%s'\n", fname);
+                "cannot read input file `%s'\n", fname);
         free(buf);
         return NULL;
     }
@@ -130,7 +130,7 @@ parasail_file_t* parasail_open(const char *fname)
     if (NULL == pf) {
         perror("malloc");
         fprintf(stderr, "parasail_open: "
-                "cannont allocate parasail_file_t\n");
+                "cannot allocate parasail_file_t\n");
         free(buf);
         return NULL;
     }
@@ -362,7 +362,7 @@ parasail_file_stat_t* parasail_stat_fasta_buffer(const char *T, off_t size)
     if (NULL == pfs) {
         perror("malloc");
         fprintf(stderr, "parasail_stat_fasta_buffer: "
-                "cannont allocate parasail_file_stat_t");
+                "cannot allocate parasail_file_stat_t");
         return NULL;
     }
 
@@ -481,7 +481,7 @@ parasail_file_stat_t* parasail_stat_fastq_buffer(const char *T, off_t size)
     if (NULL == pfs) {
         perror("malloc");
         fprintf(stderr, "parasail_stat_fastq_buffer: "
-                "cannont allocate parasail_file_stat_t");
+                "cannot allocate parasail_file_stat_t");
         return NULL;
     }
 
@@ -513,7 +513,7 @@ char * parasail_read(const parasail_file_t *pf, long * size)
     if (NULL == buffer) {
         perror("malloc");
         fprintf(stderr, "parasail_read: "
-                "cannont malloc buffer for input file");
+                "cannot malloc buffer for input file");
         return NULL;
     }
 
@@ -976,7 +976,7 @@ static parasail_matrix_t* parasail_matrix_from_file_internal(const char *filenam
                 if (NULL == matrix) {
                     perror("malloc");
                     fprintf(stderr, "parasail_matrix_from_file: "
-                            "cannont malloc buffer for matrix\n");
+                            "cannot malloc buffer for matrix\n");
                     free(alphabet);
                     parasail_close(pf);
                     return NULL;
@@ -986,7 +986,7 @@ static parasail_matrix_t* parasail_matrix_from_file_internal(const char *filenam
                 if (NULL == alphabet_query) {
                     perror("malloc");
                     fprintf(stderr, "parasail_matrix_from_file: "
-                            "cannont malloc buffer for matrix alphabet\n");
+                            "cannot malloc buffer for matrix alphabet\n");
                     free(matrix);
                     free(alphabet);
                     parasail_close(pf);
@@ -1124,7 +1124,7 @@ static parasail_matrix_t* parasail_matrix_from_file_internal(const char *filenam
     if (NULL == mapper) {
         perror("malloc");
         fprintf(stderr, "parasail_matrix_from_file: "
-                "cannont malloc mapper buffer for matrix file `%s'\n",
+                "cannot malloc mapper buffer for matrix file `%s'\n",
                 filename);
         free(alphabet);
         free(alphabet_query);
@@ -1148,7 +1148,7 @@ static parasail_matrix_t* parasail_matrix_from_file_internal(const char *filenam
     if (NULL == retval) {
         perror("malloc");
         fprintf(stderr, "parasail_matrix_from_file: "
-                "cannont malloc buffer for matrix file `%s'\n", filename);
+                "cannot malloc buffer for matrix file `%s'\n", filename);
         free(matrix);
         return NULL;
     }

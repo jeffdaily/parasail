@@ -156,7 +156,7 @@ AS_IF([test "x$enable_sse2" != "xno"], [
          ac_c_werror_flag=yes
          AC_LINK_IFELSE([AC_LANG_SOURCE([[
     #include <emmintrin.h>
-    int foo() {
+    int foo(void) {
         __m128i vOne = _mm_set1_epi16(1);
         __m128i result = _mm_add_epi16(vOne,vOne);
         return _mm_extract_epi16(result, 0);
@@ -193,7 +193,7 @@ AS_IF([test "x$enable_sse2" != "xno"], [
          AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
     #include <stdint.h>
     #include <emmintrin.h>
-    __m128i foo() {
+    __m128i foo(void) {
         __m128i vOne = _mm_set1_epi64x(1);
         return vOne;
     }
@@ -217,7 +217,7 @@ AS_IF([test "x$enable_sse2" != "xno"], [
          AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
     #include <stdint.h>
     #include <emmintrin.h>
-    __m128i foo() {
+    __m128i foo(void) {
         __m128i vOne = _mm_set_epi64x(1,1);
         return vOne;
     }
@@ -250,7 +250,7 @@ AS_IF([test "x$enable_sse4_1" != "xno"], [
          ac_c_werror_flag=yes
          AC_LINK_IFELSE([AC_LANG_SOURCE([[
     #include <smmintrin.h>
-    int foo() {
+    int foo(void) {
         __m128i vOne = _mm_set1_epi8(1);
         __m128i result =  _mm_max_epi8(vOne,vOne);
         return _mm_extract_epi8(result, 0);
@@ -287,7 +287,7 @@ AS_IF([test "x$enable_sse4_1" != "xno"], [
          AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
     #include <stdint.h>
     #include <smmintrin.h>
-    __m128i foo() {
+    __m128i foo(void) {
         __m128i vOne = _mm_set1_epi8(1);
         return _mm_insert_epi64(vOne,INT64_MIN,0);
     }
@@ -311,7 +311,7 @@ AS_IF([test "x$enable_sse4_1" != "xno"], [
          AC_LINK_IFELSE([AC_LANG_SOURCE([[
     #include <stdint.h>
     #include <immintrin.h>
-    int64_t foo() {
+    int64_t foo(void) {
         __m128i vZero = _mm_set1_epi8(0);
         return _mm_extract_epi64(vZero,0);
     }
@@ -354,7 +354,7 @@ AS_IF([test "x$enable_avx2" != "xno"], [
         }
     }
 
-    int foo() {
+    int foo(void) {
         __m256i vOne = _mm256_set1_epi8(1);
         __m256i result =  _mm256_add_epi8(vOne,vOne);
         return _mm_extract_epi16(_mm256_extracti128_si256(result,0),0);
@@ -391,7 +391,7 @@ AS_IF([test "x$enable_avx2" != "xno"], [
          AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
     #include <stdint.h>
     #include <immintrin.h>
-    __m256i foo() {
+    __m256i foo(void) {
         __m256i vOne = _mm256_set1_epi64x(1);
         return vOne;
     }
@@ -415,7 +415,7 @@ AS_IF([test "x$enable_avx2" != "xno"], [
          AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
     #include <stdint.h>
     #include <immintrin.h>
-    __m256i foo() {
+    __m256i foo(void) {
         __m256i vOne = _mm256_set_epi64x(1,1,1,1);
         return vOne;
     }
@@ -439,7 +439,7 @@ AS_IF([test "x$enable_avx2" != "xno"], [
          AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
     #include <stdint.h>
     #include <immintrin.h>
-    __m256i foo() {
+    __m256i foo(void) {
         __m256i vOne = _mm256_set1_epi8(1);
         return _mm256_insert_epi64(vOne,INT64_MIN,0);
     }
@@ -463,7 +463,7 @@ AS_IF([test "x$enable_avx2" != "xno"], [
          AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
     #include <stdint.h>
     #include <immintrin.h>
-    __m256i foo() {
+    __m256i foo(void) {
         __m256i vOne = _mm256_set1_epi8(1);
         return _mm256_insert_epi32(vOne,INT32_MIN,0);
     }
@@ -487,7 +487,7 @@ AS_IF([test "x$enable_avx2" != "xno"], [
          AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
     #include <stdint.h>
     #include <immintrin.h>
-    __m256i foo() {
+    __m256i foo(void) {
         __m256i vZero = _mm256_set1_epi8(0);
         return _mm256_insert_epi16(vZero,INT16_MIN,0);
     }
@@ -511,7 +511,7 @@ AS_IF([test "x$enable_avx2" != "xno"], [
          AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
     #include <stdint.h>
     #include <immintrin.h>
-    __m256i foo() {
+    __m256i foo(void) {
         __m256i vZero = _mm256_set1_epi8(0);
         return _mm256_insert_epi8(vZero,INT8_MIN,0);
     }
@@ -535,7 +535,7 @@ AS_IF([test "x$enable_avx2" != "xno"], [
          AC_LINK_IFELSE([AC_LANG_SOURCE([[
     #include <stdint.h>
     #include <immintrin.h>
-    int64_t foo() {
+    int64_t foo(void) {
         __m256i vZero = _mm256_set1_epi8(0);
         return _mm256_extract_epi64(vZero,0);
     }
@@ -560,7 +560,7 @@ AS_IF([test "x$enable_avx2" != "xno"], [
          AC_LINK_IFELSE([AC_LANG_SOURCE([[
     #include <stdint.h>
     #include <immintrin.h>
-    int32_t foo() {
+    int32_t foo(void) {
         __m256i vZero = _mm256_set1_epi8(0);
         return _mm256_extract_epi32(vZero,0);
     }
@@ -585,7 +585,7 @@ AS_IF([test "x$enable_avx2" != "xno"], [
          AC_LINK_IFELSE([AC_LANG_SOURCE([[
     #include <stdint.h>
     #include <immintrin.h>
-    int16_t foo() {
+    int16_t foo(void) {
         __m256i vZero = _mm256_set1_epi8(0);
         return _mm256_extract_epi16(vZero,0);
     }
@@ -610,7 +610,7 @@ AS_IF([test "x$enable_avx2" != "xno"], [
          AC_LINK_IFELSE([AC_LANG_SOURCE([[
     #include <stdint.h>
     #include <immintrin.h>
-    int8_t foo() {
+    int8_t foo(void) {
         __m256i vZero = _mm256_set1_epi8(0);
         return _mm256_extract_epi8(vZero,0);
     }
@@ -652,7 +652,7 @@ AS_IF([test "x$enable_avx512" != "xno"], [
         }
     }
 
-    int foo() {
+    int foo(void) {
         __m512i vOne = _mm512_set1_epi32(1);
         _mm512_add_epi32(vOne,vOne);
         return 0;
@@ -698,7 +698,7 @@ AS_IF([test "x$enable_avx512" != "xno"], [
         }
     }
 
-    int foo() {
+    int foo(void) {
         __m512i vOne = _mm512_set1_epi8(1);
         _mm512_add_epi8(vOne,vOne);
         return 0;
@@ -736,7 +736,7 @@ AS_IF([test "x$enable_avx512" != "xno"], [
         }
     }
 
-    int foo() {
+    int foo(void) {
         __m512i vOne = _mm512_set1_epi8(1);
         _mm512_permutex2var_epi8(vOne,vOne,vOne);
         return 0;
@@ -760,7 +760,7 @@ AS_IF([test "x$enable_avx512" != "xno"], [
         [pt_cv_xgetbv],
         [AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
     #include <stdint.h>
-    int check_xcr0_ymm()
+    int check_xcr0_ymm(void)
     {
         uint32_t xcr0;
     #if defined(_MSC_VER)

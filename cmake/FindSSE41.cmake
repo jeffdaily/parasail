@@ -31,7 +31,7 @@ set(SSE41_C_TEST_SOURCE
 #else
 #include <smmintrin.h>
 #endif
-int foo() {
+int foo(void) {
     __m128i vOne = _mm_set1_epi8(1);
     __m128i result =  _mm_max_epi8(vOne,vOne);
     return _mm_extract_epi8(result, 0);
@@ -111,7 +111,7 @@ set(SSE41_C_TEST_SOURCE_INSERT64
 #else
 #include <smmintrin.h>
 #endif
-__m128i foo() {
+__m128i foo(void) {
     __m128i vOne = _mm_set1_epi8(1);
     return _mm_insert_epi64(vOne,INT64_MIN,0);
 }
@@ -134,7 +134,7 @@ set(SSE41_C_TEST_SOURCE_EXTRACT64
 #else
 #include <smmintrin.h>
 #endif
-int64_t foo() {
+int64_t foo(void) {
     __m128i vOne = _mm_set1_epi8(1);
     return (int64_t)_mm_extract_epi64(vOne,0);
 }

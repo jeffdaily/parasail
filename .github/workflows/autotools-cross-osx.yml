@@ -1,0 +1,26 @@
+name: autotools cross-compile make osx
+
+on: [push, pull_request]
+
+jobs:
+  build:
+
+    runs-on: macos-latest
+
+    strategy:
+      matrix:
+        host: [aarch64-apple-darwin]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: install packages
+      run: |
+        brew install autoconf automake libtool
+    - name: autoreconf
+      run: autoreconf -fi
+    - name: configure
+      run: ./configure --host=${{ matrix.host }} --enable-static --disable-shared --without-zlib || cat config.log
+    - name: make
+      run: make -j $(nproc)
+    - name: make check
+      run: make check -j $(nproc)

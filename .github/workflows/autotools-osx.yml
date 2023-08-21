@@ -1,4 +1,4 @@
-name: autotools make
+name: autotools make osx
 
 on: [push, pull_request]
 

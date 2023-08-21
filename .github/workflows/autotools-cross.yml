@@ -1,4 +1,4 @@
-name: autotools cross-compile make
+name: autotools cross-compile make ubuntu
 
 on: [push, pull_request]
 

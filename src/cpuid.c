@@ -49,9 +49,7 @@ int parasail_can_use_neon()
 int parasail_can_use_neon() { return 0; }
 #endif
 
-#else
-
-/* x64_64 */
+#elif defined(__x86_64__) || defined(__i386__)
 
 #include <stdint.h>
 #if defined(_MSC_VER)
@@ -366,5 +364,18 @@ int parasail_can_use_neon()
 {
     return 0;
 }
+
+#else
+
+/* non-x86, non-ARM, non-PPC */
+
+int parasail_can_use_avx512vbmi() { return 0; }
+int parasail_can_use_avx512bw() { return 0; }
+int parasail_can_use_avx512f() { return 0; }
+int parasail_can_use_avx2() { return 0; }
+int parasail_can_use_sse41() { return 0; }
+int parasail_can_use_sse2() { return 0; }
+int parasail_can_use_altivec() { return 0; }
+int parasail_can_use_neon() { return 0; }
 
 #endif

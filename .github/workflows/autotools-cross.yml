@@ -4,13 +4,16 @@ on: [push, pull_request]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
-        host: [arm-linux-gnueabihf, aarch64-linux-gnu, powerpc-linux-gnu, arm-linux-gnueabi]
-
+        host:
+          - arm-linux-gnueabihf
+          - arm-linux-gnueabi
+          - aarch64-linux-gnu
+          - powerpc-linux-gnu
+          - riscv64-linux-gnu
+          - s390x-linux-gnu
     steps:
     - uses: actions/checkout@v2
     - name: install packages

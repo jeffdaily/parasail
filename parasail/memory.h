@@ -28,8 +28,19 @@ extern "C" {
     size_t _size = (size);                                                      \
     var = malloc(_size);                                                        \
     if (!var) {                                                                 \
+        perror("malloc");                                                       \
         fprintf(stderr, "%s: failed to malloc %zu bytes\n", __func__, (_size)); \
         return NULL;                                                            \
+    }                                                                           \
+} while(0)
+
+#define PARASAIL_MALLOC_NORETVAL(var,size) do {                                 \
+    size_t _size = (size);                                                      \
+    var = malloc(_size);                                                        \
+    if (!var) {                                                                 \
+        perror("malloc");                                                       \
+        fprintf(stderr, "%s: failed to malloc %zu bytes\n", __func__, (_size)); \
+        return;                                                                 \
     }                                                                           \
 } while(0)
 
@@ -37,12 +48,44 @@ extern "C" {
     size_t _size = sizeof(type)*(count);                                        \
     var = (type*)malloc(_size);                                                 \
     if (!var) {                                                                 \
+        perror("malloc");                                                       \
         fprintf(stderr, "%s: failed to malloc %zu bytes\n", __func__, (_size)); \
         return NULL;                                                            \
     }                                                                           \
 } while(0)
 
+#define PARASAIL_CALLOC_NORETVAL(var,type,count) do {                           \
+    size_t _size = sizeof(type)*(count);                                        \
+    var = (type*)malloc(_size);                                                 \
+    if (!var) {                                                                 \
+        perror("malloc");                                                       \
+        fprintf(stderr, "%s: failed to malloc %zu bytes\n", __func__, (_size)); \
+        return;                                                                 \
+    }                                                                           \
+} while(0)
+
+#define PARASAIL_RECALLOC(var,type,count) do {                                  \
+    size_t _size = sizeof(type)*(count);                                        \
+    var = (type*)realloc(var, _size);                                           \
+    if (!var) {                                                                 \
+        perror("realloc");                                                      \
+        fprintf(stderr, "%s: failed to realloc %zu bytes\n", __func__, (_size));\
+        return NULL;                                                            \
+    }                                                                           \
+} while(0)
+
+#define PARASAIL_RECALLOC_NORETVAL(var,type,count) do {                         \
+    size_t _size = sizeof(type)*(count);                                        \
+    var = (type*)realloc(var, _size);                                           \
+    if (!var) {                                                                 \
+        perror("realloc");                                                      \
+        fprintf(stderr, "%s: failed to realloc %zu bytes\n", __func__, (_size));\
+        return;                                                                 \
+    }                                                                           \
+} while(0)
+
 #define PARASAIL_NEW(var,type) PARASAIL_CALLOC(var,type,1)
+#define PARASAIL_NEW_NORETVAL(var,type) PARASAIL_CALLOC_NORETVAL(var,type,1)
 
 #define PARASAIL_CHECK_NULL(var) do {                        \
     if (!var) {                                              \

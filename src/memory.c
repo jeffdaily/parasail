@@ -149,6 +149,7 @@ parasail_result_t* parasail_result_new(void)
     result->end_ref = 0;
     result->flag = 0;
     result->extra = NULL;
+    result->ends = NULL;
 
     return result;
 }
@@ -274,6 +275,41 @@ parasail_result_t* parasail_result_new_rowcol3(const int a, const int b)
     return result;
 }
 
+void parasail_result_ends_clear(parasail_result_t *result)
+{
+    /* validate inputs */
+    PARASAIL_CHECK_NULL_NORETVAL(result);
+
+    /* it's okay to clear an empty ends array */
+    if (!result->ends) return;
+
+    result->ends->size = 0;
+}
+
+void parasail_result_ends_push_back(parasail_result_t *result, int end_query, int end_ref)
+{
+    /* validate inputs */
+    PARASAIL_CHECK_NULL_NORETVAL(result);
+
+    /* if first time calling, alloc structure */
+    if (!result->ends) {
+        PARASAIL_NEW_NORETVAL(result->ends, parasail_result_ends_t);
+        result->ends->size = 0;
+        result->ends->capacity = 1;
+        PARASAIL_NEW_NORETVAL(result->ends->data, parasail_result_end_t);
+    }
+
+    /* if reached capacity, realloc x2 */
+    if (result->ends->size == result->ends->capacity) {
+        result->ends->capacity *= 2;
+        PARASAIL_RECALLOC_NORETVAL(result->ends->data, parasail_result_end_t, result->ends->capacity);
+    }
+
+    result->ends->data[result->ends->size].end_query = end_query;
+    result->ends->data[result->ends->size].end_ref = end_ref;
+    result->ends->size += 1;
+}
+
 void parasail_result_free(parasail_result_t *result)
 {
     /* validate inputs */
@@ -321,6 +357,13 @@ void parasail_result_free(parasail_result_t *result)
         if (NULL != result->trace->trace_del_table)
             parasail_free(result->trace->trace_del_table);
         free(result->trace);
+    }
+
+    if (result->ends) {
+        if (result->ends->data) {
+            free(result->ends->data);
+        }
+        free(result->ends);
     }
 
     free(result);

@@ -129,6 +129,17 @@ typedef struct parasail_result_extra_trace {
     void * restrict trace_del_table;/* DP table of deletions traceback */
 } parasail_result_extra_trace_t;
 
+typedef struct parasail_result_end {
+    int end_query;  /* end position of query sequence */
+    int end_ref;    /* end position of reference sequence */
+} parasail_result_end_t;
+
+typedef struct parasail_result_ends {
+    parasail_result_end_t *data;
+    int size;
+    int capacity;
+} parasail_result_ends_t;
+
 typedef struct parasail_result {
     int score;      /* alignment score */
     int end_query;  /* end position of query sequence */
@@ -142,6 +153,7 @@ typedef struct parasail_result {
         parasail_result_extra_rowcols_t *rowcols;
         parasail_result_extra_trace_t *trace;
     };
+    parasail_result_ends_t *ends;
 } parasail_result_t;
 
 #define PARASAIL_MATRIX_TYPE_SQUARE 0

@@ -62,78 +62,58 @@ parasail_file_t* parasail_open(const char *fname)
     STATBUF fs;
 #endif
 
-    if (NULL == fname) {
-        fprintf(stderr, "parasail_open: NULL filename\n");
-        return NULL;
-    }
+    PARASAIL_CHECK_NULL(fname);
 
 #if defined(HAVE_SYS_MMAN_H)
     fd = open(fname, O_RDONLY);
     if (fd == -1) {
         perror("open");
-        fprintf(stderr, "parasail_open: "
-                "cannot open input file `%s'\n", fname);
+        fprintf(stderr, "%s: cannot open input file `%s'\n", __func__, fname);
         return NULL;
     }
 
     if (-1 == FSTATFUNC(fd, &fs)) {
         perror("fstat");
-        fprintf(stderr, "parasail_open: "
-                "cannot stat input file `%s'\n", fname);
+        fprintf(stderr, "%s: cannot stat input file `%s'\n", __func__, fname);
         return NULL;
     }
 
     buf = (char*)mmap(NULL, fs.st_size, PROT_READ, MAP_SHARED, fd, 0);
     if (MAP_FAILED == buf) {
         perror("mmap");
-        fprintf(stderr, "parasail_open: "
-                "cannot mmap input file `%s'\n", fname);
+        fprintf(stderr, "%s: cannot mmap input file `%s'\n", __func__, fname);
         return NULL;
     }
 #else
     fd = fopen(fname, "rb");
     if (NULL == fd) {
         perror("fopen");
-        fprintf(stderr, "parasail_open: "
-                "cannot open input file `%s'\n", fname);
+        fprintf(stderr, "%s: cannot open input file `%s'\n", __func__, fname);
         return NULL;
     }
 
     if (0 != STATFUNC(fname, &fs)) {
         perror("_stat");
-        fprintf(stderr, "parasail_open: "
-                "cannot stat input file `%s'\n", fname);
+        fprintf(stderr, "%s: cannot stat input file `%s'\n", __func__, fname);
         return NULL;
     }
 
     /* Allocate a buffer to hold the whole file */
-    buf = (char*)malloc(fs.st_size + 1);
-    if (NULL == buf) {
-        perror("malloc");
-        fprintf(stderr, "parasail_open: "
-                "cannot malloc buffer for input file `%s'\n", fname);
-        return NULL;
-    }
+    PARASAIL_MALLOC(buf, fs.st_size + 1);
+
     /* Slurp file into buffer */
     if ((size_t)fs.st_size != fread(buf, 1, fs.st_size, fd)) {
         perror("fread");
-        fprintf(stderr, "parasail_open: "
-                "cannot read input file `%s'\n", fname);
+        fprintf(stderr, "%s: cannot read input file `%s'\n", __func__, fname);
         free(buf);
         return NULL;
     }
+
     /* Close the file early */
     fclose(fd);
 #endif
 
-    pf = (parasail_file_t*)malloc(sizeof(parasail_file_t));
-    if (NULL == pf) {
-        perror("malloc");
-        fprintf(stderr, "parasail_open: "
-                "cannot allocate parasail_file_t\n");
-        free(buf);
-        return NULL;
-    }
+    PARASAIL_NEW(pf, parasail_file_t);
 
 #if defined(HAVE_SYS_MMAN_H)
     pf->fd = fd;
@@ -147,18 +127,15 @@ parasail_file_t* parasail_open(const char *fname)
 
 void parasail_close(parasail_file_t *pf)
 {
-    if (NULL == pf) {
-        fprintf(stderr, "parasail_close: NULL file\n");
-        return;
-    }
+    PARASAIL_CHECK_NULL_NORETVAL(pf);
 #if defined(HAVE_SYS_MMAN_H)
     if (-1 == munmap((void*)pf->buf, pf->size)) {
         perror("munmap");
-        fprintf(stderr, "parasail_close: cannot munmap file buffer\n");
+        fprintf(stderr, "%s: cannot munmap file buffer\n", __func__);
     }
     if (-1 == close(pf->fd)) {
         perror("close");
-        fprintf(stderr, "parasail_close: cannot close file descriptor\n");
+        fprintf(stderr, "%s: cannot close file descriptor\n", __func__);
     }
 #else
     free((void*)pf->buf);
@@ -169,40 +146,28 @@ void parasail_close(parasail_file_t *pf)
 
 int parasail_is_fasta(const parasail_file_t *pf)
 {
-    if (NULL == pf) {
-        fprintf(stderr, "parasail_is_fasta: NULL pointer\n");
-        return -1;
-    }
+    PARASAIL_CHECK_NULL(pf);
 
     return parasail_is_fasta_buffer(pf->buf, pf->size);
 }
 
 int parasail_is_fasta_buffer(const char *buf, off_t UNUSED(size))
 {
-    if (NULL == buf) {
-        fprintf(stderr, "parasail_is_fasta_buffer: NULL pointer\n");
-        return -1;
-    }
+    PARASAIL_CHECK_NULL(buf);
 
     return '>' == buf[0];
 }
 
 int parasail_is_fastq(const parasail_file_t *pf)
 {
-    if (NULL == pf) {
-        fprintf(stderr, "parasail_is_fastq: NULL pointer\n");
-        return -1;
-    }
+    PARASAIL_CHECK_NULL(pf);
 
     return parasail_is_fastq_buffer(pf->buf, pf->size);
 }
 
 int parasail_is_fastq_buffer(const char *buf, off_t UNUSED(size))
 {
-    if (NULL == buf) {
-        fprintf(stderr, "parasail_is_fastq_buffer: NULL pointer\n");
-        return -1;
-    }
+    PARASAIL_CHECK_NULL(buf);
 
     return '@' == buf[0];
 }
@@ -211,10 +176,7 @@ parasail_file_stat_t* parasail_stat(const parasail_file_t *pf)
 {
     parasail_file_stat_t *stat = NULL;
 
-    if (NULL == pf) {
-        fprintf(stderr, "parasail_stat: NULL pointer\n");
-        return NULL;
-    }
+    PARASAIL_CHECK_NULL(pf);
 
     if (1 == parasail_is_fasta(pf)) {
         stat = parasail_stat_fasta(pf);
@@ -223,12 +185,12 @@ parasail_file_stat_t* parasail_stat(const parasail_file_t *pf)
         stat = parasail_stat_fastq(pf);
     }
     else {
-        fprintf(stderr, "parasail_stat: cannot determine file format\n");
+        fprintf(stderr, "%s: cannot determine file format\n", __func__);
         return NULL;
     }
 
     if (NULL == stat) {
-        fprintf(stderr, "parasail_stat: failed\n");
+        fprintf(stderr, "%s: failed\n", __func__);
         return NULL;
     }
 
@@ -239,10 +201,7 @@ parasail_file_stat_t* parasail_stat_buffer(const char *buf, off_t size)
 {
     parasail_file_stat_t *stat = NULL;
 
-    if (NULL == buf) {
-        fprintf(stderr, "parasail_stat_buffer: NULL pointer\n");
-        return NULL;
-    }
+    PARASAIL_CHECK_NULL(buf);
 
     if (1 == parasail_is_fasta_buffer(buf, size)) {
         stat = parasail_stat_fasta_buffer(buf, size);
@@ -251,12 +210,12 @@ parasail_file_stat_t* parasail_stat_buffer(const char *buf, off_t size)
         stat = parasail_stat_fastq_buffer(buf, size);
     }
     else {
-        fprintf(stderr, "parasail_stat: cannot determine file format\n");
+        fprintf(stderr, "%s: cannot determine file format\n", __func__);
         return NULL;
     }
 
     if (NULL == stat) {
-        fprintf(stderr, "parasail_stat_buffer: failed\n");
+        fprintf(stderr, "%s: failed\n", __func__);
         return NULL;
     }
 
@@ -280,10 +239,7 @@ inline static off_t skip_line(const char *T, off_t i)
 
 parasail_file_stat_t* parasail_stat_fasta(const parasail_file_t *pf)
 {
-    if (NULL == pf) {
-        fprintf(stderr, "parasail_stat_fasta: NULL pointer\n");
-        return NULL;
-    }
+    PARASAIL_CHECK_NULL(pf);
 
     return parasail_stat_fasta_buffer(pf->buf, pf->size);
 }
@@ -299,15 +255,11 @@ parasail_file_stat_t* parasail_stat_fasta_buffer(const char *T, off_t size)
 
     stats_clear(&stats);
 
-    if (NULL == T) {
-        fprintf(stderr, "parasail_stat_fasta_buffer: NULL pointer\n");
-        return NULL;
-    }
+    PARASAIL_CHECK_NULL(T);
 
     /* first line is always first sequence ID */
     if (T[i] != '>') {
-        fprintf(stderr, "parasail_stat_fasta_buffer: "
-                "poorly formatted FASTA file\n");
+        fprintf(stderr, "%s: poorly formatted FASTA file\n", __func__);
         return NULL;
     }
 
@@ -338,13 +290,11 @@ parasail_file_stat_t* parasail_stat_fasta_buffer(const char *T, off_t size)
             }
         }
         else if (isprint(T[i])) {
-            fprintf(stderr, "parasail_stat_fasta_buffer: "
-                    "non-alpha character ('%c')\n", T[i]);
+            fprintf(stderr, "%s: non-alpha character ('%c')\n", __func__, T[i]);
             return NULL;
         }
         else {
-            fprintf(stderr, "parasail_stat_fasta_buffer: "
-                    "non-printing character ('%d')\n", T[i]);
+            fprintf(stderr, "%s: non-printing character ('%d')\n", __func__, T[i]);
             return NULL;
         }
         ++i;
@@ -352,19 +302,12 @@ parasail_file_stat_t* parasail_stat_fasta_buffer(const char *T, off_t size)
 
     /* still should have one sequence in the pipe */
     if (0 == c) {
-        fprintf(stderr, "parasail_stat_fasta_buffer: "
-                "empty sequence at end of input\n");
+        fprintf(stderr, "%s: empty sequence at end of input\n", __func__);
         return NULL;
     }
     stats_sample_value(&stats, c);
 
-    pfs = (parasail_file_stat_t*)malloc(sizeof(parasail_file_stat_t));
-    if (NULL == pfs) {
-        perror("malloc");
-        fprintf(stderr, "parasail_stat_fasta_buffer: "
-                "cannot allocate parasail_file_stat_t");
-        return NULL;
-    }
+    PARASAIL_NEW(pfs, parasail_file_stat_t);
 
     pfs->sequences = seq;
     pfs->characters = c_tot;
@@ -390,10 +333,7 @@ parasail_file_stat_t* parasail_stat_fasta_buffer(const char *T, off_t size)
  */
 parasail_file_stat_t* parasail_stat_fastq(const parasail_file_t *pf)
 {
-    if (NULL == pf) {
-        fprintf(stderr, "parasail_stat_fastq: NULL pointer\n");
-        return NULL;
-    }
+    PARASAIL_CHECK_NULL(pf);
 
     return parasail_stat_fastq_buffer(pf->buf, pf->size);
 }
@@ -411,16 +351,12 @@ parasail_file_stat_t* parasail_stat_fastq_buffer(const char *T, off_t size)
 
     stats_clear(&stats);
 
-    if (NULL == T) {
-        fprintf(stderr, "parasail_stat_fastq_buffer: NULL pointer\n");
-        return NULL;
-    }
+    PARASAIL_CHECK_NULL(T);
 
     /* read file */
     while (i<size) {
         if (T[i] != '@') {
-            fprintf(stderr, "parasail_stat_fastq_buffer: "
-                    "poorly formatted FASTQ file, line %lu\n", line);
+            fprintf(stderr, "%s: poorly formatted FASTQ file, line %lu\n", __func__, line);
             return NULL;
         }
 
@@ -458,8 +394,7 @@ parasail_file_stat_t* parasail_stat_fastq_buffer(const char *T, off_t size)
         ++line;
 
         if (T[i] != '+') {
-            fprintf(stderr, "parasail_stat_fastq_buffer: "
-                    "poorly formatted FASTQ file, line %lu\n", line);
+            fprintf(stderr, "%s: poorly formatted FASTQ file, line %lu\n", __func__, line);
             return NULL;
         }
 
@@ -477,13 +412,7 @@ parasail_file_stat_t* parasail_stat_fastq_buffer(const char *T, off_t size)
         ++line;
     }
 
-    pfs = (parasail_file_stat_t*)malloc(sizeof(parasail_file_stat_t));
-    if (NULL == pfs) {
-        perror("malloc");
-        fprintf(stderr, "parasail_stat_fastq_buffer: "
-                "cannot allocate parasail_file_stat_t");
-        return NULL;
-    }
+    PARASAIL_NEW(pfs, parasail_file_stat_t);
 
     pfs->sequences = seq;
     pfs->characters = c_tot;
@@ -499,23 +428,10 @@ char * parasail_read(const parasail_file_t *pf, long * size)
 {
     char * buffer = NULL;
 
-    if (NULL == pf) {
-        fprintf(stderr, "parasail_read: NULL pointer\n");
-        return NULL;
-    }
+    PARASAIL_CHECK_NULL(pf);
+    PARASAIL_CHECK_NULL(size);
 
-    if (NULL == size) {
-        fprintf(stderr, "parasail_read: NULL size pointer\n");
-        return NULL;
-    }
-
-    buffer = (char*)malloc(sizeof(char) * (pf->size+1));
-    if (NULL == buffer) {
-        perror("malloc");
-        fprintf(stderr, "parasail_read: "
-                "cannot malloc buffer for input file");
-        return NULL;
-    }
+    PARASAIL_CALLOC(buffer, char, pf->size+1);
 
     (void)memcpy(buffer, pf->buf, pf->size);
     buffer[pf->size] = '\0';
@@ -527,15 +443,8 @@ char * parasail_pack(const parasail_file_t *pf, long * size)
 {
     char *packed = NULL;
 
-    if (NULL == pf) {
-        fprintf(stderr, "parasail_pack: NULL pointer\n");
-        return NULL;
-    }
-
-    if (NULL == size) {
-        fprintf(stderr, "parasail_pack: NULL size pointer\n");
-        return NULL;
-    }
+    PARASAIL_CHECK_NULL(pf);
+    PARASAIL_CHECK_NULL(size);
 
     if (1 == parasail_is_fasta(pf)) {
         packed = parasail_pack_fasta(pf, size);
@@ -544,12 +453,12 @@ char * parasail_pack(const parasail_file_t *pf, long * size)
         packed = parasail_pack_fastq(pf, size);
     }
     else {
-        fprintf(stderr, "parasail_pack: cannot determine file format\n");
+        fprintf(stderr, "%s: cannot determine file format\n", __func__);
         return NULL;
     }
 
     if (NULL == packed) {
-        fprintf(stderr, "parasail_pack: failed\n");
+        fprintf(stderr, "%s: failed\n", __func__);
         return NULL;
     }
 
@@ -560,15 +469,8 @@ char * parasail_pack_buffer(const char *buf, off_t size, long * packed_size)
 {
     char *packed = NULL;
 
-    if (NULL == buf) {
-        fprintf(stderr, "parasail_pack_buffer: NULL pointer\n");
-        return NULL;
-    }
-
-    if (NULL == packed_size) {
-        fprintf(stderr, "parasail_pack_buffer: NULL size pointer\n");
-        return NULL;
-    }
+    PARASAIL_CHECK_NULL(buf);
+    PARASAIL_CHECK_NULL(packed_size);
 
     if (1 == parasail_is_fasta_buffer(buf, size)) {
         packed = parasail_pack_fasta_buffer(buf, size, packed_size);
@@ -577,12 +479,12 @@ char * parasail_pack_buffer(const char *buf, off_t size, long * packed_size)
         packed = parasail_pack_fastq_buffer(buf, size, packed_size);
     }
     else {
-        fprintf(stderr, "parasail_pack: cannot determine file format\n");
+        fprintf(stderr, "%s: cannot determine file format\n", __func__);
         return NULL;
     }
 
     if (NULL == packed) {
-        fprintf(stderr, "parasail_pack_buffer: failed\n");
+        fprintf(stderr, "%s: failed\n", __func__);
         return NULL;
     }
 
@@ -591,15 +493,8 @@ char * parasail_pack_buffer(const char *buf, off_t size, long * packed_size)
 
 char * parasail_pack_fasta(const parasail_file_t *pf, long * packed_size)
 {
-    if (NULL == pf) {
-        fprintf(stderr, "parasail_pack_fasta: NULL pointer\n");
-        return NULL;
-    }
-
-    if (NULL == packed_size) {
-        fprintf(stderr, "parasail_pack_fasta: NULL size pointer\n");
-        return NULL;
-    }
+    PARASAIL_CHECK_NULL(pf);
+    PARASAIL_CHECK_NULL(packed_size);
 
     return parasail_pack_fasta_buffer(pf->buf, pf->size, packed_size);
 }
@@ -610,36 +505,25 @@ char * parasail_pack_fasta_buffer(const char *T, off_t size, long * packed_size)
     off_t i = 0;
     off_t w = 0;
     char *P = NULL;
+    size_t p_size = 0;
 
-    if (NULL == T) {
-        fprintf(stderr, "parasail_pack_fasta_buffer: NULL pointer\n");
-        return NULL;
-    }
-
-    if (NULL == packed_size) {
-        fprintf(stderr, "parasail_pack_fasta_buffer: NULL size pointer\n");
-        return NULL;
-    }
+    PARASAIL_CHECK_NULL(T);
+    PARASAIL_CHECK_NULL(packed_size);
 
     pfs = parasail_stat_fasta_buffer(T, size);
     if (NULL == pfs) {
-        fprintf(stderr, "parasail_stat_fasta_buffer: fasta stat failed\n");
+        fprintf(stderr, "%s: fasta stat failed\n", __func__);
         return NULL;
     }
 
-    P = (char*)malloc(sizeof(char) * (pfs->characters+pfs->sequences+1));
-    if (NULL == P) {
-        perror("malloc");
-        fprintf(stderr, "parasail_pack_fasta_buffer: malloc failed\n");
-        free(pfs);
-        return NULL;
-    }
+    p_size = pfs->characters+pfs->sequences+1;
     free(pfs);
+
+    PARASAIL_CALLOC(P, char, p_size);
 
     /* first line is always first sequence ID */
     if (T[i] != '>') {
-        fprintf(stderr, "parasail_pack_fasta_buffer: "
-                "poorly formatted FASTA file\n");
+        fprintf(stderr, "%s: poorly formatted FASTA file\n", __func__);
         free(P);
         return NULL;
     }
@@ -665,14 +549,12 @@ char * parasail_pack_fasta_buffer(const char *T, off_t size, long * packed_size)
             }
         }
         else if (isprint(T[i])) {
-            fprintf(stderr, "parasail_pack_fasta_buffer: "
-                    "non-alpha character ('%c')\n", T[i]);
+            fprintf(stderr, "%s: non-alpha character ('%c')\n", __func__, T[i]);
             free(P);
             return NULL;
         }
         else {
-            fprintf(stderr, "parasail_pack_fasta_buffer: "
-                    "non-printing character ('%d')\n", T[i]);
+            fprintf(stderr, "%s: non-printing character ('%d')\n", __func__, T[i]);
             free(P);
             return NULL;
         }
@@ -687,15 +569,8 @@ char * parasail_pack_fasta_buffer(const char *T, off_t size, long * packed_size)
 
 char * parasail_pack_fastq(const parasail_file_t *pf, long * size)
 {
-    if (NULL == pf) {
-        fprintf(stderr, "parasail_pack_fastq: NULL pointer\n");
-        return NULL;
-    }
-
-    if (NULL == size) {
-        fprintf(stderr, "parasail_pack_fastq: NULL size pointer\n");
-        return NULL;
-    }
+    PARASAIL_CHECK_NULL(pf);
+    PARASAIL_CHECK_NULL(size);
 
     return parasail_pack_fastq_buffer(pf->buf, pf->size, size);
 }
@@ -708,37 +583,26 @@ char * parasail_pack_fastq_buffer(const char *T, off_t size, long * packed_size)
     off_t w = 0;
     unsigned long line = 0;
     parasail_file_stat_t *pfs = NULL;
+    size_t p_size = 0;
 
-    if (NULL == T) {
-        fprintf(stderr, "parasail_pack_fastq_buffer: NULL pointer\n");
-        return NULL;
-    }
-
-    if (NULL == packed_size) {
-        fprintf(stderr, "parasail_pack_fastq_buffer: NULL size pointer\n");
-        return NULL;
-    }
+    PARASAIL_CHECK_NULL(T);
+    PARASAIL_CHECK_NULL(packed_size);
 
     pfs = parasail_stat_fastq_buffer(T, size);
     if (NULL == pfs) {
-        fprintf(stderr, "parasail_stat_fastq_buffer: fastq stat failed\n");
+        fprintf(stderr, "%s: fastq stat failed\n", __func__);
         return NULL;
     }
 
-    P = (char*)malloc(sizeof(char) * (pfs->characters+pfs->sequences+1));
-    if (NULL == P) {
-        perror("malloc");
-        fprintf(stderr, "parasail_pack_fastq_buffer: malloc failed\n");
-        free(pfs);
-        return NULL;
-    }
+    p_size = pfs->characters+pfs->sequences+1;
     free(pfs);
+
+    PARASAIL_CALLOC(P, char, p_size);
 
     /* read file */
     while (i<size) {
         if (T[i] != '@') {
-            fprintf(stderr, "parasail_pack_fastq_buffer: "
-                    "poorly formatted FASTQ file, line %lu\n", line);
+            fprintf(stderr, "%s: poorly formatted FASTQ file, line %lu\n", __func__, line);
             free(P);
             return NULL;
         }
@@ -773,8 +637,7 @@ char * parasail_pack_fastq_buffer(const char *T, off_t size, long * packed_size)
         ++line;
 
         if (T[i] != '+') {
-            fprintf(stderr, "parasail_pack_fastq_buffer: "
-                    "poorly formatted FASTQ file, line %lu\n", line);
+            fprintf(stderr, "%s: poorly formatted FASTQ file, line %lu\n", __func__, line);
             free(P);
             return NULL;
         }
@@ -873,11 +736,7 @@ inline static char*  get_alphabet(const char *T, off_t i, off_t size)
         return NULL;
     }
 
-    alphabet = (char*)malloc(sizeof(char)*(count+1));
-    if (NULL == alphabet) {
-        perror("malloc");
-        return NULL;
-    }
+    PARASAIL_CALLOC(alphabet, char, count+1);
 
     i = _i;
     count = 0;
@@ -941,15 +800,11 @@ static parasail_matrix_t* parasail_matrix_from_file_internal(const char *filenam
     size_t c = 0;
     int type = PARASAIL_MATRIX_TYPE_SQUARE;
 
-    if (NULL == filename) {
-        fprintf(stderr, "parasail_matrix_from_file: NULL pointer\n");
-        return NULL;
-    }
+    PARASAIL_CHECK_NULL(filename);
 
     pf = parasail_open(filename);
     if (NULL == pf) {
-        fprintf(stderr, "parasail_matrix_from_file: "
-                "parasail_open(%s) failed\n", filename);
+        fprintf(stderr, "%s: parasail_open(%s) failed\n", __func__, filename);
         return NULL;
     }
     T = pf->buf;
@@ -965,8 +820,7 @@ static parasail_matrix_t* parasail_matrix_from_file_internal(const char *filenam
                 first_alpha = 0;
                 alphabet = get_alphabet(T, i, size);
                 if (NULL == alphabet) {
-                    fprintf(stderr, "parasail_matrix_from_file: "
-                            "poorly formed matrix file alphabet\n");
+                    fprintf(stderr, "%s: poorly formed matrix file alphabet\n", __func__);
                     parasail_close(pf);
                     return NULL;
                 }
@@ -975,8 +829,7 @@ static parasail_matrix_t* parasail_matrix_from_file_internal(const char *filenam
                 matrix = (int*)malloc(sizeof(int)*matrix_capacity);
                 if (NULL == matrix) {
                     perror("malloc");
-                    fprintf(stderr, "parasail_matrix_from_file: "
-                            "cannot malloc buffer for matrix\n");
+                    fprintf(stderr, "%s: cannot malloc buffer for matrix\n", __func__);
                     free(alphabet);
                     parasail_close(pf);
                     return NULL;
@@ -985,8 +838,7 @@ static parasail_matrix_t* parasail_matrix_from_file_internal(const char *filenam
                 alphabet_query = (char*)malloc(sizeof(char)*(alphabet_query_capacity+1));
                 if (NULL == alphabet_query) {
                     perror("malloc");
-                    fprintf(stderr, "parasail_matrix_from_file: "
-                            "cannot malloc buffer for matrix alphabet\n");
+                    fprintf(stderr, "%s: cannot malloc buffer for matrix alphabet\n", __func__);
                     free(matrix);
                     free(alphabet);
                     parasail_close(pf);
@@ -1002,8 +854,7 @@ static parasail_matrix_t* parasail_matrix_from_file_internal(const char *filenam
                     alphabet_query = realloc(alphabet_query, sizeof(char)*(alphabet_query_capacity+1));
                     if (NULL == alphabet_query) {
                         perror("realloc");
-                        fprintf(stderr, "parasail_matrix_from_file: "
-                                "couldn't grow query size\n");
+                        fprintf(stderr, "%s: couldn't grow query size\n", __func__);
                         if (alphabet) free(alphabet);
                         if (alphabet_query) free(alphabet_query);
                         if (matrix) free(matrix);
@@ -1025,8 +876,7 @@ static parasail_matrix_t* parasail_matrix_from_file_internal(const char *filenam
                     int val = 0;
                     int retcode = get_num(T, &i, &val);
                     if (-1 == retcode) {
-                        fprintf(stderr, "parasail_matrix_from_file: "
-                                "poorly formed matrix file\n");
+                        fprintf(stderr, "%s: poorly formed matrix file\n", __func__);
                         if (alphabet) free(alphabet);
                         if (alphabet_query) free(alphabet_query);
                         if (matrix) free(matrix);
@@ -1038,8 +888,7 @@ static parasail_matrix_t* parasail_matrix_from_file_internal(const char *filenam
                         matrix = realloc(matrix, sizeof(int)*matrix_capacity);
                         if (NULL == matrix) {
                             perror("realloc");
-                            fprintf(stderr, "parasail_matrix_from_file: "
-                                    "couldn't grow matrix size\n");
+                            fprintf(stderr, "%s: couldn't grow matrix size\n", __func__);
                             if (alphabet) free(alphabet);
                             if (alphabet_query) free(alphabet_query);
                             if (matrix) free(matrix);
@@ -1064,8 +913,7 @@ static parasail_matrix_t* parasail_matrix_from_file_internal(const char *filenam
             /* ignore spaces and tabs */
         }
         else if (isprint(T[i])) {
-            fprintf(stderr, "parasail_matrix_from_file: "
-                    "non-alpha character in matrix file ('%c')\n", T[i]);
+            fprintf(stderr, "%s: non-alpha character in matrix file ('%c')\n", __func__, T[i]);
             if (alphabet) free(alphabet);
             if (alphabet_query) free(alphabet_query);
             if (matrix) free(matrix);
@@ -1073,8 +921,7 @@ static parasail_matrix_t* parasail_matrix_from_file_internal(const char *filenam
             return NULL;
         }
         else {
-            fprintf(stderr, "parasail_matrix_from_file: "
-                    "non-printing character in matrix file ('%d')\n", T[i]);
+            fprintf(stderr, "%s: non-printing character in matrix file ('%d')\n", __func__, T[i]);
             if (alphabet) free(alphabet);
             if (alphabet_query) free(alphabet_query);
             if (matrix) free(matrix);
@@ -1091,16 +938,14 @@ static parasail_matrix_t* parasail_matrix_from_file_internal(const char *filenam
     if (asize == alphabet_query_i && 0 == strcmp(alphabet, alphabet_query)) {
         /* square */
         if (matrix_i != asize*asize) {
-            fprintf(stderr, "parasail_matrix_from_file: "
-                    "matrix is missing values\n");
+            fprintf(stderr, "%s: matrix is missing values\n", __func__);
             free(alphabet);
             free(alphabet_query);
             free(matrix);
             return NULL;
         }
         if (count != asize) {
-            fprintf(stderr, "parasail_matrix_from_file: "
-                    "matrix is missing rows\n");
+            fprintf(stderr, "%s: matrix is missing rows\n", __func__);
             free(alphabet);
             free(alphabet_query);
             free(matrix);
@@ -1111,8 +956,7 @@ static parasail_matrix_t* parasail_matrix_from_file_internal(const char *filenam
         /* PSSM */
         type = PARASAIL_MATRIX_TYPE_PSSM;
         if (matrix_i != asize*count) {
-            fprintf(stderr, "parasail_matrix_from_file: "
-                    "matrix is missing values\n");
+            fprintf(stderr, "%s: matrix is missing values\n", __func__);
             free(alphabet);
             free(alphabet_query);
             free(matrix);
@@ -1123,9 +967,7 @@ static parasail_matrix_t* parasail_matrix_from_file_internal(const char *filenam
     mapper = (int*)malloc(sizeof(int)*256);
     if (NULL == mapper) {
         perror("malloc");
-        fprintf(stderr, "parasail_matrix_from_file: "
-                "cannot malloc mapper buffer for matrix file `%s'\n",
-                filename);
+        fprintf(stderr, "%s: cannot malloc mapper buffer for matrix file `%s'\n", __func__, filename);
         free(alphabet);
         free(alphabet_query);
         free(matrix);
@@ -1147,8 +989,7 @@ static parasail_matrix_t* parasail_matrix_from_file_internal(const char *filenam
     retval = (parasail_matrix_t*)malloc(sizeof(parasail_matrix_t));
     if (NULL == retval) {
         perror("malloc");
-        fprintf(stderr, "parasail_matrix_from_file: "
-                "cannot malloc buffer for matrix file `%s'\n", filename);
+        fprintf(stderr, "%s: cannot malloc buffer for matrix file `%s'\n", __func__, filename);
         free(matrix);
         return NULL;
     }

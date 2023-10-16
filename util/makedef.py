@@ -132,6 +132,8 @@ EXPORTS
     parasail_result_new_rowcol1
     parasail_result_new_rowcol3
     parasail_result_new_trace
+    parasail_result_ends_clear
+    parasail_result_ends_push_back
     parasail_profile_new
     parasail_reverse
     parasail_reverse_uint32_t

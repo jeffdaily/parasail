@@ -169,6 +169,9 @@ extern parasail_result_t* parasail_result_new_rowcol1(const int a, const int b);
 extern parasail_result_t* parasail_result_new_rowcol3(const int a, const int b);
 extern parasail_result_t* parasail_result_new_trace(const int a, const int b, const size_t alignment, const size_t size);
 
+extern void parasail_result_ends_clear(parasail_result_t *result);
+extern void parasail_result_ends_push_back(parasail_result_t *result, int end_query, int end_ref);
+
 extern parasail_profile_t* parasail_profile_new(
         const char * s1, const int s1Len, const parasail_matrix_t *matrix);
 

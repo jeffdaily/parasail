@@ -45,41 +45,49 @@ extern "C" {
 } while(0)
 
 #define PARASAIL_CALLOC(var,type,count) do {                                    \
-    size_t _size = sizeof(type)*(count);                                        \
+    size_t _count = (count);                                                    \
+    size_t _size = sizeof(type)*(_count);                                       \
     var = (type*)malloc(_size);                                                 \
     if (!var) {                                                                 \
         perror("malloc");                                                       \
-        fprintf(stderr, "%s: failed to malloc %zu bytes\n", __func__, (_size)); \
+        fprintf(stderr, "%s: failed to malloc %zu bytes, %zux%s\n",             \
+                __func__, _size, _count, #type);                                \
         return NULL;                                                            \
     }                                                                           \
 } while(0)
 
 #define PARASAIL_CALLOC_NORETVAL(var,type,count) do {                           \
-    size_t _size = sizeof(type)*(count);                                        \
+    size_t _count = (count);                                                    \
+    size_t _size = sizeof(type)*(_count);                                       \
     var = (type*)malloc(_size);                                                 \
     if (!var) {                                                                 \
         perror("malloc");                                                       \
-        fprintf(stderr, "%s: failed to malloc %zu bytes\n", __func__, (_size)); \
+        fprintf(stderr, "%s: failed to malloc %zu bytes, %zux%s\n",             \
+                __func__, _size, _count, #type);                                \
         return;                                                                 \
     }                                                                           \
 } while(0)
 
 #define PARASAIL_RECALLOC(var,type,count) do {                                  \
-    size_t _size = sizeof(type)*(count);                                        \
+    size_t _count = (count);                                                    \
+    size_t _size = sizeof(type)*(_count);                                       \
     var = (type*)realloc(var, _size);                                           \
     if (!var) {                                                                 \
         perror("realloc");                                                      \
-        fprintf(stderr, "%s: failed to realloc %zu bytes\n", __func__, (_size));\
+        fprintf(stderr, "%s: failed to realloc %zu bytes, %zux%s\n",            \
+                __func__, _size, _count, #type);                                \
         return NULL;                                                            \
     }                                                                           \
 } while(0)
 
 #define PARASAIL_RECALLOC_NORETVAL(var,type,count) do {                         \
-    size_t _size = sizeof(type)*(count);                                        \
+    size_t _count = (count);                                                    \
+    size_t _size = sizeof(type)*(_count);                                       \
     var = (type*)realloc(var, _size);                                           \
     if (!var) {                                                                 \
         perror("realloc");                                                      \
-        fprintf(stderr, "%s: failed to realloc %zu bytes\n", __func__, (_size));\
+        fprintf(stderr, "%s: failed to realloc %zu bytes, %zux%s\n",            \
+                __func__, _size, _count, #type);                                \
         return;                                                                 \
     }                                                                           \
 } while(0)

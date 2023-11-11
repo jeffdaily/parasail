@@ -261,6 +261,29 @@ int main(int argc, char **argv)
     printf("Score:          %d\n", result->score);
     printf("end_query:      %d\n", result->end_query);
     printf("end_ref:        %d\n", result->end_ref);
+    printf("solutions:      %d\n", parasail_result_get_solution_count(result));
+
+    /* if we have another solution, print that too */
+    if (parasail_result_get_solution_count(result) > 1) {
+        /* do the traceback */
+        parasail_traceback_generic_extra3(seqA, lena, seqB, lenb,
+                sequences->seqs[seqA_index].name.s,
+                sequences->seqs[seqB_index].name.s,
+                matrix, result,
+                '|', ':', '.', 50, 17, 1, 7, stdout, 0, NULL, 1);
+
+        parasail_traceback_generic_extra3(seqA, lena, seqB, lenb,
+                "Query:",
+                "Target:",
+                matrix, result,
+                '|', '*', '*', 60, 7, 0, 7, stdout, 0, NULL, 1);
+
+        int i,j;
+        parasail_result_get_solution(result, 1, &i, &j);
+        printf("Score:          %d\n", result->score);
+        printf("end_query:      %d\n", i);
+        printf("end_ref:        %d\n", j);
+    }
 
     /* test new traceback string functions */
     traceback = parasail_result_get_traceback(result, seqA, lena, seqB, lenb, matrix, '|', ':', '.');
@@ -270,6 +293,17 @@ int main(int argc, char **argv)
     printf("%s\n", traceback->ref);
     printf("\n");
     parasail_traceback_free(traceback);
+
+    /* if we have another solution, get that too */
+    if (parasail_result_get_solution_count(result) > 1) {
+        traceback = parasail_result_get_traceback_extra2(result, seqA, lena, seqB, lenb, matrix, '|', ':', '.', 0, NULL, 1);
+        printf("\nTraceback string function\n");
+        printf("%s\n", traceback->query);
+        printf("%s\n", traceback->comp);
+        printf("%s\n", traceback->ref);
+        printf("\n");
+        parasail_traceback_free(traceback);
+    }
 
     /* do the cigar */
     cigar = parasail_result_get_cigar(result, seqA, lena, seqB, lenb, matrix);
@@ -398,9 +432,9 @@ int main(int argc, char **argv)
         score = parasail_result_get_score(result);
         end_query = parasail_result_get_end_query(result);
         end_ref = parasail_result_get_end_ref(result);
-        parasail_result_get_matches(result);
-        parasail_result_get_similar(result);
-        parasail_result_get_length(result);
+        matches = parasail_result_get_matches(result);
+        similar = parasail_result_get_similar(result);
+        length = parasail_result_get_length(result);
 
         printf("Length:        %d\n", length);
         printf("Identity:   %d/%d\n", matches, length);

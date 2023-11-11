@@ -63,7 +63,8 @@ static inline parasail_cigar_t* CONCAT(NAME, T) (
         const parasail_matrix_t *matrix,
         parasail_result_t *result,
         int case_sensitive,
-        const char *alphabet_aliases_)
+        const char *alphabet_aliases_,
+        int solution)
 {
     char alphabet_aliases[256];
     size_t aliases_size = 0;
@@ -74,8 +75,8 @@ static inline parasail_cigar_t* CONCAT(NAME, T) (
     uint32_t c_mis = 0;
     uint32_t c_del = 0;
     uint32_t c_ins = 0;
-    int64_t i = result->end_query;
-    int64_t j = result->end_ref;
+    int i = 0;
+    int j = 0;
     int where = PARASAIL_DIAG;
     D *HT = (D*)result->trace->trace_table;
 #if defined(STRIPED)
@@ -104,6 +105,7 @@ static inline parasail_cigar_t* CONCAT(NAME, T) (
     }
     segLen = (lena + segWidth - 1) / segWidth;
 #endif
+    parasail_result_get_solution(result, solution, &i, &j);
     if (NULL != alphabet_aliases_) {
         size_t i;
         aliases_size = strlen(alphabet_aliases_);

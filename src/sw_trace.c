@@ -127,14 +127,21 @@ parasail_result_t* ENAME(
             WH = MAX(WH, F[j]);
             H[j] = WH;
             if (WH > score) {
+                score = WH;
                 end_query = i-1;
                 end_ref = j-1;
+                parasail_result_ends_clear(result);
             }
-            else if (score == WH && j-1 < end_ref) {
-                end_query = i-1;
-                end_ref = j-1;
+            else if (score == WH) {
+                if (j-1 < end_ref) {
+                    parasail_result_ends_push_back(result, end_query, end_ref);
+                    end_query = i-1;
+                    end_ref = j-1;
+                }
+                else {
+                    parasail_result_ends_push_back(result, i-1, j-1);
+                }
             }
-            score = MAX(score,WH);
             HT[1LL*(i-1)*s2Len + (j-1)] = (F_opn > F_ext) ? PARASAIL_DIAG_F
                                                           : PARASAIL_DEL_F;
             HT[1LL*(i-1)*s2Len + (j-1)] |= (E_opn > E_ext) ? PARASAIL_DIAG_E

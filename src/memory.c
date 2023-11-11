@@ -310,6 +310,44 @@ void parasail_result_ends_push_back(parasail_result_t *result, int end_query, in
     result->ends->size += 1;
 }
 
+int parasail_result_get_solution_count(const parasail_result_t * const restrict result)
+{
+    /* validate inputs */
+    PARASAIL_CHECK_NULL(result);
+
+    /* 1 is the default answer */
+    if (!result->ends) {
+        return 1;
+    }
+
+    /* the 'best' solution is stored directly in the result struct, so we add 1 to account for it */
+    return result->ends->size + 1;
+}
+
+void parasail_result_get_solution(
+        const parasail_result_t * const restrict result,
+        int solution,
+        int * end_query,
+        int * end_ref)
+{
+    /* validate inputs */
+    PARASAIL_CHECK_NULL_NORETVAL(result);
+    PARASAIL_CHECK_NULL_NORETVAL(end_query);
+    PARASAIL_CHECK_NULL_NORETVAL(end_ref);
+    PARASAIL_CHECK_GE0_NORETVAL(solution);
+    PARASAIL_ASSERT_NORETVAL(solution < parasail_result_get_solution_count(result));
+
+    /* 0-based index, first solution is the one directly from the struct */
+    if (solution == 0) {
+        *end_query = result->end_query;
+        *end_ref = result->end_ref;
+    }
+    else {
+        *end_query = result->ends->data[solution-1].end_query;
+        *end_ref = result->ends->data[solution-1].end_ref;
+    }
+}
+
 void parasail_result_free(parasail_result_t *result)
 {
     /* validate inputs */

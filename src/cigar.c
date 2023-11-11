@@ -196,6 +196,41 @@ void parasail_cigar_free(parasail_cigar_t *cigar)
 #undef T
 #undef STRIPED
 
+parasail_cigar_t* parasail_result_get_cigar_extra2(
+        parasail_result_t *result,
+        const char *seqA,
+        int lena,
+        const char *seqB,
+        int lenb,
+        const parasail_matrix_t *matrix,
+        int case_sensitive,
+        const char *alphabet_aliases,
+        int solution)
+{
+    PARASAIL_ASSERT(parasail_result_is_trace(result));
+
+    if (result->flag & PARASAIL_FLAG_STRIPED || result->flag & PARASAIL_FLAG_SCAN) {
+        if (result->flag & PARASAIL_FLAG_BITS_8) {
+            return parasail_cigar_striped_8(seqA, lena, seqB, lenb, matrix, result, case_sensitive, alphabet_aliases, solution);
+        }
+        else if (result->flag & PARASAIL_FLAG_BITS_16) {
+            return parasail_cigar_striped_16(seqA, lena, seqB, lenb, matrix, result, case_sensitive, alphabet_aliases, solution);
+        }
+        else if (result->flag & PARASAIL_FLAG_BITS_32) {
+            return parasail_cigar_striped_32(seqA, lena, seqB, lenb, matrix, result, case_sensitive, alphabet_aliases, solution);
+        }
+        else if (result->flag & PARASAIL_FLAG_BITS_64) {
+            return parasail_cigar_striped_64(seqA, lena, seqB, lenb, matrix, result, case_sensitive, alphabet_aliases, solution);
+        }
+    }
+    else {
+        return parasail_cigar_8(seqA, lena, seqB, lenb, matrix, result, case_sensitive, alphabet_aliases, solution);
+    }
+
+    /* should not get here, but to silence warnings */
+    return NULL;
+}
+
 parasail_cigar_t* parasail_result_get_cigar_extra(
         parasail_result_t *result,
         const char *seqA,
@@ -206,28 +241,7 @@ parasail_cigar_t* parasail_result_get_cigar_extra(
         int case_sensitive,
         const char *alphabet_aliases)
 {
-    PARASAIL_ASSERT(parasail_result_is_trace(result));
-
-    if (result->flag & PARASAIL_FLAG_STRIPED || result->flag & PARASAIL_FLAG_SCAN) {
-        if (result->flag & PARASAIL_FLAG_BITS_8) {
-            return parasail_cigar_striped_8(seqA, lena, seqB, lenb, matrix, result, case_sensitive, alphabet_aliases);
-        }
-        else if (result->flag & PARASAIL_FLAG_BITS_16) {
-            return parasail_cigar_striped_16(seqA, lena, seqB, lenb, matrix, result, case_sensitive, alphabet_aliases);
-        }
-        else if (result->flag & PARASAIL_FLAG_BITS_32) {
-            return parasail_cigar_striped_32(seqA, lena, seqB, lenb, matrix, result, case_sensitive, alphabet_aliases);
-        }
-        else if (result->flag & PARASAIL_FLAG_BITS_64) {
-            return parasail_cigar_striped_64(seqA, lena, seqB, lenb, matrix, result, case_sensitive, alphabet_aliases);
-        }
-    }
-    else {
-        return parasail_cigar_8(seqA, lena, seqB, lenb, matrix, result, case_sensitive, alphabet_aliases);
-    }
-
-    /* should not get here, but to silence warnings */
-    return NULL;
+    return parasail_result_get_cigar_extra2(result, seqA, lena, seqB, lenb, matrix, case_sensitive, alphabet_aliases, 0);
 }
 
 parasail_cigar_t* parasail_result_get_cigar(
@@ -238,6 +252,6 @@ parasail_cigar_t* parasail_result_get_cigar(
         int lenb,
         const parasail_matrix_t *matrix)
 {
-    return parasail_result_get_cigar_extra(result, seqA, lena, seqB, lenb, matrix, 0, NULL);
+    return parasail_result_get_cigar_extra2(result, seqA, lena, seqB, lenb, matrix, 0, NULL, 0);
 }
 

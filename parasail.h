@@ -334,6 +334,18 @@ extern parasail_traceback_t* parasail_result_get_traceback_extra(
         int case_sensitive,
         const char *alphabet_aliases);
 
+extern parasail_traceback_t* parasail_result_get_traceback_extra2(
+        parasail_result_t *result,
+        const char *seqA,
+        int lena,
+        const char *seqB,
+        int lenb,
+        const parasail_matrix_t *matrix,
+        char match, char pos, char neg,
+        int case_sensitive,
+        const char *alphabet_aliases,
+        int solution);
+
 extern void parasail_traceback_free(parasail_traceback_t *traceback);
 
 extern void parasail_traceback_generic(
@@ -383,6 +395,25 @@ extern void parasail_traceback_generic_extra2(
         FILE *stream,
         int case_sensitive,
         const char *alphabet_aliases);
+
+extern void parasail_traceback_generic_extra3(
+        const char *seqA,
+        int lena,
+        const char *seqB,
+        int lenb,
+        const char *nameA,
+        const char *nameB,
+        const parasail_matrix_t *matrix,
+        parasail_result_t *result,
+        char match, char pos, char neg,
+        int width,
+        int name_width,
+        int use_stats,
+        int int_width,
+        FILE *stream,
+        int case_sensitive,
+        const char *alphabet_aliases,
+        int solution);
 
 extern const uint8_t parasail_cigar_encoded_ops[];
 
@@ -508,6 +539,12 @@ extern int parasail_result_is_trace(const parasail_result_t * const restrict res
 extern int parasail_result_get_score(const parasail_result_t * const restrict result);
 extern int parasail_result_get_end_query(const parasail_result_t * const restrict result);
 extern int parasail_result_get_end_ref(const parasail_result_t * const restrict result);
+extern int parasail_result_get_solution_count(const parasail_result_t * const restrict result);
+extern void parasail_result_get_solution(
+        const parasail_result_t * const restrict result,
+        int solution,
+        int * end_query,
+        int * end_ref);
 
 extern int parasail_result_get_matches(const parasail_result_t * const restrict result);
 extern int parasail_result_get_similar(const parasail_result_t * const restrict result);

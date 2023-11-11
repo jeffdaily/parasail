@@ -118,6 +118,68 @@ static inline char match_char(
 #undef T
 #undef STRIPED
 
+parasail_traceback_t* parasail_result_get_traceback_extra2(
+        parasail_result_t *result,
+        const char *seqA,
+        int lena,
+        const char *seqB,
+        int lenb,
+        const parasail_matrix_t *matrix,
+        char match, char pos, char neg,
+        int case_sensitive,
+        const char *alphabet_aliases,
+        int solution)
+{
+    PARASAIL_CHECK_NULL(seqA);
+    PARASAIL_CHECK_NULL(seqB);
+    PARASAIL_CHECK_NULL(matrix);
+    PARASAIL_CHECK_NULL(result);
+    PARASAIL_ASSERT(parasail_result_is_trace(result));
+    PARASAIL_CHECK_GE0(solution);
+    PARASAIL_ASSERT(solution < parasail_result_get_solution_count(result));
+
+    if (result->flag & PARASAIL_FLAG_STRIPED
+            || result->flag & PARASAIL_FLAG_SCAN) {
+        if (result->flag & PARASAIL_FLAG_BITS_8) {
+            return parasail_result_get_traceback_striped_8(
+                    result, seqA, lena, seqB, lenb,
+                    matrix, match, pos, neg,
+                    case_sensitive, alphabet_aliases,
+                    solution);
+        }
+        else if (result->flag & PARASAIL_FLAG_BITS_16) {
+            return parasail_result_get_traceback_striped_16(
+                    result, seqA, lena, seqB, lenb,
+                    matrix, match, pos, neg,
+                    case_sensitive, alphabet_aliases,
+                    solution);
+        }
+        else if (result->flag & PARASAIL_FLAG_BITS_32) {
+            return parasail_result_get_traceback_striped_32(
+                    result, seqA, lena, seqB, lenb,
+                    matrix, match, pos, neg,
+                    case_sensitive, alphabet_aliases,
+                    solution);
+        }
+        else if (result->flag & PARASAIL_FLAG_BITS_64) {
+            return parasail_result_get_traceback_striped_64(
+                    result, seqA, lena, seqB, lenb,
+                    matrix, match, pos, neg,
+                    case_sensitive, alphabet_aliases,
+                    solution);
+        }
+    }
+    else {
+        return parasail_result_get_traceback_8(
+                result, seqA, lena, seqB, lenb,
+                matrix, match, pos, neg,
+                case_sensitive, alphabet_aliases,
+                solution);
+    }
+
+    return NULL; /* unreachable */
+}
+
 parasail_traceback_t* parasail_result_get_traceback_extra(
         parasail_result_t *result,
         const char *seqA,
@@ -129,43 +191,9 @@ parasail_traceback_t* parasail_result_get_traceback_extra(
         int case_sensitive,
         const char *alphabet_aliases)
 {
-    PARASAIL_ASSERT(parasail_result_is_trace(result));
-
-    if (result->flag & PARASAIL_FLAG_STRIPED
-            || result->flag & PARASAIL_FLAG_SCAN) {
-        if (result->flag & PARASAIL_FLAG_BITS_8) {
-            return parasail_result_get_traceback_striped_8(
-                    result, seqA, lena, seqB, lenb,
-                    matrix, match, pos, neg,
-                    case_sensitive, alphabet_aliases);
-        }
-        else if (result->flag & PARASAIL_FLAG_BITS_16) {
-            return parasail_result_get_traceback_striped_16(
-                    result, seqA, lena, seqB, lenb,
-                    matrix, match, pos, neg,
-                    case_sensitive, alphabet_aliases);
-        }
-        else if (result->flag & PARASAIL_FLAG_BITS_32) {
-            return parasail_result_get_traceback_striped_32(
-                    result, seqA, lena, seqB, lenb,
-                    matrix, match, pos, neg,
-                    case_sensitive, alphabet_aliases);
-        }
-        else if (result->flag & PARASAIL_FLAG_BITS_64) {
-            return parasail_result_get_traceback_striped_64(
-                    result, seqA, lena, seqB, lenb,
-                    matrix, match, pos, neg,
-                    case_sensitive, alphabet_aliases);
-        }
-    }
-    else {
-        return parasail_result_get_traceback_8(
-                result, seqA, lena, seqB, lenb,
-                matrix, match, pos, neg,
-                case_sensitive, alphabet_aliases);
-    }
-
-    return NULL; /* unreachable */
+    return parasail_result_get_traceback_extra2(
+            result, seqA, lena, seqB, lenb, matrix,
+            match, pos, neg, case_sensitive, alphabet_aliases, 0);
 }
 
 parasail_traceback_t* parasail_result_get_traceback(
@@ -177,8 +205,8 @@ parasail_traceback_t* parasail_result_get_traceback(
         const parasail_matrix_t *matrix,
         char match, char pos, char neg)
 {
-    return parasail_result_get_traceback_extra(
-            result, seqA, lena, seqB, lenb, matrix, match, pos, neg, 0, NULL);
+    return parasail_result_get_traceback_extra2(
+            result, seqA, lena, seqB, lenb, matrix, match, pos, neg, 0, NULL, 0);
 }
 
 void parasail_traceback_free(parasail_traceback_t *traceback)
@@ -187,6 +215,71 @@ void parasail_traceback_free(parasail_traceback_t *traceback)
     free(traceback->comp);
     free(traceback->ref);
     free(traceback);
+}
+
+void parasail_traceback_generic_extra3(
+        const char *seqA,
+        int lena,
+        const char *seqB,
+        int lenb,
+        const char *nameA,
+        const char *nameB,
+        const parasail_matrix_t *matrix,
+        parasail_result_t *result,
+        char match, char pos, char neg,
+        int width,
+        int name_width,
+        int use_stats,
+        int int_width,
+        FILE *stream,
+        int case_sensitive, 
+        const char *alphabet_aliases,
+        int solution)
+{
+    PARASAIL_CHECK_NULL_NORETVAL(seqA);
+    PARASAIL_CHECK_NULL_NORETVAL(seqB);
+    PARASAIL_CHECK_NULL_NORETVAL(nameA);
+    PARASAIL_CHECK_NULL_NORETVAL(nameB);
+    PARASAIL_CHECK_NULL_NORETVAL(matrix);
+    PARASAIL_CHECK_NULL_NORETVAL(result);
+    PARASAIL_ASSERT_NORETVAL(parasail_result_is_trace(result));
+    PARASAIL_CHECK_NULL_NORETVAL(stream);
+    PARASAIL_CHECK_GE0_NORETVAL(solution);
+    PARASAIL_ASSERT_NORETVAL(solution < parasail_result_get_solution_count(result));
+
+    if (result->flag & PARASAIL_FLAG_STRIPED
+            || result->flag & PARASAIL_FLAG_SCAN) {
+        if (result->flag & PARASAIL_FLAG_BITS_8) {
+            parasail_traceback_striped_8(seqA, lena, seqB, lenb, nameA,
+                    nameB, matrix, result, match, pos, neg, width,
+                    name_width, use_stats, int_width, stream,
+                    case_sensitive, alphabet_aliases, solution);
+        }
+        else if (result->flag & PARASAIL_FLAG_BITS_16) {
+            parasail_traceback_striped_16(seqA, lena, seqB, lenb, nameA,
+                    nameB, matrix, result, match, pos, neg, width,
+                    name_width, use_stats, int_width, stream,
+                    case_sensitive, alphabet_aliases, solution);
+        }
+        else if (result->flag & PARASAIL_FLAG_BITS_32) {
+            parasail_traceback_striped_32(seqA, lena, seqB, lenb, nameA,
+                    nameB, matrix, result, match, pos, neg, width,
+                    name_width, use_stats, int_width, stream,
+                    case_sensitive, alphabet_aliases, solution);
+        }
+        else if (result->flag & PARASAIL_FLAG_BITS_64) {
+            parasail_traceback_striped_64(seqA, lena, seqB, lenb, nameA,
+                    nameB, matrix, result, match, pos, neg, width,
+                    name_width, use_stats, int_width, stream,
+                    case_sensitive, alphabet_aliases, solution);
+        }
+    }
+    else {
+        parasail_traceback_8(seqA, lena, seqB, lenb, nameA, nameB,
+                matrix, result, match, pos, neg, width, name_width,
+                use_stats, int_width, stream,
+                case_sensitive, alphabet_aliases, solution);
+    }
 }
 
 void parasail_traceback_generic_extra2(
@@ -207,41 +300,9 @@ void parasail_traceback_generic_extra2(
         int case_sensitive, 
         const char *alphabet_aliases)
 {
-    PARASAIL_ASSERT_NORETVAL(parasail_result_is_trace(result));
-
-    if (result->flag & PARASAIL_FLAG_STRIPED
-            || result->flag & PARASAIL_FLAG_SCAN) {
-        if (result->flag & PARASAIL_FLAG_BITS_8) {
-            parasail_traceback_striped_8(seqA, lena, seqB, lenb, nameA,
-                    nameB, matrix, result, match, pos, neg, width,
-                    name_width, use_stats, int_width, stream,
-                    case_sensitive, alphabet_aliases);
-        }
-        else if (result->flag & PARASAIL_FLAG_BITS_16) {
-            parasail_traceback_striped_16(seqA, lena, seqB, lenb, nameA,
-                    nameB, matrix, result, match, pos, neg, width,
-                    name_width, use_stats, int_width, stream,
-                    case_sensitive, alphabet_aliases);
-        }
-        else if (result->flag & PARASAIL_FLAG_BITS_32) {
-            parasail_traceback_striped_32(seqA, lena, seqB, lenb, nameA,
-                    nameB, matrix, result, match, pos, neg, width,
-                    name_width, use_stats, int_width, stream,
-                    case_sensitive, alphabet_aliases);
-        }
-        else if (result->flag & PARASAIL_FLAG_BITS_64) {
-            parasail_traceback_striped_64(seqA, lena, seqB, lenb, nameA,
-                    nameB, matrix, result, match, pos, neg, width,
-                    name_width, use_stats, int_width, stream,
-                    case_sensitive, alphabet_aliases);
-        }
-    }
-    else {
-        parasail_traceback_8(seqA, lena, seqB, lenb, nameA, nameB,
-                matrix, result, match, pos, neg, width, name_width,
-                use_stats, int_width, stream,
-                case_sensitive, alphabet_aliases);
-    }
+    parasail_traceback_generic_extra3(seqA, lena, seqB, lenb, nameA, nameB,
+            matrix, result, match, pos, neg, width, name_width, use_stats,
+            int_width, stream, case_sensitive, alphabet_aliases, 0);
 }
 
 void parasail_traceback_generic_extra(
@@ -260,9 +321,9 @@ void parasail_traceback_generic_extra(
         int int_width,
         FILE *stream)
 {
-    parasail_traceback_generic_extra2(seqA, lena, seqB, lenb, nameA, nameB,
+    parasail_traceback_generic_extra3(seqA, lena, seqB, lenb, nameA, nameB,
             matrix, result, match, pos, neg, width, name_width, use_stats,
-            int_width, stream, 0, NULL);
+            int_width, stream, 0, NULL, 0);
 }
 
 void parasail_traceback_generic(
@@ -279,8 +340,8 @@ void parasail_traceback_generic(
         int name_width,
         int use_stats)
 {
-    parasail_traceback_generic_extra2(seqA, lena, seqB, lenb, nameA, nameB,
+    parasail_traceback_generic_extra3(seqA, lena, seqB, lenb, nameA, nameB,
             matrix, result, match, pos, neg, width, name_width, use_stats,
-            7, stdout, 0, NULL);
+            7, stdout, 0, NULL, 0);
 }
 

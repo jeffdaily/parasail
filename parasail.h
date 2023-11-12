@@ -488,6 +488,18 @@ extern parasail_cigar_t* parasail_result_get_cigar_extra(
         int case_sensitive,
         const char *alphabet_aliases);
 
+/* allocate and return the cigar for the given alignment */
+extern parasail_cigar_t* parasail_result_get_cigar_extra2(
+        parasail_result_t *result,
+        const char *seqA,
+        int lena,
+        const char *seqB,
+        int lenb,
+        const parasail_matrix_t *matrix,
+        int case_sensitive,
+        const char *alphabet_aliases,
+        int solution);
+
 /* free the cigar structure */
 extern void parasail_cigar_free(parasail_cigar_t *cigar);
 

@@ -69,20 +69,19 @@ def codegen(alg):
     for table in ["", "_table", "_rowcol", "_trace"]:
         for stats in ["", "_stats"]:
             if 'stats' in stats and 'trace' in table: continue
-            for par in ["scan", "striped", "diag"]:
+            for par in ["_scan", "_striped", "_diag"]:
                 for width in [64, 32, 16, 8]:
-                    prefix = "parasail_%s%s%s_%s_%d"%(
+                    prefix = "parasail_%s%s%s%s_%d"%(
                         alg, stats, table, par, width)
-                    prefix2 = "parasail_%s%s%s_%s"%(
+                    prefix2 = "parasail_%s%s%s%s"%(
                         alg, stats, table, par)
-                    base = alg
-                    if par == "scan":
-                        base += "_scan"
+                    base = "parasail_%s%s%s%s"%(
+                        alg, stats, table, par if 'scan' in par else '')
                     params = {
                             "ALG": alg,
-                            "BASE": base,
                             "PREFIX": prefix,
                             "PREFIX2": prefix2,
+                            "BASE": base,
                             "TABLE": table,
                             "STATS": stats,
                             "PAR": par,
@@ -126,7 +125,7 @@ parasail_result_t* %(PREFIX)s_dispatcher(
     else
 #endif
     {
-        %(PREFIX)s_pointer = parasail_%(BASE)s;
+        %(PREFIX)s_pointer = %(BASE)s;
     }
     return %(PREFIX)s_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }

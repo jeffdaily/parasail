@@ -38,11 +38,13 @@ def codegen():
     txt += """
 /* dispatcher function implementations */
 """
-    for stats in ["", "stats_"]:
+    for stats in ["", "_stats"]:
         for width in ["64", "32", "16", "8", "sat"]:
-            prefix = "parasail_profile_create_%s%s"%(stats, width)
+            prefix = "parasail_profile_create%s_%s"%(stats, width)
+            prefix2 = "parasail_profile_create%s"%(stats)
             params = {
                 "PREFIX": prefix,
+                "PREFIX2": prefix2,
                 "WIDTH": width
             }
             txt += """
@@ -52,31 +54,31 @@ parasail_profile_t* %(PREFIX)s_dispatcher(
 {
 #if HAVE_AVX2
     if (parasail_can_use_avx2()) {
-        %(PREFIX)s_pointer = parasail_profile_create_avx_256_%(WIDTH)s;
+        %(PREFIX)s_pointer = %(PREFIX2)s_avx_256_%(WIDTH)s;
     }
     else
 #endif
 #if HAVE_SSE41
     if (parasail_can_use_sse41()) {
-        %(PREFIX)s_pointer = parasail_profile_create_sse_128_%(WIDTH)s;
+        %(PREFIX)s_pointer = %(PREFIX2)s_sse_128_%(WIDTH)s;
     }
     else
 #endif
 #if HAVE_SSE2
     if (parasail_can_use_sse2()) {
-        %(PREFIX)s_pointer = parasail_profile_create_sse_128_%(WIDTH)s;
+        %(PREFIX)s_pointer = %(PREFIX2)s_sse_128_%(WIDTH)s;
     }
     else
 #endif
 #if HAVE_ALTIVEC
     if (parasail_can_use_altivec()) {
-        %(PREFIX)s_pointer = parasail_profile_create_altivec_128_%(WIDTH)s;
+        %(PREFIX)s_pointer = %(PREFIX2)s_altivec_128_%(WIDTH)s;
     }
     else
 #endif
 #if HAVE_NEON
     if (parasail_can_use_neon()) {
-        %(PREFIX)s_pointer = parasail_profile_create_neon_128_%(WIDTH)s;
+        %(PREFIX)s_pointer = %(PREFIX2)s_neon_128_%(WIDTH)s;
     }
     else
 #endif

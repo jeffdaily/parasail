@@ -840,7 +840,7 @@ parasail_result_t* parasail_sg_qx_stats_scan_64_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_stats_scan_64_pointer = parasail_sg_qx_scan;
+        parasail_sg_qx_stats_scan_64_pointer = parasail_sg_qx_stats_scan;
     }
     return parasail_sg_qx_stats_scan_64_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -882,7 +882,7 @@ parasail_result_t* parasail_sg_qx_stats_scan_32_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_stats_scan_32_pointer = parasail_sg_qx_scan;
+        parasail_sg_qx_stats_scan_32_pointer = parasail_sg_qx_stats_scan;
     }
     return parasail_sg_qx_stats_scan_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -924,7 +924,7 @@ parasail_result_t* parasail_sg_qx_stats_scan_16_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_stats_scan_16_pointer = parasail_sg_qx_scan;
+        parasail_sg_qx_stats_scan_16_pointer = parasail_sg_qx_stats_scan;
     }
     return parasail_sg_qx_stats_scan_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -966,7 +966,7 @@ parasail_result_t* parasail_sg_qx_stats_scan_8_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_stats_scan_8_pointer = parasail_sg_qx_scan;
+        parasail_sg_qx_stats_scan_8_pointer = parasail_sg_qx_stats_scan;
     }
     return parasail_sg_qx_stats_scan_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -1008,7 +1008,7 @@ parasail_result_t* parasail_sg_qx_stats_striped_64_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_stats_striped_64_pointer = parasail_sg_qx;
+        parasail_sg_qx_stats_striped_64_pointer = parasail_sg_qx_stats;
     }
     return parasail_sg_qx_stats_striped_64_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -1050,7 +1050,7 @@ parasail_result_t* parasail_sg_qx_stats_striped_32_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_stats_striped_32_pointer = parasail_sg_qx;
+        parasail_sg_qx_stats_striped_32_pointer = parasail_sg_qx_stats;
     }
     return parasail_sg_qx_stats_striped_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -1092,7 +1092,7 @@ parasail_result_t* parasail_sg_qx_stats_striped_16_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_stats_striped_16_pointer = parasail_sg_qx;
+        parasail_sg_qx_stats_striped_16_pointer = parasail_sg_qx_stats;
     }
     return parasail_sg_qx_stats_striped_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -1134,7 +1134,7 @@ parasail_result_t* parasail_sg_qx_stats_striped_8_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_stats_striped_8_pointer = parasail_sg_qx;
+        parasail_sg_qx_stats_striped_8_pointer = parasail_sg_qx_stats;
     }
     return parasail_sg_qx_stats_striped_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -1176,7 +1176,7 @@ parasail_result_t* parasail_sg_qx_stats_diag_64_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_stats_diag_64_pointer = parasail_sg_qx;
+        parasail_sg_qx_stats_diag_64_pointer = parasail_sg_qx_stats;
     }
     return parasail_sg_qx_stats_diag_64_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -1218,7 +1218,7 @@ parasail_result_t* parasail_sg_qx_stats_diag_32_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_stats_diag_32_pointer = parasail_sg_qx;
+        parasail_sg_qx_stats_diag_32_pointer = parasail_sg_qx_stats;
     }
     return parasail_sg_qx_stats_diag_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -1260,7 +1260,7 @@ parasail_result_t* parasail_sg_qx_stats_diag_16_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_stats_diag_16_pointer = parasail_sg_qx;
+        parasail_sg_qx_stats_diag_16_pointer = parasail_sg_qx_stats;
     }
     return parasail_sg_qx_stats_diag_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -1302,7 +1302,7 @@ parasail_result_t* parasail_sg_qx_stats_diag_8_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_stats_diag_8_pointer = parasail_sg_qx;
+        parasail_sg_qx_stats_diag_8_pointer = parasail_sg_qx_stats;
     }
     return parasail_sg_qx_stats_diag_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -1344,7 +1344,7 @@ parasail_result_t* parasail_sg_qx_table_scan_64_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_table_scan_64_pointer = parasail_sg_qx_scan;
+        parasail_sg_qx_table_scan_64_pointer = parasail_sg_qx_table_scan;
     }
     return parasail_sg_qx_table_scan_64_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -1386,7 +1386,7 @@ parasail_result_t* parasail_sg_qx_table_scan_32_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_table_scan_32_pointer = parasail_sg_qx_scan;
+        parasail_sg_qx_table_scan_32_pointer = parasail_sg_qx_table_scan;
     }
     return parasail_sg_qx_table_scan_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -1428,7 +1428,7 @@ parasail_result_t* parasail_sg_qx_table_scan_16_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_table_scan_16_pointer = parasail_sg_qx_scan;
+        parasail_sg_qx_table_scan_16_pointer = parasail_sg_qx_table_scan;
     }
     return parasail_sg_qx_table_scan_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -1470,7 +1470,7 @@ parasail_result_t* parasail_sg_qx_table_scan_8_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_table_scan_8_pointer = parasail_sg_qx_scan;
+        parasail_sg_qx_table_scan_8_pointer = parasail_sg_qx_table_scan;
     }
     return parasail_sg_qx_table_scan_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -1512,7 +1512,7 @@ parasail_result_t* parasail_sg_qx_table_striped_64_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_table_striped_64_pointer = parasail_sg_qx;
+        parasail_sg_qx_table_striped_64_pointer = parasail_sg_qx_table;
     }
     return parasail_sg_qx_table_striped_64_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -1554,7 +1554,7 @@ parasail_result_t* parasail_sg_qx_table_striped_32_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_table_striped_32_pointer = parasail_sg_qx;
+        parasail_sg_qx_table_striped_32_pointer = parasail_sg_qx_table;
     }
     return parasail_sg_qx_table_striped_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -1596,7 +1596,7 @@ parasail_result_t* parasail_sg_qx_table_striped_16_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_table_striped_16_pointer = parasail_sg_qx;
+        parasail_sg_qx_table_striped_16_pointer = parasail_sg_qx_table;
     }
     return parasail_sg_qx_table_striped_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -1638,7 +1638,7 @@ parasail_result_t* parasail_sg_qx_table_striped_8_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_table_striped_8_pointer = parasail_sg_qx;
+        parasail_sg_qx_table_striped_8_pointer = parasail_sg_qx_table;
     }
     return parasail_sg_qx_table_striped_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -1680,7 +1680,7 @@ parasail_result_t* parasail_sg_qx_table_diag_64_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_table_diag_64_pointer = parasail_sg_qx;
+        parasail_sg_qx_table_diag_64_pointer = parasail_sg_qx_table;
     }
     return parasail_sg_qx_table_diag_64_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -1722,7 +1722,7 @@ parasail_result_t* parasail_sg_qx_table_diag_32_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_table_diag_32_pointer = parasail_sg_qx;
+        parasail_sg_qx_table_diag_32_pointer = parasail_sg_qx_table;
     }
     return parasail_sg_qx_table_diag_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -1764,7 +1764,7 @@ parasail_result_t* parasail_sg_qx_table_diag_16_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_table_diag_16_pointer = parasail_sg_qx;
+        parasail_sg_qx_table_diag_16_pointer = parasail_sg_qx_table;
     }
     return parasail_sg_qx_table_diag_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -1806,7 +1806,7 @@ parasail_result_t* parasail_sg_qx_table_diag_8_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_table_diag_8_pointer = parasail_sg_qx;
+        parasail_sg_qx_table_diag_8_pointer = parasail_sg_qx_table;
     }
     return parasail_sg_qx_table_diag_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -1848,7 +1848,7 @@ parasail_result_t* parasail_sg_qx_stats_table_scan_64_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_stats_table_scan_64_pointer = parasail_sg_qx_scan;
+        parasail_sg_qx_stats_table_scan_64_pointer = parasail_sg_qx_stats_table_scan;
     }
     return parasail_sg_qx_stats_table_scan_64_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -1890,7 +1890,7 @@ parasail_result_t* parasail_sg_qx_stats_table_scan_32_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_stats_table_scan_32_pointer = parasail_sg_qx_scan;
+        parasail_sg_qx_stats_table_scan_32_pointer = parasail_sg_qx_stats_table_scan;
     }
     return parasail_sg_qx_stats_table_scan_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -1932,7 +1932,7 @@ parasail_result_t* parasail_sg_qx_stats_table_scan_16_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_stats_table_scan_16_pointer = parasail_sg_qx_scan;
+        parasail_sg_qx_stats_table_scan_16_pointer = parasail_sg_qx_stats_table_scan;
     }
     return parasail_sg_qx_stats_table_scan_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -1974,7 +1974,7 @@ parasail_result_t* parasail_sg_qx_stats_table_scan_8_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_stats_table_scan_8_pointer = parasail_sg_qx_scan;
+        parasail_sg_qx_stats_table_scan_8_pointer = parasail_sg_qx_stats_table_scan;
     }
     return parasail_sg_qx_stats_table_scan_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -2016,7 +2016,7 @@ parasail_result_t* parasail_sg_qx_stats_table_striped_64_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_stats_table_striped_64_pointer = parasail_sg_qx;
+        parasail_sg_qx_stats_table_striped_64_pointer = parasail_sg_qx_stats_table;
     }
     return parasail_sg_qx_stats_table_striped_64_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -2058,7 +2058,7 @@ parasail_result_t* parasail_sg_qx_stats_table_striped_32_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_stats_table_striped_32_pointer = parasail_sg_qx;
+        parasail_sg_qx_stats_table_striped_32_pointer = parasail_sg_qx_stats_table;
     }
     return parasail_sg_qx_stats_table_striped_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -2100,7 +2100,7 @@ parasail_result_t* parasail_sg_qx_stats_table_striped_16_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_stats_table_striped_16_pointer = parasail_sg_qx;
+        parasail_sg_qx_stats_table_striped_16_pointer = parasail_sg_qx_stats_table;
     }
     return parasail_sg_qx_stats_table_striped_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -2142,7 +2142,7 @@ parasail_result_t* parasail_sg_qx_stats_table_striped_8_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_stats_table_striped_8_pointer = parasail_sg_qx;
+        parasail_sg_qx_stats_table_striped_8_pointer = parasail_sg_qx_stats_table;
     }
     return parasail_sg_qx_stats_table_striped_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -2184,7 +2184,7 @@ parasail_result_t* parasail_sg_qx_stats_table_diag_64_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_stats_table_diag_64_pointer = parasail_sg_qx;
+        parasail_sg_qx_stats_table_diag_64_pointer = parasail_sg_qx_stats_table;
     }
     return parasail_sg_qx_stats_table_diag_64_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -2226,7 +2226,7 @@ parasail_result_t* parasail_sg_qx_stats_table_diag_32_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_stats_table_diag_32_pointer = parasail_sg_qx;
+        parasail_sg_qx_stats_table_diag_32_pointer = parasail_sg_qx_stats_table;
     }
     return parasail_sg_qx_stats_table_diag_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -2268,7 +2268,7 @@ parasail_result_t* parasail_sg_qx_stats_table_diag_16_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_stats_table_diag_16_pointer = parasail_sg_qx;
+        parasail_sg_qx_stats_table_diag_16_pointer = parasail_sg_qx_stats_table;
     }
     return parasail_sg_qx_stats_table_diag_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -2310,7 +2310,7 @@ parasail_result_t* parasail_sg_qx_stats_table_diag_8_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_stats_table_diag_8_pointer = parasail_sg_qx;
+        parasail_sg_qx_stats_table_diag_8_pointer = parasail_sg_qx_stats_table;
     }
     return parasail_sg_qx_stats_table_diag_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -2352,7 +2352,7 @@ parasail_result_t* parasail_sg_qx_rowcol_scan_64_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_rowcol_scan_64_pointer = parasail_sg_qx_scan;
+        parasail_sg_qx_rowcol_scan_64_pointer = parasail_sg_qx_rowcol_scan;
     }
     return parasail_sg_qx_rowcol_scan_64_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -2394,7 +2394,7 @@ parasail_result_t* parasail_sg_qx_rowcol_scan_32_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_rowcol_scan_32_pointer = parasail_sg_qx_scan;
+        parasail_sg_qx_rowcol_scan_32_pointer = parasail_sg_qx_rowcol_scan;
     }
     return parasail_sg_qx_rowcol_scan_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -2436,7 +2436,7 @@ parasail_result_t* parasail_sg_qx_rowcol_scan_16_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_rowcol_scan_16_pointer = parasail_sg_qx_scan;
+        parasail_sg_qx_rowcol_scan_16_pointer = parasail_sg_qx_rowcol_scan;
     }
     return parasail_sg_qx_rowcol_scan_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -2478,7 +2478,7 @@ parasail_result_t* parasail_sg_qx_rowcol_scan_8_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_rowcol_scan_8_pointer = parasail_sg_qx_scan;
+        parasail_sg_qx_rowcol_scan_8_pointer = parasail_sg_qx_rowcol_scan;
     }
     return parasail_sg_qx_rowcol_scan_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -2520,7 +2520,7 @@ parasail_result_t* parasail_sg_qx_rowcol_striped_64_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_rowcol_striped_64_pointer = parasail_sg_qx;
+        parasail_sg_qx_rowcol_striped_64_pointer = parasail_sg_qx_rowcol;
     }
     return parasail_sg_qx_rowcol_striped_64_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -2562,7 +2562,7 @@ parasail_result_t* parasail_sg_qx_rowcol_striped_32_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_rowcol_striped_32_pointer = parasail_sg_qx;
+        parasail_sg_qx_rowcol_striped_32_pointer = parasail_sg_qx_rowcol;
     }
     return parasail_sg_qx_rowcol_striped_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -2604,7 +2604,7 @@ parasail_result_t* parasail_sg_qx_rowcol_striped_16_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_rowcol_striped_16_pointer = parasail_sg_qx;
+        parasail_sg_qx_rowcol_striped_16_pointer = parasail_sg_qx_rowcol;
     }
     return parasail_sg_qx_rowcol_striped_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -2646,7 +2646,7 @@ parasail_result_t* parasail_sg_qx_rowcol_striped_8_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_rowcol_striped_8_pointer = parasail_sg_qx;
+        parasail_sg_qx_rowcol_striped_8_pointer = parasail_sg_qx_rowcol;
     }
     return parasail_sg_qx_rowcol_striped_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -2688,7 +2688,7 @@ parasail_result_t* parasail_sg_qx_rowcol_diag_64_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_rowcol_diag_64_pointer = parasail_sg_qx;
+        parasail_sg_qx_rowcol_diag_64_pointer = parasail_sg_qx_rowcol;
     }
     return parasail_sg_qx_rowcol_diag_64_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -2730,7 +2730,7 @@ parasail_result_t* parasail_sg_qx_rowcol_diag_32_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_rowcol_diag_32_pointer = parasail_sg_qx;
+        parasail_sg_qx_rowcol_diag_32_pointer = parasail_sg_qx_rowcol;
     }
     return parasail_sg_qx_rowcol_diag_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -2772,7 +2772,7 @@ parasail_result_t* parasail_sg_qx_rowcol_diag_16_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_rowcol_diag_16_pointer = parasail_sg_qx;
+        parasail_sg_qx_rowcol_diag_16_pointer = parasail_sg_qx_rowcol;
     }
     return parasail_sg_qx_rowcol_diag_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -2814,7 +2814,7 @@ parasail_result_t* parasail_sg_qx_rowcol_diag_8_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_rowcol_diag_8_pointer = parasail_sg_qx;
+        parasail_sg_qx_rowcol_diag_8_pointer = parasail_sg_qx_rowcol;
     }
     return parasail_sg_qx_rowcol_diag_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -2856,7 +2856,7 @@ parasail_result_t* parasail_sg_qx_stats_rowcol_scan_64_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_stats_rowcol_scan_64_pointer = parasail_sg_qx_scan;
+        parasail_sg_qx_stats_rowcol_scan_64_pointer = parasail_sg_qx_stats_rowcol_scan;
     }
     return parasail_sg_qx_stats_rowcol_scan_64_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -2898,7 +2898,7 @@ parasail_result_t* parasail_sg_qx_stats_rowcol_scan_32_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_stats_rowcol_scan_32_pointer = parasail_sg_qx_scan;
+        parasail_sg_qx_stats_rowcol_scan_32_pointer = parasail_sg_qx_stats_rowcol_scan;
     }
     return parasail_sg_qx_stats_rowcol_scan_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -2940,7 +2940,7 @@ parasail_result_t* parasail_sg_qx_stats_rowcol_scan_16_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_stats_rowcol_scan_16_pointer = parasail_sg_qx_scan;
+        parasail_sg_qx_stats_rowcol_scan_16_pointer = parasail_sg_qx_stats_rowcol_scan;
     }
     return parasail_sg_qx_stats_rowcol_scan_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -2982,7 +2982,7 @@ parasail_result_t* parasail_sg_qx_stats_rowcol_scan_8_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_stats_rowcol_scan_8_pointer = parasail_sg_qx_scan;
+        parasail_sg_qx_stats_rowcol_scan_8_pointer = parasail_sg_qx_stats_rowcol_scan;
     }
     return parasail_sg_qx_stats_rowcol_scan_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -3024,7 +3024,7 @@ parasail_result_t* parasail_sg_qx_stats_rowcol_striped_64_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_stats_rowcol_striped_64_pointer = parasail_sg_qx;
+        parasail_sg_qx_stats_rowcol_striped_64_pointer = parasail_sg_qx_stats_rowcol;
     }
     return parasail_sg_qx_stats_rowcol_striped_64_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -3066,7 +3066,7 @@ parasail_result_t* parasail_sg_qx_stats_rowcol_striped_32_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_stats_rowcol_striped_32_pointer = parasail_sg_qx;
+        parasail_sg_qx_stats_rowcol_striped_32_pointer = parasail_sg_qx_stats_rowcol;
     }
     return parasail_sg_qx_stats_rowcol_striped_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -3108,7 +3108,7 @@ parasail_result_t* parasail_sg_qx_stats_rowcol_striped_16_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_stats_rowcol_striped_16_pointer = parasail_sg_qx;
+        parasail_sg_qx_stats_rowcol_striped_16_pointer = parasail_sg_qx_stats_rowcol;
     }
     return parasail_sg_qx_stats_rowcol_striped_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -3150,7 +3150,7 @@ parasail_result_t* parasail_sg_qx_stats_rowcol_striped_8_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_stats_rowcol_striped_8_pointer = parasail_sg_qx;
+        parasail_sg_qx_stats_rowcol_striped_8_pointer = parasail_sg_qx_stats_rowcol;
     }
     return parasail_sg_qx_stats_rowcol_striped_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -3192,7 +3192,7 @@ parasail_result_t* parasail_sg_qx_stats_rowcol_diag_64_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_stats_rowcol_diag_64_pointer = parasail_sg_qx;
+        parasail_sg_qx_stats_rowcol_diag_64_pointer = parasail_sg_qx_stats_rowcol;
     }
     return parasail_sg_qx_stats_rowcol_diag_64_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -3234,7 +3234,7 @@ parasail_result_t* parasail_sg_qx_stats_rowcol_diag_32_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_stats_rowcol_diag_32_pointer = parasail_sg_qx;
+        parasail_sg_qx_stats_rowcol_diag_32_pointer = parasail_sg_qx_stats_rowcol;
     }
     return parasail_sg_qx_stats_rowcol_diag_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -3276,7 +3276,7 @@ parasail_result_t* parasail_sg_qx_stats_rowcol_diag_16_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_stats_rowcol_diag_16_pointer = parasail_sg_qx;
+        parasail_sg_qx_stats_rowcol_diag_16_pointer = parasail_sg_qx_stats_rowcol;
     }
     return parasail_sg_qx_stats_rowcol_diag_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -3318,7 +3318,7 @@ parasail_result_t* parasail_sg_qx_stats_rowcol_diag_8_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_stats_rowcol_diag_8_pointer = parasail_sg_qx;
+        parasail_sg_qx_stats_rowcol_diag_8_pointer = parasail_sg_qx_stats_rowcol;
     }
     return parasail_sg_qx_stats_rowcol_diag_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -3360,7 +3360,7 @@ parasail_result_t* parasail_sg_qx_trace_scan_64_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_trace_scan_64_pointer = parasail_sg_qx_scan;
+        parasail_sg_qx_trace_scan_64_pointer = parasail_sg_qx_trace_scan;
     }
     return parasail_sg_qx_trace_scan_64_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -3402,7 +3402,7 @@ parasail_result_t* parasail_sg_qx_trace_scan_32_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_trace_scan_32_pointer = parasail_sg_qx_scan;
+        parasail_sg_qx_trace_scan_32_pointer = parasail_sg_qx_trace_scan;
     }
     return parasail_sg_qx_trace_scan_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -3444,7 +3444,7 @@ parasail_result_t* parasail_sg_qx_trace_scan_16_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_trace_scan_16_pointer = parasail_sg_qx_scan;
+        parasail_sg_qx_trace_scan_16_pointer = parasail_sg_qx_trace_scan;
     }
     return parasail_sg_qx_trace_scan_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -3486,7 +3486,7 @@ parasail_result_t* parasail_sg_qx_trace_scan_8_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_trace_scan_8_pointer = parasail_sg_qx_scan;
+        parasail_sg_qx_trace_scan_8_pointer = parasail_sg_qx_trace_scan;
     }
     return parasail_sg_qx_trace_scan_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -3528,7 +3528,7 @@ parasail_result_t* parasail_sg_qx_trace_striped_64_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_trace_striped_64_pointer = parasail_sg_qx;
+        parasail_sg_qx_trace_striped_64_pointer = parasail_sg_qx_trace;
     }
     return parasail_sg_qx_trace_striped_64_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -3570,7 +3570,7 @@ parasail_result_t* parasail_sg_qx_trace_striped_32_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_trace_striped_32_pointer = parasail_sg_qx;
+        parasail_sg_qx_trace_striped_32_pointer = parasail_sg_qx_trace;
     }
     return parasail_sg_qx_trace_striped_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -3612,7 +3612,7 @@ parasail_result_t* parasail_sg_qx_trace_striped_16_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_trace_striped_16_pointer = parasail_sg_qx;
+        parasail_sg_qx_trace_striped_16_pointer = parasail_sg_qx_trace;
     }
     return parasail_sg_qx_trace_striped_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -3654,7 +3654,7 @@ parasail_result_t* parasail_sg_qx_trace_striped_8_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_trace_striped_8_pointer = parasail_sg_qx;
+        parasail_sg_qx_trace_striped_8_pointer = parasail_sg_qx_trace;
     }
     return parasail_sg_qx_trace_striped_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -3696,7 +3696,7 @@ parasail_result_t* parasail_sg_qx_trace_diag_64_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_trace_diag_64_pointer = parasail_sg_qx;
+        parasail_sg_qx_trace_diag_64_pointer = parasail_sg_qx_trace;
     }
     return parasail_sg_qx_trace_diag_64_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -3738,7 +3738,7 @@ parasail_result_t* parasail_sg_qx_trace_diag_32_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_trace_diag_32_pointer = parasail_sg_qx;
+        parasail_sg_qx_trace_diag_32_pointer = parasail_sg_qx_trace;
     }
     return parasail_sg_qx_trace_diag_32_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -3780,7 +3780,7 @@ parasail_result_t* parasail_sg_qx_trace_diag_16_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_trace_diag_16_pointer = parasail_sg_qx;
+        parasail_sg_qx_trace_diag_16_pointer = parasail_sg_qx_trace;
     }
     return parasail_sg_qx_trace_diag_16_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }
@@ -3822,7 +3822,7 @@ parasail_result_t* parasail_sg_qx_trace_diag_8_dispatcher(
     else
 #endif
     {
-        parasail_sg_qx_trace_diag_8_pointer = parasail_sg_qx;
+        parasail_sg_qx_trace_diag_8_pointer = parasail_sg_qx_trace;
     }
     return parasail_sg_qx_trace_diag_8_pointer(s1, s1Len, s2, s2Len, open, gap, matrix);
 }

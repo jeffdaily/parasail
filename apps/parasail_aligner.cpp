@@ -214,7 +214,8 @@ inline static void output_emboss(
         long long start,
         long long stop,
         bool case_sensitive,
-        const char *alphabet_aliases);
+        const char *alphabet_aliases,
+        int requested_solutions);
 
 inline static void output_ssw(
         FILE *fop,
@@ -228,7 +229,8 @@ inline static void output_ssw(
         long long start,
         long long stop,
         bool case_sensitive,
-        const char *alphabet_aliases);
+        const char *alphabet_aliases,
+        int requested_solutions);
 
 inline static void output_sam(
         FILE *fop,
@@ -243,7 +245,8 @@ inline static void output_sam(
         long long start,
         long long stop,
         bool case_sensitive,
-        const char *alphabet_aliases);
+        const char *alphabet_aliases,
+        int requested_solutions);
 
 inline static void output_trace(
         FILE *fop,
@@ -258,7 +261,8 @@ inline static void output_trace(
         long long start,
         long long stop,
         bool case_sensitive,
-        const char *alphabet_aliases);
+        const char *alphabet_aliases,
+        int requested_solutions);
 
 inline static void output_tables(
         bool has_query,
@@ -297,7 +301,8 @@ inline static void output(
         long long start,
         long long stop,
         bool case_sensitive,
-        const char *alphabet_aliases);
+        const char *alphabet_aliases,
+        int requested_solutions);
 
 inline static size_t parse_bytes(const char*);
 static void set_signal_handler();
@@ -324,6 +329,7 @@ static void print_help(const char *progname, int status) {
             "[-q query_file] "
             "[-g output_file] "
             "[-O output_format {EMBOSS,SAM,SAMH,SSW}] "
+            "[-S solutions_count] "
             "[-b batch_size] "
             "[-r memory_budget] "
             "[-C] "
@@ -351,6 +357,7 @@ THREAD_DOC
             "      query_file: no default, must be in FASTA format\n"
             "     output_file: parasail.csv\n"
             "   output_format: no default, must be one of {EMBOSS,SAM,SAMH,SSW}\n"
+            " solutions_count: 1, must be >= 0, 0 means all, how many same-score alignments to print\n"
             "      batch_size: 0 (calculate based on memory budget),\n"
             "                  how many alignments before writing output\n"
             "   memory_budget: 2GB or half available from system query (%.3f GB)\n"
@@ -653,6 +660,7 @@ int main(int argc, char **argv) {
     size_t memory_budget = 0;
     size_t bytes_used = 0;
     size_t profile_bits = 0;
+    int requested_solutions = 1;
 
     set_signal_handler();
 
@@ -668,7 +676,7 @@ int main(int argc, char **argv) {
     }
 
     /* Check arguments. */
-    while ((c = getopt(argc, argv, "a:A:b:c:Cde:Ef:g:Ghi:k:l:m:M:o:O:pq:r:s:t:vVxX:")) != -1) {
+    while ((c = getopt(argc, argv, "a:A:b:c:Cde:Ef:g:Ghi:k:l:m:M:o:O:pq:r:s:S:t:vVxX:")) != -1) {
         switch (c) {
             case 'a':
                 funcname = optarg;
@@ -773,6 +781,12 @@ int main(int argc, char **argv) {
             case 's':
                 SIM = atoi(optarg);
                 if (SIM < 0 || SIM > 100) {
+                    print_help(progname, EXIT_FAILURE);
+                }
+                break;
+            case 'S':
+                requested_solutions = atoi(optarg);
+                if (requested_solutions < 0) {
                     print_help(progname, EXIT_FAILURE);
                 }
                 break;
@@ -1636,7 +1650,8 @@ int main(int argc, char **argv) {
                         use_sam_format, use_sam_header, fop, has_query,
                         sid_crossover, T, AOL, SIM, OS, matrix,
                         BEG, END, vpairs, queries, sequences, results,
-                        start, stop, case_sensitive, alphabet_aliases);
+                        start, stop, case_sensitive, alphabet_aliases,
+                        requested_solutions);
             }
             for (long long index=start; index<stop; ++index) {
                 parasail_result_t *result = results[index];
@@ -1687,7 +1702,8 @@ int main(int argc, char **argv) {
                     use_emboss_format, use_ssw_format, use_sam_format,
                     use_sam_header, fop, has_query, sid_crossover, T, AOL,
                     SIM, OS, matrix, BEG, END, vpairs, queries, sequences,
-                    results, start, stop, case_sensitive, alphabet_aliases);
+                    results, start, stop, case_sensitive, alphabet_aliases,
+                    requested_solutions);
             for (long long index=start; index<stop; ++index) {
                 parasail_result_t *result = results[index];
                 parasail_result_free(result);
@@ -1745,7 +1761,8 @@ int main(int argc, char **argv) {
                         use_sam_format, use_sam_header, fop, has_query,
                         sid_crossover, T, AOL, SIM, OS, matrix,
                         BEG, END, vpairs, queries, sequences, results,
-                        start, stop, case_sensitive, alphabet_aliases);
+                        start, stop, case_sensitive, alphabet_aliases,
+                        requested_solutions);
             }
             for (long long index=start; index<stop; ++index) {
                 parasail_result_t *result = results[index];
@@ -2222,63 +2239,71 @@ inline static void output_emboss(
         long long start,
         long long stop,
         bool case_sensitive,
-        const char *alphabet_aliases)
+        const char *alphabet_aliases,
+        int requested_solutions)
 {
     for (long long index=start; index<stop; ++index) {
         parasail_result_t *result = results[index];
+        int solution_count = parasail_result_get_solution_count(result);
         int i = vpairs[index].first;
         int j = vpairs[index].second;
 
-        if (has_query) {
-            i = i - sid_crossover;
-            if (parasail_result_is_saturated(result)) {
-                fprintf(stderr, "query %d (%s) and ref %d (%s) saturated\n",
-                        i, queries->seqs[i].name.s,
-                        j, sequences->seqs[j].name.s);
-                continue;
+        for (int solution_index = 0; solution_index < solution_count; ++solution_index) {
+            if (requested_solutions == 0 || solution_index < requested_solutions) {
+                if (has_query) {
+                    i = i - sid_crossover;
+                    if (parasail_result_is_saturated(result)) {
+                        fprintf(stderr, "query %d (%s) and ref %d (%s) saturated\n",
+                                i, queries->seqs[i].name.s,
+                                j, sequences->seqs[j].name.s);
+                        continue;
+                    }
+                    parasail_traceback_generic_extra3(
+                            queries->seqs[i].seq.s,
+                            queries->seqs[i].seq.l,
+                            sequences->seqs[j].seq.s,
+                            sequences->seqs[j].seq.l,
+                            queries->seqs[i].name.s,
+                            sequences->seqs[j].name.s,
+                            matrix,
+                            result,
+                            '|', ':', '.',
+                            50,
+                            14,
+                            1,
+                            7,
+                            fop,
+                            case_sensitive,
+                            alphabet_aliases,
+                            solution_index);
+                }
+                else {
+                    if (parasail_result_is_saturated(result)) {
+                        fprintf(stderr, "seq %d (%s) and seq %d (%s) saturated\n",
+                                i, sequences->seqs[i].name.s,
+                                j, sequences->seqs[j].name.s);
+                        continue;
+                    }
+                    parasail_traceback_generic_extra3(
+                            matrix->type == PARASAIL_MATRIX_TYPE_SQUARE ? sequences->seqs[i].seq.s : matrix->query,
+                            matrix->type == PARASAIL_MATRIX_TYPE_SQUARE ? sequences->seqs[i].seq.l : matrix->length,
+                            sequences->seqs[j].seq.s,
+                            sequences->seqs[j].seq.l,
+                            matrix->type == PARASAIL_MATRIX_TYPE_SQUARE ? sequences->seqs[i].name.s : matrix->name,
+                            sequences->seqs[j].name.s,
+                            matrix,
+                            result,
+                            '|', ':', '.',
+                            50,
+                            14,
+                            1,
+                            7,
+                            fop,
+                            case_sensitive,
+                            alphabet_aliases,
+                            solution_index);
+                }
             }
-            parasail_traceback_generic_extra2(
-                    queries->seqs[i].seq.s,
-                    queries->seqs[i].seq.l,
-                    sequences->seqs[j].seq.s,
-                    sequences->seqs[j].seq.l,
-                    queries->seqs[i].name.s,
-                    sequences->seqs[j].name.s,
-                    matrix,
-                    result,
-                    '|', ':', '.',
-                    50,
-                    14,
-                    1,
-                    7,
-                    fop,
-                    case_sensitive,
-                    alphabet_aliases);
-        }
-        else {
-            if (parasail_result_is_saturated(result)) {
-                fprintf(stderr, "seq %d (%s) and seq %d (%s) saturated\n",
-                        i, sequences->seqs[i].name.s,
-                        j, sequences->seqs[j].name.s);
-                continue;
-            }
-            parasail_traceback_generic_extra2(
-                    matrix->type == PARASAIL_MATRIX_TYPE_SQUARE ? sequences->seqs[i].seq.s : matrix->query,
-                    matrix->type == PARASAIL_MATRIX_TYPE_SQUARE ? sequences->seqs[i].seq.l : matrix->length,
-                    sequences->seqs[j].seq.s,
-                    sequences->seqs[j].seq.l,
-                    matrix->type == PARASAIL_MATRIX_TYPE_SQUARE ? sequences->seqs[i].name.s : matrix->name,
-                    sequences->seqs[j].name.s,
-                    matrix,
-                    result,
-                    '|', ':', '.',
-                    50,
-                    14,
-                    1,
-                    7,
-                    fop,
-                    case_sensitive,
-                    alphabet_aliases);
         }
     }
 }
@@ -2295,104 +2320,114 @@ inline static void output_ssw(
         long long start,
         long long stop,
         bool case_sensitive,
-        const char *alphabet_aliases)
+        const char *alphabet_aliases,
+        int requested_solutions)
 {
     for (long long index=start; index<stop; ++index) {
         parasail_result_t *result = results[index];
+        int solution_count = parasail_result_get_solution_count(result);
         int i = vpairs[index].first;
         int j = vpairs[index].second;
         parasail_cigar_t *cigar = NULL;
 
-        if (has_query) {
-            i = i - sid_crossover;
-            if (parasail_result_is_saturated(result)) {
-                fprintf(stderr, "query %d (%s) and ref %d (%s) saturated\n",
-                        i, queries->seqs[i].name.s,
-                        j, sequences->seqs[j].name.s);
-                continue;
+        for (int solution_index = 0; solution_index < solution_count; ++solution_index) {
+            if (requested_solutions == 0 || solution_index < requested_solutions) {
+                if (has_query) {
+                    i = i - sid_crossover;
+                    if (parasail_result_is_saturated(result)) {
+                        fprintf(stderr, "query %d (%s) and ref %d (%s) saturated\n",
+                                i, queries->seqs[i].name.s,
+                                j, sequences->seqs[j].name.s);
+                        continue;
+                    }
+                    fprintf(fop, "target_name: %s\n", sequences->seqs[j].name.s);
+                    fprintf(fop, "query_name: %s\n", queries->seqs[i].name.s);
+                    cigar = parasail_result_get_cigar_extra2(result,
+                            queries->seqs[i].seq.s,
+                            queries->seqs[i].seq.l,
+                            sequences->seqs[j].seq.s,
+                            sequences->seqs[j].seq.l,
+                            matrix,
+                            case_sensitive,
+                            alphabet_aliases,
+                            solution_index);
+                }
+                else {
+                    if (parasail_result_is_saturated(result)) {
+                        fprintf(stderr, "seq %d (%s) and seq %d (%s) saturated\n",
+                                i, sequences->seqs[i].name.s,
+                                j, sequences->seqs[j].name.s);
+                        continue;
+                    }
+                    fprintf(fop, "target_name: %s\n", sequences->seqs[j].name.s);
+                    fprintf(fop, "query_name: %s\n", sequences->seqs[i].name.s);
+                    cigar = parasail_result_get_cigar_extra2(result,
+                            sequences->seqs[i].seq.s,
+                            sequences->seqs[i].seq.l,
+                            sequences->seqs[j].seq.s,
+                            sequences->seqs[j].seq.l,
+                            matrix,
+                            case_sensitive,
+                            alphabet_aliases,
+                            solution_index);
+                }
+
+                fprintf(fop, "optimal_alignment_score: %d"
+                        "\tstrand: +"
+                        "\ttarget_begin: %d"
+                        "\ttarget_end: %d"
+                        "\tquery_begin: %d"
+                        "\tquery_end: %d\n",
+                        result->score,
+                        cigar->beg_ref+1,
+                        parasail_result_get_end_ref(result)+1,
+                        cigar->beg_query+1,
+                        parasail_result_get_end_query(result)+1);
+
+                /* we only needed the cigar for beginning locations */
+                parasail_cigar_free(cigar);
+
+                if (has_query) {
+                    parasail_traceback_generic_extra3(
+                            queries->seqs[i].seq.s,
+                            queries->seqs[i].seq.l,
+                            sequences->seqs[j].seq.s,
+                            sequences->seqs[j].seq.l,
+                            "Query:",
+                            "Target:",
+                            matrix,
+                            result,
+                            '|', '*', '*',
+                            60,
+                            10,
+                            0,
+                            7,
+                            fop,
+                            case_sensitive,
+                            alphabet_aliases,
+                            solution_index);
+                }
+                else {
+                    parasail_traceback_generic_extra3(
+                            sequences->seqs[i].seq.s,
+                            sequences->seqs[i].seq.l,
+                            sequences->seqs[j].seq.s,
+                            sequences->seqs[j].seq.l,
+                            "Query:",
+                            "Target:",
+                            matrix,
+                            result,
+                            '|', '*', '*',
+                            60,
+                            10,
+                            0,
+                            7,
+                            fop,
+                            case_sensitive,
+                            alphabet_aliases,
+                            solution_index);
+                }
             }
-            fprintf(fop, "target_name: %s\n", sequences->seqs[j].name.s);
-            fprintf(fop, "query_name: %s\n", queries->seqs[i].name.s);
-            cigar = parasail_result_get_cigar_extra(result,
-                    queries->seqs[i].seq.s,
-                    queries->seqs[i].seq.l,
-                    sequences->seqs[j].seq.s,
-                    sequences->seqs[j].seq.l,
-                    matrix,
-                    case_sensitive,
-                    alphabet_aliases);
-        }
-        else {
-            if (parasail_result_is_saturated(result)) {
-                fprintf(stderr, "seq %d (%s) and seq %d (%s) saturated\n",
-                        i, sequences->seqs[i].name.s,
-                        j, sequences->seqs[j].name.s);
-                continue;
-            }
-            fprintf(fop, "target_name: %s\n", sequences->seqs[j].name.s);
-            fprintf(fop, "query_name: %s\n", sequences->seqs[i].name.s);
-            cigar = parasail_result_get_cigar_extra(result,
-                    sequences->seqs[i].seq.s,
-                    sequences->seqs[i].seq.l,
-                    sequences->seqs[j].seq.s,
-                    sequences->seqs[j].seq.l,
-                    matrix,
-                    case_sensitive,
-                    alphabet_aliases);
-        }
-
-        fprintf(fop, "optimal_alignment_score: %d"
-                "\tstrand: +"
-                "\ttarget_begin: %d"
-                "\ttarget_end: %d"
-                "\tquery_begin: %d"
-                "\tquery_end: %d\n",
-                result->score,
-                cigar->beg_ref+1,
-                parasail_result_get_end_ref(result)+1,
-                cigar->beg_query+1,
-                parasail_result_get_end_query(result)+1);
-
-        /* we only needed the cigar for beginning locations */
-        parasail_cigar_free(cigar);
-
-        if (has_query) {
-            parasail_traceback_generic_extra2(
-                    queries->seqs[i].seq.s,
-                    queries->seqs[i].seq.l,
-                    sequences->seqs[j].seq.s,
-                    sequences->seqs[j].seq.l,
-                    "Query:",
-                    "Target:",
-                    matrix,
-                    result,
-                    '|', '*', '*',
-                    60,
-                    10,
-                    0,
-                    7,
-                    fop,
-                    case_sensitive,
-                    alphabet_aliases);
-        }
-        else {
-            parasail_traceback_generic_extra2(
-                    sequences->seqs[i].seq.s,
-                    sequences->seqs[i].seq.l,
-                    sequences->seqs[j].seq.s,
-                    sequences->seqs[j].seq.l,
-                    "Query:",
-                    "Target:",
-                    matrix,
-                    result,
-                    '|', '*', '*',
-                    60,
-                    10,
-                    0,
-                    7,
-                    fop,
-                    case_sensitive,
-                    alphabet_aliases);
         }
     }
 }
@@ -2410,7 +2445,8 @@ inline static void output_sam(
         long long start,
         long long stop,
         bool case_sensitive,
-        const char *alphabet_aliases)
+        const char *alphabet_aliases,
+        int requested_solutions)
 {
     if (use_sam_header && has_query && 0 == start) {
         fprintf(fop, "@HD\tVN:1.4\tSO:queryname\n");
@@ -2422,88 +2458,94 @@ inline static void output_sam(
     }
     for (long long index=start; index<stop; ++index) {
         parasail_result_t *result = results[index];
+        int solution_count = parasail_result_get_solution_count(result);
         int i = vpairs[index].first;
         int j = vpairs[index].second;
         parasail_sequence_t ref_seq;
         parasail_sequence_t read_seq;
 
-        ref_seq = sequences->seqs[j];
-        if (has_query) {
-            i = i - sid_crossover;
-            if (parasail_result_is_saturated(result)) {
-                fprintf(stderr, "query %d (%s) and ref %d (%s) saturated\n",
-                        i, queries->seqs[i].name.s,
-                        j, sequences->seqs[j].name.s);
-                continue;
-            }
-            read_seq = queries->seqs[i];
-        }
-        else {
-            if (parasail_result_is_saturated(result)) {
-                fprintf(stderr, "seq %d (%s) and seq %d (%s) saturated\n",
-                        i, sequences->seqs[i].name.s,
-                        j, sequences->seqs[j].name.s);
-                continue;
-            }
-            read_seq = sequences->seqs[i];
-        }
+        for (int solution_index = 0; solution_index < solution_count; ++solution_index) {
+            if (requested_solutions == 0 || solution_index < requested_solutions) {
+                ref_seq = sequences->seqs[j];
+                if (has_query) {
+                    i = i - sid_crossover;
+                    if (parasail_result_is_saturated(result)) {
+                        fprintf(stderr, "query %d (%s) and ref %d (%s) saturated\n",
+                                i, queries->seqs[i].name.s,
+                                j, sequences->seqs[j].name.s);
+                        continue;
+                    }
+                    read_seq = queries->seqs[i];
+                }
+                else {
+                    if (parasail_result_is_saturated(result)) {
+                        fprintf(stderr, "seq %d (%s) and seq %d (%s) saturated\n",
+                                i, sequences->seqs[i].name.s,
+                                j, sequences->seqs[j].name.s);
+                        continue;
+                    }
+                    read_seq = sequences->seqs[i];
+                }
 
-        fprintf(fop, "%s\t", read_seq.name.s);
-        if (result->score == 0) {
-            fprintf(fop, "4\t*\t0\t255\t*\t*\t0\t0\t*\t*\n");
-        }
-        else {
-            int32_t c = 0;
-            int32_t length = 0;
-            uint32_t mapq = 255; /* not available */
-            parasail_cigar_t *cigar = NULL;
-            uint32_t mismatch = 0;
+                fprintf(fop, "%s\t", read_seq.name.s);
+                if (result->score == 0) {
+                    fprintf(fop, "4\t*\t0\t255\t*\t*\t0\t0\t*\t*\n");
+                }
+                else {
+                    int32_t c = 0;
+                    int32_t length = 0;
+                    uint32_t mapq = 255; /* not available */
+                    parasail_cigar_t *cigar = NULL;
+                    uint32_t mismatch = 0;
 
-            cigar = parasail_result_get_cigar_extra(
-                    result,
-                    read_seq.seq.s, read_seq.seq.l,
-                    ref_seq.seq.s, ref_seq.seq.l,
-                    matrix,
-                    case_sensitive,
-                    alphabet_aliases);
+                    cigar = parasail_result_get_cigar_extra2(
+                            result,
+                            read_seq.seq.s, read_seq.seq.l,
+                            ref_seq.seq.s, ref_seq.seq.l,
+                            matrix,
+                            case_sensitive,
+                            alphabet_aliases,
+                            solution_index);
 
-            fprintf(fop, "0\t");
-            fprintf(fop, "%s\t%d\t%d\t",
-                    ref_seq.name.s, cigar->beg_ref + 1, mapq);
-            if (parasail_result_is_sw(result)) {
-                if (cigar->beg_query > 0) {
-                    fprintf(fop, "%dS", cigar->beg_query);
+                    fprintf(fop, "0\t");
+                    fprintf(fop, "%s\t%d\t%d\t",
+                            ref_seq.name.s, cigar->beg_ref + 1, mapq);
+                    if (parasail_result_is_sw(result)) {
+                        if (cigar->beg_query > 0) {
+                            fprintf(fop, "%dS", cigar->beg_query);
+                        }
+                    }
+                    for (c=0; c<cigar->len; ++c) {
+                        char letter = parasail_cigar_decode_op(cigar->seq[c]);
+                        uint32_t length = parasail_cigar_decode_len(cigar->seq[c]);
+                        fprintf(fop, "%lu%c", (unsigned long)length, letter);
+                        if ('X' == letter || 'I' == letter || 'D' == letter) {
+                            mismatch += length;
+                        }
+                    }
+
+                    length = read_seq.seq.l - result->end_query - 1;
+                    if (parasail_result_is_sw(result)) {
+                        if (length > 0) {
+                            fprintf(fop, "%dS", length);
+                        }
+                    }
+                    fprintf(fop, "\t*\t0\t0\t");
+                    fprintf(fop, "%s", read_seq.seq.s);
+                    fprintf(fop, "\t");
+                    if (read_seq.qual.s) {
+                        fprintf (fop, "%s", read_seq.qual.s);
+                    }
+                    else {
+                        fprintf(fop, "*");
+                    }
+                    fprintf(fop, "\tAS:i:%d", result->score);
+                    fprintf(fop,"\tNM:i:%d\t", mismatch);
+                    fprintf(fop, "\n");
+
+                    parasail_cigar_free(cigar);
                 }
             }
-            for (c=0; c<cigar->len; ++c) {
-                char letter = parasail_cigar_decode_op(cigar->seq[c]);
-                uint32_t length = parasail_cigar_decode_len(cigar->seq[c]);
-                fprintf(fop, "%lu%c", (unsigned long)length, letter);
-                if ('X' == letter || 'I' == letter || 'D' == letter) {
-                    mismatch += length;
-                }
-            }
-
-            length = read_seq.seq.l - result->end_query - 1;
-            if (parasail_result_is_sw(result)) {
-                if (length > 0) {
-                    fprintf(fop, "%dS", length);
-                }
-            }
-            fprintf(fop, "\t*\t0\t0\t");
-            fprintf(fop, "%s", read_seq.seq.s);
-            fprintf(fop, "\t");
-            if (read_seq.qual.s) {
-                fprintf (fop, "%s", read_seq.qual.s);
-            }
-            else {
-                fprintf(fop, "*");
-            }
-            fprintf(fop, "\tAS:i:%d", result->score);
-            fprintf(fop,"\tNM:i:%d\t", mismatch);
-            fprintf(fop, "\n");
-
-            parasail_cigar_free(cigar);
         }
     }
 }
@@ -2521,10 +2563,12 @@ inline static void output_trace(
         long long start,
         long long stop,
         bool case_sensitive,
-        const char *alphabet_aliases)
+        const char *alphabet_aliases,
+        int requested_solutions)
 {
     for (long long index=start; index<stop; ++index) {
         parasail_result_t *result = results[index];
+        int solution_count = parasail_result_get_solution_count(result);
         int i = vpairs[index].first;
         int j = vpairs[index].second;
         long i_beg = BEG[i];
@@ -2549,25 +2593,30 @@ inline static void output_trace(
             continue;
         }
 
-        cigar = parasail_result_get_cigar_extra(
-                result,
-                (const char*)&T[i_beg], i_len,
-                (const char*)&T[j_beg], j_len,
-                matrix,
-                case_sensitive,
-                alphabet_aliases);
-        cigar_string = parasail_cigar_decode(cigar);
-        eprintf(fop, "%d,%d,%ld,%ld,%d,%d,%d,%s\n",
-                i,
-                j,
-                i_len,
-                j_len,
-                parasail_result_get_score(result),
-                parasail_result_get_end_query(result),
-                parasail_result_get_end_ref(result),
-                cigar_string);
-        parasail_cigar_free(cigar);
-        free(cigar_string);
+        for (int solution_index = 0; solution_index < solution_count; ++solution_index) {
+            if (requested_solutions == 0 || solution_index < requested_solutions) {
+                cigar = parasail_result_get_cigar_extra2(
+                        result,
+                        (const char*)&T[i_beg], i_len,
+                        (const char*)&T[j_beg], j_len,
+                        matrix,
+                        case_sensitive,
+                        alphabet_aliases,
+                        solution_index);
+                cigar_string = parasail_cigar_decode(cigar);
+                eprintf(fop, "%d,%d,%ld,%ld,%d,%d,%d,%s\n",
+                        i,
+                        j,
+                        i_len,
+                        j_len,
+                        parasail_result_get_score(result),
+                        parasail_result_get_end_query(result),
+                        parasail_result_get_end_ref(result),
+                        cigar_string);
+                parasail_cigar_free(cigar);
+                free(cigar_string);
+            }
+        }
     }
 }
 
@@ -2632,7 +2681,8 @@ inline static void output(
         long long start,
         long long stop,
         bool case_sensitive,
-        const char *alphabet_aliases)
+        const char *alphabet_aliases,
+        int requested_solutions)
 {
     if (is_stats) {
         if (edge_output) {
@@ -2644,16 +2694,16 @@ inline static void output(
     }
     else if (is_trace) {
         if (use_emboss_format) {
-            output_emboss(fop, has_query, sid_crossover, matrix, vpairs, queries, sequences, results, start, stop, case_sensitive, alphabet_aliases);
+            output_emboss(fop, has_query, sid_crossover, matrix, vpairs, queries, sequences, results, start, stop, case_sensitive, alphabet_aliases, requested_solutions);
         }
         else if (use_ssw_format) {
-            output_ssw(fop, has_query, sid_crossover, matrix, vpairs, queries, sequences, results, start, stop, case_sensitive, alphabet_aliases);
+            output_ssw(fop, has_query, sid_crossover, matrix, vpairs, queries, sequences, results, start, stop, case_sensitive, alphabet_aliases, requested_solutions);
         }
         else if (use_sam_format) {
-            output_sam(fop, use_sam_header, has_query, sid_crossover, matrix, vpairs, queries, sequences, results, start, stop, case_sensitive, alphabet_aliases);
+            output_sam(fop, use_sam_header, has_query, sid_crossover, matrix, vpairs, queries, sequences, results, start, stop, case_sensitive, alphabet_aliases, requested_solutions);
         }
         else {
-            output_trace(fop, has_query, sid_crossover, T, matrix, BEG, END, vpairs, results, start, stop, case_sensitive, alphabet_aliases);
+            output_trace(fop, has_query, sid_crossover, T, matrix, BEG, END, vpairs, results, start, stop, case_sensitive, alphabet_aliases, requested_solutions);
         }
     }
     else {

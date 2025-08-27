@@ -169,10 +169,13 @@ static inline parasail_cigar_t* CONCAT(NAME, T) (
                 int matches = (a == b);
                 if (NULL != alphabet_aliases_) {
                     size_t i;
-                    for (i=0; i<aliases_size; i+=1) {
+			//iterate over each pair of aliases
+                    for (i=0; i<aliases_size; i+=2) {
+                        //check if a matches first alias pair letter and b matches second alias pair letter
                         if (alphabet_aliases[i] == a) {
                             matches |= alphabet_aliases[i+1] == b;
                         }
+                        //check if a matches second alias pair letter and b matches first alias pair letter
                         else if (alphabet_aliases[i+1] == a) {
                             matches |= alphabet_aliases[i] == b;
                         }
